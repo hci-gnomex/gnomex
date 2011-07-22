@@ -50,6 +50,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   private String asOfLastYear = "N";
   private String asOfLast2Years = "N";
   
+  private Integer endRank = Integer.valueOf(9999);
+  
   public void validate() {
   }
   
@@ -64,7 +66,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     if (request.getParameter("asOfLast2Years") != null && !request.getParameter("asOfLast2Years").equals("")) {
       asOfLast2Years = request.getParameter("asOfLast2Years");
     }
-    
+    if (request.getParameter("endRank") != null && !request.getParameter("endRank").equals("")) {
+      endRank = Integer.valueOf(request.getParameter("endRank"));
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -72,32 +76,27 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     try {
       Document doc = new Document(new Element("UsageData"));
       
-      DateFormat dfShort = new SimpleDateFormat("MMM yyyy");
-      DateFormat dfNormal = new SimpleDateFormat("MM-dd-yyyy");
+      DateFormat dfShort    = new SimpleDateFormat("MMM yyyy");
+      DateFormat dfDataTip  = new SimpleDateFormat("MMM dd yyyy");
+      DateFormat dfNormal   = new SimpleDateFormat("MM-dd-yyyy");
 
       
-      Element summaryDaysNode = new Element("Summary");
-      summaryDaysNode.setAttribute("name", "DaysSinceLastUpload");
+      Element summaryDaysNode = new Element("SummaryDaysSinceLastUpload");
       doc.getRootElement().addContent(summaryDaysNode);
 
-      Element summaryUploadsNode = new Element("Summary");
-      summaryUploadsNode.setAttribute("name", "UploadsByLab");
+      Element summaryUploadsNode = new Element("SummaryUploadsByLab");
       doc.getRootElement().addContent(summaryUploadsNode);
 
-      Element summaryDownloadsNode = new Element("Summary");
-      summaryDownloadsNode.setAttribute("name", "DownloadsByLab");
+      Element summaryDownloadsNode = new Element("SummaryDownloadsByLab");
       doc.getRootElement().addContent(summaryDownloadsNode);
 
-      Element summaryExperimentsNode = new Element("Summary");
-      summaryExperimentsNode.setAttribute("name", "ExperimentsByLab");
+      Element summaryExperimentsNode = new Element("SummaryExperimentsByLab");
       doc.getRootElement().addContent(summaryExperimentsNode);
 
-      Element summaryAnalysisNode = new Element("Summary");
-      summaryAnalysisNode.setAttribute("name", "AnalysisByLab");
+      Element summaryAnalysisNode = new Element("SummaryAnalysisByLab");
       doc.getRootElement().addContent(summaryAnalysisNode);
 
-      Element summaryWeeklyActivityNode = new Element("Summary");
-      summaryWeeklyActivityNode.setAttribute("name", "ActivityByWeek");
+      Element summaryWeeklyActivityNode = new Element("SummaryActivityByWeek");
       doc.getRootElement().addContent(summaryWeeklyActivityNode);
       
       Calendar today = Calendar.getInstance();
@@ -118,19 +117,30 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           labIdMap.put(lab.getIdLab(), lab);
         }
         
-        // Hash all weeks from 2007 on
-        Calendar now = new GregorianCalendar().getInstance();
+        // Hash all weeks from a specific date on        
+        Calendar now = GregorianCalendar.getInstance();
+       
+        // Back up today's date to correct interval
         if (asOfLast6Months.equals("Y")) {
           now.add(Calendar.MONTH, -6);          
         }else if (asOfLastYear.equals("Y")) {
           now.add(Calendar.YEAR, -1);          
         }else if (asOfLast2Years.equals("Y")) {
           now.add(Calendar.YEAR, - 2);          
-        } else {
-          now.set(Calendar.MONTH, Calendar.JANUARY);
-          now.set(Calendar.DAY_OF_MONTH, 1);
-          now.set(Calendar.YEAR, 2007);       
+        }else {
+          now.add(Calendar.YEAR, -10);
         }
+        // Now back up to a Monday
+        int weekday = now.get(Calendar.DAY_OF_WEEK);  
+        if (weekday != Calendar.MONDAY)   
+        {   
+          // calculate how much to add   
+          // the 2 is the difference between Saturday and Monday   
+          int days = (Calendar.SATURDAY - weekday + 2) % 7;   
+          now.add(Calendar.DAY_OF_YEAR, days);
+          now.add(Calendar.DAY_OF_YEAR, -7);
+        }           
+
         
         int week = 0;
         while (true) {
@@ -139,8 +149,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           }
 
           ActivityInfo ai = new ActivityInfo();
-          ai.label =  dfShort.format(now.getTime());
-          ai.startDate = now;
+          ai.label    = dfShort.format(now.getTime());
+          ai.dataTip  = "Week of " + dfDataTip.format(now.getTime());
           
           weeklyActivityMap.put(Integer.valueOf(week), ai);
           
@@ -171,6 +181,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
           rank++;
+          if (rank > endRank.intValue()) {
+            break;
+          }
+
         }
         
         // Get analysis count
@@ -189,6 +203,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
           rank++;
+          if (rank > endRank.intValue()) {
+            break;
+          }
+
         }
         
         
@@ -213,6 +231,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
           rank++;
+          
+          if (rank > endRank.intValue()) {
+            break;
+          }
         }
         
         // Get download count
@@ -236,6 +258,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
           rank++;
+          if (rank > endRank.intValue()) {
+            break;
+          }
+
         }
         
         // Get days since last upload
@@ -264,6 +290,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
 
           rank++;
+          if (rank > endRank.intValue()) {
+            break;
+          }
+
         }
         
         // Tally experiment count by week
@@ -346,13 +376,17 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           Integer weekNumber = (Integer)i.next();
           ActivityInfo ai = weeklyActivityMap.get(weekNumber);
           
+          String label = "";
           if (!prevLabel.equals(ai.label)) {
             weekCounter = 1;
+            label = ai.label;
           }
+          
           
           Element entryNode = new Element("Entry");
           summaryWeeklyActivityNode.addContent(entryNode);
-          entryNode.setAttribute("label", ai.label + " (" + weekCounter + ")");
+          entryNode.setAttribute("label", label);
+          entryNode.setAttribute("dataTip", ai.dataTip);
           entryNode.setAttribute("weekNumber", weekNumber.toString());
           entryNode.setAttribute("experimentCount", Integer.valueOf(ai.experimentCount).toString());
           entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
@@ -415,7 +449,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
   static class ActivityInfo implements Serializable {
     private String label = "";
-    private Calendar startDate;
+    private String dataTip;
     private int daysSinceLastUpload = -1;
     private int uploadCount = 0;
     private int downloadCount = 0;
