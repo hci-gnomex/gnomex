@@ -7,6 +7,7 @@
 	xmlns:analysis="views.analysis.*" 
 	xmlns:user="views.user.*"
 	xmlns:protocol="views.protocol.*"
+	xmlns:admin="views.admin.*"
 	xmlns:slide="views.slide.*"
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:billing="views.billing.*"
@@ -1545,6 +1546,8 @@
 			        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users &amp; Groups" width="100%" height="100%" backgroundAlpha="1.0">	
 			        </user:NavUsersView>
 			        
+					<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
+					</admin:NavUsageView>
 			        
 		        </mx:ViewStack>
 		        
@@ -1600,11 +1603,13 @@
 	 		<mx:RemoveChild target="{slideManagementView}"/> 
 	 		<mx:RemoveChild target="{navUsersView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
+			<mx:RemoveChild target="{navUsageView}"/>
 	 	</mx:State>
 	 	<mx:State name="ManagerState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
+			<mx:RemoveChild target="{navUsageView}"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>

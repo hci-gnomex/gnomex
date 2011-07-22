@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+		   label="Track Usage" 
+		   width="100%" height="100%" 
+		   creationPolicy="all" show="init()"
+		   cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
+		   paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
+	
+	<mx:HTTPService  
+		id="getUsageData" 
+		url="GetUsageData.gx"
+		destination="getUsageData"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetUsageData(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get usage data', event)"
+		method="POST"   
+		useProxy="false">
+		<mx:request>
+			<asOfLast6Months>{asOfLast6Months.selected ? 'Y' : 'N'}</asOfLast6Months>
+			<asOfLastYear>{asOfLastYear.selected ? 'Y' : 'N'}</asOfLastYear>
+			<asOfLast2Years>{asOfLast2Years.selected ? 'Y' : 'N'}</asOfLast2Years>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:Script><![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.rpc.events.ResultEvent;
+		
+		[Bindable]
+		private var DAYS_SINCE_LAST_UPLOAD:String = 'DaysSinceLastUpload';
+	
+		[Bindable]
+		private var rank:Object = 1;
+		
+		[Bindable]
+		private var endRank:Object =  10;
+		
+		private function init():void {
+			getUsageData.send();
+		}
+		private function onGetUsageData(event:ResultEvent):void {
+			if (getUsageData.lastResult.name() == "UsageData") {
+				// success
+			} else {
+				mx.controls.Alert.show("An error occurred while getting usage data.");
+			}
+		}
+		
+		private function changeInterval():void {
+			rank = 0;
+			endRank = radiogroupInterval.selectedValue;
+			getUsageData.send();
+		}
+		
+		private function changeAsOf():void {
+			getUsageData.send();
+		}
+		
+	]]></mx:Script> 
+
+	
+	<mx:HDividedBox width="100%" height="100%">
+		<mx:VBox  height="100%" styleName="panelBox" width="200"
+				 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
+			<mx:Label text="Lab Activity" fontWeight="bold"/>
+			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 0}" />
+			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 0}" />
+			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 0}" />
+			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 0}"/>
+			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 0}"/>
+			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold"/>
+			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 1}" />
+			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false"/>
+		</mx:VBox> 
+
+		
+		<mx:VBox  height="100%" styleName="panelBox" width="100%"
+				  paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="4" verticalGap="2">
+			<mx:ViewStack id="chartStack" width="100%" height="100%">
+				<mx:VBox id="blankPanel">
+				</mx:VBox>
+				<mx:VBox id="daysSincePanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Days since last Upload" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Days since last upload" id="daysSinceChart" dataProvider="{getUsageData.lastResult.Summary.(@name == DAYS_SINCE_LAST_UPLOAD).Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.Summary.(@name == 'DaysSinceLastUpload').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@days" 
+								displayName="Days"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+					<mx:Legend dataProvider="{daysSinceChart}"/>
+				</mx:VBox>
+				
+				
+				<mx:VBox id="uploadsByLabPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Uploads" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Uploads" id="uploadsByLabChart" dataProvider="{getUsageData.lastResult.Summary.(@name == 'UploadsByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.Summary.(@name == 'UploadsByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@uploadCount" 
+								displayName="Uploads"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+					<mx:Legend dataProvider="{uploadsByLabChart}"/>
+				</mx:VBox>
+				
+				
+				<mx:VBox id="downloadsByLabPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Downloads" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Downloads" id="downloadsByLabChart" dataProvider="{getUsageData.lastResult.Summary.(@name == 'DownloadsByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.Summary.(@name == 'DownloadsByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@downloadCount" 
+								displayName="Downloads"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+					<mx:Legend dataProvider="{downloadsByLabChart}"/>
+				</mx:VBox>
+				
+				
+				<mx:VBox id="experimentsByLabPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Experiments" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Experiments" id="experimentsByLabChart" dataProvider="{getUsageData.lastResult.Summary.(@name == 'ExperimentsByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.Summary.(@name == 'ExperimentsByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@experimentCount" 
+								displayName="# of Experiments"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+					<mx:Legend dataProvider="{experimentsByLabChart}"/>
+				</mx:VBox>
+				
+
+				
+				<mx:VBox id="analysisByLabPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Analysis" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Analysis" id="analysisByLabChart" dataProvider="{getUsageData.lastResult.Summary.(@name == 'AnalysisByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.Summary.(@name == 'AnalysisByLab').Entry.(@rank &gt;= rank &amp;&amp; @rank &lt; endRank)}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@analysisCount" 
+								displayName="# of Analysis"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+					<mx:Legend dataProvider="{analysisByLabChart}"/>
+				</mx:VBox>
+				
+
+				<mx:VBox id="activityByWeekPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Activity by Week" fontWeight="bold"/> 
+					<mx:LineChart  name="Activity by Week" id="activityByWeekChart" dataProvider="{getUsageData.lastResult.Summary.(@name == 'ActivityByWeek').Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.Summary.(@name == 'ActivityByWeek').Entry}" 
+								categoryField="@label" 
+								/>
+						</mx:horizontalAxis>
+						<mx:series> 
+							<mx:LineSeries 
+								yField="@uploadCount" 
+								displayName="# of Uploads"
+								/>
+							<mx:LineSeries 
+								yField="@downloadCount" 
+								displayName="# of Downloads"
+								/>
+							<mx:LineSeries 
+								yField="@experimentCount" 
+								displayName="# of Experiments"
+								/>
+							<mx:LineSeries 
+								yField="@analysisCount" 
+								displayName="# of Analysis"
+								/>
+						</mx:series>
+					</mx:LineChart>
+					<mx:Legend dataProvider="{activityByWeekChart}"/>
+					
+				</mx:VBox>
+				
+				
+				<mx:VBox id="topRankedDownloadsPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Top Ranked Downloads" fontWeight="bold"/> 
+				</mx:VBox>
+				
+				
+			</mx:ViewStack>
+			<mx:ControlBar  width="100%" paddingTop="1">
+			  <mx:ViewStack id="buttonStack" width="100%">
+				  <mx:HBox width="100%">
+					  <mx:RadioButtonGroup id="radiogroupInterval"/>
+					  <mx:RadioButton label="top 10" selected="true"  groupName="radiogroupInterval" value="10" click="changeInterval()"/>
+					  <mx:RadioButton label="top 20" groupName="radiogroupInterval" value="20" click="changeInterval()"/>
+					  <mx:RadioButton label="top 50" groupName="radiogroupInterval" value="50" click="changeInterval()"/>
+					  <mx:RadioButton label="all" groupName="radiogroupInterval" value="9999" click="changeInterval()"/>
+				  </mx:HBox>
+				  <mx:HBox width="100%">
+					  <mx:RadioButtonGroup id="radiogroupAsOf"/>
+					  <mx:RadioButton label="last 6 months" groupName="radiogroupAsOf" id="asOfLast6Months" click="changeAsOf()"/>
+					  <mx:RadioButton label="last year" selected="true" groupName="radiogroupAsOf" id="asOfLastYear" click="changeAsOf()"/>
+					  <mx:RadioButton label="last 2 years" groupName="radiogroupAsOf" id="asOfLast2Years" click="changeAsOf()"/>
+					  <mx:RadioButton label="all" groupName="radiogroupAsOf" id="all" click="changeAsOf()"/>
+				  </mx:HBox>
+				  
+			  </mx:ViewStack>
+			</mx:ControlBar>
+		</mx:VBox>
+
+	</mx:HDividedBox>
+
+</mx:Canvas>

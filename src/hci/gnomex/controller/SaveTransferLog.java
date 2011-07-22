@@ -25,6 +25,8 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Element;
 
+import com.ibm.bsf.util.event.adapters.java_awt_event_ActionAdapter;
+
 
 
 
@@ -41,6 +43,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
   private Integer     idAnalysis;
   private Integer     idRequest;
 
+  
   private TransferLog transferLog;
   
   
@@ -54,6 +57,8 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
     this.addInvalidFields(errors);
     
     serverName = request.getServerName();
+    
+
 
   }
 
@@ -75,6 +80,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
         idLab = null;
         idAnalysis = null;
         idRequest = null;
+        java.util.Date estimatedUploadTime = null;
         if (number.startsWith("A")) {
           List results = sess.createQuery("SELECT a from Analysis a where a.number = '" + number + "'").list();
           if (results.size() == 0) {
@@ -83,6 +89,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
           Analysis a = (Analysis)results.get(0);
           idLab = a.getIdLab();
           idAnalysis = a.getIdAnalysis();
+          estimatedUploadTime = a.getCreateDate();
         } else {
           List results = sess.createQuery("SELECT r from Request r where r.number = '" + number + "'").list();
           if (results.size() == 0) {
@@ -91,6 +98,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
           Request r = (Request)results.get(0);
           idLab = r.getIdLab();
           idRequest = r.getIdRequest();
+          estimatedUploadTime = r.getCompletedDate() != null ? r.getCompletedDate() : r.getCreateDate();
         }
         
         transferLog.setFileName(number + "/" + baseFilePath);
@@ -98,6 +106,12 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
         transferLog.setIdAnalysis(idAnalysis);
         transferLog.setIdRequest(idRequest);
         transferLog.setPerformCompression("N");
+        
+        // If we can't rely on the start date time, use the request or analysis completed 
+        // (or created) date for the start time
+        if (transferLog.getStartDateTime() == null) {
+          transferLog.setStartDateTime(estimatedUploadTime);
+        }
         
         sess.save(transferLog);
         sess.flush();

@@ -45,7 +45,7 @@
 				<mx:VBox height="100%" verticalGap="2">
 					<mx:HBox id="hbox1" horizontalGap="2" verticalAlign="middle" verticalGap="2">
 						<mx:Label text="Administration" styleName="welcomeLabel"/>
-					</mx:HBox>
+					</mx:HBox> 
 					<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
 								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
 					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Sample Annotations" styleName="dashboardButton" 
@@ -54,6 +54,8 @@
 								   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
 								   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton id="usageButton"  label="Track Usage" styleName="dashboardButton" 
+								   click="showUsageWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/chart_bar.png')"/>
 					<mx:LinkButton label="Manage microarray catalog" click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
 					<mx:LinkButton label="Manage billing" click="showBilling()" styleName="dashboardButton"  id="button11"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/money.png')"/>
 					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
@@ -236,6 +238,10 @@
 				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformWindow, true));
 				PopUpManager.centerPopUp(platformWindow);
 				
+			}
+			
+			private function showUsageWindow():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsageView;
 			}
 			
 		]]> 

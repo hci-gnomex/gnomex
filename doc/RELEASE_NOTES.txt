@@ -1,10 +1,11 @@
 ﻿GNomEx Release Notes
 
-5.1.8.1 (July 20, 2011)
+5.1.8.1 (July 23, 2011)
 -----------------------
 - Added transfer logging for fdt uploads and download using java main (hci.gnomex.httpclient.TransferLoggerMain)
 - Make fdt user and group in FDT servlets property driven
 - Add missing fdt properties to sql populate script
+- Added Usage view to GNomEx to show activity by lab and by week in chart form
 
 5.1.8 (July 17, 2011)
 -----------------------
