@@ -27,7 +27,8 @@
 	<mx:Script><![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
-		import flash.printing.PrintJob;
+		import mx.printing.FlexPrintJobScaleType;
+		import mx.printing.FlexPrintJob;
 		
 		[Bindable]
 		private var DAYS_SINCE_LAST_UPLOAD:String = 'DaysSinceLastUpload';
@@ -59,32 +60,34 @@
 		private function showActivityByWeekDataTip(hitItem:mx.charts.HitData):String {
 			return hitItem.item.@dataTip;
 		}
-		
-/*		private function printChart(chartContainer:mx.controls.Container):void
+		private function printChart():void
 		{
-			var pj:PrintJob = new PrintJob;
-			if(pj.start())
+			var fpj:FlexPrintJob = new FlexPrintJob();
+			if (fpj.start())
 			{
-				pj.addPage(Sprite(systemManager), new Rectangle(0,0,chartContainer.width,chartContainer.height));
-				pj.send();
+				fpj.addObject(chartStack.selectedChild, FlexPrintJobScaleType.MATCH_WIDTH);
+				fpj.send();
 			}
 		}
-*/		
 	]]></mx:Script> 
 
-	
 	<mx:HDividedBox width="100%" height="100%">
 		<mx:VBox  height="100%" styleName="panelBox" width="200"
 				 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
-			<mx:Label text="Lab Activity" fontWeight="bold"/>
-			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}" />
-			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1}" />
-			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1}" />
-			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}"/>
-			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}"/>
-			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold"/>
-			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}" />
-			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false"/>
+			<mx:HBox horizontalGap="1">
+				<mx:Image source="assets/chart_bar.png">
+				</mx:Image>
+				<mx:Label text="GNomEx Usage" fontWeight="bold"/>
+			</mx:HBox>
+			<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4"/>
+			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
+			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
+			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
+			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
+			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
+			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4"/>
+			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8"/>
+			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false" paddingLeft="8"/>
 		</mx:VBox> 
 
 
@@ -110,7 +113,6 @@
 								/>
 						</mx:series>
 					</mx:ColumnChart>
-					<mx:Legend dataProvider="{daysSinceChart}"/>
 				</mx:VBox>
 				
 				
@@ -131,7 +133,6 @@
 								/>
 						</mx:series>
 					</mx:ColumnChart>
-					<mx:Legend dataProvider="{uploadsByLabChart}"/>
 				</mx:VBox>
 				
 				
@@ -154,7 +155,6 @@
 								/>
 						</mx:series>
 					</mx:ColumnChart>
-					<mx:Legend dataProvider="{downloadsByLabChart}"/>
 				</mx:VBox>
 				
 				
@@ -178,7 +178,6 @@
 								/>
 						</mx:series>
 					</mx:ColumnChart>
-					<mx:Legend dataProvider="{experimentsByLabChart}"/>
 				</mx:VBox>
 				
 
@@ -201,7 +200,6 @@
 								/>
 						</mx:series>
 					</mx:ColumnChart>
-					<mx:Legend dataProvider="{analysisByLabChart}"/>
 				</mx:VBox>
 				
 
@@ -238,7 +236,7 @@
 								/>
 						</mx:series>
 					</mx:LineChart>
-					<mx:Legend dataProvider="{activityByWeekChart}"/>
+					<mx:Legend dataProvider="{activityByWeekChart}" direction="horizontal"/>
 					
 				</mx:VBox>
 				
@@ -253,19 +251,23 @@
 			<mx:ControlBar  width="100%" paddingTop="1">
 			  <mx:ViewStack id="buttonStack" width="100%">
 				  <mx:HBox width="100%"/>
-				  <mx:HBox width="100%">
+				  <mx:HBox width="100%" icon="@Embed(source='../../assets/printer.png')">
 					  <mx:RadioButtonGroup id="radiogroupInterval"/>
-					  <mx:RadioButton label="top 10"  groupName="radiogroupInterval" value="10" click="changeInterval()"/>
-					  <mx:RadioButton label="top 20" selected="true"  groupName="radiogroupInterval" value="20" click="changeInterval()"/>
-					  <mx:RadioButton label="top 50" groupName="radiogroupInterval" value="50" click="changeInterval()"/>
-					  <mx:RadioButton label="all" groupName="radiogroupInterval" value="9999" click="changeInterval()"/>
+					  <mx:RadioButton label="Top 10"  groupName="radiogroupInterval" value="10" click="changeInterval()"/>
+					  <mx:RadioButton label="Top 20" selected="true"  groupName="radiogroupInterval" value="20" click="changeInterval()"/>
+					  <mx:RadioButton label="Top 50" groupName="radiogroupInterval" value="50" click="changeInterval()"/>
+					  <mx:RadioButton label="All" groupName="radiogroupInterval" value="9999" click="changeInterval()"/>
+					  <mx:Spacer width="100%"/>
+					  <mx:Button label="Print" click="printChart()" icon="@Embed(source='../../assets/printer.png')"/>
 				  </mx:HBox>
 				  <mx:HBox width="100%">
 					  <mx:RadioButtonGroup id="radiogroupAsOf"/>
-					  <mx:RadioButton label="last 6 months" groupName="radiogroupAsOf" id="asOfLast6Months" click="changeAsOf()"/>
-					  <mx:RadioButton label="last year" selected="true" groupName="radiogroupAsOf" id="asOfLastYear" click="changeAsOf()"/>
-					  <mx:RadioButton label="last 2 years" groupName="radiogroupAsOf" id="asOfLast2Years" click="changeAsOf()"/>
-					  <mx:RadioButton label="all" groupName="radiogroupAsOf" id="all" click="changeAsOf()"/>
+					  <mx:RadioButton label="Last 6 months" groupName="radiogroupAsOf" id="asOfLast6Months" click="changeAsOf()"/>
+					  <mx:RadioButton label="Last year" selected="true" groupName="radiogroupAsOf" id="asOfLastYear" click="changeAsOf()"/>
+					  <mx:RadioButton label="Last 2 years" groupName="radiogroupAsOf" id="asOfLast2Years" click="changeAsOf()"/>
+					  <mx:RadioButton label="All" groupName="radiogroupAsOf" id="all" click="changeAsOf()"/>
+					  <mx:Spacer width="100%"/>
+					  <mx:Button label="Print" click="printChart()" icon="@Embed(source='../../assets/printer.png')"/>
 				  </mx:HBox>
 				  
 			  </mx:ViewStack>
