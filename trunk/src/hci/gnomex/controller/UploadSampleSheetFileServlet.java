@@ -158,7 +158,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
         Element columnSelectorItem = new Element("ColumnSelectorItem");
         
         // Add a blank entry for the default
-        columnSelectorItem.setAttribute("label", " ");
+        columnSelectorItem.setAttribute("label", "Click here to select column");
         columnSelectorItem.setAttribute("data", "0");
         columnSelector.addContent(columnSelectorItem);
         

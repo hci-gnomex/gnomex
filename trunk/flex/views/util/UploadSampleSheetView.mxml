@@ -1,58 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="420" height="272" 
+	layout="vertical" width="730" height="386" 
 	creationPolicy="all"
 	xmlns:views="views.*" 
+	xmlns:util="views.util.*"
 	showCloseButton="true" initialize="this.setupSampleSheetUpload();vsMain.selectedChild=intro;"
 	close="{PopUpManager.removePopUp(this)}" 
 	title="Upload Sample Sheet" 	 
 	borderThickness="4" defaultButton="{selectFileButton}">
-	<mx:states>
-		<mx:State name="HideCCNumberState">
-			<mx:RemoveChild target="{hbox1}"/>
-		</mx:State>
-	</mx:states>
-	
     <mx:VBox width="100%" height="100%">
 		<mx:ViewStack id="vsMain" width="100%" height="100%">
 			<mx:Canvas id="intro" width="100%" height="100%">
-				<mx:VBox verticalGap="20" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
-					<mx:Text text="This procedure will upload a tab-deliimited text file containing information to be imported into the editable sample fields. Once the file has been uploaded you will be given an option to specify which columns in the file correspond to which on the form." width="100%"/>
-					<mx:CheckBox id="hasColNames" label="Check here if the first row contains column headers."/>
-					<mx:Spacer height="100%"/>
-					<mx:ControlBar horizontalAlign="right">
-						<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"  x="264" y="140"/>
-					</mx:ControlBar>
+				<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
+					<mx:Text width="100%" height="185">
+						<mx:text><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
+							
+  1. Create a spreadsheet containing the columns you wish to populate. You do not need to include all of the columns on the sample view grid - just those to be filled in.
+							
+  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
+
+  3. The columns are of varying data types. It is your responsibility to insure that each column of the spreadsheet is formated in accordance with the applicable field type.
+]]></mx:text>
+					</mx:Text>
+					<mx:LinkButton textDecoration="underline"  label="(Click here for information on data type formats)" click="PopUpManager.centerPopUp(SampleSheetColumnFormats(PopUpManager.createPopUp(this, SampleSheetColumnFormats, true)))"   color="#0000FF" height="31"/>
+					<mx:Text width="100%" height="36">
+						<mx:text><![CDATA[  4. Once you have completed the spreadsheet it must be saved as a tab delimited text file. When the file is ready, click “Select File to Upload."]]></mx:text>
+					</mx:Text>
+					<mx:CheckBox id="hasColNames" label="First row contains column headings" height="30"/>
+					<mx:Spacer height="10"/>
+					<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"/>
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="chooseColumns" width="100%" height="100%">
-				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" id="vbox1" height="100%" paddingTop="8" paddingBottom="8">
+				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" id="vbox0" height="100%" paddingTop="8" paddingBottom="8">
 					<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%"/>
-					<mx:HBox width="100%">
-						<mx:Label width="100" text="Sample Name:"/>
-						<mx:ComboBox id="sampleName" dataProvider="{sampleNameList}" labelField="@label" width="280"></mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:Label width="100" text="Concentration:"/>
-						<mx:ComboBox id="sampleConcentration" dataProvider="{sampleConcentrationList}" labelField="@label" width="280"></mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:Label width="100" text="Description"/>
-						<mx:ComboBox id="sampleDescription" dataProvider="{sampleDescriptionList}" labelField="@label" width="280"></mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%" id="hbox1">
-						<mx:Label width="100" text="CC Number:"/>
-						<mx:ComboBox id="sampleCCNumber" dataProvider="{sampleCCNumberList}" labelField="@label" width="280"></mx:ComboBox>
-					</mx:HBox>
-					<mx:Spacer height="100%" id="spacer1"/>
-					<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button1"/>
+					<mx:DataGrid id="columnSelectionGrid" height="100%" width="100%" dataProvider="{fieldList}" rowHeight="30">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Field" dataField="@fieldText" editable="false" sortable="false" width="38"/>
+							<mx:DataGridColumn headerText="Type" labelFunction="getFieldTypeLabel" dataField="@fieldType" editable="false" sortable="false" width="24"/>
+							<!--mx:DataGridColumn editable="true" headerText="SampleSheetColumn"  dataField="@selectedSSColumn"
+													   editorDataField="value"
+													   itemEditor="{inlineSSColumnEditor}" sortable="false"/-->
+							
+							<mx:DataGridColumn headerText="SampleSheetColumn" width="38"> 
+								<mx:itemRenderer> 
+									<mx:Component> 
+										<util:SampleSheetColumnRenderer />
+									</mx:Component> 
+								</mx:itemRenderer> 
+							</mx:DataGridColumn>							
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button0"/>
 				</mx:VBox>
 			</mx:Canvas>
 		</mx:ViewStack>
 		
 	</mx:VBox>
-	<mx:ControlBar width="100%">
-	</mx:ControlBar>
 
 	  <mx:HTTPService  
 	    id="getSampleSheetUploadURL" 
@@ -63,42 +67,72 @@
 		fault="parentApplication.onFailHttpRequest('Failed to get sample sheet upload URL', event)"
 	    method="POST"
 	    useProxy="false">
-	  </mx:HTTPService>	    
-	
+	  </mx:HTTPService>	    	
+
 	<mx:Script>
 		<![CDATA[
+			import views.experiment.TabSamplesView;
+			
+			import hci.flex.controls.DropdownLabel;
+			
 			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.util.PopulateSampleSheetFieldsEvent;
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.URLRenderer;
+			import views.util.AdvancedDataGridColumnWithType;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.SampleSheetColumnFormats;
 
 			
 			private var uploadFR:FileReference;
 			public var uploadSampleSheetURL:String;
 			private var docTypes:FileFilter;
 			private var	sampleSheetXML:XML;	
+			private var tabSamplesView:TabSamplesView;
+
+			[Bindable]
+			private var fieldList:XMLListCollection = new XMLListCollection();
 			
 			[Bindable]
-			private var sampleNameList:XMLListCollection = new XMLListCollection();
+			public var sampleSheetColumnList:XMLListCollection = new XMLListCollection();
+
 			
-			[Bindable]
-			private var sampleConcentrationList:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var sampleDescriptionList:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var sampleCCNumberList:XMLListCollection = new XMLListCollection();
-			
-			public function init(showCCNumberField:Boolean):void {
-				if (showCCNumberField) {
-					this.currentState = "";
-				} else {
-					this.currentState = "HideCCNumberState";
+			public function getSSColumnLabel(item:XML, col:DataGridColumn):String {
+				var displayText:String = "";
+				for each (var node : XML in sampleSheetColumnList){
+					if(node.@data == item.@selectedSSColumn) {
+						displayText = node.@label;
+						break;
+					}
 				}
+				return displayText;
+			}			
+			//public function init(showCCNumberField:Boolean, isSubmitExperiment:Boolean):void {
+			public function init(tabSamplesView:TabSamplesView, samplesGrid:AdvancedDataGrid):void {
+				this.tabSamplesView = tabSamplesView;
+					
+				//add the event handler for the risk level change
+				this.addEventListener(SampleSheetColumnEvent.CHANGE, onSampleSheetColumnChange);
+			}
+			
+			//SampleSheetColumnEvent.CHANGE is dispatched by the item renderer
+			private function onSampleSheetColumnChange (event:SampleSheetColumnEvent):void {
+				//the event contains an object from the DataProdider, find the index based on that
+				var dpTargetIndex:int = fieldList.getItemIndex(event.item);
+				//after finding the index, change the column within the object inside the fieldList to the new column
+				var dpTargetObject:Object = fieldList.getItemAt(dpTargetIndex);
+				dpTargetObject.@selectedSSColumn = event.ssColumn;
+				//update the fieldList data after the event
+				fieldList.refresh();
 			}
 			
 			public function setupSampleSheetUpload():void {
@@ -113,9 +147,6 @@
 			}				
 				
 			private function clickUploadFileButton():void {
-				//var clickUploadFileButtonEvent:ChooseFileClickEvent = new ChooseFileClickEvent(hasColNames.selected);
-				//this.dispatchEvent(clickUploadFileButtonEvent);
-				//PopUpManager.removePopUp(this);
 				if(uploadSampleSheetURL != null) {
 					docTypes = new FileFilter("Documents (*.txt)", "*.txt"); 
 					uploadFR = new FileReference;
@@ -130,50 +161,120 @@
 					Alert.show("Error: the upload URL has not been retrieved.");
 				}
 			}
+
 			
 			private function clickPopulateFieldsButton():void {
-				var selectedSampleName:int = parseInt(sampleName.selectedItem.@data);
-				var selectedSampleConcentration:int = parseInt(sampleConcentration.selectedItem.@data);
-				var selectedSampleDescription:int = parseInt(sampleDescription.selectedItem.@data);
-				var selectedSampleCCNumber:int = this.currentState == "HideCCNumberState" ? 0 : parseInt(sampleCCNumber.selectedItem.@data);
 				
-				var sampleNameArray:Array = new Array();
-				var sampleConcentrationArray:Array = new Array();
-				var sampleDescriptionArray:Array = new Array();
-				var sampleCCNumberArray:Array = new Array();
-				
-				var rowList:XMLList = sampleSheetXML.SampleSheetData.Row;
-				var rowCount:int = 1;
-				for each (var rowItem:XML in rowList) {
-					if(hasColNames.selected && rowCount==1) {
-						// Skip row 1 if it consists of column names
-						rowCount++;
-						continue; 
+				for each (var node : XML in fieldList){
+					var thisDataField:String = node.@dataField;
+					if(thisDataField.length > 0 && thisDataField.charAt(0) == '@') {
+						// Strip off @ if it's there -- not needed for this action
+						thisDataField = thisDataField.substr(1);
 					}
-					var colList:XMLList = rowItem.Column;
-					var colCount:int = 1;
-					for each(var colItem:XML in colList) {  
-						if(colCount == selectedSampleName) {
-							sampleNameArray.push(colItem.@Value);
-						}
-						if(colCount == selectedSampleConcentration) {
-							sampleConcentrationArray.push(colItem.@Value);						
-						}
-						if(colCount == selectedSampleDescription) {
-							sampleDescriptionArray.push(colItem.@Value);						
-						}
-						if(colCount == selectedSampleCCNumber) {
-							sampleCCNumberArray.push(colItem.@Value);						
-						}
-						colCount++;													
-					} 
-					rowCount++;                
-				} 				
-				var pSSFieldsEvent:PopulateSampleSheetFieldsEvent 
-					= new PopulateSampleSheetFieldsEvent(sampleNameArray, sampleConcentrationArray,
-														 sampleDescriptionArray, sampleCCNumberArray);
-				this.dispatchEvent(pSSFieldsEvent);
+					var ssColumnForThisField:int = node.@selectedSSColumn;
+					ssColumnForThisField--;
+					if(ssColumnForThisField >= 0) {
+						var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
+						var ssRowCount:int = 1;
+						var sampleGridDataRowsCount:int = 0;
+						var sampleGridDataRows:XMLListCollection = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+						for each (var ssRowItem:XML in ssRowList) {
+							if(hasColNames.selected && ssRowCount==1) {
+								// Skip row 1 if it consists of column names
+								ssRowCount++;
+								continue; 
+							}
+							var ssColList:XMLList = ssRowItem.Column;
+							var ssColItem:XML = ssColList[ssColumnForThisField];
+							var ssColItemValue:String = ssColItem.@Value;
+							if(node.@fieldType == "URL" || node.@fieldType == "MOPTION") {
+								// For these types strip beginning, ending quotation marks if present
+								if(ssColItemValue.length > 0 && ssColItemValue.charAt(0) == '"') {
+									ssColItemValue = ssColItemValue.substr(1);
+								}
+								if(ssColItemValue.length > 0 && ssColItemValue.charAt(ssColItemValue.length-1) == '"') {
+									ssColItemValue = ssColItemValue.substr(0, ssColItemValue.length-1);
+								}
+							}
+							if(node.@fieldType == "OPTION") {
+								// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
+								for each(var col:AdvancedDataGridColumn in tabSamplesView.samplesGrid.columns) {
+									if (col.dataField == node.@dataField) {
+										var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
+										if(thisItemRenderer != null) {
+											var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
+											var thisLabelField:String = thisItemRenderer.properties.labelField;	
+											if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
+												// Strip off @ if it's there -- not needed for this action
+												thisLabelField = thisLabelField.substr(1);
+											}
+											var thisValueField:String = thisItemRenderer.properties.valueField;
+											if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
+												// Strip off @ if it's there -- not needed for this action
+												thisValueField = thisValueField.substr(1);
+											}
+											if(thisDataProvider != null) {
+												for each (var dataProviderItem:XML in thisDataProvider) {
+													if(dataProviderItem.@[thisLabelField] == ssColItemValue) {
+														ssColItemValue = dataProviderItem.@[thisValueField];
+													}
+												}												
+											}											
+										}
+									}
+								}								
+							}
+							if(node.@fieldType == "MOPTION") {
+								// If multiple option field then need to find value corresponding
+								// to the label(s) that has/have been stored in the spreadsheet
+								var params:Array = ssColItemValue.split(",");
+								var paramsFoundCnt:int = 0;								
+								var options:XMLList = parentDocument.getSampleCharacteristicOptions(node.@dataField.substr(6));
+								ssColItemValue = "";
+								for each (var thisParam:String in params) {
+									// Loops through one or multiple labels stored in the spreadsheet
+									thisParam = trimSpaces(thisParam);
+									for each (var optionItem:XML in options) {
+										// Compares against Multi Select options and matches up with corresponding values
+										if(optionItem.@option == thisParam) {
+											if(paramsFoundCnt > 0) {
+												ssColItemValue = ssColItemValue + ",";
+											}
+											ssColItemValue = ssColItemValue + optionItem.@idSampleCharacteristicOption;
+											paramsFoundCnt++;
+											break;
+										}
+									}
+								}												
+							}
+							
+							sampleGridDataRows[sampleGridDataRowsCount].@[thisDataField] = ssColItemValue;	
+
+							sampleGridDataRowsCount++;
+							ssRowCount++;  
+							if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
+								break;
+							}
+						} 
+						sampleGridDataRows.refresh();						
+					}
+				}
+				tabSamplesView.checkSamplesCompleteness();
 				PopUpManager.removePopUp(this);
+			}
+			
+			public static function trimSpaces( original:String ):String {
+				var characters:Array = original.split("");
+				
+				for ( var i:int = 0; i < characters.length; i++ ) {
+					if (characters[i] == ' ') {
+						characters.splice( i, 1 );
+						i--;
+					} else {
+						break;
+					}
+				}
+				return characters.join("");
 			}
 			
 			private function uploadSampleSheetSelectHandler(event:Event):void { 
@@ -198,11 +299,45 @@
 					
 					sampleSheetXML = new XML(event.data); 
 					
-					sampleNameList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
-					sampleConcentrationList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
-					sampleDescriptionList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
-					sampleCCNumberList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);			
-					
+					sampleSheetColumnList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+
+					// Build the contents of the columns selection list
+					for each(var col:AdvancedDataGridColumn in this.tabSamplesView.samplesGrid.columns) {
+						if (col.dataField != null && col.dataField == '@multiplexGroupNumberDisplay') {
+							continue;
+						}
+						if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
+							continue;
+						}
+						if (col.headerText == "") {
+							continue;	// This skips row number column
+						}
+						if (col.visible && col.dataField != null) {
+							var fieldType:String = "TEXT";
+							if(col is AnnotationAdvancedDataGridColumn) {
+								fieldType = AnnotationAdvancedDataGridColumn(col).characteristicType;
+							}
+							if(col is AdvancedDataGridColumnWithType) {
+								fieldType = AdvancedDataGridColumnWithType(col).characteristicType;
+							}
+							
+							var selectedSSColumn:String = "0";
+							
+							// If the sample sheet column header exactly matches the sample view column
+							// header then select that column in the sample sheet dropdown by default
+							for each (var node : XML in sampleSheetColumnList){
+								if(node.@label == col.headerText) {
+									selectedSSColumn = node.@data;
+									break;
+								}
+							}													
+							
+							var emptyNode:XML = new XML("<FieldItem " +
+								" dataField='" + col.dataField + "' fieldText='" + col.headerText +
+								"' fieldType='" + fieldType + "' selectedSSColumn='" + selectedSSColumn + "'/>");
+							fieldList.addItem(emptyNode);
+						}
+					}					
 					vsMain.selectedChild=chooseColumns;
 					
 				} else {
@@ -240,6 +375,29 @@
 				} 
 			}
 			
+			// Label function to display field type.
+			//   Types:
+			//     CHECK       Checkbox
+			//     MOPTION     Dropdown (multi. sel.)
+			//     OPTION      Dropdown (single sel.)
+			//     TEXT		   Text
+			//     URL         URL
+			public function getFieldTypeLabel(item:XML, col:DataGridColumn):String {
+				var displayText:String = "Text";
+				if(item.@fieldType == 'CHECK') {
+					displayText = "Checkbox";								
+				}
+				if(item.@fieldType == 'MOPTION') {
+					displayText = "Dropdown (multi. sel.)";								
+				}
+				if(item.@fieldType == 'OPTION') {
+					displayText = "Dropdown (single sel.)";								
+				}
+				if(item.@fieldType == 'URL') {
+					displayText = "URL";								
+				}					
+				return displayText;
+			}			
 
 		]]>
 	</mx:Script>

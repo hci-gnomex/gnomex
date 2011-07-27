@@ -1,8 +1,8 @@
 package views.util
 {
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-	 
-	public class AnnotationAdvancedDataGridColumn extends AdvancedDataGridColumn
+	
+	public class AdvancedDataGridColumnWithType extends AdvancedDataGridColumn
 	{
 		/**
 		 *  Field Type: TEXT (default), CHECK, MOPTION, OPTION, or URL
@@ -12,10 +12,9 @@ package views.util
 		 */
 		public var characteristicType:String = 'Text';
 		
-		public function AnnotationAdvancedDataGridColumn(name:String)
+		public function AdvancedDataGridColumnWithType(columnName:String=null)
 		{
-			super(name);
+			super(columnName);
 		}
-
 	}
 }

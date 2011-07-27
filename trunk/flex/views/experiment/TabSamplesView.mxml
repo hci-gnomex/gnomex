@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
     xmlns:views="*.views" 
+	xmlns:util="views.util.*"
     xmlns:fx="*.views.renderers" show="{this.initializeBarcoding();}"
 	label="Sample View" width="100%" height="100%"  enabled="false">
   
@@ -34,7 +35,6 @@
 		import views.renderers.LabelBarcodeSequence;
 		import views.renderers.TextInputSeqPrepByCore;
 		import views.util.AnnotationAdvancedDataGridColumn;
-		import views.util.PopulateSampleSheetFieldsEvent;
 		import views.util.UploadSampleSheetView;
 
 
@@ -48,51 +48,9 @@
 		private var	sampleSheetXML:XML;
 		
 		public function uploadSampleSheet():void {
-			this.systemManager.addEventListener("PopulateSampleSheetFieldsEvent", populateSampleSheetFields);  
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(this, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
-			uploadSampleSheetWindow.init(this.showCCNumberCheckbox.selected);
-		}
-		
-		public function populateSampleSheetFields(event:PopulateSampleSheetFieldsEvent):void {
-			this.systemManager.removeEventListener("PopulateSampleSheetFieldsEvent", populateSampleSheetFields);  
-			var currentArray:Array = event.sampleNameArray;
-			
-			// Populate the sample name fields
-			for (var i:String in currentArray)
-			{
-				if(i < parentDocument.samples.length) {
-					parentDocument.samples[i].@name = currentArray[i];
-				}
-			}
-			
-			// Populate the sample concentration fields
-			currentArray = event.sampleConcentrationArray;
-			for (i in currentArray)
-			{
-				if(i < parentDocument.samples.length) {
-					parentDocument.samples[i].@concentration = currentArray[i];
-				}
-			}
-			
-			// Populate the sample description fields
-			currentArray = event.sampleDescriptionArray;
-			for (i in currentArray)
-			{
-				if(i < parentDocument.samples.length) {
-					parentDocument.samples[i].@description = currentArray[i];
-				}
-			}
-			
-			// Populate the CC Number fields
-			currentArray = event.sampleCCNumberArray;
-			for (i in currentArray)
-			{
-				if(i < parentDocument.samples.length) {
-					parentDocument.samples[i].@ccNumber = currentArray[i];
-				}
-			}
-			checkSamplesCompleteness();
+			uploadSampleSheetWindow.init(this, this.samplesGrid);
 		}
 						
 		public function addSample():void {
@@ -1188,11 +1146,11 @@
 						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
 
-					<mx:AdvancedDataGridColumn id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="180"   dataField="@idSampleType" 
+					<util:AdvancedDataGridColumnWithType characteristicType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="180"   dataField="@idSampleType" 
 											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"                 
 											   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="170" headerText="Organism"  dataField="@idOrganism" 
+					<util:AdvancedDataGridColumnWithType characteristicType="OPTION" id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="170" headerText="Organism"  dataField="@idOrganism" 
 											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
 											   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
@@ -1320,7 +1278,7 @@
  	                   
 					<mx:AdvancedDataGridColumn headerText="Description" width="140" dataField="@description" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
-                    <mx:AdvancedDataGridColumn id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
+                    <util:AdvancedDataGridColumnWithType characteristicType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"                
 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
