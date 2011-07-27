@@ -260,6 +260,7 @@
 			
 			newCol.editable = false;
 			aCol.editable = false;
+			newCol.characteristicType = sampleCharacteristic.@codeCharacteristicType;
 			if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
 				newCol.itemRenderer =  MultiselectRenderer.create();
 				aCol.itemRenderer =  MultiselectRenderer.create(false);

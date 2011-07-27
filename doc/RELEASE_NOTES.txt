@@ -1,5 +1,9 @@
 ﻿GNomEx Release Notes
 
+
+-----------------------
+- Replaced sample sheet upload with new version that handles all editable fields
+
 5.1.8.1 (July 23, 2011)
 -----------------------
 - Added transfer logging for fdt uploads and download using java main (hci.gnomex.httpclient.TransferLoggerMain)
