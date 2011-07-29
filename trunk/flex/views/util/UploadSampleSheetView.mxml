@@ -38,10 +38,6 @@
 						<mx:columns>
 							<mx:DataGridColumn headerText="Field" dataField="@fieldText" editable="false" sortable="false" width="38"/>
 							<mx:DataGridColumn headerText="Type" labelFunction="getFieldTypeLabel" dataField="@fieldType" editable="false" sortable="false" width="24"/>
-							<!--mx:DataGridColumn editable="true" headerText="SampleSheetColumn"  dataField="@selectedSSColumn"
-													   editorDataField="value"
-													   itemEditor="{inlineSSColumnEditor}" sortable="false"/-->
-							
 							<mx:DataGridColumn headerText="SampleSheetColumn" width="38"> 
 								<mx:itemRenderer> 
 									<mx:Component> 
@@ -53,6 +49,13 @@
 					</mx:DataGrid>
 					<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button0"/>
 				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="reportResults" label="" width="100%" height="100%">
+				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
+					<mx:Text text="Upload Results:" width="100%"/>
+					<mx:Text id="reportText" width="100%" height="266" fontFamily="_typewriter" fontSize="11" />
+					<mx:Button label="Done" click="PopUpManager.removePopUp(this)"/>
+				</mx:VBox>				
 			</mx:Canvas>
 		</mx:ViewStack>
 		
@@ -71,10 +74,9 @@
 
 	<mx:Script>
 		<![CDATA[
-			import views.experiment.TabSamplesView;
-			
 			import hci.flex.controls.DropdownLabel;
 			
+			import mx.collections.HierarchicalCollectionView;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
@@ -84,6 +86,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.experiment.TabSamplesView;
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
 			import views.renderers.MultiselectRenderer;
@@ -117,7 +120,7 @@
 				return displayText;
 			}			
 			//public function init(showCCNumberField:Boolean, isSubmitExperiment:Boolean):void {
-			public function init(tabSamplesView:TabSamplesView, samplesGrid:AdvancedDataGrid):void {
+			public function init(tabSamplesView:TabSamplesView):void {
 				this.tabSamplesView = tabSamplesView;
 					
 				//add the event handler for the risk level change
@@ -165,26 +168,38 @@
 			
 			private function clickPopulateFieldsButton():void {
 				
-				for each (var node : XML in fieldList){
-					var thisDataField:String = node.@dataField;
-					if(thisDataField.length > 0 && thisDataField.charAt(0) == '@') {
-						// Strip off @ if it's there -- not needed for this action
-						thisDataField = thisDataField.substr(1);
-					}
-					var ssColumnForThisField:int = node.@selectedSSColumn;
-					ssColumnForThisField--;
-					if(ssColumnForThisField >= 0) {
-						var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
-						var ssRowCount:int = 1;
-						var sampleGridDataRowsCount:int = 0;
-						var sampleGridDataRows:XMLListCollection = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
-						for each (var ssRowItem:XML in ssRowList) {
-							if(hasColNames.selected && ssRowCount==1) {
-								// Skip row 1 if it consists of column names
-								ssRowCount++;
-								continue; 
-							}
+				reportText.text = formatColumns("Row", "SS Col", "Grid Col", "Status");			
+				
+				var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
+				var ssRowCount:int = 1;
+				var sampleGridDataRowsCount:int = 0;
+				var sampleGridDataRows:XMLListCollection = null;
+				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
+					sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);					
+				} else {
+					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+				}
+				for each (var ssRowItem:XML in ssRowList) {				
+					if(hasColNames.selected && ssRowCount==1) {
+						// Skip row 1 if it consists of column names
+						ssRowCount++;
+						continue; 
+					}				
+					for each (var node : XML in fieldList){
+						var reportStatus:String = "Success";
+						var writeThisField:Boolean = true;
+						var thisDataField:String = node.@dataField;
+						if(thisDataField.length > 0 && thisDataField.charAt(0) == '@') {
+							// Strip off @ if it's there -- not needed for this action
+							thisDataField = thisDataField.substr(1);
+						}
+						var ssColumnForThisField:int = node.@selectedSSColumn;
+						ssColumnForThisField--;
+						if(ssColumnForThisField >= 0) {
 							var ssColList:XMLList = ssRowItem.Column;
+							if(ssColumnForThisField >= ssColList.length()) {
+								continue;	// Skip this column if it doesn't exist.
+							}
 							var ssColItem:XML = ssColList[ssColumnForThisField];
 							var ssColItemValue:String = ssColItem.@Value;
 							if(node.@fieldType == "URL" || node.@fieldType == "MOPTION") {
@@ -197,6 +212,7 @@
 								}
 							}
 							if(node.@fieldType == "OPTION") {
+								var optionFound:Boolean = false;
 								// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
 								for each(var col:AdvancedDataGridColumn in tabSamplesView.samplesGrid.columns) {
 									if (col.dataField == node.@dataField) {
@@ -217,12 +233,17 @@
 												for each (var dataProviderItem:XML in thisDataProvider) {
 													if(dataProviderItem.@[thisLabelField] == ssColItemValue) {
 														ssColItemValue = dataProviderItem.@[thisValueField];
+														optionFound = true;
 													}
 												}												
 											}											
 										}
 									}
-								}								
+								}
+								if (!optionFound) {
+									writeThisField = false;
+									reportStatus = "Dropdown. No selection found for: " + ssColItemValue;
+								}
 							}
 							if(node.@fieldType == "MOPTION") {
 								// If multiple option field then need to find value corresponding
@@ -231,12 +252,15 @@
 								var paramsFoundCnt:int = 0;								
 								var options:XMLList = parentDocument.getSampleCharacteristicOptions(node.@dataField.substr(6));
 								ssColItemValue = "";
+								var notFoundCnt:int = 0;
 								for each (var thisParam:String in params) {
 									// Loops through one or multiple labels stored in the spreadsheet
 									thisParam = trimSpaces(thisParam);
+									var mOptionFound:Boolean = false;
 									for each (var optionItem:XML in options) {
 										// Compares against Multi Select options and matches up with corresponding values
 										if(optionItem.@option == thisParam) {
+											mOptionFound = true;
 											if(paramsFoundCnt > 0) {
 												ssColItemValue = ssColItemValue + ",";
 											}
@@ -245,23 +269,79 @@
 											break;
 										}
 									}
-								}												
+									if(!mOptionFound) {
+										if(notFoundCnt == 0) {
+											reportStatus = "Dropdown (multi). No selection found for: " + thisParam;	
+										} else {
+											reportStatus += ", " + thisParam;
+										}
+										notFoundCnt;
+									}
+								}
+								if(paramsFoundCnt == 0) {
+									writeThisField = false;
+								}
+							}
+							if(node.@fieldType == "CHECK") {
+								if(ssColItemValue != null) {
+									if(ssColItemValue.length > 0) {
+										if(ssColItemValue != "Y" && ssColItemValue != "N") {
+											reportStatus = "Checkbox. Unexpected value: " + ssColItemValue;
+											writeThisField = false;
+										}
+									}
+								} else {
+									writeThisField = false;
+								}
 							}
 							
-							sampleGridDataRows[sampleGridDataRowsCount].@[thisDataField] = ssColItemValue;	
-
-							sampleGridDataRowsCount++;
-							ssRowCount++;  
-							if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
-								break;
+							if(writeThisField) {
+								sampleGridDataRows[sampleGridDataRowsCount].@[thisDataField] = ssColItemValue;
 							}
+									
+							
+							var reportStr:String = "" + sampleGridDataRowsCount + " " 
+								+ node.@selectedSSColumn + " " 
+								+ node.@fieldText + " "
+								+ "(Status)\n";
+							reportText.text += formatColumns(""+sampleGridDataRowsCount, node.@selectedSSColumn, node.@fieldText, reportStatus);								
 						} 
-						sampleGridDataRows.refresh();						
+												
+					} // End traverse field list
+					sampleGridDataRowsCount++;
+					ssRowCount++;  
+					if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
+						break;
+					}
+				} // End traverse ss row
+				sampleGridDataRows.refresh();
+				tabSamplesView.checkSamplesCompleteness();
+				vsMain.selectedChild=reportResults;
+			}
+						
+			public static function formatColumns(Row:String, SS_Col:String, Grid_Col:String, Status:String):String {
+				var output:String = addWhitespace(Row, 5) + addWhitespace(SS_Col, 8)
+				                    + addWhitespace(Grid_Col, 16) + addWhitespace(Status, 68) + "\n";
+				return output;
+			}
+			
+			public static function addWhitespace(inputStr:String, count:int):String {
+				var output:String = "";
+				if (inputStr != null) {
+					if(inputStr.length > count) {
+						inputStr = inputStr.substr(0, count-3) + "..";
+					}
+					output = inputStr;
+					if(output.length < count) {
+						// Fill in any remaining spaces between end of string and count
+						for ( var i:int = 0; i < count-inputStr.length; i++ ) {
+							output += " ";
+						}
 					}
 				}
-				tabSamplesView.checkSamplesCompleteness();
-				PopUpManager.removePopUp(this);
+				return output;
 			}
+
 			
 			public static function trimSpaces( original:String ):String {
 				var characters:Array = original.split("");

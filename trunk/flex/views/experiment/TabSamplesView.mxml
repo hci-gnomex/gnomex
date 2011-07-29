@@ -50,7 +50,7 @@
 		public function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(this, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
-			uploadSampleSheetWindow.init(this, this.samplesGrid);
+			uploadSampleSheetWindow.init(this);
 		}
 						
 		public function addSample():void {
