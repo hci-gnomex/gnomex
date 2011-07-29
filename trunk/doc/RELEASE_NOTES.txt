@@ -1,8 +1,12 @@
 ﻿GNomEx Release Notes
 
-
+5.1.9 (July 28, 2011)
 -----------------------
 - Replaced sample sheet upload with new version that handles all editable fields
+- Make 'additional lanes to sequence' on the samples view more prominent on 'Add services' window.  (Highlight and move to left).
+- Usage charts show only whole numbers on vertical axis.
+- User needs to be able to select index tag from dropdown on samples grid on sequencing request where lab has already prepped library.
+- Fix the permissions for the fdt upload and download servlets so that the Orion application can write to the directory created under the fdt staging dir. 
 
 5.1.8.1 (July 23, 2011)
 -----------------------
