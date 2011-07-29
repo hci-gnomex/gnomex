@@ -1,5 +1,8 @@
 ﻿GNomEx Release Notes
 
+-----------------------
+- Fixed bugs in sample sheet upload
+
 5.1.9 (July 28, 2011)
 -----------------------
 - Replaced sample sheet upload with new version that handles all editable fields
