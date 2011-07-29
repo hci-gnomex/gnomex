@@ -7,33 +7,12 @@
 			import mx.events.ListEvent;
 			
 			[Bindable]
-			//private var ssColumns:XMLListCollection;
 			private var ssColumns:ArrayCollection;
 			
 			private function onInitialize():void{
-				//Creating the initial dataProvider for the combo box in the initialize event
-				//so that in the set data function this data is available
-				/*
-				ssColumns = new ArrayCollection([{label:"Click here to select column", data:"0"},
-					{label:"Column 1", data:"1"},
-					{label:"Column 2", data:"2"},
-					{label:"Column 3", data:"3"},
-					{label:"Column 4", data:"4"}])
-				ssColumns.addItem({label:"Click here to select column", data:"0"});
-				ssColumns.addItem({label:"Column 1", data:"1"});
-				ssColumns.addItem({label:"Column 2", data:"2"});
-				ssColumns.addItem({label:"Column 3", data:"3"});
-				ssColumns.addItem({label:"Column 4", data:"4"});
-				var myLabel:String = "Column 5";
-				var myData:String = "5";
-				ssColumns.addItem({label:myLabel, data:myData});
-				*/
-
 
 				ssColumns = new ArrayCollection();
-				//ssColumns = new XMLListCollection();
 				for each (var node : XML in this.parentDocument.sampleSheetColumnList) {
-					//ssColumns.addItem(node);
 					ssColumns.addItem({label:node.@label, data:node.@data});
 				}
 
@@ -67,5 +46,5 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:ComboBox id="combo" dataProvider="{ssColumns}" change="onSampleSheetColumnChange(event)"/>
+	<mx:ComboBox id="combo" dataProvider="{ssColumns}" change="onSampleSheetColumnChange(event)" rowCount="12"/>
 </mx:HBox>
