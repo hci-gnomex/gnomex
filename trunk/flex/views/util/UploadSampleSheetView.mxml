@@ -51,9 +51,10 @@
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="reportResults" label="" width="100%" height="100%">
-				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
+				<mx:VBox fontSize="10" verticalGap="0" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
 					<mx:Text text="Upload Results:" width="100%"/>
-					<mx:Text id="reportText" width="100%" height="266" fontFamily="_typewriter" fontSize="11" />
+					<mx:TextArea id="reportText" width="100%" height="281" fontFamily="_typewriter" fontSize="11"  backgroundColor="#FFFFFF" verticalScrollPolicy="on"/>
+					<mx:Spacer height="10"/>
 					<mx:Button label="Done" click="PopUpManager.removePopUp(this)"/>
 				</mx:VBox>				
 			</mx:Canvas>
