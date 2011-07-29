@@ -203,6 +203,13 @@
 							}
 							var ssColItem:XML = ssColList[ssColumnForThisField];
 							var ssColItemValue:String = ssColItem.@Value;
+							if(thisDataField == "label") {
+								// Special handling for label field -- expect cy3 or cy5
+								if(ssColItemValue.length > 0 && !(ssColItemValue == 'cy3' || ssColItemValue == 'cy5')) {
+									writeThisField = false;
+									reportStatus = "Label. Incorrect text: " + ssColItemValue;									
+								}
+							}
 							if(node.@fieldType == "URL" || node.@fieldType == "MOPTION") {
 								// For these types strip beginning, ending quotation marks if present
 								if(ssColItemValue.length > 0 && ssColItemValue.charAt(0) == '"') {

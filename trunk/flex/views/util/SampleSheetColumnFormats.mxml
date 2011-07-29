@@ -3,11 +3,11 @@
 				borderThickness="4" 
 				showCloseButton="true"
 				close="{PopUpManager.removePopUp(this)}" 
-				width="978" height="340" title="Sample Sheet Column Formats">
+				width="978" height="412" title="Sample Sheet Column Formats">
 	<mx:Canvas width="100%" height="100%">
 		<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
 
-			<mx:Text width="100%" height="266" fontFamily="_typewriter" fontSize="12">
+			<mx:Text width="100%" height="329" fontFamily="_typewriter" fontSize="12">
 				<mx:htmlText>
 					<![CDATA[<b><u>Field Type</u></b>           <b><u>Spreadsheet Column Format</u></b>                   <b><u>Example</u></b>
 
@@ -23,7 +23,10 @@ Dropdown             The text should exactly match the           standard
 (single selection)   dropdown item to be selected
 					
 Dropdown             Exact text of each item to be               blue, hazel
-(mult. selection)    selected, separated by commas]]>
+(mult. selection)    selected, separated by commas
+					
+Label                cy3 or cy5                                  cy5
+(2-color Microarray)]]>
 				</mx:htmlText>
 			</mx:Text>
 			<mx:Button label="OK" click="PopUpManager.removePopUp(this)" id="okButton"/>
