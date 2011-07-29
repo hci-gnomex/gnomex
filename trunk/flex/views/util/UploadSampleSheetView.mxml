@@ -321,7 +321,7 @@
 						
 			public static function formatColumns(Row:String, SS_Col:String, Grid_Col:String, Status:String):String {
 				var output:String = addWhitespace(Row, 5) + addWhitespace(SS_Col, 8)
-				                    + addWhitespace(Grid_Col, 16) + addWhitespace(Status, 68) + "\n";
+				                    + addWhitespace(Grid_Col,24) + addWhitespace(Status, 60) + "\n";
 				return output;
 			}
 			
