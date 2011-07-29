@@ -97,8 +97,8 @@ Install Instructions
      'Admin - Property'.  Review the entries and make sure you modify the following properties 
      to match your environment:
       Required properties - Make sure all of these directories exist.
-      -	experiment_directory, experiment_read_directory, experiment_write_directory      
-      -	analysis_directory, analysis_read_directory, analysis_write_directory        
+      -	experiment_read_directory, experiment_write_directory      
+      -	analysis_read_directory, analysis_write_directory        
       -	flowcell_directory				
       -	lucene_index_directory
       -	lucene_experiment_index_directory
@@ -145,7 +145,7 @@ is not yet configured to work.
    from FDT transfers.
    
 5. Start the fdt server in the background.  
-   >nohup java -jar fdtServer.jar -rdt fdt_staging_dir &
+   >java -jar fdtServer.jar -rdt fdt_staging_dir &
 
 6. Copy fdtClient.jar to your default web directory.  (For example, create a directory called 
    fdt under var/www/html/ if your system is running the standard apache server.)
@@ -171,7 +171,7 @@ is not yet configured to work.
      fdt_directory_gnomex              The fdt staging dir.  Only differs from fdt_directory when fdt server running on different machine than Orion (gnomex)
      fdt_client_codebase               The URL to download fdtClient.jar.  (See step 6).
      fdt_server_name                   The machine (domain name) that the fdt server is running on.
-     fdt_filedaemon_task_dir           Set to /path/to/fdtfilemonitor/tasks
+     fdt_file_daemon_task_dir          Set to /path/to/fdtfilemonitor/tasks
      fdt_user                          Set to the unix user account that has read/write access to the fdt_staging dir
                                        and gnomex data area
      fdt_group                         Set to the unix group that has read/write access to the fdt_staging directory and
@@ -182,6 +182,22 @@ is not yet configured to work.
     
 12.  When using the FDT Upload or Download, webstart will lauch the FDT GUI.  To troubleshoot transfer problems, 
      click on the menu Options -> Show Transfer Logs. 
+     
+13.  (Optional) To configure GNomEx to log FDT upload and download activity (for GNomEx upload/download usage charts), 
+     set up a shell script which will be executed when FDT performs a transfer:
+     
+     a.  Create a directory /path/to/fdtapplogger
+     b.  Copy /path/to/GNomEx_$VERSION/gnomex/scripts/transfer_logger.sh to 
+              /path/to/fdtapplogger/
+     c.  Modify transfer_logger.sh to match your filepath and server name (-server argument)
+     d.  Copy /path/to/GNomEx_$VERSION/gnomex/dist/gnomex_client.jar to     
+              /path/to/fdtapplogger/  
+     e.  Make the fdt user account to owner and the fdt group the group.  Give read and execute permissions 
+         to the script and jar.
+         >chown -R fdt_user_here:fdt_group_here /path/to/fdtapplogger/ 
+         >chmod -R 550 /path/to/fdtapplogger/ 
+     f.  Restart the fdt server with the -appLogger argument
+         >java -jar fdtServer.jar -rdt fdt_staging_dir -appLogger /path/to/fdtapplogger/transfer_logger.sh &
   
         
       
