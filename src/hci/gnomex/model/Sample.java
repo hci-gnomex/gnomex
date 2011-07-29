@@ -638,5 +638,14 @@ public class Sample extends HibernateDetailObject {
   public void setOtherOrganism(String otherOrganism) {
     this.otherOrganism = otherOrganism;
   }
+  
+  /*
+   * Added this getter so that XML has attribute @numberSequencingLanes
+   * so that it is highlighted on 'Add services' when QC request
+   * is converted to a sequencing request.
+   */
+  public String getNumberSequencingLanes() {
+    return "";
+  }
 
 }

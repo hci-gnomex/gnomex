@@ -743,7 +743,11 @@
         	}
         		
         	this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-        	this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+        	this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+			this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+			
+			
         	
 			this.samplesGrid.validateNow();
         	callLater(this.checkSamplesCompleteness);
@@ -1141,7 +1145,39 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
-	                <mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" visible="{showCCNumberCheckbox.selected ? true : false}"
+					
+					<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
+											   headerText="# Lanes to Sequence" width="72" 
+											   dataField="@sequenceLaneCount" 
+											   editable="false">
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+									<mx:Label text="Existing #"/> 
+									<mx:Label text="Seq Runs"/> 
+								</mx:VBox> 
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:AdvancedDataGridColumn> 
+					
+					<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
+											   headerText="# Lanes to Sequence" width="72" 
+											   dataField="@numberSequencingLanes" 
+											   editable="true"
+											   rendererIsEditor="false"
+											   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
+											   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value" >
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+									<mx:Label text="Additional"/> 
+									<mx:Label text="# Seq Runs"/> 
+								</mx:VBox> 
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:AdvancedDataGridColumn> 
+
+					<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" visible="{showCCNumberCheckbox.selected ? true : false}"
 						width="76"
 						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
@@ -1172,7 +1208,7 @@
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
 	                <mx:AdvancedDataGridColumn id="barcodeColumn" visible="true" headerText="Index Tag" width="130" dataField="@idOligoBarcode" 
-	                   editorDataField="value" sortable="false" editable="{parentApplication.hasPermission('canWriteAnyObject')}" rendererIsEditor="false" 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(barcodeList, '@display', '@value', '@idOligoBarcode', true)}"/>
 	                <mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Custom Index Tag" dataField="@barcodeSequence" editable="true" visible="true"
@@ -1205,37 +1241,6 @@
 							</mx:Component>
 						 </mx:headerRenderer>
  	                </mx:AdvancedDataGridColumn>  
- 	                
- 	                <mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
- 	                	headerText="# Lanes to Sequence" width="72" 
- 	                	dataField="@sequenceLaneCount" 
-						editable="false">
- 	                     <mx:headerRenderer > 
-							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								    <mx:Label text="Existing #"/> 
-								    <mx:Label text="Seq Runs"/> 
-								</mx:VBox> 
-							</mx:Component>
-						 </mx:headerRenderer>
- 	                </mx:AdvancedDataGridColumn> 
- 	                
- 	                <mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
- 	                	headerText="# Lanes to Sequence" width="72" 
- 	                	dataField="@numberSequencingLanes" 
-						editable="true"
-						rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value" >
- 	                     <mx:headerRenderer > 
-							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								    <mx:Label text="Additional"/> 
-								    <mx:Label text="# Seq Runs"/> 
-								</mx:VBox> 
-							</mx:Component>
-						 </mx:headerRenderer>
- 	                </mx:AdvancedDataGridColumn> 
  	                        
 	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 						rendererIsEditor="false" editorDataField="value" 
