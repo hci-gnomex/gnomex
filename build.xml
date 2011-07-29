@@ -651,6 +651,7 @@
      	<mkdir dir="${opensource.dir}/release/" />
 		<zip destfile="${opensource.dir}/release/${opensource.name}.zip" >
 			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.name}/gnomex/dist"/>
 			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist/secure"/>
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
