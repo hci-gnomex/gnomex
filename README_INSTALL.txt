@@ -97,8 +97,8 @@ Install Instructions
      'Admin - Property'.  Review the entries and make sure you modify the following properties 
      to match your environment:
       Required properties - Make sure all of these directories exist.
-      -	experiment_directory      
-      -	analysis_directory        
+      -	experiment_directory, experiment_read_directory, experiment_write_directory      
+      -	analysis_directory, analysis_read_directory, analysis_write_directory        
       -	flowcell_directory				
       -	lucene_index_directory
       -	lucene_experiment_index_directory
@@ -172,6 +172,10 @@ is not yet configured to work.
      fdt_client_codebase               The URL to download fdtClient.jar.  (See step 6).
      fdt_server_name                   The machine (domain name) that the fdt server is running on.
      fdt_filedaemon_task_dir           Set to /path/to/fdtfilemonitor/tasks
+     fdt_user                          Set to the unix user account that has read/write access to the fdt_staging dir
+                                       and gnomex data area
+     fdt_group                         Set to the unix group that has read/write access to the fdt_staging directory and
+                                       and gnomex data area
      
 11. In GNomEx, go to Experiment downloads or Analysis Downloads.  A button for 'FDT Download' should appear.  Also,
     there should be an 'FDT Upload' link for uploading Analysis and Experiment data files.
