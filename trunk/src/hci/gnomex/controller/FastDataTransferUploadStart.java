@@ -168,7 +168,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     process.waitFor();
     process.destroy();        
     
-    // only HCI_fdt user and HCI_FDTSecurity group have permissions on this directory
+    // only fdt user and group have permissions on this directory
     process = Runtime.getRuntime().exec( new String[] { "chmod", "770", dir } );              
     process.waitFor();
     process.destroy();      

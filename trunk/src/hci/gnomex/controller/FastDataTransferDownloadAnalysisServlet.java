@@ -189,8 +189,8 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
               process.waitFor();
               process.destroy(); 
               
-              // only HCI_fdt user and HCI_FDTSecurity group have permissions on this directory
-              process = Runtime.getRuntime().exec( new String[] { "chmod", "550", softlinks_dir } );                    
+              // only fdt user and group have permissions on this directory
+              process = Runtime.getRuntime().exec( new String[] { "chmod", "770", softlinks_dir } );                    
               process.waitFor();
               process.destroy();        
 
