@@ -676,7 +676,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                     + " has been submitted.  Request submitter or request submitter email is blank.");
           }
           if(this.totalPrice.length() > 0) {
-            boolean sendTotalPriceEmail = false;
             Lab lab = requestParser.getRequest().getLab();
             String billedAccountName = requestParser.getRequest().getBillingAccountName();
             String contactEmail = lab.getContactEmail();
@@ -685,7 +684,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               AppUser manager = (AppUser)i1.next();
               if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
                 if(manager.getEmail() != null) {
-                  ccEmail = ccEmail + manager.getEmail() + ";";
+                  ccEmail = ccEmail + manager.getEmail() + ", ";
                 } 
               }
             } 
@@ -693,12 +692,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               try {
                 sendTotalPriceEmail(sess, contactEmail, ccEmail, billedAccountName);
               } catch (Exception e) {
-                log.error("Unable to send confirmation total price > $500 email notification for request "
+                log.error("Unable to send estimated charges notification for request "
                     + requestParser.getRequest().getNumber()
                     + "  " + e.toString());
               }
             } else {
-              log.error("Unable to send confirmation total price > $500 email notification for request "
+              log.error("Unable to send estimated charges notification for request "
                   + requestParser.getRequest().getNumber()
                   + " has been submitted.  Contact or lab manager(s) email is blank.");
             }              
@@ -1494,12 +1493,29 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   private void sendTotalPriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException {
-    
+
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
+    String requestNumber = requestParser.getRequest().getNumber();
+    String requestCategoryMsg = "";
+   
+    if (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+      requestCategoryMsg = "Estimated Microarray";   
+    }
+      
+    if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+      requestCategoryMsg = "Estimated Illumina Sequencing";  
+    }
     
+    if(requestCategoryMsg.length() == 0) {
+      // Don't send message if not Microarry or Illumina request
+      return;
+    }
+    
+    requestCategoryMsg = requestCategoryMsg + " for request " + requestNumber;    
     
     StringBuffer emailBody = new StringBuffer();
-    String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
 
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
@@ -1509,15 +1525,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       ".");   
       
     }
-    emailBody.append(" You are receiving this email alert because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
-     
-    emailBody.append("<br><br><table border='0' width = '400'><tr><td>Experiment Number:</td><td>" + requestParser.getRequest().getNumber());
+   // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
+
+
+    emailBody.append("<br><br><table border='0' width = '400'><tr><td>Request Type:</td><td>" + requestType);
+    emailBody.append("</td></tr><tr><td>Request #:</td><td>" + requestNumber);
     emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + this.totalPrice);
     emailBody.append("</td></tr><tr><td>Billing Account Name:</td><td>" + billedAccountName);
     
     emailBody.append("</td></tr></table><br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
-    String subject = "Alert: GNomEx experiment estmated charges > $500.00";
+    String subject = "Estimated Microarray charges for request " + requestNumber;
+     
+    
+    String senderEmail = requestParser.isExternalExperiment() ? dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    
+    if (contactEmail == null || contactEmail.length() == 0) {
+      contactEmail = ccEmail;
+      ccEmail = null;
+      if(contactEmail == null) {
+        // If neither email present then just cend to the lab
+        contactEmail = senderEmail;
+      }
+    } else if(ccEmail != null && ccEmail.length() == 0) {
+      ccEmail = null;
+    }
     
     String emailInfo = "";
     boolean send = false;
@@ -1529,19 +1561,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         subject = "TEST - " + subject;
         emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "<br><br>";
       }
-    }
-    
-    if (contactEmail.length() == 0) {
-      contactEmail = ccEmail;
-      ccEmail = null;
-    } else if(ccEmail.length() == 0) {
-      ccEmail = null;
-    }
-    
+    }    
+
     if (send) {
-      MailUtil.send(requestParser.getRequest().getAppUser().getEmail(), 
-          null,
-          (requestParser.isExternalExperiment() ? dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY)), 
+      MailUtil.send(contactEmail, 
+          ccEmail,
+          senderEmail, 
           subject, 
           emailInfo + emailBody.toString(),
           true);      
