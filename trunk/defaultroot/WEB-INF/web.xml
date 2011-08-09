@@ -83,7 +83,7 @@
 			hci.gnomex.controller.FastDataTransferUploadGetJnlpServlet
 		</servlet-class>
 	</servlet>
-	
+
 
 	<servlet>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
@@ -199,7 +199,6 @@
 		<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>
 	</servlet-mapping>
 	
-
 	<servlet-mapping>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
 		<url-pattern>DownloadSingleFileServlet.gx</url-pattern>
@@ -273,6 +272,7 @@
 		<web-resource-collection>
 			<web-resource-name>Login</web-resource-name>
 			<description>Login</description>
+			<url-pattern>loginsucceeded.jsp</url-pattern>
 			<url-pattern>CreateBillingItems.gx</url-pattern>
 			<url-pattern>CreateSecurityAdvisor.gx</url-pattern>
 			<url-pattern>go_reconnect.jsp</url-pattern>
@@ -308,8 +308,7 @@
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>			
-			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>
-			<url-pattern>FastDataTransferUploadStart.gx</url-pattern>
+			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>
@@ -326,10 +325,20 @@
 
 
 
-	<login-config>
+	<!--login-config>
 		<auth-method>BASIC</auth-method>
 		<realm-name>hciEnv</realm-name>
+	</login-config-->
+	
+	<login-config>
+		<auth-method>FORM</auth-method>
+		<realm-name>hciEnv</realm-name>
+		<form-login-config>
+			<form-login-page>/gnomexFlex.html</form-login-page>
+			<form-error-page>/gnomexFlex.html</form-error-page>
+		</form-login-config>
 	</login-config>
+
 
 
 	<security-role>

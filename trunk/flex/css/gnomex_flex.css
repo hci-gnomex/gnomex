@@ -115,6 +115,19 @@ Panel {
 	fontStyle: normal;
 }
 
+.loginWindow {	
+	headerColors: #527098, #4593AD;
+	borderColor: #4593AD;
+	backgroundColor: #4593AD;
+}
+
+.loginTitleStyle {
+	color: #FFFFFF;
+	fontFamily: Arial;
+	fontSize: 11;
+	fontWeight: bold;
+} 
+
 .navBox {
 	backgroundColor: #C3C2B7;
 	borderColor: #C3C2B7;

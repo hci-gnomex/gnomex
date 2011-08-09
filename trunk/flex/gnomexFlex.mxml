@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>    
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
 	xmlns="*" 
-	xmlns:views="views.*"    
+	xmlns:views="views.*"
 	xmlns:workflow="views.workflow.*"  
 	xmlns:experiment="views.experiment.*"  
 	xmlns:analysis="views.analysis.*" 
@@ -12,15 +12,28 @@
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:billing="views.billing.*"
 	xmlns:util="views.util.*"
+	xmlns:login="views.login.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
 	 paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-	 backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()">
+	 backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()" applicationComplete="applicationCompleteHandler(event)">
 
 
 
     <mx:Fade id="fadeOut" duration="100"/>
-    <mx:Fade id="fadeIn" duration="100"/>
-    	
+    <mx:Fade id="fadeIn" duration="100"/>	
+	
+	<mx:HTTPService 
+		id="checkLogin"	    
+		url="loginsucceeded.jsp"
+		resultFormat="text"
+		result="loggedIn(event)"
+		fault="notLoggedIn()"
+		showBusyCursor="true"
+		method="POST"
+		contentType="application/x-www-form-urlencoded"
+		useProxy="false">    
+	</mx:HTTPService> 
+	
 	<mx:HTTPService 
     id="createSecurityAdvisor"
     url="CreateSecurityAdvisor.gx"
@@ -160,6 +173,7 @@
 			import mx.controls.Alert;
 			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
 			import mx.managers.CursorManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -474,6 +488,53 @@
 			public var version:String = "";
 			
 			
+			private function init():void {
+				if (!isGuestMode()) {
+					checkLogin.send();
+				} else {
+					// If Guest Mode then go straight to original init code
+					stateStack.selectedChild = initViews; 
+					linkbutton1.visible = true;
+					loggedInInit();					
+				}
+						
+			} 
+			
+			protected function applicationCompleteHandler(event:FlexEvent):void
+			{
+				//set focus to this app using javascript
+				if(ExternalInterface.available)
+				{
+					ExternalInterface.call("eval", "document.getElementById('" + ExternalInterface.objectID + "').tabIndex=0");
+					ExternalInterface.call("eval", "document.getElementById('" + ExternalInterface.objectID + "').focus()");
+				}
+			}			
+			
+			public function loggedIn(event: ResultEvent):void {     
+				if (event.result != "<SUCCESS/>") {
+					notLoggedIn();
+					return;
+				}
+				stateStack.selectedChild = initViews; 
+				linkbutton1.visible = true;
+				loggedInInit();				
+			}
+			
+			private function notLoggedIn():void { 
+				stateStack.selectedChild = loggedOutViews;	
+				showLogin();
+			}
+			
+			public function showLogin():void {
+				loggedOutViews.selectedChild = loginView;
+				focusManager.setFocus(loginView.txtUserName);
+				//loginView.txtUserName.setFocus();
+			}    
+			
+			public function showChangePassword():void {
+				loggedOutViews.selectedChild = managePasswords;
+			}  
+			
 			private function lookupExperiment():void {
 				if (requestNumber.text.indexOf("A") == 0) {
 					this.showAnalysisForNumber(requestNumber.text);				
@@ -786,7 +847,7 @@
             	}
             }
             
-            private function init():void {
+            private function loggedInInit():void {
             	appProgressBar = new AppProgressView();
             	appProgressBar.currentState = "StartupState";
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
@@ -1173,7 +1234,8 @@
 	        	if (done) {
 					appProgressBar.bar.setProgress(100, 100);
 		        	PopUpManager.removePopUp(appProgressBar);
-	    	    	currentState = "enabledState"; 
+	    	    	currentState = "enabledState";
+					stateStack.selectedChild = theViews;
 	        	}
 	        	
 	        }
@@ -1424,7 +1486,13 @@
         ]]>
     </mx:Script>
     
-    
+	<mx:Parallel id="hide">
+		<mx:Iris duration="500"/>
+		<mx:Fade duration="500"/>
+	</mx:Parallel>
+	
+	<mx:Iris id="show" duration="500" scaleXFrom="0" scaleXTo="1" scaleYFrom="0" scaleYTo="1"/>
+	
     <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}" sort="{experimentDesignSorter}"/>
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}" sort="{experimentFactorSorter}"/>
 	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns" unique="true"/>
@@ -1473,7 +1541,7 @@
 				            <mx:Spacer width="100%"/>
 			        
 			        <mx:HBox horizontalAlign="right" verticalAlign="middle" horizontalGap="2" height="30" id="hbox2">
-			        	<mx:LinkButton label="Help" styleName="navLinkButtonSmall" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1" />
+			        	<mx:LinkButton label="Help" styleName="navLinkButtonSmall" visible="false" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1" />
 			        	<mx:LinkButton label="About" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" />
 			        </mx:HBox>
 			      </mx:HBox>
@@ -1492,66 +1560,61 @@
 
 		  </mx:VBox>  
 		      
-
-	    
-	     
- 
-             
-        
 	    <mx:VBox id="mainArea" width="100%" 
 	    	height="100%" paddingTop="3" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0" verticalGap="0">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
-				
-    	     
- 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
-		   
-					<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
-					</util:LaunchView> 
-				</mx:ViewStack>
-		    	     
- 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
-		
-					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
-					</util:WelcomeView>  
-		
-				    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register Experiment'}" 
-				    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
-		            </experiment:ExperimentEditView>
-
-				    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Request" 
-				    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
-		            </experiment:ExperimentEditView>
-		            		
-			        <experiment:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
-			        	icon="@Embed('assets/flask.png')">
-			        </experiment:NavExperimentView>
-		
-			        <analysis:NavAnalysisView id="navAnalysisView" width="100%" height="100%" 
-			        	icon="@Embed('assets/map.png')">
-			        </analysis:NavAnalysisView>
-		
-			        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
-			        </workflow:NavWorkflowView> 
-		 
-		            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
-		            </billing:NavBillingView> 
-		          
-			        <protocol:ProtocolsView id="protocolsView" label="Materials &amp; Methods" icon="@Embed('assets/bricks.png')">
-			        </protocol:ProtocolsView>
-		
-			        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
-			        </slide:SlideManagementView>
-			        
-			        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users &amp; Groups" width="100%" height="100%" backgroundAlpha="1.0">	
-			        </user:NavUsersView>
-			        
-					<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
-					</admin:NavUsageView>
-			        
-		        </mx:ViewStack>
-		        
-		            
+					<mx:ViewStack id="loggedOutViews" visible="true" width="100%" height="100%" showEffect="{show}" creationPolicy="all">
+						<login:LoginFlex id="loginView" label="Log In" width="100%" height="100%" showEffect="{show}"/>
+						<login:Register id="registerView" label="Register" width="100%" height="100%" showEffect="{show}"/>
+						<login:ManagePasswords id="managePasswords" label="Passwords" width="100%" height="100%" showEffect="{show}"/>  				
+					</mx:ViewStack>		    			  	     
+	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
+			   
+						<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
+						</util:LaunchView> 
+					</mx:ViewStack>
+			    	     
+	 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
+			
+						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
+						</util:WelcomeView>  
+			
+					    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register Experiment'}" 
+					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
+			            </experiment:ExperimentEditView>
+	
+					    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Request" 
+					    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
+			            </experiment:ExperimentEditView>
+			            		
+				        <experiment:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
+				        	icon="@Embed('assets/flask.png')">
+				        </experiment:NavExperimentView>
+			
+				        <analysis:NavAnalysisView id="navAnalysisView" width="100%" height="100%" 
+				        	icon="@Embed('assets/map.png')">
+				        </analysis:NavAnalysisView>
+			
+				        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
+				        </workflow:NavWorkflowView> 
+			 
+			            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
+			            </billing:NavBillingView> 
+			          
+				        <protocol:ProtocolsView id="protocolsView" label="Materials &amp; Methods" icon="@Embed('assets/bricks.png')">
+				        </protocol:ProtocolsView>
+			
+				        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
+				        </slide:SlideManagementView>
+				        
+				        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users &amp; Groups" width="100%" height="100%" backgroundAlpha="1.0">	
+				        </user:NavUsersView>
+				        
+						<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
+						</admin:NavUsageView>
+				        
+			        </mx:ViewStack>
 	    		
 	    	</mx:ViewStack>
            
