@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
+	show="clearPwd()"
+	paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" defaultButton="{loginButton}" 
+	>
+
+    <mx:HTTPService 
+	    id="loginService"	    	    
+	    url="loginsucceeded.jsp"
+	    resultFormat="text"
+	    result="onLogin(event)"
+	    fault="onFailLogin()"
+	    showBusyCursor="true"
+	    method="POST" 	     
+	    useProxy="false" >
+	  <mx:request>
+	   <j_username>{txtUserName.text}</j_username>
+	   <j_password>{txtPassword.text}</j_password>
+	  </mx:request>	    
+    </mx:HTTPService>  
+       
+        
+   	<mx:Script>           
+        <![CDATA[
+	    	import mx.utils.ArrayUtil;
+	    	import mx.events.CloseEvent;
+	    	import mx.collections.Sort;
+	    	import mx.collections.XMLListCollection;
+	    	import mx.collections.XMLListCollection;
+	        import mx.controls.Alert;
+	        import mx.rpc.events.ResultEvent;        
+	        import mx.managers.CursorManager;
+	        import mx.managers.PopUpManager;
+	        import mx.events.CloseEvent;
+	        import mx.rpc.events.FaultEvent;
+	        import mx.utils.ArrayUtil;		        	        	        	        	
+		 	  
+			private function clearPwd():void {
+				txtPassword.text = "";
+			}
+			
+			//private function register():void {
+			//	parentApplication.showRegistration();
+			//}		
+			
+			private function changePassword():void {
+				parentApplication.showChangePassword();
+			}	
+			
+			private function login():void {
+				if (txtUserName.text != "" && txtPassword.text != "") {
+					//Show Data Use Popup
+					Alert.okLabel = "Agree";
+					Alert.cancelLabel = "Disagree";
+					Alert.buttonWidth = 100;
+					Alert.show("You have agreed to adhere to the rules set forth in the Data Use Agreement regarding confidentiality and release of data. Will you continue to comply with that agreement?", null , Alert.OK | Alert.CANCEL,  this, sendLogin, null, Alert.OK);								  	
+				}
+				else {
+					Alert.show("Please enter your user ID and password.");
+				}
+			}	
+			
+			private function sendLogin(event:CloseEvent):void {
+				Alert.okLabel = "Ok";
+				Alert.cancelLabel = "Cancel";
+				Alert.buttonWidth=70;
+				
+				if (event.detail == Alert.OK) {
+					loginService.send();
+				}
+			}					
+
+			private function openAboutLogin():void {
+				/*
+				var popup:MessagePopUp = MessagePopUp(PopUpManager.createPopUp(this, MessagePopUp, true));
+				var aboutLoginMessage:String = "<b>Access:</b> The UPDBL query tool may be accessed by individuals associated with institutions of higher learning or non-profit medical research. You will need to register before accessing the query tool. University of Utah faculty and staff may use their HCI or University ID and password. Individuals from outside institutions will need to create a username and password when registering.";
+				popup.setHTMLMessage(aboutLoginMessage);	
+				popup.setTitle("Logging In"); 
+			 	PopUpManager.centerPopUp(popup);
+				*/
+			}
+			
+
+			private function onLogin(event:ResultEvent):void {
+				if (event.result != "<SUCCESS/>") {
+					onFailLogin();
+				}
+				else {
+					//Login succeeded
+					parentApplication.loggedIn(event);
+				}				
+			}
+			
+			private function onFailLogin():void {
+				//Login failed
+				Alert.show("Login failed. Please check your user ID and password and try again.");
+			}			
+   		]]>
+   	</mx:Script>
+	
+	<mx:HBox horizontalGap="100" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
+		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="400" height="100%">
+			<mx:TitleWindow id="loginWindow" width="330" height="200"
+							layout="vertical" horizontalAlign="right" verticalGap="10"
+							title="GNomEx Login" styleName="loginWindow"
+							borderThickness="4" defaultButton="{loginButton}" titleStyleName="loginTitleStyle">	
+				<mx:VBox verticalGap="15" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="130">
+					<mx:HBox width="100%" verticalAlign="middle">
+						<mx:Label text="User ID:" width="70"/>
+						<mx:TextInput id="txtUserName" visible="true" width="100%"/> 
+					</mx:HBox> 
+					<mx:HBox width="100%" verticalAlign="middle">
+						<mx:Label text="Password:" width="70"/>
+						<mx:TextInput id="txtPassword" displayAsPassword="true" width="100%"/>
+					</mx:HBox> 
+					<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center" height="20">
+						<mx:Label fontSize="10" fontWeight="bold" color="#1F49C3" textDecoration="underline" click="changePassword()" htmlText="&lt;a href='#'&gt;Click here to retrieve or change your password&lt;/a&gt;"/>
+					</mx:HBox> 
+				</mx:VBox>
+				<mx:Button label="Login" click="loginService.send()"  id="loginButton"/>					
+			</mx:TitleWindow>
+		</mx:VBox>
+	</mx:HBox>
+		
+</mx:Canvas>

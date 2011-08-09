@@ -1,5 +1,8 @@
 ﻿GNomEx Release Notes
 
+- Switched to form-based authentication.
+- Added password reset/change for external users.
+
 5.1.9.2 (Aug 9, 2011)
 ----------------------
 - Fixed null pointer exception in SaveRequest that occurred when estimated price warning email was sent and

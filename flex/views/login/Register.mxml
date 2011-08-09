@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
+	xmlns:views="views.*"  
+	xmlns:hci = "hci.util.*"
+	show="init()"
+	paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" defaultButton="{submitBtn}" 
+	>
+	
+    <mx:HTTPService 
+	    id="registerService"	    
+	    url="RegisterUser.updbl"
+	    resultFormat="e4x"
+	    result="registrationSucceeded(event)"
+	    fault="parentApplication.onFailHttpRequest('Registration Failed', event)"
+	    showBusyCursor="true"
+	    method="POST"
+	    useProxy="false">
+	  <mx:request>
+	   <isExternal>{(isInternal.selected)?"N":"Y"}</isExternal>
+	   <firstName>{firstName.text}</firstName>
+	   <lastName>{lastName.text}</lastName>
+	   <email>{email.text}</email>
+	   <department>{department.text}</department>
+	   <userName>{userName.text}</userName>
+	   <password>{password.text}</password>
+	   <captchaText>{captchaText.text}</captchaText>
+	   <phone>{phoneNumber.text}</phone>
+	   <position>{position.selectedValue}</position>
+	   <facultyName>{(facultyFields.visible)?facultyName.text:""}</facultyName>
+	   <facultyEmail>{(facultyFields.visible)?facultyEmail.text:""}</facultyEmail>
+	   <affiliation>{affiliation.selectedValue}</affiliation>
+	   <organization>{(isInternal.selected)?"University of Utah":organization.text}</organization>
+	   <intendedResearch>{intendedResearch.text}</intendedResearch>
+	  </mx:request>	    
+    </mx:HTTPService>         
+        
+    <mx:Script>            
+        <![CDATA[
+	    	import mx.utils.ArrayUtil;
+	    	import mx.collections.Sort;
+	    	import mx.collections.XMLListCollection;
+	    	import mx.collections.XMLListCollection;
+	        import mx.controls.Alert;
+	        import mx.rpc.events.ResultEvent;        
+	        import mx.managers.CursorManager;
+	        import mx.managers.PopUpManager;
+	        import mx.events.CloseEvent;
+	        import mx.rpc.events.FaultEvent;
+	        import mx.utils.ArrayUtil;	
+	        import mx.events.ValidationResultEvent;	   	        	        	        	
+		 	  
+			private function init():void {
+				registrationStack.selectedChild = reg1;
+				accept.selected = false;
+				focusControl();
+			}				
+			
+			private function register():void {
+
+				if (userNameValidator.validate().type == ValidationResultEvent.INVALID
+					|| passwordValidator.validate().type == ValidationResultEvent.INVALID
+					|| captchaTextValidator.validate().type == ValidationResultEvent.INVALID
+					|| phoneNumberValidator.validate().type == ValidationResultEvent.INVALID
+					|| (! isInternal.selected && passwordConfirmValidator.validate().type == ValidationResultEvent.INVALID)) {
+					Alert.show("Please fix errors (red) before continuing");
+					return;
+				}
+				else if (! isInternal.selected && password.text != passwordConfirm.text) {
+					Alert.show("The passwords you have entered are not the same. Please re-enter your desired password.", "", 4, null, focusPassword, null, 4);
+					password.text = "";
+					passwordConfirm.text = "";
+				}
+				
+				registerService.send();
+			}
+			
+			private function focusPassword(event:CloseEvent): void {
+				password.setFocus();
+			}
+			
+			private function focusControl():void {
+				if (registrationStack.selectedIndex == 0) {
+					firstName.setFocus();
+				}
+				else if (registrationStack.selectedIndex == 2) {
+					userName.setFocus();
+				}
+			}
+			
+			private function registrationSucceeded(event:ResultEvent):void {
+				//Registration succeeded	
+				if (! isInternal.selected) {
+					Alert.show("You have successfully resistered. A confirmation email will be sent to the email address you provided." 
+						+ " You will need to click on the activation link in the confirmation email before you may log into the UPDB Limited Query Tool.",  
+						"Registration Successful");	
+				}
+				else {
+					Alert.show("Registration Successful");
+				}
+				parentApplication.showLogin();		
+			}
+			
+			public function next():void {
+				if (registrationStack.selectedIndex == 0) {
+					if (emailValidator.validate().type == ValidationResultEvent.INVALID
+						|| firstNameValidator.validate().type == ValidationResultEvent.INVALID
+						|| lastNameValidator.validate().type == ValidationResultEvent.INVALID
+						|| phoneNumberValidator.validate().type == ValidationResultEvent.INVALID
+						|| departmentValidator.validate().type == ValidationResultEvent.INVALID) {
+						
+						Alert.show("Please fix errors (red) before continuing");
+						return;
+					}
+				}
+				else if (registrationStack.selectedIndex == 1) {
+					if (facultyFields.visible && 
+						(facultyNameValidator.validate().type == ValidationResultEvent.INVALID
+							|| facultyEmail.visible && facultyEmailValidator.validate().type == ValidationResultEvent.INVALID)) {
+						
+						Alert.show("Please fix errors (red) before continuing");
+						return;
+					}
+				}
+				else if (registrationStack.selectedIndex == 2) {
+					if (specify.visible && organizationValidator.validate().type == ValidationResultEvent.INVALID) {
+						
+						Alert.show("Please fix errors (red) before continuing");
+						return;
+					}
+				}
+				else if (registrationStack.selectedIndex == 3) {
+					if (intendedResearchValidator.validate().type == ValidationResultEvent.INVALID){
+						
+						Alert.show("Please fix errors (red) before continuing");
+						return;
+					}
+				}				
+				else if (registrationStack.selectedIndex == 4) {
+					if (agree1Validator.validate().type == ValidationResultEvent.INVALID
+						|| agree2Validator.validate().type == ValidationResultEvent.INVALID
+						|| agree3Validator.validate().type == ValidationResultEvent.INVALID
+						|| agree4Validator.validate().type == ValidationResultEvent.INVALID
+						|| agree5Validator.validate().type == ValidationResultEvent.INVALID
+						|| agree6Validator.validate().type == ValidationResultEvent.INVALID) {
+							
+						
+						Alert.show("Please read and aggree to the following conditions (red) before continuing");
+						return;	
+					}
+				}
+				
+				registrationStack.selectedIndex += 1;
+				focusControl();
+			}
+			
+			public function previous():void {
+				registrationStack.selectedIndex -= 1;
+				focusControl();
+			}			
+		]]>
+    </mx:Script>   
+    
+    <mx:EmailValidator id="emailValidator" source="{email}" property="text" required="true" />
+    <mx:StringValidator id="firstNameValidator" source="{firstName}" property="text" required="true" />
+    <mx:StringValidator id="lastNameValidator" source="{lastName}" property="text" required="true" />
+    <mx:StringValidator id="departmentValidator" source="{department}" property="text" required="true" />   
+    <mx:StringValidator id="userNameValidator" source="{userName}" property="text" required="true" />  
+    <mx:StringValidator id="passwordValidator" source="{password}" property="text" required="true" />  
+    <mx:StringValidator id="passwordConfirmValidator" source="{passwordConfirm}" property="text" required="true" />  
+    <mx:StringValidator id="captchaTextValidator" source="{captchaText}" property="text" required="true" /> 
+    <mx:PhoneNumberValidator id="phoneNumberValidator" source="{phoneNumber}" property="text" required="true" />    
+    
+    <mx:StringValidator id="facultyNameValidator" source="{facultyName}" property="text" required="true" />
+    <mx:EmailValidator id="facultyEmailValidator" source="{facultyEmail}" property="text" required="true" />
+
+	<mx:StringValidator id="organizationValidator" source="{organization}" property="text" required="true" />
+	
+	<mx:StringValidator id="intendedResearchValidator" source="{intendedResearch}" property="text" required="true" />
+
+    <mx:Validator id="agree1Validator" source="{agree1}" property="{(agree1.selected)?'selected':'label'}" required="true"/>
+    <mx:Validator id="agree2Validator" source="{agree2}" property="{(agree2.selected)?'selected':'label'}" required="true"/>
+    <mx:Validator id="agree3Validator" source="{agree3}" property="{(agree3.selected)?'selected':'label'}" required="true"/>
+    <mx:Validator id="agree4Validator" source="{agree4}" property="{(agree4.selected)?'selected':'label'}" required="true"/>
+    <mx:Validator id="agree5Validator" source="{agree5}" property="{(agree5.selected)?'selected':'label'}" required="true"/>
+    <mx:Validator id="agree6Validator" source="{agree6}" property="{(agree6.selected)?'selected':'label'}" required="true" />       	
+	    
+	    <mx:VBox id="mainArea" width="100%" height="100%"
+	    	paddingTop="0" paddingBottom="1" paddingLeft="0" 
+	    	paddingRight="0" horizontalCenter="0" verticalGap="0" verticalAlign="middle" horizontalAlign="center">
+	    	
+
+	    			<mx:HBox paddingTop="0" paddingLeft="0" verticalGap="0" borderThickness="3" borderStyle="inset" borderColor="#000000">
+	    				<mx:Canvas paddingTop="0" paddingLeft="0" backgroundColor="#FFFFFF" borderColor="#FFFFFF" fontSize="14" height="556">
+							  <mx:Text x="10" y="139" htmlText="&lt;b&gt;Please Note:&lt;/b&gt;  Access to the UPDBL query tool  is limited to individuals associated with institutions of higher learning or non-profit medical research." width="159" fontSize="14">
+							  </mx:Text>
+							  <mx:HBox x="0" y="66" width="100%" height="15" backgroundColor="#191962">
+							  </mx:HBox>
+							  <mx:Label x="10" y="100" text="Registration" color="#102A8B" fontWeight="bold" fontSize="20"/>
+							  	<mx:ViewStack id="registrationStack" width="100%" x="183" y="100" height="100%">
+						  			<mx:Canvas id="reg1">
+										<mx:VBox width="100%" height="100%">
+											<mx:VBox width="100%" height="100%">
+												<mx:Form id="form1">
+												<mx:Label text="1. Please provide the following contact information" color="#102A8B" x="306" y="77" fontWeight="bold"/>
+												<mx:Spacer/>
+											  	<mx:RadioButtonGroup id="institution" />
+											  	<mx:FormItem label="First Name" horizontalAlign="right">
+											  		<mx:TextInput id="firstName" width="197" maxChars="50"/>
+											  	</mx:FormItem>
+											  	<mx:FormItem label="Last Name" horizontalAlign="right">
+											  		<mx:TextInput id="lastName" width="197" maxChars="50"/>
+											  	</mx:FormItem>							  		
+											  	<mx:FormItem label="Department" horizontalAlign="right">
+											  		<mx:TextInput id="department" width="197" maxChars="100"/>
+											  	</mx:FormItem>
+											  	<mx:FormItem label="Email" horizontalAlign="right">
+											  		<mx:TextInput id="email" width="307" maxChars="200"/>
+											  	</mx:FormItem>
+											  	<mx:FormItem label="Phone Number" horizontalAlign="right">
+											  		<mx:TextInput id="phoneNumber" width="197"/>
+											  	</mx:FormItem>
+												</mx:Form>										  													
+											</mx:VBox>
+											<mx:VBox width="100%" verticalAlign="bottom" horizontalAlign="right" paddingBottom="10" paddingRight="10" click="next()">
+												<mx:Button label="Next" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left"/>
+											</mx:VBox>											  											  
+										</mx:VBox>						  			
+						  			</mx:Canvas>
+						  			<mx:Canvas label="" width="100%" height="100%">
+						  				<mx:VBox width="100%" height="100%">
+							  				<mx:VBox width="100%" height="100%">
+							  					<mx:Form id="form2">
+							  					<mx:Label text="2. Please provide the following information about your position" color="#102A8B" x="306" y="77" fontWeight="bold"/>
+							  					<mx:Spacer/>
+							  					 	<mx:RadioButtonGroup id="position" />
+							  					 	<mx:FormItem label="I am" width="473" horizontalAlign="right">
+							  					 		<mx:VBox verticalGap="0" width="100%">
+							  					 			<mx:RadioButton selected="true" label="Faculty" groupName="position" width="176" value="Faculty"/>
+							  					 			<mx:RadioButton label="Clinical Investigator" groupName="position" width="185" value="Clinical Investigator"/>
+							  					 			<mx:RadioButton label="Research Staff" groupName="position" width="185" value="Research Staff"/>
+							  					 			<mx:RadioButton label="Student / Trainee" groupName="position" width="185" value="Student / Trainee" id="student"/>
+							  					 			<mx:VBox id="facultyFields" width="100%" paddingLeft="20" paddingRight="10" visible="{student.selected}">
+							  					 				<mx:Label text="Name of faculty supervisor or mentor"/>
+							  					 				<mx:TextInput id="facultyName" width="100%" maxChars="100"/>
+							  					 				<mx:Label text="Email address of faculty supervisor or mentor"/>
+							  					 				<mx:TextInput id="facultyEmail" width="100%" maxChars="200"/>
+							  					 			</mx:VBox>
+							  					 		</mx:VBox>
+							  					 	</mx:FormItem>
+							  					</mx:Form>										  													
+							  				</mx:VBox>						  														  												
+						  					<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" paddingBottom="10" paddingRight="1" paddingLeft="10">
+						  						<mx:Button label="Previous" icon="@Embed(source='../../assets/arrow_left.png')" labelPlacement="right" click="previous()"/>
+						  						<mx:HBox horizontalAlign="right" width="100%" paddingRight="10">
+						  							<mx:Button label="Next" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" click="next()"/>									
+						  						</mx:HBox>
+						  					</mx:HBox>
+						  				</mx:VBox>
+						  			</mx:Canvas>
+									<mx:Canvas label="" width="100%" height="100%">
+						  				<mx:VBox width="100%" height="100%">
+							  				<mx:VBox width="100%" height="100%">
+							  					<mx:Form id="form3">
+							  					<mx:Label text="3. Please tell us about your organization" color="#102A8B" x="306" y="77" fontWeight="bold"/>
+							  					<mx:Spacer/>
+							  					 	<mx:RadioButtonGroup id="affiliation" />
+							  					 	<mx:FormItem label="I am affiliated with" width="473" horizontalAlign="right">
+							  					 		<mx:VBox verticalGap="0" width="100%">
+							  					 			<mx:RadioButton id="isInternal" selected="true" label="University of Utah" groupName="affiliation" width="100%" value="University of Utah"/>
+							  					 			<mx:RadioButton label="Other Institution of Higher Learning" groupName="affiliation" width="100%" value="Other Institution of Higher Learning" id="otherEdu"/>
+							  					 			<mx:RadioButton label="Other Non-Profit Health Organization" groupName="affiliation" width="100%" value="Other Non-Profit Health Organization" id="otherNonProfit"/>
+							  					 		</mx:VBox>
+							  					 	</mx:FormItem>
+							  					 	<mx:FormItem id="specify" label="Please specify" width="473" horizontalAlign="right" visible="{otherEdu.selected || otherNonProfit.selected}">
+							  					 		<mx:VBox verticalGap="0" width="100%">
+							  					 			<mx:TextInput id="organization" width="100%" maxChars="200"/>
+							  					 		</mx:VBox>
+							  					 	</mx:FormItem>
+							  					</mx:Form>										  													
+							  				</mx:VBox>						  														  												
+						  					<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" paddingBottom="10" paddingRight="1" paddingLeft="10">
+						  						<mx:Button label="Previous" icon="@Embed(source='../../assets/arrow_left.png')" labelPlacement="right" click="previous()"/>
+						  						<mx:HBox horizontalAlign="right" width="100%" paddingRight="10">
+						  							<mx:Button label="Next" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" click="next()"/>									
+						  						</mx:HBox>
+						  					</mx:HBox>
+						  				</mx:VBox>
+						  			</mx:Canvas>
+									<mx:Canvas label="" width="100%" height="100%">
+						  				<mx:VBox width="100%" height="100%">
+							  				<mx:VBox width="100%" height="100%">
+							  					<mx:Form id="form4" height="100%">
+							  					<mx:Label text="4. Please tell us about your intended area(s) or research" color="#102A8B" x="306" y="77" fontWeight="bold"/>
+							  					<mx:Spacer/>
+							  					 	<mx:FormItem width="473" horizontalAlign="right" height="100%">
+							  					 		<mx:VBox verticalGap="0" width="100%" height="100%">
+							  					 			<mx:TextArea id="intendedResearch" width="100%" height="100%" maxChars="2000"/>
+							  					 		</mx:VBox>
+							  					 	</mx:FormItem>
+							  					</mx:Form>										  													
+							  				</mx:VBox>						  														  												
+							  				<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" paddingBottom="10" paddingRight="1" paddingLeft="10">
+							  					<mx:Button label="Previous" icon="@Embed(source='../../assets/arrow_left.png')" labelPlacement="right" click="previous()"/>
+							  					<mx:HBox horizontalAlign="right" width="100%" paddingRight="10">
+							  						<mx:Button label="Next" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" click="next()"/>									
+							  					</mx:HBox>
+							  				</mx:HBox>
+						  				</mx:VBox>
+						  			</mx:Canvas>						  									  			
+						  			<mx:Canvas id="reg2" width="100%">
+						  				<mx:VBox width="100%" height="100%">
+							  				<mx:VBox width="100%" height="100%" paddingRight="10">
+										  		<mx:Label text="5. Please review the UPDBL Query System Data Use Agreement" color="#102A8B" fontWeight="bold"/>
+										  		<mx:Canvas width="100%" height="305" verticalScrollPolicy="on" borderThickness="1" barColor="#000000" borderStyle="solid">
+										  			<mx:VBox y="7" width="100%" height="100%" paddingLeft="10">
+										  				<mx:Text width="100%" text="The data and information provided through this Query System are intended for the use of individuals associated with institutions of higher learning or non-profit health care institutions. The goal is to assist in the preparation of research protocols or for similar purposes preparatory to research. Any use of this query system to collect data for actual research must first be approved by the Utah Resource for Genetic and Epidemiologic Research (RGE) and the Institutional Review Board(s) of the institution(s) engaged in the research." fontSize="10"/>
+										  				<mx:Text fontWeight="bold" fontSize="11">
+										  					<mx:text>As a UPDBL Query System user, I CERTIFY THE FOLLOWING:</mx:text>
+										  				</mx:Text>
+										  				<mx:CheckBox id="agree0" label="The information I have provided is complete and accurate." width="100%"/>
+										  				<mx:HBox width="100%">										  															  				
+										  					<mx:CheckBox id="agree1" /><mx:Text width="100%" text="I will limit the use of these data to providing information for proposals and project development preparatory to conducting research."/>
+										  				</mx:HBox>
+										  				<mx:HBox width="100%">										  															  				
+										  					<mx:CheckBox id="agree2"/>
+										  					<mx:Text width="100%" text="I will not publish or present any information gathered in this Query System, including but not limited to abstracts, posters, conference presentations, or manuscripts, without RGE approval."/>
+										  				</mx:HBox>
+										  				<mx:HBox width="100%">										  															  				
+										  					<mx:CheckBox id="agree3"/><mx:Text width="100%" text="I will not attempt to identify any individual represented in the query system data."/>
+										  				</mx:HBox>
+										  				<mx:HBox width="100%">										  															  				
+										  					<mx:CheckBox id="agree4"/><mx:Text width="100%" text="I will not link the Query system data with any other data that, after linkage, might allow identification of an individual represented in the query system data."/>
+										  				</mx:HBox>
+										  				<mx:HBox width="100%">										  															  				
+										  					<mx:CheckBox id="agree5"/><mx:Text width="100%" text="I will use appropriate safeguards to prevent the inappropriate use or disclosure of individual(s) represented in the data, including when disclosing the Query System data to others."/>
+										  				</mx:HBox>
+										  				<mx:HBox width="100%">										  															  				
+										  					<mx:CheckBox id="agree6"/><mx:Text width="100%">
+										  						<mx:htmlText><![CDATA[I will IMMEDIATELY report any inadvertent or intentional disclosures of the identity of individuals or violations of this agreement of which I become aware, by myself or others, to the director of the Utah Resource for Genetic and Epidemiologic Research (RGE) at the University of Utah <font color="#0000FF"><u><a href='mailto:rge@hsc.utah.edu'>rge@hsc.utah.edu</a></u></font> or 801/581-6351
+																]]></mx:htmlText>
+										  					</mx:Text>
+										  				</mx:HBox> 
+										  			</mx:VBox>
+										  		</mx:Canvas>		
+										  		<mx:HBox width="100%" paddingLeft="10">
+										  			<mx:CheckBox id="accept"/>
+										  			<mx:Text text="I understand that failure to adhere to the above stated agreement items will result in loss of access to the UPDBL Internet databases, and may result in criminal and/or civil penalties." width="100%" paddingLeft="10"/>
+										  		</mx:HBox>											  	
+										  		<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" paddingBottom="10" paddingRight="1" paddingLeft="10" paddingTop="10">
+										  			<mx:Button label="Previous" icon="@Embed(source='../../assets/arrow_left.png')" labelPlacement="right" click="previous()"/>
+										  			<mx:HBox horizontalAlign="right" width="100%" paddingRight="10">
+										  				<mx:Button label="Next" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" click="next()" enabled="{accept.selected}"/>									
+										  			</mx:HBox>
+										  		</mx:HBox>
+							  				</mx:VBox>		
+						  				</mx:VBox>						  								  				
+						  			</mx:Canvas>
+						  			<mx:Canvas id="reg3" width="100%">
+						  				<mx:VBox width="100%" height="100%">
+							  				<mx:VBox width="100%" height="100%">
+										  		<mx:Label text='{(isInternal.selected)?"6. Please enter your HCI or UofU user ID and password":"6. Please choose a user ID and password"}' color="#102A8B" fontWeight="bold"/>
+											  	<mx:FormItem label="User ID" width="300" horizontalAlign="right">
+											  		<mx:TextInput id="userName" width="146" maxChars="50"/>
+											  	</mx:FormItem>
+											  	<mx:FormItem label="Password" width="300" horizontalAlign="right">
+											  		<mx:TextInput id="password" width="146" displayAsPassword="true" maxChars="20"/>
+											  	</mx:FormItem>							  		
+											  	<mx:FormItem label="Confirm Password" horizontalAlign="right" width="301" visible="{! isInternal.selected}">
+											  		<mx:TextInput id="passwordConfirm" width="147" displayAsPassword="true" maxChars="20"/>
+											  	</mx:FormItem>	
+											  	<mx:Spacer height="20"/>
+											  	<mx:Label text="7. Please enter the text from the image below" color="#102A8B" fontWeight="bold"/>
+											  	<mx:HBox width="100%" verticalAlign="bottom">
+											  		<mx:Image id="captcha" source="Captcha.jpg"/>	
+											  		<mx:Image source="assets/refresh.png" click="{captcha.source = ''; captcha.source='Captcha.jpg?random='+Math.random();}" useHandCursor="true" buttonMode="true"/>
+											  	</mx:HBox>						  									  							  				
+											  	<mx:TextInput id="captchaText" width="147"/>
+											  	<mx:Spacer height="20"/>
+							  				</mx:VBox>		
+											<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right" paddingBottom="10" paddingRight="1" paddingLeft="10">
+												<mx:Button label="Previous" icon="@Embed(source='../../assets/arrow_left.png')" labelPlacement="right" click="previous()"/>
+												<mx:HBox horizontalAlign="right" width="100%" paddingRight="10">
+													<mx:Button id="submitBtn" x="66.8" y="322" label="Finish" fontWeight="bold" icon="@Embed(source='../../assets/user_add.png')" click="register()"/>										
+												</mx:HBox>
+											</mx:HBox>																		  					
+						  				</mx:VBox>							  				
+						  			</mx:Canvas>
+						  				
+						  		</mx:ViewStack>
+							 							  					  
+	    				</mx:Canvas>
+	    			</mx:HBox>
+	    	          
+     </mx:VBox>
+		
+</mx:Canvas>
