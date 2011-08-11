@@ -199,8 +199,8 @@
 		
 		import views.renderers.ComboBoxBillingStatus;
 		import views.renderers.LabelPercentage;
-		import views.util.PickBillingPeriodView;
 		import views.util.BillingPeriodSelectEvent;
+		import views.util.PickBillingPeriodView;
         
         private var revisionNumber:int = 1;
  		
@@ -1357,7 +1357,11 @@
 
     	private function promptForRemovePricing():void {
 			if (this.pricingTree.selectedItem != null) {
-	    		var warningMessage:String = "Are you sure you want to remove (unlink) \"" + this.pricingTree.selectedItem.@display + "\" from the price sheet?";
+				var warningMessage:String = "Are you sure you want to remove \"" + this.pricingTree.selectedItem.@display + "?\"";
+				var currentNode:XML = XML(this.pricingTree.selectedItem);
+				if(currentNode.name().localName == "PriceCategory") {
+					warningMessage = "Are you sure you want to remove (unlink) category \"" + this.pricingTree.selectedItem.@display + "\" from the price sheet?";
+				} 
 				Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForRemovePricing);				
 			}
     	}
