@@ -2,6 +2,8 @@
 
 - Switched to form-based authentication.
 - Added password reset/change for external users.
+- Fixed bug preventing username from being saved with session login
+- Changed wording on alert when price removed from price sheet.
 
 5.1.9.2 (Aug 9, 2011)
 ----------------------
