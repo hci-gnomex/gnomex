@@ -42,7 +42,7 @@ public class HibernateSession {
     }
     
     
-    setAppName(s, null);
+    setAppName(s, username);
 
     return s;
   }
