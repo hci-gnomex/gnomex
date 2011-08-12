@@ -44,7 +44,7 @@
 			//}		
 			
 			private function changePassword():void {
-				parentApplication.showChangePassword();
+				parentApplication.showChangePasswordBeforeLogin();
 			}	
 
 			

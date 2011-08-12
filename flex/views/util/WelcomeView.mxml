@@ -189,7 +189,7 @@
 			}
 			
 			private function changePassword():void {
-				parentApplication.showChangePassword();
+				parentApplication.showChangePasswordAfterLogin();
 			}
 			
 			private function showAdvancedSearch():void {				
