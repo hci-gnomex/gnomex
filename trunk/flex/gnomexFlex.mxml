@@ -563,13 +563,20 @@
 				}				
 			}			
 			   
-			public function showChangePassword():void {
+			public function showChangePasswordBeforeLogin():void {
 				var managePasswordWindow:ManagePasswords = ManagePasswords(PopUpManager.createPopUp(this.mainArea, ManagePasswords, true));
 				PopUpManager.centerPopUp(managePasswordWindow);
-				managePasswordWindow.init();
+				managePasswordWindow.init(null);
 
-			}  
+			}   
 			
+			
+			public function showChangePasswordAfterLogin():void {
+				var managePasswordWindow:ManagePasswords = ManagePasswords(PopUpManager.createPopUp(this.mainArea, ManagePasswords, true));
+				PopUpManager.centerPopUp(managePasswordWindow);
+				managePasswordWindow.init(this.isExternalUser ? 'Y' : 'N');
+				
+			}  
 			private function lookupExperiment():void {
 				if (requestNumber.text.indexOf("A") == 0) {
 					this.showAnalysisForNumber(requestNumber.text);				
