@@ -21,6 +21,8 @@
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
+			<mx:RemoveChild target="{hbox5}"/>
+			<mx:RemoveChild target="{button13}"/>
 		</mx:State>
 		<mx:State name="AdminState">
 			<mx:RemoveChild target="{button8}"/>
@@ -28,8 +30,7 @@
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:AddChild relativeTo="{button8}" position="before" target="{hbox2}"/>
 			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
-			<mx:SetStyle target="{hbox4}" name="paddingTop" value="32"/>
-			<mx:SetStyle target="{hbox0}" name="paddingTop" value="32"/>
+			<mx:SetStyle target="{hbox0}" name="paddingTop" value="10"/>
 			<mx:RemoveChild target="{hbox6}"/>
 			<mx:SetProperty target="{button6}" name="toolTip" value="View protocols used during experiment processing"/>
 			<mx:SetProperty target="{button6}" name="visible" value="true"/>
@@ -66,6 +67,8 @@
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{hbox0}"/>
 			<mx:RemoveChild target="{button7}"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button7}"/>
+			<mx:SetStyle target="{hbox5}" name="paddingTop" value="10"/>
+			<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
@@ -85,31 +88,28 @@
 			<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
 		</mx:State>
 		<mx:State name="UniversityOnlyUserState" basedOn="UserNonSubmitterState" >
-			<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
+			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
+			<mx:RemoveChild target="{hbox0}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{hbox0}"/>
+			<mx:RemoveChild target="{button7}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button7}"/>
+			<mx:SetStyle target="{hbox4}" name="paddingTop" value="20"/>
 		</mx:State>
 		<mx:State name="ExternalUserState">
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:HBox id="miscBox" horizontalGap="2" paddingTop="0">
-					<mx:Label text="User account" id="label0" styleName="welcomeLabel" paddingTop="10"/>
-				</mx:HBox>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:LinkButton label="Change Password" click="changePassword()" styleName="dashboardButton"  id="buttonChangePassword"  icon="@Embed(source='../../assets/user.png')"/>
-			</mx:AddChild>
-			<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
 			<mx:SetStyle target="{vbox10}" name="verticalGap" value="20"/>
+			<mx:SetEventHandler target="{button13}" name="click" handler="changePassword()"/>
 		</mx:State>
 		<mx:State name="ExternalUserNonSubmitterState" basedOn="UserNonSubmitterState">
-			<mx:AddChild relativeTo="{hbox0}" position="before">
-				<mx:Label text="User account" id="label5" styleName="welcomeLabel" paddingTop="10"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox0}" position="before"> 
-				<mx:LinkButton label="Change Password" click="changePassword()" styleName="dashboardButton"  id="buttonChangePassword0"  icon="@Embed(source='../../assets/user.png')"/>
-			</mx:AddChild>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
+			<mx:SetStyle target="{hbox5}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{hbox0}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{hbox0}"/>
+			<mx:RemoveChild target="{button7}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button7}"/>
+			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -189,7 +189,7 @@
 			}
 			
 			private function changePassword():void {
-				navigateToURL(new URLRequest('change_password_external_user.jsp'), '_blank');
+				parentApplication.showChangePassword();
 			}
 			
 			private function showAdvancedSearch():void {				
@@ -275,17 +275,21 @@
 							   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 				<mx:LinkButton id="organismButton0"  label="Configure Organisms" styleName="dashboardButton" 
 							   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
-			</mx:VBox>
+			</mx:VBox> 
 			<mx:VBox height="100%" verticalAlign="top" horizontalAlign="left" id="vbox1" verticalGap="2" width="268" label="View experiment protocol descriptions">
 				<mx:HBox id="hbox7" horizontalGap="2" verticalAlign="middle">
 					<mx:Label text="Analysis" id="label3" styleName="welcomeLabel"/>
-				</mx:HBox>
+				</mx:HBox> 
 				<mx:LinkButton label="Browse Analyses" click="showAnalysis()" styleName="dashboardButton"  id="button4"  verticalGap="4" toolTip="Browse analysis entries, view analysis annotations" icon="@Embed(source='../../assets/map.png')"/>
 				<mx:LinkButton label="Download Analyzed data files" click="showAnalysisDownloads()" styleName="dashboardButton"  id="button5"  toolTip="Download analysis data files" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:HBox id="hbox4" horizontalGap="2" paddingTop="40">
+				<mx:HBox id="hbox4" horizontalGap="2" paddingTop="20">
 					<mx:Label text="Materials and Methods" id="label1" styleName="welcomeLabel"/>
 				</mx:HBox>
 				<mx:LinkButton label="View experiment protocol descriptions" click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
+				<mx:HBox id="hbox5" horizontalGap="2" paddingTop="20">
+					<mx:Label text="User account" id="label6" styleName="welcomeLabel"/>
+				</mx:HBox>
+				<mx:LinkButton label="Change password" click="changePassword()" styleName="dashboardButton"  id="button13"  icon="@Embed(source='../../assets/user.png')"/>
 			</mx:VBox>
 		</mx:HBox>
 		<mx:HBox verticalGap="0"    verticalAlign="middle" horizontalAlign="center" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="2" width="100%" horizontalGap="40" id="hbox6">
