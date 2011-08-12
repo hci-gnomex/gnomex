@@ -293,8 +293,10 @@
 			<url-pattern>GetAnalysisLabList.gx</url-pattern>
 			<url-pattern>GetBillingItemList.gx</url-pattern>
 			<url-pattern>GetBillingRequestList.gx</url-pattern>
-			<url-pattern>getPricingList.gx</url-pattern>
+			<url-pattern>GetPrice*.gx</url-pattern>
+			<url-pattern>GetPricing*.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
+			<url-pattern>GetUsageData.gx</url-pattern>
 			<url-pattern>MovePriceCategory.gx</url-pattern>
 			<url-pattern>OrganizeExperimentUploadFiles.gx</url-pattern>
 			<url-pattern>Reassign*.gx</url-pattern>

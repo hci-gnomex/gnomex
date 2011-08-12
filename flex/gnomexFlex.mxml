@@ -198,6 +198,7 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
 			import views.util.WorkAuthorizationWindow;
+			import views.login.ManagePasswords;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -561,9 +562,12 @@
 					ExternalInterface.call("window.location.reload");					
 				}				
 			}			
-			
+			   
 			public function showChangePassword():void {
-				loggedOutViews.selectedChild = managePasswords;
+				var managePasswordWindow:ManagePasswords = ManagePasswords(PopUpManager.createPopUp(this.mainArea, ManagePasswords, true));
+				PopUpManager.centerPopUp(managePasswordWindow);
+				managePasswordWindow.init();
+
 			}  
 			
 			private function lookupExperiment():void {
@@ -1599,7 +1603,6 @@
 					<mx:ViewStack id="loggedOutViews" visible="true" width="100%" height="100%" showEffect="{show}" creationPolicy="all">
 						<login:LoginFlex id="loginView" label="Log In" width="100%" height="100%" showEffect="{show}"/>
 						<login:Register id="registerView" label="Register" width="100%" height="100%" showEffect="{show}"/>
-						<login:ManagePasswords id="managePasswords" label="Passwords" width="100%" height="100%" showEffect="{show}"/>  				
 					</mx:ViewStack>		    			  	     
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 			   

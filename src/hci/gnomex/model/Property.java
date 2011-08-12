@@ -37,6 +37,7 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        HTTP_PORT                           = "http_port";
   public static final String        FDT_USER                            = "fdt_user";
   public static final String        FDT_GROUP                           = "fdt_group";
+  public static final String        UNIVERSITY_USER_AUTHENTICATION      = "university_user_authentication"; 
 
 
   private Integer  idProperty;
