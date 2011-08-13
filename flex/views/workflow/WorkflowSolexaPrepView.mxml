@@ -125,39 +125,6 @@
         	
         	var item:Object = null;
         	var vr:ValidationResultEvent  = null;
-		    
-		    nv.domain = "integer";
-		    nv.precision = 1;
-        	for each (item in dirtyItems) {
-		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepLibConcentration);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\n" + item.@sampleNumber + " Library Concentration " + item.@seqPrepLibConcentration + " " + vr.message;
-		    		break;
-		    	}
-	    	}         	
- 
-	    	nv.domain = "integer";
-	    	nv.precision = 0;
-        	for each (item in dirtyItems) {
-		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepGelFragmentSizeFrom);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\n" + item.@sampleNumber + " Fragment Size (from) " + item.@seqPrepGelFragmentSizeFrom + " " + vr.message;
-		    		break;
-		    	}
-	    	}         	
-        	
-	    	nv.domain = "integer";
-	    	nv.precision = 0;
-        	for each (item in dirtyItems) {
-		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepGelFragmentSizeTo);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\n" + item.@sampleNumber + " Fragment Size (to) " + item.@seqPrepGelFragmentSizeTo + " " + vr.message;
-		    		break;
-		    	}
-	    	}  
 
 
 			// Make sure sample prep method is entered.
@@ -367,54 +334,6 @@
 		               itemRenderer="mx.controls.Label"		
 		               labelFunction="getSeqLibProtocol"                
 					   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
-				    <mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="10" dataField="@seqPrepLibConcentration"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Lib conc."/>
-							    <mx:Label text="ng/uL"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="21" dataField="@seqPrepQualCodeBioanalyzerChipType"
-						labelFunction="getBioanalyzerChipType" 
-		               editorDataField="value"
-		               editable="true"  
-		               rendererIsEditor="false" 
-					   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry,'@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', null, true).newInstance(), 'idRequest')}">		                
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Bioanalyzer"/>
-							    <mx:Label text="method"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size range (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Gel size"/>
-							    <mx:Label text="range (from)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepGelFragmentSizeTo"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"> 
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Gel size"/>
-							    <mx:Label text="range (to)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
 
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 

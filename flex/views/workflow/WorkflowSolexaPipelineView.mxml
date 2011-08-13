@@ -187,27 +187,9 @@
 						</mx:Component>
 						</mx:headerRenderer> 
 					</mx:DataGridColumn>					
- 	                <mx:DataGridColumn headerText="Clusters per tile" width="15" dataField="@clustersPerTile" editable="false">			                
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Clusters per"/>
-							    <mx:Label text="Tile"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
+ 	               
  	                <mx:DataGridColumn headerText="Folder name" width="40" dataField="@fileName" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value"/>			                
-	                <mx:DataGridColumn headerText="phiX Error Rate" width="30" dataField="@phiXErrorRate" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value">
-	                  <mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="phiX Error Rate"/>
-							    <mx:Label text="example: .0502"/>
-							</mx:VBox>
-						</mx:Component>
-         			  </mx:headerRenderer>
-	                </mx:DataGridColumn>
+	               
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@pipelineStatus" 
 	                	editorDataField="value" 
 	                	editable="true"

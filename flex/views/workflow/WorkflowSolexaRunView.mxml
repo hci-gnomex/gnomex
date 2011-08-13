@@ -119,15 +119,7 @@
         	var item:Object = null;
         	var vr:ValidationResultEvent  = null;
 		    
-		    nv.domain = "int";
-		    nv.precision = 0;
-        	for each (item in dirtyItems) {
-		    	vr = nv.validate(item.@clustersPerTile);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nClusters per tile - " + item.@clustersPerTile + " " + vr.message;
-		    		break;
-		    	}
-	    	}         	
+    	
 
 	    	nv.domain = "int";
 	    	nv.precision = 0;
@@ -237,30 +229,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-	                <!--<mx:DataGridColumn headerText="First Cycle Status"  width="30" dataField="@firstCycleStatus" 
-	                	editorDataField="value" 
-	                   rendererIsEditor="false"
-	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@firstCycleStatus', true, true, true, false)}">			                
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="First Cycle"/>
-							    <mx:Label text="Status"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>-->
- 	                <mx:DataGridColumn headerText="Clusters per tile" width="15" dataField="@clustersPerTile" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value">			                
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Clusters per"/>
-							    <mx:Label text="Tile"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
+
+ 	                
  	                <mx:DataGridColumn headerText="Folder name" width="50" dataField="@fileName" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value"/>			                
  	                <mx:DataGridColumn headerText="Actual # Cycles"  width="10" 
  	                	dataField="@numberSequencingCyclesActual" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value">			                
