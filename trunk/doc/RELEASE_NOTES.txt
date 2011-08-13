@@ -1,10 +1,14 @@
 ﻿GNomEx Release Notes
 
+5.2 (Aug 13, 2011)
+--------------------------
 - Switched to form-based authentication.
 - Added password reset/change for external users.
 - Fixed bug preventing username from being saved with session login.
 - Changed wording on alert when price removed from price sheet.
 - Added logout functionality.
+- Set index tag group on sequencing experiments using barcoding even when only one sample
+  submitted.  Needed so that index tag dropdown is appropriately enabled on lib prep worklist.
 
 5.1.9.2 (Aug 9, 2011)
 ----------------------
