@@ -163,18 +163,7 @@
     			}    			
     		}
     		
-    		// Prevent save if sample concentration not entered on all
-    		// flow cell channels (other than sequencing control).
-    		if (dirtyChannelWorkList.length > 0) {
-		       	for each (var item:Object in dirtyChannelWorkList) {
-		       		if (item.name() == "WorkItem") {
-		       			if (item.@channelNumberDisplay != '' && item.@sampleConcentrationpM == '') {
-		       				Alert.show("Please enter sample concentration for highlighted flow cell channels");
-		       				return;
-		       			}
-		       		}
-		       	}
-    		}
+    		
 	       	
     		
     		warningMessage = "";
@@ -937,21 +926,6 @@
 						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn>					
 
-                     <mx:AdvancedDataGridColumn dataField="@sampleConcentrationpM" 
-                     	showDataTips="true"
-                     	headerText="Sample conc. (pM)" width="45"
-                     	rendererIsEditor="false" 
-                     	itemRenderer="{views.renderers.LabelFlowCellSampleConcentration.create('@sampleConcentrationpM')}"
-                     	itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInputFlowCellSampleConcentration.create('@sampleConcentrationpM').newInstance(), 'idRequest')}" editorDataField="value">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Sample"/>
-							    <mx:Label text="conc. (pM)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-                    </mx:AdvancedDataGridColumn>                 											
 				</mx:columns>			
 			</mx:AdvancedDataGrid>		 
 			    </mx:VBox> 

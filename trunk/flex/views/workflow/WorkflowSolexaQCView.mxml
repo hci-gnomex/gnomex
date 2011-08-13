@@ -273,47 +273,9 @@
 					</mx:DataGridColumn>	
 					<mx:DataGridColumn headerText="260/230" width="6" dataField="@qual260nmTo230nmRatio"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"/>
-					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="10" dataField="@qualCodeBioanalyzerChipType"
-						labelFunction="getBioanalyzerChipType"
-		               editorDataField="value"
-		               editable="true" 
-		               rendererIsEditor="false"
-		               itemRenderer="mx.controls.Label"		                
-		               itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@qualCodeBioanalyzerChipType', true).newInstance(), 'idRequest')}" >		                
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Bioanalyzer"/>
-							    <mx:Label text="method"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="RIN#" width="6" dataField="@qualRINNumber"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"/>
-					<mx:DataGridColumn headerText="Frag size (from)" width="7" dataField="@qualFragmentSizeFrom"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Frag size"/>
-							    <mx:Label text="(from)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Frag size (to)" width="7" dataField="@qualFragmentSizeTo"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"> 
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Frag size"/>
-							    <mx:Label text="(to)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@qualStatus" 
+					<mx:DataGridColumn headerText="Status"  width="12" dataField="@qualStatus" 
 	                	editorDataField="value"
 	                   rendererIsEditor="false" 
 	                   itemRenderer="mx.controls.Label"  

@@ -9,6 +9,13 @@
 - Added logout functionality.
 - Set index tag group on sequencing experiments using barcoding even when only one sample
   submitted.  Needed so that index tag dropdown is appropriately enabled on lib prep worklist.
+- Worklist changes:
+   Sample Quality: Omit Bioanalyzer method, frag size from, and frag size to
+   Library Prep: Omit library conc, Bioanalyzer method, gel size range to and gel size range from
+   Cluster Gen: Omit Sample conc (pM)
+   Seq run: Omit clusters per tile
+   Data pipeline: Omit clusters per tile and PhiX error rate
+
 
 5.1.9.2 (Aug 9, 2011)
 ----------------------
