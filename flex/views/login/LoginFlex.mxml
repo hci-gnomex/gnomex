@@ -49,11 +49,8 @@
 
 			
 			private function sendLogin(event:CloseEvent):void {
-				Alert.okLabel = "Ok";
-				Alert.cancelLabel = "Cancel";
-				Alert.buttonWidth=70;
-				
 				if (event.detail == Alert.OK) {
+					loginFailedMessage.visible = false;
 					loginService.send();
 				}
 			}					
@@ -64,35 +61,39 @@
 				}
 				else {
 					//Login succeeded
+					loginFailedMessage.visible = false;
 					parentApplication.loggedIn(event);
 				}				
 			}
 			
 			private function onFailLogin():void {
 				this.txtUserName.setFocus();
+				loginFailedMessage.visible = true;
 			}			
    		]]>
    	</mx:Script>
 	
 	<mx:HBox horizontalGap="100" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
 		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="400" height="100%">
-			<mx:TitleWindow id="loginWindow" width="280" height="172"
+			<mx:TitleWindow id="loginWindow" width="360" height="154"
 							layout="vertical" horizontalAlign="right" verticalGap="10"
 							title="Login" styleName="loginWindow"
 							defaultButton="{loginButton}" titleStyleName="loginTitleStyle" >	
-				<mx:VBox verticalAlign="top" styleName="form" horizontalAlign="center" width="100%" paddingLeft="4" paddingRight="4" paddingTop="10" paddingBottom="4" verticalGap="10" height="100%">
+				<mx:VBox verticalAlign="top" styleName="form" horizontalAlign="left" paddingLeft="4" paddingRight="4" paddingTop="10" paddingBottom="1" verticalGap="0" height="100%" width="100%">
 					<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left" horizontalGap="0">
 						<mx:Label text="User name" width="70" textAlign="left"/>
 						<mx:TextInput id="txtUserName" visible="true" width="100%"/> 
 					</mx:HBox> 
-					<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left" horizontalGap="0">
+					<mx:HBox width="100%" verticalAlign="middle" paddingTop="10" horizontalAlign="left" horizontalGap="0">
 						<mx:Label text="Password" width="70" textAlign="left"/>
-						<mx:TextInput id="txtPassword" displayAsPassword="true" width="100%"/>
+						<mx:TextInput id="txtPassword" displayAsPassword="true" width="100%" />
 					</mx:HBox> 
 					<mx:Spacer height="100%"/>
-					<mx:Label click="changePassword()" htmlText="&lt;a href='#'&gt;Forgot your password or want to change it?&lt;/a&gt;" width="100%" styleName="formLinkButton" textAlign="center"/>
+					<mx:Text textAlign="left" htmlText="Login failed.  Please re-enter the user name and password." color="#A82009" fontWeight="bold" fontStyle="normal" visible="false" id="loginFailedMessage"/>
 				</mx:VBox>
-				<mx:ControlBar textAlign="left" horizontalAlign="right">
+				<mx:ControlBar textAlign="left" horizontalAlign="right" verticalAlign="bottom">
+					<mx:LinkButton click="changePassword()"  label="Change or reset your password" textAlign="left" color="#FFFFFF" textDecoration="underline" paddingLeft="0" paddingBottom="0"/>
+					<mx:Spacer width="100%"/>
 					<mx:Button label="Login" click="loginService.send()"  id="loginButton"/>					
 				</mx:ControlBar>
 				
