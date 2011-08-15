@@ -131,9 +131,9 @@
         public var selectedRequestNumber:Object;
         
         [Bindable]
-
 		public var showEditView:Boolean = false;
 
+		[Bindable]	
         public var selectedExperiment:Object;
         
         [Bindable]
@@ -1265,7 +1265,7 @@
 							<mx:HBox>
 								<mx:LinkButton  label="Delete experiment" id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
 												click="detailView.detail.promptToDeleteExperiment()"
-												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
+												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
 									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 								</mx:LinkButton>
 							</mx:HBox>
@@ -1298,17 +1298,18 @@
 	
 	<mx:states>
 		<mx:State name="GuestState">
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:RemoveChild target="{hbox3}"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before" target="{hbox3}"/>
 			<mx:RemoveChild target="{externalExperimentsOnlyCheckbox}"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before" target="{externalExperimentsOnlyCheckbox}"/>
-			<mx:RemoveChild target="{hbox2}"/>
 			<mx:RemoveChild target="{vrule1}"/>
 			<mx:RemoveChild target="{hbox1a}"/>
 			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before">
-				<mx:VRule height="20" id="vrule0"/>
+				<mx:VRule height="20"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:VRule height="20" id="vrule2"/>
+				<mx:VRule height="20"/>
 			</mx:AddChild>
 		</mx:State>
 		
