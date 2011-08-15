@@ -431,7 +431,27 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }
 
-  
+  public String getRead1ClustersPassedFilterM() {
+    if (this.getFlowCellChannel() != null && this.getFlowCellChannel().getRead1ClustersPassedFilterM() != null ) {
+      return this.getFlowCellChannel().getRead1ClustersPassedFilterM().toString();
+    } else {
+      return "";
+    }
+  }
+  public String getRead2ClustersPassedFilterM() {
+    if (this.getFlowCellChannel() != null && this.getFlowCellChannel().getRead2ClustersPassedFilterM() != null ) {
+      return this.getFlowCellChannel().getRead2ClustersPassedFilterM().toString();
+    } else {
+      return "";
+    }
+  }
+  public String getQ30Gb() {
+    if (this.getFlowCellChannel() != null &&  this.getFlowCellChannel().getQ30Gb() != null) {
+      return this.getFlowCellChannel().getQ30Gb().toString();
+    } else {
+      return "";
+    }
+  }
   public String getCanChangeSeqRunType() {
     if (this.getFlowCellChannel() != null) {
       return "N";

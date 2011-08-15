@@ -106,6 +106,21 @@ public class WorkItemSolexaPipelineParser implements Serializable {
     } else {
       channel.setPhiXErrorRate(null);
     } 
+    if (n.getAttributeValue("read1ClustersPassedFilterM") != null && !n.getAttributeValue("read1ClustersPassedFilterM").equals("")) {
+      channel.setRead1ClustersPassedFilterM(Integer.valueOf(n.getAttributeValue("read1ClustersPassedFilterM")));
+    } else {
+      channel.setRead1ClustersPassedFilterM(null);
+    } 
+    if (n.getAttributeValue("read2ClustersPassedFilterM") != null && !n.getAttributeValue("read2ClustersPassedFilterM").equals("")) {
+      channel.setRead2ClustersPassedFilterM(Integer.valueOf(n.getAttributeValue("read2ClustersPassedFilterM")));
+    } else {
+      channel.setRead2ClustersPassedFilterM(null);
+    } 
+    if (n.getAttributeValue("q30Gb") != null && !n.getAttributeValue("q30Gb").equals("")) {
+      channel.setQ30Gb(Integer.valueOf(n.getAttributeValue("q30Gb")));
+    } else {
+      channel.setQ30Gb(null);
+    } 
     if (n.getAttributeValue("fileName") != null && !n.getAttributeValue("fileName").equals("")) {
       channel.setFileName(n.getAttributeValue("fileName"));
     } else {

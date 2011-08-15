@@ -187,16 +187,6 @@
 	                  </mx:itemRenderer>
 	                </mx:DataGridColumn> 					
 					<mx:DataGridColumn  dataField="@contentNumbers" width="180" headerText="Seq Sample #"/> 
-					<mx:DataGridColumn  dataField="@sampleConcentrationpMDisplay" width="90" headerText="Final Sample Conc. pm">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Final Sample"/>
-							        <mx:Label text="Conc. (pM)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
 					<mx:DataGridColumn  dataField="@numberSequencingCyclesActual" width="90" headerText="# Cycles (actual)">
                        <mx:headerRenderer > 
 						    <mx:Component>
@@ -207,26 +197,29 @@
 						    </mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@clustersPerTile" width="90" headerText="Clusters per Tile">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Clusters per"/>
-							        <mx:Label text="Tile"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@phiXErrorRate" width="90" headerText="PhiX Error Rate">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="PhiX"/>
-							        <mx:Label text="Error Rate"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>					<mx:DataGridColumn  dataField="@fileName" width="100" headerText="Folder name"/>
+					<mx:DataGridColumn headerText="Read 1 Clusters Pass Filters (M)"  width="90" dataField="@read1ClustersPassedFilterM" editable="true">			                
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Read 1 Clusters"/>
+									<mx:Label text="PF (M)"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer> 
+					</mx:DataGridColumn>					
+					<mx:DataGridColumn headerText="Read 2 Clusters Pass Filters (M)"  width="90" dataField="@read2ClustersPassedFilterM" editable="true">			                
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Read 2 Clusters"/>
+									<mx:Label text="PF (M)"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer> 
+					</mx:DataGridColumn>					
+					<mx:DataGridColumn headerText="Q30 (Gb)" width="90" dataField="@q30Gb" editable="true"/>			                
+					
+				    <mx:DataGridColumn  dataField="@fileName" width="100" headerText="Folder name"/>
 					<mx:DataGridColumn  dataField="@workflowStatus" width="100" headerText="Status"/>
 				</mx:columns>			
 			</mx:DataGrid>			

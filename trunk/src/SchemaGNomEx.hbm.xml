@@ -237,8 +237,11 @@
 		<property name="sampleConcentrationpM" column="sampleConcentrationpM" type="big_decimal"/>
 		<property name="pipelineDate" column="pipelineDate" type="date"/>
 		<property name="pipelineFailed" column="pipelineFailed" type="string"/>
-    <property name="isControl" column="isControl" type="string"/>		
-    <property name="phiXErrorRate" column="phiXErrorRate" type="big_decimal"/>
+   	    <property name="isControl" column="isControl" type="string"/>		
+        <property name="phiXErrorRate" column="phiXErrorRate" type="big_decimal"/>
+        <property name="read1ClustersPassedFilterM" column="read1ClustersPassedFilterM" type="integer"/>
+        <property name="read2ClustersPassedFilterM" column="read2ClustersPassedFilterM" type="integer"/>
+        <property name="q30Gb" column="q30Gb" type="integer"/>
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->
