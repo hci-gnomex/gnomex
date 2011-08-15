@@ -342,8 +342,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     Integer idLab = (Integer)row[12];
     Integer idAppUser = (Integer)row[14];
     requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
-    requestNode.setAttribute("canDelete", this.getSecAdvisor().canDelete(idLab, idAppUser) ? "Y" : "N");
-
+   
     if (RequestCategory.isMicroarrayRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));

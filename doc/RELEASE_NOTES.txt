@@ -17,6 +17,8 @@
    Data pipeline: Omit clusters per tile and PhiX error rate
    Data pipleline: Add read read1 clusters passed filters (M), read2 clusters passed filters, Q30 (GB)
 - Fixed bug that was causing visibility and sample seq runs tabs to be disabled on 'Edit experiment' window.
+- Fixed bug that was causing 'addchild' flash error for experiments view for guest login
+- Allow experiment owners and lab managers to delete experiment as long as samples haven't gone through a workflow step yet.
 
 
 5.1.9.2 (Aug 9, 2011)

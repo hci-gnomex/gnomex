@@ -284,7 +284,7 @@ public class Sample extends HibernateDetailObject {
     }
   }
   
-  private String getCanChangeSampleInfo() {
+  public String getCanChangeSampleInfo() {
     if (this.getQualDate() != null || 
         (this.getQualFailed() != null && this.getQualFailed().equals("Y"))) {
       return "N";
