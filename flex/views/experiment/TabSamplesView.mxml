@@ -585,7 +585,7 @@
 						parentDocument.hybsView.initializeHybsGrid();
 					}
 				}
-    		} if (parentDocument.isSolexaEditState()) {
+    		} else if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {

@@ -16,6 +16,7 @@
    Seq run: Omit clusters per tile
    Data pipeline: Omit clusters per tile and PhiX error rate
    Data pipleline: Add read read1 clusters passed filters (M), read2 clusters passed filters, Q30 (GB)
+- Fixed bug that was causing visibility and sample seq runs tabs to be disabled on 'Edit experiment' window.
 
 
 5.1.9.2 (Aug 9, 2011)

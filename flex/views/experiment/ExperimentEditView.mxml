@@ -12,7 +12,7 @@
    <mx:HTTPService  
     id="getNewRequest" 
     url="GetRequest.gx"
-    destination="getRequest"
+    destination="getRequest" 
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetNewRequest(event)"
@@ -1941,6 +1941,9 @@
 			this.getBillingAccountName(); 
 			this.getExperimentCategoryName();
 			
+			
+			
+			
 		    postSetupEditForm();
 
 		}
@@ -1967,7 +1970,7 @@
 				hybSetupView.checkHybSetupCompleteness();
 				hybsView.checkHybsCompleteness();
 			}
-			
+
 			
 			this.dirty.resetDirty();
 		}
