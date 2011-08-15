@@ -14,6 +14,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.UserPermissionKind;
@@ -751,27 +752,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return canUpdate;
   }
   
-  public boolean canDelete(Integer idLab, Integer idAppUser)  {
-    boolean canDelete = false;
 
-    // Admins
-    if (hasPermission(this.CAN_DELETE_REQUESTS)) {
-      canDelete = true;
-    }
-    // University GNomEx users
-    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      // Lab manager
-      if (isGroupIManage(idLab)) {
-        canDelete = true;
-      } 
-      // Owner of request
-      else if (isGroupIAmMemberOf(idLab) && isOwner(idAppUser)) {
-        canDelete = true;
-      } 
-    } 
-
-    return canDelete;
-  }
   
 
   public boolean canDelete(DetailObject object) throws UnknownPermissionException {
@@ -781,10 +762,22 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Request
     //
     if (object instanceof Request) { 
-
+      Request r = (Request)object;
       // Admin
       if (hasPermission(this.CAN_DELETE_REQUESTS)) {
         canDelete = true;
+      } 
+      // Lab manager or owner can delete experiment if the samples
+      // have not proceeded in the workflow
+      else if (isGroupIManage(r.getIdLab()) || (isGroupIAmMemberOf(r.getIdLab()) && isOwner(r.getIdAppUser()))) {
+        int deleteSampleCount = 0;
+        for (Iterator i = r.getSamples().iterator(); i.hasNext();) {
+          Sample s = (Sample)i.next();
+          if (s.getCanChangeSampleInfo().equals("Y")) {
+            deleteSampleCount++;
+          }
+        }
+        canDelete = r.getSamples().size() == deleteSampleCount;
       }
     }    
     // 
