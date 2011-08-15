@@ -32,6 +32,9 @@ public class FlowCellChannel extends HibernateDetailObject {
   private Set               sequenceLanes;
   private String            isControl;
   private BigDecimal        phiXErrorRate;
+  private Integer           read1ClustersPassedFilterM;
+  private Integer           read2ClustersPassedFilterM;
+  private Integer           q30Gb;
   
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
@@ -265,6 +268,30 @@ public class FlowCellChannel extends HibernateDetailObject {
   
   public void setPhiXErrorRate(BigDecimal phiXErrorRate) {
     this.phiXErrorRate = phiXErrorRate;
+  }
+
+  public Integer getRead1ClustersPassedFilterM() {
+    return read1ClustersPassedFilterM;
+  }
+
+  public void setRead1ClustersPassedFilterM(Integer read1ClustersPassedFilterM) {
+    this.read1ClustersPassedFilterM = read1ClustersPassedFilterM;
+  }
+
+  public Integer getRead2ClustersPassedFilterM() {
+    return read2ClustersPassedFilterM;
+  }
+
+  public void setRead2ClustersPassedFilterM(Integer read2ClustersPassedFilterM) {
+    this.read2ClustersPassedFilterM = read2ClustersPassedFilterM;
+  }
+
+  public Integer getQ30Gb() {
+    return q30Gb;
+  }
+
+  public void setQ30Gb(Integer q30Gb) {
+    this.q30Gb = q30Gb;
   }
 
   

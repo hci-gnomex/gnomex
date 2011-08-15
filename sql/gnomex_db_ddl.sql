@@ -660,6 +660,9 @@ CREATE TABLE `gnomex`.`FlowCellChannel` (
   `pipelineFailed` CHAR(1) NULL,
   `isControl` CHAR(1) NULL,
   `phiXErrorRate` DECIMAL(4, 4) NULL,
+  `read1ClustersPassedFilterM` INT(10) NULL,
+  `read2ClustersPassedFilterM` INT(10) NULL,
+  `q30Gb` INT(10) NULL,
   PRIMARY KEY (`idFlowCellChannel`),
   CONSTRAINT `FK_FlowCellChannel_FlowCell` FOREIGN KEY `FK_FlowCellChannel_FlowCell` (`idFlowCell`)
     REFERENCES `gnomex`.`FlowCell` (`idFlowCell`)
