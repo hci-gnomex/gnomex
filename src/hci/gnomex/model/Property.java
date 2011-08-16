@@ -38,6 +38,13 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        FDT_USER                            = "fdt_user";
   public static final String        FDT_GROUP                           = "fdt_group";
   public static final String        UNIVERSITY_USER_AUTHENTICATION      = "university_user_authentication"; 
+  public static final String        USAGE_USER_VISIBILITY               = "usage_user_visibility";
+  
+  
+  
+  public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
+  public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
+  public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
 
 
   private Integer  idProperty;

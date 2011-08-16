@@ -190,6 +190,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.util.AboutView;
 			import views.util.AppProgressView;
@@ -198,7 +199,6 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
 			import views.util.WorkAuthorizationWindow;
-			import views.login.ManagePasswords;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -433,6 +433,9 @@
 			
 			[Bindable]
 			public var isFDTSupported:Boolean = false;
+			
+			[Bindable]
+			public var showUsage:Boolean = false;
 	        
 	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
@@ -492,6 +495,11 @@
 			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
 			public var PROPERTY_FDT_SUPPORTED:String                      = "fdt_supported";
 			public var PROPERTY_BULLETIN:String                           = "bulletin";
+			public var PROPERTY_USAGE_USER_VISIBILITY:String              = "usage_user_visibility";
+			
+			
+			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
+			public var USAGE_VISIBILITY_FULL:String                       = "full";
 			 
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
@@ -1136,6 +1144,17 @@
 				} else {
 					this.isFDTSupported = false;
 				}
+
+				// Admins can always view usage.  Normal gnomex users (non guest users)
+				// can only view it if the
+				// property usage_user_visibility set to 'masked' or 'full'.
+				if (this.getProperty(this.PROPERTY_USAGE_USER_VISIBILITY) != null && 
+					this.getProperty(this.PROPERTY_USAGE_USER_VISIBILITY) == USAGE_VISIBILITY_MASKED ||
+					this.getProperty(this.PROPERTY_USAGE_USER_VISIBILITY) == USAGE_VISIBILITY_FULL) {
+					this.showUsage = !this.isGuestMode();
+				} else {
+					this.showUsage = this.hasPermission("canAccessAnyObject");
+				}
             	
 				if (currentState == null || currentState == "") {
 					getExperimentDesignList.send();
@@ -1687,13 +1706,13 @@
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
-	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="1"/>
+	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
-	 		<mx:SetProperty target="{amendRequestView}" name="label" value="Add services" /> 
-	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth"/>
-	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
+	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
+	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Serv."/>
 	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="Submit Request"/>
+			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users/Groups"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
@@ -1708,13 +1727,11 @@
 	 		<mx:RemoveChild target="{slideManagementView}"/> 
 	 		<mx:RemoveChild target="{navUsersView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
-			<mx:RemoveChild target="{navUsageView}"/>
 	 	</mx:State>
 	 	<mx:State name="ManagerState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
-			<mx:RemoveChild target="{navUsageView}"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
@@ -1731,6 +1748,7 @@
 	 	<mx:State name="GuestState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 	 		<mx:RemoveChild target="{amendRequestView}"/>
+			<mx:RemoveChild target="{navUsageView}"/>
 	 	</mx:State>
 	 </mx:states>
 	

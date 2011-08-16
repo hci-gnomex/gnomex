@@ -678,7 +678,8 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (53, 'fdt_server_name', '', 'The server name that the fdt server is running on', 'N'),
  (54, 'fdt_file_daemon_task_dir', '', 'Location for fdtfilemonitor task files (these contain info on source/target folders for moving files after completion of uploads).', 'N'),
  (55, 'fdt_user', 'fdt', 'User account that fdt server runs under.', 'N'),
- (56, 'fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N');
+ (56, 'fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N'),
+ (57, 'usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N');
 
 
 
