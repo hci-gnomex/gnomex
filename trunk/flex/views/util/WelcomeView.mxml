@@ -7,41 +7,18 @@
 		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
 	<mx:states> 
 		<mx:State name="GuestState">
-			<mx:RemoveChild target="{button1}"/>
-			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
-			<mx:RemoveChild target="{hbox2}"/>
-			<mx:RemoveChild target="{button8}"/>
-			<mx:RemoveChild target="{hbox4}"/>
-			<mx:AddChild relativeTo="{vbox6}" position="lastChild" target="{hbox4}"/>
-			<mx:RemoveChild target="{button6}"/>
-			<mx:AddChild relativeTo="{vbox6}" position="lastChild" target="{button6}"/>
-			<mx:SetStyle target="{hbox4}" name="paddingTop"/>
-			<mx:SetProperty target="{button5}" name="toolTip" value="Download analysis data files"/>
-			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
-			<mx:RemoveChild target="{hbox5}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
 			<mx:RemoveChild target="{button13}"/>
+			<mx:RemoveChild target="{usageButton}"/>
 		</mx:State>
 		<mx:State name="AdminState">
-			<mx:RemoveChild target="{button8}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
-			<mx:RemoveChild target="{hbox2}"/>
-			<mx:AddChild relativeTo="{button8}" position="before" target="{hbox2}"/>
-			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
-			<mx:SetStyle target="{hbox0}" name="paddingTop" value="10"/>
-			<mx:RemoveChild target="{hbox6}"/>
-			<mx:SetProperty target="{button6}" name="toolTip" value="View protocols used during experiment processing"/>
-			<mx:SetProperty target="{button6}" name="visible" value="true"/>
-			<mx:SetProperty target="{button12}" name="enabled" value="{parentApplication.pricingURL != null ? true : false}"/>
-			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
-			<mx:RemoveChild target="{organismButton0}"/>
-			<mx:SetStyle target="{vbox10}" name="verticalGap"/>
-			<mx:SetStyle target="{vbox11}" name="borderStyle" value="solid"/>
-			<mx:SetStyle target="{vbox11}" name="cornerRadius" value="6"/>
-			<mx:SetStyle target="{vbox11}" name="backgroundColor" value="#FBF4A5"/>
-			<mx:SetStyle target="{vbox11}" name="backgroundAlpha" value="0.83"/>
 			<mx:AddChild relativeTo="{hbox8}" position="lastChild">
 				<mx:VBox height="100%" verticalGap="2">
 					<mx:HBox id="hbox1" horizontalGap="2" verticalAlign="middle" verticalGap="2">
@@ -55,61 +32,42 @@
 								   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
 								   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-					<mx:LinkButton id="usageButton"  label="Track Usage" styleName="dashboardButton" 
-								   click="showUsageWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/chart_bar.png')"/>
 					<mx:LinkButton label="Manage microarray catalog" click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
-					<mx:LinkButton label="Manage billing" click="showBilling()" styleName="dashboardButton"  id="button11"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/money.png')"/>
 					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
 					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
 				</mx:VBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{hbox0}"/>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{hbox0}"/>
-			<mx:RemoveChild target="{button7}"/>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button7}"/>
-			<mx:SetStyle target="{hbox5}" name="paddingTop" value="10"/>
-			<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{organismButton0}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
+			<mx:SetStyle target="{label4}" name="paddingTop" value="2"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:AddChild relativeTo="{hbox5}" position="before" target="{label3}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:AddChild relativeTo="{hbox5}" position="before" target="{button4}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:AddChild relativeTo="{hbox5}" position="before" target="{button5}"/>
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:SetStyle target="{label6}" name="paddingTop" value="30"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
-			<mx:RemoveChild target="{hbox2}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{hbox2}"/>
-			<mx:RemoveChild target="{button8}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
-			<mx:RemoveChild target="{button7}"/>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button7}"/>
-			<mx:RemoveChild target="{hbox0}"/>
-			<mx:AddChild relativeTo="{button7}" position="before" target="{hbox0}"/>
-			<mx:RemoveChild target="{hbox6}"/>
-			<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
-			<mx:SetStyle target="{hbox0}" name="paddingTop" value="10"/>
-			<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
+			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{organismButton0}"/>
 		</mx:State>
 		<mx:State name="UniversityOnlyUserState" basedOn="UserNonSubmitterState" >
-			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
-			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
-			<mx:RemoveChild target="{organismButton0}"/>
-			<mx:RemoveChild target="{hbox0}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{hbox0}"/>
-			<mx:RemoveChild target="{button7}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button7}"/>
-			<mx:SetStyle target="{hbox4}" name="paddingTop" value="20"/>
 		</mx:State>
 		<mx:State name="ExternalUserState">
-			<mx:SetStyle target="{vbox10}" name="verticalGap" value="20"/>
-			<mx:SetEventHandler target="{button13}" name="click" handler="changePassword()"/>
 		</mx:State>
 		<mx:State name="ExternalUserNonSubmitterState" basedOn="UserNonSubmitterState">
-			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
-			<mx:RemoveChild target="{organismButton0}"/>
-			<mx:SetStyle target="{hbox5}" name="paddingTop" value="10"/>
-			<mx:RemoveChild target="{hbox0}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{hbox0}"/>
-			<mx:RemoveChild target="{button7}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button7}"/>
-			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
+			<mx:SetStyle target="{label4}" name="paddingTop" value="6"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -270,7 +228,6 @@
 							   styleName="dashboardButton" id="submitExternalExperimentButton"  toolTip="Submit an experiment to the GNomEx repository and upload associated raw data files" icon="@Embed(source='../../assets/experiment_register.png')"/>
 				<mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
 				<mx:LinkButton label="Download Experiment Results" click="showExperimentDownloads()" styleName="dashboardButton"  id="button3"  toolTip="Download experiment raw data files" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money.png')" visible="{parentApplication.pricingURL != ''}"/>
 				<mx:LinkButton id="sampleCharacteristicButton0"  label="Configure Sample Annotations" styleName="dashboardButton" 
 							   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 				<mx:LinkButton id="organismButton0"  label="Configure Organisms" styleName="dashboardButton" 
@@ -282,28 +239,19 @@
 				</mx:HBox> 
 				<mx:LinkButton label="Browse Analyses" click="showAnalysis()" styleName="dashboardButton"  id="button4"  verticalGap="4" toolTip="Browse analysis entries, view analysis annotations" icon="@Embed(source='../../assets/map.png')"/>
 				<mx:LinkButton label="Download Analyzed data files" click="showAnalysisDownloads()" styleName="dashboardButton"  id="button5"  toolTip="Download analysis data files" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:HBox id="hbox4" horizontalGap="2" paddingTop="20">
-					<mx:Label text="Materials and Methods" id="label1" styleName="welcomeLabel"/>
-				</mx:HBox>
-				<mx:LinkButton label="View experiment protocol descriptions" click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
-				<mx:HBox id="hbox5" horizontalGap="2" paddingTop="20">
-					<mx:Label text="User account" id="label6" styleName="welcomeLabel"/>
-				</mx:HBox>
-				<mx:LinkButton label="Change password" click="changePassword()" styleName="dashboardButton"  id="button13"  icon="@Embed(source='../../assets/user.png')"/>
-			</mx:VBox>
-		</mx:HBox>
-		<mx:HBox verticalGap="0"    verticalAlign="middle" horizontalAlign="center" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="2" width="100%" horizontalGap="40" id="hbox6">
-			<mx:VBox height="100%" id="vbox6" width="268" verticalGap="4">
-				<mx:HBox id="hbox2" horizontalGap="2" verticalAlign="middle">
-					<mx:Label text="Billing Account Setup" id="label4" styleName="welcomeLabel"/>
-				</mx:HBox>
+				<mx:Label text="Billing" id="label4" styleName="welcomeLabel" paddingTop="20"/>
+				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}"/>
 				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:VBox>
-			<mx:VBox height="100%" id="vbox5" width="268" verticalGap="2">
-				<mx:HBox id="hbox0" horizontalGap="2" verticalAlign="middle">
-					<mx:Label text="Search" styleName="welcomeLabel"/>
+			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox12">
+				<mx:HBox id="hbox5" horizontalGap="2">
+					<mx:Label text="General" id="label6" styleName="welcomeLabel"/>
 				</mx:HBox>
 				<mx:LinkButton label="Perform advanced search" click="showAdvancedSearch()" styleName="dashboardButton"  id="button7"  toolTip="Perform advanced search on experiments, analysis, and protocols" icon="@Embed(source='../../assets/magnifier.png')"/>
+				<mx:LinkButton label="Change password" click="changePassword()" styleName="dashboardButton"  id="button13"  icon="@Embed(source='../../assets/user.png')"/>
+				<mx:LinkButton label="View experiment protocol descriptions" click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
+				<mx:LinkButton id="usageButton"  label="Track Usage" styleName="dashboardButton" 
+							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
 			</mx:VBox>
 		</mx:HBox>
 		

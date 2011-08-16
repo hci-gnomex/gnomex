@@ -1,6 +1,10 @@
 ﻿GNomEx Release Notes
 
-5.2 (Aug 13, 2011)
+5.2.1
+--------------------------
+- Allow non-admin gnomex users to view usage charts based on property setting.
+
+5.2 (Aug 15, 2011)
 --------------------------
 - Switched to form-based authentication.
 - Added password reset/change for external users.

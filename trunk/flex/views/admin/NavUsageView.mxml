@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Track Usage" 
-		   width="100%" height="100%" 
-		   creationPolicy="all" show="init()"
+		   width="100%" height="100%"  
+		   creationPolicy="all" show="init()" 
 		   cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 		   paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
+	<mx:states>
+		<mx:State name="UserState">
+		</mx:State>
+		<mx:State name="AdminState"/>
+		<mx:State name="DisabledState">
+			<mx:AddChild relativeTo="{blankPanel}" position="lastChild">
+				<mx:Label text="  You do not have sufficient permissions to view usage data." fontSize="11"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{linkbutton3}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton4}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton5}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton6}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton7}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton1}" name="enabled" value="false"/>
+			<mx:SetProperty target="{label2}" name="enabled" value="false"/>
+			<mx:SetProperty target="{label1}" name="enabled" value="false"/>
+		</mx:State>
+	</mx:states>
 	
 	<mx:HTTPService  
 		id="getUsageData" 
@@ -38,7 +56,24 @@
 		
 		
 		private function init():void {
-			getUsageData.send();
+			checkSecurity();
+			if (currentState != "DisabledState") {
+				getUsageData.send();
+			}
+		}
+
+		public function checkDirty():void {
+		}
+
+		
+		public function checkSecurity():void {
+			if (!parentApplication.showUsage) {
+				this.currentState = "DisabledState";
+			} else if (parentApplication.hasPermission("canAccessAnyObject")) {
+				currentState = "AdminState";
+			} else {
+				currentState = "UserState";
+			} 
 		}
 		private function onGetUsageData(event:ResultEvent):void {
 			if (getUsageData.lastResult.name() == "UsageData") {
@@ -79,15 +114,15 @@
 				</mx:Image>
 				<mx:Label text="GNomEx Usage" fontWeight="bold"/>
 			</mx:HBox>
-			<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4"/>
-			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
-			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
-			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
-			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
-			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
-			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4"/>
-			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8"/>
-			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false" paddingLeft="8"/>
+			<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label2"/>
+			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton3"/>
+			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton4"/>
+			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton5"/>
+			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton6"/>
+			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton7"/>
+			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label1"/>
+			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton1"/>
+			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false" paddingLeft="8" id="linkbutton2"/>
 		</mx:VBox> 
 
 

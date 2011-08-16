@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -32,6 +33,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Visibility;
 
 
@@ -39,6 +41,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetUsageData.class);
+
+  private String usageUserVisibility = "";
   
   private TreeMap<String, Lab>  labMap   = new TreeMap<String, Lab>();
   private HashMap<Integer, Lab> labIdMap = new HashMap<Integer, Lab>();
@@ -101,14 +105,27 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       
       Calendar today = Calendar.getInstance();
       
+      
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      // Only admins can run this command
-      if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.");
+      usageUserVisibility = PropertyHelper.getInstance(sess).getProperty(Property.USAGE_USER_VISIBILITY);
+
+      // Guests cannot run this command
+      if (this.getSecAdvisor().isGuest()) {
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Guests cannot access usage data.");
         setResponsePage(this.ERROR_JSP);
-      } else {
-        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
+      } 
+    
+      // Admins can run this command.  Normal gnomex users can if usage_user_visibility
+      // property is set to an appropriate level ('masked' or 'full').
+      if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      } else if (usageUserVisibility.equals("") || usageUserVisibility.equals(Property.OPTION_USER_USER_VISIBILITY_NONE)) {
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Property usage_user_visibility does not allow users to access usage data");
+        setResponsePage(this.ERROR_JSP);
+      }
+
+      
+      if (this.isValid()) {
         // Hash all labs
         List labs = sess.createQuery("SELECT l from Lab l order by l.lastName, l.firstName").list();
         for(Iterator i = labs.iterator(); i.hasNext();) {
@@ -176,7 +193,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           Element entryNode = new Element("Entry");
           summaryExperimentsNode.addContent(entryNode);
-          entryNode.setAttribute("label", lab.getName());
+          entryNode.setAttribute("label", getLabName(lab));
           entryNode.setAttribute("experimentCount", Integer.valueOf(experimentCount).toString());
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
@@ -198,7 +215,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           Element entryNode = new Element("Entry");
           summaryAnalysisNode.addContent(entryNode);
-          entryNode.setAttribute("label", lab.getName());
+          entryNode.setAttribute("label", getLabName(lab));
           entryNode.setAttribute("analysisCount", Integer.valueOf(analysisCount).toString());
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
@@ -226,7 +243,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           Element entryNode = new Element("Entry");
           summaryUploadsNode.addContent(entryNode);
-          entryNode.setAttribute("label", lab.getName());
+          entryNode.setAttribute("label", getLabName(lab));
           entryNode.setAttribute("uploadCount", Integer.valueOf(uploadCount).toString());
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
@@ -253,7 +270,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           Element entryNode = new Element("Entry");
           summaryDownloadsNode.addContent(entryNode);
-          entryNode.setAttribute("label", lab.getName());
+          entryNode.setAttribute("label", getLabName(lab));
           entryNode.setAttribute("downloadCount", Integer.valueOf(downloadCount).toString());
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
@@ -285,7 +302,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           Element entryNode = new Element("Entry");
           summaryDaysNode.addContent(entryNode);
-          entryNode.setAttribute("label", lab.getName());
+          entryNode.setAttribute("label", getLabName(lab));
           entryNode.setAttribute("days", Integer.valueOf(daysSinceLastUpload).toString());
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
 
@@ -296,6 +313,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
         }
         
+
         // Tally experiment count by week
         summaryRows = sess.createQuery("SELECT r.createDate, count(*) from Request r group by r.createDate order by r.createDate").list();
         for(Iterator i = summaryRows.iterator(); i.hasNext();) {
@@ -431,6 +449,27 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  /**
+   * Show lab label if logged in user is admin or usage_user_visibility set to 'full'.
+   * If usage_user_visibility set to 'masked', mask lab names for labs that user
+   * is not a part of (member, manager, or collaborator).
+   */
+  private String getLabName(Lab lab) {
+    String labName = "";
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      labName = lab.getName();
+    } else if (usageUserVisibility.equals(Property.OPTION_USER_USER_VISIBILITY_MASKED)) {
+      if (this.getSecAdvisor().isGroupIAmMemberOf(lab.getIdLab()) || this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab())) {
+        labName = lab.getName();
+      } else {
+        labName = "-";
+      }
+    } else {
+      labName = lab.getName();
+    }
+    return labName;
   }
 
   private int daysBetween(Calendar startDate, Calendar endDate) {  

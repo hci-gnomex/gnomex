@@ -75,7 +75,7 @@
 	
 	<mx:HBox horizontalGap="100" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
 		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="400" height="100%">
-			<mx:TitleWindow id="loginWindow" width="360" height="154"
+			<mx:TitleWindow id="loginWindow" width="310" height="150"
 							layout="vertical" horizontalAlign="right" verticalGap="10"
 							title="Login" styleName="loginWindow"
 							defaultButton="{loginButton}" titleStyleName="loginTitleStyle" >	
@@ -89,7 +89,7 @@
 						<mx:TextInput id="txtPassword" displayAsPassword="true" width="100%" />
 					</mx:HBox> 
 					<mx:Spacer height="100%"/>
-					<mx:Text textAlign="left" htmlText="Login failed.  Please re-enter the user name and password." color="#A82009" fontWeight="bold" fontStyle="normal" visible="false" id="loginFailedMessage"/>
+					<mx:Text textAlign="left" htmlText="Login failed.  Please try again." color="#A82009" fontWeight="bold" fontStyle="normal" visible="false" id="loginFailedMessage"/>
 				</mx:VBox>
 				<mx:ControlBar textAlign="left" horizontalAlign="right" verticalAlign="bottom">
 					<mx:LinkButton click="changePassword()"  label="Change or reset your password" textAlign="left" color="#FFFFFF" textDecoration="underline" paddingLeft="0" paddingBottom="0"/>
