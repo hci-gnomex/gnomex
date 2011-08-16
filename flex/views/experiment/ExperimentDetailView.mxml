@@ -89,6 +89,7 @@
 			this.currentState = '';						
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
+				
 			} else if (this.selectedExperiment.@isExternal != 'Y' &&
 				       this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
 			           this.selectedExperiment.@codeRequestCategory == 'HISEQ') {
@@ -120,7 +121,7 @@
 			}
 			
 
-			showQCFieldsCheckBox.selected = false;
+			showQCFieldsCheckBox.selected = (currentState == 'QCState' ? true : false);
 
 
 			getRequestCategoryName();
