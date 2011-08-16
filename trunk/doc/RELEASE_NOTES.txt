@@ -5,6 +5,7 @@
 - Allow non-admin gnomex users to view usage charts based on property setting.
 - Change FlowCellChannel.qc30Gb to decimal (from integer)
 - Add flag to Lab to exclude from usage data
+- Automatically show QC columns on Experiment view when experiment is a QC experiment
 
 5.2 (Aug 15, 2011)
 --------------------------
