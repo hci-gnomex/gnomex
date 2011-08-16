@@ -19,7 +19,8 @@
 - Fixed bug that was causing visibility and sample seq runs tabs to be disabled on 'Edit experiment' window.
 - Fixed bug that was causing 'addchild' flash error for experiments view for guest login
 - Allow experiment owners and lab managers to delete experiment as long as samples haven't gone through a workflow step yet.
-
+- Switch to forms based authentication in http client java apps (package hci.gnomex.httpclient)
+- Introduce java main for creating fdt upload staging directory for fdt command lin uploading
 
 5.1.9.2 (Aug 9, 2011)
 ----------------------

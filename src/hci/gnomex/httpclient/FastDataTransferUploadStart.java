@@ -30,12 +30,12 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * @author Tony Di Sera
- * This is a java main that will be called by a batch script to autmotically
- * create a GNomEx analysis entry in the db from the bioinformatics
- * automated analysis pipeline.
+ * This is a java main that will be called by a batch script to automatically
+ * create the FDT staging directory to upload files to an experiment
+ * or an analysis in GNomEx.
  *
  */
-public class CreateAnalysisMain {
+public class FastDataTransferUploadStart {
   
   private String userName;
   private String password;
@@ -43,28 +43,19 @@ public class CreateAnalysisMain {
   private String propertiesFileName = "/properties/gnomex_httpclient.properties";
   private boolean debug = false;
   private String server;
-  private Integer idLab;
-  private Integer idOrganism;
-  private Integer idGenomeBuild;
-  private Integer idAnalysisType;
-  private String  name;
-  private String description;
-  private String analysisGroupName;
-  private String analysisGroupDescription;
-  private Integer idRequest;
-  private List<String> idSequenceLanes = new ArrayList<String>();
-  private String lanesXMLString = null;
+  private String analysisNumber;
+  private String requestNumber;
 
   /**
    * @param args
    */
   public static void main(String[] args) {
 
-    CreateAnalysisMain createAnalysis = new CreateAnalysisMain(args);
+    FastDataTransferUploadStart createAnalysis = new FastDataTransferUploadStart(args);
     createAnalysis.callServlet();
   }
   
-  private CreateAnalysisMain(String[] args) {
+  private FastDataTransferUploadStart(String[] args) {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-h")) {
         printUsage();
@@ -75,36 +66,14 @@ public class CreateAnalysisMain {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
-      } else if (args[i].equals("-idLab")) {
-        idLab = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-idGenomeBuild")) {
-        idGenomeBuild = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-idOrganism")) {
-        idOrganism = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-idAnalysisType")) {
-        idAnalysisType = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-name")) {
-        name = args[++i];
-      } else if (args[i].equals("-description")) {
-        description = args[++i];
-      } else if (args[i].equals("-analysisGroupName")) {
-        analysisGroupName = args[++i];
-      } else if (args[i].equals("-analysisGroupDescription")) {
-        analysisGroupDescription = args[++i];
-      } else if (args[i].equals("-idSequenceLane")) {
-        String idSequenceLane = args[++i];
-        idSequenceLanes.add(idSequenceLane);
-      } 
+      } else if (args[i].equals("-experimentNumber")) {
+        requestNumber = args[++i];
+      } else if (args[i].equals("-analysisNumber")) {
+        analysisNumber = args[++i];
+      }
     }
     
-    if (!idSequenceLanes.isEmpty()) {
-        lanesXMLString = "<lanes>";
-        for (Iterator iter = idSequenceLanes.iterator(); iter.hasNext();) {
-          String idSequenceLane = (String)iter.next();
-          lanesXMLString += "<SequenceLane idSequenceLane=\"" + idSequenceLane + "\"/>";                  
-        }
-        lanesXMLString += "</lanes>";
-    }  
+   
   }
     
   private void loadProperties() throws FileNotFoundException, IOException {
@@ -119,19 +88,12 @@ public class CreateAnalysisMain {
 
   
   private void printUsage() {
-    System.out.println("java hci.gnomex.utility.CreateAnalysisMain " + "\n" +
+    System.out.println("java hci.gnomex.utility.FastDataTransferUploadStart " + "\n" +
         "[-debug] " + "\n" +
         "-properties <propertiesFileName> " + "\n" +
         "-server <serverName>" + "\n" +
-        "-name <analysisName>" + "\n" +
-        "[-description <analysisDescription>]" + "\n" +
-        "-idLab <idLab>" + "\n" +
-        "-analysisGroupName <analysisGroupName>" + "\n" + 
-        "[-analysisGroupDescription <analysisGroupDescription>]" + "\n" +
-        "[-idAnalysisType <idAnalysisType>]" +  "\n" +
-        "[-idOrganism <idOrganism>" +  "\n" +
-        "[-idGenomeBuild <idGenomeBuild>]" + "\n" +
-        "[-idSequenceLane <idSequenceLane> [...]]");
+        "-experimentNumber <experimentNumber>" + "\n" +
+        "-analysisNumber <analysisNumber>" + "\n" );
   }
   
   private void callServlet() {
@@ -147,7 +109,11 @@ public class CreateAnalysisMain {
       loadProperties();
       
       // Make sure mandatory arguments were passed in
-      if (idLab == null || name == null || name.equals("") || idOrganism == null || idGenomeBuild == null || idAnalysisType == null || analysisGroupName == null || analysisGroupName.equals("")) {
+      if ( (requestNumber == null || requestNumber.equals("")) && (analysisNumber == null || analysisNumber.equals(""))) {
+        this.printUsage();
+        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+      }
+      if (server == null || server.equals("")) {
         this.printUsage();
         throw new Exception("Please specify all mandatory arguments.  See command line usage.");
       }
@@ -174,13 +140,15 @@ public class CreateAnalysisMain {
       }
       // Capture session id from cookie
       List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
-
       
       //
       // Create a security advisor
       //
       url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
       conn = url.openConnection();
+      for (String cookie : cookies) {
+        conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+      }
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
       outputXML = new StringBuffer();
@@ -196,32 +164,22 @@ public class CreateAnalysisMain {
         throw new Exception("Unable to create security advisor");
       }
       
-
+      in.close();
       
       //
-      // Create analysis
+      // Create upload staging directory
       //
       
       // Construct request parameters
-      String parms = URLEncoder.encode("idLab", "UTF-8") + "=" + URLEncoder.encode(idLab.toString(), "UTF-8");
-      parms += "&" + URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(name, "UTF-8");
-      parms += "&" + URLEncoder.encode("newAnalysisGroupName", "UTF-8") + "=" + URLEncoder.encode(analysisGroupName, "UTF-8");
-      parms += "&" + URLEncoder.encode("idOrganism", "UTF-8") + "=" + URLEncoder.encode(idOrganism.toString(), "UTF-8");
-      parms += "&" + URLEncoder.encode("idGenomeBuild", "UTF-8") + "=" + URLEncoder.encode(idGenomeBuild.toString(), "UTF-8");
-      parms += "&" + URLEncoder.encode("idAnalysisType", "UTF-8") + "=" + URLEncoder.encode(idAnalysisType.toString(), "UTF-8");
-      if (description != null) {
-        parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");        
+      String parms = "";
+      if (requestNumber != null) {
+        parms = URLEncoder.encode("requestNumber", "UTF-8") + "=" + URLEncoder.encode(requestNumber, "UTF-8");        
+      }else if (analysisNumber != null) {
+        parms =  URLEncoder.encode("analysisNumber", "UTF-8") + "=" + URLEncoder.encode(analysisNumber, "UTF-8");        
       }
-      if (analysisGroupDescription != null) {
-        parms += "&" + URLEncoder.encode("newAnalysisGroupDescription", "UTF-8") + "=" + URLEncoder.encode(analysisGroupDescription, "UTF-8");        
-      }
-      if (lanesXMLString != null) {
-        parms += "&" + "lanesXMLString" + "=" + lanesXMLString;        
-      } 
-
       success = false;
       outputXML = new StringBuffer();
-      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/SaveAnalysis.gx");
+      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/FastDataTransferUploadStart.gx");
       conn = url.openConnection();
       conn.setDoOutput(true);
       for (String cookie : cookies) {
@@ -234,13 +192,13 @@ public class CreateAnalysisMain {
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       while ((inputLine = in.readLine()) != null) {
         System.out.print(inputLine);
-        if (inputLine.indexOf("<SUCCESS") >= 0) {
+        if (inputLine.indexOf("<FDTUploadUuid") >= 0) {
           success = true;
         } 
       }
       System.out.println();
       if (!success) {
-        throw new Exception("Unable to create analysis");
+        throw new Exception("Unable to create upload staging directory");
       }
 
     } catch (MalformedURLException e) {
@@ -312,6 +270,7 @@ public class CreateAnalysisMain {
       this.userName = userName;
       this.password = password;
     }
+
     // This method is called when a password-protected URL is accessed
     protected PasswordAuthentication getPasswordAuthentication() {
         // Get information about the request
