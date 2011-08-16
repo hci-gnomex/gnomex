@@ -330,6 +330,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setIsCcsgMember(labScreen.getIsCcsgMember());
     lab.setIsExternalPricing(labScreen.getIsExternalPricing());
     lab.setIsActive(labScreen.getIsActive());
+    lab.setExcludeUsage(labScreen.getExcludeUsage());
     
   }
   

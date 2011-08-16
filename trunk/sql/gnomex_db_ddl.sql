@@ -662,7 +662,7 @@ CREATE TABLE `gnomex`.`FlowCellChannel` (
   `phiXErrorRate` DECIMAL(4, 4) NULL,
   `read1ClustersPassedFilterM` INT(10) NULL,
   `read2ClustersPassedFilterM` INT(10) NULL,
-  `q30Gb` INT(10) NULL,
+  `q30Gb` DECIMAL(4,1) NULL,
   PRIMARY KEY (`idFlowCellChannel`),
   CONSTRAINT `FK_FlowCellChannel_FlowCell` FOREIGN KEY `FK_FlowCellChannel_FlowCell` (`idFlowCell`)
     REFERENCES `gnomex`.`FlowCell` (`idFlowCell`)
@@ -806,6 +806,7 @@ CREATE TABLE `gnomex`.`Lab` (
   `lastName` VARCHAR(200) NULL,
   `isExternalPricing` VARCHAR(1) NULL,
   `isActive` VARCHAR(1) NULL,
+  `excludeUsage` VARCHAR(1) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)

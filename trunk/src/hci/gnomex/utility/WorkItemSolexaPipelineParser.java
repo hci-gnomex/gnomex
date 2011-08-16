@@ -117,7 +117,7 @@ public class WorkItemSolexaPipelineParser implements Serializable {
       channel.setRead2ClustersPassedFilterM(null);
     } 
     if (n.getAttributeValue("q30Gb") != null && !n.getAttributeValue("q30Gb").equals("")) {
-      channel.setQ30Gb(Integer.valueOf(n.getAttributeValue("q30Gb")));
+      channel.setQ30Gb(new BigDecimal(n.getAttributeValue("q30Gb")));
     } else {
       channel.setQ30Gb(null);
     } 
