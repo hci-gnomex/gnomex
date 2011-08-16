@@ -23,6 +23,7 @@ public class Lab extends HibernateDetailObject {
   private String  contactPhone;
   private String  isCcsgMember;
   private String  isActive;
+  private String  excludeUsage;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -321,6 +322,14 @@ public class Lab extends HibernateDetailObject {
       }
     }
     return pendingBillingAccounts;
+  }
+
+  public String getExcludeUsage() {
+    return excludeUsage;
+  }
+
+  public void setExcludeUsage(String excludeUsage) {
+    this.excludeUsage = excludeUsage;
   }
 
 }

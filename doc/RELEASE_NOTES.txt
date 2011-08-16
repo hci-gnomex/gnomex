@@ -3,6 +3,8 @@
 5.2.1
 --------------------------
 - Allow non-admin gnomex users to view usage charts based on property setting.
+- Change FlowCellChannel.qc30Gb to decimal (from integer)
+- Add flag to Lab to exclude from usage data
 
 5.2 (Aug 15, 2011)
 --------------------------

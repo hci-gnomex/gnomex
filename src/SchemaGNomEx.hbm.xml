@@ -241,7 +241,7 @@
         <property name="phiXErrorRate" column="phiXErrorRate" type="big_decimal"/>
         <property name="read1ClustersPassedFilterM" column="read1ClustersPassedFilterM" type="integer"/>
         <property name="read2ClustersPassedFilterM" column="read2ClustersPassedFilterM" type="integer"/>
-        <property name="q30Gb" column="q30Gb" type="integer"/>
+        <property name="q30Gb" column="q30Gb" type="big_decimal"/>
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->
@@ -307,6 +307,7 @@
 		<property name="contactEmail" column="contactEmail" type="string"/>
 		<property name="isCcsgMember" column="isCCSGMember" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="excludeUsage" column="excludeUsage" type="string"/>
    		<set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>

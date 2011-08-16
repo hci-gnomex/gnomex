@@ -320,6 +320,7 @@
 			params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
 			params.isActive = this.isActiveCheckBox.selected ? "Y" : "N";
 			params.isExternalPricing = this.isExternalPricingButton.selected ? "Y" : "N"; 
+			params.excludeUsage = this.excludeUsageCheckBox.selected ? "Y" : "N"; 
 			
 			for each(var acct:Object in billingAccounts) {
 				acct.@expirationDate = acct.@expirationDateOther;
@@ -489,6 +490,7 @@
 								<mx:HBox width="100%">
 									<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
 									<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
+									<mx:CheckBox id="excludeUsageCheckBox" selected="{parentDocument.fullLab.@excludeUsage == 'Y' ? true : false}" label="Exclude from usage charts?" click="dirty.setDirty()"/>
 								</mx:HBox>
 								<mx:HBox width="100%" verticalAlign="top">
 									<mx:VBox  verticalGap="0">

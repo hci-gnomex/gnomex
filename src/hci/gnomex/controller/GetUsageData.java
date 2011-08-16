@@ -130,6 +130,12 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         List labs = sess.createQuery("SELECT l from Lab l order by l.lastName, l.firstName").list();
         for(Iterator i = labs.iterator(); i.hasNext();) {
           Lab lab = (Lab)i.next();
+          
+          // Don't show labs marked for exclusion in XML
+          if (lab.getExcludeUsage() != null && lab.getExcludeUsage().equals("Y")) {
+            continue;
+          }
+          
           labMap.put(lab.getName(), lab);
           labIdMap.put(lab.getIdLab(), lab);
         }
@@ -191,6 +197,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           Integer experimentCount = (Integer)rows[1];
           Lab lab = labIdMap.get(idLab);
           
+          if (lab == null) {
+            continue;
+          }
+          
           Element entryNode = new Element("Entry");
           summaryExperimentsNode.addContent(entryNode);
           entryNode.setAttribute("label", getLabName(lab));
@@ -213,6 +223,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           Integer analysisCount   = (Integer)rows[1];
           Lab lab = labIdMap.get(idLab);
           
+          if (lab == null) {
+            continue;
+          }
+
           Element entryNode = new Element("Entry");
           summaryAnalysisNode.addContent(entryNode);
           entryNode.setAttribute("label", getLabName(lab));
@@ -241,6 +255,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           Lab lab = labIdMap.get(idLab);
           
+          if (lab == null) {
+            continue;
+          }
+          
           Element entryNode = new Element("Entry");
           summaryUploadsNode.addContent(entryNode);
           entryNode.setAttribute("label", getLabName(lab));
@@ -267,6 +285,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           }
           
           Lab lab = labIdMap.get(idLab);
+          
+          if (lab == null) {
+            continue;
+          }
           
           Element entryNode = new Element("Entry");
           summaryDownloadsNode.addContent(entryNode);
@@ -299,6 +321,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           int daysSinceLastUpload = daysBetween(lastUploadCalendar, today);
           
           Lab lab = labIdMap.get(idLab);
+          
+          if (lab == null) {
+            continue;
+          }
           
           Element entryNode = new Element("Entry");
           summaryDaysNode.addContent(entryNode);
