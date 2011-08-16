@@ -30,8 +30,13 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadStart.class);
 
   private String serverName;
+  
   private Integer idAnalysis;
   private Integer idRequest;
+  
+  private String analysisNumber;
+  private String requestNumber;
+  
   private String targetDir;
 
   public void validate() {
@@ -46,9 +51,15 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     if (request.getParameter("idAnalysis") != null && !request.getParameter("idAnalysis").equals("")) {
       idAnalysis = Integer.valueOf(request.getParameter("idAnalysis"));
     }
+    if (request.getParameter("requestNumber") != null && !request.getParameter("requestNumber").equals("")) {
+      requestNumber = request.getParameter("requestNumber");
+    }
+    if (request.getParameter("analysisNumber") != null && !request.getParameter("analysisNumber").equals("")) {
+      analysisNumber = request.getParameter("analysisNumber");
+    }
     
-    if (idAnalysis == null && idRequest == null) {
-      this.addInvalidField("missing id", "idRequest or idAnalysis must be provided");
+    if (idAnalysis == null && idRequest == null && analysisNumber == null && requestNumber == null) {
+      this.addInvalidField("missing id", "idRequest/requestNumber or idAnalysis/analysisNumber must be provided");
     }
   }
 
@@ -67,8 +78,16 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         this.addInvalidField("fdtNotSupport", "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
       }
 
-      if (idAnalysis != null) {
-        Analysis analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
+      if (idAnalysis != null || analysisNumber != null) {
+        Analysis analysis = null;
+        if (idAnalysis != null) {
+          analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
+        } else if (analysisNumber != null) {
+          analysis = (Analysis)sess.createQuery("from Analysis a where a.number ='" + analysisNumber + "'").uniqueResult();
+          if (analysis == null) {
+            throw new RuntimeException("Cannot find analysis " + analysisNumber);
+          }
+        }
         if (!secAdvisor.canUpdate(analysis)) {
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload analysis files");
         }
@@ -78,8 +97,16 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           targetDir = baseDir + createYear + File.separator + analysis.getNumber();
           targetNumber = analysis.getNumber();
         }
-      } else if (idRequest != null) {
-        Request experiment = (Request)sess.get(Request.class, idRequest);
+      } else if (idRequest != null || requestNumber != null) {
+        Request experiment = null;
+        if (idRequest != null) {
+          experiment = (Request)sess.get(Request.class, idRequest);
+        } else if (requestNumber != null) {
+          experiment = (Request)sess.createQuery("from Request r where r.number ='" + requestNumber + "'").uniqueResult();
+          if (experiment == null) {
+            throw new RuntimeException("Cannot find experiment " + requestNumber);
+          }
+        }
         if (!secAdvisor.canUpdate(experiment)) {
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload experiment files");
         }

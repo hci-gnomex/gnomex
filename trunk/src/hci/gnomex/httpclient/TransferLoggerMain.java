@@ -133,14 +133,32 @@ public class TransferLoggerMain {
 
       trustCerts(); 
 
-      // Install the custom authenticator
-      Authenticator.setDefault(new MyAuthenticator(userName, password));
+      //
+      // Login using forms based authentication
+      //
+      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/loginsucceeded.jsp?j_username=" + userName + "&j_password=" + password);
+      URLConnection conn = url.openConnection();
+      in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+      success = false;
+      while ((inputLine = in.readLine()) != null) {
+        System.out.println(inputLine);
+        if (inputLine.indexOf("<SUCCESS") >= 0) {
+          success = true;
+          break;
+        }
+      }
+      if (!success) {
+        System.err.print(outputXML.toString());
+        throw new Exception("Unable to login");
+      }
+      // Capture session id from cookie
+      List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
 
       //
       // Create a security advisor
       //
-      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
-      URLConnection conn = url.openConnection();
+      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
+      conn = url.openConnection();
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
       outputXML = new StringBuffer();
@@ -156,9 +174,6 @@ public class TransferLoggerMain {
         throw new Exception("Unable to create security advisor");
       }
 
-      // Capture session id from cookie
-      List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
-      in.close();
 
       //
       // Make http request to insert transfer log
