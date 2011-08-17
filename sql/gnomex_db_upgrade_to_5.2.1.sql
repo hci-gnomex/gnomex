@@ -3,4 +3,4 @@ INSERT INTO `gnomex`.`Property` (`propertyName`,`propertyValue`,`propertyDescrip
 
 alter table gnomex.FlowCellChannel alter column q30Gb q30Gb DECIMAL(4,1) null;
 
-alter table gnomex.Lab add column excludeUsage char(1) null;
+alter table gnomex.Lab change column excludeUsage char(1) null;
