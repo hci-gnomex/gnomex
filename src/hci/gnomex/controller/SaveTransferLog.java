@@ -91,7 +91,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
           idAnalysis = a.getIdAnalysis();
           estimatedUploadTime = a.getCreateDate();
         } else {
-          List results = sess.createQuery("SELECT r from Request r where r.number = '" + number + "'").list();
+          List results = sess.createQuery("SELECT r from Request r where r.number like '" + number + "%'").list();
           if (results.size() == 0) {
             throw new Exception("cannot find experiment " + number);
           }
@@ -126,7 +126,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveAnalysisGroup ", e);
+      log.error("An exception has occurred in SaveTransferLog ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
