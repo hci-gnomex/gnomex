@@ -1,6 +1,14 @@
 ﻿GNomEx Release Notes
 
-5.2.1
+5.2.2 (Aug 17, 2011)
+-------------------------
+- Simplify welcome screen for "external data sharing site", leaving out links to billing, submit request, etc.
+- Added property driven title and welcome message to customize site’s GNomEx UI.
+- Fixed bug that was causing fdt uploads to not be register in usage data (on experiments with revision numbers)
+- Fixed bug that was causing uploads to go to wrong directory when experiment had revision number
+
+
+5.2.1 (Aug 16, 2011)
 --------------------------
 - Allow non-admin gnomex users to view usage charts based on property setting.
 - Change FlowCellChannel.qc30Gb to decimal (from integer)

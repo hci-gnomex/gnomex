@@ -679,7 +679,10 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (54, 'fdt_file_daemon_task_dir', '', 'Location for fdtfilemonitor task files (these contain info on source/target folders for moving files after completion of uploads).', 'N'),
  (55, 'fdt_user', 'fdt', 'User account that fdt server runs under.', 'N'),
  (56, 'fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N'),
- (57, 'usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N');
+ (57, 'usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N'),
+ (58, 'external_data_sharing_site', 'N', 'Indicates if this gnomex installation is for external data sharting site, which limits options on welcome screen', 'N');
+ (59, 'site_title', '', 'The server name that appears next to the GNomEx title on the right top corner of the app', 'N');
+ (60, 'site_welcome_message', '', 'Welome message that appears on the GNomEx home/welcome page', 'N');
 
 
 
