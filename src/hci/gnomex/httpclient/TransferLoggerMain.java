@@ -97,7 +97,7 @@ public class TransferLoggerMain {
   private void printUsage() {
     System.out.println("java hci.gnomex.utility.TransferLogger " + "\n" +
         "-server application server name" + "\n" +
-        "-method http|ftp" + "\n" +
+        "-method http|fdt" + "\n" +
         "-type upload|download" + "\n" + 
         "-fileName fileName" + "\n" +
         "[-fileSize fileSize]" + "\n" +
