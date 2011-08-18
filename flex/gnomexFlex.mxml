@@ -436,7 +436,19 @@
 			
 			[Bindable]
 			public var showUsage:Boolean = false;
-	        
+			
+			[Bindable]
+			public var isExternalDataSharingSite:Boolean = false;
+			
+			[Bindable]
+			public var isAdminState:Boolean = false;
+			
+			[Bindable]
+			public var siteTitle:String = "";
+
+			[Bindable]
+			public var siteWelcomeMessage:String = "";
+
 	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 
@@ -496,6 +508,9 @@
 			public var PROPERTY_FDT_SUPPORTED:String                      = "fdt_supported";
 			public var PROPERTY_BULLETIN:String                           = "bulletin";
 			public var PROPERTY_USAGE_USER_VISIBILITY:String              = "usage_user_visibility";
+			public var PROPERTY_EXTERNAL_DATA_SHARING_SITE:String         = "external_data_sharing_site";
+			public var PROPERTY_SITE_TITLE:String                         = "site_title";
+			public var PROPERTY_SITE_WELCOME_MESSAGE:String               = "site_welcome_message";
 			
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
@@ -777,6 +792,8 @@
 			public function showDictionaries():void {
 				PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));
 			}
+			
+
             
             private function onViewSelection():void {
             	this.setDefaultSubmissionState();
@@ -785,7 +802,7 @@
 	            	currentView.checkDirty();
 	            	
 	            	// if we are leaving slide view, refresh dictionaries
-	            	if (currentState == "AdminState") {
+	            	if (isAdminState) {
 		            	if (currentView == this.slideManagementView) {
 		            		slideManagementView.refreshDictionaries();
 	    	        	}
@@ -812,18 +829,20 @@
             	} else {
             		return false;
             	}
-             }
+             } 
              
              public function submitInternalExperiment():Boolean {
              	return isInternalExperimentSubmission;
              }
-             
+              
              public function setDefaultSubmissionState():void {
              	if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) != null &&
              	    this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'INTERNAL') {
-             		isInternalExperimentSubmission =  true;
+					// Default is "submit request" (internal), but if this is an external data sharing
+					// hub, make default "register external" experiment.
+             		isInternalExperimentSubmission =  !isExternalDataSharingSite;
              	} else if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE)!= null &&
-             	        this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'EXTERNAL') {
+             	        this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'EXTERNAL') {					
              		isInternalExperimentSubmission =  false;
              	} 
              }
@@ -1055,11 +1074,12 @@
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
 				} else if (hasPermission("canAccessAnyObject")) {
-					currentState = "AdminState";
+					isAdminState = true;
+					currentState = this.isExternalDataSharingSite ? "AdminESState" : "AdminState";
 				} else if (hasGroupsToManage()) {
-					currentState = "ManagerState";
+					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";
 				} else if (hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) {
-					currentState = "UserState";
+					currentState = this.isExternalDataSharingSite ? "UserESState" : "UserState";
 				} else {
 					currentState = "UserNonSubmitterState";
 				}
@@ -1129,7 +1149,6 @@
             	}
             	pricingURL = getProperty(PROPERTY_PRICING_URL);
 				bulletin = getProperty(PROPERTY_BULLETIN) != null ? getProperty(PROPERTY_BULLETIN) : '';
-            	setDefaultSubmissionState();
             	
             	if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
             	    this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) == 'Y') {
@@ -1144,6 +1163,20 @@
 				} else {
 					this.isFDTSupported = false;
 				}
+				
+				if (this.getProperty(this.PROPERTY_EXTERNAL_DATA_SHARING_SITE) != null && 
+					this.getProperty(this.PROPERTY_EXTERNAL_DATA_SHARING_SITE) == 'Y') {
+					this.isExternalDataSharingSite = true;
+				} else {
+					this.isExternalDataSharingSite = false;
+				}
+
+				if (this.getProperty(this.PROPERTY_SITE_TITLE) != null) {
+					this.siteTitle = this.getProperty(this.PROPERTY_SITE_TITLE);
+				} 
+				if (this.getProperty(this.PROPERTY_SITE_WELCOME_MESSAGE) != null) {
+					this.siteWelcomeMessage = this.getProperty(this.PROPERTY_SITE_WELCOME_MESSAGE);
+				} 
 
 				// Admins can always view usage.  Normal gnomex users (non guest users)
 				// can only view it if the
@@ -1155,6 +1188,10 @@
 				} else {
 					this.showUsage = this.hasPermission("canAccessAnyObject");
 				}
+				
+				
+				setDefaultSubmissionState();
+
             	
 				if (currentState == null || currentState == "") {
 					getExperimentDesignList.send();
@@ -1574,15 +1611,14 @@
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"> 
 			      <mx:HBox width="100%"  
-				  horizontalAlign="left" verticalAlign="top" horizontalGap="20"  styleName="catalogPanel" 
+				  horizontalAlign="left" verticalAlign="top" horizontalGap="10"  styleName="catalogPanel" 
 			      	paddingBottom="6" id="hbox1" 
 			      	paddingTop="4" 
 			      	paddingLeft="4" paddingRight="4">
 						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
 							<mx:Image source="assets/hciLogo_hOnly.png"/>
-							<mx:Label text="GNomEx" id="appLabel" styleName="appTitle"/>
+							<mx:Label text="{'GNomEx ' + siteTitle}" id="appLabel" styleName="appTitle"/>
 						</mx:HBox>
-						<mx:Spacer width="100%"/>
 					        <mx:HBox  horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="100%">
 				              
 							  <mx:Text text="Lookup by Experiment or Analysis #" id="requestNumberLabel" visible="false"  styleName="navLabel"/>
@@ -1663,7 +1699,7 @@
 			            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
 			            </billing:NavBillingView> 
 			          
-				        <protocol:ProtocolsView id="protocolsView" label="Materials &amp; Methods" icon="@Embed('assets/bricks.png')">
+				        <protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
 				        </protocol:ProtocolsView>
 			
 				        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
@@ -1702,7 +1738,6 @@
 	 		<mx:SetProperty target="{searchText}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{appLabel}" name="text" value="GNomEx"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
@@ -1711,7 +1746,7 @@
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Serv."/>
-	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="Submit Request"/>
+	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="{this.isInternalExperimentSubmission ? 'Submit Request' : 'Register Experiment'}"/>
 			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users/Groups"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
@@ -1732,7 +1767,7 @@
 	 		<mx:RemoveChild target="{navBillingView}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
-	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
+	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
@@ -1750,6 +1785,22 @@
 	 		<mx:RemoveChild target="{amendRequestView}"/>
 			<mx:RemoveChild target="{navUsageView}"/>
 	 	</mx:State>
+
+		<mx:State name="AdminESState" basedOn="AdminState">
+			<mx:RemoveChild target="{amendRequestView}"/>
+			<mx:RemoveChild target="{navBillingView}"/>
+			<mx:RemoveChild target="{navWorkflowView}"/>
+		</mx:State>
+
+		 <mx:State name="ManagerESState" basedOn="ManagerState">
+			 <mx:RemoveChild target="{amendRequestView}"/>
+		 </mx:State>
+
+		 <mx:State name="UserESState" basedOn="UserState">
+			 <mx:RemoveChild target="{amendRequestView}"/>
+		 </mx:State>
+
+		 
 	 </mx:states>
 	
 	

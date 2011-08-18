@@ -603,7 +603,7 @@
 			
 			// Select the first lab unless this user is an admin
 			if (this.isAmendState()) {
-				if (parentApplication.currentState != "AdminState") {
+				if (parentApplication.isAdminState) {
 	            	if (labCombo.dataProvider.length > 1) {
 						labCombo.selectedIndex = 1;
 						this.getLabForAddingServices.send();
@@ -2524,7 +2524,7 @@
 		
 		private function getIdAppUserSubmitter():Object {
 			var idAppUserSubmitter:Object = null;
-			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.currentState != "AdminState")) {
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.isAdminState)) {
 				// If a non-admin user is converting a QC request
 				// to a microarray or sequencing request, make the user the 
 				//  submitter of
@@ -2540,7 +2540,7 @@
 		}
 		
 		public function getSubmitterName():String {
-			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.currentState != "AdminState")) {
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.isAdminState)) {
 				// If a non-admin user is converting a QC request
 				// to a microarray or sequencing request, make the user the 
 				//  submitter of
@@ -4146,7 +4146,7 @@
     				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
     							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
     				</mx:LinkButton>
-    				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" textAlign="left">    	        
+    				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" textAlign="left">    	        
     				</mx:LinkButton>
     				<mx:LinkButton fontSize="9" label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
     				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>

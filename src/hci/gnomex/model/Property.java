@@ -39,6 +39,9 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        FDT_GROUP                           = "fdt_group";
   public static final String        UNIVERSITY_USER_AUTHENTICATION      = "university_user_authentication"; 
   public static final String        USAGE_USER_VISIBILITY               = "usage_user_visibility";
+  public static final String        EXTERNAL_DATA_SHARING_SITE          = "external_data_sharing_site";
+  public static final String        SITE_TITLE                          = "site_title";
+  public static final String        SITE_WELCOME_MESSAGE                = "site_welcome_message";
   
   
   

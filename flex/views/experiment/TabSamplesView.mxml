@@ -738,7 +738,7 @@
         		this.sampleRowNumberCol.visible = true;
 				this.multiplexGroupNumberColumn.visible = false;
         		this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
-				this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.currentState == "AdminState";
+				this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState;
 
         	}
         		

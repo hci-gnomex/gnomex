@@ -121,7 +121,7 @@
 			}
 			
 
-			showQCFieldsCheckBox.selected = (currentState == 'QCState' ? true : false);
+			showQCFieldsCheckBox.selected = true;
 
 
 			getRequestCategoryName();

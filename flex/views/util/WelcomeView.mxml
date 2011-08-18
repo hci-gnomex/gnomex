@@ -62,12 +62,41 @@
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
 		</mx:State>
-		<mx:State name="UniversityOnlyUserState" basedOn="UserNonSubmitterState" >
-		</mx:State>
 		<mx:State name="ExternalUserState">
 		</mx:State>
-		<mx:State name="ExternalUserNonSubmitterState" basedOn="UserNonSubmitterState">
-			<mx:SetStyle target="{label4}" name="paddingTop" value="6"/>
+		<mx:State name="AdminESState" basedOn="AdminState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:SetStyle target="{label6}" name="paddingTop" value="4"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label3}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button4}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button5}"/>
+			<mx:SetStyle target="{label3}" name="paddingTop" value="26"/>
+		</mx:State>
+		<mx:State name="UserESState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+		</mx:State>
+		<mx:State name="ExternalUserESState" basedOn="ExternalUserState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+		</mx:State>
+		<mx:State name="UserNonSubmitterESState" basedOn="UserNonSubmitterState">
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -86,22 +115,18 @@
 			public function checkSecurity():void {
 				if (parentApplication.currentState == "GuestState") {
 					if (parentApplication.isUniversityOnlyUser) {
-						this.currentState = "UniversityOnlyUserState"
+						this.currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState"
 					} else {
 						this.currentState = "GuestState";
 					}
-				} else if (parentApplication.currentState == "AdminState") {
-					this.currentState = "AdminState";
+				} else if (parentApplication.isAdminState) {
+					this.currentState = parentApplication.isExternalDataSharingSite ? "AdminESState" : "AdminState";
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
-					if (parentApplication.isExternalUser)  {
-						currentState = "ExternalUserNonSubmitterState";												
-					} else {
-						currentState = "UserNonSubmitterState";						
-					}
+					currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState";						
 				} else if (parentApplication.isExternalUser)  {
-					currentState = "ExternalUserState";
+					currentState = parentApplication.isExternalDataSharingSite ? "ExternalUserESState" : "ExternalUserState";
 				} else {
-					currentState = "";
+					currentState = parentApplication.isExternalDataSharingSite ? "UserESState" : "";
 				}
 			}
 			
@@ -214,6 +239,8 @@
 		width="100%" height="100%"  
 		verticalAlign="middle" horizontalAlign="center"  
 		paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="40" paddingTop="6" id="vbox10">
+
+		<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" left="12" top="32"/>
 		
 		<mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40" id="hbox8">
 			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox9">
