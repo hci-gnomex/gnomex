@@ -167,7 +167,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
             }      
           }
           
-          directoryName = baseDir + "/" + request.getNumber();
+          directoryName = baseDir + "/" + Request.getBaseRequestNumber(request.getNumber());
           if (!new File(directoryName).exists()) {
             boolean success = (new File(directoryName)).mkdir();
             if (!success) {
