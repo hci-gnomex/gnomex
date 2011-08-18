@@ -151,16 +151,16 @@ is not yet configured to work.
    fdt under var/www/html/ if your system is running the standard apache server.)
    
 7. Make a directory for the fdt file monitor daemon and copy the necessary files:
-   >mkdir /path/to/fdtfilemonitor
-   >mkdir /path/to/fdtfilemonitor/tasks
-   >cp scripts/fdtFileDaemon.jar /path/to/fdtfilemonitor/
-   >cp scripts/fdtfiledaemon.sh /path/to/fdtfilemonitor/
+   >mkdir /path/to/fdtfiledaemon
+   >mkdir /path/to/fdtfieldaemon/tasks
+   >cp scripts/fdtFileDaemon.jar /path/to/fdtfiledaemon/
+   >cp scripts/fdtfiledaemon.sh /path/to/fdtfiledaemon/
    
-8. Modify /path/to/fdtfilemonitor/fdtfiledaemon.sh.  Edit /path/to/fdtfilemonitor/ and /path/to/fdt_staging_dir to point
+8. Modify /path/to/fdtfiledaemon/fdtfiledaemon.sh.  Edit /path/to/fdtfiledaemon/ and /path/to/fdt_staging_dir to point
    to your filepath locations.
    
 9. Start the fdt file monitor daemon.
-   >cd /path/to/fdtfilemonitor
+   >cd /path/to/fdtfiledaemon
    >nohup sh fdtfiledaemon.sh 
    
 10. In GNomEx, click on 'Manage Dictionaries'.  Create/edit these properties:
@@ -169,7 +169,7 @@ is not yet configured to work.
      fdt_supported                     Y
      fdt_directory                     The fdt staging dir
      fdt_directory_gnomex              The fdt staging dir.  Only differs from fdt_directory when fdt server running on different machine than Orion (gnomex)
-     fdt_client_codebase               The URL to download fdtClient.jar.  (See step 6).
+     fdt_client_codebase               The URL to download fdtClient.jar.  example:  http:bioserver.hci.utah.edu/fdt (See step 6).
      fdt_server_name                   The machine (domain name) that the fdt server is running on.
      fdt_file_daemon_task_dir          Set to /path/to/fdtfilemonitor/tasks
      fdt_user                          Set to the unix user account that has read/write access to the fdt_staging dir
