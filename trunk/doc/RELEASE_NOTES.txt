@@ -3,7 +3,7 @@
 5.2.3
 ------------------------
 - Fix parse file folder logic for downloads to handle case where canonical path does not match property for experiment directory
-
+- Show usage charts on startup (rather than welcome view) if property show_usage_on_startup set to 'Y'
 
 5.2.2 (Aug 17, 2011)
 -------------------------

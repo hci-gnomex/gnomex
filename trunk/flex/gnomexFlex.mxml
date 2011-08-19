@@ -435,6 +435,9 @@
 			public var isFDTSupported:Boolean = false;
 			
 			[Bindable]
+			public var showUsageOnStartup:Boolean = false;
+			
+			[Bindable]
 			public var showUsage:Boolean = false;
 			
 			[Bindable]
@@ -511,7 +514,8 @@
 			public var PROPERTY_EXTERNAL_DATA_SHARING_SITE:String         = "external_data_sharing_site";
 			public var PROPERTY_SITE_TITLE:String                         = "site_title";
 			public var PROPERTY_SITE_WELCOME_MESSAGE:String               = "site_welcome_message";
-			
+			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
+			 
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
@@ -1164,6 +1168,14 @@
 					this.isFDTSupported = false;
 				}
 				
+				
+				if (this.getProperty(this.PROPERTY_SHOW_USAGE_ON_STARTUP) != null && 
+					this.getProperty(this.PROPERTY_SHOW_USAGE_ON_STARTUP) == 'Y') {
+					this.showUsageOnStartup = true;
+				} else {
+					this.showUsageOnStartup = false;
+				}
+				
 				if (this.getProperty(this.PROPERTY_EXTERNAL_DATA_SHARING_SITE) != null && 
 					this.getProperty(this.PROPERTY_EXTERNAL_DATA_SHARING_SITE) == 'Y') {
 					this.isExternalDataSharingSite = true;
@@ -1359,7 +1371,13 @@
    					this.showBillingAccountDetail(this.getLaunchIdLab());
 	        	} else if (launchWorkAuthForm() && !isGuestMode()) {
    					this.showWorkAuthWindow();
-	        	} 
+	        	} else {
+					if (showUsage && showUsageOnStartup) {
+						theViews.selectedChild = this.navUsageView;
+					} else {
+						theViews.selectedChild = this.homeView;						
+					}					
+				}
 	        	 
 	        }
 	        

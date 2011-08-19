@@ -42,7 +42,7 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        EXTERNAL_DATA_SHARING_SITE          = "external_data_sharing_site";
   public static final String        SITE_TITLE                          = "site_title";
   public static final String        SITE_WELCOME_MESSAGE                = "site_welcome_message";
-  
+  public static final String        SHOW_USAGE_ON_STARTUP               = "show_usage_on_startup";
   
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
