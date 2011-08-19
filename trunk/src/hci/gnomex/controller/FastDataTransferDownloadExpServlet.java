@@ -173,6 +173,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
             }
 
 
+
             // Make softlinks dir
             if(softlinks_dir.length() == 0) {							
               softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(req.getServerName())+uuid.toString();

@@ -309,7 +309,7 @@ public class PropertyHelper implements Serializable {
    
   public String parseMainFolderName(String serverName, String fileName) {
     String mainFolderName = "";
-    String baseDir = "";
+    String baseDirLastPart = "";
     
     String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
     String flowCellDirectory   = this.getFlowCellDirectory(serverName);
@@ -319,10 +319,25 @@ public class PropertyHelper implements Serializable {
     experimentDirectory = experimentDirectory.replaceAll("\\\\", "/");
     flowCellDirectory = flowCellDirectory.replaceAll("\\\\", "/");
     
-    if (theFileName.toLowerCase().indexOf(experimentDirectory.toLowerCase()) >= 0) {
-      baseDir = experimentDirectory;
-    } else if (theFileName.toLowerCase().indexOf(flowCellDirectory.toLowerCase()) >= 0) {
-      baseDir = flowCellDirectory;
+    // Parse out last part of experiment and flow cell path.  We must isolate
+    // this part because the canonical path of the file may not match the 
+    // experiment/flowcell directory (due to file links).
+    String tokens[] = experimentDirectory.split("/");
+    String experimentDirLastPart = tokens[tokens.length - 1];
+    if (tokens == null || tokens.length == 0) {
+      throw new RuntimeException("Cannot parse experiment directory into expected parts");
+    }
+    tokens = flowCellDirectory.split("/");
+    if (tokens == null || tokens.length == 0) {
+      throw new RuntimeException("Cannot parse flow cell directory into expected parts");
+    }
+    String flowCellDirLastPart = tokens[tokens.length - 1];
+    
+    
+    if (theFileName.toLowerCase().indexOf(experimentDirLastPart.toLowerCase()) >= 0) {
+      baseDirLastPart = experimentDirLastPart;
+    } else if (theFileName.toLowerCase().indexOf(flowCellDirLastPart.toLowerCase()) >= 0) {
+      baseDirLastPart = flowCellDirLastPart;
     } else {
       throw new RuntimeException("Cannot determine base directory.  Neither flowcell directory or experiment directory match file name " + fileName);
     }
@@ -330,14 +345,29 @@ public class PropertyHelper implements Serializable {
     
     // Strip off the leading part of the path, up through the year subdirectory,
     // to leave only the path that starts with the request number subdirectory.
-    String relativePath = theFileName.substring(baseDir.length() + (baseDir.endsWith("/") | baseDir.endsWith("\\") ? 5 : 6));
-    
-    String tokens[] = relativePath.split("/", 2);
-    if (tokens == null || tokens.length == 1) {
-      tokens = relativePath.split("\\\\", 2);
+    tokens = theFileName.split(baseDirLastPart, 2);
+    if (tokens == null || tokens.length < 2) {
+      throw new RuntimeException("Cannot parse experiment directory into expected parts");
     }
-    if (tokens.length == 2) {
-      mainFolderName = tokens[0];
+    String lastFilePart = tokens[tokens.length - 1];
+    tokens = lastFilePart.split("/");
+    if (tokens == null || tokens.length < 2) {
+      throw new RuntimeException("Cannot parse experiment directory into expected parts for year and number");
+    }    
+    int x = 0;
+    String year = "";
+    for (x = 0; x < tokens.length; x++) {
+      if (tokens[x].equals("")) {
+        continue;
+      }
+      // First non-blank token is the year;
+      // then second non-blank token is the 
+      // main folder name.
+      if (year.equals("")) {
+        year = tokens[x];
+      } else if (mainFolderName.equals("")) {
+        mainFolderName = tokens[x];
+      }
     }
     
     return mainFolderName;
