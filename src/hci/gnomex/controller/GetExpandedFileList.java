@@ -140,6 +140,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           }
 
 
+
           // Use attribute to get "control break" on request number and directory name
           // for grid of files
           Element fdNode = fd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement();

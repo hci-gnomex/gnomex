@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.2.3
+------------------------
+- Fix parse file folder logic for downloads to handle case where canonical path does not match property for experiment directory
+
+
 5.2.2 (Aug 17, 2011)
 -------------------------
 - Simplify welcome screen for "external data sharing site", leaving out links to billing, submit request, etc.

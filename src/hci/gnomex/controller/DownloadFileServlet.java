@@ -189,6 +189,7 @@ public class DownloadFileServlet extends HttpServlet {
               }
             }
 
+
             // If we are using tar, compress the file first using
             // zip.  If we are zipping the file, just open
             // it to read.            
