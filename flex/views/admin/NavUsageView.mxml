@@ -60,6 +60,7 @@
 			if (currentState != "DisabledState") {
 				getUsageData.send();
 			}
+			
 		}
 
 		public function checkDirty():void {
@@ -78,6 +79,10 @@
 		private function onGetUsageData(event:ResultEvent):void {
 			if (getUsageData.lastResult.name() == "UsageData") {
 				// success
+				if (chartStack.selectedIndex == 0) {
+					chartStack.selectedChild = daysSincePanel;
+					buttonStack.selectedIndex = 1				
+				}
 			} else {
 				mx.controls.Alert.show("An error occurred while getting usage data.");
 			}
