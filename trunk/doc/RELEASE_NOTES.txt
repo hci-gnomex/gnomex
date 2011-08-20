@@ -1,9 +1,10 @@
 ﻿GNomEx Release Notes
 
-5.2.3
+5.2.3 (Aug 20, 2011)
 ------------------------
 - Fix parse file folder logic for downloads to handle case where canonical path does not match property for experiment directory
 - Show usage charts on startup (rather than welcome view) if property show_usage_on_startup set to 'Y'
+- Don't check 'show QC' columns for Experiment detail when experiment is an external experiment.
 
 5.2.2 (Aug 17, 2011)
 -------------------------
