@@ -121,7 +121,7 @@
 			}
 			
 
-			showQCFieldsCheckBox.selected = true;
+			showQCFieldsCheckBox.selected = selectedExperiment.@isExternal = 'Y' ? false : true;
 
 
 			getRequestCategoryName();
