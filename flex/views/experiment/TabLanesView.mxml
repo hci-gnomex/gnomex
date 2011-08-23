@@ -23,20 +23,22 @@
 			var template:Object = this.lanesGrid.selectedItem;
 			if (template == null) {
 				var theLanes:XMLListCollection = XMLListCollection(parentDocument.lanes);				
-				template = theLanes.getItemAt(theLanes.length - 1);
+				if (theLanes.length > 0) {
+					template = theLanes.getItemAt(theLanes.length - 1);
+				}
 			}
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" idSeqRunType='" + template.@idSeqRunType + "'" +			
-					" idNumberSequencingCycles='" + template.@idNumberSequencingCycles + "'" +			
-					" idGenomeBuildAlignTo='" + template.@idGenomeBuildAlignTo + "'" +		
+					" idSeqRunType='" + (template != null ? template.@idSeqRunType : "") + "'" +			
+					" idNumberSequencingCycles='" +  (template != null ? template.@idNumberSequencingCycles : "") + "'" +			
+					" idGenomeBuildAlignTo='" +  (template != null ? template.@idGenomeBuildAlignTo : "") + "'" +		
 					" canChangeSampleDesignations='Y'"	+
 				" idSample='0'" +
 				"/>");
 				
 			// The instructions might have a single quote, so set the instructions
 			// this way instead of in the XML constructor.	
-			emptyNode.@analysisInstructions = template.@analysisInstructions;
+			emptyNode.@analysisInstructions = template != null ? template.@analysisInstructions : "";
 			
 			parentDocument.lanes.addItem(emptyNode);
 		}
