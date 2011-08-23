@@ -121,7 +121,7 @@
 			}
 			
 
-			showQCFieldsCheckBox.selected = selectedExperiment.@isExternal = 'Y' ? false : true;
+			showQCFieldsCheckBox.selected = selectedExperiment.@isExternal == 'Y' ? false : true;
 
 
 			getRequestCategoryName();
@@ -1094,7 +1094,6 @@
 		<mx:RemoveChild target="{protocolsBox}"/>
 		<mx:RemoveChild target="{headerBox}"/>
 		<mx:RemoveChild target="{hbox2}"/>
-		<mx:RemoveChild target="{lanesConfirmContainer}"/>
 		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
 		<mx:RemoveChild target="{showSeqPrepFieldsCheckBox}"/>
 	</mx:State>
