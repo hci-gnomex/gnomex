@@ -1878,13 +1878,14 @@
 				// Comment out since seq lib treatments are not in use for now
 				//this.seqSetupView.currentState = "EditState";  
 					
-				if (request.@isExternal != 'Y') {
-					if (parentApplication.hasPermission("canWriteAnyObject")) {
-						lanesView.currentState = 'LanesAdminState';
-					} else {
-						lanesView.currentState = '';
-					} 
-				}
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					lanesView.currentState = 'LanesAdminState';
+				} else if (request.@isExternal == 'Y') {
+					lanesView.currentState = 'LanesAdminState';						
+				} else {
+					lanesView.currentState = '';
+				} 
+
 				
 				this.sampleCharacteristicEntries.refresh();
 
@@ -2735,7 +2736,12 @@
 			// Visibility
 			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
 			if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
-				request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
+				// Only set the institution if the visibility view in initialized, meaning
+				// that the user has selected the visibility tab.  Otherwise, just leave
+				// the institution to is previously set value.
+				if (visibilityView.institutionCombo != null && visibilityView.institutionCombo.selectedItem != null) {
+					request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;					
+				}
 			}
 
 			// Collaborators
@@ -2756,6 +2762,7 @@
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
 			params.idProject = request.@idProject;
+			
 			saveExistingRequest.send(params);			
 			
 		}
