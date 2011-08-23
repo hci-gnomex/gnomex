@@ -1,5 +1,17 @@
 ﻿GNomEx Release Notes
 
+5.2.4 (Aug 22, 2011)
+------------------------
+- Fix bug that was causing saves to fail on Edit Experiment view.  Bug introduced
+  in last release (GNomEx 5.2.3) when code was changed to only check 'Show QC' on 
+  internal experiments.
+- Fixed experiment lookup to handle experiments with base number.  MySQL query using
+  [0-9] changed to %.
+- Allow lanes to be added, removed, copied on external experiments for admin,
+  owner of experiment and lab manager.
+- Show sample sequence lanes on Edit Detail for external sequencing experiments.
+  
+
 5.2.3 (Aug 20, 2011)
 ------------------------
 - Fix parse file folder logic for downloads to handle case where canonical path does not match property for experiment directory
