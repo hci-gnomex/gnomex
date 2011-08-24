@@ -86,6 +86,8 @@
 		
 		[Bindable]
         public var codeStepNext:String;
+		
+		private var prevChannelCount:int = 0;
         
 		
 		private var isValid:Boolean = true;
@@ -426,7 +428,7 @@
 		}
     	
     	private function mergeSamplesImpl():void {
-    		var prevChannelCount:int = getChannelCount();
+    		prevChannelCount = getChannelCount();
 			// Find a unique multiplex number that will guarantee that these samples get
 			// combined into same channel
 			var specialMultiplexNumber:Number = 999;
@@ -440,13 +442,33 @@
     			workItem.@multiplexGroupNumber = specialMultiplexNumber;
 				workItem.@allowMultiRequestMerge = 'Y';
     		}
-    		this.reassignChannelNumbers();
-    		if (prevChannelCount > getChannelCount()) {
-    			Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
-    		} else {
-    			Alert.show("Unable to combine samples into one channel.  Samples must have unique index tag sequences or unique index tag groups and be adjacent to each other on the flowcell grid.");
-    		}
+			if (this.areIndexTagsUnique(specialMultiplexNumber)) {
+				this.reassignChannelNumbers(true);
+				if (prevChannelCount > getChannelCount()) {
+					Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
+				} else {
+					Alert.show("Unable to combine samples into one channel.  Samples must have unique index tag sequences or unique index tag groups and be adjacent to each other on the flowcell grid.");
+				}
+			} else {
+				Alert.show("Some of the samples to be multiplexed in one flow cell channel have the same index tag.  This should only occur when samples (and their sequence reads) are meant to be pooled.  Proceed with duplicate index tags?",
+					"Warning",
+					(Alert.YES | Alert.NO),
+					null,
+					onPromptForMergeDuplicateIndexTags);
+			}
     	}
+		
+		private function onPromptForMergeDuplicateIndexTags(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				this.reassignChannelNumbers(false);
+				if (prevChannelCount > getChannelCount()) {
+					Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
+				} else {
+					Alert.show("Unable to combine samples into one channel.  Samples must be adjacent to each other on the flowcell grid and belong to the sample request.");
+				}
+			}
+		}
+		
 	  	private function onDragDropLane(event:DragEvent) : void
 		{
 	       // retrieve the data associated with the "items" format. This will be the data that
@@ -527,7 +549,7 @@
 	       } 
 	       
 	       // Reassign channel numbers based based on any multiplexing.
-	       reassignChannelNumbers();
+	       reassignChannelNumbers(true);
 	       
 	           	
     		// Warn if flow cell channels exceeded.
@@ -602,7 +624,24 @@
 			}
 		}
 		
-		private function reassignChannelNumbers():void {
+		private function areIndexTagsUnique(multiplexGroupNumber:Object):Boolean {
+			var workItemCount:int = 0;
+			var sequenceTagMap:Object = new Object();
+			for each(var wi:Object in dirtyChannelWorkList) {
+				if (wi.@multiplexGroupNumber == multiplexGroupNumber) {
+					sequenceTagMap[wi.@barcodeSequence] = wi.@barcodeSequence;
+					workItemCount++;
+				}
+			}
+			var uniqueTagCount:int = 0;
+			for (var sequenceTag:Object in sequenceTagMap) {
+				uniqueTagCount++;
+			}
+			
+			return uniqueTagCount == workItemCount;
+		}
+		
+		private function reassignChannelNumbers(checkForDupIndexTagOnMerge:Boolean):void {
 			var channelNumber:int = 0;
 			var prevBarcodes:XMLListCollection = new XMLListCollection();
 			var altColor:Boolean = true;
@@ -612,9 +651,10 @@
 			for each(var wi:Object in dirtyChannelWorkList) {
 				var nextChannel:Boolean = true;
 				if (wi.hasOwnProperty("@allowMultiRequestMerge") && wi.@allowMultiRequestMerge == 'Y') {
+					nextChannel = checkForDupIndexTagOnMerge;
 				    if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
 						nextChannel = true;
-					} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
+					} else if (checkForDupIndexTagOnMerge && wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
 						if (prevBarcodes.length > 0) {
 							nextChannel = false;
 							for each(var bc:Object in prevBarcodes) {
@@ -835,10 +875,10 @@
 					<mx:HBox width="100%" horizontalGap="2">
 						<mx:HBox horizontalAlign="left" paddingTop="0" paddingBottom="0" horizontalGap="4">
 							<mx:Button click="mergeSamples()"  label="Combine" toolTip="Combine samples from a request into one channel"/>
-							<mx:Button click="moveAssembleLaneUp();reassignChannelNumbers()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
-							<mx:Button click="moveAssembleLaneDown();reassignChannelNumbers()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
+							<mx:Button click="moveAssembleLaneUp();reassignChannelNumbers(true)" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
+							<mx:Button click="moveAssembleLaneDown();reassignChannelNumbers(true)" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
 							<mx:VRule height="20"/>
-							<mx:Button id="removeFlowCellButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeAssembleLane();reassignChannelNumbers()">
+							<mx:Button id="removeFlowCellButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeAssembleLane();reassignChannelNumbers(true)">
 								<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
 							</mx:Button>
 						</mx:HBox> 

@@ -524,8 +524,7 @@
 			// Make sure the sample index tags are unique
 			if (isComplete) {
 				if (!areIndexTagsUnique()) {
-					parentDocument.userWarningsSamples += "Index tags must be unique for every sample to be loaded into a flowcell channel."; 
-					isComplete = false;
+					parentDocument.userWarningsSamples += "WARNING: Duplicate index tags have been specified.  This should only occur when samples (and their reads) are meant to be pooled."; 
 				}
 			}
     		
