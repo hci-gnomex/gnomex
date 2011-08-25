@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.jdom.Element;
@@ -38,6 +39,8 @@ import hci.gnomex.model.Visibility;
 public class GetProjectRequestList extends GNomExCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectRequestList.class);
+  
+  private static int MAX_ROW_COUNT           = 2000;
   
   private ProjectRequestFilter filter;
   private Element              rootNode = null;
@@ -87,8 +90,9 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     }
     
     if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
-      this.addInvalidField("requiredCriteria", "Please specify an additional search filter.");
+      this.addInvalidField("insufficientCriteria", "Please specify a filter.");
     }
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -110,9 +114,17 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       }
       
     
+      String message = "";
+      int resultsCount = 0;
       StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
       log.info("Query for GetProjectRequestList: " + buf.toString());
-      List results = (List)sess.createQuery(buf.toString()).list();
+      Query query = sess.createQuery(buf.toString());
+      query.setMaxResults(MAX_ROW_COUNT);
+      List results = (List)query.list();
+      resultsCount = results.size();
+      if (results.size() == MAX_ROW_COUNT) {
+        message = "Only first " + MAX_ROW_COUNT + " results displayed.";
+      }
 
       
       buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
@@ -144,6 +156,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       
       Document doc = new Document(new Element(listKind));
       rootNode = doc.getRootElement();
+      rootNode.setAttribute("message", message);
+      rootNode.setAttribute("resultsCount", "(" + Integer.valueOf(resultsCount).toString() + ")");
       for(Iterator i = results.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
         
