@@ -177,7 +177,7 @@ public class BillingItemFilter extends DetailObject {
     // Search by lab 
     if (idLab != null){
       this.addWhereOrAnd();
-      queryBuf.append(" req.idLab =");
+      queryBuf.append(" bi.idLab =");
       queryBuf.append(idLab);
     } 
     // Search by billing account 
