@@ -1,9 +1,11 @@
 ﻿GNomEx Release Notes
 
-5.2.5
+5.2.5 (Aug 24, 2011)
 ------------------------
 - Allow samples with duplicate index tags to be combined into one multiplex group.  (Warn user, but permit it.)
-
+- Show experiment type on QC worklist
+- Fix bug that was causing delete analysis to fail due to foreign key constraint violation on transfer log table.
+- Add "All" checkbox on Experiments view so that admins can view all experiments for all labs without any other filters.
 
 5.2.4 (Aug 22, 2011)
 ------------------------
