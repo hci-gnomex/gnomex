@@ -149,7 +149,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.qualBypassed, ");
       queryBuf.append("    s.codeBioanalyzerChipType, ");
       queryBuf.append("    s.qualFragmentSizeFrom, ");
-      queryBuf.append("    s.qualFragmentSizeTo ");
+      queryBuf.append("    s.qualFragmentSizeTo, ");
+      queryBuf.append("    s.idSampleType ");
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
       queryBuf.append("      , ");
       queryBuf.append("    ls.labelingDate, ");

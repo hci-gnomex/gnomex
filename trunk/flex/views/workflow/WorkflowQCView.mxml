@@ -252,6 +252,8 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Experiment Type" width="20" dataField="@experimentType"/>
+					<mx:DataGridColumn editable="false" headerText="Sample Type" width="20" dataField="@sampleType"/>
 					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@appUserName" />
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
