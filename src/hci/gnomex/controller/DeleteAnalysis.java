@@ -6,11 +6,13 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -67,6 +69,14 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
         }
         SaveAnalysis.removeAnalysisDirectoryFromFileSystem(baseDir, analysis);
         
+        
+        // Remove transfer logs associated with Analysis
+        List transferLogs = sess.createQuery("SELECT x from TransferLog x where x.idAnalysis = '" + analysis.getIdAnalysis() + "'").list();
+        for(Iterator i = transferLogs.iterator(); i.hasNext();) {
+          TransferLog tl = (TransferLog)i.next();
+          sess.delete(tl);
+        }
+        sess.flush();
         
         //
         // Delete Analysis

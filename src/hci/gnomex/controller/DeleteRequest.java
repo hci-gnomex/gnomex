@@ -7,11 +7,13 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,7 +96,14 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           sess.delete(bi);
         }
         sess.flush(); 
-       
+        
+        // Remove transfer logs 
+        List transferLogs = sess.createQuery("SELECT x from TransferLog x where x.idRequest = '" + req.getIdRequest() + "'").list();
+        for(Iterator i = transferLogs.iterator(); i.hasNext();) {
+          TransferLog tl = (TransferLog)i.next();
+          sess.delete(tl);
+        }
+        sess.flush();
         
         //
         // Delete Request
