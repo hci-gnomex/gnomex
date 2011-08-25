@@ -258,6 +258,12 @@
         		this.treeExpansionStack.visible = false;
         		return;
         	}
+			
+			if (getProjectRequestList.lastResult.@message != "") {
+				messageLabel.text = getProjectRequestList.lastResult.@message;
+			} else {
+				messageLabel.text =  "(" + getProjectRequestList.lastResult..Request.length() +  " experiments)";; 
+			}
         	  
         	if (getProjectRequestList.lastResult.Lab.length() == 0) {
         		browseTree.visible = false;
@@ -829,56 +835,65 @@
 		
 		public function getBrowseParameters():Object {
 			var params:Object = new Object();
-			if (currentState == 'AdminState') {
-			    if (browseLabCombo.selectedItem != null) {
-					params.idLab = browseLabCombo.selectedItem.@idLab;
-				}
-				if (browseUserCombo.selectedItem != null) {
-					params.idAppUser = browseUserCombo.selectedItem.@idAppUser;
-				}
-			} else if (currentState != "GuestState") {
-				if (myExperimentsCheckbox.selected) {
-					params.idAppUser = parentApplication.getIdAppUser();
-				}				
-			}
-			if (lastWeekCheckbox.selected) { 
-				params.lastWeek = 'Y'; 
-			} else if (lastMonthCheckbox.selected) {
-				params.lastMonth = 'Y';
-			} else if (lastThreeMonthsCheckbox.selected) {
-				params.lastThreeMonths = 'Y';
-			} else if (lastYearCheckbox.selected) {
-				params.lastYear = 'Y';
-			}
 			
-			if (this.externalExperimentsOnlyCheckbox.selected) {
+			if (currentState == 'AdminState' &&
+				this.externalExperimentsOnlyCheckbox.selected) {
 				params.isExternalOnly = 'Y';
-			}
-			if (publicExperimentsOtherGroupsCheckbox.selected) {
-				params.publicExperimentsInOtherGroups = 'Y';
 			} else {
-				params.publicExperimentsInOtherGroups = 'N';
+				if (currentState == 'AdminState') {
+					if (browseLabCombo.selectedItem != null) {
+						params.idLab = browseLabCombo.selectedItem.@idLab;
+					}
+					if (browseUserCombo.selectedItem != null) {
+						params.idAppUser = browseUserCombo.selectedItem.@idAppUser;
+					}
+				} else if (currentState != "GuestState") {
+					if (myExperimentsCheckbox.selected) {
+						params.idAppUser = parentApplication.getIdAppUser();
+					}				
+				}
+				
+				if (allExperimentsCheckbox.selected) {
+					params.allExperiments = 'Y';
+				}
+				if (lastWeekCheckbox.selected) { 
+					params.lastWeek = 'Y'; 
+				} else if (lastMonthCheckbox.selected) {
+					params.lastMonth = 'Y';
+				} else if (lastThreeMonthsCheckbox.selected) {
+					params.lastThreeMonths = 'Y';
+				} else if (lastYearCheckbox.selected) {
+					params.lastYear = 'Y';
+				}
+				
+				
+				if (publicExperimentsOtherGroupsCheckbox.selected) {
+					params.publicExperimentsInOtherGroups = 'Y';
+				} else {
+					params.publicExperimentsInOtherGroups = 'N';
+				}
+				if (currentState == 'AdminState' || 
+					publicExperimentsOtherGroupsCheckbox.selected || 
+					myExperimentsCheckbox.selected || 
+					lastWeekCheckbox.selected || 
+					lastMonthCheckbox.selected || 
+					lastYearCheckbox.selected ||
+					this.MicroarrayCheckbox.selected ||
+					this.NextGenSeqCheckbox.selected ||
+					this.BioanalyzerCheckbox.selected ) {
+					params.showMyLabsAlways = 'N'; 
+				} else {
+					params.showMyLabsAlways = 'Y';
+				}
+				
+				params.isMicroarray  = this.MicroarrayCheckbox.selected ? "Y" : "N";
+				params.isNextGenSeq  = this.NextGenSeqCheckbox.selected ? "Y" : "N";
+				params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
+				
 			}
 			
 			params.showSamples = 'N';
 			params.showCategory = 'N';
-			if (currentState == 'AdminState' || 
-			    publicExperimentsOtherGroupsCheckbox.selected || 
-			    myExperimentsCheckbox.selected || 
-			    lastWeekCheckbox.selected || 
-			    lastMonthCheckbox.selected || 
-			    lastYearCheckbox.selected ||
-			    this.MicroarrayCheckbox.selected ||
-			    this.NextGenSeqCheckbox.selected ||
-			    this.BioanalyzerCheckbox.selected ) {
-				params.showMyLabsAlways = 'N'; 
-			} else {
-				params.showMyLabsAlways = 'Y';
-			}
-			
-			params.isMicroarray  = this.MicroarrayCheckbox.selected ? "Y" : "N";
-			params.isNextGenSeq  = this.NextGenSeqCheckbox.selected ? "Y" : "N";
-			params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
 			
 			return params;
 		}
@@ -1099,18 +1114,30 @@
 			this.lastMonthCheckbox.selected = false;
 			this.lastThreeMonthsCheckbox.selected = false;
 			this.lastYearCheckbox.selected  = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
 		} else if (checkBoxNumber == 2) {
 			this.lastWeekCheckbox.selected = false;
 			this.lastThreeMonthsCheckbox.selected = false;
 			this.lastYearCheckbox.selected  = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
 		} else if (checkBoxNumber == 3) {
 			this.lastWeekCheckbox.selected  = false;
 			this.lastMonthCheckbox.selected = false; 
 			this.lastYearCheckbox.selected  = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
 		}  else if (checkBoxNumber == 4) {
 			this.lastWeekCheckbox.selected  = false;
 			this.lastMonthCheckbox.selected = false; 
 			this.lastThreeMonthsCheckbox.selected = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
 		}   
 	} 		 
 	
@@ -1125,13 +1152,50 @@
 		if (checkBoxNumber == 1) {
 			this.NextGenSeqCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected  = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
 		} else if (checkBoxNumber == 2) {
 			this.MicroarrayCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected  = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
 		} else if (checkBoxNumber == 3) {
 			this.NextGenSeqCheckbox.selected = false;
 			this.MicroarrayCheckbox.selected = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
+
 		} 
+	}
+			
+	private function toggleAllExperiments():void {
+		if (this.allExperimentsCheckbox.selected) {
+			this.browseLabCombo.enabled = false;
+			this.browseUserCombo.enabled = false;
+			this.MicroarrayCheckbox.enabled = false;
+			this.NextGenSeqCheckbox.enabled = false;
+			this.BioanalyzerCheckbox.enabled = false;
+			this.lastWeekCheckbox.enabled = false;
+			this.lastMonthCheckbox.enabled = false;
+			this.lastThreeMonthsCheckbox.enabled = false;
+			this.lastYearCheckbox.enabled = false;
+			this.externalExperimentsOnlyCheckbox.enabled = false;
+		} else {
+			this.browseLabCombo.enabled = true;
+			this.browseUserCombo.enabled = true;
+			this.MicroarrayCheckbox.enabled = true;
+			this.NextGenSeqCheckbox.enabled = true;
+			this.BioanalyzerCheckbox.enabled = true;
+			this.lastWeekCheckbox.enabled = true;
+			this.lastMonthCheckbox.enabled = true;
+			this.lastThreeMonthsCheckbox.enabled = true;
+			this.lastYearCheckbox.enabled = true;
+			this.externalExperimentsOnlyCheckbox.enabled = true;
+			
+		}
 	}
 		
        ]]>
@@ -1209,7 +1273,10 @@
 	   
 			
 			<mx:VBox styleName="panelBox"   width="260" height="100%" id="navPanel" >
-				<mx:Label id="titleLabel" styleName="titleLabel" text="Experiments"/>
+				<mx:HBox width="100%">
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Experiments"/>
+					<mx:Label id="messageLabel" styleName="labelSmall" text=""/>
+				</mx:HBox>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
@@ -1319,19 +1386,21 @@
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
 			<mx:AddChild relativeTo="{hbox2}"  position="firstChild">
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-				<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall"/>
+				<mx:CheckBox label="All Experiments" paddingRight="8" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());"/>
+				<mx:VRule height="20"/>
+				<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="8"/>
 				<mx:ComboBox id="browseLabCombo" 
 					labelField="@name"
 					dataProvider="{parentApplication.promptedLabList}"
 					 change="{this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
-					 visible="true"  width="150">
+					 visible="true"  width="150" click="this.allExperimentsCheckbox.selected = false;getProjectRequestList.send(getBrowseParameters());">
 				</mx:ComboBox>
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle">
 				<mx:Label id="userLabel" visible="true" text="Requester:" paddingBottom="0" paddingLeft="10"  styleName="labelSmall"/>
 				<mx:ComboBox id="browseUserCombo" 
 					labelField="@displayName"
 					dataProvider="{appUsers}"
-					 change="selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters())"  
+					 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters())"  
 					 visible="true"  width="140">
 				</mx:ComboBox>
 				</mx:HBox>
@@ -1345,6 +1414,10 @@
 			<mx:AddChild relativeTo="{hbox5}" position="before">
 				<mx:VRule height="20" id="vrule3"/>
 			</mx:AddChild>
+			<mx:SetEventHandler target="{externalExperimentsOnlyCheckbox}" name="click" handler="this.allExperimentsCheckbox.selected = false;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());"/>
+			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
+			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
+			<mx:SetProperty target="{messageLabel}" name="styleName" value="labelSmall"/>
 
 
 		</mx:State>

@@ -34,6 +34,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                searchOrganismOnSlideProduct;
   private String                searchOrganismOnSample;
   private String                publicExperimentsInOtherGroups;
+  private String                allExperiments = "N";
   private String                showSamples = "Y";
   private String                showCategory = "Y";
   private String                showExternalExperiments = "Y";
@@ -61,14 +62,20 @@ public class ProjectRequestFilter extends DetailObject {
         idLab != null ||
         idProject != null ||
         idAppUser != null ||
+        (allExperiments != null && allExperiments.equalsIgnoreCase("Y")) ||
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
+        (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
+        (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
         (isExternalOnly != null && isExternalOnly.equalsIgnoreCase("Y")) ||
         (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
         (codeApplication != null && !codeApplication.equals("")) ||
         idSlideProduct != null ||
         idOrganism != null ||
+        (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
+        (isNextGenSeq != null && isNextGenSeq.equalsIgnoreCase("Y")) ||
+        (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
         (projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
         (projectDescriptionText2 != null && !projectDescriptionText2.equals("")) ||
         (projectDescriptionText3 != null && !projectDescriptionText3.equals("")) ||
@@ -76,22 +83,7 @@ public class ProjectRequestFilter extends DetailObject {
         (experimentDesignCodes != null && experimentDesignCodes.size() > 0) ||
         (experimentFactorCodes != null && experimentFactorCodes.size() > 0)) {
       hasLimitingCriteria = true;
-    } else if (
-        // If we apply a broad date criteria and a broad experiment category
-        // criteria, consider it limiting enough
-        (
-         (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
-         (lastYear != null && lastYear.equalsIgnoreCase("Y"))
-        ) &&
-        (
-         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
-         (isNextGenSeq != null && isNextGenSeq.equalsIgnoreCase("Y")) ||
-         (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y"))
-        )) {
-     hasLimitingCriteria = true;
-    }
-    
-
+    } 
     
     // Require limiting criteria for admins since they are not scoped by labs 
     // automatically
@@ -863,6 +855,16 @@ public class ProjectRequestFilter extends DetailObject {
 
   public void setIsNextGenSeq(String isNextGenSeq) {
     this.isNextGenSeq = isNextGenSeq;
+  }
+
+
+  public String getAllExperiments() {
+    return allExperiments;
+  }
+
+
+  public void setAllExperiments(String allExperiments) {
+    this.allExperiments = allExperiments;
   }
 
 
