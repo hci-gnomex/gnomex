@@ -252,6 +252,7 @@
         }
         
         private function onGetProjectRequestList(event:ResultEvent): void {
+			messageLabel.text = "";
         	if (getProjectRequestList.lastResult.name() != "ProjectRequestList") {
         		Alert.show(getProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
         		browseTree.visible = false;
@@ -1275,7 +1276,7 @@
 			<mx:VBox styleName="panelBox"   width="260" height="100%" id="navPanel" >
 				<mx:HBox width="100%">
 					<mx:Label id="titleLabel" styleName="titleLabel" text="Experiments"/>
-					<mx:Label id="messageLabel" styleName="labelSmall" text=""/>
+					<mx:Label id="messageLabel" styleName="labelSmall" textAlign="right" width="100%"/>
 				</mx:HBox>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 

@@ -123,7 +123,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       List results = (List)query.list();
       resultsCount = results.size();
       if (results.size() == MAX_ROW_COUNT) {
-        message = "Only first " + MAX_ROW_COUNT + " results displayed.";
+        message = "(First " + MAX_ROW_COUNT + " entries displayed)";
       }
 
       
