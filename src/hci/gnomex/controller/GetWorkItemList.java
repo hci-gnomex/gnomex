@@ -9,7 +9,9 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItemFilter;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -59,6 +61,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
        
         Comparator comparator = null;
         if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
@@ -285,6 +288,19 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
             n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
             n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
+            Integer idSampleType                       = row[27] == null ? null : (Integer)row[27];
+
+            String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
+            n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
+            
+            String experimentType = "";
+            if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory) || 
+                RequestCategory.isIlluminaRequestCategory(codeRequestCategory)) {
+              experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
+            } else {
+              experimentType = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", n.getAttributeValue("qualCodeBioanalyzerChipType"));
+            }
+            n.setAttribute("experimentType", experimentType == null ? "" : experimentType);
             
             String qualStatus = "";
             if (n.getAttributeValue("qualCompleted").equals("Y")) {

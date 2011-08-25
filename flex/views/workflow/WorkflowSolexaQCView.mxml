@@ -257,6 +257,7 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false"   headerText="" width="3"  labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="8" dataField="@sampleNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Sample Type" width="15" dataField="@sampleType"/>
 					<mx:DataGridColumn editable="false" headerText="Client"  width="15" dataField="@appUserName" />
 					<mx:DataGridColumn id="concColumn" headerText="Conc. ng/uL" width="7" dataField="@qualCalcConcentration" 
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
