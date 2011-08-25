@@ -838,8 +838,8 @@
 			var params:Object = new Object();
 			
 			if (currentState == 'AdminState' &&
-				this.externalExperimentsOnlyCheckbox.selected) {
-				params.isExternalOnly = 'Y';
+			    allExperimentsCheckbox.selected) {
+				params.allExperiments = 'Y';
 			} else {
 				if (currentState == 'AdminState') {
 					if (browseLabCombo.selectedItem != null) {
@@ -853,10 +853,10 @@
 						params.idAppUser = parentApplication.getIdAppUser();
 					}				
 				}
-				
-				if (allExperimentsCheckbox.selected) {
-					params.allExperiments = 'Y';
+				if (this.externalExperimentsOnlyCheckbox.selected) {
+					params.isExternalOnly = 'Y';
 				}
+
 				if (lastWeekCheckbox.selected) { 
 					params.lastWeek = 'Y'; 
 				} else if (lastMonthCheckbox.selected) {
@@ -1393,8 +1393,8 @@
 				<mx:ComboBox id="browseLabCombo" 
 					labelField="@name"
 					dataProvider="{parentApplication.promptedLabList}"
-					 change="{this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
-					 visible="true"  width="150" click="this.allExperimentsCheckbox.selected = false;getProjectRequestList.send(getBrowseParameters());">
+					 change="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
+					 visible="true"  width="150">
 				</mx:ComboBox>
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle">
 				<mx:Label id="userLabel" visible="true" text="Requester:" paddingBottom="0" paddingLeft="10"  styleName="labelSmall"/>
