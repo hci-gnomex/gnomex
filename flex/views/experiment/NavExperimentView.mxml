@@ -839,8 +839,6 @@
 			
 			if (currentState == 'AdminState' && allExperimentsCheckbox.selected) {
 				params.allExperiments = 'Y';
-			} else if (currentState != "GuestState" && userAllExperimentsCheckbox.selected) {
-				params.allExperiments = 'Y';
 			} else {
 				if (currentState == 'AdminState') {
 					if (browseLabCombo.selectedItem != null) {
@@ -852,7 +850,10 @@
 				} else if (currentState != "GuestState") {
 					if (myExperimentsCheckbox.selected) {
 						params.idAppUser = parentApplication.getIdAppUser();
-					}				
+					}		
+					if (this.userAllExperimentsCheckbox.selected) {
+						params.allExperiments = 'Y';
+					}
 				}
 				if (this.externalExperimentsOnlyCheckbox.selected) {
 					params.isExternalOnly = 'Y';
@@ -1424,6 +1425,7 @@
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
 			<mx:SetProperty target="{messageLabel}" name="styleName" value="labelSmall"/>
+			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
 
 
 		</mx:State>

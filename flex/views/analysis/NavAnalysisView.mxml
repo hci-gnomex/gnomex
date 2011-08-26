@@ -24,7 +24,7 @@
 		    <allAnalysis>{showAllAnalysisCheckbox.selected ? 'Y' : 'N'}</allAnalysis>
             <searchText>{searchTextField.text}</searchText>
             <showMyLabsAlways>{this.currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
-            <searchPublicProjects>{currentState == 'GuestState'|| searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
+            <publicProjects>{currentState == 'GuestState'|| publicProjectsCheckbox.selected ? 'Y' : 'N'}</publicProjects>
             <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
             <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
             <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
@@ -238,7 +238,7 @@
 				// then check to 'show public analysis' incase
 				// analysis is not from the user's lab.
 				if (this.currentState == "" || this.currentState == null) {
-					this.searchPublicProjectsCheckbox.selected = true;
+					this.publicProjectsCheckbox.selected = true;
 				}
 				parms.analysisNumber = this.selectedAnalysisNumber;
 				this.getAnalysis.send(parms);
@@ -655,7 +655,7 @@
 				params.idLab = selectedAnalysis.@idLab;
 				params.showSamples = "N";
 				params.showCategory = "N";
-				params.searchPublicProjects = this.searchPublicProjectsCheckbox ? "Y" : "N"; 
+				params.searchPublicProjects = this.publicProjectsCheckbox ? "Y" : "N"; 
 				getAnalysisGroupList.send(params);
 				
 			    detailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
@@ -968,7 +968,7 @@
 		if (currentState == "AdminState") {
 			this.selectGroupsLinkButton.enabled = !this.showAllAnalysisCheckbox.selected;
 		} else {
-			this.searchPublicProjectsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;					
+			this.publicProjectsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;					
 		}
 	}
 	    	    		
@@ -981,17 +981,19 @@
 
     <mx:VBox width="100%" height="100%">
       <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
-          <mx:HBox id="filterBox"  horizontalGap="20" verticalAlign="middle">
-          	  <mx:CheckBox label="Show all analysis" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}"/>
+          <mx:HBox id="filterBox"  horizontalGap="8" verticalAlign="middle">
+          	  <mx:HBox width="100%" verticalGap="1">
+				  <mx:CheckBox label="Show all analysis" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
+				  <mx:CheckBox label="Show public analysis" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0"/>
+			  </mx:HBox>
           	  <mx:HBox horizontalGap="0" verticalAlign="middle">
-          	      <mx:Label text="Search" id="searchLabel"/>
+          	      <mx:Label text="Search" id="searchLabel" paddingLeft="6"/>
 	          	  <mx:TextInput id="searchTextField"/>     
 			      <mx:Button id="lookupButton"  
 			              	fontFamily="Arial"  height="18" width="30"
 			               	color="#400040" click="{if (searchTextField.text != '') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
           	  </mx:HBox>
-          	  <mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox" click="refreshAnalysis()"/>
-		      <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+		      <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3" paddingLeft="6">
 		      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
 		    		<mx:click>toggleDateCheckboxes(1);refreshAnalysis();</mx:click>
 		    	</mx:CheckBox>
@@ -1089,7 +1091,7 @@
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
-			<mx:RemoveChild target="{searchPublicProjectsCheckbox}"/>
+			<mx:RemoveChild target="{publicProjectsCheckbox}"/>
 			<mx:RemoveChild target="{linkbutton2}"/>
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
@@ -1102,7 +1104,7 @@
 					<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{searchPublicProjectsCheckbox}"/>
+			<mx:RemoveChild target="{publicProjectsCheckbox}"/>
 			<mx:RemoveChild target="{hbox3}"/>
 			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
 		</mx:State>

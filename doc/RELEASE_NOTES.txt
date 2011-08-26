@@ -3,7 +3,7 @@
 5.2.6 (Aug 25, 2011)
 -----------------------
 - Add "Show all" checkbox to Analysis browse, and Experiment brows for non-admins.
-- Limit analysis and expeirment count to 2000 entries.  Warn when results truncated.
+- Limit analysis and experiment count to 2000 entries.  Warn when results truncated.
 - Fixed bug causing billing statements to be sent incorrectly
 - Fixed bug causing some experiments to not show up on Experiment list on Billing tab.
 
