@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -41,6 +42,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
   
   
   private String    keysString;
+  private String    serverName;
   private String    baseDir;
   
   public void validate() {
@@ -50,7 +52,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
     // Get input parameters
     keysString = request.getParameter("resultKeys");
-    baseDir = request.getServerName();
+    serverName = request.getServerName();
     
   }
 
@@ -62,7 +64,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    baseDir = dh.getAnalysisReadDirectory(baseDir);
+    baseDir = dh.getAnalysisReadDirectory(serverName);
     
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();

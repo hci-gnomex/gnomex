@@ -46,7 +46,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
     }
-    this.zipEntryName = fileName.substring(baseDir.length() + 5).replaceAll("\\\\", "/");  
+    this.zipEntryName = PropertyHelper.parseZipEntryName(baseDir, fileName);  
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");

@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyHelper;
 import hci.framework.control.Command;
 import hci.gnomex.model.Property;
 import hci.framework.control.RollBackCommandException;
@@ -10,6 +11,7 @@ import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -264,7 +266,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     }
   }      
       
-  public static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs) {
+  public static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs)  {
     File fd = new File(directoryName);
     
 
@@ -286,7 +288,11 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
           zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");
         } else {
-          zipEntryName = fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
+          try {
+            zipEntryName = PropertyHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath());   
+          } catch (IOException  e) {
+            throw new RuntimeException("Cannot get canonical file name for " + f1.getName());
+          }  
           if (zipEntryName.startsWith("/")) {
             zipEntryName = zipEntryName.substring(1);
           }

@@ -9,6 +9,7 @@ import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -352,7 +353,11 @@ public class DownloadResultsServlet extends HttpServlet {
             if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
               zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
             } else {
-              zipEntryName = fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
+              try {
+                zipEntryName = PropertyHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath());  
+              } catch (IOException  e) {
+                throw new RuntimeException("Cannot get canonical file name for " + f1.getName());
+              }
               if (zipEntryName.startsWith("/")) {
                 zipEntryName = zipEntryName.substring(1);
               }
