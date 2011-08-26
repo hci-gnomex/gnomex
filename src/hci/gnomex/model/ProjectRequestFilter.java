@@ -484,12 +484,14 @@ public class ProjectRequestFilter extends DetailObject {
   
   private void addSecurityCriteria() {
 
-    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+    if (this.allExperiments != null && this.allExperiments.equals("Y")) {
+      boolean scopeToGroup = false;
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest");
+    } else if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
       addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
-
     } else {
       boolean scopeToGroup = true;
-      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest");
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest");
 
     }
   }
