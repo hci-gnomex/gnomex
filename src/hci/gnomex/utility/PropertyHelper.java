@@ -3,6 +3,7 @@ package hci.gnomex.utility;
 import hci.gnomex.model.Property;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -306,6 +307,61 @@ public class PropertyHelper implements Serializable {
     return property;    
   }
   
+  public static String parseZipEntryName(String baseDir, String fileName) {
+    String zipEntryName = "";
+    String baseDirLastPart = "";
+    
+    String baseDirCanonicalPath = "";
+    try {
+      baseDirCanonicalPath = new File(baseDir).getCanonicalPath();
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot instantiate file for analysis dir" + baseDir);
+    }
+    
+    // Change all file separators to forward slash
+    String theFileName = fileName.replaceAll("\\\\", "/");
+    baseDirCanonicalPath = baseDirCanonicalPath.replaceAll("\\\\", "/");
+
+    String tokens[] = baseDirCanonicalPath.split("/");
+    if (tokens == null || tokens.length == 0) {
+      throw new RuntimeException("Cannot parse directory into expected last file part " + baseDirCanonicalPath);
+    }
+    baseDirLastPart = tokens[tokens.length - 1];
+    
+    // Strip off the leading part of the path, up through the year subdirectory,
+    // to leave only the path that starts with the request number subdirectory.
+    tokens = theFileName.split(baseDirLastPart, 2);
+    if (tokens == null || tokens.length < 2) {
+      throw new RuntimeException("Cannot parse file into expected parts " + theFileName);
+    }
+    String lastFilePart = tokens[tokens.length - 1];
+    
+    // Now loop through the remaining file parts, leaving off year and
+    // concatenating everything else.
+    tokens = lastFilePart.split("/");
+    if (tokens == null || tokens.length < 2) {
+      throw new RuntimeException("Cannot parse file into expected parts for year and number " + lastFilePart);
+    }  
+    int x = 0;
+    String yearPart = "";
+    for (x = 0; x < tokens.length; x++) {
+      if (tokens[x].equals("")) {
+        continue;
+      }
+      if (yearPart.equals("")) {
+        yearPart = tokens[x];
+      } else {
+        if (zipEntryName.length() > 0) {
+          zipEntryName += "/";
+        }
+        zipEntryName += tokens[x];
+      }
+    }
+
+
+    return zipEntryName;
+  }
+  
    
   public String parseMainFolderName(String serverName, String fileName) {
     String mainFolderName = "";
@@ -313,6 +369,18 @@ public class PropertyHelper implements Serializable {
     
     String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
     String flowCellDirectory   = this.getFlowCellDirectory(serverName);
+    
+    try {
+      experimentDirectory = new File(experimentDirectory).getCanonicalPath();
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot instantiate file for experimentDir dir" + experimentDirectory);
+    }
+    try {
+      flowCellDirectory = new File(flowCellDirectory).getCanonicalPath();
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot instantiate file for flowCellDirectory" + flowCellDirectory);
+    }
+
     
     // Change all file separators to forward slash
     String theFileName = fileName.replaceAll("\\\\", "/");
@@ -333,7 +401,7 @@ public class PropertyHelper implements Serializable {
     }
     String flowCellDirLastPart = tokens[tokens.length - 1];
     
-    
+
     if (theFileName.toLowerCase().indexOf(experimentDirLastPart.toLowerCase()) >= 0) {
       baseDirLastPart = experimentDirLastPart;
     } else if (theFileName.toLowerCase().indexOf(flowCellDirLastPart.toLowerCase()) >= 0) {
@@ -342,7 +410,6 @@ public class PropertyHelper implements Serializable {
       throw new RuntimeException("Cannot determine base directory.  Neither flowcell directory or experiment directory match file name " + fileName);
     }
     
-    
     // Strip off the leading part of the path, up through the year subdirectory,
     // to leave only the path that starts with the request number subdirectory.
     tokens = theFileName.split(baseDirLastPart, 2);
@@ -350,6 +417,8 @@ public class PropertyHelper implements Serializable {
       throw new RuntimeException("Cannot parse experiment directory into expected parts");
     }
     String lastFilePart = tokens[tokens.length - 1];
+
+   
     tokens = lastFilePart.split("/");
     if (tokens == null || tokens.length < 2) {
       throw new RuntimeException("Cannot parse experiment directory into expected parts for year and number");

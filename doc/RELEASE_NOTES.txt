@@ -1,5 +1,14 @@
 ﻿GNomEx Release Notes
 
+5.2.6.1 (Aug 26, 2011)
+----------------------
+- Fix FDT downloads to handle large file selection and large file names by 
+  caching file names using actionscript HTTPService rather that URL.
+- Fix logic for parsing zip entry name and main folder name to account
+  for symbolic links for experiment and analysis directories.  Reworked logic
+  to handle different forms of symbolic links that don't necessarily match part of
+  the experiment directory path.
+
 5.2.6 (Aug 25, 2011)
 -----------------------
 - Add "Show all" checkbox to Analysis browse, and Experiment brows for non-admins.
