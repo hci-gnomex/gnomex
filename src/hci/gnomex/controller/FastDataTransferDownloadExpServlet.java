@@ -5,6 +5,7 @@ import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
@@ -53,7 +54,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
   }
 
-  protected void doPost(HttpServletRequest req, HttpServletResponse response)
+  protected void doGet(HttpServletRequest req, HttpServletResponse response)
   throws ServletException, IOException {
 
     serverName = req.getServerName();
@@ -85,13 +86,9 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
       }
       brIn.close();
 
-      String fileDescriptorXMLString = "<FileDescriptorList>" + xmlText + "</FileDescriptorList>";
-
-      StringReader reader = new StringReader(fileDescriptorXMLString);
-
-      SAXBuilder sax = new SAXBuilder();
-      Document doc = sax.build(reader);
-      parser = new FileDescriptorParser(doc);
+      // Read the experiment file parser, which contains a list of selected analysis files,
+      //from session variable stored by CacheFileDownloadList.
+      parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -238,7 +235,10 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
         }
 
         secAdvisor.closeReadOnlyHibernateSession();
-
+        
+        // clear out session variable
+        req.getSession().setAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
+        
         response.setHeader("Content-Disposition","attachment;filename=\"gnomex.jnlp\"");
         response.setContentType("application/jnlp");
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");

@@ -36,7 +36,21 @@
     </mx:request>
   </mx:HTTPService>
 
-  
+	<mx:HTTPService  
+		id="cacheFDTFileDownloadList" 
+		url="CacheFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onCacheFDTFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
+	
  <mx:Script>
  	<![CDATA[
  	import mx.collections.ArrayCollection;
@@ -58,6 +72,8 @@
 
     private var projectDetailWindow:ProjectDetailWindow;
         
+	[Bindable]
+	private var selectedFileList:XMLListCollection;
         
 	public function checkSecurity():void { 
 		if (parentApplication.isGuestMode()) {
@@ -428,20 +444,32 @@
 				
 			}
 		}
-		
-		public function showFastDataTransferDownloadPage():void {
-			var selectedFiles:XMLList = downloadView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
-			var selectedFileList:XMLListCollection = new XMLListCollection(selectedFiles);
+		public function downloadFilesUsingFDT():void {
+			var selectedFiles:XMLList = downloadView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
+			selectedFileList = new XMLListCollection(selectedFiles);					
+			
 			if (selectedFileList.length == 0) {
 				mx.controls.Alert.show("Please select the files to download.");
-			} else {	
-				var paramStr:String =  selectedFileList.toXMLString();			
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
-				url.data = paramStr;
-				url.contentType = "text/xml";
-				url.method = URLRequestMethod.POST;
-				navigateToURL(url, '_self');					
-			}			
+			} else {
+				cacheFDTFileDownloadList.send();
+			}
+		}
+		
+		private function onCacheFDTFileDownloadList(event:ResultEvent):void {
+			// We have cached the selected analysis files
+			// Now call the URL to start the FDT app using webstart
+			showFastDataTransferDownloadPage();
+		}
+
+		
+		public function showFastDataTransferDownloadPage():void {
+				
+			var paramStr:String =  selectedFileList.toXMLString();			
+			var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
+			url.contentType = "text/xml";
+			url.method = URLRequestMethod.GET;
+			navigateToURL(url, '_self');					
+		
 		}
 		
 
@@ -570,7 +598,7 @@
 		             	icon="@Embed('../../assets/download.png')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
-					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
 					<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 		            <mx:VBox styleName="hintBox">
 			            <mx:LinkButton  label="Downloading tips" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>		            	
