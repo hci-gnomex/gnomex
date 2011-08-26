@@ -11,7 +11,7 @@ public class AnalysisGroupFilter extends DetailObject {
   
   // Criteria
   private Integer               idLab;
-  private String                searchPublicProjects;
+  private String                publicProjects = "N";
   private Integer               idRequest;
   private Integer               idAnalysis;
   private String                labKeys;
@@ -63,11 +63,10 @@ public class AnalysisGroupFilter extends DetailObject {
     
   }
   
-  public boolean hasSufficientCriteria(SecurityAdvisor theSecurityAdvisor) {
-    this.secAdvisor = theSecurityAdvisor;
+  public boolean hasSufficientCriteria() {
     boolean hasLimitingCriteria = false;
     if (idLab != null ||
-        (searchPublicProjects != null && searchPublicProjects.equals("Y")) ||
+        (publicProjects != null && publicProjects.equals("Y")) ||
         idRequest != null ||
         idAnalysis != null ||
         (labKeys != null && !labKeys.equals("")) ||
@@ -82,15 +81,8 @@ public class AnalysisGroupFilter extends DetailObject {
       hasLimitingCriteria = false;
     }
     
-    // Require limiting criteria for admins since they are not scoped by labs 
-    // automatically
-    if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      return hasLimitingCriteria;
-    } else {
-      // Non-admins are always scoped by either lab, own experiments,
-      // so no need to require any additional filtering.
-      return true;
-    }
+    return hasLimitingCriteria;
+    
   }
   
   public void getQueryBody(StringBuffer queryBuf) {
@@ -223,6 +215,13 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
+    
+    // Search for public projects
+    if (publicProjects != null && publicProjects.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" a.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+    }
+      
 
     
   }
@@ -239,7 +238,11 @@ public class AnalysisGroupFilter extends DetailObject {
   private void addSecurityCriteria() {
     
     boolean scopeToGroup = true;
-    if (this.searchPublicProjects != null && this.searchPublicProjects.equalsIgnoreCase("Y")) {
+    // Don't limit to user's lab if "show all analysis" checked.
+    // or "show public experiments" checked.
+    if (this.allAnalysis != null && this.allAnalysis.equals("Y")) {
+      scopeToGroup = false;
+    } else if (this.publicProjects != null && this.publicProjects.equalsIgnoreCase("Y")) {
       scopeToGroup = false;
     }
     
@@ -288,16 +291,6 @@ public class AnalysisGroupFilter extends DetailObject {
   }
 
   
-  
-  public String getSearchPublicProjects() {
-    return searchPublicProjects;
-  }
-
-  
-  public void setSearchPublicProjects(String searchPublicProjects) {
-    this.searchPublicProjects = searchPublicProjects;
-  }
-
   
   public Integer getIdRequest() {
     return idRequest;
@@ -384,6 +377,14 @@ public class AnalysisGroupFilter extends DetailObject {
 
   public void setAllAnalysis(String allAnalysis) {
     this.allAnalysis = allAnalysis;
+  }
+
+  public String getPublicProjects() {
+    return publicProjects;
+  }
+
+  public void setPublicProjects(String publicProjects) {
+    this.publicProjects = publicProjects;
   }
 
     

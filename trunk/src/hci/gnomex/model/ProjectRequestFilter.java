@@ -56,6 +56,7 @@ public class ProjectRequestFilter extends DetailObject {
   private DictionaryHelper      dictionaryHelper;
   
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
     
     if ((idRequest != null) ||
