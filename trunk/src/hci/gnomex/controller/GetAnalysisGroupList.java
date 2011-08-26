@@ -27,13 +27,18 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroupList.class);
   
-  private AnalysisGroupFilter filter;
+  private static int           MAX_ANALYSIS_COUNT = 2000;
+  
+  private AnalysisGroupFilter  filter;
   private Element              rootNode = null;
   private Element              labNode = null;
   private Element              analysisGroupNode = null;
   private Element              analysisNode = null;
   private String               listKind = "AnalysisGroupList";
   private String               showMyLabsAlways = "N";
+  
+  private String               message = "";
+  private int                  analysisCount = 0;
   
   public void validate() {
   }
@@ -55,76 +60,90 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
   public Command execute() throws RollBackCommandException {
     
+    Document doc = new Document(new Element(listKind));
+    rootNode = doc.getRootElement();
+    List results = null;
+
     try {
-      
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
-      HashMap myLabMap = new HashMap();
-      if (showMyLabsAlways.equals("Y")) {
-        for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
-          Lab lab = (Lab)i.next();
-          if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
-            myLabMap.put(lab.getIdLab(), lab);
+      if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
+        message = "Please select a filter";
+        rootNode.setAttribute("message", message);
+        
+      } else {
+        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+        
+        HashMap myLabMap = new HashMap();
+        if (showMyLabsAlways.equals("Y")) {
+          for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
+            Lab lab = (Lab)i.next();
+            if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+              myLabMap.put(lab.getIdLab(), lab);
+            }
           }
         }
-      }
+        
       
-    
-      StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-      log.info("Query for GetAnalysisGroupList: " + buf.toString());
-      List results = (List)sess.createQuery(buf.toString()).list();
+        StringBuffer buf = filter.getQuery(this.getSecAdvisor());
+        log.info("Query for GetAnalysisGroupList: " + buf.toString());
+        results = (List)sess.createQuery(buf.toString()).list();
 
-      
-      Integer prevIdLab            = new Integer(-1);
-      Integer prevIdAnalysisGroup  = new Integer(-1);
-      Integer prevIdAnalysis       = new Integer(-1);
-      
-      Document doc = new Document(new Element(listKind));
-      rootNode = doc.getRootElement();
-      for(Iterator i = results.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
         
+        Integer prevIdLab            = new Integer(-1);
+        Integer prevIdAnalysisGroup  = new Integer(-1);
+        Integer prevIdAnalysis       = new Integer(-1);
         
-        Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
-        Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
-        Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
-        
-        Element n = null;
-        if (idLab.intValue() != prevIdLab.intValue()) {
-          // Keep track of which of users labs are in results set
-          if (showMyLabsAlways.equals("Y")) {
-            myLabMap.remove(idLab);            
-          }
-          addLabNode(row);
-          addAnalysisGroupNode(row);
-          if (idAnalysis.intValue() != -2) {
-            addAnalysisNode(row);
-          }
-        } else if (idAnalysisGroup.intValue() != prevIdAnalysisGroup.intValue()) {
-          addAnalysisGroupNode(row);
-          if (idAnalysis.intValue() != -2) {
-            addAnalysisNode(row);
-          }
-        } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
-          if (idAnalysis.intValue() != -2) {
-            addAnalysisNode(row);          
-          }
-        } 
+        for(Iterator i = results.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          
+          
+          Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
+          Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
+          Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
+          
+          Element n = null;
+          if (idLab.intValue() != prevIdLab.intValue()) {
+            // Keep track of which of users labs are in results set
+            if (showMyLabsAlways.equals("Y")) {
+              myLabMap.remove(idLab);            
+            }
+            addLabNode(row);
+            addAnalysisGroupNode(row);
+            if (idAnalysis.intValue() != -2) {
+              addAnalysisNode(row);
+            }
+          } else if (idAnalysisGroup.intValue() != prevIdAnalysisGroup.intValue()) {
+            addAnalysisGroupNode(row);
+            if (idAnalysis.intValue() != -2) {
+              addAnalysisNode(row);
+            }
+          } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
+            if (idAnalysis.intValue() != -2) {
+              addAnalysisNode(row);          
+            }
+          } 
 
-        prevIdAnalysis      = idAnalysis;
-        prevIdAnalysisGroup = idAnalysisGroup;
-        prevIdLab           = idLab;
-      }
-      
-      
-      // For those labs that user is member of that do not have any projects,
-      // create a lab node in the XML document.
-      if (showMyLabsAlways.equals("Y")) {
-        for(Iterator i = myLabMap.keySet().iterator(); i.hasNext();) {
-          Lab lab = (Lab)myLabMap.get(i.next());
-          addLabNode(lab);
+          prevIdAnalysis      = idAnalysis;
+          prevIdAnalysisGroup = idAnalysisGroup;
+          prevIdLab           = idLab;
+          
+          if (analysisCount >= MAX_ANALYSIS_COUNT) {
+            break;
+          }
         }
-      }
+        
+        
+        // For those labs that user is member of that do not have any projects,
+        // create a lab node in the XML document.
+        if (showMyLabsAlways.equals("Y")) {
+          for(Iterator i = myLabMap.keySet().iterator(); i.hasNext();) {
+            Lab lab = (Lab)myLabMap.get(i.next());
+            addLabNode(lab);
+          }
+        }
+        rootNode.setAttribute("analysisCount", Integer.valueOf(analysisCount).toString());
+        message = analysisCount == MAX_ANALYSIS_COUNT ? "First " + MAX_ANALYSIS_COUNT + " displayed" : ""; 
+        rootNode.setAttribute("message", message);
+    }
    
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -255,5 +274,6 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
     analysisGroupNode.addContent(analysisNode);
     
+    analysisCount++;
   }
 }

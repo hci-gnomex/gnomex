@@ -261,9 +261,9 @@
         	}
 			
 			if (getProjectRequestList.lastResult.@message != "") {
-				messageLabel.text = getProjectRequestList.lastResult.@message;
+				messageLabel.text = "(" + getProjectRequestList.lastResult.@message + ")";
 			} else {
-				messageLabel.text =  "(" + getProjectRequestList.lastResult..Request.length() +  " experiments)";; 
+				messageLabel.text =  "(" + getProjectRequestList.lastResult.@experimentCount +  " experiments)"; 
 			}
         	  
         	if (getProjectRequestList.lastResult.Lab.length() == 0) {
@@ -837,8 +837,9 @@
 		public function getBrowseParameters():Object {
 			var params:Object = new Object();
 			
-			if (currentState == 'AdminState' &&
-			    allExperimentsCheckbox.selected) {
+			if (currentState == 'AdminState' && allExperimentsCheckbox.selected) {
+				params.allExperiments = 'Y';
+			} else if (currentState != "GuestState" && userAllExperimentsCheckbox.selected) {
 				params.allExperiments = 'Y';
 			} else {
 				if (currentState == 'AdminState') {
@@ -874,8 +875,6 @@
 					params.publicExperimentsInOtherGroups = 'N';
 				}
 				if (currentState == 'AdminState' || 
-					publicExperimentsOtherGroupsCheckbox.selected || 
-					myExperimentsCheckbox.selected || 
 					lastWeekCheckbox.selected || 
 					lastMonthCheckbox.selected || 
 					lastYearCheckbox.selected ||
@@ -1173,30 +1172,32 @@
 	}
 			
 	private function toggleAllExperiments():void {
-		if (this.allExperimentsCheckbox.selected) {
-			this.browseLabCombo.enabled = false;
-			this.browseUserCombo.enabled = false;
-			this.MicroarrayCheckbox.enabled = false;
-			this.NextGenSeqCheckbox.enabled = false;
-			this.BioanalyzerCheckbox.enabled = false;
-			this.lastWeekCheckbox.enabled = false;
-			this.lastMonthCheckbox.enabled = false;
-			this.lastThreeMonthsCheckbox.enabled = false;
-			this.lastYearCheckbox.enabled = false;
-			this.externalExperimentsOnlyCheckbox.enabled = false;
-		} else {
-			this.browseLabCombo.enabled = true;
-			this.browseUserCombo.enabled = true;
-			this.MicroarrayCheckbox.enabled = true;
-			this.NextGenSeqCheckbox.enabled = true;
-			this.BioanalyzerCheckbox.enabled = true;
-			this.lastWeekCheckbox.enabled = true;
-			this.lastMonthCheckbox.enabled = true;
-			this.lastThreeMonthsCheckbox.enabled = true;
-			this.lastYearCheckbox.enabled = true;
-			this.externalExperimentsOnlyCheckbox.enabled = true;
-			
-		}
+		if (currentState == "AdminState") {
+			if (this.allExperimentsCheckbox.selected) {
+				this.browseLabCombo.enabled = false;
+				this.browseUserCombo.enabled = false;
+				this.MicroarrayCheckbox.enabled = false;
+				this.NextGenSeqCheckbox.enabled = false;
+				this.BioanalyzerCheckbox.enabled = false;
+				this.lastWeekCheckbox.enabled = false;
+				this.lastMonthCheckbox.enabled = false;
+				this.lastThreeMonthsCheckbox.enabled = false;
+				this.lastYearCheckbox.enabled = false;
+				this.externalExperimentsOnlyCheckbox.enabled = false;
+			} else {
+				this.browseLabCombo.enabled = true;
+				this.browseUserCombo.enabled = true;
+				this.MicroarrayCheckbox.enabled = true;
+				this.NextGenSeqCheckbox.enabled = true;
+				this.BioanalyzerCheckbox.enabled = true;
+				this.lastWeekCheckbox.enabled = true;
+				this.lastMonthCheckbox.enabled = true;
+				this.lastThreeMonthsCheckbox.enabled = true;
+				this.lastYearCheckbox.enabled = true;
+				this.externalExperimentsOnlyCheckbox.enabled = true;
+				
+			}
+		} 
 	}
 		
        ]]>
@@ -1225,6 +1226,10 @@
 					<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
 					<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:RadioButton>
+				<mx:RadioButton label="All experiments" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+					<mx:toolTip>All experiments I have access to</mx:toolTip>
+					<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+				</mx:RadioButton>
 			</mx:HBox>
 			<mx:VRule height="20" id="vrule1"/>
 			<mx:HBox horizontalGap="2" id="hbox5">
@@ -1246,7 +1251,7 @@
 	</mx:HBox>
 		<mx:HBox horizontalGap="20" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1a" >
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
-		    		<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"   styleName="labelSmall">
+		    		<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="2"   styleName="labelSmall">
 		    			<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
@@ -1387,7 +1392,7 @@
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
 			<mx:AddChild relativeTo="{hbox2}"  position="firstChild">
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-				<mx:CheckBox label="All Experiments" paddingRight="8" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());"/>
+				<mx:CheckBox label="All experiments" paddingRight="8" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());"/>
 				<mx:VRule height="20"/>
 				<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="8"/>
 				<mx:ComboBox id="browseLabCombo" 

@@ -20,6 +20,7 @@ public class AnalysisGroupFilter extends DetailObject {
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
+  private String                allAnalysis = "N";
 
 
   private StringBuffer          queryBuf;
@@ -62,6 +63,36 @@ public class AnalysisGroupFilter extends DetailObject {
     
   }
   
+  public boolean hasSufficientCriteria(SecurityAdvisor theSecurityAdvisor) {
+    this.secAdvisor = theSecurityAdvisor;
+    boolean hasLimitingCriteria = false;
+    if (idLab != null ||
+        (searchPublicProjects != null && searchPublicProjects.equals("Y")) ||
+        idRequest != null ||
+        idAnalysis != null ||
+        (labKeys != null && !labKeys.equals("")) ||
+        (searchText != null && !searchText.equals("")) ||
+        (lastWeek != null && lastWeek.equals("Y")) ||
+        (lastMonth != null && lastMonth.equals("Y")) ||
+        (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
+        (lastYear != null && lastYear.equals("Y")) ||
+        (allAnalysis != null && allAnalysis.equals("Y"))) {
+      hasLimitingCriteria = true;
+    } else {
+      hasLimitingCriteria = false;
+    }
+    
+    // Require limiting criteria for admins since they are not scoped by labs 
+    // automatically
+    if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      return hasLimitingCriteria;
+    } else {
+      // Non-admins are always scoped by either lab, own experiments,
+      // so no need to require any additional filtering.
+      return true;
+    }
+  }
+  
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM                AnalysisGroup as ag ");
@@ -77,8 +108,11 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN           a.collaborators as collab ");
     
 
-    addAnalysisCriteria();
-    addExperimentItemCriteria();
+    // Only add selection criteria when "all analysis" is not turned on
+    if (allAnalysis == null || allAnalysis.equals("N")) {
+      addAnalysisCriteria();
+      addExperimentItemCriteria();
+    }
     
     addSecurityCriteria();
     
@@ -342,6 +376,14 @@ public class AnalysisGroupFilter extends DetailObject {
   
   public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
+  }
+
+  public String getAllAnalysis() {
+    return allAnalysis;
+  }
+
+  public void setAllAnalysis(String allAnalysis) {
+    this.allAnalysis = allAnalysis;
   }
 
     

@@ -40,7 +40,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectRequestList.class);
   
-  private static int MAX_ROW_COUNT           = 2000;
+  private static int MAX_EXPERIMENT_COUNT           = 1000;
   
   private ProjectRequestFilter filter;
   private Element              rootNode = null;
@@ -50,6 +50,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private Element              requestNode = null;
   private String               listKind = "ProjectRequestList";
   private String               showMyLabsAlways = "N";
+  
+  
+  private int                  experimentCount = 0;
+  private String               message = "";
   
   
   public void validate() {
@@ -89,142 +93,148 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       filter.setExperimentFactorCodes(experimentFactorCodes);
     }
     
-    if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
-      this.addInvalidField("insufficientCriteria", "Please specify a filter.");
-    }
+    
     
   }
 
   public Command execute() throws RollBackCommandException {
+    Document doc = new Document(new Element(listKind));
+    rootNode = doc.getRootElement();
+    List results = null;
     
     try {
-      
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
-      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-      
-      HashMap myLabMap = new HashMap();
-      if (showMyLabsAlways.equals("Y")) {
-        for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
-          Lab lab = (Lab)i.next();
-          if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
-            myLabMap.put(lab.getIdLab(), lab);
+      if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
+        message = "Please select a filter";
+        rootNode.setAttribute("message", message);
+        
+      } else {
+        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+        
+        DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+        
+        HashMap myLabMap = new HashMap();
+        if (showMyLabsAlways.equals("Y")) {
+          for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
+            Lab lab = (Lab)i.next();
+            if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+              myLabMap.put(lab.getIdLab(), lab);
+            }
           }
         }
-      }
+        
       
-    
-      String message = "";
-      int resultsCount = 0;
-      StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info("Query for GetProjectRequestList: " + buf.toString());
-      Query query = sess.createQuery(buf.toString());
-      query.setMaxResults(MAX_ROW_COUNT);
-      List results = (List)query.list();
-      resultsCount = results.size();
-      if (results.size() == MAX_ROW_COUNT) {
-        message = "(First " + MAX_ROW_COUNT + " entries displayed)";
-      }
+        String message = "";
+        StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
+        log.info("Query for GetProjectRequestList: " + buf.toString());
+        Query query = sess.createQuery(buf.toString());
+        results = (List)query.list();
 
-      
-      buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
-      log.info("Query for GetProjectRequestList: " + buf.toString());
-      List analysisResults = (List)sess.createQuery(buf.toString()).list();
-      HashMap analysisMap = new HashMap();
-      for(Iterator i = analysisResults.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        Integer idRequest      = (Integer)row[0];
-        String  analysisNumber = (String)row[1];
-        String  analysisName   = (String)row[2];
         
-        StringBuffer names = (StringBuffer)analysisMap.get(idRequest);
-        if (names == null) {
-          names = new StringBuffer();
-        }
-        if (names.length() > 0) {
-          names.append(", ");
-        }
-        names.append(analysisNumber + " (" + analysisName + ")");
-        analysisMap.put(idRequest, names);
-      }
-
-      Integer prevIdLab      = new Integer(-1);
-      Integer prevIdProject  = new Integer(-1);
-      Integer prevIdRequest  = new Integer(-1);
-      String prevCodeRequestCategory    = "999";
-      String prevCodeApplication = "999";
-      
-      Document doc = new Document(new Element(listKind));
-      rootNode = doc.getRootElement();
-      rootNode.setAttribute("message", message);
-      rootNode.setAttribute("resultsCount", "(" + Integer.valueOf(resultsCount).toString() + ")");
-      for(Iterator i = results.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        
-        
-        Integer idProject = row[0] == null ? new Integer(-2) : (Integer)row[0];
-        Integer idRequest = row[4] == null ? new Integer(-2) : (Integer)row[4];
-        Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];    
-        String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
-        String  codeApplication     = row[16]== null ? "" : (String)row[16];
-        StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
-        
-        Element n = null;
-        if (idLab.intValue() != prevIdLab.intValue()) {
-          // Keep track of which of users labs are in results set
-          if (showMyLabsAlways.equals("Y")) {
-            myLabMap.remove(idLab);            
+        buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
+        log.info("Query for GetProjectRequestList: " + buf.toString());
+        List analysisResults = (List)sess.createQuery(buf.toString()).list();
+        HashMap analysisMap = new HashMap();
+        for(Iterator i = analysisResults.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          Integer idRequest      = (Integer)row[0];
+          String  analysisNumber = (String)row[1];
+          String  analysisName   = (String)row[2];
+          
+          StringBuffer names = (StringBuffer)analysisMap.get(idRequest);
+          if (names == null) {
+            names = new StringBuffer();
           }
-          addLabNode(row);
-          addProjectNode(row);
-          if (idRequest.intValue() != -2) {
-            addRequestCategoryNode(row);
-            addRequestNode(row, analysisNames, dictionaryHelper);          
-            addSampleNode(row);            
+          if (names.length() > 0) {
+            names.append(", ");
           }
-        } else if (idProject.intValue() != prevIdProject.intValue()) {
-          addProjectNode(row);
-          if (idRequest.intValue() != -2) {
-            addRequestCategoryNode(row);
-            addRequestNode(row, analysisNames, dictionaryHelper);          
-            addSampleNode(row);
-          }
-        } else if (filter.getShowCategory().equals("Y") &&
-                    !codeRequestCategory.equals(prevCodeRequestCategory) ||
-                    !codeApplication.equals(prevCodeApplication)) {
-          if (idRequest.intValue() != -2) {
-            addRequestCategoryNode(row);
-            addRequestNode(row, analysisNames, dictionaryHelper);          
-            addSampleNode(row);
-          }
-        } else if (idRequest.intValue() != prevIdRequest.intValue()) {
-          if (idRequest.intValue() != -2) {
-            addRequestNode(row, analysisNames, dictionaryHelper);          
-            addSampleNode(row);
-          }
-        } else {
-          if (idRequest.intValue() != -2) {
-            addSampleNode(row);
-          }
+          names.append(analysisNumber + " (" + analysisName + ")");
+          analysisMap.put(idRequest, names);
         }
 
-        prevIdRequest = idRequest;
-        prevIdProject = idProject;
-        prevIdLab     = idLab;
-        prevCodeRequestCategory = codeRequestCategory;
-        prevCodeApplication = codeApplication;
-      }
-      
-      
-      // For those labs that user is member of that do not have any projects,
-      // create a lab node in the XML document.
-      if (showMyLabsAlways.equals("Y")) {
-        for(Iterator i = myLabMap.keySet().iterator(); i.hasNext();) {
-          Lab lab = (Lab)myLabMap.get(i.next());
-          addLabNode(lab);
+        Integer prevIdLab      = new Integer(-1);
+        Integer prevIdProject  = new Integer(-1);
+        Integer prevIdRequest  = new Integer(-1);
+        String prevCodeRequestCategory    = "999";
+        String prevCodeApplication = "999";
+        
+        
+        
+        for(Iterator i = results.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          
+          
+          Integer idProject = row[0] == null ? new Integer(-2) : (Integer)row[0];
+          Integer idRequest = row[4] == null ? new Integer(-2) : (Integer)row[4];
+          Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];    
+          String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
+          String  codeApplication     = row[16]== null ? "" : (String)row[16];
+          StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
+          
+          Element n = null;
+          if (idLab.intValue() != prevIdLab.intValue()) {
+            // Keep track of which of users labs are in results set
+            if (showMyLabsAlways.equals("Y")) {
+              myLabMap.remove(idLab);            
+            }
+            addLabNode(row);
+            addProjectNode(row);
+            if (idRequest.intValue() != -2) {
+              addRequestCategoryNode(row);
+              addRequestNode(row, analysisNames, dictionaryHelper);                   
+              addSampleNode(row);            
+            }
+          } else if (idProject.intValue() != prevIdProject.intValue()) {
+            addProjectNode(row);
+            if (idRequest.intValue() != -2) {
+              addRequestCategoryNode(row);
+              addRequestNode(row, analysisNames, dictionaryHelper);          
+              addSampleNode(row);
+            }
+          } else if (filter.getShowCategory().equals("Y") &&
+                      !codeRequestCategory.equals(prevCodeRequestCategory) ||
+                      !codeApplication.equals(prevCodeApplication)) {
+            if (idRequest.intValue() != -2) {
+              addRequestCategoryNode(row);
+              addRequestNode(row, analysisNames, dictionaryHelper);          
+              addSampleNode(row);
+            }
+          } else if (idRequest.intValue() != prevIdRequest.intValue()) {
+            if (idRequest.intValue() != -2) {
+              addRequestNode(row, analysisNames, dictionaryHelper);          
+              addSampleNode(row);
+            }
+          } else {
+            if (idRequest.intValue() != -2) {
+              addSampleNode(row);
+            }
+          }
+
+          prevIdRequest = idRequest;
+          prevIdProject = idProject;
+          prevIdLab     = idLab;
+          prevCodeRequestCategory = codeRequestCategory;
+          prevCodeApplication = codeApplication;
+          
+          if (experimentCount >= MAX_EXPERIMENT_COUNT) {
+            break;
+          }
         }
+        
+        
+        // For those labs that user is member of that do not have any projects,
+        // create a lab node in the XML document.
+        if (showMyLabsAlways.equals("Y")) {
+          for(Iterator i = myLabMap.keySet().iterator(); i.hasNext();) {
+            Lab lab = (Lab)myLabMap.get(i.next());
+            addLabNode(lab);
+          }
+        }
+     
+        rootNode.setAttribute("experimentCount", Integer.valueOf(experimentCount).toString());
+        message = experimentCount == MAX_EXPERIMENT_COUNT ? "First " + MAX_EXPERIMENT_COUNT + " displayed" : ""; 
+        rootNode.setAttribute("message", message);
+        
       }
-   
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -313,6 +323,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   }
   
   private void addRequestNode(Object[] row, StringBuffer analysisNames, DictionaryHelper dictionaryHelper) {
+    experimentCount++;
     String labName = Lab.formatLabName((String)row[17], (String)row[18]);
     String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
 
