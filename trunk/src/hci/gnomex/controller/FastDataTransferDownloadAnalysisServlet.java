@@ -10,6 +10,7 @@ import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
+import hci.gnomex.utility.FileDescriptorParser;
 import hci.gnomex.utility.PropertyHelper;
 
 import java.io.BufferedReader;
@@ -55,7 +56,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
   }
 
-  protected void doPost(HttpServletRequest req, HttpServletResponse response)
+  protected void doGet(HttpServletRequest req, HttpServletResponse response)
   throws ServletException, IOException {
 
     serverName = req.getServerName();
@@ -87,13 +88,9 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
       }
       brIn.close();
 
-      String fileDescriptorXMLString = "<FileDescriptorList>" + xmlText + "</FileDescriptorList>";
-
-      StringReader reader = new StringReader(fileDescriptorXMLString);
-
-      SAXBuilder sax = new SAXBuilder();
-      Document doc = sax.build(reader);
-      parser = new AnalysisFileDescriptorParser(doc);
+      // Read analysis file parser, which contains a list of selected analysis files,
+      //from session variable stored by CacheAnalysisFileDownloadList.
+      parser = (AnalysisFileDescriptorParser) req.getSession().getAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -231,6 +228,10 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         }
 
         secAdvisor.closeReadOnlyHibernateSession();
+        
+        // clear out session variable
+        req.getSession().setAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
+        
 
         response.setHeader("Content-Disposition","attachment;filename=\"gnomex.jnlp\"");
         response.setContentType("application/jnlp");
