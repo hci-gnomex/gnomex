@@ -1,5 +1,9 @@
 ﻿GNomEx Release Notes
 
+5.2.6.2 (Aug 28, 2011)
+----------------------
+- Fashion Analysis filters after Experiment filters (my, my labs, other labs public, all).
+
 5.2.6.1 (Aug 26, 2011)
 ----------------------
 - Fix FDT downloads to handle large file selection and large file names by 

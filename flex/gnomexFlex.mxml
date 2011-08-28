@@ -526,6 +526,8 @@
 			[Bindable]
 			public var version:String = "";
 			
+			[Bindable]
+			public var idAppUser:Object = null;
 			
 			private function init():void {
 				if (!isGuestMode()) {
@@ -967,11 +969,7 @@
             }
             
             public function getIdAppUser():Object {
-            	if (isGuestMode()) {
-            		return getSecurityAdvisorForGuest.lastResult.@idAppUser;
-            	} else {
-            		return createSecurityAdvisor.lastResult.@idAppUser;
-            	}
+				return idAppUser;
             }
             public function getAppUserName():Object {
             	if (isGuestMode()) {
@@ -1099,6 +1097,9 @@
             		Alert.show("Authentication failed.");  
             		return;	
             	}
+				
+				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
+
 			    
 			    this.appProgressBar.currentState = "LoadingState";
 			    this.showProgress(10);
@@ -1128,6 +1129,8 @@
             		Alert.show("You must launch GNomEx from guest page.");  
             		return;	
             	} 
+				idAppUser = getSecurityAdvisorForGuest.lastResult.@idAppUser;
+
             	userName  = "guest user";
 				loginDateTime  = getSecurityAdvisorForGuest.lastResult.@loginDateTime;
 				

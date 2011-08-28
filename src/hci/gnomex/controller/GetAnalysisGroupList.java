@@ -65,7 +65,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     List results = null;
 
     try {
-      if (!filter.hasSufficientCriteria()) {
+      if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
         message = "Please select a filter";
         rootNode.setAttribute("message", message);
         

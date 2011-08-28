@@ -19,17 +19,6 @@
  	fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
     method="POST"   
     useProxy="false">
-    <mx:request>
-            <labKeys>{labKeys}</labKeys> 
-		    <allAnalysis>{showAllAnalysisCheckbox.selected ? 'Y' : 'N'}</allAnalysis>
-            <searchText>{searchTextField.text}</searchText>
-            <showMyLabsAlways>{this.currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
-            <publicProjects>{currentState == 'GuestState'|| publicProjectsCheckbox.selected ? 'Y' : 'N'}</publicProjects>
-            <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
-            <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
-            <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
-            <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
-    </mx:request> 
    </mx:HTTPService>
    
    <mx:HTTPService  
@@ -118,21 +107,20 @@
 	   <mx:Script> 
         <![CDATA[
     	import mx.charts.chartClasses.StackedSeries;
-    	import mx.controls.treeClasses.TreeListData;
-    	import mx.controls.treeClasses.TreeItemRenderer;
-    	import mx.core.UITextField;
+    	import mx.collections.ArrayCollection;
+    	import mx.collections.XMLListCollection;
+    	import mx.controls.Alert;
+    	import mx.controls.Menu;
     	import mx.controls.TextArea;
-        import mx.controls.Alert;
-        import mx.managers.DragManager;
-        import mx.core.DragSource;
-        import mx.events.DragEvent;
-        import mx.events.CloseEvent;
-        import mx.controls.Menu;
-        import mx.collections.ArrayCollection;
-
-        import mx.rpc.events.ResultEvent;   
-        import mx.collections.XMLListCollection;
-        import mx.managers.PopUpManager; 
+    	import mx.controls.treeClasses.TreeItemRenderer;
+    	import mx.controls.treeClasses.TreeListData;
+    	import mx.core.DragSource;
+    	import mx.core.UITextField;
+    	import mx.events.CloseEvent;
+    	import mx.events.DragEvent;
+    	import mx.managers.DragManager;
+    	import mx.managers.PopUpManager;
+    	import mx.rpc.events.ResultEvent; 
         
         public var selectedIdAnalysis:Object;
         public var selectedAnalysisNumber:Object;
@@ -784,11 +772,51 @@
 				}
 		}
 		
+		public function getBrowseParameters():Object {
+			var params:Object = new Object();
+			if (this.currentState == 'AdminState' && this.showAllAnalysisCheckbox.selected) {
+				params.allAnalysis = 'Y';
+			}  else {
+				if (this.currentState == 'GuestState') {
+					params.publicProjects = 'Y';
+				} else if (this.currentState == 'AdminState' &&  publicProjectsCheckbox.selected ) {
+					params.publicProjects = 'Y';
+				} else if ((this.currentState == null || this.currentState == "") && publicAnalysisOtherGroupsRadio.selected) {
+					params.publicAnalysisOtherGroups = 'Y';
+				}
+					
+				if ((this.currentState == null || this.currentState == "") && userAllAnalysisRadio.selected) {
+					params.allAnalysis = 'Y';
+				}
+				
+				if ((this.currentState == null || this.currentState == "") && myAnalysisRadio.selected) {
+					params.idAppUser = this.parentApplication.idAppUser;
+				}
+				
+				if (this.currentState == "AdminState") {
+					params.showMyLabsAlways = 'N';
+				} else {
+					params.showMyLabsAlways = 'Y';
+				}
+
+					
+				params.labKeys = labKeys;
+				params.searchText = searchTextField.text;
+				params.lastWeek = lastWeekCheckbox.selected ? 'Y' : 'N';
+				params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
+				params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
+				params.lastYear = lastYearCheckbox.selected ? 'Y' : 'N';
+			
+			}
+			
+		
+			return params;
+		}
 		
 		
 		public function refreshAnalysis():void {
 			this.browseTree.selectedItem = null;
-			getAnalysisGroupList.send();
+			getAnalysisGroupList.send(getBrowseParameters());
 		}
 		
 		public function refreshAnalysisFilterByLabs(labKeys:String, label:String):void {
@@ -965,6 +993,7 @@
 		this.lastMonthCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
 		this.lastThreeMonthsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
 		this.lastYearCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+		this.publicProjectsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
 		if (currentState == "AdminState") {
 			this.selectGroupsLinkButton.enabled = !this.showAllAnalysisCheckbox.selected;
 		} else {
@@ -982,9 +1011,24 @@
     <mx:VBox width="100%" height="100%">
       <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
           <mx:HBox id="filterBox"  horizontalGap="8" verticalAlign="middle">
-          	  <mx:HBox width="100%" verticalGap="1">
-				  <mx:CheckBox label="Show all analysis" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
-				  <mx:CheckBox label="Show public analysis" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0"/>
+			  
+			  <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
+				  <mx:RadioButtonGroup id="analysisRadioGroup"/>
+				  <mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
+					  <mx:click>this.refreshAnalysis()</mx:click>
+				  </mx:RadioButton>
+				  <mx:RadioButton label="My lab's" id="myLabsAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+					  <mx:toolTip><![CDATA[Analysis of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
+					  <mx:click>this.refreshAnalysis()</mx:click>
+				  </mx:RadioButton>
+				  <mx:RadioButton label="Other labs' public analysis" id="publicAnalysisOtherGroupsRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+					  <mx:toolTip>Other lab's analyses that are available to public</mx:toolTip>
+					  <mx:click>this.refreshAnalysis()</mx:click>
+				  </mx:RadioButton>
+				  <mx:RadioButton label="All analysis" id="userAllAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+					  <mx:toolTip>All analysis I have access to</mx:toolTip>
+					  <mx:click>this.refreshAnalysis()</mx:click>
+				  </mx:RadioButton>
 			  </mx:HBox>
           	  <mx:HBox horizontalGap="0" verticalAlign="middle">
           	      <mx:Label text="Search" id="searchLabel" paddingLeft="6"/>
@@ -1091,10 +1135,10 @@
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
-			<mx:RemoveChild target="{publicProjectsCheckbox}"/>
 			<mx:RemoveChild target="{linkbutton2}"/>
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
+			<mx:RemoveChild target="{hbox2}"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">
@@ -1104,9 +1148,16 @@
 					<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{publicProjectsCheckbox}"/>
 			<mx:RemoveChild target="{hbox3}"/>
 			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:AddChild relativeTo="{searchLabel}" position="before">
+				<mx:CheckBox label="Show all analysis" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{searchLabel}" name="paddingLeft" value="12"/>
+			<mx:AddChild relativeTo="{searchLabel}" position="before">
+				<mx:CheckBox label="Show public analysis" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="10"/>
+			</mx:AddChild>
 		</mx:State>
 
 		
