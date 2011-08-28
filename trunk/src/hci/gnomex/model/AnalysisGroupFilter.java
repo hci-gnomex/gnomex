@@ -11,6 +11,7 @@ public class AnalysisGroupFilter extends DetailObject {
   
   // Criteria
   private Integer               idLab;
+  private Integer               idAppUser;
   private String                publicProjects = "N";
   private Integer               idRequest;
   private Integer               idAnalysis;
@@ -21,6 +22,7 @@ public class AnalysisGroupFilter extends DetailObject {
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
   private String                allAnalysis = "N";
+  private String                publicAnalysisOtherGroups = "N";
 
 
   private StringBuffer          queryBuf;
@@ -63,9 +65,11 @@ public class AnalysisGroupFilter extends DetailObject {
     
   }
   
-  public boolean hasSufficientCriteria() {
+  public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
     if (idLab != null ||
+        idAppUser != null ||
         (publicProjects != null && publicProjects.equals("Y")) ||
         idRequest != null ||
         idAnalysis != null ||
@@ -81,7 +85,11 @@ public class AnalysisGroupFilter extends DetailObject {
       hasLimitingCriteria = false;
     }
     
-    return hasLimitingCriteria;
+    if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      return hasLimitingCriteria;      
+    } else {
+      return true;
+    }
     
   }
   
@@ -101,10 +109,8 @@ public class AnalysisGroupFilter extends DetailObject {
     
 
     // Only add selection criteria when "all analysis" is not turned on
-    if (allAnalysis == null || allAnalysis.equals("N")) {
-      addAnalysisCriteria();
-      addExperimentItemCriteria();
-    }
+    addAnalysisCriteria();
+    addExperimentItemCriteria();
     
     addSecurityCriteria();
     
@@ -124,6 +130,13 @@ public class AnalysisGroupFilter extends DetailObject {
 
   
   private void addAnalysisCriteria() {
+    // Search by owner 
+    if (idAppUser != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" a.idAppUser =");
+      queryBuf.append(idAppUser);
+    } 
+    
     // Search by lab 
     if (idLab != null){
       this.addWhereOrAnd();
@@ -237,21 +250,25 @@ public class AnalysisGroupFilter extends DetailObject {
   
   private void addSecurityCriteria() {
     
-    boolean scopeToGroup = true;
-    // Don't limit to user's lab if "show all analysis" checked.
-    // or "show public experiments" checked.
-    if (this.allAnalysis != null && this.allAnalysis.equals("Y")) {
-      scopeToGroup = false;
-    } else if (this.publicProjects != null && this.publicProjects.equalsIgnoreCase("Y")) {
-      scopeToGroup = false;
+    if (publicAnalysisOtherGroups != null && publicAnalysisOtherGroups.equals("Y")) {
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "a", addWhere);
+    } else {
+      boolean scopeToGroup = true;
+      // Don't limit to user's lab if "show all analysis" checked.
+      // or "show public experiments" checked.
+      if (this.allAnalysis != null && this.allAnalysis.equals("Y")) {
+        scopeToGroup = false;
+      } else if (this.publicProjects != null && this.publicProjects.equalsIgnoreCase("Y")) {
+        scopeToGroup = false;
+      }
+      
+      if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      }  else {
+        addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis");
+      }
+      
     }
     
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-   
-      
-    }  else {
-      addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis");
-    }
     
 
     
@@ -385,6 +402,22 @@ public class AnalysisGroupFilter extends DetailObject {
 
   public void setPublicProjects(String publicProjects) {
     this.publicProjects = publicProjects;
+  }
+
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
+  }
+
+  public String getPublicAnalysisOtherGroups() {
+    return publicAnalysisOtherGroups;
+  }
+
+  public void setPublicAnalysisOtherGroups(String publicAnalysisOtherGroups) {
+    this.publicAnalysisOtherGroups = publicAnalysisOtherGroups;
   }
 
     
