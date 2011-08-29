@@ -171,8 +171,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem bi = (BillingItem)i.next();
             sess.refresh(bi);
-            LabAccountBillingPeriod labp = new LabAccountBillingPeriod(bi.getLab(), bi.getBillingPeriod().getIdBillingPeriod(), bi.getBillingAccount());
-            labAccountBillingPeriodMap.put(labp, null);
+            // This item should not contribute to decision to send billing statement if previously approved
+            if (!(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && (bi.getCurrentCodeBillingStatus().equals(BillingStatus.APPROVED)))) {
+              LabAccountBillingPeriod labp = new LabAccountBillingPeriod(bi.getLab(), bi.getBillingPeriod().getIdBillingPeriod(), bi.getBillingAccount());
+              labAccountBillingPeriodMap.put(labp, null);              
+            }
+
           }
           
           for(Iterator i = parser.getBillingItemsToRemove().iterator(); i.hasNext();) {

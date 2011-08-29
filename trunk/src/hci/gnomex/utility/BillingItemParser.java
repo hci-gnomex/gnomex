@@ -90,6 +90,10 @@ public class BillingItemParser implements Serializable {
         String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
         billingItem.setCodeBillingStatus(codeBillingStatus);
         
+        // Set the billing status
+        String currentCodeBillingStatus = node.getAttributeValue("currentCodeBillingStatus");
+        billingItem.setCurrentCodeBillingStatus(currentCodeBillingStatus);
+        
         HashSet billingPeriodSet = (HashSet)requestMap.get(billingItem.getIdRequest());   
         if(billingPeriodSet == null) {
           billingPeriodSet = new HashSet();
