@@ -19,6 +19,7 @@ public class BillingItem extends HibernateDetailObject {
   private BigDecimal     percentagePrice;
   private String         codeBillingChargeKind;
   private String         codeBillingStatus;
+  private String         currentCodeBillingStatus;
   private Integer        idBillingPeriod;  
   private BillingPeriod  billingPeriod;
   private Integer        idPriceCategory;
@@ -99,6 +100,14 @@ public class BillingItem extends HibernateDetailObject {
     this.codeBillingStatus = codeBillingStatus;
   }
   
+  public String getCurrentCodeBillingStatus() {
+    return currentCodeBillingStatus;
+  }
+
+  public void setCurrentCodeBillingStatus(String currentCodeBillingStatus) {
+    this.currentCodeBillingStatus = currentCodeBillingStatus;
+  }
+
   public Integer getIdBillingPeriod() {
     return idBillingPeriod;
   }

@@ -174,6 +174,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       Element billingItemNode = billingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
       billingItemNode.setAttribute("other", "N");
       billingItemNode.setAttribute("isDirty","N");
+      billingItemNode.setAttribute("currentCodeBillingStatus", billingItem.getCodeBillingStatus());
       if (billingItem.getTotalPrice() != null) {
         billingItemNode.setAttribute("totalPrice", nf.format(billingItem.getTotalPrice().doubleValue()));        
       }

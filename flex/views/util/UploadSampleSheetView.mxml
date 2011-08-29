@@ -319,7 +319,9 @@
 					sampleGridDataRowsCount++;
 					ssRowCount++;  
 					if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
-						break;
+						if(ssRowCount <= ssRowList.length()) {
+							tabSamplesView.addSample();
+						}
 					}
 				} // End traverse ss row
 				sampleGridDataRows.refresh();
