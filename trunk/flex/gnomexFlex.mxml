@@ -408,6 +408,8 @@
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]
 	        public var soundDing:Class;
+			
+			private var isGuest:Boolean = false;
 	        
 	        
 	        public var isUniversityOnlyUser:Boolean = false;
@@ -830,10 +832,14 @@
                         
             
              public function isGuestMode():Boolean {
+				// Check the URL, if isGuest=Y on request parameter, then
+				// this is a guest login
             	if (Application.application.parameters.isGuest != null) {
-       				return Application.application.parameters.isGuest == 'Y';
+       				return Application.application.parameters.isGuest == 'Y' || isGuest;
             	} else {
-            		return false;
+					// If the request parameter isGuest not present, check the
+					// SecurityAdvisor isGuest attribute.
+            		return isGuest;
             	}
              } 
              
@@ -1099,6 +1105,7 @@
             	}
 				
 				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
+				isGuest = createSecurityAdvisor.lastResult.@isGuest == 'Y' ? true : false;
 
 			    
 			    this.appProgressBar.currentState = "LoadingState";
@@ -1123,6 +1130,8 @@
             private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
 			    this.appProgressBar.currentState = "LoadingState";
             	this.showProgress(30);
+				
+				isGuest = true;
 
             	if (!(getSecurityAdvisorForGuest.lastResult is XML) ||
             	    getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
