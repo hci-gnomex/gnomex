@@ -33,9 +33,21 @@ public class RequestDownloadFilter extends DetailObject {
   private String                isMicroarray = "N";
   private String                isSolexa = "N";
   private String                isBioanalyzer = "N";
+  private String                allExperiments;
   
   
   
+  public String getAllExperiments() {
+    return allExperiments;
+  }
+
+
+  public void setAllExperiments(String allExperiments) {
+    this.allExperiments = allExperiments;
+  }
+
+
+
   private StringBuffer          queryBuf;
   private boolean              addWhere = true;
   private SecurityAdvisor       secAdvisor;
@@ -435,11 +447,16 @@ public class RequestDownloadFilter extends DetailObject {
  
   
   private void addSecurityCriteria() {
-    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+    if (this.allExperiments != null && this.allExperiments.equals("Y")) {
+      boolean scopeToGroup = false;
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup);
+    }else if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
       addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
+      boolean scopeToGroup = true;
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup);
     }
+
     
   }
     

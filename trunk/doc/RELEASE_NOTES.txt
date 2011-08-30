@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.2.8 
+----------------------
+- Treat login with 'guest' user account as a guest login, just like URL with parameter isGuest=Y
+- Fixed logic for Experiment downloads and Experiment progress to work with now 'All experiments' filter.
+- Fixed logic for Experiment downloads and Experiment progress to work for users not assigned to a lab.
+
 5.2.7 (Aug 29, 2011)
 ----------------------
 - Changes to insure billing statement doesn't get sent again if a change is inadvertently made to an item on an invoice that has already been approved and sent.
