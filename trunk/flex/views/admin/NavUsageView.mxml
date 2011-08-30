@@ -125,8 +125,11 @@
 			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton5"/>
 			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton6"/>
 			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton7"/>
+			<mx:LinkButton label="Disk Space"             click="{chartStack.selectedChild = diskSpaceByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton8"/>
 			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label1"/>
 			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton1"/>
+			<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton9"/>
+			<mx:LinkButton label="Disk Space by Category" click="{chartStack.selectedChild = diskSpaceByTypePanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton10"/>
 			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false" paddingLeft="8" id="linkbutton2"/>
 		</mx:VBox> 
 
@@ -256,6 +259,27 @@
 						</mx:series>
 					</mx:ColumnChart>
 				</mx:VBox>
+				
+
+				<mx:VBox id="diskSpaceByLabPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Disk Space by Lab (GB)" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Disk Space" id="diskSpaceByLabChart" maxColumnWidth="30"
+									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByLab.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByLab.Entry}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@diskSpaceGB" 
+								displayName="Disk space (GB)"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+				</mx:VBox>
 				 
 
 				<mx:VBox id="activityByWeekPanel" width="100%" height="100%" styleName="form" 
@@ -316,6 +340,41 @@
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:Label text="Top Ranked Downloads" fontWeight="bold"/> 
 				</mx:VBox>
+				
+				<mx:VBox id="diskSpaceByYearPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Disk Space by Year (GB)" fontWeight="bold"/> 
+					<mx:ColumnChart  name="Disk Space" id="diskSpaceByYearChart" maxColumnWidth="30"
+									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByYear.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:horizontalAxis>
+							<mx:CategoryAxis 
+								dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByYear.Entry}" 
+								categoryField="@label"
+								/>
+						</mx:horizontalAxis>
+						<mx:series>
+							<mx:ColumnSeries 
+								yField="@diskSpaceGB" 
+								displayName="Disk space (GB)"
+								/>
+						</mx:series>
+					</mx:ColumnChart>
+				</mx:VBox>
+				
+				<mx:VBox id="diskSpaceByTypePanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:Label text="Disk Space by Category (GB)" fontWeight="bold"/> 
+					<mx:PieChart  name="Disk Space" id="diskSpaceByTypeChart" 
+									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByType.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:series>
+							<mx:PieSeries 
+								field="@diskSpaceGB" labelField="@labelGB"
+								nameField="@label" labelPosition="inside"
+								/>
+						</mx:series>
+					</mx:PieChart>
+				</mx:VBox>
+
 				
 				
 			</mx:ViewStack>

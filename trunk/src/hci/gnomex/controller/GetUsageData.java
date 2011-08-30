@@ -10,6 +10,7 @@ import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -56,6 +57,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   
   private Integer endRank = Integer.valueOf(9999);
   
+  private static final BigDecimal    MB = new BigDecimal(2).pow(20);
+  private static final BigDecimal    GB = new BigDecimal(2).pow(30);
+  
   public void validate() {
   }
   
@@ -90,7 +94,17 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
       Element summaryUploadsNode = new Element("SummaryUploadsByLab");
       doc.getRootElement().addContent(summaryUploadsNode);
+      
+      Element summaryDiskSpaceNode = new Element("SummaryDiskSpaceByLab");
+      doc.getRootElement().addContent(summaryDiskSpaceNode);
+      
+      Element summaryDiskSpaceByYearNode = new Element("SummaryDiskSpaceByYear");
+      doc.getRootElement().addContent(summaryDiskSpaceByYearNode);
 
+      
+      Element summaryDiskSpaceByTypeNode = new Element("SummaryDiskSpaceByType");
+      doc.getRootElement().addContent(summaryDiskSpaceByTypeNode);
+      
       Element summaryDownloadsNode = new Element("SummaryDownloadsByLab");
       doc.getRootElement().addContent(summaryDownloadsNode);
 
@@ -302,6 +316,122 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           }
 
         }
+        
+        
+        // Get disk space by lab
+        rank = 0;
+        summaryRows = sess.createQuery("SELECT tl.idLab, sum(tl.fileSize) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by sum(tl.fileSize) desc").list();
+        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+          Object[] rows = (Object[])i.next();
+          Integer idLab           = (Integer)rows[0];
+          BigDecimal fileSize     = (BigDecimal)rows[1];
+          
+          BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
+          BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
+          
+          if (idLab == null) {
+            continue;
+          }
+          
+          Lab lab = labIdMap.get(idLab);
+          
+          if (lab == null) {
+            continue;
+          }
+          
+          Element entryNode = new Element("Entry");
+          summaryDiskSpaceNode.addContent(entryNode);
+          entryNode.setAttribute("label", getLabName(lab));
+          entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
+          entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
+          entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
+          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+          
+          rank++;
+          
+          if (rank > endRank.intValue()) {
+            break;
+          }
+        }
+        
+        // Get disk space by year
+        rank = 0;
+        summaryRows = sess.createQuery("SELECT year(tl.startDateTime), sum(tl.fileSize) from TransferLog tl where tl.transferType = 'upload' group by year(tl.startDateTime) order by sum(tl.fileSize) desc").list();
+        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+          Object[] rows = (Object[])i.next();
+          Object year             = rows[0];
+          BigDecimal fileSize     = (BigDecimal)rows[1];
+          
+          BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
+          BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
+          
+          if (year == null) {
+            continue;
+          }
+
+          
+          Element entryNode = new Element("Entry");
+          summaryDiskSpaceByYearNode.addContent(entryNode);
+          entryNode.setAttribute("label", year.toString());
+          entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
+          entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
+          entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
+          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+          
+          rank++;
+          
+          if (rank > endRank.intValue()) {
+            break;
+          }
+        }
+        
+        // Get disk space by analysis vs. experiment
+        rank = 0;
+        StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(tl.fileSize) ");
+        queryBuf.append(" from TransferLog tl, Request r, RequestCategory rc ");
+        queryBuf.append(" where tl.transferType = 'upload' ");
+        queryBuf.append(" and tl.idRequest = r.idRequest ");
+        queryBuf.append(" and r.codeRequestCategory = rc.codeRequestCategory ");
+        queryBuf.append(" group by rc.requestCategory");
+        queryBuf.append(" order by rc.requestCategory ");
+        summaryRows = sess.createQuery(queryBuf.toString()).list();
+        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+          Object[] rows = (Object[])i.next();
+          String requestCategory   = (String)rows[0];
+          BigDecimal fileSize     = (BigDecimal)rows[1];
+          
+          BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
+          BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
+          
+          if (requestCategory == null) {
+            continue;
+          }
+
+          
+          Element entryNode = new Element("Entry");
+          summaryDiskSpaceByTypeNode.addContent(entryNode);
+          entryNode.setAttribute("label", requestCategory);
+          entryNode.setAttribute("labelGB", requestCategory + " (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
+          entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
+          entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
+          entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
+          
+        
+        }
+        // Now add the analysis disk space
+        summaryRows   = sess.createQuery("SELECT sum(tl.fileSize) from TransferLog tl where tl.transferType = 'upload' AND idAnalysis is not NULL").list();
+        BigDecimal fileSize = (BigDecimal)summaryRows.get(0);
+        if (fileSize != null) {
+          Element theEntryNode = new Element("Entry");
+          summaryDiskSpaceByTypeNode.addContent(theEntryNode);
+          theEntryNode.setAttribute("label", "Analysis");
+          theEntryNode.setAttribute("labelGB", "Analysis (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
+          theEntryNode.setAttribute("diskSpaceBytes", fileSize.toString());
+          theEntryNode.setAttribute("diskSpaceMB", fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          theEntryNode.setAttribute("diskSpaceGB", fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+        }
+      
+
         
         // Get days since last upload
         rank = 0;
