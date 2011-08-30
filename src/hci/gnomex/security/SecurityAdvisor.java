@@ -142,8 +142,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   public static SecurityAdvisor create(Session   sess, 
-                                         String    uid) throws InvalidSecurityAdvisorException {
+                                       String    uid) throws InvalidSecurityAdvisorException {
     SecurityAdvisor securityAdvisor = null;
+    
+    // If the login is "guest" just instantiate a security advisor
+    // as 'guest'.
+    if (uid.equalsIgnoreCase("guest")) {
+      return new SecurityAdvisor();
+    }
     
     boolean isGNomExUniversityUser = false;
     boolean isGNomExExternalUser = false;
