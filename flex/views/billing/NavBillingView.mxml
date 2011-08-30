@@ -1827,7 +1827,7 @@
 					</mx:VBox>
 			   	
 		    	</mx:HBox> 
-				<mx:HBox horizontalGap="0">
+				<mx:HBox horizontalGap="0" defaultButton="{lookupButton}">
 					<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" />
 					<mx:TextInput id="requestNumberText" width="55">
 					</mx:TextInput>			   	
