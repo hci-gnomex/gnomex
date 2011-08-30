@@ -33,6 +33,7 @@ public class RequestProgressFilter extends DetailObject {
   private String                  isMicroarray = "N";
   private String                  isSolexa = "N";
   private String                  isBioanalyzer = "N";
+  private String                  allExperiments;
   
   
   
@@ -303,7 +304,11 @@ public class RequestProgressFilter extends DetailObject {
   
 
   protected void addSecurityCriteria() {
-    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+
+    if (this.allExperiments != null && this.allExperiments.equals("Y")) {
+      boolean scopeToGroup = false;
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup);
+    }else if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
       addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
       boolean scopeToGroup = true;
@@ -506,6 +511,16 @@ public class RequestProgressFilter extends DetailObject {
   
   public void setIsBioanalyzer(String isBioanalyzer) {
     this.isBioanalyzer = isBioanalyzer;
+  }
+
+
+  public String getAllExperiments() {
+    return allExperiments;
+  }
+
+
+  public void setAllExperiments(String allExperiments) {
+    this.allExperiments = allExperiments;
   }
 
 
