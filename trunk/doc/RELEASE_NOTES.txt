@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+----------------------
+- Added hint to Experiment/Analysis Visibility tabs to tell how to activate Institution dropdown.
+- Changed billing request lookup to find requests without needing to use "R" in the request number.
+- Set lookup button as default when enter pressed in billing request lookup.
+
 5.2.8 
 ----------------------
 - Treat login with 'guest' user account as a guest login, just like URL with parameter isGuest=Y

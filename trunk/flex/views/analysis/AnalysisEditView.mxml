@@ -1104,7 +1104,11 @@
 				<mx:HBox>
 					<mx:RadioButton value="INST" selected="true" label="Institution  (all lab groups that are part of institution)" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" >			       	
-					</mx:ComboBox>					
+					</mx:ComboBox>
+					<mx:Text width="350" id="institutionNote" styleName="submitNote" height="40" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
+						<mx:text>Institution visibility can only be set when lab belongs to at least one institution.  Please contact GNomEx administrator.</mx:text>
+					</mx:Text>
+					
 				</mx:HBox>
 				<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
 		   		
