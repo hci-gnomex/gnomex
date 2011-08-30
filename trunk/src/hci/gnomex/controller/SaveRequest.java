@@ -30,6 +30,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.Step;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.TreatmentEntry;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
@@ -627,17 +628,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
             } else {
               billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
-
             }
         
           if (reassignCount > 0) {
               sess.flush();
             }
-
           }
-
-          
         }
+        
+        // If the lab on the request was changed, reassign the lab on the
+        // transfer logs for this request
+        reassignLabForTransferLog(sess);
+        sess.flush();
 
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
@@ -1573,6 +1575,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
   }  
+  
+  private void reassignLabForTransferLog(Session sess) {
+    if (!requestParser.isNewRequest() && !requestParser.getOriginalIdLab().equals(requestParser.getRequest().getIdLab())) {
+      // If an existing request has been assigned to a different lab, change
+      // the idLab on the TransferLogs.
+      String buf = "SELECT tl from TransferLog tl where idRequest = " + requestParser.getRequest().getIdRequest();
+      List transferLogs = sess.createQuery(buf).list();
+      for (Iterator i = transferLogs.iterator(); i.hasNext();) {
+        TransferLog tl = (TransferLog)i.next();
+        tl.setIdLab(requestParser.getRequest().getIdLab());
+      }
+    }
+  }
   
   private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
     

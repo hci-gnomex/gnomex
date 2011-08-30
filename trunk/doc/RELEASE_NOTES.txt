@@ -1,8 +1,12 @@
 ﻿GNomEx Release Notes
 
+5.2.7 (Aug 29, 2011)
 ----------------------
 - Changes to insure billing statement doesn't get sent again if a change is inadvertently made to an item on an invoice that has already been approved and sent.
 - Sample sheet upload process will now automatically create new sample rows if there are not enough to accommodate all rows of the uploaded sample sheet.
+- Remove references to transfer log for experiment or analysis files that are deleted.
+- Reassign lab on transfer logs when experiment or analysis lab is changed.
+- Fixed bug so that the analysis drag-and-drop to a different lab works, reassigning the analysis to a different lab.
 
 5.2.6.2 (Aug 28, 2011)
 ----------------------

@@ -9,6 +9,7 @@ import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisCollaboratorParser;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -60,6 +62,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                analysisFilesToDeleteXMLString;
   private Document              analysisFilesToDeleteDoc;
   private AnalysisFileParser    analysisFileParser;
+  
+  private Integer               originalIdLab = null;
   
   private String                hybsXMLString;
   private Document              hybsDoc;
@@ -201,6 +205,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());        
       } else {
         analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());       
+        originalIdLab = analysis.getIdLab();
         
         if (this.getSecAdvisor().canUpdate(analysis, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
           analysis.setCodeVisibility(codeVisibilityToUpdate);
@@ -366,6 +371,14 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           }
         }
         
+        // If the analysis lab was changed, reassign the lab on the transfer logs.
+        if (!isNewAnalysis) {
+          if (!analysis.getIdLab().equals(originalIdLab)) {
+            reassignLabForTransferLog(sess, analysis);
+            sess.flush();
+          }
+        }
+        
         // Get rid of removed analysis files
         if (analysisFileParser != null) {
           DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -381,9 +394,15 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
               analysis.getFiles().remove(af);
             }
 
+            // Remove reference of analysis from from TransferLog
+            removeAnalysisFileFromTransferLog(sess, analysisBaseDir, analysis, af);
+            sess.flush();
+            
+            // Remove file from file system.
             removeAnalysisFileFromFileSystem(analysisBaseDir, analysis, af);
             
           }          
+          sess.flush();
         }
 
         
@@ -401,6 +420,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           }
           analysis.setCollaborators(collaborators);          
         }
+        
+        
            
         
         sess.flush();
@@ -442,12 +463,33 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdInstitution(analysisScreen.getIdInstitution());
   }
   
+  private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+    String createYear = formatter.format(analysis.getCreateDate());
+    
+    String fileName = baseDir +  "/" + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
+
+    // Remove references of the file in TransferLog
+    String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + analysis.getIdAnalysis() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+    List transferLogs = sess.createQuery(queryBuf).list();
+    // Go ahead and delete the transfer log if there is just one row.
+    // If there are multiple transfer log rows for this filename, just
+    // bypass deleting the transfer log since it is not possible
+    // to tell which entry should be deleted.
+    if (transferLogs.size() == 1) {
+      TransferLog transferLog = (TransferLog)transferLogs.get(0);
+      sess.delete(transferLog);
+    }
+    
+  }
   
   public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
     String fileName = baseDir +  "/" + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
+    
+    
     File f = new File(fileName);
     if (!f.delete()) {
       log.error("Unable to remove " + fileName + " from file system for analysis " + analysis.getNumber());
@@ -467,6 +509,16 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     
   }
   
+  private void reassignLabForTransferLog(Session sess, Analysis analysis) {
+      // If an existing request has been assigned to a different lab, change
+      // the idLab on the TransferLogs.
+      String buf = "SELECT tl from TransferLog tl where idAnalysis = " + analysis.getIdAnalysis();
+      List transferLogs = sess.createQuery(buf).list();
+      for (Iterator i = transferLogs.iterator(); i.hasNext();) {
+        TransferLog tl = (TransferLog)i.next();
+        tl.setIdLab(analysis.getIdLab());
+      }
+  }
   
   private class AnalysisGroupComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {

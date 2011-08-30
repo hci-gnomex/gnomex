@@ -48,6 +48,7 @@ public class RequestParser implements Serializable {
   private boolean        saveReuseOfSlides = false;
   private String          amendState = "";
   private List<String>    ccNumberList = new ArrayList<String>();
+  private Integer         originalIdLab = null;
 
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
@@ -122,6 +123,7 @@ public class RequestParser implements Serializable {
         isNewRequest = true;
       } else {
         request = (Request)sess.load(Request.class, idRequest);
+        originalIdLab = request.getIdLab();
         saveReuseOfSlides = true;
         
         // Reset the complete date
@@ -1418,6 +1420,10 @@ public class RequestParser implements Serializable {
   
   public boolean isNewRequest() {
     return isNewRequest;
+  }
+  
+  public Integer getOriginalIdLab() {
+    return this.originalIdLab;
   }
   
   public boolean isExternalExperiment() {
