@@ -129,6 +129,7 @@
 		
 		private var execValidateAndSaveAnalysis:Boolean = false;
 		
+		public var parentIdLab:Object = null;
         
         private var experimentDetailWindow:ExperimentDetailWindow;  
         
@@ -435,8 +436,17 @@
 
 			params.idAnalysis         = analysis.@idAnalysis;
 			params.name               = this.analysisName.text;
-			params.description        = this.description.text; 
-			params.idLab              = analysis.@idLab;
+			params.description        = this.description.text;
+			
+			// If the analysis was assigned to a new lab (through
+			// the drap operation, set the lab on the lab to
+			// the "parent' lab.
+			if (parentIdLab != null) {
+				params.idLab  = parentIdLab;
+			} else {
+				params.idLab              = analysis.@idLab;
+			}
+			
 			params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
 			params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@value;
 			params.idOrganism         = this.organismCombo.selectedItem.@value;
