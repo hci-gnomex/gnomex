@@ -139,6 +139,8 @@
         public var selectedIdLab:String;
         
         public var selectedNode:Object;
+			
+		public var parentIdLab:Object = null;
         
         private var dropProject:Object;
         private var dragRequest:Object;
@@ -669,6 +671,7 @@
 						
 					}
 					editView.analysisGroups.addItem(addAnalysisGroup);
+					editView.parentIdLab = parentIdLab;
 					editView.setExecValidateAndSaveAnalysis();
 					addAnalysisGroup = null;
 				}
@@ -928,6 +931,11 @@
 	    			parentXML.appendChild(data);
 	    			browseTree.selectedItem = data;
 	    			showEditView = true;
+					
+					// Set the idLab of the Analysis to the lab it was dropped
+					// to (the lab of the analysis group
+					parentIdLab = parentXML.@idLab;
+					
 	    			if(e.ctrlKey) {
 	    				// Don't remove dragged item if we're copying
 	    				removeIdAnalysisGroup = null;
