@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
@@ -95,7 +96,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
     Session sess = null;
     if (filesXMLString != null) {
       try {
-        sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+        sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
         
         Request request = (Request)sess.load(Request.class, idRequest);
         String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
@@ -167,13 +168,32 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             if (filesToRemoveParser != null) {
               for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
                 String fileName = (String)i.next();
+                
+                // Remove references of file in TransferLog
+                String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + idRequest + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+                List transferLogs = sess.createQuery(queryBuf).list();
+                // Go ahead and delete the transfer log if there is just one row.
+                // If there are multiple transfer log rows for this filename, just
+                // bypass deleting the transfer log since it is not possible
+                // to tell which entry should be deleted.
+                if (transferLogs.size() == 1) {
+                  TransferLog transferLog = (TransferLog)transferLogs.get(0);
+                  sess.delete(transferLog);
+                } 
+
                 boolean success = new File(fileName).delete();
                 if (!success) { 
                   // File was not successfully deleted
                   throw new Exception("Unable to delete file " + fileName);
                 }
+                
+
               }
+              sess.flush();
             }
+            
+            
+            
             XMLOutputter out = new org.jdom.output.XMLOutputter();
             this.xmlResult = "<SUCCESS/>";
             setResponsePage(this.SUCCESS_JSP);          
@@ -196,7 +216,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       }finally {
         try {
           if (sess != null) {
-            this.getSecAdvisor().closeReadOnlyHibernateSession();
+            this.getSecAdvisor().closeHibernateSession();
           }
         } catch(Exception e) {
           
