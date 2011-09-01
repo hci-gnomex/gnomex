@@ -180,6 +180,8 @@
 		import hci.flex.controls.DropdownLabel;
 		
 		import mx.collections.ArrayCollection;
+		import mx.collections.IHierarchicalCollectionView;
+		import mx.collections.IViewCursor;
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
@@ -200,8 +202,8 @@
 		import views.renderers.ComboBoxBillingStatus;
 		import views.renderers.LabelPercentage;
 		import views.util.BillingPeriodSelectEvent;
-		import views.util.PickBillingPeriodView;
-        
+		import views.util.PickBillingPeriodView; 
+
         private var revisionNumber:int = 1;
  		
 		private var billingItems:XMLListCollection = new XMLListCollection();
@@ -216,7 +218,7 @@
         private var billingTemplates:XMLListCollection = new XMLListCollection();
 
         [Bindable]
-        private var pricingList:XMLListCollection = new XMLListCollection();
+		private var pricingList:XMLListCollection = new XMLListCollection();
 
         [Bindable]
         private var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
@@ -249,10 +251,15 @@
 		private var maxBillingYear:int = 0;
 		
 		private var activeBillingPeriods:ArrayCollection;
+		
+		private var refreshBillingTimer:Timer;
         
         private function init():void {
+			refreshBillingTimer = new Timer(1000); /* 1000ms == 1second */
+			refreshBillingTimer.addEventListener(TimerEvent.TIMER, onRefreshBillingTimerTimer);
         	initializeData();
         }
+
 
       	public function initializeData():void
       	{
@@ -529,37 +536,41 @@
 			if (getPricingList.lastResult.name() == "Pricing") {
 				this.pricingList = new XMLListCollection(getPricingList.lastResult.PriceSheet);
 				this.pricingTree.dataProvider = new HierarchicalData(pricingList);
-				this.pricingTree.dataProvider.refresh();   
-				
-				callLater(this.selectPricingTreeItem);	
+				this.pricingTree.dataProvider.refresh();
+				refreshBillingTimer.start();
 
 			} else {
 				Alert.show("An error occurred while getting price sheet.");
 			}			
 		}
 		
+		
+		private function onRefreshBillingTimerTimer(evt:TimerEvent):void {
+			refreshBillingTimer.stop();
+			selectPricingTreeItem();
+		}			
+		
 		private function selectPricingTreeItem():void {
-			// Now select the pricing node
 			if (this.pricingNodeToSelect != null && this.pricingIdToSelect != null) {
-				var node:Object = null;
-				if (this.pricingNodeToSelect == 'Price') {
-					node = getPricingList.lastResult..Price.(@idPrice == pricingIdToSelect);
-				} else if (this.pricingNodeToSelect == 'PriceCategory') {
-					node = getPricingList.lastResult..PriceCategory.(@idPriceCategory == pricingIdToSelect);
-				} else if (this.pricingNodeToSelect == 'PriceSheet') {
-					node = getPricingList.lastResult.PriceSheet.(@idPriceSheet == pricingIdToSelect);
-				} 
-				if  (node != null && node is XMLList) {
-					if(node[0] != null) {
-						this.pricingTree.selectedItem = node[0];
-						this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 						
+				var i:int = 0;
+				var cursor:mx.collections.IViewCursor =
+					IHierarchicalCollectionView(pricingTree.dataProvider).createCursor();
+				while (!cursor.afterLast) {
+					cursor.moveNext();
+					if(cursor.current != null) {
+						if (cursor.current.name().localName == this.pricingNodeToSelect) {
+							if ((this.pricingNodeToSelect == 'Price' && cursor.current.@idPrice == pricingIdToSelect)
+								|| (this.pricingNodeToSelect == 'PriceCategory' && cursor.current.@idPriceCategory  == pricingIdToSelect)
+								|| (this.pricingNodeToSelect == 'PriceSheet' && cursor.current.@idPriceSheet  == pricingIdToSelect)) {
+								this.pricingTree.selectedItem = cursor.current;
+								this.pricingTree.scrollToIndex(i); 
+								break;
+							}					
+						}						
 					}
-				} else {
-					this.pricingTree.selectedItem = node;
-					this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 
+					i++;
 				}
-			}
-			
+			}		
 		}
 		private function onGetBillingRequestList(event:ResultEvent):void {
 			if (getBillingRequestList.lastResult.name() == "BillingRequestList") {
