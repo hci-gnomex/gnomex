@@ -4,6 +4,7 @@
 - Added hint to Experiment/Analysis Visibility tabs to tell how to activate Institution dropdown.
 - Changed billing request lookup to find requests without needing to use "R" in the request number.
 - Set lookup button as default when enter pressed in billing request lookup.
+- Fixed bug where new price category causes corrupted tree.
 
 5.2.8 
 ----------------------
