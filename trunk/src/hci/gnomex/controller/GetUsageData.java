@@ -436,7 +436,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
         // Now add the analysis disk space
         BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
-        diskSpaceMap.put("Analysis", analysisFileSize);
+        diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
         rank = 0;
         totalDiskSpace = new BigDecimal(0);
         for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
@@ -652,6 +652,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       Object[] rows = (Object[])i.next();
       Object label            = rows[0];
       BigDecimal fileSize     = (BigDecimal)rows[1];
+      if (fileSize == null) {
+        fileSize = new BigDecimal(0);
+      }
       
       if (label == null) {
         continue;
