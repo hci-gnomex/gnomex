@@ -15,12 +15,15 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -204,6 +207,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
         // Get experiment count
         int rank = 0;
+        int totalCount = 0;
         List summaryRows = sess.createQuery("SELECT r.idLab, count(*) from Request r group by r.idLab order by count(*) desc").list();
         for(Iterator i = summaryRows.iterator(); i.hasNext();) {
           Object[] rows = (Object[])i.next();
@@ -222,14 +226,19 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
           rank++;
+          
+          totalCount += experimentCount;
+          
           if (rank > endRank.intValue()) {
             break;
           }
 
         }
+        summaryExperimentsNode.setAttribute("experimentCount", Integer.valueOf(totalCount).toString());
         
         // Get analysis count
         rank = 0;
+        totalCount = 0;
         summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
         for(Iterator i = summaryRows.iterator(); i.hasNext();) {
           Object[] rows = (Object[])i.next();
@@ -248,11 +257,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
           rank++;
+          
+          totalCount += analysisCount;
+          
           if (rank > endRank.intValue()) {
             break;
           }
-
         }
+        summaryAnalysisNode.setAttribute("analysisCount", Integer.valueOf(totalCount).toString());
         
         
         // Get upload count
@@ -317,21 +329,31 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
         }
         
-        
+
+        //
         // Get disk space by lab
+        //
+        // Get total file size for experiments by lab
+        TreeMap diskSpaceMap = new TreeMap();
+        summaryRows = sess.createQuery("SELECT r.idLab, sum(ef.fileSize) from Request r join r.files as ef  group by r.idLab").list();
+        mapDiskSpace(summaryRows, diskSpaceMap);
+        // Add in total file size for analysis by lab
+        summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  group by a.idLab").list();
+        mapDiskSpace(summaryRows, diskSpaceMap);
+        Set diskSpaceInfos = sortDiskSpaceMap(diskSpaceMap);
+        
         rank = 0;
-        summaryRows = sess.createQuery("SELECT tl.idLab, sum(tl.fileSize) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by sum(tl.fileSize) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Integer idLab           = (Integer)rows[0];
-          BigDecimal fileSize     = (BigDecimal)rows[1];
+        BigDecimal totalDiskSpace = new BigDecimal(0);
+        for (Iterator i = diskSpaceInfos.iterator(); i.hasNext();) {
+          DiskSpaceInfo info = (DiskSpaceInfo)i.next();
+          
+        
+          BigDecimal fileSize   = info.totalFileSize;
+          Integer idLab         = Integer.valueOf(info.label);
           
           BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
           BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
-          
-          if (idLab == null) {
-            continue;
-          }
+       
           
           Lab lab = labIdMap.get(idLab);
           
@@ -349,25 +371,34 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           
           rank++;
           
+          totalDiskSpace = totalDiskSpace.add(fileSize);
+          
           if (rank > endRank.intValue()) {
             break;
           }
         }
+        summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+        summaryDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+        summaryDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
         
+        //
         // Get disk space by year
+        //
+        diskSpaceMap = new TreeMap();
+        summaryRows = sess.createQuery("SELECT year(r.createDate), sum(ef.fileSize) from Request r join r.files as ef  group by year(r.createDate) ").list();
+        mapDiskSpace(summaryRows, diskSpaceMap);
+        summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  group by year(a.createDate) ").list();
+        mapDiskSpace(summaryRows, diskSpaceMap);
+        diskSpaceInfos = sortDiskSpaceMap(diskSpaceMap);
+        
         rank = 0;
-        summaryRows = sess.createQuery("SELECT year(tl.startDateTime), sum(tl.fileSize) from TransferLog tl where tl.transferType = 'upload' group by year(tl.startDateTime) order by sum(tl.fileSize) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Object year             = rows[0];
-          BigDecimal fileSize     = (BigDecimal)rows[1];
+        totalDiskSpace = new BigDecimal(0);
+        for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
+          Object year           = i.next();
+          BigDecimal fileSize   = (BigDecimal)diskSpaceMap.get(year);
           
           BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
           BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
-          
-          if (year == null) {
-            continue;
-          }
 
           
           Element entryNode = new Element("Entry");
@@ -377,6 +408,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
           entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
           entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+
+          totalDiskSpace = totalDiskSpace.add(fileSize);
           
           rank++;
           
@@ -384,54 +417,61 @@ public class GetUsageData extends GNomExCommand implements Serializable {
             break;
           }
         }
+        summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+        summaryDiskSpaceByYearNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+        summaryDiskSpaceByYearNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
         
+        //
         // Get disk space by analysis vs. experiment
-        rank = 0;
-        StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(tl.fileSize) ");
-        queryBuf.append(" from TransferLog tl, Request r, RequestCategory rc ");
-        queryBuf.append(" where tl.transferType = 'upload' ");
-        queryBuf.append(" and tl.idRequest = r.idRequest ");
-        queryBuf.append(" and r.codeRequestCategory = rc.codeRequestCategory ");
+        //
+        diskSpaceMap = new TreeMap();
+        StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(ef.fileSize) ");
+        queryBuf.append(" from Request r, RequestCategory rc ");
+        queryBuf.append(" join r.files as ef ");
+        queryBuf.append(" where r.codeRequestCategory = rc.codeRequestCategory ");
         queryBuf.append(" group by rc.requestCategory");
         queryBuf.append(" order by rc.requestCategory ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          String requestCategory   = (String)rows[0];
-          BigDecimal fileSize     = (BigDecimal)rows[1];
+        mapDiskSpace(summaryRows, diskSpaceMap);
+
+        // Now add the analysis disk space
+        BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
+        diskSpaceMap.put("Analysis", analysisFileSize);
+        rank = 0;
+        totalDiskSpace = new BigDecimal(0);
+        for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
+          Object category       = i.next();
+          BigDecimal fileSize   = (BigDecimal)diskSpaceMap.get(category);
+          
           
           BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
           BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
           
-          if (requestCategory == null) {
+          if (category == null) {
             continue;
           }
-
           
           Element entryNode = new Element("Entry");
           summaryDiskSpaceByTypeNode.addContent(entryNode);
-          entryNode.setAttribute("label", requestCategory);
-          entryNode.setAttribute("labelGB", requestCategory + " (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
+          entryNode.setAttribute("label", category.toString());
+          entryNode.setAttribute("labelGB", category + " (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
           entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
           entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
           entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
+          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
           
+          rank++;
+          
+          totalDiskSpace = totalDiskSpace.add(fileSize);
+          
+          if (rank > endRank.intValue()) {
+            break;
+          }
+        }
+        summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
         
-        }
-        // Now add the analysis disk space
-        summaryRows   = sess.createQuery("SELECT sum(tl.fileSize) from TransferLog tl where tl.transferType = 'upload' AND idAnalysis is not NULL").list();
-        BigDecimal fileSize = (BigDecimal)summaryRows.get(0);
-        if (fileSize != null) {
-          Element theEntryNode = new Element("Entry");
-          summaryDiskSpaceByTypeNode.addContent(theEntryNode);
-          theEntryNode.setAttribute("label", "Analysis");
-          theEntryNode.setAttribute("labelGB", "Analysis (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
-          theEntryNode.setAttribute("diskSpaceBytes", fileSize.toString());
-          theEntryNode.setAttribute("diskSpaceMB", fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-          theEntryNode.setAttribute("diskSpaceGB", fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
-        }
-      
-
         
         // Get days since last upload
         rank = 0;
@@ -606,6 +646,41 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
     return this;
   }
+
+  private void mapDiskSpace(List summaryRows, Map diskSpaceMap) {
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      Object label            = rows[0];
+      BigDecimal fileSize     = (BigDecimal)rows[1];
+      
+      if (label == null) {
+        continue;
+      }
+
+      BigDecimal totalFileSize = (BigDecimal)diskSpaceMap.get(label);
+      if (totalFileSize == null) {
+        totalFileSize = new BigDecimal(0);
+      }
+      totalFileSize = totalFileSize.add(fileSize);
+      diskSpaceMap.put(label, totalFileSize);
+    }
+  }
+  
+  private Set sortDiskSpaceMap(Map diskSpaceMap) {
+    TreeSet diskInfos = new TreeSet(new DiskSpaceComparator());
+    
+    for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
+      Object label = i.next();
+      BigDecimal totalFileSize = (BigDecimal)diskSpaceMap.get(label);
+      
+      DiskSpaceInfo info = new DiskSpaceInfo();
+      info.label = label.toString();
+      info.totalFileSize = totalFileSize;
+      diskInfos.add(info);
+    }
+    return diskInfos;
+    
+  }
   
   /**
    * Show lab label if logged in user is admin or usage_user_visibility set to 'full'.
@@ -639,7 +714,26 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   }  
   
 
+ static class DiskSpaceComparator implements Comparator {
+
+  @Override
+  public int compare(Object o1, Object o2) {
+    DiskSpaceInfo i1 = (DiskSpaceInfo)o1;
+    DiskSpaceInfo i2 = (DiskSpaceInfo)o2;
+    
+    if (i1.label.equals(i2.label)) {
+      return 0;
+    } else {
+      return i1.totalFileSize.compareTo(i2.totalFileSize) * -1;
+    }
+  }
+   
+ }
  
+ static class DiskSpaceInfo {
+   BigDecimal totalFileSize;
+   String     label;
+ }
   
 
   static class ActivityInfo implements Serializable {

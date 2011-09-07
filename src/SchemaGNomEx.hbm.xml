@@ -88,7 +88,9 @@
 		<property name="fileName" column="fileName" type="string"/>
 		<property name="comments" column="comments" type="string"/>
 		<property name="uploadDate" column="uploadDate" type="date"/>
+		<property name="fileSize" column="fileSize" type="big_decimal"/>
 	</class>	
+
     <!-- hci.gnomex.model.AppUser -->
 	<class name="hci.gnomex.model.AppUser" table="AppUser">
 		<id name="idAppUser" column="idAppUser" type="integer">
@@ -193,6 +195,17 @@
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
 	</class>
+
+	<!-- hci.gnomex.model.ExperimentFile -->
+	<class name="hci.gnomex.model.ExperimentFile" table="ExperimentFile">
+		<id name="idExperimentFile" column="idExperimentFile" type="integer">
+			<generator class="native"/>
+		</id>
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" update="false" insert="false"/>
+		<property name="idRequest" column="idRequest" type="integer"/>
+		<property name="fileName" column="fileName" type="string"/>
+		<property name="fileSize" column="fileSize" type="big_decimal"/>
+	</class>	
 	
 	<!-- hci.gnomex.model.FlowCell -->
 	<class name="hci.gnomex.model.FlowCell" table="FlowCell">
@@ -461,6 +474,10 @@
 		<set name="collaborators" table="RequestCollaborator" lazy="true" cascade="none">
 			<key column="idRequest"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+		</set>
+		<set name="files" table="ExperimentFile" lazy="false" cascade="all" order-by="fileName">
+			<key column="idRequest"/>
+			<one-to-many class="hci.gnomex.model.ExperimentFile" />
 		</set>
 		
 	</class>

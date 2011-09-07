@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 import hci.hibernate3utils.HibernateDetailObject;
@@ -16,6 +17,7 @@ public class AnalysisFile extends HibernateDetailObject {
   private String         fileName;
   private String         comments;
   private Date           uploadDate;
+  private BigDecimal     fileSize;
   
 
   public Integer getIdAnalysis() {
@@ -77,6 +79,14 @@ public class AnalysisFile extends HibernateDetailObject {
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getAnalysis");
+  }
+
+  public BigDecimal getFileSize() {
+    return fileSize;
+  }
+
+  public void setFileSize(BigDecimal fileSize) {
+    this.fileSize = fileSize;
   }
 
  

@@ -28,6 +28,9 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private String    flowCellIndicator;
   private List      children = new ArrayList();
   
+  
+  private boolean   found = false;
+  
   public FileDescriptor() {    
   }
   
@@ -243,5 +246,13 @@ public class FileDescriptor extends DetailObject implements Serializable {
       }
     }
     return viewURL;
+  }
+  
+  public void isFound(boolean isFound) {
+    this.found = isFound;
+  }
+  
+  public boolean isFound() {
+    return this.found;
   }
 }

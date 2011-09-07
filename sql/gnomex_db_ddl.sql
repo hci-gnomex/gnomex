@@ -94,6 +94,7 @@ DROP TABLE IF EXISTS `gnomex`.`AnalysisFile`;
 CREATE TABLE `gnomex`.`AnalysisFile` (
   `idAnalysisFile` INT(10) NOT NULL AUTO_INCREMENT,
   `fileName` VARCHAR(2000) NULL,
+  `fileSize` DECIMAL(14,0) NULL,
   `comments` VARCHAR(2000) NULL,
   `uploadDate` DATETIME NULL,
   `idAnalysis` INT(10) NULL,
@@ -607,6 +608,20 @@ CREATE TABLE `gnomex`.`FeatureExtractionProtocol` (
   PRIMARY KEY (`idFeatureExtractionProtocol`),
   CONSTRAINT `FK_FeatureExtractionProtocol_RequestCategory` FOREIGN KEY `FK_FeatureExtractionProtocol_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`ExperimentFile`;
+CREATE TABLE `gnomex`.`ExperimentFile` (
+  `idExperimentFile` INT(10) NOT NULL AUTO_INCREMENT,
+  `fileName` VARCHAR(2000) NULL,
+  `fileSize` DECIMAL(14,0) NULL,
+  `idRequest` INT(10) NULL,
+  PRIMARY KEY (`idExperimentFile`),
+  CONSTRAINT `FK_ExperimentFile_Request` FOREIGN KEY `FK_RequestFile_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
