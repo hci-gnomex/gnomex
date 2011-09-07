@@ -1,5 +1,6 @@
 package hci.gnomex.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +13,7 @@ import java.util.TreeSet;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
+import hci.framework.model.FieldFormatter;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.hibernate3utils.HibernateDetailObject;
@@ -62,6 +64,7 @@ public class Request extends HibernateDetailObject {
   private Set             billingItems = new TreeSet();  
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
+  private Set             files = new TreeSet();
     
   
   
@@ -685,29 +688,37 @@ public class Request extends HibernateDetailObject {
   }
   
   public String getKey(String resultsDir) {
-    if (this.getCreateDate() == null) {
+    return Request.getKey(this.getNumber(), this.getCreateDate(), resultsDir);
+  }
+  
+  public static String getKey(String requestNumber, java.sql.Date theCreateDate, String resultsDir) {
+    if (theCreateDate == null) {
       return "";
     } else {
-      String createDate    = this.formatDate(this.getCreateDate());
+      String createDate    = new SimpleDateFormat("MM/dd/yyyy").format(theCreateDate);
       String tokens[] = createDate.split("/");
       String createMonth = tokens[0];
       String createDay   = tokens[1];
       String createYear  = tokens[2];
       String sortDate = createYear + createMonth + createDay;
-      String key = createYear + "-" + sortDate + "-" + this.getNumber() + "-" + resultsDir;     
+      String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + resultsDir;     
       return key;
     }
   }
+
   
   public String getCreateYear() {
-    if (this.getCreateDate() == null) {
+    return Request.getCreateYear(this.getCreateDate());
+  }
+  
+  public static String getCreateYear(Date theCreateDate) {
+    if (theCreateDate == null) {
       return "";
     } else {
-      String createDate    = this.formatDate(this.getCreateDate());
+      String createDate  = new SimpleDateFormat("MM/dd/yyyy").format(theCreateDate);
       String tokens[] = createDate.split("/");
       String createYear  = tokens[2];
       return createYear;
-      
     }
   }
 
@@ -751,6 +762,16 @@ public class Request extends HibernateDetailObject {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+
+  public Set getFiles() {
+    return files;
+  }
+
+
+  public void setFiles(Set files) {
+    this.files = files;
   }
 
 

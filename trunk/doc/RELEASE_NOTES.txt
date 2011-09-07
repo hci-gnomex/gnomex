@@ -1,17 +1,19 @@
 ﻿GNomEx Release Notes
 
-----------------------
-- Added hint to Experiment/Analysis Visibility tabs to tell how to activate Institution dropdown.
-- Changed billing request lookup to find requests without needing to use "R" in the request number.
-- Set lookup button as default when enter pressed in billing request lookup.
-- Fixed bug where new price category causes corrupted tree.
-
 5.2.8 
 ----------------------
 - Treat login with 'guest' user account as a guest login, just like URL with parameter isGuest=Y
 - Fixed logic for Experiment downloads and Experiment progress to work with now 'All experiments' filter.
 - Fixed logic for Experiment downloads and Experiment progress to work for users not assigned to a lab.
 - Show disk usage by lab, year, and category on Usage charts.
+
+- Added hint to Experiment/Analysis Visibility tabs to tell how to activate Institution dropdown.
+- Changed billing request lookup to find requests without needing to use "R" in the request number.
+- Set lookup button as default when enter pressed in billing request lookup.
+- Fixed bug where new price category causes corrupted tree.
+- Use analysis_read_directory property (not analysis_write_directory) to read analysis files on file system in GetAnalysis
+- Introduce ExperimentFile object to track disk usage. (Also added fileSize to AnalysisFile.)
+- Added batch job RegisterFiles to track experiment data files and refresh analysis data file sizes. 
 
 5.2.7 (Aug 29, 2011)
 ----------------------

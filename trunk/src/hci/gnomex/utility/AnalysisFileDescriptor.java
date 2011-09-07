@@ -31,6 +31,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   private Integer   idAnalysis;
   private String    idAnalysisFileString;
   
+  private boolean   found = false;
+  
   public AnalysisFileDescriptor() {    
   }
   
@@ -263,5 +265,11 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   }
 
   
-
+  public void isFound(boolean isFound) {
+    this.found = isFound;
+  }
+  
+  public boolean isFound() {
+    return this.found;
+  }
 }
