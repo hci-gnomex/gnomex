@@ -164,7 +164,19 @@
     <mx:request>
     </mx:request>
     </mx:HTTPService >
-
+	
+	<mx:HTTPService 
+		id="getSessionTimeout" 
+		url="GetSessionTimeout.gx"
+		resultFormat="e4x"
+		result="onGetSessionTimeout(event)"
+		destination="getSessionTimeout"
+		fault="onFailHttpRequest('Failed to get session timeout parameter', event)"
+		showBusyCursor="false"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
 	     
         <mx:Style source="css/gnomex_flex.css" />
 
@@ -189,7 +201,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			
+						
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.util.AboutView;
@@ -199,7 +211,8 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
 			import views.util.WorkAuthorizationWindow;
-            
+			import views.util.SessionTimeoutData;
+           
             [Bindable]
             public var dictionaryManager:DictionaryManager;
 			
@@ -1223,8 +1236,16 @@
 					showProgress(30);
 					enableApp();
 					
-				}            					
+				}
+				getSessionTimeout.send();
             }
+			
+					
+			private function onGetSessionTimeout(event:ResultEvent):void {
+				var sessionTimeout:int = parseInt(getSessionTimeout.lastResult.@maxInactiveTime);
+				SessionTimeoutData.setThisApplication(this, sessionTimeout); 
+				SessionTimeoutData.startUserSessionTimer();				
+			}	
             
             public function getProperty(name:String):String {
             	if (properties == null) {

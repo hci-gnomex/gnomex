@@ -1,5 +1,8 @@
 ﻿GNomEx Release Notes
 
+----------------------
+- Added session timeout warning dialog
+
 5.2.8.1
 ----------------------
 - Remove hardcoded reference to mysql jar in batch scripts

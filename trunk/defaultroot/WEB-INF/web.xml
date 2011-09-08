@@ -14,6 +14,13 @@
 			hci.gnomex.controller.GNomExFrontController
 		</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>CheckSessionStatus</servlet-name>
+	    <display-name>CheckSessionStatus</display-name>
+	    <description>The CheckSessionStatus to check session status</description>
+	    <servlet-class>hci.gnomex.controller.CheckSessionStatus</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -168,7 +175,11 @@
 		<url-pattern>*.gx</url-pattern>
 	</servlet-mapping>
 
-
+	<servlet-mapping>
+		<servlet-name>CheckSessionStatus</servlet-name>
+		<url-pattern>CheckSessionStatus.gx</url-pattern>
+	</servlet-mapping>	
+	
 	<servlet-mapping>
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>DownloadResultsServlet.gx</url-pattern>
