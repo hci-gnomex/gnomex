@@ -9,6 +9,7 @@ package hci.gnomex.controller;
 
 import java.io.*;
 import java.util.*;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -73,6 +74,8 @@ public class GNomExFrontController extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     // get the users session
     HttpSession session = request.getSession(true);
+    
+    session.setAttribute("lastGNomExAccessTime", new Long(new Date().getTime()));
 
     // get our request from the url (prefixing .test)
     String fullURI = request.getRequestURI();
