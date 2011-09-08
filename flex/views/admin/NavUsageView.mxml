@@ -24,6 +24,9 @@
 			<mx:SetProperty target="{linkbutton9}" name="enabled" value="false"/>
 			<mx:SetProperty target="{linkbutton8}" name="enabled" value="false"/>
 			<mx:SetProperty target="{linkbutton10}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton11}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton12}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton13}" name="enabled" value="false"/>
 		</mx:State>
 	</mx:states>
 	
@@ -115,7 +118,7 @@
 	]]></mx:Script> 
 
 	<mx:HDividedBox width="100%" height="100%">
-		<mx:VBox  height="100%" styleName="panelBox" width="200"
+		<mx:VBox  height="100%" styleName="panelBox" width="210"
 				 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
 			<mx:HBox horizontalGap="1">
 				<mx:Image source="assets/chart_bar.png">
@@ -131,6 +134,9 @@
 			<mx:LinkButton label="Disk Space"             click="{chartStack.selectedChild = diskSpaceByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton8"/>
 			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label1"/>
 			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton1"/>
+			<mx:LinkButton label="Experiments by Type" click="{chartStack.selectedChild = experimentsByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton11"/>
+			<mx:LinkButton label="Seq Experiments by Application" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton12"/>
+			<mx:LinkButton label="Analysis by Type" click="{chartStack.selectedChild = analysisByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton13"/>
 			<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton9"/>
 			<mx:LinkButton label="Disk Space by Category" click="{chartStack.selectedChild = diskSpaceByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton10"/>
 			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false" paddingLeft="8" id="linkbutton2"/>
@@ -389,15 +395,68 @@
 									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByType.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:series>
 							<mx:PieSeries 
-								field="@diskSpaceGB" labelField="@labelGB"
+								field="@diskSpaceGB" labelField="@labelFull"
 								nameField="@label" labelPosition="inside"
 								/>
 						</mx:series>
 					</mx:PieChart>
 				</mx:VBox>
 
+				<mx:VBox id="experimentsByTypePanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:HBox width="100%">
+						<mx:Label text="Experiments by Type" fontWeight="bold"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryExperimentsByType.@experimentCount}" fontWeight="bold"/> 
+					</mx:HBox>
+					<mx:PieChart  name="Experiments by Type" id="experimentsByTypeChart" 
+								  dataProvider="{getUsageData.lastResult.SummaryExperimentsByType.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:series>
+							<mx:PieSeries 
+								field="@experimentCount" labelField="@labelFull"
+								nameField="@label" labelPosition="inside"
+								/>
+						</mx:series>
+					</mx:PieChart>
+				</mx:VBox>
 				
 				
+				<mx:VBox id="seqExperimentsByAppPanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:HBox width="100%">
+						<mx:Label text="Seq Experiments by Application" fontWeight="bold"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummarySeqExperimentsByApp.@experimentCount}" fontWeight="bold"/> 
+					</mx:HBox>
+					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart" 
+								  dataProvider="{getUsageData.lastResult.SummarySeqExperimentsByApp.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:series>
+							<mx:PieSeries 
+								field="@experimentCount" labelField="@labelFull"
+								nameField="@label" labelPosition="insideWithCallout"
+								/>
+						</mx:series>
+					</mx:PieChart>
+				</mx:VBox>	
+				
+				<mx:VBox id="analysisByTypePanel" width="100%" height="100%" styleName="form" 
+						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
+					<mx:HBox width="100%">
+						<mx:Label text="Analysis by Type" fontWeight="bold"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryAnalysisByType.@analysisCount}" fontWeight="bold"/> 
+					</mx:HBox>
+					<mx:PieChart  name="Analysis by Type" id="summaryAnalysisByTypeChart" 
+								  dataProvider="{getUsageData.lastResult.SummaryAnalysisByType.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:series>
+							<mx:PieSeries 
+								field="@analysisCount" labelField="@labelFull"
+								nameField="@label" labelPosition="insideWithCallout"
+								/>
+						</mx:series>
+					</mx:PieChart>
+				</mx:VBox>	
+
 			</mx:ViewStack>
 			<mx:ControlBar  width="100%" paddingTop="1">
 			  <mx:ViewStack id="buttonStack" width="100%">

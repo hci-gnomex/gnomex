@@ -63,6 +63,12 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   private static final BigDecimal    MB = new BigDecimal(2).pow(20);
   private static final BigDecimal    GB = new BigDecimal(2).pow(30);
   
+  DateFormat dfShort    = new SimpleDateFormat("MMM yyyy");
+  DateFormat dfDataTip  = new SimpleDateFormat("MMM dd yyyy");
+  DateFormat dfNormal   = new SimpleDateFormat("MM-dd-yyyy");
+
+  Calendar today = Calendar.getInstance();
+  
   public void validate() {
   }
   
@@ -86,11 +92,6 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
     try {
       Document doc = new Document(new Element("UsageData"));
-      
-      DateFormat dfShort    = new SimpleDateFormat("MMM yyyy");
-      DateFormat dfDataTip  = new SimpleDateFormat("MMM dd yyyy");
-      DateFormat dfNormal   = new SimpleDateFormat("MM-dd-yyyy");
-
       
       Element summaryDaysNode = new Element("SummaryDaysSinceLastUpload");
       doc.getRootElement().addContent(summaryDaysNode);
@@ -120,8 +121,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       Element summaryWeeklyActivityNode = new Element("SummaryActivityByWeek");
       doc.getRootElement().addContent(summaryWeeklyActivityNode);
       
-      Calendar today = Calendar.getInstance();
+      Element summaryExperimentsByTypeNode = new Element("SummaryExperimentsByType");
+      doc.getRootElement().addContent(summaryExperimentsByTypeNode);
       
+      Element summarySeqExperimentsByAppNode = new Element("SummarySeqExperimentsByApp");
+      doc.getRootElement().addContent(summarySeqExperimentsByAppNode);
+      
+      Element summaryAnalysisByTypeNode = new Element("SummaryAnalysisByType");
+      doc.getRootElement().addContent(summaryAnalysisByTypeNode);     
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
@@ -209,125 +216,25 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         int rank = 0;
         int totalCount = 0;
         List summaryRows = sess.createQuery("SELECT r.idLab, count(*) from Request r group by r.idLab order by count(*) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Integer idLab           = (Integer)rows[0];
-          Integer experimentCount = (Integer)rows[1];
-          Lab lab = labIdMap.get(idLab);
-          
-          if (lab == null) {
-            continue;
-          }
-          
-          Element entryNode = new Element("Entry");
-          summaryExperimentsNode.addContent(entryNode);
-          entryNode.setAttribute("label", getLabName(lab));
-          entryNode.setAttribute("experimentCount", Integer.valueOf(experimentCount).toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-          
-          rank++;
-          
-          totalCount += experimentCount;
-          
-          if (rank > endRank.intValue()) {
-            break;
-          }
-
-        }
-        summaryExperimentsNode.setAttribute("experimentCount", Integer.valueOf(totalCount).toString());
+        addEntryIntegerNodes(summaryExperimentsNode, summaryRows, "experimentCount", true);
         
         // Get analysis count
         rank = 0;
         totalCount = 0;
         summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Integer idLab           = (Integer)rows[0];
-          Integer analysisCount   = (Integer)rows[1];
-          Lab lab = labIdMap.get(idLab);
-          
-          if (lab == null) {
-            continue;
-          }
-
-          Element entryNode = new Element("Entry");
-          summaryAnalysisNode.addContent(entryNode);
-          entryNode.setAttribute("label", getLabName(lab));
-          entryNode.setAttribute("analysisCount", Integer.valueOf(analysisCount).toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-          
-          rank++;
-          
-          totalCount += analysisCount;
-          
-          if (rank > endRank.intValue()) {
-            break;
-          }
-        }
-        summaryAnalysisNode.setAttribute("analysisCount", Integer.valueOf(totalCount).toString());
+        addEntryIntegerNodes(summaryAnalysisNode, summaryRows, "analysisCount", true);
         
         
         // Get upload count
         rank = 0;
         summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Integer idLab           = (Integer)rows[0];
-          Integer uploadCount     = (Integer)rows[1];
-          
-          if (idLab == null) {
-            continue;
-          }
-          
-          Lab lab = labIdMap.get(idLab);
-          
-          if (lab == null) {
-            continue;
-          }
-          
-          Element entryNode = new Element("Entry");
-          summaryUploadsNode.addContent(entryNode);
-          entryNode.setAttribute("label", getLabName(lab));
-          entryNode.setAttribute("uploadCount", Integer.valueOf(uploadCount).toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-          
-          rank++;
-          
-          if (rank > endRank.intValue()) {
-            break;
-          }
-        }
+        addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
+
         
         // Get download count
         rank = 0;
         summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'download' group by tl.idLab order by count(*) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Integer idLab           = (Integer)rows[0];
-          Integer downloadCount   = (Integer)rows[1];
-          
-          if (idLab == null) {
-            continue;
-          }
-          
-          Lab lab = labIdMap.get(idLab);
-          
-          if (lab == null) {
-            continue;
-          }
-          
-          Element entryNode = new Element("Entry");
-          summaryDownloadsNode.addContent(entryNode);
-          entryNode.setAttribute("label", getLabName(lab));
-          entryNode.setAttribute("downloadCount", Integer.valueOf(downloadCount).toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-          
-          rank++;
-          if (rank > endRank.intValue()) {
-            break;
-          }
-
-        }
+        addEntryIntegerNodes(summaryDownloadsNode, summaryRows, "downloadCount", true);
         
 
         //
@@ -340,47 +247,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Add in total file size for analysis by lab
         summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  group by a.idLab").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
-        Set diskSpaceInfos = sortDiskSpaceMap(diskSpaceMap);
-        
-        rank = 0;
-        BigDecimal totalDiskSpace = new BigDecimal(0);
-        for (Iterator i = diskSpaceInfos.iterator(); i.hasNext();) {
-          DiskSpaceInfo info = (DiskSpaceInfo)i.next();
-          
-        
-          BigDecimal fileSize   = info.totalFileSize;
-          Integer idLab         = Integer.valueOf(info.label);
-          
-          BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
-          BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
-       
-          
-          Lab lab = labIdMap.get(idLab);
-          
-          if (lab == null) {
-            continue;
-          }
-          
-          Element entryNode = new Element("Entry");
-          summaryDiskSpaceNode.addContent(entryNode);
-          entryNode.setAttribute("label", getLabName(lab));
-          entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
-          entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
-          entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-          
-          rank++;
-          
-          totalDiskSpace = totalDiskSpace.add(fileSize);
-          
-          if (rank > endRank.intValue()) {
-            break;
-          }
-        }
-        summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-        summaryDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-        summaryDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
-        
+        addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true);
+
+ 
         //
         // Get disk space by year
         //
@@ -389,37 +258,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         mapDiskSpace(summaryRows, diskSpaceMap);
         summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  group by year(a.createDate) ").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
-        diskSpaceInfos = sortDiskSpaceMap(diskSpaceMap);
-        
-        rank = 0;
-        totalDiskSpace = new BigDecimal(0);
-        for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
-          Object year           = i.next();
-          BigDecimal fileSize   = (BigDecimal)diskSpaceMap.get(year);
-          
-          BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
-          BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
-
-          
-          Element entryNode = new Element("Entry");
-          summaryDiskSpaceByYearNode.addContent(entryNode);
-          entryNode.setAttribute("label", year.toString());
-          entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
-          entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
-          entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-
-          totalDiskSpace = totalDiskSpace.add(fileSize);
-          
-          rank++;
-          
-          if (rank > endRank.intValue()) {
-            break;
-          }
-        }
-        summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-        summaryDiskSpaceByYearNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-        summaryDiskSpaceByYearNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+        addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false);
         
         //
         // Get disk space by analysis vs. experiment
@@ -437,182 +276,61 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Now add the analysis disk space
         BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
         diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
-        rank = 0;
-        totalDiskSpace = new BigDecimal(0);
-        for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
-          Object category       = i.next();
-          BigDecimal fileSize   = (BigDecimal)diskSpaceMap.get(category);
-          
-          
-          BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
-          BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
-          
-          if (category == null) {
-            continue;
-          }
-          
-          Element entryNode = new Element("Entry");
-          summaryDiskSpaceByTypeNode.addContent(entryNode);
-          entryNode.setAttribute("label", category.toString());
-          entryNode.setAttribute("labelGB", category + " (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
-          entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
-          entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
-          entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-          
-          rank++;
-          
-          totalDiskSpace = totalDiskSpace.add(fileSize);
-          
-          if (rank > endRank.intValue()) {
-            break;
-          }
-        }
-        summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+        addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
+        
         
         
         // Get days since last upload
         rank = 0;
         summaryRows = sess.createQuery("SELECT tl.idLab, max(tl.startDateTime) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab  order by max(tl.startDateTime) desc").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          Integer idLab                   = (Integer)rows[0];
-          java.util.Date lastUploadDate = (java.util.Date)rows[1];
-          
-          if (idLab == null || lastUploadDate == null) {
-            continue;
-          }
-
-          Calendar lastUploadCalendar = new GregorianCalendar();
-          lastUploadCalendar.setTime(lastUploadDate);
-          
-          int daysSinceLastUpload = daysBetween(lastUploadCalendar, today);
-          
-          Lab lab = labIdMap.get(idLab);
-          
-          if (lab == null) {
-            continue;
-          }
-          
-          Element entryNode = new Element("Entry");
-          summaryDaysNode.addContent(entryNode);
-          entryNode.setAttribute("label", getLabName(lab));
-          entryNode.setAttribute("days", Integer.valueOf(daysSinceLastUpload).toString());
-          entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
-
-          rank++;
-          if (rank > endRank.intValue()) {
-            break;
-          }
-
-        }
+        this.addEntryDaysSinceNodes(summaryDaysNode, summaryRows, "days");
         
 
-        // Tally experiment count by week
-        summaryRows = sess.createQuery("SELECT r.createDate, count(*) from Request r group by r.createDate order by r.createDate").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          java.sql.Date createDate  = (java.sql.Date)rows[0];
-          Integer experimentCount   = (Integer)rows[1];
-          
-          String createDateKey = dfNormal.format(createDate);
-          Integer weekNumber = weekNumberMap.get(createDateKey);
-          if (weekNumber != null) {
-            ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
-            if (ai != null) {
-              ai.experimentCount += experimentCount;
-            }
-          }
-        }
+        // Tally counts by week
+        tallyWeeklyActivity(sess);
+        addWeeklyActivityNodes(summaryWeeklyActivityNode);
         
         
-        // Tally analysis count by week
-        summaryRows = sess.createQuery("SELECT a.createDate, count(*) from Analysis a group by a.createDate order by a.createDate").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          java.sql.Date createDate  = (java.sql.Date)rows[0];
-          Integer analysisCount     = (Integer)rows[1];
-          
-          String createDateKey = dfNormal.format(createDate);
-          Integer weekNumber = weekNumberMap.get(createDateKey);
-          if (weekNumber != null) {
-            ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
-            if (ai != null) {
-              ai.analysisCount += analysisCount;
-            }
-          }
-        }
+        //
+        // Get # of experiments by experiment platform
+        //
+        queryBuf = new StringBuffer("SELECT rc.requestCategory, count(*) ");
+        queryBuf.append(" from Request r, RequestCategory rc ");
+        queryBuf.append(" where r.codeRequestCategory = rc.codeRequestCategory ");
+        queryBuf.append(" group by rc.requestCategory");
+        queryBuf.append(" order by count(*) desc ");
+        summaryRows = sess.createQuery(queryBuf.toString()).list();
+        addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
         
         
-        
-        // Tally upload count by week
-        summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          java.util.Date createDate  = (java.util.Date)rows[0];
-          Integer uploadCount     = (Integer)rows[1];
-          
-          String createDateKey = dfNormal.format(createDate);
-          Integer weekNumber = weekNumberMap.get(createDateKey);
-          if (weekNumber != null) {
-            ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
-            if (ai != null) {
-              ai.uploadCount += uploadCount;
-            }
-          }
-        }
-        
-        
-        // Tally download count by week
-        summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'download' group by tl.startDateTime order by tl.startDateTime").list();
-        for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-          Object[] rows = (Object[])i.next();
-          java.util.Date createDate  = (java.util.Date)rows[0];
-          Integer downloadCount     = (Integer)rows[1];
-          
-          String createDateKey = dfNormal.format(createDate);
-          Integer weekNumber = weekNumberMap.get(createDateKey);
-          if (weekNumber != null) {
-            ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
-            if (ai != null) {
-              ai.downloadCount += downloadCount;
-            }
-          }
-        }
+        //
+        // Get # of next gen seq experiments by application
+        //
+        queryBuf = new StringBuffer("SELECT app.application, count(*) ");
+        queryBuf.append(" from Request r, Application app, RequestCategory rc ");
+        queryBuf.append(" where r.codeApplication = app.codeApplication ");
+        queryBuf.append(" and r.codeRequestCategory  = rc.codeRequestCategory ");
+        queryBuf.append(" and rc.type  = 'ILLUMINA' ");
+        queryBuf.append(" group by app.application");
+        queryBuf.append(" order by count(*) desc ");
+        summaryRows = sess.createQuery(queryBuf.toString()).list();
+        rank = 0;
+        totalCount = 0;
+        addEntryIntegerNodes(summarySeqExperimentsByAppNode, summaryRows, "experimentCount", false);
+
 
         
-        // Create weekly activity entries
-        String prevLabel = "";
-        int weekCounter = 1;
-        for (Iterator i = this.weeklyActivityMap.keySet().iterator(); i.hasNext();) {
-          Integer weekNumber = (Integer)i.next();
-          ActivityInfo ai = weeklyActivityMap.get(weekNumber);
-          
-          String label = "";
-          if (!prevLabel.equals(ai.label)) {
-            weekCounter = 1;
-            label = ai.label;
-          }
-          
-          
-          Element entryNode = new Element("Entry");
-          summaryWeeklyActivityNode.addContent(entryNode);
-          entryNode.setAttribute("label", label);
-          entryNode.setAttribute("dataTip", ai.dataTip);
-          entryNode.setAttribute("weekNumber", weekNumber.toString());
-          entryNode.setAttribute("experimentCount", Integer.valueOf(ai.experimentCount).toString());
-          entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
-          entryNode.setAttribute("uploadCount", Integer.valueOf(ai.uploadCount).toString());
-          entryNode.setAttribute("downloadCount", Integer.valueOf(ai.downloadCount).toString());
-          
-          prevLabel = ai.label;
-          weekCounter++;
-        }
+        //
+        // Get # of analysis by analysis type
+        //
+        queryBuf = new StringBuffer("SELECT at.analysisType, count(*) ");
+        queryBuf.append(" from Analysis a, AnalysisType at ");
+        queryBuf.append(" where a.idAnalysisType = at.idAnalysisType ");
+        queryBuf.append(" group by at.analysisType");
+        queryBuf.append(" order by count(*) desc ");
+        summaryRows = sess.createQuery(queryBuf.toString()).list();
+        addEntryIntegerNodes(summaryAnalysisByTypeNode, summaryRows, "analysisCount", false);
         
-        
-
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
 
@@ -646,6 +364,246 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
     return this;
   }
+  
+  private void tallyWeeklyActivity(Session sess) {
+    // Tally experiment count by week
+    List summaryRows = sess.createQuery("SELECT r.createDate, count(*) from Request r group by r.createDate order by r.createDate").list();
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      java.sql.Date createDate  = (java.sql.Date)rows[0];
+      Integer experimentCount   = (Integer)rows[1];
+      
+      String createDateKey = dfNormal.format(createDate);
+      Integer weekNumber = weekNumberMap.get(createDateKey);
+      if (weekNumber != null) {
+        ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
+        if (ai != null) {
+          ai.experimentCount += experimentCount;
+        }
+      }
+    }
+    
+    
+    // Tally analysis count by week
+    summaryRows = sess.createQuery("SELECT a.createDate, count(*) from Analysis a group by a.createDate order by a.createDate").list();
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      java.sql.Date createDate  = (java.sql.Date)rows[0];
+      Integer analysisCount     = (Integer)rows[1];
+      
+      String createDateKey = dfNormal.format(createDate);
+      Integer weekNumber = weekNumberMap.get(createDateKey);
+      if (weekNumber != null) {
+        ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
+        if (ai != null) {
+          ai.analysisCount += analysisCount;
+        }
+      }
+    }
+    
+    
+    
+    // Tally upload count by week
+    summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      java.util.Date createDate  = (java.util.Date)rows[0];
+      Integer uploadCount     = (Integer)rows[1];
+      
+      String createDateKey = dfNormal.format(createDate);
+      Integer weekNumber = weekNumberMap.get(createDateKey);
+      if (weekNumber != null) {
+        ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
+        if (ai != null) {
+          ai.uploadCount += uploadCount;
+        }
+      }
+    }
+    
+    
+    // Tally download count by week
+    summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'download' group by tl.startDateTime order by tl.startDateTime").list();
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      java.util.Date createDate  = (java.util.Date)rows[0];
+      Integer downloadCount     = (Integer)rows[1];
+      
+      String createDateKey = dfNormal.format(createDate);
+      Integer weekNumber = weekNumberMap.get(createDateKey);
+      if (weekNumber != null) {
+        ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
+        if (ai != null) {
+          ai.downloadCount += downloadCount;
+        }
+      }
+    }
+    
+  }
+  
+  private void addWeeklyActivityNodes(Element parentNode) {
+    
+    // Create weekly activity entries
+    String prevLabel = "";
+    int weekCounter = 1;
+    for (Iterator i = this.weeklyActivityMap.keySet().iterator(); i.hasNext();) {
+      Integer weekNumber = (Integer)i.next();
+      ActivityInfo ai = weeklyActivityMap.get(weekNumber);
+      
+      String label = "";
+      if (!prevLabel.equals(ai.label)) {
+        weekCounter = 1;
+        label = ai.label;
+      }
+      
+      
+      Element entryNode = new Element("Entry");
+      parentNode.addContent(entryNode);
+      entryNode.setAttribute("label", label);
+      entryNode.setAttribute("dataTip", ai.dataTip);
+      entryNode.setAttribute("weekNumber", weekNumber.toString());
+      entryNode.setAttribute("experimentCount", Integer.valueOf(ai.experimentCount).toString());
+      entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
+      entryNode.setAttribute("uploadCount", Integer.valueOf(ai.uploadCount).toString());
+      entryNode.setAttribute("downloadCount", Integer.valueOf(ai.downloadCount).toString());
+      
+      prevLabel = ai.label;
+      weekCounter++;
+    }
+    
+  }
+  
+  private void addEntryIntegerNodes(Element parentNode, List summaryRows, String dataField, boolean mapToLab) {
+    
+    int rank = 0;
+    int total = 0;
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      Object label    = rows[0];
+      Integer value   = (Integer)rows[1];
+      
+      if (label == null) {
+        continue;
+      }
+      
+      if (mapToLab) {
+        Integer idLab = Integer.valueOf(label.toString());
+        Lab lab = (Lab)labIdMap.get(idLab);
+        if (lab == null) {
+          continue;
+        }
+        label = this.getLabName(lab);
+      }
+      
+      Element entryNode = new Element("Entry");
+      parentNode.addContent(entryNode);
+      entryNode.setAttribute("label", label.toString());
+      entryNode.setAttribute("labelFull", label + "  (" + value.toString() + ")");
+      entryNode.setAttribute(dataField, value.toString());
+      entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+      
+      rank++;
+      
+      total += value.intValue();
+      
+      if (rank > endRank.intValue()) {
+        break;
+      }
+    }
+    parentNode.setAttribute(dataField,   Integer.valueOf(total).toString());      
+
+  }
+  
+  private void addEntryDaysSinceNodes(Element parentNode, List summaryRows, String dataField) {
+    int rank = 0;
+    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+      Object[] rows = (Object[])i.next();
+      Integer idLab                   = (Integer)rows[0];
+      java.util.Date lastUploadDate = (java.util.Date)rows[1];
+      
+      if (idLab == null || lastUploadDate == null) {
+        continue;
+      }
+
+      Calendar lastUploadCalendar = new GregorianCalendar();
+      lastUploadCalendar.setTime(lastUploadDate);
+      
+      int daysSinceLastUpload = daysBetween(lastUploadCalendar, today);
+      
+      Lab lab = labIdMap.get(idLab);
+      
+      if (lab == null) {
+        continue;
+      }
+      
+      Element entryNode = new Element("Entry");
+      parentNode.addContent(entryNode);
+      entryNode.setAttribute("label", getLabName(lab));
+      entryNode.setAttribute(dataField, Integer.valueOf(daysSinceLastUpload).toString());
+      entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+
+      rank++;
+      if (rank > endRank.intValue()) {
+        break;
+      }
+
+    }
+    
+  }
+
+  
+  private void addEntryDiskSpaceNodes(Element parentNode, Map diskSpaceMap, boolean mapToLab, boolean sort) {
+    // Sort by disk space
+    Set diskSpaceInfos = sortDiskSpaceMap(diskSpaceMap, sort);
+    
+    int rank = 0;
+    BigDecimal totalDiskSpace = new BigDecimal(0);
+    for (Iterator i = diskSpaceInfos.iterator(); i.hasNext();) {
+      DiskSpaceInfo info = (DiskSpaceInfo)i.next();
+      
+    
+      BigDecimal fileSize   = info.totalFileSize;
+      String label       = info.label;         
+      
+      BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
+      BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
+      
+      if (label == null) {
+        continue;
+      }
+      
+      if (mapToLab) {
+        
+        Integer idLab = Integer.valueOf(label);
+        Lab lab = (Lab)labIdMap.get(idLab);
+        
+        if (lab == null) {
+          continue;
+        }
+        label = this.getLabName(lab);
+      }
+      
+      Element entryNode = new Element("Entry");
+      parentNode.addContent(entryNode);
+      entryNode.setAttribute("label", label);
+      entryNode.setAttribute("labelFull", label + " (" + fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() + " GB)");
+      entryNode.setAttribute("diskSpaceBytes", fileSize.toString());
+      entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
+      entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
+      entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+      
+      rank++;
+      
+      totalDiskSpace = totalDiskSpace.add(fileSize);
+      
+      if (rank > endRank.intValue()) {
+        break;
+      }
+    }
+    parentNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+    parentNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+    parentNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+    
+  }
 
   private void mapDiskSpace(List summaryRows, Map diskSpaceMap) {
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
@@ -669,9 +627,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     }
   }
   
-  private Set sortDiskSpaceMap(Map diskSpaceMap) {
-    TreeSet diskInfos = new TreeSet(new DiskSpaceComparator());
+  private Set sortDiskSpaceMap(Map diskSpaceMap, boolean sort) {
+    TreeSet diskInfos = new TreeSet(sort ? new DiskSpaceComparator() : new DiskSpaceRowNumberComparator());
     
+    int rowNumber = 0;
     for (Iterator i = diskSpaceMap.keySet().iterator(); i.hasNext();) {
       Object label = i.next();
       BigDecimal totalFileSize = (BigDecimal)diskSpaceMap.get(label);
@@ -679,6 +638,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       DiskSpaceInfo info = new DiskSpaceInfo();
       info.label = label.toString();
       info.totalFileSize = totalFileSize;
+      info.rowNumber = rowNumber++;
       diskInfos.add(info);
     }
     return diskInfos;
@@ -732,10 +692,26 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   }
    
  }
+ static class DiskSpaceRowNumberComparator implements Comparator {
+
+   @Override
+   public int compare(Object o1, Object o2) {
+     DiskSpaceInfo i1 = (DiskSpaceInfo)o1;
+     DiskSpaceInfo i2 = (DiskSpaceInfo)o2;
+     
+     if (i1.rowNumber == i2.rowNumber) {
+       return 0;
+     } else {
+       return Integer.valueOf(i1.rowNumber).compareTo(Integer.valueOf(i2.rowNumber));
+     }
+   }
+    
+  }
  
  static class DiskSpaceInfo {
    BigDecimal totalFileSize;
    String     label;
+   int        rowNumber;
  }
   
 

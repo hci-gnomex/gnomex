@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.2.8.1
+----------------------
+- Remove hardcoded reference to mysql jar in batch scripts
+- Added new usage pie charts for experiments by type, analysis by type, seq applications 
+
 5.2.8 
 ----------------------
 - Treat login with 'guest' user account as a guest login, just like URL with parameter isGuest=Y
