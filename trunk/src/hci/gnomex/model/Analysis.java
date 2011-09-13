@@ -29,8 +29,9 @@ public class Analysis extends HibernateDetailObject {
   private Set       experimentItems = new TreeSet();
   private Set       files = new TreeSet();
   private Set       collaborators = new TreeSet();
+  private Set<GenomeBuild>   genomeBuilds = new TreeSet<GenomeBuild>();
 
-    
+
   // permission field
   private boolean     canUpdateVisibility;
   
@@ -295,19 +296,21 @@ public class Analysis extends HibernateDetailObject {
       return "";
     }
   }
-
-
-
-  
+ 
   public Set getCollaborators() {
     return collaborators;
   }
 
-
-
-  
   public void setCollaborators(Set collaborators) {
     this.collaborators = collaborators;
+  }
+   
+  public Set<GenomeBuild> getGenomeBuilds() {
+    return genomeBuilds;
+  }
+
+  public void setGenomeBuilds(Set<GenomeBuild> genomeBuilds) {
+    this.genomeBuilds = genomeBuilds;
   }
   
   public String getKey() {

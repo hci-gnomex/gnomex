@@ -2,18 +2,18 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisCollaboratorParser;
 import hci.gnomex.utility.AnalysisFileParser;
+import hci.gnomex.utility.AnalysisGenomeBuildParser;
 import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
@@ -76,6 +76,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                     collaboratorsXMLString;
   private Document                   collaboratorsDoc;
   private AnalysisCollaboratorParser collaboratorParser;
+
+  private String                     genomeBuildsXMLString;
+  private Document                   genomeBuildsDoc;
+  private AnalysisGenomeBuildParser  genomeBuildParser;
 
   private Analysis              analysisScreen;
   private boolean              isNewAnalysis = false;
@@ -182,6 +186,19 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       }
     }
 
+    if (request.getParameter("genomeBuildsXMLString") != null && !request.getParameter("genomeBuildsXMLString").equals("")) {
+      genomeBuildsXMLString = request.getParameter("genomeBuildsXMLString");
+      reader = new StringReader(genomeBuildsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        genomeBuildsDoc = sax.build(reader);
+        genomeBuildParser = new AnalysisGenomeBuildParser(genomeBuildsDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse genomeBuildsXMLString", je );
+        this.addInvalidField( "genomeBuildsXMLString", "Invalid genomeBuildsXMLString");
+      }
+    }
+
     
     if (request.getParameter("newAnalysisGroupName") != null && !request.getParameter("newAnalysisGroupName").equals("")) {
       newAnalysisGroupName = request.getParameter("newAnalysisGroupName");
@@ -227,6 +244,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         }
         if (collaboratorParser != null) {
           collaboratorParser.parse(sess);          
+        }
+        if (genomeBuildParser != null) {
+          genomeBuildParser.parse(sess);          
         }
         
               
@@ -421,12 +441,22 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           analysis.setCollaborators(collaborators);          
         }
         
-        
-           
+        //
+        // Save genomeBuilds
+        //
+        if (genomeBuildParser != null) {
+          Set genomeBuilds = new TreeSet();
+          for(Iterator i = genomeBuildParser.getIdGenomeBuildList().iterator(); i.hasNext();) {
+            Integer idGenomeBuild = (Integer)i.next();
+            
+            GenomeBuild genomeBuild = (GenomeBuild)sess.load(GenomeBuild.class, idGenomeBuild);
+            genomeBuilds.add(genomeBuild);
+          }
+          analysis.setGenomeBuilds(genomeBuilds);          
+        }         
         
         sess.flush();
-        
-        
+               
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"/>";
       
         setResponsePage(this.SUCCESS_JSP);

@@ -636,6 +636,16 @@ Label.titleLabel
 	backgroundSize: "100%";
 	cornerRadius: 4;
 }
+.hintText
+{
+	backgroundColor: #FFFFFF;
+	fontStyle: italic;
+	fontWeight: normal;
+	backgroundAlpha: 0.26;
+	borderStyle: solid;
+	backgroundSize: "100%";
+	cornerRadius: 4;
+}
 .hintLink
 {
 	fontSize: 9;

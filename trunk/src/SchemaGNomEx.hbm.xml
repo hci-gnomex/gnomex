@@ -62,6 +62,11 @@
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
 		</set>
 		
+		<set name="genomeBuilds" table="AnalysisGenomeBuild" lazy="false" cascade="none">
+			<key column="idAnalysis"/>
+			<many-to-many column="idGenomeBuild" class="hci.gnomex.model.GenomeBuild"/>
+		</set>
+		
 	</class>
 	
 	<!-- hci.gnomex.model.AnalysisExperimentItem -->

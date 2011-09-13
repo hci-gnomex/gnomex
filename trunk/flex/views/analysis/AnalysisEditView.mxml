@@ -95,7 +95,7 @@
 		import hci.flex.controls.DropdownLabel;
 		import hci.flex.dictionary.DictionaryEditor;
 		import hci.flex.dictionary.DictionaryEvent;
-		
+
 		import mx.controls.Alert;
 		import mx.controls.listClasses.ListBase;
 		import mx.core.DragSource;
@@ -113,6 +113,7 @@
 		import views.experiment.ExperimentDetailWindow;
 		import views.protocol.ProtocolsView;
 		import views.util.PromptXMLListCollection;
+		import views.util.OrganismsWindow;
 
         	
 	    [Bindable]
@@ -197,7 +198,7 @@
 			analysisProtocolCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
 			organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', analysis.@idOrganism);
 			filteredGenomeBuildList.refresh();
-			genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', analysis.@idGenomeBuild);
+			//genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', analysis.@idGenomeBuild);
 			visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
 			
 			
@@ -450,7 +451,12 @@
 			params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
 			params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@value;
 			params.idOrganism         = this.organismCombo.selectedItem.@value;
-			params.idGenomeBuild      = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@value : "";
+			
+			// Genome Builds
+			//params.idGenomeBuild      = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@value : "";
+			params.idGenomeBuild         = "";
+			params.genomeBuildsXMLString = "<genomeBuilds>" + genomeBuilds.toXMLString() + "</genomeBuilds>";
+			
 			params.codeVisibility     = this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "";
 			if (params.codeVisibility == 'INST') {
 				params.idInstitution      = this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@idInstitution : "";				
@@ -650,61 +656,13 @@
         //
         // Edit organism dictionary
         //
-		private function editOrganism():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionaryOrganismInitialized);
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-			                          onDictionaryOrganismSelected);			
-			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                                      onDictionaryOrganismRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditor);
-		}
-          
-       	private function onDictionaryOrganismInitialized(event:Event):void{
-			dictionaryEditor.selectDictionary("hci.gnomex.model.Organism");
-        }	
-       	private function onDictionaryOrganismRefreshed(event:Event):void{
-			organismCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');								
-			organismCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', analysis.@idOrganism);				
-        }	
-       	private function onDictionaryOrganismSelected(event:Event):void{
-       		if (this.organismCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
-       			dictionaryEditor.selectDictionaryEntry(organismCombo.selectedItem);
-       		}
-        }	
-		
-        //
-        // Edit genome build dictionary
-        //
-		private function editGenomeBuild():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                                  onDictionaryGenomeBuildInitialized);
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-			                                   onDictionaryGenomeBuildSelected);			
-			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                                     onDictionaryGenomeBuildRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditor);
-		}
-          
-       	public function onDictionaryGenomeBuildInitialized(event:Event):void{
-			dictionaryEditor.selectDictionary("hci.gnomex.model.GenomeBuild");
-        }	
-       	public function onDictionaryGenomeBuildRefreshed(event:Event):void{
-			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
-			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
-			
-			
-			this.genomeBuildCombo.dataProvider     = filteredGenomeBuildList;								
-			this.genomeBuildCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', analysis.@idGenomeBuild);				
-        }	
-       	private function onDictionaryGenomeBuildSelected(event:Event):void{
-       		if (this.genomeBuildCombo.selectedItem != null && this.genomeBuildCombo.selectedItem.@value != "") {
-       			dictionaryEditor.selectDictionaryEntry(genomeBuildCombo.selectedItem);
-       		}
-        }	
-        
+		private function editOrganism():void {			
+			var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+			PopUpManager.centerPopUp(configWindow);
+			if(organismCombo.selectedItem != null) {
+				configWindow.selectOrganism(organismCombo.selectedItem.@idOrganism);
+			}
+		}       
         
         //
         // Edit analysis type dictionary
@@ -798,8 +756,8 @@
 		private function addCollaborator():void {
 			dirty.setDirty();
 			var node:XML = new XML("<AppUser " +
-			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+				" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
+				" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
 				"/>");
 			this.collaborators.addItem(node);
 		}
@@ -810,6 +768,23 @@
 				collaborators.removeItemAt(collaboratorGrid.selectedIndex);
 			}
 		}
+		
+		private function addGenomeBuild():void {
+			dirty.setDirty();
+			var node:XML = new XML("<GenomeBuild " +
+				" idGenomeBuild='" + genomeBuildCombo.selectedItem.@idGenomeBuild + "'" +
+				" display='" + genomeBuildCombo.selectedItem.@display + "'" +
+				"/>");
+			this.genomeBuilds.addItem(node);
+		}
+		
+		private function removeGenomeBuild():void {
+			dirty.setDirty();
+			if (genomeBuildGrid.selectedIndex != -1) {
+				genomeBuilds.removeItemAt(genomeBuildGrid.selectedIndex);
+			}
+		}
+		
 		
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
@@ -847,6 +822,7 @@
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
 <mx:XMLListCollection  id="filesToDelete"  />
 <mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AppUser}"/>
+<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
 
 	<mx:VBox width="100%" verticalGap="8">
 		<mx:HBox horizontalGap="1">
@@ -872,9 +848,9 @@
              	</mx:Label>
             	<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
             </mx:HBox>
+            <mx:Text text="{analysis.@createDate}" width="200"/>
     	    <mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 			  <mx:Label text="Submit Date"  width="81" fontWeight="bold"/>
-			  <mx:Text text="{analysis.@createDate}" width="200"/>
 			</mx:HBox>        
 		</mx:VBox>
 		<mx:VBox verticalGap="4">
@@ -906,49 +882,78 @@
 					<util:TextAreaWorkaround text="{analysis.@description}" width="100%" height="100%" change="dirty.setDirty()" id="description" />
 				</mx:HBox>
 				<mx:HBox horizontalGap="10" width="100%">
-					<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" width="100%" height="100%" verticalGap="6">
-					    <mx:HBox>
-					    <mx:HBox verticalGap="0" horizontalGap="0">
-					    	<mx:Label text="Organism" width="85" fontWeight="normal">
-					    	</mx:Label>
-					    	<mx:VBox verticalGap="0" horizontalAlign="right">
-					    		<mx:ComboBox  width="230" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
-					    		<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
-					    	</mx:VBox>
-					    </mx:HBox>
-					        <mx:HBox verticalGap="0" horizontalGap="0">
-					        	<mx:Label text="Analysis Type" width="100" fontWeight="normal">
-					        	</mx:Label>
-					        	<mx:VBox verticalGap="0" horizontalAlign="right">
-					        		<mx:ComboBox  width="230" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
-					        		<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
-					        	</mx:VBox>
-					        </mx:HBox>
-					    	
-					    </mx:HBox>
-					    <mx:HBox>
-					    <mx:HBox width="100%" verticalGap="0" horizontalGap="0">
-					    	<mx:Label text="Genome Build" width="85" fontWeight="normal">
-					    	</mx:Label>
-					    	<mx:VBox verticalGap="0" horizontalAlign="right">
-					    		<mx:ComboBox  width="230" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
-					    		<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editGenomeBuild()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
-					    	</mx:VBox>
-					    </mx:HBox>
-					        <mx:VBox verticalGap="0">
-					        <mx:HBox width="100%" horizontalGap="0">
-					        	<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
-					        	</mx:Label>
-					        	<mx:VBox verticalGap="0"  horizontalAlign="right">
-					        		<mx:ComboBox  width="230" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
-					        		<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>														
-					        	</mx:VBox>
-					        </mx:HBox>
-					        </mx:VBox>
-					    	
-					    </mx:HBox>
-						
-					</mx:VBox>
+					<mx:HBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" width="100%" height="100%" verticalGap="6">
+					    <mx:VBox>
+					    	<mx:HBox verticalGap="0" horizontalGap="0">
+								<mx:VBox verticalGap="-5">
+						    		<mx:Label text="Organism" width="85" fontWeight="normal">
+						    		</mx:Label>
+									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+								</mx:VBox>								
+					    		<mx:VBox verticalGap="0" horizontalAlign="right">
+					    			<mx:ComboBox  width="230" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+					    		</mx:VBox>
+					    	</mx:HBox>				    	
+					    </mx:VBox>
+					    <mx:VBox verticalGap="3">
+					    	<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
+								<mx:VBox verticalGap="-5">
+						    		<mx:Label text="Genome Builds" width="100" fontWeight="normal">
+						    		</mx:Label>
+									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+								</mx:VBox>
+								<mx:VBox verticalGap="0">
+									<mx:Label styleName="hintText" text="(Select from dropdown, use '+' to add to list below)" width="296" fontWeight="normal">
+									</mx:Label>																			
+					    			<mx:HBox verticalGap="0" horizontalAlign="right">
+					    				<mx:ComboBox  width="230" id="genomeBuildCombo" labelField="@display" />
+										<mx:Button 
+											enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
+											icon="@Embed(source='../../assets/add.png')" 
+											disabledIcon="@Embed(source='../../assets/add_disable.png')"
+											click="addGenomeBuild()" 
+											width="25">
+										</mx:Button>
+										<mx:Button  
+											icon="@Embed(source='../../assets/delete.png')" 
+											disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+											enabled="{genomeBuildGrid.selectedItem != null}" 
+											click="removeGenomeBuild()" 
+									 		width="25"/>
+					    			</mx:HBox>
+								</mx:VBox>
+					    	</mx:HBox>
+							<mx:DataGrid id="genomeBuildGrid" width="100%" height="43" dataProvider="{genomeBuilds}" showHeaders="false">
+								<mx:columns>
+									<mx:DataGridColumn dataField="@display"/>
+								</mx:columns>
+							</mx:DataGrid>														
+					    </mx:VBox>
+						<mx:VBox>
+							<mx:HBox verticalGap="0" horizontalGap="0">
+								<mx:VBox verticalGap="-5">
+									<mx:Label text="Analysis Type" width="100" fontWeight="normal">
+									</mx:Label>
+									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
+								</mx:VBox>
+								<mx:VBox verticalGap="0" horizontalAlign="right">
+									<mx:ComboBox  width="230" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+								</mx:VBox>
+							</mx:HBox>	
+							<mx:VBox verticalGap="0">
+								<mx:HBox width="100%" horizontalGap="0">
+									<mx:VBox verticalGap="-5">
+										<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
+										</mx:Label>
+										<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>														
+									</mx:VBox>
+									<mx:VBox verticalGap="0"  horizontalAlign="right">
+										<mx:ComboBox  width="230" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+									</mx:VBox>
+								</mx:HBox>
+							</mx:VBox>					    	
+						</mx:VBox>							
+					</mx:HBox>
 				</mx:HBox>
 				
 			</mx:VBox>

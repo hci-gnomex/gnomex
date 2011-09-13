@@ -72,7 +72,12 @@
 		}
 		reselectOrganism();
 		dirty.resetDirty();
-	}	
+	}
+		
+	public function selectOrganism(idOrganism:Object):void {
+		this.idOrganism = idOrganism;
+		reselectOrganism();
+	}
 		
 	private function reselectOrganism():void {
 		var found:Boolean = false;
