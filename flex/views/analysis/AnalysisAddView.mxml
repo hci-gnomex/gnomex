@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" width="446" height="376" 
-	defaultButton="{saveButton}">
+	title="Add Analysis" height="330" 
+	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	 
     <mx:HTTPService 
     id="saveAnalysis" 
@@ -50,6 +50,7 @@
 		import mx.managers.PopUpManager;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
+		import views.util.OrganismsWindow;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -149,7 +150,13 @@
 			params.idLab = labCombo.selectedItem.@idLab;
 			params.name = analysisName.text;
 			params.idOrganism = organismCombo.selectedItem.@idOrganism;
-			params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+			//params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+			params.idGenomeBuild         = "";
+			params.genomeBuildsXMLString = "<genomeBuilds>" + genomeBuilds.toXMLString() + "</genomeBuilds>";
+			
+			
+			
+			
 			if (currentState == "NewAnalysisGroupState") {
 				params.analysisGroupsXMLString = "<analysisGroups/>";
 				params.newAnalysisGroupName = newAnalysisGroupName.text;
@@ -255,52 +262,159 @@
         	    }
         	}
     	   	return doesMatch;
-    	}		
+    	}	
+		
+		//
+		// Edit organism dictionary
+		//
+		private function editOrganism():void {			
+			var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+			PopUpManager.centerPopUp(configWindow);
+			if(organismCombo.selectedItem != null) {
+				configWindow.selectOrganism(organismCombo.selectedItem.@idOrganism);
+			}			
+		}
+		
+		private function addGenomeBuild():void {
+			var node:XML = new XML("<GenomeBuild " +
+				" idGenomeBuild='" + genomeBuildCombo.selectedItem.@idGenomeBuild + "'" +
+				" display='" + genomeBuildCombo.selectedItem.@display + "'" +
+				"/>");
+			this.genomeBuilds.addItem(node);
+		}
+		
+		private function removeGenomeBuild():void {
+			if (genomeBuildGrid.selectedIndex != -1) {
+				genomeBuilds.removeItemAt(genomeBuildGrid.selectedIndex);
+			}
+		}
+				
+		
 	]]>
 </mx:Script>
 <mx:XMLListCollection  id="filteredGenomeBuildList"/>
-	<mx:VBox width="100%"  verticalGap="20">
-		<mx:VBox width="100%" verticalGap="0">
+<mx:XMLListCollection id="genomeBuilds"/>
+	<mx:VBox width="100%"  verticalGap="15" horizontalGap="10">
+		<!--mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Group"/>
 				<mx:ComboBox id="labCombo" 
 				 labelField="@name"
 				 dataProvider="{parentApplication.submitRequestLabList}"
-				 visible="true" width="424" change="refreshAnalysisGroups();checkCompleteness()">
+				 visible="true" width="450" change="refreshAnalysisGroups();checkCompleteness()">
 				</mx:ComboBox>
-		</mx:VBox>
-		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
+		</mx:VBox-->
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="0">
+					<mx:Label width="115" text="Group"/>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<mx:ComboBox id="labCombo"
+								 labelField="@name"
+								 dataProvider="{parentApplication.submitRequestLabList}"
+								 visible="true" width="336" change="refreshAnalysisGroups();checkCompleteness()">
+					</mx:ComboBox>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>		
+		<!--mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
 			<mx:Label text="Analysis group" id="label1"/>
-			<mx:ComboBox width="424" id="analysisGroupCombo" 
+			<mx:ComboBox width="450" id="analysisGroupCombo" 
 				dataProvider="{analysisGroupList}" 
 				labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
 			</mx:ComboBox>
 			<mx:HBox width="100%" horizontalAlign="right" id="hbox1">
 				<mx:LinkButton textDecoration="underline" color="#161FDA" id="newAnalysisGroupButton" label="New analysis group" click="currentState = &quot;NewAnalysisGroupState&quot;"/>
 			</mx:HBox>
-		</mx:VBox>
-		<mx:VBox height="100%" verticalGap="0" width="100%">
+		</mx:VBox-->
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="-5">
+					<mx:Label width="115" text="Analysis group" id="label1"/>
+					<mx:HBox width="100%" id="hbox1">
+						<mx:LinkButton label="New..." textDecoration="underline" color="#161FDA" id="newAnalysisGroupButton" click="currentState = &quot;NewAnalysisGroupState&quot;"  paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+					</mx:HBox>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<mx:ComboBox width="336" id="analysisGroupCombo" 
+								 dataProvider="{analysisGroupList}" 
+								 labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
+					</mx:ComboBox>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>		
+		<!--mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Analysis name"/>
-			<mx:TextInput id="analysisName" width="100%" change="checkCompleteness()"/>
+			<mx:TextInput id="analysisName" width="447" change="checkCompleteness()"/>
+		</mx:VBox-->
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="0">
+					<mx:Label width="115" text="Analysis name"/>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<mx:TextInput id="analysisName" width="336" change="checkCompleteness()"/>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>		
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="-5">
+					<mx:Label text="Organism" width="115" fontWeight="normal">
+					</mx:Label>
+					<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<mx:ComboBox  width="336" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
+					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:VBox>
+			</mx:HBox>				
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%">
-			<mx:Label text="Organism" width="100">
-			</mx:Label>
-			<mx:ComboBox  width="424" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
-				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
-			</mx:ComboBox>
+			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="-5">
+					<mx:Label text="Genome Build(s)" width="115" fontWeight="normal">
+					</mx:Label>
+					<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label styleName="hintText" text="(Select from dropdown, use '+' to add to list below)" width="296" fontWeight="normal">
+					</mx:Label>																			
+					<mx:HBox verticalGap="0" horizontalGap="2" width="350">
+						<mx:ComboBox width="281" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
+							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
+						</mx:ComboBox>
+						<mx:Button 
+							enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
+							icon="@Embed(source='../../assets/add.png')" 
+							disabledIcon="@Embed(source='../../assets/add_disable.png')"
+							click="addGenomeBuild()" 
+							width="25">
+						</mx:Button>
+						<mx:Button  
+							icon="@Embed(source='../../assets/delete.png')" 
+							disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+							enabled="{genomeBuildGrid.selectedItem != null}" 
+							click="removeGenomeBuild()" 
+							width="25"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+			<mx:HBox width="451" verticalGap="0" horizontalGap="0" horizontalAlign="right">
+				<mx:DataGrid id="genomeBuildGrid" width="335" height="43" dataProvider="{genomeBuilds}" showHeaders="false">
+					<mx:columns>
+						<mx:DataGridColumn dataField="@display"/>
+					</mx:columns>
+				</mx:DataGrid>	
+			</mx:HBox>			
 		</mx:VBox>
-		<mx:VBox height="100%" verticalGap="0" width="100%">
-			<mx:Label text="Genome Build:" width="100">
-			</mx:Label>
-			<mx:ComboBox  width="424" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
-				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
-			</mx:ComboBox>
-		</mx:VBox>
+		<mx:ControlBar width="451" horizontalAlign="right">
+			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+			<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+		</mx:ControlBar>				
 	</mx:VBox>
-	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
-		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
-	</mx:ControlBar>
+
 	
 	
 	<mx:states>
@@ -308,6 +422,7 @@
 			<mx:RemoveChild target="{analysisGroupCombo}"/>
 			<mx:RemoveChild target="{newAnalysisGroupButton}"/>
 			<mx:SetProperty target="{label1}" name="text" value="New analysis group name"/>
+			<mx:SetProperty target="{label1}" name="width" value="200"/>
 			<mx:AddChild relativeTo="{analysisGroupBox}" position="lastChild">
 				<mx:TextInput width="100%" id="newAnalysisGroupName" change="checkCompleteness()"/>
 			</mx:AddChild>

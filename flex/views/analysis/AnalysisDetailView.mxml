@@ -366,6 +366,8 @@
 </mx:Script>
 
 <mx:XMLListCollection id="analysisFiles" source="{parentDocument.selectedAnalysis..AnalysisFileDescriptor}"/>
+<mx:XMLListCollection id="genomeBuilds" source="{parentDocument.selectedAnalysis.genomeBuilds.GenomeBuild}"/>
+
 
 <mx:VBox width="100%" verticalGap="8">
 	<mx:HBox horizontalGap="1">
@@ -422,17 +424,20 @@
 	                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="130"/>
 	                </mx:HBox> 
 	        	</mx:VBox>
-	        	<mx:VBox verticalGap="0">
+	        	<mx:VBox verticalGap="0" width="311">
 		            <mx:HBox verticalGap="0" horizontalGap="0">
 		                <mx:Label text="Organism"  width="85" fontWeight="bold"/>
 		                <mx:Text  text="{organismName}" width="150" />
 		            </mx:HBox>
-		            <mx:HBox verticalGap="0" horizontalGap="0">
-		                <mx:Label text="Genome Build"  width="85" fontWeight="bold"/>
-		                <mx:Text  text="{genomeBuildName}" width="150" />
-		            </mx:HBox>
-		        	
-
+		            <mx:VBox verticalGap="0" horizontalGap="0" width="100%">
+		                <mx:Label text="Genome Builds"  width="111" fontWeight="bold"/>
+		                <!--mx:Text  text="{genomeBuildName}" width="150" /-->
+						<mx:DataGrid id="genomeBuildGrid" width="100%" height="50" dataProvider="{genomeBuilds}" showHeaders="false">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@display"/>
+							</mx:columns>
+						</mx:DataGrid>	
+					</mx:VBox>
 	        	</mx:VBox>
 	        	<mx:VBox width="100%" verticalGap="0">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">

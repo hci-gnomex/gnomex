@@ -1,5 +1,9 @@
 ﻿GNomEx Release Notes
 
+----------------------
+- Added ability to associate multiple genome builds with an analysis
+- Reformatted New Analysis window and added links to "Add/Edit..." organisms and genome builds
+
 5.2.9
 ----------------------
 - Added session timeout warning dialog
