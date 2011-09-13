@@ -413,8 +413,7 @@
 		private function onGetLab(event:ResultEvent):void {			
 			lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 
-			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
-	        billingAccounts.filterFunction = this.filterBillingAccount;
+	       
 	        billingAccounts.refresh();
 	        if (billingAccounts.length == 1) {
 	        	this.billingAccountCombo.selectedIndex = 0;	        	
@@ -678,7 +677,7 @@
 
 	]]>
 </mx:Script>
-	<mx:XMLListCollection id="billingAccounts"  filterFunction="filterBillingAccount"/>
+	<mx:XMLListCollection id="billingAccounts"  source="{lab.billingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
 	
 	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
 	
