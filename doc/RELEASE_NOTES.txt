@@ -1,7 +1,9 @@
 ﻿GNomEx Release Notes
 
+5.2.9
 ----------------------
 - Added session timeout warning dialog
+- Fixed billing account dropdown bug on Submit Request window.  When another lab was selected, billing account dropdown did not refresh properly.
 
 5.2.8.1
 ----------------------
