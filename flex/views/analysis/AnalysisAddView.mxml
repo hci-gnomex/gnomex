@@ -51,6 +51,7 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import views.util.OrganismsWindow;
+		import views.util.DateUtils;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -142,7 +143,8 @@
             if (event.detail==Alert.YES) {
             	save();
             }
-        }	 	
+        }	
+		
 		private function save():void {
 			var params:Object = new Object();
 			
@@ -168,6 +170,10 @@
 					params.analysisGroupsXMLString = "<analysisGroups/>";
 				}
 			}
+			if(parentApplication.isPrivacyExpirationSupported) {
+				var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
+				params.privacyExpirationDate = parentApplication.formatDate(expireDate);
+			}			
 			params.hybsXMLString = "<hybs/>";
 			params.lanesXMLString = "<lanes/>";
 			params.analysisFilesXMLString = "<analysisFiles/>";

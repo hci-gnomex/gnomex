@@ -71,9 +71,6 @@
     </mx:request>
     </mx:HTTPService > 
     
-   
-    
-
     <mx:HTTPService 
     id="getExperimentDesignList" 
     url="GetExperimentDesignList.gx"
@@ -450,6 +447,9 @@
 			public var isFDTSupported:Boolean = false;
 			
 			[Bindable]
+			public var isPrivacyExpirationSupported:Boolean = false;
+			
+			[Bindable]
 			public var showUsageOnStartup:Boolean = false;
 			
 			[Bindable]
@@ -530,6 +530,7 @@
 			public var PROPERTY_SITE_TITLE:String                         = "site_title";
 			public var PROPERTY_SITE_WELCOME_MESSAGE:String               = "site_welcome_message";
 			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
+			public var DATASET_PRIVACY_EXPIRATION:String                  = "dataset_privacy_expiration";
 			 
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
@@ -1191,6 +1192,13 @@
 					this.isFDTSupported = true;
 				} else {
 					this.isFDTSupported = false;
+				}
+				
+				if (this.getProperty(this.DATASET_PRIVACY_EXPIRATION) != null && 
+					parseInt(this.getProperty(this.DATASET_PRIVACY_EXPIRATION)) > 0) {
+					this.isPrivacyExpirationSupported = true;
+				} else {
+					this.isPrivacyExpirationSupported = false;
 				}
 				
 				

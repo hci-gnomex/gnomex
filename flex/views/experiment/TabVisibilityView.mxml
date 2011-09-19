@@ -37,6 +37,7 @@
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
 		import views.util.PromptXMLListCollection;
+		import views.util.DateUtils;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
@@ -56,8 +57,13 @@
 			checkSecurity();
 			if (this.currentState == "EditState") {
 				this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
+				this.privacyExpirationPicker.text = parentDocument.request.@privacyExpirationDate;
 			} else {
 				this.visibilityRadioGroup.selectedValue = 'MEM';
+				if(parentApplication.isPrivacyExpirationSupported) {
+					var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
+					privacyExpirationPicker.text = parentApplication.formatDate(expireDate);
+				}
 			}
 			this.collaboratorCombo.selectedItem = null;
 			this.institutionCombo.selectedItem = null;
@@ -157,20 +163,25 @@
 		       </mx:RadioButtonGroup>
 		   </mx:HBox>
 		   <mx:HBox paddingLeft="20" horizontalGap="0" width="100%">
-		   	<mx:VBox verticalGap="0">
+		   	<mx:VBox verticalGap="0" width="100%">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 		   		<mx:RadioButton value="OWNER" label="Owner       (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()"/>
 		   		<mx:RadioButton value="MEM" selected="true" label="Members   (all members of the lab group)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()"/>
-				<mx:HBox>
+				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:RadioButton value="INST" selected="true" label="Institution (all lab groups that are part of institution)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="false"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" change="checkVisibilitySetupCompleteness()">			       	
 					</mx:ComboBox>	
-					<mx:Text width="350" id="institutionNote" styleName="submitNote" height="40" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
-						<mx:text>Institution visibility can only be set when lab belongs to at least one institution.  Please contact GNomEx administrator.</mx:text>
+					<mx:Text width="632" id="institutionNote" styleName="submitNote" height="18" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
+						<mx:text><![CDATA[Institution visibility can only be set when lab belongs to an institution.  Please contact GNomEx administrator.]]></mx:text>
 					</mx:Text>
 				</mx:HBox>
 		   		<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()"/>
-		   		
+				<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">
+					<mx:HBox width="100%">
+						<mx:DateField id="privacyExpirationPicker" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
+						<mx:Text text="Public visibility date (visibility automatically changes to public on this date) " />
+					</mx:HBox>
+				</mx:VBox>		   		
 		   	</mx:VBox>
 		   </mx:HBox>
 		   <mx:Spacer height="20"/>

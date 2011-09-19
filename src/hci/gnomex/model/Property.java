@@ -30,6 +30,8 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        BILLING_CORE_FACILITY_ORG           = "billing_core_facility_org";
   public static final String        BILLING_CORE_FACILITY_ACTIVITY      = "billing_core_facility_activity";
   public static final String        BILLING_PO_ACCOUNT                  = "billing_po_account";
+  public static final String        DATASET_PRIVACY_EXPIRATION          = "dataset_privacy_expiration";
+  public static final String        DATASET_PRIVACY_EXPIRATION_WARNING  = "dataset_privacy_expiration_warning";
   public static final String        EXPERIMENT_SUBMISSION_DEFAULT_MODE  = "experiment_submission_default_mode";
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
   public static final String        BST_LINKAGE_SUPPORTED               = "bst_linkage_supported";  

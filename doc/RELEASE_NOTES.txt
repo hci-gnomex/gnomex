@@ -3,6 +3,8 @@
 ----------------------
 - Added ability to associate multiple genome builds with an analysis
 - Reformatted New Analysis window and added links to "Add/Edit..." organisms and genome builds
+- Added privacyExpirationDate to Analysis and Request tables. Field is edited via visibility tab.
+- Added dictionary properties dataset_privacy_expiration and dataset_privacy_expiration_warning to govern use of privacyExpiration date field.
 
 5.2.9
 ----------------------

@@ -25,6 +25,7 @@ public class Analysis extends HibernateDetailObject {
   private Date      createDate;
   private String    codeVisibility;
   private Integer   idInstitution;
+  private Date      privacyExpirationDate;
   private Set       analysisGroups = new TreeSet();  
   private Set       experimentItems = new TreeSet();
   private Set       files = new TreeSet();
@@ -324,17 +325,20 @@ public class Analysis extends HibernateDetailObject {
     return key;
   }
 
-
-
   public Integer getIdInstitution() {
     return idInstitution;
   }
 
-
-
   public void setIdInstitution(Integer idInstitution) {
     this.idInstitution = idInstitution;
   }
+  
+  public Date getPrivacyExpirationDate() {
+    return privacyExpirationDate;
+  }
 
+  public void setPrivacyExpirationDate(Date privacyExpirationDate) {
+    this.privacyExpirationDate = privacyExpirationDate;
+  }
  
 }

@@ -200,6 +200,7 @@
 			filteredGenomeBuildList.refresh();
 			//genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', analysis.@idGenomeBuild);
 			visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
+			privacyExpirationPicker.text = analysis.@privacyExpirationDate;
 			
 			
 			this.getExperimentPickList.send();			
@@ -461,6 +462,7 @@
 			if (params.codeVisibility == 'INST') {
 				params.idInstitution      = this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@idInstitution : "";				
 			} 
+			params.privacyExpirationDate = this.privacyExpirationPicker.text;
 			params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
 			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
 			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
@@ -1102,21 +1104,26 @@
 		       </mx:RadioButtonGroup>
 		   </mx:HBox>
 		   <mx:HBox paddingLeft="20" horizontalGap="0" width="100%">
-		   	<mx:VBox verticalGap="0">
+		   	<mx:VBox verticalGap="0" width="100%">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 		   		<mx:RadioButton value="OWNER" label="Owner       (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
 		   		<mx:RadioButton value="MEM" selected="true" label="Members   (all members of the lab group)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
-				<mx:HBox>
+				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:RadioButton value="INST" selected="true" label="Institution  (all lab groups that are part of institution)" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" >			       	
 					</mx:ComboBox>
-					<mx:Text width="350" id="institutionNote" styleName="submitNote" height="40" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
-						<mx:text>Institution visibility can only be set when lab belongs to at least one institution.  Please contact GNomEx administrator.</mx:text>
+					<mx:Text width="632" id="institutionNote" styleName="submitNote" height="18" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
+						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
 					</mx:Text>
 					
 				</mx:HBox>
 				<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
-		   		
+				<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">
+					<mx:HBox width="100%">
+						<mx:DateField id="privacyExpirationPicker" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
+						<mx:Text text="Public visibility date (visibility automatically changes to public on this date) " />
+					</mx:HBox>
+				</mx:VBox>		   		
 		   	</mx:VBox>
 		   </mx:HBox>
 		   <mx:Spacer height="20"/>
