@@ -928,12 +928,6 @@ public class BuildSearchIndex extends DetailObject {
     String       experimentName = null;
     
     
-    int reqID = 0;
-    if(idRequest != null) {
-      reqID = idRequest.intValue();
-    }
-    
-    
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
       Object[] row = (Object[])i1.next();
       
