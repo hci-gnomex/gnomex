@@ -55,6 +55,7 @@ public class Request extends HibernateDetailObject {
   private String          isExternal;  
   private Integer         idInstitution;
   private String          name;
+  private Date            privacyExpirationDate;
   private Set             samples = new TreeSet();
   private Set             labeledSamples = new TreeSet();
   private Set             hybridizations = new TreeSet();
@@ -74,7 +75,6 @@ public class Request extends HibernateDetailObject {
   public String getCodeApplication() {
     return codeApplication;
   }
-
   
   public void setCodeApplication(String codeApplication) {
     this.codeApplication = codeApplication;
@@ -774,6 +774,12 @@ public class Request extends HibernateDetailObject {
     this.files = files;
   }
 
+  public Date getPrivacyExpirationDate() {
+    return privacyExpirationDate;
+  }
 
+  public void setPrivacyExpirationDate(Date privacyExpirationDate) {
+    this.privacyExpirationDate = privacyExpirationDate;
+  }
 
 }

@@ -491,6 +491,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdGenomeBuild(analysisScreen.getIdGenomeBuild());
     analysis.setCodeVisibility(analysisScreen.getCodeVisibility());
     analysis.setIdInstitution(analysisScreen.getIdInstitution());
+    analysis.setPrivacyExpirationDate(analysisScreen.getPrivacyExpirationDate());
   }
   
   private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {

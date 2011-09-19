@@ -13,6 +13,9 @@ import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -108,7 +111,6 @@ public class RequestParser implements Serializable {
     }    
     
   }
-
   
   private void initializeRequest(Element n, Session sess) throws Exception {
       
@@ -117,6 +119,8 @@ public class RequestParser implements Serializable {
         request = new Request();
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
         request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
+        request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
+      
         if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
           request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
         } 
@@ -140,6 +144,8 @@ public class RequestParser implements Serializable {
             throw new Exception("Visibility is required for experiment " + request.getNumber());
           }
           request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
+          request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate")));   
+          
           if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
             request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
           } 
@@ -149,6 +155,15 @@ public class RequestParser implements Serializable {
       initializeRequest(n, request);
   }
   
+  private java.sql.Date convertDate(String dateString) throws Exception {
+    java.sql.Date date = null;
+    if(dateString != null && dateString.length() > 0) {
+      DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+      java.util.Date tmpDate = (java.util.Date)formatter.parse(dateString); 
+      date = new java.sql.Date(tmpDate.getTime());
+    }
+    return date;
+  }
   
   private void initializeRequest(Element n, Request request) throws Exception {
 
@@ -242,10 +257,11 @@ public class RequestParser implements Serializable {
       this.saveReuseOfSlides = true;
     }
     
-    // On existing requests, save visibility
+    // On existing requests, save visibility and privacyExpirationDate
     if (!isNewRequest) {
       if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
-        request.setCodeVisibility(n.getAttributeValue("codeVisibility"));        
+        request.setCodeVisibility(n.getAttributeValue("codeVisibility")); 
+        request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
       }
     }
   }

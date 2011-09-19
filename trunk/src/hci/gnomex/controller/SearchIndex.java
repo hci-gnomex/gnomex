@@ -471,21 +471,26 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private void mapDocument(org.apache.lucene.document.Document doc, int rank, float score, DictionaryHelper dh) {
     
     Integer idProject = new Integer(doc.get(ExperimentIndexHelper.ID_PROJECT));
-    Integer idLab     = new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT));
+    //Integer idLab     = new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT));
+    Integer idLab     = doc.get(ExperimentIndexHelper.ID_LAB_PROJECT) != null ? new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT)) : null;
     Integer idRequest          = doc.get(ExperimentIndexHelper.ID_REQUEST).equals("unknown") ? null : new Integer(doc.get(ExperimentIndexHelper.ID_REQUEST));
     String codeRequestCategory = doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) : null;
     String codeApplication = doc.get(ExperimentIndexHelper.CODE_APPLICATION) != null ? doc.get(ExperimentIndexHelper.CODE_APPLICATION) : null;
-    String catKey = idProject + "-" + codeRequestCategory + "-" + codeApplication;      
+    String catKey = idProject + "-" + codeRequestCategory + "-" + codeApplication;  
     
-    Element labNode = (Element)labMap.get(idLab);
-    if (labNode == null) {
-      Element node = new Element("Lab");
-      node.setAttribute("idLab", idLab.toString());
-      node.setAttribute("labName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
-      node.setAttribute("label", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
-      node.setAttribute("projectLabName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
-      labMap.put(idLab, node);
+    
+    if(idLab != null) {
+      Element labNode = (Element)labMap.get(idLab);
+      if (labNode == null) {
+        Element node = new Element("Lab");
+        node.setAttribute("idLab", idLab.toString());
+        node.setAttribute("labName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
+        node.setAttribute("label", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
+        node.setAttribute("projectLabName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
+        labMap.put(idLab, node);
+      }      
     }
+
 
     Element projectNode = (Element)projectMap.get(idProject);
     if (projectNode == null) {
@@ -544,7 +549,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     Map projectIdMap = (Map)labToProjectMap.get(labKey);
     if (projectIdMap == null) {
       projectIdMap = new TreeMap();
-      labToProjectMap.put(labKey, projectIdMap);
+      if(idLab != null) {
+        labToProjectMap.put(labKey, projectIdMap);     
+      }
     }
     String projectKey = projectName + "---" + idProject;
     projectIdMap.put(projectKey, idProject);        

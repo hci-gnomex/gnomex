@@ -928,6 +928,12 @@ public class BuildSearchIndex extends DetailObject {
     String       experimentName = null;
     
     
+    int reqID = 0;
+    if(idRequest != null) {
+      reqID = idRequest.intValue();
+    }
+    
+    
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
       Object[] row = (Object[])i1.next();
       
@@ -1187,6 +1193,10 @@ public class BuildSearchIndex extends DetailObject {
     StringBuffer text = new StringBuffer();
     text.append(experimentName);
     text.append(" ");
+    text.append(requestOwnerFirstName);
+    text.append(" ");
+    text.append(requestOwnerLastName);
+    text.append(" ");
     text.append(projectName);
     text.append(" ");
     text.append(projectDescription);
@@ -1223,12 +1233,14 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(ExperimentIndexHelper.DISPLAY_NAME, requestDisplayName.toString());
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_FIRST_NAME, requestOwnerFirstName);
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_LAST_NAME, requestOwnerLastName);
+
     nonIndexedFieldMap.put(ExperimentIndexHelper.CREATE_DATE, requestCreateDate != null ? this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL) : null);
     nonIndexedFieldMap.put(ExperimentIndexHelper.APPLICATION, application);
     nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, "");
     nonIndexedFieldMap.put(ExperimentIndexHelper.PUBLIC_NOTE, requestPublicNote);
     
     Map indexedFieldMap = new HashMap();
+    
     indexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest != null ? idRequest.toString() : "unknown");      
     indexedFieldMap.put(ExperimentIndexHelper.EXPERIMENT_NAME, experimentName);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_NAME, projectName);

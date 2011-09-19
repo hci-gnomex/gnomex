@@ -26,6 +26,7 @@ CREATE TABLE `gnomex`.`Analysis` (
   `createDate` DATETIME NULL,
   `idAppUser` INT(10) NULL,
   `idInstitution` INT(10) NULL,
+  `privacyExpirationDate` DATETIME NULL,
   PRIMARY KEY (`idAnalysis`),
   CONSTRAINT `FK_Analysis_Lab` FOREIGN KEY `FK_Analysis_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -153,6 +154,22 @@ CREATE TABLE `gnomex`.`AnalysisCollaborator` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_AnalysisCollaborator_Analysis` FOREIGN KEY `FK_AnalysisCollaborator_Analysis` (`idAnalysis`)
     REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`AnalysisGenomeBuild`;
+CREATE TABLE `gnomex`.`AnalysisGenomeBuild` (
+  `idAnalysis` INT(10) NOT NULL,
+  `idGenomeBuild` INT(10) NOT NULL,
+  PRIMARY KEY (`idAnalysis`, `idGenomeBuild`),
+  CONSTRAINT `FK_AnalysisGenomeBuild_Analysis` FOREIGN KEY `FK_AnalysisGenomeBuild_Analysis` (`idAnalysis`)
+    REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_AnalysisGenomeBuild_GenomeBuild` FOREIGN KEY `FK_AnalysisGenomeBuild_GenomeBuild` (`idGenomeBuild`)
+    REFERENCES `gnomex`.`GenomeBuild` (`idGenomeBuild`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1192,6 +1209,7 @@ CREATE TABLE `gnomex`.`Request` (
   `isExternal` CHAR(1) NULL,
   `idInstitution` INT(10) NULL,
   `name` VARCHAR(200) NOT NULL,
+  `privacyExpirationDate` DATETIME NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)

@@ -2120,7 +2120,10 @@
 			}			
 			if (isEditState()) {
 				visibilityView.visibilityRadioGroup.selectedValue = request.@codeVisibility;
-			} 
+				visibilityView.privacyExpirationPicker.text = request.@privacyExpirationDate;
+			} else {
+				trace('alt');
+			}
 			
 			
 			if (this.isAmendState() && theTab.contains(amendSetupView)) {
@@ -2671,7 +2674,9 @@
 				request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
 				if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
 					request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
-				}				
+				}
+				request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
+				
 			} else {
 				request.@codeVisibility = 'MEM';
 			}
@@ -2750,6 +2755,7 @@
 				request.collaborators.appendChild(collaborator);
 		 	}
 			
+			request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
 			
 			
 			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
