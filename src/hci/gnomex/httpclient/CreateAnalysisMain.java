@@ -43,15 +43,14 @@ public class CreateAnalysisMain {
   private String propertiesFileName = "/properties/gnomex_httpclient.properties";
   private boolean debug = false;
   private String server;
-  private Integer idLab;
-  private Integer idOrganism;
-  private Integer idGenomeBuild;
-  private Integer idAnalysisType;
+  private String lab;
+  private String organism;
+  private String genomeBuild;
+  private String analysisType;
   private String  name;
   private String description;
-  private String analysisGroupName;
-  private String analysisGroupDescription;
-  private Integer idRequest;
+  private String folderName;
+  private String folderDescription;
   private List<String> idSequenceLanes = new ArrayList<String>();
   private String lanesXMLString = null;
 
@@ -75,22 +74,22 @@ public class CreateAnalysisMain {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
-      } else if (args[i].equals("-idLab")) {
-        idLab = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-idGenomeBuild")) {
-        idGenomeBuild = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-idOrganism")) {
-        idOrganism = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-idAnalysisType")) {
-        idAnalysisType = Integer.parseInt(args[++i]);
+      } else if (args[i].equals("-lab")) {
+        lab = args[++i];
+      } else if (args[i].equals("-genomeBuild")) {
+        genomeBuild = args[++i];
+      } else if (args[i].equals("-organism")) {
+        organism = args[++i];
+      } else if (args[i].equals("-analysisType")) {
+        analysisType = args[++i];
       } else if (args[i].equals("-name")) {
         name = args[++i];
       } else if (args[i].equals("-description")) {
         description = args[++i];
-      } else if (args[i].equals("-analysisGroupName")) {
-        analysisGroupName = args[++i];
-      } else if (args[i].equals("-analysisGroupDescription")) {
-        analysisGroupDescription = args[++i];
+      } else if (args[i].equals("-folderName")) {
+        folderName = args[++i];
+      } else if (args[i].equals("-folderDescription")) {
+        folderDescription = args[++i];
       } else if (args[i].equals("-idSequenceLane")) {
         String idSequenceLane = args[++i];
         idSequenceLanes.add(idSequenceLane);
@@ -125,12 +124,12 @@ public class CreateAnalysisMain {
         "-server <serverName>" + "\n" +
         "-name <analysisName>" + "\n" +
         "[-description <analysisDescription>]" + "\n" +
-        "-idLab <idLab>" + "\n" +
-        "-analysisGroupName <analysisGroupName>" + "\n" + 
-        "[-analysisGroupDescription <analysisGroupDescription>]" + "\n" +
-        "[-idAnalysisType <idAnalysisType>]" +  "\n" +
-        "[-idOrganism <idOrganism>" +  "\n" +
-        "[-idGenomeBuild <idGenomeBuild>]" + "\n" +
+        "-lab <lab name>" + "\n" +
+        "-folderName <name of folder>" + "\n" + 
+        "-organism <organism           example: Human,E. coli, etc.>" +  "\n" +
+        "-genomeBuild <genome build    example: hg18, hg19, TAIR8, etc.>" + "\n" +
+        "[-folderDescription <description of folder>]" + "\n" +
+        "[-analysisType <analysis type  example: Alignment,SNP/INDEL,ChIP-Seq analysis,etc..>]" +  "\n" +
         "[-idSequenceLane <idSequenceLane> [...]]");
   }
   
@@ -147,7 +146,7 @@ public class CreateAnalysisMain {
       loadProperties();
       
       // Make sure mandatory arguments were passed in
-      if (idLab == null || name == null || name.equals("") || idOrganism == null || idGenomeBuild == null || idAnalysisType == null || analysisGroupName == null || analysisGroupName.equals("")) {
+      if (lab == null || name == null || name.equals("") || organism == null || genomeBuild == null || analysisType == null || folderName == null || folderName.equals("")) {
         this.printUsage();
         throw new Exception("Please specify all mandatory arguments.  See command line usage.");
       }
@@ -162,7 +161,6 @@ public class CreateAnalysisMain {
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
       while ((inputLine = in.readLine()) != null) {
-        System.out.println(inputLine);
         if (inputLine.indexOf("<SUCCESS") >= 0) {
           success = true;
           break;
@@ -181,6 +179,9 @@ public class CreateAnalysisMain {
       //
       url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
       conn = url.openConnection();
+      for (String cookie : cookies) {
+        conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+      }
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
       outputXML = new StringBuffer();
@@ -203,17 +204,18 @@ public class CreateAnalysisMain {
       //
       
       // Construct request parameters
-      String parms = URLEncoder.encode("idLab", "UTF-8") + "=" + URLEncoder.encode(idLab.toString(), "UTF-8");
+      String parms = URLEncoder.encode("labName", "UTF-8") + "=" + URLEncoder.encode(lab, "UTF-8");
       parms += "&" + URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(name, "UTF-8");
-      parms += "&" + URLEncoder.encode("newAnalysisGroupName", "UTF-8") + "=" + URLEncoder.encode(analysisGroupName, "UTF-8");
-      parms += "&" + URLEncoder.encode("idOrganism", "UTF-8") + "=" + URLEncoder.encode(idOrganism.toString(), "UTF-8");
-      parms += "&" + URLEncoder.encode("idGenomeBuild", "UTF-8") + "=" + URLEncoder.encode(idGenomeBuild.toString(), "UTF-8");
-      parms += "&" + URLEncoder.encode("idAnalysisType", "UTF-8") + "=" + URLEncoder.encode(idAnalysisType.toString(), "UTF-8");
+      parms += "&" + URLEncoder.encode("newAnalysisGroupName", "UTF-8") + "=" + URLEncoder.encode(folderName, "UTF-8");
+      parms += "&" + URLEncoder.encode("organism", "UTF-8") + "=" + URLEncoder.encode(organism, "UTF-8");
+      parms += "&" + URLEncoder.encode("genomeBuild", "UTF-8") + "=" + URLEncoder.encode(genomeBuild, "UTF-8");
+      parms += "&" + URLEncoder.encode("analysisType", "UTF-8") + "=" + URLEncoder.encode(analysisType, "UTF-8");
+      parms += "&" + URLEncoder.encode("isBatchMode", "UTF-8") + "=" + URLEncoder.encode("Y", "UTF-8");
       if (description != null) {
         parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");        
       }
-      if (analysisGroupDescription != null) {
-        parms += "&" + URLEncoder.encode("newAnalysisGroupDescription", "UTF-8") + "=" + URLEncoder.encode(analysisGroupDescription, "UTF-8");        
+      if (folderDescription != null) {
+        parms += "&" + URLEncoder.encode("newAnalysisGroupDescription", "UTF-8") + "=" + URLEncoder.encode(folderDescription, "UTF-8");        
       }
       if (lanesXMLString != null) {
         parms += "&" + "lanesXMLString" + "=" + lanesXMLString;        
@@ -244,15 +246,12 @@ public class CreateAnalysisMain {
       }
 
     } catch (MalformedURLException e) {
-      printUsage();
       e.printStackTrace();
       System.err.println(e.toString());
     } catch (IOException e) {
-      printUsage();
       e.printStackTrace();
       System.err.println(e.toString());
     } catch (Exception e) {
-      printUsage();
       e.printStackTrace();
       System.err.println(e.toString());
     } finally {

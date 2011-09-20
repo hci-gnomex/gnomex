@@ -159,6 +159,9 @@ public class TransferLoggerMain {
       //
       url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
       conn = url.openConnection();
+      for (String cookie : cookies) {
+        conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+      }
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
       outputXML = new StringBuffer();
