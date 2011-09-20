@@ -79,23 +79,23 @@ public class LabelingReactionPlugin implements BillingPlugin {
     // determine labeling price.
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
       Price p = (Price)i1.next();
-      
-      for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
-        PriceCriteria criteria = (PriceCriteria)i2.next();
-        
-        if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-            
-          if (idBillingSlideServiceClass != null) {
-            if (criteria.getFilter1().equals(idBillingSlideServiceClass.toString())) {
-              price = p;
-              break;          
-            }        
+      if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
+        for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+          PriceCriteria criteria = (PriceCriteria)i2.next();          
+          if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+              
+            if (idBillingSlideServiceClass != null) {
+              if (criteria.getFilter1().equals(idBillingSlideServiceClass.toString())) {
+                price = p;
+                break;          
+              }        
 
-          }
-        } else {
-          if (criteria.getFilter1() != null && criteria.getFilter1().equals(request.getCodeApplication())) {
-              price = p;
-              break;                 
+            }
+          } else {
+            if (criteria.getFilter1() != null && criteria.getFilter1().equals(request.getCodeApplication())) {
+                price = p;
+                break;                 
+            }
           }
         }
       }
