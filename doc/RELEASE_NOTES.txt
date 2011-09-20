@@ -1,657 +1,675 @@
 ﻿GNomEx Release Notes
 
-5.2.9
+5.2.9 (not yet released)
 ----------------------
-- Added session timeout warning dialog
-- Fixed billing account dropdown bug on Submit Request window.  When another lab was selected, billing account dropdown did not refresh properly.
-- Allow string parameters for CreateAnalysisMain (used in analysis pipeline)
-- Set cookies on http Java apps to work with forms based authentication
-- Added ability to associate multiple genome builds with an analysis
-- Reformatted New Analysis window and added links to "Add/Edit..." organisms and genome builds
-- Added privacyExpirationDate to Analysis and Request tables. Field is edited via visibility tab.
-- Added dictionary properties dataset_privacy_expiration and dataset_privacy_expiration_warning to govern use of privacyExpiration date field.
-- Added request owner first name and last name to Lucene search index
+* Added session timeout warning dialog
+* Fixed billing account dropdown bug on Submit Request window.  When another lab was selected, billing account dropdown did not refresh properly.
+* Allow string parameters for CreateAnalysisMain (used in analysis pipeline)
+* Set cookies on http Java apps to work with forms based authentication
+* Added ability to associate multiple genome builds with an analysis
+* Reformatted New Analysis window and added links to "Add/Edit..." organisms and genome builds
+* Added privacyExpirationDate to Analysis and Request tables. Field is edited via visibility tab.
+* Added dictionary properties dataset_privacy_expiration and dataset_privacy_expiration_warning to govern use of privacyExpiration date field.
+* Added request owner first name and last name to Lucene search index
+* Fix billing plug-ins to ignore inactive prices
 
-5.2.8.1
+
+5.2.8.1 (Sep 7, 2011)
 ----------------------
-- Remove hardcoded reference to mysql jar in batch scripts
-- Added new usage pie charts for experiments by type, analysis by type, seq applications 
+* Remove hardcoded reference to mysql jar in batch scripts
+* Added new usage pie charts for experiments by type, analysis by type, seq applications 
 
-5.2.8 
+
+5.2.8  (Sep 6, 2011)
 ----------------------
-- Treat login with 'guest' user account as a guest login, just like URL with parameter isGuest=Y
-- Fixed logic for Experiment downloads and Experiment progress to work with now 'All experiments' filter.
-- Fixed logic for Experiment downloads and Experiment progress to work for users not assigned to a lab.
-- Show disk usage by lab, year, and category on Usage charts.
+* Treat login with 'guest' user account as a guest login, just like URL with parameter isGuest=Y
+* Fixed logic for Experiment downloads and Experiment progress to work with now 'All experiments' filter.
+* Fixed logic for Experiment downloads and Experiment progress to work for users not assigned to a lab.
+* Show disk usage by lab, year, and category on Usage charts.
 
-- Added hint to Experiment/Analysis Visibility tabs to tell how to activate Institution dropdown.
-- Changed billing request lookup to find requests without needing to use "R" in the request number.
-- Set lookup button as default when enter pressed in billing request lookup.
-- Fixed bug where new price category causes corrupted tree.
-- Use analysis_read_directory property (not analysis_write_directory) to read analysis files on file system in GetAnalysis
-- Introduce ExperimentFile object to track disk usage. (Also added fileSize to AnalysisFile.)
-- Added batch job RegisterFiles to track experiment data files and refresh analysis data file sizes. 
+* Added hint to Experiment/Analysis Visibility tabs to tell how to activate Institution dropdown.
+* Changed billing request lookup to find requests without needing to use "R" in the request number.
+* Set lookup button as default when enter pressed in billing request lookup.
+* Fixed bug where new price category causes corrupted tree.
+* Use analysis_read_directory property (not analysis_write_directory) to read analysis files on file system in GetAnalysis
+* Introduce ExperimentFile object to track disk usage. (Also added fileSize to AnalysisFile.)
+* Added batch job RegisterFiles to track experiment data files and refresh analysis data file sizes. 
+
 
 5.2.7 (Aug 29, 2011)
 ----------------------
-- Changes to insure billing statement doesn't get sent again if a change is inadvertently made to an item on an invoice that has already been approved and sent.
-- Sample sheet upload process will now automatically create new sample rows if there are not enough to accommodate all rows of the uploaded sample sheet.
-- Remove references to transfer log for experiment or analysis files that are deleted.
-- Reassign lab on transfer logs when experiment or analysis lab is changed.
-- Fixed bug so that the analysis drag-and-drop to a different lab works, reassigning the analysis to a different lab.
+* Changes to insure billing statement doesn't get sent again if a change is inadvertently made to an item on an invoice that has already been approved and sent.
+* Sample sheet upload process will now automatically create new sample rows if there are not enough to accommodate all rows of the uploaded sample sheet.
+* Remove references to transfer log for experiment or analysis files that are deleted.
+* Reassign lab on transfer logs when experiment or analysis lab is changed.
+* Fixed bug so that the analysis drag-and-drop to a different lab works, reassigning the analysis to a different lab.
+
 
 5.2.6.2 (Aug 28, 2011)
 ----------------------
-- Fashion Analysis filters after Experiment filters (my, my labs, other labs public, all).
+* Fashion Analysis filters after Experiment filters (my, my labs, other labs public, all).
+
 
 5.2.6.1 (Aug 26, 2011)
 ----------------------
-- Fix FDT downloads to handle large file selection and large file names by 
-  caching file names using actionscript HTTPService rather that URL.
-- Fix logic for parsing zip entry name and main folder name to account
-  for symbolic links for experiment and analysis directories.  Reworked logic
-  to handle different forms of symbolic links that don't necessarily match part of
-  the experiment directory path.
+* Fix FDT downloads to handle large file selection and large file names by caching file names using actionscript HTTPService rather that URL.
+* Fix logic for parsing zip entry name and main folder name to account for symbolic links for experiment and analysis directories.  Reworked logic to handle different forms of symbolic links that don't necessarily match part of the experiment directory path.
+
 
 5.2.6 (Aug 25, 2011)
 -----------------------
-- Add "Show all" checkbox to Analysis browse, and Experiment brows for non-admins.
-- Limit analysis and experiment count to 2000 entries.  Warn when results truncated.
-- Fixed bug causing billing statements to be sent incorrectly
-- Fixed bug causing some experiments to not show up on Experiment list on Billing tab.
+* Add "Show all" checkbox to Analysis browse, and Experiment brows for non-admins.
+* Limit analysis and experiment count to 2000 entries.  Warn when results truncated.
+* Fixed bug causing billing statements to be sent incorrectly
+* Fixed bug causing some experiments to not show up on Experiment list on Billing tab.
+
 
 5.2.5 (Aug 24, 2011)
 ------------------------
-- Allow samples with duplicate index tags to be combined into one multiplex group.  (Warn user, but permit it.)
-- Show experiment type on QC worklist
-- Fix bug that was causing delete analysis to fail due to foreign key constraint violation on transfer log table.
-- Add "All" checkbox on Experiments view so that admins can view all experiments for all labs without any other filters.
+* Allow samples with duplicate index tags to be combined into one multiplex group.  (Warn user, but permit it.)
+* Show experiment type on QC worklist
+* Fix bug that was causing delete analysis to fail due to foreign key constraint violation on transfer log table.
+* Add "All" checkbox on Experiments view so that admins can view all experiments for all labs without any other filters.
+
 
 5.2.4 (Aug 22, 2011)
 ------------------------
-- Fix bug that was causing saves to fail on Edit Experiment view.  Bug introduced
-  in last release (GNomEx 5.2.3) when code was changed to only check 'Show QC' on 
-  internal experiments.
-- Fixed experiment lookup to handle experiments with base number.  MySQL query using
-  [0-9] changed to %.
-- Allow lanes to be added, removed, copied on external experiments for admin,
-  owner of experiment and lab manager.
-- Show sample sequence lanes on Edit Detail for external sequencing experiments.
+* Fix bug that was causing saves to fail on Edit Experiment view.  Bug introduced in last release (GNomEx 5.2.3) when code was changed to only check 'Show QC' on internal experiments.
+* Fixed experiment lookup to handle experiments with base number.  MySQL query using [0-9] changed to %.
+* Allow lanes to be added, removed, copied on external experiments for admin, owner of experiment and lab manager.
+* Show sample sequence lanes on Edit Detail for external sequencing experiments.
   
 
 5.2.3 (Aug 20, 2011)
 ------------------------
-- Fix parse file folder logic for downloads to handle case where canonical path does not match property for experiment directory
-- Show usage charts on startup (rather than welcome view) if property show_usage_on_startup set to 'Y'
-- Don't check 'show QC' columns for Experiment detail when experiment is an external experiment.
+* Fix parse file folder logic for downloads to handle case where canonical path does not match property for experiment directory
+* Show usage charts on startup (rather than welcome view) if property show_usage_on_startup set to 'Y'
+* Don't check 'show QC' columns for Experiment detail when experiment is an external experiment.
+
 
 5.2.2 (Aug 17, 2011)
 -------------------------
-- Simplify welcome screen for "external data sharing site", leaving out links to billing, submit request, etc.
-- Added property driven title and welcome message to customize site’s GNomEx UI.
-- Fixed bug that was causing fdt uploads to not be register in usage data (on experiments with revision numbers)
-- Fixed bug that was causing uploads to go to wrong directory when experiment had revision number
+* Simplify welcome screen for "external data sharing site", leaving out links to billing, submit request, etc.
+* Added property driven title and welcome message to customize site’s GNomEx UI.
+* Fixed bug that was causing fdt uploads to not be register in usage data (on experiments with revision numbers)
+* Fixed bug that was causing uploads to go to wrong directory when experiment had revision number
 
 
 5.2.1 (Aug 16, 2011)
 --------------------------
-- Allow non-admin gnomex users to view usage charts based on property setting.
-- Change FlowCellChannel.qc30Gb to decimal (from integer)
-- Add flag to Lab to exclude from usage data
-- Automatically show QC columns on Experiment view when experiment is a QC experiment
+* Allow non-admin gnomex users to view usage charts based on property setting.
+* Change FlowCellChannel.qc30Gb to decimal (from integer)
+* Add flag to Lab to exclude from usage data
+* Automatically show QC columns on Experiment view when experiment is a QC experiment
+
 
 5.2 (Aug 15, 2011)
 --------------------------
-- Switched to form-based authentication.
-- Added password reset/change for external users.
-- Fixed bug preventing username from being saved with session login.
-- Changed wording on alert when price removed from price sheet.
-- Added logout functionality.
-- Set index tag group on sequencing experiments using barcoding even when only one sample
-  submitted.  Needed so that index tag dropdown is appropriately enabled on lib prep worklist.
-- Worklist changes:
-   Sample Quality: Omit Bioanalyzer method, frag size from, and frag size to
-   Library Prep: Omit library conc, Bioanalyzer method, gel size range to and gel size range from
-   Cluster Gen: Omit Sample conc (pM)
-   Seq run: Omit clusters per tile
-   Data pipeline: Omit clusters per tile and PhiX error rate
-   Data pipleline: Add read read1 clusters passed filters (M), read2 clusters passed filters, Q30 (GB)
-- Fixed bug that was causing visibility and sample seq runs tabs to be disabled on 'Edit experiment' window.
-- Fixed bug that was causing 'addchild' flash error for experiments view for guest login
-- Allow experiment owners and lab managers to delete experiment as long as samples haven't gone through a workflow step yet.
-- Switch to forms based authentication in http client java apps (package hci.gnomex.httpclient)
-- Introduce java main for creating fdt upload staging directory for fdt command lin uploading
+* Switched to form-based authentication.
+* Added password reset/change for external users.
+* Fixed bug preventing username from being saved with session login.
+* Changed wording on alert when price removed from price sheet.
+* Added logout functionality.
+* Set index tag group on sequencing experiments using barcoding even when only one sample
+submitted.  Needed so that index tag dropdown is appropriately enabled on lib prep worklist.
+* Worklist changes:
+** Sample Quality: Omit Bioanalyzer method, frag size from, and frag size to
+** Library Prep: Omit library conc, Bioanalyzer method, gel size range to and gel size range from
+** Cluster Gen: Omit Sample conc (pM)
+** Seq run: Omit clusters per tile
+** Data pipeline: Omit clusters per tile and PhiX error rate
+** Data pipleline: Add read read1 clusters passed filters (M), read2 clusters passed filters, Q30 (GB)
+* Fixed bug that was causing visibility and sample seq runs tabs to be disabled on 'Edit experiment' window.
+* Fixed bug that was causing 'addchild' flash error for experiments view for guest login
+* Allow experiment owners and lab managers to delete experiment as long as samples haven't gone through a workflow step yet.
+* Switch to forms based authentication in http client java apps (package hci.gnomex.httpclient)
+* Introduce java main for creating fdt upload staging directory for fdt command lin uploading
+
 
 5.1.9.2 (Aug 9, 2011)
 ----------------------
-- Fixed null pointer exception in SaveRequest that occurred when estimated price warning email was sent and
-  billing contact email was null.
+* Fixed null pointer exception in SaveRequest that occurred when estimated price warning email was sent and billing contact email was null.
+
 
 5.1.9.1 (Aug 1, 2011)
 -----------------------
-- Fixed bugs in sample sheet upload
+* Fixed bugs in sample sheet upload
+
 
 5.1.9 (July 28, 2011)
 -----------------------
-- Replaced sample sheet upload with new version that handles all editable fields
-- Make 'additional lanes to sequence' on the samples view more prominent on 'Add services' window.  (Highlight and move to left).
-- Usage charts show only whole numbers on vertical axis.
-- User needs to be able to select index tag from dropdown on samples grid on sequencing request where lab has already prepped library.
-- Fix the permissions for the fdt upload and download servlets so that the Orion application can write to the directory created under the fdt staging dir. 
+* Replaced sample sheet upload with new version that handles all editable fields
+* Make 'additional lanes to sequence' on the samples view more prominent on 'Add services' window.  (Highlight and move to left).
+* Usage charts show only whole numbers on vertical axis.
+* User needs to be able to select index tag from dropdown on samples grid on sequencing request where lab has already prepped library.
+* Fix the permissions for the fdt upload and download servlets so that the Orion application can write to the directory created under the fdt staging dir. 
+
 
 5.1.8.1 (July 23, 2011)
 -----------------------
-- Added transfer logging for fdt uploads and download using java main (hci.gnomex.httpclient.TransferLoggerMain)
-- Make fdt user and group in FDT servlets property driven
-- Add missing fdt properties to sql populate script
-- Added Usage view to GNomEx to show activity by lab and by week in chart form
+* Added transfer logging for fdt uploads and download using java main (hci.gnomex.httpclient.TransferLoggerMain)
+* Make fdt user and group in FDT servlets property driven
+* Add missing fdt properties to sql populate script
+* Added Usage view to GNomEx to show activity by lab and by week in chart form
+
 
 5.1.8 (July 17, 2011)
 -----------------------
-- Upload/download logs for flex and html http uploads and downloads
-- Fixed bug that was causing save error when adding lanes to a request (codeApplication was blank)
+* Upload/download logs for flex and html http uploads and downloads
+* Fixed bug that was causing save error when adding lanes to a request (codeApplication was blank)
+
 
 5.1.7.4 (July 16, 2011)
 -----------------------
-- Fix download folders bug that was causing number parsing exception when folder contained character 'E'
-- Allow folders created in 'Organize files' window to be removed.
+* Fix download folders bug that was causing number parsing exception when folder contained character 'E'
+* Allow folders created in 'Organize files' window to be removed.
 
 
 5.1.7.3 (July 15, 2011)
 ---------------------
-- Fixed for the scrolling speed problem on the billing window price drag/drop. 
-- Added a property to define who receives the pending work authorizations message, fixed the problem 
-  with the account number in the work auth notification email.
+* Fixed for the scrolling speed problem on the billing window price drag/drop. 
+* Added a property to define who receives the pending work authorizations message, fixed the problem with the account number in the work auth notification email.
+
 
 5.1.7.2 (July 14, 2011)
 ---------------------
-- Save labeling, hyb, scan, and fe protocol defaults based on request category and application rather than
-  sample type and application.
-- Default sequencing option name when paired or single checkbox checked on Experiment Platform config window.
+* Save labeling, hyb, scan, and fe protocol defaults based on request category and application rather than sample type and application.
+* Default sequencing option name when paired or single checkbox checked on Experiment Platform config window.
 
 
 5.1.7.1 (July 13, 2011)
 ---------------------
-- Remove extraneous instructions from submit request window, fix horizontal scrolling problem
-- Finish work on Experiment platform config (prompts for delete, isActive, add new platform, etc.)
-- Add CharacteristicType to populate script.
+* Remove extraneous instructions from submit request window, fix horizontal scrolling problem
+* Finish work on Experiment platform config (prompts for delete, isActive, add new platform, etc.)
+* Add CharacteristicType to populate script.
 
 5.1.7 (July 12, 2011)
 ---------------------
-- Wrap up work on Experiment Platform config
-- Fix for problem with Organism refresh. 
-- Added feature to email lab if order > $500.00. 
-- Modified PendingWorkAuthd to be able to run either as a scheduled task or a daemon.
-- CAN_SUBMIT_REQUESTS permission set to "Y" for admin even if no lab groups are setup.
-- When lab preps (instead of core facility) the seq lib using index tags, check that barcode 
-  sequences or selected index tags are unique across samples belonging to same multiplex group
-- Fix bug that was causing organism dropdown to de-select when nucl. acid extraction method 
-  chosen on submit request window.  Bug introduced with Organims config window.
-- Workaround to DropdownLabel.updateDisplayList issue which calls parentDocument.parentDocument.isEditState
-- Filter by isExternal, isInternal flags when showing experiment platforms on Submit Request vs Register
-  External Experiment windows.
+* Wrap up work on Experiment Platform config
+* Fix for problem with Organism refresh. 
+* Added feature to email lab if order > $500.00. 
+* Modified PendingWorkAuthd to be able to run either as a scheduled task or a daemon.
+* CAN_SUBMIT_REQUESTS permission set to "Y" for admin even if no lab groups are setup.
+* When lab preps (instead of core facility) the seq lib using index tags, check that barcode sequences or selected index tags are unique across samples belonging to same multiplex group
+* Fix bug that was causing organism dropdown to de-select when nucl. acid extraction method chosen on submit request window.  Bug introduced with Organims config window.
+* Workaround to DropdownLabel.updateDisplayList issue which calls parentDocument.parentDocument.isEditState
+* Filter by isExternal, isInternal flags when showing experiment platforms on Submit Request vs Register External Experiment windows.
 		
 
 5.1.6.1 (June 28,2011)
 ---------------------
-- Fixed bug causing billing account with same name to not show up.
-- New Organism edit window.
-- Fix for autoscroll on billing window
+* Fixed bug causing billing account with same name to not show up.
+* New Organism edit window.
+* Fix for autoscroll on billing window
+
 
 5.1.6
 ---------------------
-- Reworked external experiment submission screen.
-- Added isRequired and platforms to Sample annotation configuration.
-- Fixed problem with Lucene ability to search on partial words.
-- Changed wording on upload Sample Sheet instructions.
-- Removed fill button from Sample Name column
-- Added module to send work authorization reminder messages (currently for test only)
-- Removed code that prevents exp. submission if insufficient funds. Added checkbox to commit to payment.
-- Allow samples from different experiments to be combined in one flow cell channel on Clust Gen worklist window.
-- Sequence sample sequence lanes on Edit window so that save will work on external submissions.
-- New interface for managing Organism/GNome Build.
+* Reworked external experiment submission screen.
+* Added isRequired and platforms to Sample annotation configuration.
+* Fixed problem with Lucene ability to search on partial words.
+* Changed wording on upload Sample Sheet instructions.
+* Removed fill button from Sample Name column
+* Added module to send work authorization reminder messages (currently for test only)
+* Removed code that prevents exp. submission if insufficient funds. Added checkbox to commit to payment.
+* Allow samples from different experiments to be combined in one flow cell channel on Clust Gen worklist window.
+* Sequence sample sequence lanes on Edit window so that save will work on external submissions.
+* New interface for managing Organism/GNome Build.
+
 
 5.1.5.2 (May 18,2011)
 ---------------------
-- Applied Fill button to all relevant WorkFlow and Sample submission fields
-- Make bulletin on home page property driven.
+* Applied Fill button to all relevant WorkFlow and Sample submission fields
+* Make bulletin on home page property driven.
 
 
 5.1.5.1 (May 17,2011)
 ---------------------
-- Fix bug that was causing blank sample annotation column header.
-- Applied Fill button to all relevant WorkFlow and Sample submission fields
+* Fix bug that was causing blank sample annotation column header.
+* Applied Fill button to all relevant WorkFlow and Sample submission fields
+
 
 5.1.5 (May 11, 2011)
 --------------------
-- Introduced new data types for Sample annotations (text, checkbox, single-select, multi-select).
-- Renamed 'barcode sequence' and 'barcode tag' to 'index tag'.  Renamed 'multiplex group' to 'index tag group'.
-- Allow 1 sample per lane on barcoding question (seq submissions).
-- Don't ask barcoding questions on external experiments.
-- Fix for dictionary update problem where an item is saved when other tree items have been expanded above it.
-- Updated core ordering page.
-- Enabled edit of $ amt on PO billing accounts
-- Added "Fill" button to fill in workflow parameters for all samples on an experiment.
-- Added code to only submit items that have changed when updating billing and to check each billing period 
-  for readyToInvoice when there are multiple periods on the request.
+* Introduced new data types for Sample annotations (text, checkbox, single-select, multi-select).
+* Renamed 'barcode sequence' and 'barcode tag' to 'index tag'.  Renamed 'multiplex group' to 'index tag group'.
+* Allow 1 sample per lane on barcoding question (seq submissions).
+* Don't ask barcoding questions on external experiments.
+* Fix for dictionary update problem where an item is saved when other tree items have been expanded above it.
+* Updated core ordering page.
+* Enabled edit of $ amt on PO billing accounts
+* Added "Fill" button to fill in workflow parameters for all samples on an experiment.
+* Added code to only submit items that have changed when updating billing and to check each billing period for readyToInvoice when there are multiple periods on the request.
 
 
 5.1.4 (Apr 27, 2011)
 --------------------
-- Moved FDTFileDaemon to gnomex opensource hciFDT source tree.
-- Add other organism to lucene search index.
-- Add section to install notes for configuring GNomEx to use FDT
-- Fix for retrieving codeApplication when no buttons present in microarrayAppRadioGroup (saveRequest function in ExperimentEditView.mxml).
-- Allow save of experiments with no billing accounts.
-- Added instructions for command line download/upload to commented section in jnlp files (added fdt_jar_location property in case we need
-  to change location for obtaining fdt file -- currently http://monalisa.cern.ch/FDT/).
-- Fixed problem with billing period not being set when price dragged to billing sheet. Added code to validate that billing period has been selected.
-- Fix bug that was ignoring barcoding radio selection of yes when user submits Illumina GAII seq request.
-- Reworked fix for unusual characters in protocol description -- completely escaping the text was causing problems for the Lucene index compile. Replaced
-  with a custom function to escape special characters.
-- Modified Lucene search to add the ability to search on partial words.
-- Combine Number Seq cycles and Seq run type into one set of radio buttons on Seq submissions.
+* Moved FDTFileDaemon to gnomex opensource hciFDT source tree.
+* Add other organism to lucene search index.
+* Add section to install notes for configuring GNomEx to use FDT
+* Fix for retrieving codeApplication when no buttons present in microarrayAppRadioGroup (saveRequest function in ExperimentEditView.mxml).
+* Allow save of experiments with no billing accounts.
+* Added instructions for command line download/upload to commented section in jnlp files (added fdt_jar_location property in case we need to change location for obtaining fdt file -* currently http://monalisa.cern.ch/FDT/).
+* Fixed problem with billing period not being set when price dragged to billing sheet. Added code to validate that billing period has been selected.
+* Fix bug that was ignoring barcoding radio selection of yes when user submits Illumina GAII seq request.
+* Reworked fix for unusual characters in protocol description -* completely escaping the text was causing problems for the Lucene index compile. Replaced with a custom function to escape special characters.
+* Modified Lucene search to add the ability to search on partial words.
+* Combine Number Seq cycles and Seq run type into one set of radio buttons on Seq submissions.
 
 
 5.1.3 (Apr 19, 2011)
 ---------------------
-- For experiment submission, default the organism and sample prep method dropdown select based on request category
-- For sequencing experiment submission, only ask if samples are barcoded if the request category dictionary indicates that sample barcoding is options.
-- Fix for dictionary update problem where an item is deleted when other tree items have been expanded above it.
-- New month selector for billing period.
-- Unusual characters such as ° and µ can now be saved/retrieved correctly in protocol description (under Materials & Meth).
-- On seq submissions with multiplexed samples, sample order was scrambled after sample deleted.  Fixed by enforcing sort order on groupingCollection.
-- Disallow non-admin users to edit sample multiplex number on Experiment Edit window. 
-- Show sample barcode sequence alongside sequence tag name on all dropdowns (workflow, seq submission, experiment edit).
-- Don't allow core prep instructions or analysis instructions to be changed at the sample/seq lane level.  For now, instructions are still
-  stored at the detail level but in the UI, are shown at the experiment level.
+* For experiment submission, default the organism and sample prep method dropdown select based on request category
+* For sequencing experiment submission, only ask if samples are barcoded if the request category dictionary indicates that sample barcoding is options.
+* Fix for dictionary update problem where an item is deleted when other tree items have been expanded above it.
+* New month selector for billing period.
+* Unusual characters such as ° and µ can now be saved/retrieved correctly in protocol description (under Materials & Meth).
+* On seq submissions with multiplexed samples, sample order was scrambled after sample deleted.  Fixed by enforcing sort order on groupingCollection.
+* Disallow non-admin users to edit sample multiplex number on Experiment Edit window. 
+* Show sample barcode sequence alongside sequence tag name on all dropdowns (workflow, seq submission, experiment edit).
+* Don't allow core prep instructions or analysis instructions to be changed at the sample/seq lane level.  For now, instructions are still stored at the detail level but in the UI, are shown at the experiment level.
+
 
 5.1.2 (Apr 5, 2011)
 ---------------------
-- Rename labels (Sample setup, Sequencing setup) on Request Submit confirm tab.
-- On Submit window, order request category radio buttons by dictionary defined sort order.
-- Be able to name experiments. Name is searchable and viewed in the experiment tree.
-(Apr 12, 13 2010)
-- Add 'change password' link to home page of external users (non-submitters).
-- Improve logging in fdt file daemon.  If java file rename doesn't work (because file is being moved across file systems), try "mv" command next.  As a last resort, copy file. Report last activity when file renamed, moved, or copied.
+* Rename labels (Sample setup, Sequencing setup) on Request Submit confirm tab.
+* On Submit window, order request category radio buttons by dictionary defined sort order.
+* Be able to name experiments. Name is searchable and viewed in the experiment tree.(Apr 12, 13 2010)
+* Add 'change password' link to home page of external users (non-submitters).
+* Improve logging in fdt file daemon.  If java file rename doesn't work (because file is being moved across file systems), try "mv" command next.  As a last resort, copy file. Report last activity when file renamed, moved, or copied.
 
 
 5.1.1
 ----------------------
-- Reworked FDT interface so that daemon is responsible for moving upload files from fdt staging directory to experiment/analysis directory.
-- Show uploaded experiment files in upload staging area in downloads (under root experiment directory)
-- Moved link buttons to top of Experiment and Analysis Detail and Edit views for (to fit in 1024x768 space)
+* Reworked FDT interface so that daemon is responsible for moving upload files from fdt staging directory to experiment/analysis directory.
+* Show uploaded experiment files in upload staging area in downloads (under root experiment directory)
+* Moved link buttons to top of Experiment and Analysis Detail and Edit views for (to fit in 1024x768 space)
+
 
 5.1 
 ----------------------
-- Introduced Robb's PropertyHelper code for getting Experiment, Analysis, and Flowcell directories
-- Fixed code that was removing analysis from file system by adding file separator between base directory and year.
-- Refinements to FDT uploads and downloads.  Require authentication for upload servlets.  
-- Get rid of unused FastDataTransferServlet.java.  
-- Rename fdt properties.  
-- Launch upload from main analysis and experiment windows rather than side link on upload popup window.
-- Fix bug in download zip that was causing extra "blank" directory because of // in zip entry
+* Introduced Robb's PropertyHelper code for getting Experiment, Analysis, and Flowcell directories
+* Fixed code that was removing analysis from file system by adding file separator between base directory and year.
+* Refinements to FDT uploads and downloads.  Require authentication for upload servlets.  
+* Get rid of unused FastDataTransferServlet.java.  
+* Rename fdt properties.  
+* Launch upload from main analysis and experiment windows rather than side link on upload popup window.
+* Fix bug in download zip that was causing extra "blank" directory because of // in zip entry
 
 5.0.9.5 (Feb 15, 2011)
 ----------------------
-- Make port number for http property driven so that flex uploads (that require http rather than https) work.
-- Use read-only session on all Upload servlets.
-- Replace plupload with standard-issue HTML multi-part upload forms.  Add html upload form for Experiment upload.
-- Don't show billing area on Confirm tab for external projects. 
+* Make port number for http property driven so that flex uploads (that require http rather than https) work.
+* Use read-only session on all Upload servlets.
+* Replace plupload with standard-issue HTML multi-part upload forms.  Add html upload form for Experiment upload.
+* Don't show billing area on Confirm tab for external projects. 
+
 
 5.0.9.4 (Feb 10,2011)
 ---------------------
-- Provide java main for creating analysis in batch job
-- Allow property for lucene index to be qualified by server name.
+* Provide java main for creating analysis in batch job
+* Allow property for lucene index to be qualified by server name.
+
 
 5.0.9.3 (Jan 31, 2011)
 ----------------------
-- Fix bug that was preventing CC Number from importing on sample sheet (Submit request).
-- Fix events on comboboxes on Submit Request tabs to fire when user hits hot key for selection.
+* Fix bug that was preventing CC Number from importing on sample sheet (Submit request).
+* Fix events on comboboxes on Submit Request tabs to fire when user hits hot key for selection.
+
 
 5.0.9.2 (Jan 25, 2011)
 ---------------------
-- Fix 'Add group' bug caused by missing parameter for institutions
+* Fix 'Add group' bug caused by missing parameter for institutions
+
 
 5.0.9.1 (Jan 20, 2010)
 ----------------------
-- Make error handling more robust and error messages more informative for 'Upload sample sheet'.
-- Fix bug that was causing lab dropdown to clear on 'Submit Request' when admin refreshed dictionaries in the middle of a Submit Request operation.  
+* Make error handling more robust and error messages more informative for 'Upload sample sheet'.
+* Fix bug that was causing lab dropdown to clear on 'Submit Request' when admin refreshed dictionaries in the middle of a Submit Request operation.  
 
 5.0.9 (Jan 18, 2010)
 ---------------------
-- Added institution level visibility on experiments and analysis
-- Fix Experiment Edit window to show checkbox for 'CC Number'.  
-- Fix selection problem with lab dropdown on "Submit Request" window. (Didn't refresh app user combo on first selection.)
-- Avoid simultaneous calls to get billing list, get pricing list to prevent random error on Windows 7 clients.  (Get pricing when user clicks on pricing tab in Billing.)
+* Added institution level visibility on experiments and analysis
+* Fix Experiment Edit window to show checkbox for 'CC Number'.  
+* Fix selection problem with lab dropdown on "Submit Request" window. (Didn't refresh app user combo on first selection.)
+* Avoid simultaneous calls to get billing list, get pricing list to prevent random error on Windows 7 clients.  (Get pricing when user clicks on pricing tab in Billing.)
 
 
 5.0.8.3 (Jan 5, 2011)
 ---------------------
-- Fix date comparisons to use YYYY-MM-DD for sql queries to work on MySQL platforms.
-- Fixed bug that was causing blank analysis when user clicked on Analysis link for Experiment that belongs to a different lab.
-- Fix bug that was prevent analysis file from being removed from file system when it was back-door copied rather than uploaded from GNomEx.
-- Fix event timing on 'Upload analysis files' so that file only appears in 'Uploaded' list when entire file has been uploaded.
+* Fix date comparisons to use YYYY-MM-DD for sql queries to work on MySQL platforms.
+* Fixed bug that was causing blank analysis when user clicked on Analysis link for Experiment that belongs to a different lab.
+* Fix bug that was prevent analysis file from being removed from file system when it was back-door copied rather than uploaded from GNomEx.
+* Fix event timing on 'Upload analysis files' so that file only appears in 'Uploaded' list when entire file has been uploaded.
 
 5.0.8.2 (Jan 3, 2011)
 ----------------------
-- Worked around Mac Copy/Paste problem that was stripping new line characters by introducing TextAreaWorkaround class.
-- Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to /sql subdir
-- Moved .cmd, .sh to /scripts subdir
-- Include README_UPGRADE.txt distribution 
+* Worked around Mac Copy/Paste problem that was stripping new line characters by introducing TextAreaWorkaround class.
+* Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to /sql subdir
+* Moved .cmd, .sh to /scripts subdir
+* Include README_UPGRADE.txt distribution 
+
 
 5.0.8.1 (Dec 27, 2010)
 ----------------------
-- Fix bug that was causing error on save of Analysis when file registered in the db but not found on the file system.
-- Fix bug that was preventing 'clear all' Analysis files from working.
-- When file registered in db but not on file system, just show 0 bytes instead of post-fixing (FILE NOT FOUND) to name.
-- Analysis file upload is in a popup window rather than embedded in the Edit window’s file tab.
-- Fix bug introduced in 5.0.8 that was causing $0 estimated price on QC bionanalyzer requests.
-- Introduce import Sample Spreadsheet feature (Thanks Robb!)
+* Fix bug that was causing error on save of Analysis when file registered in the db but not found on the file system.
+* Fix bug that was preventing 'clear all' Analysis files from working.
+* When file registered in db but not on file system, just show 0 bytes instead of post-fixing (FILE NOT FOUND) to name.
+* Analysis file upload is in a popup window rather than embedded in the Edit window’s file tab.
+* Fix bug introduced in 5.0.8 that was causing $0 estimated price on QC bionanalyzer requests.
+* Introduce import Sample Spreadsheet feature (Thanks Robb!)
+
 
 5.0.8 (Dec 20, 2010)
 ---------------------
-- Compile with Flex 3.5 SDK, provide instructions for building with Flash Builder 4
-- Handle case where experiment, analysis, flowcell directory properties don't end with file separator
-- Account for Windows 7 // in File.getCanonicalPath()
-- Account for case differences in experiment directory and file name
-- Make dictionary editor work with flex sdk 3.5 compile (setData has to occur after component added)
-- Clean up home page 
-- Fix QuBit PicoGreen billing
-- Add QC experiment sample type, sample names to searchable index 
-- Double-click on Analysis search results brings up Analysis detail.
-- Make search a popup window rather than a full pane.
-- Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to directory sql.
-- Created upgrade sql script
+* Compile with Flex 3.5 SDK, provide instructions for building with Flash Builder 4
+* Handle case where experiment, analysis, flowcell directory properties don't end with file separator
+* Account for Windows 7 // in File.getCanonicalPath()
+* Account for case differences in experiment directory and file name
+* Make dictionary editor work with flex sdk 3.5 compile (setData has to occur after component added)
+* Clean up home page 
+* Fix QuBit PicoGreen billing
+* Add QC experiment sample type, sample names to searchable index 
+* Double-click on Analysis search results brings up Analysis detail.
+* Make search a popup window rather than a full pane.
+* Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to directory sql.
+* Created upgrade sql script
 
 5.0.7.1 (Dec 7, 2010)
 ---------------------
-- Make 'Add Services' window dictionary-driven from experiment category
-- Omit external experiments from list of experiments listed for 'Add Services'
+* Make 'Add Services' window dictionary-driven from experiment category
+* Omit external experiments from list of experiments listed for 'Add Services'
+
 
 5.0.7 (Dec 6, 2010)
 ---------------------
-- Make experiment category on Submit Request window dictionary driven
-- Add field icon, type to RequestCategory dictionary
-- Centralize code for getting tree icons
-- Fix Add Analysis bug introduced in 5.0.6
-- Validate CC Numbers against BST
+* Make experiment category on Submit Request window dictionary driven
+* Add field icon, type to RequestCategory dictionary
+* Centralize code for getting tree icons
+* Fix Add Analysis bug introduced in 5.0.6
+* Validate CC Numbers against BST
 
 5.0.6 (Nov 30,2010)
 ----------------------
-- Use explicit XML list to drive deletes of analysis file
-- Show final sample conc. pM on Experiment Detail sample seq runs tab
-- Make initialization http service requests synchronous to observe if Windows 7/Flash player launch problem persists
+* Use explicit XML list to drive deletes of analysis file
+* Show final sample conc. pM on Experiment Detail sample seq runs tab
+* Make initialization http service requests synchronous to observe if Windows 7/Flash player launch problem persists
+
 
 5.0.5 (Nov 29,2010)
 ---------------------
-- Rename Sequence Lane to Sample Sequence Run in UI
-- Fix samples grid in Edit Experiment window to always show flat view, allowing user to edit multiplex group number
-- Don't highlight missing required fields on Edit window
-- Fix Analysis Edit files tab so that unregistered files show and can be saved with comment
-- Fix bug that was preventing samples from being organized by multiplex group number for custom barcoded samples (lab prepping own samples)
+* Rename Sequence Lane to Sample Sequence Run in UI
+* Fix samples grid in Edit Experiment window to always show flat view, allowing user to edit multiplex group number
+* Don't highlight missing required fields on Edit window
+* Fix Analysis Edit files tab so that unregistered files show and can be saved with comment
+* Fix bug that was preventing samples from being organized by multiplex group number for custom barcoded samples (lab prepping own samples)
+
 
 5.0.4.1 (Nov 24, 2010)
 --------------------
-- Fix sort order of lanes in multiplex lane
-- Fix sort order of samples (when multiple group number no sequential with sample numbers)
-- Fixed bug so that correct qty calculated for sequencing billing item (number of lanes).
-- Fixed printable request form for non-multiplexed lanes
-- Fixed bug causing error when bringing up Labeling work list
-- Adjust screen layout for Cluster gen work list for more sensible use of horizontal.
+* Fix sort order of lanes in multiplex lane
+* Fix sort order of samples (when multiple group number no sequential with sample numbers)
+* Fixed bug so that correct qty calculated for sequencing billing item (number of lanes).
+* Fixed printable request form for non-multiplexed lanes
+* Fixed bug causing error when bringing up Labeling work list
+* Adjust screen layout for Cluster gen work list for more sensible use of horizontal.
+
 
 5.0.4 (Nov 23, 2010)
 --------------------
-- Make GNomEx sample linkage to BST property driven. (Won't show up for non-HCI installs.)
-- Allow user to arrange multiplex groups of samples for Illumina experiments.  
-- Allow user to specify custom barcode sequence when lab preps own library
-- Fix bug that was causing error on 'New Project' when app user not selected from dropdown on new requests.
-- Fixed auto-email to work with SMTP servers that require authentication (e.g. gmail smtp server).
-- Fixed bug that was causing idAppUser to be blank on Submit Request when admin switched between Submit Request and another main link (like Workflow or Experiments)
+* Make GNomEx sample linkage to BST property driven. (Won't show up for non-HCI installs.)
+* Allow user to arrange multiplex groups of samples for Illumina experiments.  
+* Allow user to specify custom barcode sequence when lab preps own library
+* Fix bug that was causing error on 'New Project' when app user not selected from dropdown on new requests.
+* Fixed auto-email to work with SMTP servers that require authentication (e.g. gmail smtp server).
+* Fixed bug that was causing idAppUser to be blank on Submit Request when admin switched between Submit Request and another main link (like Workflow or Experiments)
+
 
 5.0.3 (Nov 1, 2010)
 ---------------------
-- Fix bug that was causing 'Next' button to be disabled when switching to another main link during 'Submit Request'.  GNomEx was forced to reselect app user from dropdown to continue.
-- Get rid of horizontal separator when dragging uploaded files to folders for external experiments. Expand tree node of folder after upload file drop operation.
-- Fix bug so that external price charged when price dragged onto experiment billing for lab marked as 'External pricing'.
-- Get rid of suffix " - sequencing reads" on Illumina download folders.
-- Fix bug that was showing internal prices for estimated charges on Submit Request for lab with external pricing.
+* Fix bug that was causing 'Next' button to be disabled when switching to another main link during 'Submit Request'.  GNomEx was forced to reselect app user from dropdown to continue.
+* Get rid of horizontal separator when dragging uploaded files to folders for external experiments. Expand tree node of folder after upload file drop operation.
+* Fix bug so that external price charged when price dragged onto experiment billing for lab marked as 'External pricing'.
+* Get rid of suffix " * sequencing reads" on Illumina download folders.
+* Fix bug that was showing internal prices for estimated charges on Submit Request for lab with external pricing.
+
 
 5.0.2.1 (Oct 28, 2010)
 ---------------------
-- Fix bug that was causing Sample prep method to revert back to default on Illumina requests
+* Fix bug that was causing Sample prep method to revert back to default on Illumina requests
+
 
 5.0.2 (Oct 27, 2010)
 --------------------
-- Allow user to enter alternate text to describe nucleic acid extraction method when dropdown options don't describe method.
-- Fix bug that was causing subsequent text searches (on Nav bar) to not be performed.
+* Allow user to enter alternate text to describe nucleic acid extraction method when dropdown options don't describe method.
+* Fix bug that was causing subsequent text searches (on Nav bar) to not be performed.
 
 
 5.0.1 (Oct 26, 2010)
 ---------------------
-- Categorize sequence tag schemes (oligo barcode scheme) by Illumina platform (request category)
-- Add sortOrder to sequence tags (oligo barcode)
+* Categorize sequence tag schemes (oligo barcode scheme) by Illumina platform (request category)
+* Add sortOrder to sequence tags (oligo barcode)
+
 
 5.0.0 (Oct 25, 2010)
 ----------------------
-- Allow external experiments to be submitted to GNomEx.  
-- Provide window to upload and organize files for external experiments.
-- Introduced property which determines if default submission is internal or external experiment submision.
-- Reworked home page.
-- Performance improvements to toXMLDocument in commands called during initialization (Robb).
-- Prevent null pointer exception on GetRequest when billing item has null total price.
-- Fix bug that was causing Prep instructions column to show up on printable form even though they are blank
+* Allow external experiments to be submitted to GNomEx.  
+* Provide window to upload and organize files for external experiments.
+* Introduced property which determines if default submission is internal or external experiment submision.
+* Reworked home page.
+* Performance improvements to toXMLDocument in commands called during initialization (Robb).
+* Prevent null pointer exception on GetRequest when billing item has null total price.
+* Fix bug that was causing Prep instructions column to show up on printable form even though they are blank
 
 
 4.9.9.1 
 ----------------------
-- Added total dollar amount to billing account.
-- User is prevented from submitting experiment request if total charges on billing account (including estimated charges for new request) exceed billing account's total dollar amount.
+* Added total dollar amount to billing account.
+* User is prevented from submitting experiment request if total charges on billing account (including estimated charges for new request) exceed billing account's total dollar amount.
 
 4.9.9 (Oct 10, 2010)
 -----------------------
-- Show estimated charges on Submit Request confirm tab.
+* Show estimated charges on Submit Request confirm tab.
 
 4.9.8.1 (Oct 6, 2010)
 -----------------------
-- Fix bug that was ignoring HiSeq illumina request folders for downloads.
+* Fix bug that was ignoring HiSeq illumina request folders for downloads.
 
 4.9.8 (Oct 6, 2010)
 -----------------------
-- Allow Illumina experiments to be converted from GAIIx -> HiSeq and vice versa.
-- Fixed bug so that custom vs catalog slide radio button is correctly set when editing a microarray experiment
-- Only allow gnomex admins to change billing account on Edit screen.  GNomEx will automatically reassign billing account on pending or completed billing items.
-- Email core facility billing addresses (property-driven) when work authorization is submitted
+* Allow Illumina experiments to be converted from GAIIx -> HiSeq and vice versa.
+* Fixed bug so that custom vs catalog slide radio button is correctly set when editing a microarray experiment
+* Only allow gnomex admins to change billing account on Edit screen.  GNomEx will automatically reassign billing account on pending or completed billing items.
+* Email core facility billing addresses (property-driven) when work authorization is submitted
 
 4.9.7.1 (Oct 3, 2010)
 -----------------------
-- Fix bugs in 'Views' link that was caused by leftover values in idRequest
-- Allow folder name to be saved on Illumina worklist.
+* Fix bugs in 'Views' link that was caused by leftover values in idRequest
+* Allow folder name to be saved on Illumina worklist.
 
 4.9.7 (Oct 1, 2010)
 ------------------------
-- Rework experiment download into a expanded file view.
-- Provide alternate browser-based downloads to support individual file downloads > 4GB.
-- Provide 'view' links in Experiments download page.
-- Fixed bug that was causing Seq lanes to go to GAII cluster gen worklist rather than HiSeq worklist when 'Add Services to existing request' submitted (QC->HiSeq corePrep=N)
-- Refactored DictionaryManager, separating out PropertyManager class.
+* Rework experiment download into a expanded file view.
+* Provide alternate browser-based downloads to support individual file downloads > 4GB.
+* Provide 'view' links in Experiments download page.
+* Fixed bug that was causing Seq lanes to go to GAII cluster gen worklist rather than HiSeq worklist when 'Add Services to existing request' submitted (QC->HiSeq corePrep=N)
+* Refactored DictionaryManager, separating out PropertyManager class.
 
 4.9.6.1 (Sep 23, 2010)
 ------------------------
-- Fix bug that was causing actionscript error when double-clicking on experiments grid (due to refactoring of ExperimentDetailView).
-- Fix bug that was causing 'Please specify at least 1 additional search criteria' on old experiments that do not end with 'R'.
-- Provide way to close 'new/edit Analysis Protocol' window (from Analysis Edit).
+* Fix bug that was causing actionscript error when double-clicking on experiments grid (due to refactoring of ExperimentDetailView).
+* Fix bug that was causing 'Please specify at least 1 additional search criteria' on old experiments that do not end with 'R'.
+* Provide way to close 'new/edit Analysis Protocol' window (from Analysis Edit).
 
 4.9.6 (Sep 23, 2010)
 ------------------------
-- Support uploading and downloading on GnomEx configured as http rather than https
-- Introduced cc number to Sample (hidden for now).  (Robb)
-- Fix bug that was causing actionscript error when editing Illumina request's sequence lane.
+* Support uploading and downloading on GnomEx configured as http rather than https
+* Introduced cc number to Sample (hidden for now).  (Robb)
+* Fix bug that was causing actionscript error when editing Illumina request's sequence lane.
 
 
 4.9.5.1 (Sep 14, 2010)
 ------------------------
-- Fixed bug that was looking at wrong file path for downloading Illumina requests (should have ignored revision on request)
-- Fixed bug that was causing zip entry to show revision number for flow cell reports
-- Show correct 1-color agilent icon in downloads browse view
+* Fixed bug that was looking at wrong file path for downloading Illumina requests (should have ignored revision on request)
+* Fixed bug that was causing zip entry to show revision number for flow cell reports
+* Show correct 1-color agilent icon in downloads browse view
 
 4.9.5 (Sep 13, 2010)
 ------------------------
-- Fix bug that was causing save error when submitting request on last day of month due to date boundary logic problem when getting current billing period.
-- Provide visibility to lock down experiment to owner and owner's lab manager(s)
-- Add 'collaborators' list to individual experiments and analysis.  These users are granted read access on the individual experiment/analysis regardless of visibility.
-- Add 'close' button on experiment detail window that pops up when user clicks on experiment tree on Analysis Edit window.
-- Only send email notifying of work authorization approval to submitter and PI (lab emails), not lab managers.
-- When user submitting work authorization form, require either project or activity, but not both.  Expiration date is also mandatory.
-- Default to show active billing accounts in 'Reassign billing accounts' popup window in billing. (Checkbox allows inactive billing accounts to be showns as well).
-- Rework 'Split billing accounts' window to use dropdowns for lab and billing account rather than editable grid, which had a bug 
+* Fix bug that was causing save error when submitting request on last day of month due to date boundary logic problem when getting current billing period.
+* Provide visibility to lock down experiment to owner and owner's lab manager(s)
+* Add 'collaborators' list to individual experiments and analysis.  These users are granted read access on the individual experiment/analysis regardless of visibility.
+* Add 'close' button on experiment detail window that pops up when user clicks on experiment tree on Analysis Edit window.
+* Only send email notifying of work authorization approval to submitter and PI (lab emails), not lab managers.
+* When user submitting work authorization form, require either project or activity, but not both.  Expiration date is also mandatory.
+* Default to show active billing accounts in 'Reassign billing accounts' popup window in billing. (Checkbox allows inactive billing accounts to be showns as well).
+* Rework 'Split billing accounts' window to use dropdowns for lab and billing account rather than editable grid, which had a bug 
   that resulted in billing accounts not being properly refreshed based on selected lab.  Also, show active billing accounts by
   default with ability to also show inactive accounts.
-- Get rid of horizontal scroll bars in 'folder' cell of Experiment downloads.
-- Disable double-click on Experiments tree so that second click event doesn't interfere with 'Download' click event already in progress.  
+* Get rid of horizontal scroll bars in 'folder' cell of Experiment downloads.
+* Disable double-click on Experiments tree so that second click event doesn't interfere with 'Download' click event already in progress.  
   (This was causing view to switch back to Experiment detail view after 'Downloads' link was pressed.)
-- Provide download checkboxes and button on 'Files' tab of Analysis detail for more intuitive navigation to downloading analysis files.
-- Maintain selection of experiment/analysis tree when 'downloads' link pressed on individual experiment or analysis.  Accomplished this by filtering download list by id of request selected.
-- Fix bug that was causing I/O error when guest attempted to download experiment or analysis files (caused by null pointer exception request.getUserPrincipal())
-- Fix bug on 'Add Analysis' window that was not filtering analysis group by lab selected in dropdown. 
-- Add security filter so that users listed as collaborators on other lab's experiments or analysis don't see empty project or analysis group folders belonging to labs they are not members or managers of.
-- For printable request form, if prep instructions for all of the samples are the same, print at top of samples list rather than as column.
-- Prompt user before removing price category. (Robb)
-- Added code to address Mac mouse wheel problem (this may not work. We’ll need to have David try it and I’ll remove it if it doesn’t help). (Robb)
-- Adjusted field widths on Price Category grid. (Robb)
-- Added code to automatically add “R” on back end of nothing found in searching for experiment. (Robb)
-- Use JAVA_HOME environment variable when setting path in batch program index_gnomex.cmd.
-- Fix bug causing blank Analysis to show up when Analysis lookup, followed by Experiments, followed by another Analysis lookup (caused by re-selection bug).
+* Provide download checkboxes and button on 'Files' tab of Analysis detail for more intuitive navigation to downloading analysis files.
+* Maintain selection of experiment/analysis tree when 'downloads' link pressed on individual experiment or analysis.  Accomplished this by filtering download list by id of request selected.
+* Fix bug that was causing I/O error when guest attempted to download experiment or analysis files (caused by null pointer exception request.getUserPrincipal())
+* Fix bug on 'Add Analysis' window that was not filtering analysis group by lab selected in dropdown. 
+* Add security filter so that users listed as collaborators on other lab's experiments or analysis don't see empty project or analysis group folders belonging to labs they are not members or managers of.
+* For printable request form, if prep instructions for all of the samples are the same, print at top of samples list rather than as column.
+* Prompt user before removing price category. (Robb)
+* Added code to address Mac mouse wheel problem (this may not work. We’ll need to have David try it and I’ll remove it if it doesn’t help). (Robb)
+* Adjusted field widths on Price Category grid. (Robb)
+* Added code to automatically add “R” on back end of nothing found in searching for experiment. (Robb)
+* Use JAVA_HOME environment variable when setting path in batch program index_gnomex.cmd.
+* Fix bug causing blank Analysis to show up when Analysis lookup, followed by Experiments, followed by another Analysis lookup (caused by re-selection bug).
 
 
 
 4.9.4 (Aug 31, 2010)
 ------------------------
-- Allow gnomex admins to send broadcast email to all active gnomex users.
+* Allow gnomex admins to send broadcast email to all active gnomex users.
 
 4.9.3 (Aug 26,2010)
 ------------------------
-- Fix icons for hiSeq experiments on Download grid
-- Insulate calls that directly reference property constants for 
+* Fix icons for hiSeq experiments on Download grid
+* Insulate calls that directly reference property constants for 
   experiment_directory, analysis_directory and flowcell_directory so that
   downloads will parse main folder correctly from each server's property
   for the filepaths
 
 4.9.2 (Aug 25, 2010)
 ------------------------
-- Fix wording for core lib prep instructions label on Illumina Submit request (barcoded samples)
-- Filter flow cells by time period (last week, month, year, etc.) and provide lookup of flow cell by flow cell # or experiment #
-- Make work list window layout consistent.
-- Centralize code that parses request number into base request number
-- Support different experiment, analysis, and flowcell directory properties based on the server name
+* Fix wording for core lib prep instructions label on Illumina Submit request (barcoded samples)
+* Filter flow cells by time period (last week, month, year, etc.) and provide lookup of flow cell by flow cell # or experiment #
+* Make work list window layout consistent.
+* Centralize code that parses request number into base request number
+* Support different experiment, analysis, and flowcell directory properties based on the server name
 
 4.9.1 (Aug 24, 2010)
 ------------------------
-- When gnomex user is submitting a work auth form, show only labs he belong to in dropdown. 
-- Provide way to launch gnomex to automatically bring up Work Auth window. 
-- For advanced search, show only slides (in dropdown) that are used for public experiments when user is guest or univ-only user
-- Fix bug that was causing error on save after adding new Billing account to a lab.
-- Add info under 'Trouble downloading' to recommend users download files individually when over 2 GB.  Also, in prompt recommend indiv. file download when exceed 2 GB.
-- Allow more than one production server in property production_server when gnomex runs on more than one production server at the same time 
+* When gnomex user is submitting a work auth form, show only labs he belong to in dropdown. 
+* Provide way to launch gnomex to automatically bring up Work Auth window. 
+* For advanced search, show only slides (in dropdown) that are used for public experiments when user is guest or univ-only user
+* Fix bug that was causing error on save after adding new Billing account to a lab.
+* Add info under 'Trouble downloading' to recommend users download files individually when over 2 GB.  Also, in prompt recommend indiv. file download when exceed 2 GB.
+* Allow more than one production server in property production_server when gnomex runs on more than one production server at the same time 
 
 
 4.9 (Aug 23, 2010)
 ------------------------
-- Added ability for univ users (with or without GNomEx account) to submit work authorization forms in gnomex
-- Added ability for admins to approve pending billing accounts (from work auth forms)
-- Fix bug that was causing delete request to fail because of fk violation to seq lib treatments.
-- Fix bug introduced in 4.8.7 that was causing empty work list for sequencing run and sequencing data pipeline.
-- Scrub out slide product, slide design list for guest users and non-gnomex university users
-- Scrub out all custom slides not belonging to user's lab
-- Don't show 'no slides' message before user has selected microarray app radio button on Microarray Submit Request window.
-- Show 'changes have not been saved' message when admin clicks on 'Approved' checkbox for pending billing account of Lab.
+* Added ability for univ users (with or without GNomEx account) to submit work authorization forms in gnomex
+* Added ability for admins to approve pending billing accounts (from work auth forms)
+* Fix bug that was causing delete request to fail because of fk violation to seq lib treatments.
+* Fix bug introduced in 4.8.7 that was causing empty work list for sequencing run and sequencing data pipeline.
+* Scrub out slide product, slide design list for guest users and non-gnomex university users
+* Scrub out all custom slides not belonging to user's lab
+* Don't show 'no slides' message before user has selected microarray app radio button on Microarray Submit Request window.
+* Show 'changes have not been saved' message when admin clicks on 'Approved' checkbox for pending billing account of Lab.
 
 4.8.7.1 (Aug 17, 2010)
 -------------------------
-- Fixed bug introduced in 4.8.7 that was causing billing account dropdown to be blank on Submit Request window for non-admin users.
-- Fixed bug introduced in 4.8.7 that was not allowing new billing accounts to be added to a lab.
-- Fixed bug introduced in 4.8.7 that was causing Experiment Edit window to not refresh on subsequent experiments after first experiment.
-- Rework timing of getting slide product list and slide design list on SubmitWindow so that it only occurs when user selects a microarray request kind.
-- Don't show drag-n-drop hint on Experiments and Analysis windows for guest users.
-- Multi-group selection window to filter Analysis now allows user to click on row to select lab.
-- Analysis filter 'Show public experiments' causes analysis tree to refresh automatically.
-- Fix wording on 'Add Services' when no QC experiments found (incorrectly worded as 'No Illumina experiments found'
+* Fixed bug introduced in 4.8.7 that was causing billing account dropdown to be blank on Submit Request window for non-admin users.
+* Fixed bug introduced in 4.8.7 that was not allowing new billing accounts to be added to a lab.
+* Fixed bug introduced in 4.8.7 that was causing Experiment Edit window to not refresh on subsequent experiments after first experiment.
+* Rework timing of getting slide product list and slide design list on SubmitWindow so that it only occurs when user selects a microarray request kind.
+* Don't show drag-n-drop hint on Experiments and Analysis windows for guest users.
+* Multi-group selection window to filter Analysis now allows user to click on row to select lab.
+* Analysis filter 'Show public experiments' causes analysis tree to refresh automatically.
+* Fix wording on 'Add Services' when no QC experiments found (incorrectly worded as 'No Illumina experiments found'
 
 4.8.7 (Aug 16, 2010)
 -------------------------
-- Show links on Price sheet tab of Billing window to jump to a particular price sheet.
-- Add checkbox 'Show Prices' to price sheet tab of Billing window.
-- Reformat filter box in Billing window nav area.
-- Fix email body for invoices to work with Gmail HTML renderer.
-- Use DictionaryManager cache in DictionaryHelper rather than hibernate queries, reducing DictionaryHelper.loadDictionaries from 2 seconds to < millisecond.
-- Improved app startup performance by waiting to run queries to get slides and app user list until needed.  Also, improved performace of lab list by lazing loading billing accounts. (reduced startup on test server from 18 to 7 seconds)
-- Fixed bug that was causing vendor, lab, billing class, etc. dropdowns to clear out after switching from Slides to some other window.
-- Don't show account number or submission instructions on printable request form when guest is logged into GNomEx.
-- On home page, rename 'Show My Experiments' to 'Show Experiments' when guest is logged into GNomEx.  
+* Show links on Price sheet tab of Billing window to jump to a particular price sheet.
+* Add checkbox 'Show Prices' to price sheet tab of Billing window.
+* Reformat filter box in Billing window nav area.
+* Fix email body for invoices to work with Gmail HTML renderer.
+* Use DictionaryManager cache in DictionaryHelper rather than hibernate queries, reducing DictionaryHelper.loadDictionaries from 2 seconds to < millisecond.
+* Improved app startup performance by waiting to run queries to get slides and app user list until needed.  Also, improved performace of lab list by lazing loading billing accounts. (reduced startup on test server from 18 to 7 seconds)
+* Fixed bug that was causing vendor, lab, billing class, etc. dropdowns to clear out after switching from Slides to some other window.
+* Don't show account number or submission instructions on printable request form when guest is logged into GNomEx.
+* On home page, rename 'Show My Experiments' to 'Show Experiments' when guest is logged into GNomEx.  
 
 
 4.8.6 (Aug 9, 2010)
 -------------------------
-- Show billing items for other periods in Billing window (when clicking on request from tree)
-- Moved 'internal pricing' and 'external pricing' radio buttons to Billing Account tab on Group detail window.
-- When looking up experiment by request number, find experiment regardless of revision number (proceeding 'R' in experiment number).
-- Show price criteria on Pricing tab of Billing window.
-- Put refresh button as last link button on right of top nav panel for billing, experiments for consistent UI layout
+* Show billing items for other periods in Billing window (when clicking on request from tree)
+* Moved 'internal pricing' and 'external pricing' radio buttons to Billing Account tab on Group detail window.
+* When looking up experiment by request number, find experiment regardless of revision number (proceeding 'R' in experiment number).
+* Show price criteria on Pricing tab of Billing window.
+* Put refresh button as last link button on right of top nav panel for billing, experiments for consistent UI layout
 
 4.8.5 patch (July 29, 2010)
 -------------------------
-- Fixed bug on Illumina submit request that was causing 'Samples' tab to be non-functional when 'Prepped by Core' = 'N'.  Bug introduced with prep instructions.
-- Enabled barcoding for Illumina requests where the seq lib is prepped by lab (rather than core)
+* Fixed bug on Illumina submit request that was causing 'Samples' tab to be non-functional when 'Prepped by Core' = 'N'.  Bug introduced with prep instructions.
+* Enabled barcoding for Illumina requests where the seq lib is prepped by lab (rather than core)
 
 4.8.5 (July 28, 2010)
 -------------------------
-- Introduced new Billing Lab Usage report.
-- Don't allow Lab to be changed on Analysis edit window.  (Should use drag-n-drop instead)
-- Reformat Analysis edit window to leave more room for description.  Moved analysis group to its own tab.
-- Move filter widgets and refresh link to top panel in Analysis view.  
-- Add ability to filter by multiple labs in Analysis view and ability to filter by analysis created in last week, month, 3 months, or year.
-- Add core prep instructions to Submit Illumina Request window.  Show instructions on printable form.
-- Fix save bug on Microarray edit screen by refreshing list that populates application radio buttons based on request category.
-- Increase width of printable request form from 600 to 700 pixels.
+* Introduced new Billing Lab Usage report.
+* Don't allow Lab to be changed on Analysis edit window.  (Should use drag-n-drop instead)
+* Reformat Analysis edit window to leave more room for description.  Moved analysis group to its own tab.
+* Move filter widgets and refresh link to top panel in Analysis view.  
+* Add ability to filter by multiple labs in Analysis view and ability to filter by analysis created in last week, month, 3 months, or year.
+* Add core prep instructions to Submit Illumina Request window.  Show instructions on printable form.
+* Fix save bug on Microarray edit screen by refreshing list that populates application radio buttons based on request category.
+* Increase width of printable request form from 600 to 700 pixels.
 
 
 4.8.4 (July 25, 2010)
 -------------------------
-- Fix email body to work with Outlook 2007 and Gmail HTML renderers.
-- Only warn about missing chartfields or blanking out chartfields on PO accounts for billing accounts just updated or added.
+* Fix email body to work with Outlook 2007 and Gmail HTML renderers.
+* Only warn about missing chartfields or blanking out chartfields on PO accounts for billing accounts just updated or added.
 
 4.8.3 (July 21, 2010)
 -------------------------
-- Fixed bug where reselect on deactivated price caused blacked-out line. (Robb)
-- Made change so cursor stays on “complete” after request has been moved from “complete” to “approved.” (Robb)
-- Changed External Billing checkbox to Internal/External Pricing radio buttons. (Robb)
-- Added PO checkbox to BillingAccounts items and blank out chartfields when checked.  
-- Use PO flag on billing account to determine if billing shows under 'External PO' folder rather than using 'External' flag on Lab. (Robb)
-- Warn when price, qty, or unit price is blank or 0;
+* Fixed bug where reselect on deactivated price caused blacked-out line. (Robb)
+* Made change so cursor stays on “complete” after request has been moved from “complete” to “approved.” (Robb)
+* Changed External Billing checkbox to Internal/External Pricing radio buttons. (Robb)
+* Added PO checkbox to BillingAccounts items and blank out chartfields when checked.  
+* Use PO flag on billing account to determine if billing shows under 'External PO' folder rather than using 'External' flag on Lab. (Robb)
+* Warn when price, qty, or unit price is blank or 0;
 
 
 4.8.2 (patch July 9, 2010)
 -------------------------
-- Fixed protocols links on experiments detail.  Bug was causing last protocol to always be shown.
+* Fixed protocols links on experiments detail.  Bug was causing last protocol to always be shown.
 
 4.8.2 (July 7, 2010)
 -----------------------
-- Fixed printable request form for Illumina HiSeq to show barcode (also other code that should test for both GAIIX and HiSeq like sample quality billing plug-in)
-- Fixed billing summary report by lab to include HiSeq in Solexa totals.
-- Work around unreachable orion dtd in datasources.xml by using dummy entity resolver in lucene BuildIndex java app
-- Change Illumina Lib QC plug-in to only create billing item if lab prepped own library (seqPrepByCore=N)
-- Bypass creating sample quality billing items and lib prep billing items on Illumina requests where the lab prepped its own library.
+* Fixed printable request form for Illumina HiSeq to show barcode (also other code that should test for both GAIIX and HiSeq like sample quality billing plug-in)
+* Fixed billing summary report by lab to include HiSeq in Solexa totals.
+* Work around unreachable orion dtd in datasources.xml by using dummy entity resolver in lucene BuildIndex java app
+* Change Illumina Lib QC plug-in to only create billing item if lab prepped own library (seqPrepByCore=N)
+* Bypass creating sample quality billing items and lib prep billing items on Illumina requests where the lab prepped its own library.
 
 4.8.1 (Jul 6, 2010)
 -----------------------
-- Replaced seq lib treatments with request categories
-- Order sequencing application radio buttons
-- Added fk constraint on Request to Request Category
+* Replaced seq lib treatments with request categories
+* Order sequencing application radio buttons
+* Added fk constraint on Request to Request Category
 
 
 4.8 (Patch Jul 2, 2010)
 ------------------------
-- Fixed bug that was causing actionscript error deep in renderer code.  Only happened when clicking on microarray experiment.  Fixed by adding hybs grid in MicroarrayState.
+* Fixed bug that was causing actionscript error deep in renderer code.  Only happened when clicking on microarray experiment.  Fixed by adding hybs grid in MicroarrayState.
 
 4.8 (July 1, 2010)
 ------------------------
@@ -673,105 +691,105 @@
 
 4.7 patch (June 22, 2010)
 ------------------------
-- Fix bug that was causing null reference on lab combo when non-admin user submitting a request
-- Fixed bug that was causing # of additional sequencing lanes on 'add services' to be non-editable for non-admin users
-- Don't require sample prep method to be filled in when adding lanes since old requests won't have this filled in
-- Fix null ref in sample setup for onGetLab parentDocument.filteredProjectList.refresh()
+* Fix bug that was causing null reference on lab combo when non-admin user submitting a request
+* Fixed bug that was causing # of additional sequencing lanes on 'add services' to be non-editable for non-admin users
+* Don't require sample prep method to be filled in when adding lanes since old requests won't have this filled in
+* Fix null ref in sample setup for onGetLab parentDocument.filteredProjectList.refresh()
 
 4.7 (June 20, 2010)
 -------------------------
-- Ability to add services to an experiment request (amend request)
-- Add filter in last 3 months experiment filter
-- Include application in  experiment tree label for advanced search, amend request  
-- Dictionary editor - maintain selection when dictionary entry added, edited, removed
-- Maintain the last selection on billing period combo on Billing screen
-- Fixed some compile warnings related to parameterized collections.
-- Add lastModifyDate to request (experiment)
-- Billing items are now created automatically when new request is submitted or services are added to an existing request.
-- Drag-n-drop analysis to analysis group(s).
-- Make printable experiment form more print-friendly.
-- Add revision number to end of request number when services are added (example 7425R -> 7425R1 -> 7425R2).
-- Delete billing items associated with request when request is deleted (warn first).
-- Fix bug that was causing non-existent experiment lookup to interfere with subsequence experiment browses
-- Add ability to add, delete samples on edit request window
-- Document sample, hyb, or seq lane number to correspond to qty (not stored in db yet, waiting for future release to free up notes field.)
-- Handle added lanes, hybs, samples in billing plug-ins.
-- Just warn if samples on experiment not used on hybs or seq lanes.
-- Show warning about adjusting billing when services deleted on edit window.
-- Add ability to link other lab's experiments to analysis.
-- Ignore inactive price categories when creating billing items 
-- Require lab to be selected for admins on Experiment browse if broad criteria or no other criteria provided.
-- Altered Lib conc. to support 1 decimal (Illumina workflow Lib Prep)
-- Generalize work auth links using properties workauth1_url, workauth1_name, workauth2_url, workauth2_name
-- Default printing of request form does not include instructions.  Additional link provided for 'Print all' so that instructions can be printed with request form.
-- Price sheet drag-n-drop only works for price categories, so warn user if attempted on prices or price sheets. Also, provide informative message when price category attached to another price sheet or repositioned.
-- Add drag-and-drop hint link to Analysis, Experiments, and Billing Price Sheet
+* Ability to add services to an experiment request (amend request)
+* Add filter in last 3 months experiment filter
+* Include application in  experiment tree label for advanced search, amend request  
+* Dictionary editor * maintain selection when dictionary entry added, edited, removed
+* Maintain the last selection on billing period combo on Billing screen
+* Fixed some compile warnings related to parameterized collections.
+* Add lastModifyDate to request (experiment)
+* Billing items are now created automatically when new request is submitted or services are added to an existing request.
+* Drag-n-drop analysis to analysis group(s).
+* Make printable experiment form more print-friendly.
+* Add revision number to end of request number when services are added (example 7425R -> 7425R1 -> 7425R2).
+* Delete billing items associated with request when request is deleted (warn first).
+* Fix bug that was causing non-existent experiment lookup to interfere with subsequence experiment browses
+* Add ability to add, delete samples on edit request window
+* Document sample, hyb, or seq lane number to correspond to qty (not stored in db yet, waiting for future release to free up notes field.)
+* Handle added lanes, hybs, samples in billing plug-ins.
+* Just warn if samples on experiment not used on hybs or seq lanes.
+* Show warning about adjusting billing when services deleted on edit window.
+* Add ability to link other lab's experiments to analysis.
+* Ignore inactive price categories when creating billing items 
+* Require lab to be selected for admins on Experiment browse if broad criteria or no other criteria provided.
+* Altered Lib conc. to support 1 decimal (Illumina workflow Lib Prep)
+* Generalize work auth links using properties workauth1_url, workauth1_name, workauth2_url, workauth2_name
+* Default printing of request form does not include instructions.  Additional link provided for 'Print all' so that instructions can be printed with request form.
+* Price sheet drag-n-drop only works for price categories, so warn user if attempted on prices or price sheets. Also, provide informative message when price category attached to another price sheet or repositioned.
+* Add drag-and-drop hint link to Analysis, Experiments, and Billing Price Sheet
 
 4.6.6 (May 13, 2010)
 -------------------------
-- Organize sequencing applications by theme
-- Add sample lib prep conditions/treatments 
-- Fix bug that was causing request category name, application name to double, triple
-- Fix bug that was causing required border (yellow) to appear around microarray dropdown on microarray edit screen
-- Fix typo in instruction box on microarray edit screen, hyb setup tab
-- Add 'On Hold', 'In Progress' status to work item; persist status on work item 
-- Get rid of Flow Cell Stock work list
-- Show status on Illumina cluster gen work list
+* Organize sequencing applications by theme
+* Add sample lib prep conditions/treatments 
+* Fix bug that was causing request category name, application name to double, triple
+* Fix bug that was causing required border (yellow) to appear around microarray dropdown on microarray edit screen
+* Fix typo in instruction box on microarray edit screen, hyb setup tab
+* Add 'On Hold', 'In Progress' status to work item; persist status on work item 
+* Get rid of Flow Cell Stock work list
+* Show status on Illumina cluster gen work list
 
 
 4.6.5 (Apr 28, 2010)
 ------------------------
-- Format email to verify lab's user accounts with HTML instead of plain text.
-- Add isActive to lab.  Show (inactive) verbiage in list of users.
-- Fix refresh after save of user and group.
-- Fix Type #1090 error caused due to mis-timed event-handling when looking up by experiment or analysis
-- Fix scoping when looking up analysis or experiment not in user's lab.
-- Show different states on home view for admin, non-submitting user (no lab assigned) or guest.
-- Show padding for download button on analysis detail.
+* Format email to verify lab's user accounts with HTML instead of plain text.
+* Add isActive to lab.  Show (inactive) verbiage in list of users.
+* Fix refresh after save of user and group.
+* Fix Type #1090 error caused due to mis-timed event-handling when looking up by experiment or analysis
+* Fix scoping when looking up analysis or experiment not in user's lab.
+* Show different states on home view for admin, non-submitting user (no lab assigned) or guest.
+* Show padding for download button on analysis detail.
 
 
 4.6.4 (Apr 25, 2010)
 ------------------------
- - Auto-email group contact to verify active user accounts.
+ * Auto-email group contact to verify active user accounts.
  
 
 4.6.2 (Apr 12, 2010)
 -------------------------
-- Fix cy3 and cy5 radio buttons so that renderer works with scrolling.  Switched to using checkboxes.
-- Fixed problem with seq app and microarray app radio button repeaters that were not refreshing after first submit request.
-- Fixed load properties in gnomex security manager to only occur in init.  Used entitity resolver so that if orion site is down, datasources.xml will still be parsed.
-- Patch (Apr 13, 2010)
-  - Fix problem where qc submit request was showing seq app radio buttons
-  - moved seq app radio buttons to its own tab
-- Patch (Apr 14, 2010)
-  - Fix download list for illumina requests so that multiple GAII folders (with dashes) an appear
-  - Seq app radio button on sep tab now.
+* Fix cy3 and cy5 radio buttons so that renderer works with scrolling.  Switched to using checkboxes.
+* Fixed problem with seq app and microarray app radio button repeaters that were not refreshing after first submit request.
+* Fixed load properties in gnomex security manager to only occur in init.  Used entitity resolver so that if orion site is down, datasources.xml will still be parsed.
+* Patch (Apr 13, 2010)
+  * Fix problem where qc submit request was showing seq app radio buttons
+  * moved seq app radio buttons to its own tab
+* Patch (Apr 14, 2010)
+  * Fix download list for illumina requests so that multiple GAII folders (with dashes) an appear
+  * Seq app radio button on sep tab now.
  
 
 4.6.1 (Mar 30, 2010)
 -------------------------
-- Fixed bug that was preventing price criteria from being deleted.  Also fixed bug that was preventing multiple criteria from being saved in one shot.
-- Fixed bug that was preventing lanes from being added or copied when template had analysis instructions with a single quote.
+* Fixed bug that was preventing price criteria from being deleted.  Also fixed bug that was preventing multiple criteria from being saved in one shot.
+* Fixed bug that was preventing lanes from being added or copied when template had analysis instructions with a single quote.
 
 
 4.6.3 (Mar 29, 2010)
 -------------------------
-- New radio group renderer for cy3 and cy5 labels on samples tab to fix bug that shows up when more than one page worth of samples.
-- Fix Illumina seq prep by core = n invalid ref problem
-- Fix filter problem on slide dropdown when new slide added
+* New radio group renderer for cy3 and cy5 labels on samples tab to fix bug that shows up when more than one page worth of samples.
+* Fix Illumina seq prep by core = n invalid ref problem
+* Fix filter problem on slide dropdown when new slide added
  
 
 4.5.3.1 (Mar 15, 2010)
 -------------------------
-- Fixed analysis upload servlet bug
-- Introduced plupload widget for HTML uploader.
-- Select user after adding new one.
-- Patches
-  - Fix Illumina lib prep (radio not selected) causing null ref on # seq cycles radio group. (patched swf Mar 17,2010)
+* Fixed analysis upload servlet bug
+* Introduced plupload widget for HTML uploader.
+* Select user after adding new one.
+* Patches
+  * Fix Illumina lib prep (radio not selected) causing null ref on # seq cycles radio group. (patched swf Mar 17,2010)
 
 
 4.5.3  (Mar 12, 2010)
 -------------------------
-- New HTML uploader to workaround +1 GB Flex upload problem encountered.
+* New HTML uploader to workaround +1 GB Flex upload problem encountered.
 
 
