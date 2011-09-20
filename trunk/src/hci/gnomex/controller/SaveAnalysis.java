@@ -23,6 +23,7 @@ import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyHelper;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.File;
@@ -101,6 +102,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                labName;
   private String                analysisType;
   private AnalysisGroup         existingAnalysisGroup;
+  
+  private String                serverName;
   
   
   public void validate() {
@@ -219,6 +222,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
     }    
     
+    serverName = request.getServerName();
+    
     if (request.getParameter("isBatchMode") != null && request.getParameter("isBatchMode").equals("Y")) {
       isBatchMode = true;
     }
@@ -274,7 +279,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           hybParser.parse(sess);
         }
         if (laneParser != null) {
-          laneParser.parse(sess);          
+          laneParser.parse(sess, isBatchMode);          
         }
         if (collaboratorParser != null) {
           collaboratorParser.parse(sess);          
@@ -492,8 +497,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         }         
         
         sess.flush();
-               
-        this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"/>";
+          
+        String filePathInfo = "";
+        if (isBatchMode) {
+          String baseDir = PropertyHelper.getInstance(sess).getAnalysisWriteDirectory(serverName);
+          filePathInfo = " filePath=\"" + getAnalysisDirectory(baseDir, analysis) + "\"";
+        }
+        this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"" + filePathInfo + "/>";
       
         setResponsePage(this.SUCCESS_JSP);
       } else {
@@ -621,11 +631,23 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setPrivacyExpirationDate(analysisScreen.getPrivacyExpirationDate());
   }
   
+  private static String getAnalysisDirectory(String baseDir, Analysis analysis) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+    String createYear = formatter.format(analysis.getCreateDate());
+    
+    if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+      baseDir += "/";
+    }
+    
+    String directoryName = baseDir + createYear + "/" + analysis.getNumber();    
+    return directoryName;
+  }
+  
   private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = baseDir +  "/" + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
+    String fileName = getAnalysisDirectory(baseDir, analysis) + "/" + analysisFile.getFileName();    
 
     // Remove references of the file in TransferLog
     String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + analysis.getIdAnalysis() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
@@ -645,7 +667,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = baseDir +  "/" + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
+    String fileName =getAnalysisDirectory(baseDir, analysis) +  "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
     
     
     File f = new File(fileName);
@@ -659,7 +681,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String dirName = baseDir +  "/" + createYear + "/" + analysis.getNumber();
+    String dirName = getAnalysisDirectory(baseDir, analysis);
     File f = new File(dirName);
     if (!f.delete()) {
       log.error("Unable to remove " + dirName + " from file system for analysis " + analysis.getNumber());

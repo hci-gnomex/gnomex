@@ -51,7 +51,7 @@ public class CreateAnalysisMain {
   private String description;
   private String folderName;
   private String folderDescription;
-  private List<String> idSequenceLanes = new ArrayList<String>();
+  private List<String> seqLaneNumbers = new ArrayList<String>();
   private String lanesXMLString = null;
 
   /**
@@ -90,17 +90,17 @@ public class CreateAnalysisMain {
         folderName = args[++i];
       } else if (args[i].equals("-folderDescription")) {
         folderDescription = args[++i];
-      } else if (args[i].equals("-idSequenceLane")) {
-        String idSequenceLane = args[++i];
-        idSequenceLanes.add(idSequenceLane);
+      } else if (args[i].equals("-seqLane")) {
+        String seqLaneNumber = args[++i];
+        seqLaneNumbers.add(seqLaneNumber);
       } 
     }
     
-    if (!idSequenceLanes.isEmpty()) {
+    if (!seqLaneNumbers.isEmpty()) {
         lanesXMLString = "<lanes>";
-        for (Iterator iter = idSequenceLanes.iterator(); iter.hasNext();) {
-          String idSequenceLane = (String)iter.next();
-          lanesXMLString += "<SequenceLane idSequenceLane=\"" + idSequenceLane + "\"/>";                  
+        for (Iterator iter = seqLaneNumbers.iterator(); iter.hasNext();) {
+          String seqLaneNumber = (String)iter.next();
+          lanesXMLString += "<SequenceLane number=\"" + seqLaneNumber + "\"/>";                  
         }
         lanesXMLString += "</lanes>";
     }  
@@ -123,14 +123,14 @@ public class CreateAnalysisMain {
         "-properties <propertiesFileName> " + "\n" +
         "-server <serverName>" + "\n" +
         "-name <analysisName>" + "\n" +
-        "[-description <analysisDescription>]" + "\n" +
         "-lab <lab name>" + "\n" +
         "-folderName <name of folder>" + "\n" + 
         "-organism <organism           example: Human,E. coli, etc.>" +  "\n" +
         "-genomeBuild <genome build    example: hg18, hg19, TAIR8, etc.>" + "\n" +
+        "-analysisType <analysis type  example: Alignment,SNP/INDEL,ChIP-Seq analysis,etc..>" +  "\n" +
+        "[-description <analysisDescription>]" + "\n" +
         "[-folderDescription <description of folder>]" + "\n" +
-        "[-analysisType <analysis type  example: Alignment,SNP/INDEL,ChIP-Seq analysis,etc..>]" +  "\n" +
-        "[-idSequenceLane <idSequenceLane> [...]]");
+        "[-seqLane <sequence lane number example: 8432F1_1> [...]]");
   }
   
   private void callServlet() {
