@@ -6,8 +6,12 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
+import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Organism;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
@@ -90,6 +94,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private Integer               newAnalysisGroupId = new Integer(-1);
   
   private String                codeVisibilityToUpdate;
+  
+  private boolean               isBatchMode = false;
+  private String                organism;
+  private String                genomeBuild;
+  private String                labName;
+  private String                analysisType;
+  private AnalysisGroup         existingAnalysisGroup;
   
   
   public void validate() {
@@ -208,12 +219,35 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
     }    
     
+    if (request.getParameter("isBatchMode") != null && request.getParameter("isBatchMode").equals("Y")) {
+      isBatchMode = true;
+    }
+    if (isBatchMode) {
+      labName = request.getParameter("labName");
+      genomeBuild = request.getParameter("genomeBuild");
+      organism = request.getParameter("organism");
+      analysisType = request.getParameter("analysisType");
+    }
+    
   }
 
   public Command execute() throws RollBackCommandException {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      
+      // If the request parameters came from a batch java program 
+      // (see hci.gnomex.httpclient.CreateAnalysis), then
+      // the names of the lab, genome build, organism, and
+      // analysis type are passed in.  Now lookup the
+      // objects to get the ids.
+      if (isBatchMode) {
+        getLab(sess);
+        getAnalysisType(sess);
+        getGenomeBuild(sess);
+        getOrganism(sess);
+        getExistingAnalysisGroup(sess);
+      }
       
       Analysis analysis = null;
       if (isNewAnalysis) {
@@ -282,8 +316,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         if (!isNewAnalysisGroup) {
           TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
-          // If analysis group wasn't provided, create a default one
-          if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
+          if (existingAnalysisGroup != null) {
+            analysisGroups.add(existingAnalysisGroup);
+          } else if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
+            // If analysis group wasn't provided, create a default one
             AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
             defaultAnalysisGroup.setName(analysis.getName());
             defaultAnalysisGroup.setIdLab(analysisScreen.getIdLab());
@@ -481,6 +517,97 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     return this;
   }
   
+  
+  private void getLab(Session sess) throws Exception{
+    String lastName = null;
+    String firstName = null;
+    String[] tokens = labName.split(", ");
+    if (tokens != null && tokens.length == 2) {
+      lastName = tokens[0];
+      firstName = tokens[1];
+    } else {
+      tokens = labName.split(" ");
+      if (tokens != null && tokens.length == 2) {
+        firstName = tokens[0];
+        lastName = tokens[1];
+      } else if (tokens != null && tokens.length == 1) {
+        lastName = tokens[1];
+      } else {
+        lastName = labName;
+      }
+    }
+    
+    if (firstName == null && lastName == null) {
+      throw new RollBackCommandException("Lab name not provided or does not parse correctly: " + labName);
+    }
+    
+    StringBuffer buf = new StringBuffer("SELECT l from Lab l where l.lastName = '" + lastName + "'");
+    if (firstName != null) {
+      buf.append(" AND l.firstName = '" + firstName + "'");
+    }
+    Lab lab = (Lab)sess.createQuery(buf.toString()).uniqueResult();
+    if (lab == null) {
+      throw new RollBackCommandException("Lab " + labName + " not found in gnomex db");
+    }
+    analysisScreen.setIdLab(lab.getIdLab());
+    
+  }
+  
+  private void getAnalysisType(Session sess) throws Exception{
+    if (analysisType == null || analysisType.equals("")) {
+      throw new RollBackCommandException("Analysis type not provided");
+    }
+    
+    StringBuffer buf = new StringBuffer("SELECT at from AnalysisType at where at.analysisType = '" + analysisType + "'");
+    AnalysisType at = (AnalysisType)sess.createQuery(buf.toString()).uniqueResult();
+    if (at == null) {
+      throw new RollBackCommandException("Analysis type " + analysisType + " not found in gnomex db");
+    }
+    analysisScreen.setIdAnalysisType(at.getIdAnalysisType());
+    
+  }
+  
+  private void getGenomeBuild(Session sess) throws Exception{
+    if (genomeBuild == null || genomeBuild.equals("")) {
+      throw new RollBackCommandException("genomeBuild not provided");
+    }
+    
+    StringBuffer buf = new StringBuffer("SELECT gb from GenomeBuild gb where gb.genomeBuildName like '%" + genomeBuild + "%'");
+    GenomeBuild gb = (GenomeBuild)sess.createQuery(buf.toString()).uniqueResult();
+    if (gb == null) {
+      throw new RollBackCommandException("Genome build " + genomeBuild + " not found in gnomex db");
+    }
+    analysisScreen.setIdGenomeBuild(gb.getIdGenomeBuild());
+  }
+  
+  private void getOrganism(Session sess) throws Exception{
+    if (organism == null || organism.equals("")) {
+      throw new RollBackCommandException("organism not provided");
+    }
+    
+    StringBuffer buf = new StringBuffer("SELECT o from Organism o where o.organism = '" + organism + "'");
+    Organism o = (Organism)sess.createQuery(buf.toString()).uniqueResult();
+    if (o == null) {
+      throw new RollBackCommandException("Organism " + organism + " not found in gnomex db");
+    }
+    analysisScreen.setIdOrganism(o.getIdOrganism());
+  }
+  
+  private void getExistingAnalysisGroup(Session sess) throws Exception{
+    if (newAnalysisGroupName == null || newAnalysisGroupName.equals("")) {
+      throw new RollBackCommandException("analysis group name not provided");
+    }
+    
+    StringBuffer buf = new StringBuffer("SELECT ag from AnalysisGroup ag where ag.name = '" + newAnalysisGroupName + "' and ag.idLab = " + analysisScreen.getIdLab());
+    List results = (List)sess.createQuery(buf.toString()).list();
+    if (results.size() > 0) {
+      existingAnalysisGroup = (AnalysisGroup)results.get(0);
+      isNewAnalysisGroup = false;
+    } else {
+      existingAnalysisGroup = null;
+    }
+  }
+
   private void initializeAnalysis(Analysis analysis) {
     analysis.setName(RequestParser.unEscape(analysisScreen.getName()));
     analysis.setDescription(RequestParser.unEscapeBasic(analysisScreen.getDescription()));
