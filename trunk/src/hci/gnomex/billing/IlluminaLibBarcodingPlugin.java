@@ -70,8 +70,10 @@ public class IlluminaLibBarcodingPlugin implements BillingPlugin {
     // Find the price.  (There is only one standard price for barcoding.)
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
-      price = (Price)i1.next();
-      break;
+      if (price.getIsActive() != null && price.getIsActive().equals("Y")) {
+        price = (Price)i1.next();
+        break;
+      }
     }
 
     // Instantiate a BillingItem for the matched price

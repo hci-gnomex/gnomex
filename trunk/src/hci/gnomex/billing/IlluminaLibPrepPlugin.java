@@ -68,11 +68,13 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
       Price p = (Price)i1.next();
-      for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
-        PriceCriteria criteria = (PriceCriteria)i2.next();
-        if (criteria.getFilter1().equals(request.getCodeApplication())) {          
-          price = p;
-          break;            
+      if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
+        for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+          PriceCriteria criteria = (PriceCriteria)i2.next();
+          if (criteria.getFilter1().equals(request.getCodeApplication())) {          
+            price = p;
+            break;            
+          }
         }
       }
     }
