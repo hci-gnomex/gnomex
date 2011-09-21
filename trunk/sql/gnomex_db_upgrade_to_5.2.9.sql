@@ -17,7 +17,7 @@ ENGINE = INNODB;
 INSERT INTO `gnomex`.`AnalysisGenomeBuild` (`idAnalysis`,`idGenomeBuild`) 
  select an.idAnalysis, an.idGenomeBuild
  from Analysis an
- where an.idGenomeBuild is not null
+ where an.idGenomeBuild is not null;
  
 alter table gnomex.Analysis add column privacyExpirationDate DATETIME NULL;
 
