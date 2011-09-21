@@ -47,4 +47,9 @@ public class ExperimentFile extends HibernateDetailObject {
   public void setFileSize(BigDecimal fileSize) {
     this.fileSize = fileSize;
   }
+  
+  
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getRequest");
+  }
 }
