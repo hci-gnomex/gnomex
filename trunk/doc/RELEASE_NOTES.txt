@@ -3,7 +3,7 @@
 ----------------------
 * Added additional property initializations to gnomex_db_populate.sql
 * Fixed bugs in sample sheet upload
-* Redesigned several experiement/analysis windows to eliminate scroll bars when viewsing at 1024x768.
+* Redesigned several experiment/analysis windows to eliminate scroll bars when viewing at 1024x768.
 
 5.2.9 (Sep 20, 2011)
 ----------------------
