@@ -884,77 +884,79 @@
 					<util:TextAreaWorkaround text="{analysis.@description}" width="100%" height="100%" change="dirty.setDirty()" id="description" />
 				</mx:HBox>
 				<mx:HBox horizontalGap="10" width="100%">
-					<mx:HBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" width="100%" height="100%" verticalGap="6">
-					    <mx:VBox>
-					    	<mx:HBox verticalGap="0" horizontalGap="0">
-								<mx:VBox verticalGap="-5">
-						    		<mx:Label text="Organism" width="85" fontWeight="normal">
-						    		</mx:Label>
-									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
-								</mx:VBox>								
-					    		<mx:VBox verticalGap="0" horizontalAlign="right">
-					    			<mx:ComboBox  width="230" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
-					    		</mx:VBox>
-					    	</mx:HBox>				    	
-					    </mx:VBox>
-					    <mx:VBox verticalGap="3">
-					    	<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
-								<mx:VBox verticalGap="-5">
-						    		<mx:Label text="Genome Builds" width="100" fontWeight="normal">
-						    		</mx:Label>
-									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
-								</mx:VBox>
-								<mx:VBox verticalGap="0">
-									<mx:Label styleName="hintText" text="(Select from dropdown, use '+' to add to list below)" width="296" fontWeight="normal">
-									</mx:Label>																			
-					    			<mx:HBox verticalGap="0" horizontalAlign="right">
-					    				<mx:ComboBox  width="230" id="genomeBuildCombo" labelField="@display" />
-										<mx:Button 
-											enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
-											icon="@Embed(source='../../assets/add.png')" 
-											disabledIcon="@Embed(source='../../assets/add_disable.png')"
-											click="addGenomeBuild()" 
-											width="25">
-										</mx:Button>
-										<mx:Button  
-											icon="@Embed(source='../../assets/delete.png')" 
-											disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-											enabled="{genomeBuildGrid.selectedItem != null}" 
-											click="removeGenomeBuild()" 
-									 		width="25"/>
-					    			</mx:HBox>
-								</mx:VBox>
+					<mx:HBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" width="100%" height="100%">
+					    <mx:VBox width="679" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalGap="0">
+							<mx:HBox verticalGap="0" horizontalGap="10" width="100%">
+								<mx:HBox horizontalGap="0" width="330">
+									<mx:VBox verticalGap="-5" width="92">
+							    		<mx:Label text="Organism" width="85" fontWeight="normal">
+							    		</mx:Label>
+										<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+									</mx:VBox>								
+						    		<mx:VBox verticalGap="0">
+						    			<mx:ComboBox  width="234" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+						    		</mx:VBox>
+								</mx:HBox>
+								<mx:HBox horizontalGap="0" width="100%">
+									<mx:VBox verticalGap="-5">
+										<mx:Label text="Analysis Type" width="100" fontWeight="normal">
+										</mx:Label>
+										<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
+									</mx:VBox>
+									<mx:VBox verticalGap="0" width="100%">
+										<mx:ComboBox  width="234" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+									</mx:VBox>
+								</mx:HBox>
 					    	</mx:HBox>
-							<mx:DataGrid id="genomeBuildGrid" width="100%" height="43" dataProvider="{genomeBuilds}" showHeaders="false">
-								<mx:columns>
-									<mx:DataGridColumn dataField="@display"/>
-								</mx:columns>
-							</mx:DataGrid>														
-					    </mx:VBox>
-						<mx:VBox>
-							<mx:HBox verticalGap="0" horizontalGap="0">
-								<mx:VBox verticalGap="-5">
-									<mx:Label text="Analysis Type" width="100" fontWeight="normal">
-									</mx:Label>
-									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
-								</mx:VBox>
-								<mx:VBox verticalGap="0" horizontalAlign="right">
-									<mx:ComboBox  width="230" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
-								</mx:VBox>
-							</mx:HBox>	
-							<mx:VBox verticalGap="0">
-								<mx:HBox width="100%" horizontalGap="0">
+							<mx:HBox verticalGap="0" horizontalGap="10" width="100%">
+								<mx:HBox horizontalGap="0" width="330">
+									<mx:VBox verticalGap="-5" width="92">
+										<mx:Label text="Genome Builds" width="100%" fontWeight="normal">
+										</mx:Label>
+										<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+									</mx:VBox>
+									<mx:VBox verticalGap="0">																		
+										<mx:HBox verticalGap="0">
+											<mx:ComboBox  width="234" id="genomeBuildCombo" labelField="@display" />
+										</mx:HBox>
+									</mx:VBox>
+								</mx:HBox>								
+								<mx:HBox horizontalGap="0" width="100%">
 									<mx:VBox verticalGap="-5">
 										<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
 										</mx:Label>
 										<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>														
 									</mx:VBox>
-									<mx:VBox verticalGap="0"  horizontalAlign="right">
-										<mx:ComboBox  width="230" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+									<mx:VBox verticalGap="0">
+										<mx:ComboBox  width="234" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
 									</mx:VBox>
-								</mx:HBox>
-							</mx:VBox>					    	
-						</mx:VBox>							
+								</mx:HBox>								
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="10" width="326">
+								<mx:HBox horizontalGap="0" width="100%" verticalAlign="bottom">
+									<mx:Label styleName="hintText" text="(Sel. from dropdown, use + to add to list below)" width="100%" fontWeight="normal">
+									</mx:Label>	
+									<mx:Button 
+										enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
+										icon="@Embed(source='../../assets/add.png')" 
+										disabledIcon="@Embed(source='../../assets/add_disable.png')"
+										click="addGenomeBuild()" 
+										width="25">
+									</mx:Button>
+									<mx:Button  
+										icon="@Embed(source='../../assets/delete.png')" 
+										disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+										enabled="{genomeBuildGrid.selectedItem != null}" 
+										click="removeGenomeBuild()" 
+										width="25"/>
+								</mx:HBox>															
+							</mx:HBox>													
+							<mx:DataGrid id="genomeBuildGrid" width="326" height="43" dataProvider="{genomeBuilds}" showHeaders="false">
+								<mx:columns>
+									<mx:DataGridColumn dataField="@display"/>
+								</mx:columns>
+							</mx:DataGrid>																								
+					    </mx:VBox>
 					</mx:HBox>
 				</mx:HBox>
 				
@@ -1088,11 +1090,11 @@
 				<mx:DataGrid id="filesGrid"  horizontalScrollPolicy="auto" dataProvider="{files}"  editable="true" width="100%" height="100%">
 					<mx:columns>
 						<mx:DataGridColumn headerText=" " width="20" editable="false" labelFunction="getFilesGridRowNumber"/>
-						<mx:DataGridColumn headerText="File name"   width="240" editable="false" dataField="@displayName"/>
-						<mx:DataGridColumn headerText="Comments" width="240" editable="true" dataField="@comments"/>
+						<mx:DataGridColumn headerText="File name"   width="236" editable="false" dataField="@displayName"/>
+						<mx:DataGridColumn headerText="Comments" width="236" editable="true" dataField="@comments"/>
 						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@lastModifyDateDisplay"/>
-						<mx:DataGridColumn dataField="@type"           headerText="Type" width="80" />
-						<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="80"/>
+						<mx:DataGridColumn dataField="@type"           headerText="Type" width="70" />
+						<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="70"/>
 					</mx:columns>
 				</mx:DataGrid>
 		</mx:VBox>
@@ -1106,16 +1108,21 @@
 		   <mx:HBox paddingLeft="20" horizontalGap="0" width="100%">
 		   	<mx:VBox verticalGap="0" width="100%">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
-		   		<mx:RadioButton value="OWNER" label="Owner       (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
-		   		<mx:RadioButton value="MEM" selected="true" label="Members   (all members of the lab group)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
+				<mx:HBox horizontalGap="0" width="533">
+					<mx:VBox verticalGap="0" width="324">
+						<mx:RadioButton value="OWNER" label="Owner       (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
+						<mx:RadioButton value="MEM" selected="true" label="Members   (all members of the lab group)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
+						<mx:Text width="207" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
+							<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
+						</mx:Text>
+					</mx:VBox>
+				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:RadioButton value="INST" selected="true" label="Institution  (all lab groups that are part of institution)" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" >			       	
 					</mx:ComboBox>
-					<mx:Text width="632" id="institutionNote" styleName="submitNote" height="18" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
-						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
-					</mx:Text>
-					
 				</mx:HBox>
 				<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
 				<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">

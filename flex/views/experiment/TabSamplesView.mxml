@@ -366,6 +366,7 @@
             if (event.detail==Alert.YES) {
             	parentDocument.samples.removeAll();
             	parentDocument.lanes.removeAll();
+				addSample();	// Add an initial blank sample to the gric
             	checkSamplesCompleteness();
             	this.initializeBarcoding();
             }
@@ -661,28 +662,28 @@
 		}
 		
 		public function propagateOrganism(idOrganism:String):void {
-			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idOrganism = idOrganism;
 				}
 			}
 		}
 		public function propagateSeqRunType(idSeqRunType:String):void {
-			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idSeqRunType = idSeqRunType;
 				}
 			}
 		}
 		public function propagateNumberSequencingCycles(theSample:Object):void {
-			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
 					lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
 				}
 			}
 		}		
  		public function propagateSolexaLibraryType(idSolexaLibraryType:String):void {
-			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idSolexaLibraryType = idSolexaLibraryType;
 				}

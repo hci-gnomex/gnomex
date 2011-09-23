@@ -424,7 +424,7 @@
 	                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="130"/>
 	                </mx:HBox> 
 	        	</mx:VBox>
-	        	<mx:VBox verticalGap="0" width="311">
+	        	<mx:VBox verticalGap="0" width="245" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		            <mx:HBox verticalGap="0" horizontalGap="0">
 		                <mx:Label text="Organism"  width="85" fontWeight="bold"/>
 		                <mx:Text  text="{organismName}" width="150" />
@@ -432,7 +432,7 @@
 		            <mx:VBox verticalGap="0" horizontalGap="0" width="100%">
 		                <mx:Label text="Genome Builds"  width="111" fontWeight="bold"/>
 		                <!--mx:Text  text="{genomeBuildName}" width="150" /-->
-						<mx:DataGrid id="genomeBuildGrid" width="100%" height="50" dataProvider="{genomeBuilds}" showHeaders="false">
+						<mx:DataGrid id="genomeBuildGrid" width="100%" height="46" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto">
 							<mx:columns>
 								<mx:DataGridColumn dataField="@display"/>
 							</mx:columns>

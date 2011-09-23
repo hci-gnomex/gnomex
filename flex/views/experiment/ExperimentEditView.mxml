@@ -3916,7 +3916,7 @@
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 
-    <mx:VBox width="100%" verticalGap="8" id="navBox" verticalAlign="top" >
+    <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" horizontalGap="1">
 			<mx:Image source="{requestIcon}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
@@ -4016,23 +4016,23 @@
     <mx:states>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
-    			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
+    			<mx:HBox width="735" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
     				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					       <mx:Text text="Experiment" width="90"  fontWeight="bold"/>
-    					       <mx:Text text="{requestCategoryName}" width="250"  fontWeight="normal"/>
+    					       <mx:Text text="{requestCategoryName}" width="240"  fontWeight="normal"/>
     					   </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					    <mx:Spacer width="90"/>
-    					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="250"/>
+    					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="240"/>
     					 </mx:HBox>
-		    			<mx:HBox verticalGap="0" horizontalGap="0" width="340" >
+		    			<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
 		    			  <mx:Text text="Submitted by"  fontWeight="bold" width="90"/>
 		    			  <mx:Text text="{this.request.@ownerName}" />
 		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
 		    			</mx:HBox>
     				</mx:VBox>  
-     				<mx:VBox verticalGap="2" maxWidth="700" width="100%" id="vbox3">
+     				<mx:VBox verticalGap="2" width="100%" id="vbox3">
     				    
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
     				           <mx:Label text="Group"  width="80" fontWeight="bold"/>
