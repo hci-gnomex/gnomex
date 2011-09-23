@@ -44,14 +44,15 @@
 <mx:Script>
 	<![CDATA[
 		import mx.collections.XMLListCollection;
-		import views.util.AboutView;
-		import mx.rpc.events.FaultEvent;
-		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
-		import views.util.OrganismsWindow;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.util.AboutView;
 		import views.util.DateUtils;
+		import views.util.OrganismsWindow;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -122,21 +123,21 @@
 				}
 			}
 		}
-		
-
 	 	
 		private function validateAndSave():void {
-			
-			if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
-				Alert.show( "The genome build is not specified.  Create new analysis anyways?",
-							"Warning",
-							(Alert.YES | Alert.NO), this, 
-							onPromptToContinueSave,						
-							parentApplication.iconWarning);
-			} else {
-				save();
+			if(genomeBuilds.length == 0) {
+				var outMsg:String = "You have selected a genome build without adding it to the genome build list.  Create new analysis anyway?";
+				if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
+					outMsg = "A genome build has not been specified.  Create new analysis anyway?";
+				}				
+				Alert.show( outMsg,
+					"Warning",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToContinueSave,						
+					parentApplication.iconWarning);	
+				return;
 			}
-			
+			save();					
 		}
 		
 		private function onPromptToContinueSave(event:CloseEvent):void {
