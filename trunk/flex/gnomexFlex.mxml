@@ -198,7 +198,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-						
+			
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.util.AboutView;
@@ -207,8 +207,10 @@
 			import views.util.OrganismEvent;
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
-			import views.util.WorkAuthorizationWindow;
 			import views.util.SessionTimeoutData;
+			import views.util.WorkAuthorizationWindow;
+			import mx.core.IFlexDisplayObject;
+			import views.util.DownloadHints;			
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -531,6 +533,7 @@
 			public var PROPERTY_SITE_WELCOME_MESSAGE:String               = "site_welcome_message";
 			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
 			public var DATASET_PRIVACY_EXPIRATION:String                  = "dataset_privacy_expiration";
+			public var PROPERTY_FDT_HELP_URL:String                       = "fdt_help_url";
 			 
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
@@ -1639,6 +1642,12 @@
 				return true;
 			}
 		}
+			
+			
+		public function showUploadDownloadHints():void {
+			var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this.mainArea, DownloadHints, true));
+			PopUpManager.centerPopUp(hints);			 		
+		}
 
         ]]>
     </mx:Script>
@@ -1698,7 +1707,7 @@
 			        
 			        <mx:HBox horizontalAlign="right" verticalAlign="middle" horizontalGap="2" height="30" id="hbox2">
 			        	<mx:LinkButton label="Help" styleName="navLinkButtonSmall" visible="false" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1" />
-			        	<mx:LinkButton label="About" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" />
+						<mx:LinkButton label="About" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" />
 						<mx:LinkButton label="Log Out" styleName="navLinkButtonSmall" visible="false" click="logout();" id="linkbutton3" />
 			        </mx:HBox>
 			      </mx:HBox>

@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="692" height="258" 
+	layout="vertical" width="690" height="284" 
 	xmlns:views="views.*"
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
-	title="Downloading Tips" 
+	title="Upload and Downloading Tips" 
 	borderColor="#9cccf3" borderThickness="4" backgroundColor="#ffffff" >
 	<mx:VBox verticalGap="20" fontSize="10" paddingTop="8" paddingLeft="8" width="100%" height="100%">
 		
 		<mx:VBox width="100%" verticalGap="2" height="100%">
 			<mx:Text text="Q:  I am having trouble downloading more than 4 GB at a time.  Is there another way to download the files?"  paddingBottom="1"/>
 			<mx:Text text="A:  Files over 4GB can be downloaded using Fast Data Transfer.  After selecting the files to download, click 'FDT Download' button."  fontSize="10" paddingBottom="6" width="100%"/>
+			<mx:HRule width="100%"/>
+			<mx:Text text="Q:  When I try to use Fast Data Transfer (FDT), a .jnlp file is downloaded.  What do I do with this file?"  paddingBottom="1"/>
+			<mx:Text text="A:  This file should launch the FDT Java application using Java webstart.  Your browser needs to associate the .jnlp with the Java Web Start application."  fontSize="10" paddingBottom="6" width="100%"/>
+            <mx:LinkButton label="Click here for instructions on launching the FDT application from GNomEx" styleName="formLinkButton" textAlign="left" click="showFDTHelp()"/>			
 			<mx:HRule width="100%"/>
 			<mx:Text text="Q:  When I download the file(s) to a Windows workstation, the file does not save with the .zip extension"  paddingBottom="1"/>
 			<mx:Text text="A:  If the File Explorer folder options (Tools->Folder Options->View) have the property 'Hide extensions for know file types', the file chooser dialog will not show the default file name with .zip extension.  Just type in the .zip extension for the file name when selecting the location and filename for the download."  fontSize="10" paddingBottom="6" width="100%"/>
@@ -20,6 +24,11 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
+			
+			private function showFDTHelp():void {
+				navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_FDT_HELP_URL)), '_blank');
+			}
+
 		]]>
 	</mx:Script>
 </mx:TitleWindow>

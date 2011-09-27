@@ -612,9 +612,6 @@
 		             	label="Download"/>
 					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
 					<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-		            <mx:VBox styleName="hintBox">
-			            <mx:LinkButton  label="Downloading tips" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>		            	
-		            </mx:VBox>
 	            </mx:HBox>		                    
 	        </mx:ViewStack>
 		</mx:HBox>
