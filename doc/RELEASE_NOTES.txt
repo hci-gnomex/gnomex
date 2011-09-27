@@ -1,9 +1,17 @@
 ﻿GNomEx Release Notes
 
-----------------------
+
+5.3 (Sept 26, 2011)
+---------------------
+* Get rid of obsolete properties: pricesheet1_name, pricesheet1_url, pricesheet2_name, pricesheet2_url, ..., workauth_doc_url, workauth_pdf_url
 * Added additional property initializations to gnomex_db_populate.sql
 * Fixed bugs in sample sheet upload
 * Redesigned several experiment/analysis windows to eliminate scroll bars when viewing at 1024x768.
+* Provide more detailed instructions on launching the FDT upload/download from the browser.
+
+5.2.9.1 (Sep 21, 2011)
+----------------------
+* Excluded getRequest from ExperimentFile XML to fix problem encountered in 'Add Services' after request to amend was selected.  Caused by E4X error when more than one 'Request' node encountered in XML.
 
 5.2.9 (Sep 20, 2011)
 ----------------------

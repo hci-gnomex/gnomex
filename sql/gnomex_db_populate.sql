@@ -684,13 +684,14 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (59, 'site_title', '', 'The server name that appears next to the GNomEx title on the right top corner of the app', 'N'),
  (60, 'site_welcome_message', '', 'Welcome message that appears on the GNomEx home/welcome page', 'N'),
  (61, 'show_usage_on_startup', 'N', 'Y/N - Show usage charts on startup rather than home (welcome) view', 'N');
- (62, 'billing_core_facility_po_account', '', 'Used in GL interface (internal use only)', 'Y');
- (63, 'billing_po_account', '', 'Used in GL interface (internal use only)', 'Y');
- (64, 'bst_linkage_gnomex_url', '', 'The url used in BST to launch gnomex when samples are inked (internal use only)', 'Y');
- (65, 'contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'The email addresses to send email about pending work authorizations', 'Y');
- (66, 'dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N');
- (67, 'dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N');
- (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y');
+ (62, 'billing_core_facility_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
+ (63, 'billing_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
+ (64, 'bst_linkage_gnomex_url', '', 'The url used in BST to launch gnomex when samples are inked (internal use only)', 'Y'),
+ (65, 'contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'The email addresses to send email about pending work authorizations', 'Y'),
+ (66, 'dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N'),
+ (67, 'dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
+ (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
+ (69, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N');
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
