@@ -8,6 +8,7 @@ import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SlideDesign;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
@@ -162,16 +163,16 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
             addRequestNode(row, dh);          
-            addItemNode(row);
+            addItemNode(row,sess);
           }
         } else if (idRequest.intValue() != prevIdRequest.intValue()) {
           if (idRequest.intValue() != -2) {
             addRequestNode(row, dh);          
-            addItemNode(row);
+            addItemNode(row,sess);
           }
         } else {
           if (idRequest.intValue() != -2) {
-            addItemNode(row);
+            addItemNode(row,sess);
           }
         }
 
@@ -244,7 +245,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     this.requestSampleTypeMap = new HashMap();
   }
 
-  private void addItemNode(Object[] row) {
+  private void addItemNode(Object[] row, Session sess) {
     itemNode = new Element("Item");
     itemNode.setAttribute("idRequest",                row[1] == null ? ""  : ((Integer)row[1]).toString());
     itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
@@ -326,6 +327,14 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       requestNode.setAttribute("label", requestNode.getAttributeValue("number") + " - " + requestNode.getAttributeValue("createDateDisplay") + " - " + buf.toString());
       itemNode.setAttribute("type", "SequenceLane");
       itemNode.setAttribute("idSequenceLane", ((Integer)row[23]).toString());
+
+      SequenceLane sl = (SequenceLane) sess.get(SequenceLane.class, (Integer)row[23]);
+      Integer id = null;
+      if(sl.getIdFlowCellChannel() != null) {
+        id = sl.getIdFlowCellChannel();
+      }
+      itemNode.setAttribute("idFlowCellChannel", id == null ? "" : id.toString());
+      
     } else {
       itemNode.setAttribute("type", "Hybridization");
       itemNode.setAttribute("idHybridization", ((Integer)row[23]).toString());

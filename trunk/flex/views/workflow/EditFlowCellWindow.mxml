@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="898" height="498" 
+				creationComplete="{init()}"
+				xmlns:util="views.util.*" 
+				showCloseButton="true" close="exitRequest()"
+				title="{'Edit Flow Cell ' + selectedFC.@number}">
+	
+	<mx:HTTPService  
+		id="saveFlowCell" 
+		url="SaveFlowCell.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveFlowCell(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save flow cell', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getFlowCell" 
+		url="GetFlowCell.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetFlowCell(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get flow cell', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request xmlns="">
+			<id>{selectedIdFlowCell}</id>
+		</mx:request>
+	</mx:HTTPService> 
+		
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var selectedFC:Object;
+			public var parentView:DisplayObject;
+									
+			[Bindable]
+			public var selectedIdFlowCell:int;
+			
+			[Bindable]
+			public var hasChanged:Boolean = false;
+			private var addWindow:AddSamplesWindow;
+			private var dblClickEditMode:Boolean;
+			
+			
+			private function init():void  {
+				selectedIdFlowCell = selectedFC.@idFlowCell;
+				getFlowCell.send();
+				this.addEventListener("channelChanged",channelChangedFunction);
+			}	
+			
+			private function channelChangedFunction(e:Event):void {
+				var index:int = fcChannels.getItemIndex(flowCellChannelGrid.selectedItem);
+				removeFlowCellChannelImpl();
+				this.fcChannels.addItemAt(addWindow.channelXML,index);
+				this.flowCellChannelGrid.selectedItem = addWindow.channelXML;
+				this.flowCellChannelGrid.scrollToIndex(index);
+			}
+			
+			private function onGetFlowCell(event:ResultEvent): void {
+				if (event.result.name() == "FlowCell") {
+					
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell");
+				} 
+			}
+			
+			private function addFlowCellChannel():void  {
+				var newChannel:XML = new XML("<FlowCellChannel " +
+					" idFlowCellChannel=''" +
+					" number='0'" +
+					" flowCell=''" +
+					" idFlowCell='" + selectedIdFlowCell + "'" +
+					" sequencingControl=''" +
+					" idSequencingControl=''" +
+					" startDate=''" +
+					" firstCycleDate=''" +
+					" firstCycleFailed=''" +
+					" lastCycleDate=''" +
+					" lastCycleFailed=''" +
+					" clustersPerTile=''" +
+					" fileName=''" +
+					" sampleConcentrationpM=''" +
+					" numberSequencingCyclesActual=''" +
+					" pipelineDate=''" +
+					" pipelineFailed=''" +
+					" isControl=''" +
+					" phiXErrorRate=''"  +
+					" read1ClustersPassedFilterM=''" +
+					" read2ClustersPassedFilterM=''"  +
+					" q30Gb=''" + 
+					" />");
+				
+				this.fcChannels.addItem(newChannel);
+				this.flowCellChannelGrid.selectedItem = newChannel;
+				this.flowCellChannelGrid.scrollToIndex(0);
+				hasChanged = true;
+				channelEditWindow();
+			}
+			
+			private function save():void {
+				if (!hasChanged) {
+					PopUpManager.removePopUp(this);
+					return;
+				}
+				var params:Object = new Object();
+				params.number = selectedFC.@number;
+				params.createDate = selectedFC.@createDate;
+				params.notes = selectedFC.@notes;
+				params.idFlowCell = selectedFC.@idFlowCell;
+				params.idSeqRunType = selectedFC.@idSeqRunType;
+				params.idNumberSequencingCycles = selectedFC.@idNumberSequencingCycles;
+				params.barcode = selectedFC.@barcode;
+				params.codeSequencingPlatform = selectedFC.@codeSequencingPlatform;
+				params.channelsXMLString =  "<fcChannels>" + this.fcChannels.toXMLString() + "</fcChannels>";
+				
+				saveFlowCell.send(params);
+				
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onSaveFlowCell(event:ResultEvent): void {
+				if (saveFlowCell.lastResult.name() == "SUCCESS") {
+					parentView.dispatchEvent(new Event("changed"));
+				} else  {
+					Alert.show(event.result..ERROR.@message.toString(), "Error saving flow cell");
+				}
+			}
+			
+			private function removeFlowCellChannel():void  {
+				if (!flowCellChannelGrid.selectedItem) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove channel " + flowCellChannelGrid.selectedItem.@number + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveFlowCellChannel,						
+					parentApplication.iconWarning);
+			}
+			
+			private function onPromptToRemoveFlowCellChannel(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeFlowCellChannelImpl();
+				}
+			}
+			
+			private function removeFlowCellChannelImpl():void {
+				this.fcChannels.removeItemAt(fcChannels.getItemIndex(flowCellChannelGrid.selectedItem));
+				hasChanged = true;
+			}
+			
+			protected function exitRequest():void {
+				if (hasChanged){
+					Alert.show("Are you sure you want to exit without saving?",
+						"Confirm",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToCancel,						
+						parentApplication.iconWarning);
+				} else {
+					cancel();
+				}
+			}
+
+			protected function cancelRequest():void {
+				if (hasChanged){
+					Alert.show("Are you sure you want to cancel without saving?",
+						"Confirm",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToCancel,						
+						parentApplication.iconWarning);
+				} else {
+					cancel();
+				}
+			}
+			
+			private function onPromptToCancel(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					cancel();
+				}
+			}
+			
+			protected function cancel():void {
+				getFlowCell.send();
+				fcChannels.refresh();
+				
+				PopUpManager.removePopUp(this);
+			}
+
+
+			protected function gridSampleClick(event:ListEvent):void {
+				dblClickEditMode = false;
+			}
+			
+			protected function gridDoubleClick(event:ListEvent):void {
+				dblClickEditMode = true;
+				if (event.columnIndex == 1){
+					channelEditWindow();
+				}
+			}
+			
+			protected function gridItemEditBegin(event:DataGridEvent):void {
+				if(!dblClickEditMode) event.preventDefault();
+			}
+			
+			protected function channelEditWindow():void {
+				this.addWindow = AddSamplesWindow(mx.managers.PopUpManager.createPopUp(this, AddSamplesWindow, true));
+				this.addWindow.selectedFC = this.selectedFC;
+				this.addWindow.selectedChannel = flowCellChannelGrid.selectedItem;
+				this.addWindow.channelXML = new XML(flowCellChannelGrid.selectedItem.toXMLString());
+				this.addWindow.parentView = this;
+				mx.managers.PopUpManager.centerPopUp(this.addWindow);
+				addWindow.setFocus();
+			}
+			
+			private function editToolTip(item:Object):String {
+				var myString:String = "Double click to edit.";
+				return myString;
+			}
+
+		]]> 
+	</mx:Script>
+	
+	<mx:XMLListCollection id="fcChannels" source="{getFlowCell.lastResult.FlowCell.flowCellChannels.FlowCellChannel}"/>
+	
+	<mx:VBox width="100%" height="100%" 
+			 verticalGap="0">
+		<mx:HDividedBox height="100%" width="100%" >
+			<mx:VBox height="100%" width="200" styleName="panelBox">
+				<mx:HBox width="100%" id="InfoBox">
+					<mx:HBox>
+						<mx:VBox horizontalAlign="left" 
+								 verticalAlign="middle" 
+								 verticalGap="2" 
+								 width="107" height="55">
+							<mx:Label text="Barcode:"/>
+							<mx:Label text="Cluster Gen Date:"/>
+						</mx:VBox>
+					</mx:HBox>
+					<mx:VBox horizontalAlign="left" 
+							 verticalAlign="middle" 
+							 verticalGap="2" 
+							 height="53" 
+							 id="Input" 
+							 horizontalScrollPolicy="off" 
+							 verticalScrollPolicy="off">
+						
+						<mx:TextInput width="175" 
+									  id="barcodeInput"   
+									  toolTip="Enter flow cell barcode" 
+									  text = "{selectedFC.@barcode}"/>
+						
+						<mx:DateField width="175" 
+									  id="dateInput" 
+									  text="{selectedFC.@createDate}" />
+					
+					</mx:VBox>
+				</mx:HBox>
+				<mx:VDividedBox width="100%" height="100%" 
+								styleName="form" 
+								paddingBottom="4" 
+								paddingLeft="4" 
+								paddingRight="4" 
+								paddingTop="4">
+					<mx:VBox width="100%" height="100%"   
+							 verticalGap="0">	
+						<mx:VBox width="100%" height="100%" 
+								 verticalGap="1">			
+							<mx:VBox width="100%" height="100%" 
+									 verticalGap="1">		
+							    <mx:HBox width="100%" 
+										 verticalAlign="middle" 
+										 horizontalAlign="left">
+							    <mx:Label text="Flow Cell Channels" 
+										  fontWeight="normal"/>				    	
+							    <mx:HRule width="470" height="0"/>
+							    
+								<mx:LinkButton label="Add Channel" 
+											   styleName="linkMenuButton" 
+											   click="addFlowCellChannel()"  
+											   disabledIcon="@Embed(source='../../assets/page_add_disable.png')" 
+											   icon="@Embed(source='../../assets/page_add.png')"/>
+							    
+								<mx:LinkButton label="Remove Channel" 
+											   styleName="linkMenuButton" 
+											   click="removeFlowCellChannel()" 
+											   enabled="{flowCellChannelGrid.selectedItem != null}"   
+											   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" 
+											   icon="@Embed(source='../../assets/page_delete.png')"/>
+							    </mx:HBox>	
+							    
+								<mx:DataGrid  id="flowCellChannelGrid" 
+											  dataProvider="{fcChannels}"
+											  width="100%" height="100%" 
+											  editable="true" 
+											  itemClick="gridSampleClick(event)"
+											  doubleClickEnabled="true"
+											  itemDoubleClick="gridDoubleClick(event)"
+											  itemEditBegin="gridItemEditBegin(event)"
+											  dataTipFunction="editToolTip" 
+											  change="hasChanged=true">	
+							    	<mx:columns>
+						    			<mx:DataGridColumn  id = "channelNumber"
+															headerText="Channel" 
+															dataField="@number" 
+															width="60"
+															showDataTips="true" 
+															textAlign="center">
+												<mx:headerRenderer > 
+													<mx:Component>
+														<mx:VBox verticalGap="0"   
+																 horizontalScrollPolicy="off"  
+																 horizontalAlign="center" 
+																 verticalAlign="middle">
+															<mx:Label text="Channel"/>
+														</mx:VBox>
+													</mx:Component>
+												</mx:headerRenderer>
+										</mx:DataGridColumn>
+							    		
+										<mx:DataGridColumn  id = "samples"  
+															headerText="Samples"
+															editable="false" 
+															sortable="false">
+															<mx:itemRenderer>
+																<mx:Component>
+																	<mx:HorizontalList dataProvider="{data.sequenceLanes.SequenceLane}" 
+																			 labelField="@number" 
+																			 selectable="false" 
+																			 horizontalScrollPolicy="off"
+																			 alternatingItemColors="[#FFFFFF, #FFFFFF]" 
+																			 borderStyle="none"
+																			 alpha="0.0"/>
+																</mx:Component>
+															</mx:itemRenderer>
+															<mx:headerRenderer> 
+																<mx:Component>
+																	<mx:VBox verticalGap="0"   
+																			 horizontalScrollPolicy="off"  
+																			 horizontalAlign="center" 
+																			 verticalAlign="middle">
+																		<mx:Label text="Samples"/>
+																		<mx:Label text="(double click to edit samples)" />
+																	</mx:VBox>
+																</mx:Component>
+															</mx:headerRenderer>
+										</mx:DataGridColumn>
+											    		
+										<mx:DataGridColumn  id = "numberSeq" 
+															dataField="@numberSequencingCyclesActual" 
+															width="60" 
+															headerText="# Cycles"  
+															sortable="false"
+															showDataTips="true">
+								    		               <mx:headerRenderer> 
+									    		               <mx:Component>
+										    		               	<mx:VBox verticalGap="0"   
+																			 horizontalScrollPolicy="off"  
+																			 horizontalAlign="center" 
+																			 verticalAlign="middle">
+										    		               	    <mx:Label text="# Cycles"/>
+										    		               	    <mx:Label text="(actual)"/>
+										    		               	</mx:VBox>
+									    		               </mx:Component>
+								    		               </mx:headerRenderer>
+							    		</mx:DataGridColumn>
+							    		
+										<mx:DataGridColumn id = "onePass" 
+														   headerText="Read 1 Clusters Pass Filters (M)"  
+														   width="100" 
+														   dataField="@read1ClustersPassedFilterM" 
+														   editable="true" 
+														   sortable="false"
+														   showDataTips="true">      
+										    			<mx:headerRenderer> 
+										    				<mx:Component>
+										    					<mx:VBox verticalGap="0"   
+																		 horizontalScrollPolicy="off"  
+																		 horizontalAlign="center" 
+																		 verticalAlign="middle">
+										    						<mx:Label text="Read 1 Clusters"/>
+										    						<mx:Label text="PF (M)"/>
+										    					</mx:VBox>
+										    				</mx:Component>
+										    			</mx:headerRenderer> 
+							    		</mx:DataGridColumn>					
+							    		
+										<mx:DataGridColumn id = "twoPass" 
+														   headerText="Read 2 Clusters Pass Filters (M)"  
+														   width="100" 
+														   dataField="@read2ClustersPassedFilterM" 
+														   editable="true" 
+														   sortable="false"
+														   showDataTips="true">			                
+										    			<mx:headerRenderer> 
+										    				<mx:Component>
+										    					<mx:VBox verticalGap="0"   
+																		 horizontalScrollPolicy="off"  
+																		 horizontalAlign="center" 
+																		 verticalAlign="middle">
+										    						<mx:Label text="Read 2 Clusters"/>
+										    						<mx:Label text="PF (M)"/>
+										    					</mx:VBox>
+										    				</mx:Component>
+										    			</mx:headerRenderer> 
+							    		</mx:DataGridColumn>					
+							    		
+										<mx:DataGridColumn id = "q30" 
+														   headerText="Q30 (Gb)" 
+														   width="65" 
+														   dataField="@q30Gb" 
+														   editable="true"  
+														   sortable="false"
+														   showDataTips="true" 
+														   textAlign="center">
+															<mx:headerRenderer> 
+																<mx:Component>
+																	<mx:VBox verticalGap="0"   
+																			 horizontalScrollPolicy="off"  
+																			 horizontalAlign="center" 
+																			 verticalAlign="middle">
+																		<mx:Label text="Q30 (Gb)"/>
+																	</mx:VBox>
+																</mx:Component>
+															</mx:headerRenderer>
+										</mx:DataGridColumn>
+										
+										<mx:DataGridColumn dataField="@fileName" 
+														   width="150" 
+														   headerText="Folder name" 
+														   textAlign="center"
+														   editable="false">
+											<mx:headerRenderer> 
+												<mx:Component>
+													<mx:VBox verticalGap="0"   
+															 horizontalScrollPolicy="off"  
+															 horizontalAlign="center" 
+															 verticalAlign="middle">
+														<mx:Label text="Folder name"/>
+													</mx:VBox>
+												</mx:Component>
+											</mx:headerRenderer>
+										</mx:DataGridColumn>
+										
+										<mx:DataGridColumn dataField="@workflowStatus" 
+														   width="150" 
+														   headerText="Status" 
+														   textAlign="center"
+														   editable="false">
+											<mx:headerRenderer > 
+												<mx:Component>
+													<mx:VBox verticalGap="0"   
+															 horizontalScrollPolicy="off"  
+															 horizontalAlign="center" 
+															 verticalAlign="middle">
+														<mx:Label text="Status"/>
+													</mx:VBox>
+												</mx:Component>
+											</mx:headerRenderer>
+										</mx:DataGridColumn>
+									</mx:columns>			
+							    </mx:DataGrid>
+							</mx:VBox>
+						</mx:VBox>
+					</mx:VBox>
+				</mx:VDividedBox>
+			</mx:VBox>	
+		</mx:HDividedBox>
+	</mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="right" width="100%">
+	    <mx:HBox width="100%" 
+				 horizontalAlign="right" 
+				 verticalAlign="middle">
+	    <mx:Button label="Save" 
+				   id="saveButton" 
+				   click="save()"  
+				   icon="@Embed(source='../../assets/save.png')" 
+				   disabledIcon="@Embed(source='../../assets/save_disable.png')"
+				   enabled="{hasChanged==true}"/>
+	    <mx:Button label="Cancel" 
+				   click="cancelRequest()"/>
+	    </mx:HBox>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

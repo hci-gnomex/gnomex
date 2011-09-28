@@ -673,7 +673,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`FlowCellChannel`;
 CREATE TABLE `gnomex`.`FlowCellChannel` (
   `idFlowCellChannel` INT(10) NOT NULL AUTO_INCREMENT,
-  `idFlowCell` INT(10) NOT NULL,
+  `idFlowCell` INT(10) NULL,
   `number` INT(10) NULL,
   `idSequenceLane` INT(10) NULL,
   `idSequencingControl` INT(10) NULL,
@@ -1734,7 +1734,7 @@ CREATE TABLE `gnomex`.`SequenceLane` (
   `number` VARCHAR(100) NULL,
   `createDate` DATETIME NULL,
   `idRequest` INT(10) NOT NULL,
-  `idSample` INT(10) NOT NULL,
+  `idSample` INT(10) NULL,
   `idSeqRunType` INT(10) NULL,
   `idNumberSequencingCycles` INT(10) NULL,
   `analysisInstructions` VARCHAR(2000) NULL,
