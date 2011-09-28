@@ -4,491 +4,492 @@
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform">
-<mx:HTTPService  
-	id="getExperimentPlatformList" 
-	url="GetExperimentPlatformList.gx"
-	resultFormat="e4x"
-	showBusyCursor="true"
-	result="onGetExperimentPlatformList(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to get experiment platform list', event)"
-	method="POST" 
-	useProxy="false">
-</mx:HTTPService>
+	<mx:HTTPService  
+		id="getExperimentPlatformList" 
+		url="GetExperimentPlatformList.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetExperimentPlatformList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get experiment platform list', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
 	
-<mx:HTTPService  
-	id="deleteExperimentPlatform" 
-	url="DeleteExperimentPlatform.gx"
-	resultFormat="e4x"
-	showBusyCursor="false"
-	result="onDeleteExperimentPlatform(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to delete experiment platform', event)"
-	method="POST" 
-	useProxy="false">
-</mx:HTTPService>	
+	<mx:HTTPService  
+		id="deleteExperimentPlatform" 
+		url="DeleteExperimentPlatform.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDeleteExperimentPlatform(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete experiment platform', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>	
 	
-<mx:HTTPService  
-	id="saveExperimentPlatform" 
-	url="SaveExperimentPlatform.gx"
-	resultFormat="e4x"
-	showBusyCursor="true"
-	result="onSaveExperimentPlatform(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to save experiment platform', event)"
-	method="POST" 
-	useProxy="false">
-</mx:HTTPService>
-
-<mx:Script>
-	<![CDATA[
-		import hci.flex.controls.DropdownLabel;
-		
-		import mx.managers.PopUpManager;
-		import mx.rpc.events.ResultEvent;
-		import mx.events.CloseEvent;
-		import mx.controls.Alert;
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.events.PropertyChangeEvent;
-
-		
-		[Bindable]
-		private var requestCategory:Object = null;
-		
-		public var codeRequestCategorySelected:Object = null;
-		
-		private function init():void {
-			getExperimentPlatformList.send();
+	<mx:HTTPService  
+		id="saveExperimentPlatform" 
+		url="SaveExperimentPlatform.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSaveExperimentPlatform(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save experiment platform', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
 			
-			this.sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
-			this.sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
-
-		}
-
-		
-		
-		private function closeWindow():void {
-			PopUpManager.removePopUp(this);
-			callLater(parentApplication.dictionaryManager.reload);
-		}
-
-		
-
-		private function onGetExperimentPlatformList(event:ResultEvent): void {
-			if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
-				callLater(reselectExperimentPlatform);
-			} else {
-				mx.controls.Alert.show(getExperimentPlatformList.lastResult..ACTMESSAGE.@TEXT);
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.events.CloseEvent;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.PropertyChangeEvent;
+			
+			
+			[Bindable]
+			private var requestCategory:Object = null;
+			
+			public var codeRequestCategorySelected:Object = null;
+			
+			private function init():void {
+				getExperimentPlatformList.send();
+				
+				this.sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+				this.sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+				
 			}
-		}	
-		
-		private function reselectExperimentPlatform():void {
-			if (codeRequestCategorySelected != null) {
-				var found:Boolean = false;
-				for each(var ep:Object in getExperimentPlatformList.lastResult.RequestCategory) {
-					if (ep.@codeRequestCategory == codeRequestCategorySelected) {
-						this.platformList.selectedItem = ep;
-						this.platformList.scrollToIndex(this.platformList.selectedIndex);
-						this.onSelectPlatform();
-						found = true;
-						break;
-					}
+			
+			
+			
+			private function closeWindow():void {
+				PopUpManager.removePopUp(this);
+				callLater(parentApplication.dictionaryManager.reload);
+			}
+			
+			
+			
+			private function onGetExperimentPlatformList(event:ResultEvent): void {
+				if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
+					callLater(reselectExperimentPlatform);
+				} else {
+					mx.controls.Alert.show(getExperimentPlatformList.lastResult..ACTMESSAGE.@TEXT);
 				}
-				if (!found) {
+			}	
+			
+			private function reselectExperimentPlatform():void {
+				if (codeRequestCategorySelected != null) {
+					var found:Boolean = false;
+					for each(var ep:Object in getExperimentPlatformList.lastResult.RequestCategory) {
+						if (ep.@codeRequestCategory == codeRequestCategorySelected) {
+							this.platformList.selectedItem = ep;
+							this.platformList.scrollToIndex(this.platformList.selectedIndex);
+							this.onSelectPlatform();
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						this.platformList.selectedItem = null;
+						onSelectPlatform();
+					}
+				} else {
 					this.platformList.selectedItem = null;
 					onSelectPlatform();
 				}
-			} else {
-				this.platformList.selectedItem = null;
-				onSelectPlatform();
 			}
-		}
-		
-		private function save():void {
-			var params:Object = new Object();
 			
-			params.codeRequestCategory = this.requestCategory.@codeRequestCategory;
-			params.requestCategory = this.platformName.text;
-			params.notes = this.notes.text;
-			params.type = this.typeRadioGroup.selectedValue != null ? this.typeRadioGroup.selectedValue : '';
-			params.sortOrder = this.sortOrder.text;
-			params.isActive = this.isActiveCheckbox.selected ? 'Y' : 'N';
-			params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
-			params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
-			params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
-
-			params.icon = this.theIcon.text;				
-			
-			
-			params.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@value : '';
-			params.numberOfChannels = this.numberOfChannelsStepper.value;
-			params.isSampleBarcodingOptional = this.barcodingRadioGroup.selectedValue;
-			
-			params.sampleTypesXMLString = "<sampleTypes>" + this.sampleTypes.toXMLString() + "</sampleTypes>";
-			params.samplePrepMethodsXMLString = "<samplePrepMethods>" + this.samplePrepMethods.toXMLString() + "</samplePrepMethods>";
-			params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
-			params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
-			
-			saveExperimentPlatform.send(params);
-		}
-		
-		
-		private function pickType():void {
-			if (this.typeRadioGroup.selectedValue == 'QC') {
-				this.theIcon.text = "assets/chart_line.png";
-				dirty.setDirty();
-			} else if (this.typeRadioGroup.selectedValue == 'MICROARRAY') {
-				this.theIcon.text = "assets/microarray_small.png";
-				dirty.setDirty();
-			} else if (this.typeRadioGroup.selectedValue == 'ILLUMINA') {
-				this.theIcon.text = "assets/DNA_diag.png";				
-				dirty.setDirty();
-			} 			
-		}
-
-		private function onSaveExperimentPlatform(event:ResultEvent): void {
-			if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
-				codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
-				getExperimentPlatformList.send();
-			} else {
-				mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
-			}
-		}	
-		private function addPlatform():void {
-			
-			var addWindow:ExperimentPlatformAddWindow = ExperimentPlatformAddWindow(PopUpManager.createPopUp(mainBody, ExperimentPlatformAddWindow, true));
-			PopUpManager.centerPopUp(addWindow);
-			addWindow.parentWindow = this;
-			addWindow.platformName.setFocus();
-			this.theViews.selectedIndex = 1;
-			this.theTabs.selectedIndex = 0;
-			
-
-		}
-		
-		private function removePlatform():void {
-			if (platformList.selectedItem == null) {
-				return;
-			}
-			Alert.show("Are you sure you want to remove experiment platform " + platformList.selectedItem.@display + "?",
-				"Confirm",
-				(Alert.YES | Alert.NO), this, 
-				onPromptToRemovePlatform,						
-				parentApplication.iconWarning);
-			
-		}
-		
-		private function onPromptToRemovePlatform(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				removePlatformImpl();
-			}
-		}
-		
-		private function removePlatformImpl():void {
-			codeRequestCategorySelected = null;
-			
-			var params:Object = new Object();
-			params.codeRequestCategory = platformList.selectedItem.@codeRequestCategory;
-			deleteExperimentPlatform.send(params);
-		}
-		
-		private function onDeleteExperimentPlatform(event:ResultEvent): void {
-			if (deleteExperimentPlatform.lastResult.name() == "SUCCESS") {
-				this.getExperimentPlatformList.send();
-			} else {
-				mx.controls.Alert.show(deleteExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
-			}
-			this.dirty.resetDirty();
-		}		
-		
-		private function onSelectPlatform():void {
-			if (platformList.selectedItem != null) {
-				theViews.selectedIndex = 1;
+			private function save():void {
+				var params:Object = new Object();
 				
-				requestCategory = platformList.selectedItem;
-			    codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
+				params.codeRequestCategory = this.requestCategory.@codeRequestCategory;
+				params.requestCategory = this.platformName.text;
+				params.notes = this.notes.text;
+				params.type = this.typeRadioGroup.selectedValue != null ? this.typeRadioGroup.selectedValue : '';
+				params.sortOrder = this.sortOrder.text;
+				params.isActive = this.isActiveCheckbox.selected ? 'Y' : 'N';
+				params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
+				params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
+				params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
 				
-				vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
-				organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
-
-				dirty.resetDirty();
+				params.icon = this.theIcon.text;				
 				
-				showHideAppColumns();
-			} else {
-				theViews.selectedIndex = 0;
-				codeRequestCategorySelected = null;
+				
+				params.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@value : '';
+				params.numberOfChannels = this.numberOfChannelsStepper.value;
+				params.isSampleBarcodingOptional = this.barcodingRadioGroup.selectedValue;
+				
+				params.sampleTypesXMLString = "<sampleTypes>" + this.sampleTypes.toXMLString() + "</sampleTypes>";
+				params.samplePrepMethodsXMLString = "<samplePrepMethods>" + this.samplePrepMethods.toXMLString() + "</samplePrepMethods>";
+				params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
+				params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
+				
+				saveExperimentPlatform.send(params);
 			}
-		}
-		
-		private function showHideAppColumns():void {
-			labelingProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
-			hybProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
-			scanProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
-			feProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
 			
-			appGrid.invalidateList();
-			appGrid.invalidateDisplayList();
 			
-			seqLibProtocolCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false; 
+			private function pickType():void {
+				if (this.typeRadioGroup.selectedValue == 'QC') {
+					this.theIcon.text = "assets/chart_line.png";
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'MICROARRAY') {
+					this.theIcon.text = "assets/microarray_small.png";
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'ILLUMINA') {
+					this.theIcon.text = "assets/DNA_diag.png";				
+					dirty.setDirty();
+				} 			
+			}
 			
-			appGrid.invalidateList();
-			appGrid.invalidateDisplayList();
-			 
-		}
-		private function addExperimentType():void {
-			var newNode:XML = new XML("<Application " +
-				" isSelected='N'" +
-				" codeApplication='" + 'Application' + "'" +
-				" display='" + 'enter experiment type here...' + "'" +
-				" idSeqLibProtocols=''" +
-				" idLabelingProtocolDefault=''" +
-				" idHybProtocolDefault=''" +
-				" idScanProtocolDefault=''" +
-				" idFeatureExtractionProtocolDefault=''" +
-				" isActive='Y'" +
-				" />");
-			this.applications.addItemAt(newNode, 0);
-			this.appGrid.selectedItem = newNode;
-			this.appGrid.scrollToIndex(0);
-			this.dirty.setDirty();
-			
-		}
-		
-		private function removeExperimentType():void {
-			if (appGrid.selectedItem == null) {
-				return;
-			}
-			Alert.show("Are you sure you want to remove experiment type " + appGrid.selectedItem.@display + "?",
-				"Confirm",
-				(Alert.YES | Alert.NO), this, 
-				onPromptToRemoveExperimentType,						
-				parentApplication.iconWarning);
-			
-		}
-		
-		private function onPromptToRemoveExperimentType(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				removeExperimentTypeImpl();
-			}
-		}
-		
-		private function removeExperimentTypeImpl():void {
-			if (this.appGrid.selectedItem != null) {
-				this.applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
-				this.dirty.setDirty();
-			}
-		}
-		
-		private function addSampleType():void {
-			var newNode:XML = new XML("<SampleType " +
-				                      " isSelected='N'" +
-				                      " idSampleType='" + 'SampleType' + "'" +
-									  " display='" + 'enter sample type here...' + "'" +
-									  " idSamplePrepMethods=''" +
-									  " codeApplications=''" +
-									  " isActive='Y'" +
-			                          " />");
-			this.sampleTypes.addItemAt(newNode, 0);
-			this.sampleTypeGrid.selectedItem = newNode;
-			this.sampleTypeGrid.scrollToIndex(0);
-			this.dirty.setDirty();
-			
-		}
-
-		
-		private function removeSampleType():void {
-			if (sampleTypeGrid.selectedItem == null) {
-				return;
-			}
-			Alert.show("Are you sure you want to remove sample type " + sampleTypeGrid.selectedItem.@display + "?",
-				"Confirm",
-				(Alert.YES | Alert.NO), this, 
-				onPromptToRemoveSampleType,						
-				parentApplication.iconWarning);
-			
-		}
-		
-		private function onPromptToRemoveSampleType(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				removeSampleTypeImpl();
-			}
-		}
-
-		private function removeSampleTypeImpl():void {
-			if (this.sampleTypeGrid.selectedItem != null) {
-				this.sampleTypes.removeItemAt(sampleTypes.getItemIndex(sampleTypeGrid.selectedItem));
-				this.dirty.setDirty();
-			}
-		}
-
-		private function addSamplePrepMethod():void {
-			var newNode:XML = new XML("<SamplePrepMethod " +
-				" isSelected='N'" +
-				" idSamplePrepMethod='" + 'SamplePrepMethod' + "'" +
-				" display='" + 'enter method name here...' + "'" +
-				" isActive='Y'" +
-				" />");
-			this.samplePrepMethods.addItemAt(newNode, 0);
-			this.samplePrepMethodGrid.selectedItem = newNode;
-			this.samplePrepMethodGrid.scrollToIndex(0);
-			this.dirty.setDirty();
-			
-		}
-		
-		
-		
-		private function removeSamplePrepMethod():void {
-			if (samplePrepMethodGrid.selectedItem == null) {
-				return;
-			}
-			Alert.show("Are you sure you want to remove nucleic acid extraction method " + samplePrepMethodGrid.selectedItem.@display + "?",
-				"Confirm",
-				(Alert.YES | Alert.NO), this, 
-				onPromptToRemoveSamplePrepMethod,						
-				parentApplication.iconWarning);
-			
-		}
-		
-		private function onPromptToRemoveSamplePrepMethod(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				removeSamplePrepMethodImpl();
-			}
-		}
-		
-		private function removeSamplePrepMethodImpl():void {
-			if (this.samplePrepMethodGrid.selectedItem != null) {
-				this.samplePrepMethods.removeItemAt(samplePrepMethods.getItemIndex(samplePrepMethodGrid.selectedItem));
-				this.dirty.setDirty();
-			}
-		}
-		private function addNumberSequencingCycles():void {
-			var newNode:XML = new XML("<NumberSequencingCycles " +
-				" isSelected='N'" +
-				" idNumberSequencingCycles='" + 'NumberSequencingCycles' + "'" +
-				" display='" + 'enter number sequencing cycles here...' + "'" +
-				" paired='N'" +
-				" pairedNote=''" +
-				" single='N'" +
-				" singleNote=''" +
-				" isActive='Y'" +
-				" />");
-			this.sequencingOptions.addItemAt(newNode, 0);
-			this.sequencingOptionGrid.selectedItem = newNode;
-			this.sequencingOptionGrid.scrollToIndex(0);
-			this.dirty.setDirty();
-			
-		}
-		
-		
-		
-		private function removeNumberSequencingCycles():void {
-			if (sequencingOptionGrid.selectedItem == null) {
-				return;
-			}
-			Alert.show("Are you sure you want to remove sequence cycles " + sequencingOptionGrid.selectedItem.@numberSequencingCycles + "?",
-				"Confirm",
-				(Alert.YES | Alert.NO), this, 
-				onPromptToRemoveNumberSequencingCycles,						
-				parentApplication.iconWarning);
-			
-		}
-		
-		private function onPromptToRemoveNumberSequencingCycles(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				removeNumberSequencingCyclesImpl();
-			}
-		}
-
-		
-		private function removeNumberSequencingCyclesImpl():void {
-			if (this.sequencingOptionGrid.selectedItem != null) {
-				this.sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
-				this.dirty.setDirty();
-			}
-		}
-
-		private function calcRowColor(item:Object, rowIndex:int,
-									  dataIndex:int, color:uint):uint
-		{
-			if(item.@isActive != "Y")
-				return 0x49FFAD;
-			else
-				return color;
-		}
-		
-		private function selectAll(objects:XMLListCollection, viewStack:ViewStack):void {
-			for each(var o:Object in objects) {
-				if (o.@isActive == 'Y') {
-					o.@isSelected = 'Y';
+			private function onSaveExperimentPlatform(event:ResultEvent): void {
+				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
+					getExperimentPlatformList.send();
+				} else {
+					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}
+			}	
+			private function addPlatform():void {
+				
+				var addWindow:ExperimentPlatformAddWindow = ExperimentPlatformAddWindow(PopUpManager.createPopUp(mainBody, ExperimentPlatformAddWindow, true));
+				PopUpManager.centerPopUp(addWindow);
+				addWindow.parentWindow = this;
+				addWindow.platformName.setFocus();
+				this.theViews.selectedIndex = 1;
+				this.theTabs.selectedIndex = 0;
+				
+				
 			}
-			viewStack.selectedIndex = 1;
-			this.dirty.setDirty();
-		}
-		private function unselectAll(objects:XMLListCollection, viewStack:ViewStack):void {
-			for each(var o:Object in objects) {
-				o.@isSelected = 'N';
-			}
-			viewStack.selectedIndex = 0;
-			this.dirty.setDirty();
-		}
-
-		private function disablePlatformSelection(data:Object):Boolean
-		{
-			return this.dirty.isDirty();
-		}
-		
-		private function promptToDiscardChanges():void {
-			if (this.dirty.isDirty()) {
-				Alert.show("Your changes have not been saved.  Discard changes?",
-					"Warning",
+			
+			private function removePlatform():void {
+				if (platformList.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove experiment platform " + platformList.selectedItem.@display + "?",
+					"Confirm",
 					(Alert.YES | Alert.NO), this, 
-					onPromptToDiscardChanges,						
+					onPromptToRemovePlatform,						
 					parentApplication.iconWarning);
-			}
-		}
-		
-		private function onPromptToDiscardChanges(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				this.dirty.resetDirty();
-				this.getExperimentPlatformList.send();
-			}
-		}
-
-		private function underlyingSeqOptionChange(event:CollectionEvent):void {
-			var ignore:int = 0;
-			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-				// ignore refresh and resets 
-				return;
+				
 			}
 			
-			for each(var e:Object in event.items) {
-				if (e is PropertyChangeEvent) {
-					var pe:PropertyChangeEvent = PropertyChangeEvent(e);
-					
-					if (pe.property == "@paired") {
-						if (pe.newValue == "Y") {
-							this.sequencingOptionGrid.selectedItem.@pairedName = this.sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle paired-end reads";
-						} else {
-							this.sequencingOptionGrid.selectedItem.@pairedName = "";
-						}
-					}else if (pe.property == "@single") {
-						if (pe.newValue == "Y") {
-							this.sequencingOptionGrid.selectedItem.@singleName = this.sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle single-end reads";
-						} else {
-							this.sequencingOptionGrid.selectedItem.@singleName = "";
-						}
-					}         	
+			private function onPromptToRemovePlatform(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removePlatformImpl();
 				}
 			}
-		}
-
-	]]>
-</mx:Script>
+			
+			private function removePlatformImpl():void {
+				codeRequestCategorySelected = null;
+				
+				var params:Object = new Object();
+				params.codeRequestCategory = platformList.selectedItem.@codeRequestCategory;
+				deleteExperimentPlatform.send(params);
+			}
+			
+			private function onDeleteExperimentPlatform(event:ResultEvent): void {
+				if (deleteExperimentPlatform.lastResult.name() == "SUCCESS") {
+					this.getExperimentPlatformList.send();
+				} else {
+					mx.controls.Alert.show(deleteExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
+				}
+				this.dirty.resetDirty();
+			}		
+			
+			private function onSelectPlatform():void {
+				if (platformList.selectedItem != null) {
+					theViews.selectedIndex = 1;
+					
+					requestCategory = platformList.selectedItem;
+					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
+					
+					vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
+					organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
+					
+					dirty.resetDirty();
+					
+					showHideAppColumns();
+				} else {
+					theViews.selectedIndex = 0;
+					codeRequestCategorySelected = null;
+				}
+			}
+			
+			private function showHideAppColumns():void {
+				labelingProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+				hybProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+				scanProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+				feProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+				
+				appGrid.invalidateList();
+				appGrid.invalidateDisplayList();
+				
+				applicationThemeCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false;
+				seqLibProtocolCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false; 
+				
+				appGrid.invalidateList();
+				appGrid.invalidateDisplayList();
+				
+			}
+			private function addExperimentType():void {
+				var newNode:XML = new XML("<Application " +
+					" isSelected='N'" +
+					" codeApplication='" + 'Application' + "'" +
+					" display='" + 'enter experiment type here...' + "'" +
+					" idSeqLibProtocols=''" +
+					" idLabelingProtocolDefault=''" +
+					" idHybProtocolDefault=''" +
+					" idScanProtocolDefault=''" +
+					" idFeatureExtractionProtocolDefault=''" +
+					" isActive='Y'" +
+					" />");
+				this.applications.addItemAt(newNode, 0);
+				this.appGrid.selectedItem = newNode;
+				this.appGrid.scrollToIndex(0);
+				this.dirty.setDirty();
+				
+			}
+			
+			private function removeExperimentType():void {
+				if (appGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove experiment type " + appGrid.selectedItem.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveExperimentType,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveExperimentType(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeExperimentTypeImpl();
+				}
+			}
+			
+			private function removeExperimentTypeImpl():void {
+				if (this.appGrid.selectedItem != null) {
+					this.applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
+					this.dirty.setDirty();
+				}
+			}
+			
+			private function addSampleType():void {
+				var newNode:XML = new XML("<SampleType " +
+					" isSelected='N'" +
+					" idSampleType='" + 'SampleType' + "'" +
+					" display='" + 'enter sample type here...' + "'" +
+					" idSamplePrepMethods=''" +
+					" codeApplications=''" +
+					" isActive='Y'" +
+					" />");
+				this.sampleTypes.addItemAt(newNode, 0);
+				this.sampleTypeGrid.selectedItem = newNode;
+				this.sampleTypeGrid.scrollToIndex(0);
+				this.dirty.setDirty();
+				
+			}
+			
+			
+			private function removeSampleType():void {
+				if (sampleTypeGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove sample type " + sampleTypeGrid.selectedItem.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveSampleType,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveSampleType(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeSampleTypeImpl();
+				}
+			}
+			
+			private function removeSampleTypeImpl():void {
+				if (this.sampleTypeGrid.selectedItem != null) {
+					this.sampleTypes.removeItemAt(sampleTypes.getItemIndex(sampleTypeGrid.selectedItem));
+					this.dirty.setDirty();
+				}
+			}
+			
+			private function addSamplePrepMethod():void {
+				var newNode:XML = new XML("<SamplePrepMethod " +
+					" isSelected='N'" +
+					" idSamplePrepMethod='" + 'SamplePrepMethod' + "'" +
+					" display='" + 'enter method name here...' + "'" +
+					" isActive='Y'" +
+					" />");
+				this.samplePrepMethods.addItemAt(newNode, 0);
+				this.samplePrepMethodGrid.selectedItem = newNode;
+				this.samplePrepMethodGrid.scrollToIndex(0);
+				this.dirty.setDirty();
+				
+			}
+			
+			
+			
+			private function removeSamplePrepMethod():void {
+				if (samplePrepMethodGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove nucleic acid extraction method " + samplePrepMethodGrid.selectedItem.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveSamplePrepMethod,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveSamplePrepMethod(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeSamplePrepMethodImpl();
+				}
+			}
+			
+			private function removeSamplePrepMethodImpl():void {
+				if (this.samplePrepMethodGrid.selectedItem != null) {
+					this.samplePrepMethods.removeItemAt(samplePrepMethods.getItemIndex(samplePrepMethodGrid.selectedItem));
+					this.dirty.setDirty();
+				}
+			}
+			private function addNumberSequencingCycles():void {
+				var newNode:XML = new XML("<NumberSequencingCycles " +
+					" isSelected='N'" +
+					" idNumberSequencingCycles='" + 'NumberSequencingCycles' + "'" +
+					" display='" + 'enter number sequencing cycles here...' + "'" +
+					" paired='N'" +
+					" pairedNote=''" +
+					" single='N'" +
+					" singleNote=''" +
+					" isActive='Y'" +
+					" />");
+				this.sequencingOptions.addItemAt(newNode, 0);
+				this.sequencingOptionGrid.selectedItem = newNode;
+				this.sequencingOptionGrid.scrollToIndex(0);
+				this.dirty.setDirty();
+				
+			}
+			
+			
+			
+			private function removeNumberSequencingCycles():void {
+				if (sequencingOptionGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove sequence cycles " + sequencingOptionGrid.selectedItem.@numberSequencingCycles + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveNumberSequencingCycles,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveNumberSequencingCycles(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeNumberSequencingCyclesImpl();
+				}
+			}
+			
+			
+			private function removeNumberSequencingCyclesImpl():void {
+				if (this.sequencingOptionGrid.selectedItem != null) {
+					this.sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
+					this.dirty.setDirty();
+				}
+			}
+			
+			private function calcRowColor(item:Object, rowIndex:int,
+										  dataIndex:int, color:uint):uint
+			{
+				if(item.@isActive != "Y")
+					return 0x49FFAD;
+				else
+					return color;
+			}
+			
+			private function selectAll(objects:XMLListCollection, viewStack:ViewStack):void {
+				for each(var o:Object in objects) {
+					if (o.@isActive == 'Y') {
+						o.@isSelected = 'Y';
+					}
+				}
+				viewStack.selectedIndex = 1;
+				this.dirty.setDirty();
+			}
+			private function unselectAll(objects:XMLListCollection, viewStack:ViewStack):void {
+				for each(var o:Object in objects) {
+					o.@isSelected = 'N';
+				}
+				viewStack.selectedIndex = 0;
+				this.dirty.setDirty();
+			}
+			
+			private function disablePlatformSelection(data:Object):Boolean
+			{
+				return this.dirty.isDirty();
+			}
+			
+			private function promptToDiscardChanges():void {
+				if (this.dirty.isDirty()) {
+					Alert.show("Your changes have not been saved.  Discard changes?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDiscardChanges,						
+						parentApplication.iconWarning);
+				}
+			}
+			
+			private function onPromptToDiscardChanges(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					this.dirty.resetDirty();
+					this.getExperimentPlatformList.send();
+				}
+			}
+			
+			private function underlyingSeqOptionChange(event:CollectionEvent):void {
+				var ignore:int = 0;
+				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+					// ignore refresh and resets 
+					return;
+				}
+				
+				for each(var e:Object in event.items) {
+					if (e is PropertyChangeEvent) {
+						var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+						
+						if (pe.property == "@paired") {
+							if (pe.newValue == "Y") {
+								this.sequencingOptionGrid.selectedItem.@pairedName = this.sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle paired-end reads";
+							} else {
+								this.sequencingOptionGrid.selectedItem.@pairedName = "";
+							}
+						}else if (pe.property == "@single") {
+							if (pe.newValue == "Y") {
+								this.sequencingOptionGrid.selectedItem.@singleName = this.sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle single-end reads";
+							} else {
+								this.sequencingOptionGrid.selectedItem.@singleName = "";
+							}
+						}         	
+					}
+				}
+			}
+			
+		]]>
+	</mx:Script>
 	
-<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
-<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
-<mx:XMLListCollection id="samplePrepMethods" source="{requestCategory.samplePrepMethods.SamplePrepMethod}"/>
-<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
-<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
+	<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
+	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
+	<mx:XMLListCollection id="samplePrepMethods" source="{requestCategory.samplePrepMethods.SamplePrepMethod}"/>
+	<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
+	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody">
 		<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
@@ -498,7 +499,7 @@
 		</mx:HBox>
 		<mx:HDividedBox width="100%" height="100%">
 			<util:DisabledItemsList id="platformList" width="200" height="100%" labelField="@requestCategory" dataProvider="{platforms}" 
-					 itemClick="{onSelectPlatform()}" disabledFunction="disablePlatformSelection" click="promptToDiscardChanges()">
+									itemClick="{onSelectPlatform()}" disabledFunction="disablePlatformSelection" click="promptToDiscardChanges()">
 			</util:DisabledItemsList>
 			<mx:ViewStack id="theViews" width="100%" height="100%">
 				<mx:VBox label="blankView" width="100%" height="100%" 
@@ -534,16 +535,16 @@
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="top">
 								<mx:Label text="Type" width="80"/>
 								<mx:VBox verticalGap="0" verticalAlign="middle" >
-								  <mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
-								  <mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()"/>
-								  <mx:HBox horizontalGap="110">
-									  <mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()"/>
-									  <mx:HBox visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
-										  <mx:Label text="Number of channels" width="120"/>
-										  <mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
-									  </mx:HBox>									  
-								  </mx:HBox>
-								  <mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
+									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:HBox horizontalGap="110">
+										<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()"/>
+										<mx:HBox visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+											<mx:Label text="Number of channels" width="120"/>
+											<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
+										</mx:HBox>									  
+									</mx:HBox>
+									<mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()"/>
 								</mx:VBox>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
@@ -559,13 +560,13 @@
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 								<mx:Text text="Default Organism" 
-									width="80" visible="{isInternalCheckbox.selected}" />
+										 width="80" visible="{isInternalCheckbox.selected}" />
 								<mx:ComboBox width="100%" id="organismCombo"
-									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}" 
-									labelField="@display" visible="{isInternalCheckbox.selected}" close="{this.dirty.setDirty();}"/>
+											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}" 
+											 labelField="@display" visible="{isInternalCheckbox.selected}" close="{this.dirty.setDirty();}"/>
 							</mx:HBox>
-			
-														
+							
+							
 						</mx:VBox>
 						<mx:VBox  width="100%" height="100%" label="Experiment Types"  show="{showHideAppColumns()}" 
 								  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
@@ -592,7 +593,16 @@
 													   width="200"
 													   editable="true" dataField="@display" >
 									</mx:DataGridColumn>
-									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="400"
+									<mx:DataGridColumn headerText="Theme"  
+													   id="applicationThemeCol"
+													   dataField="@idApplicationTheme"  
+													   editorDataField="value" 
+													   sortable="true" 
+													   editable="true" 
+													   rendererIsEditor="false"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
+													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
+									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="250"
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
 													   dataField="@idSeqLibProtocols"/>  
 									<mx:DataGridColumn headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
@@ -623,7 +633,7 @@
 							</mx:DataGrid>
 						</mx:VBox>
 						<mx:VBox width="100%"  height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4" label="Sample Types" verticalGap="12">
-								
+							
 							<mx:VBox width="100%" height="100%" verticalGap="0">
 								<mx:HBox verticalAlign="middle">
 									<mx:ViewStack id="selectAllStack1" width="80" paddingBottom="0" paddingTop="0">
@@ -768,7 +778,7 @@
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Note" width="180" dataField="@singleNote"  >
 											</mx:DataGridColumn>
-
+											
 											<mx:DataGridColumn headerText="Paired-end"  
 															   width="40" 
 															   editable="false"                        	
@@ -781,18 +791,18 @@
 													</mx:Component>
 												</mx:headerRenderer>
 											</mx:DataGridColumn>
-
+											
 											<mx:DataGridColumn headerText="Name" width="120" dataField="@pairedName"  >
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Note" width="180" dataField="@pairedNote"  >
 											</mx:DataGridColumn>
-
+											
 										</mx:columns>
 									</mx:DataGrid>
 								</mx:VBox>
-
+								
 							</mx:VBox>
-
+							
 						</mx:VBox>
 					</mx:TabNavigator>
 					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">

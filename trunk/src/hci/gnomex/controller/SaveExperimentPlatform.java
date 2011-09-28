@@ -485,9 +485,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       String idHybProtocolDefault = node.getAttributeValue("idHybProtocolDefault");
       String idScanProtocolDefault = node.getAttributeValue("idScanProtocolDefault");
       String idFeatureExtractionProtocolDefault = node.getAttributeValue("idFeatureExtractionProtocolDefault");
+      String idApplicationTheme = node.getAttributeValue("idApplicationTheme");
 
       app.setApplication(node.getAttributeValue("display"));
       app.setIsActive(node.getAttributeValue("isActive"));
+      app.setIdApplicationTheme(idApplicationTheme != null && !idApplicationTheme.equals("") ? Integer.valueOf(idApplicationTheme) : null);
       sess.save(app);
 
       applicationMap.put(app.getCodeApplication(), null);

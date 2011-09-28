@@ -66,6 +66,10 @@
 				if (header.text != "" && header.text != null) {
 					seqAppBox.addChild(header);
 				}
+				else{
+					header.text = "Other";
+					seqAppBox.addChild(header);
+				}
 				
 				for each(var app:Object in theApps) {
 					var rb:RadioButton = new RadioButton();
