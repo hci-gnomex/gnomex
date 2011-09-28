@@ -29,22 +29,30 @@
 		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.controls.Alert;
 		import mx.rpc.events.ResultEvent;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.ItemClickEvent;
+		import mx.events.PropertyChangeEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
 		import hci.flex.controls.DropdownLabel;
+		
+		import views.workflow.EditFlowCellWindow;
 		
 		[Bindable]
 		public var codeSequencingPlatform:String = "";
+		private var addWindow:EditFlowCellWindow;
 		
 		private function init():void {
 			this.getFlowCellList.send();
+			this.addEventListener("changed",refresh);
 		}
 
-    	private function getLaneRowNumber(item:Object,col:int):String
-    	{
-       		var x:int = flowCellLanesGrid.dataProvider.getItemIndex(item) + 1;
-       		return String(x);
+		private function refresh(e:Event):void{
+			this.getFlowCellList.send();
+		}    	
 
-    	} 
-    	
         private function onGetFlowCellList(event:ResultEvent):void {
         	if (event.result.name() == "FlowCellList") {
         	} else {
@@ -59,7 +67,14 @@
 			var url:URLRequest = new URLRequest('ShowFlowCellPrepForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
 			navigateToURL(url, '_blank');			
 		}
-		
+		public function prepareToEdit():void {
+			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(this, EditFlowCellWindow, true));
+			this.addWindow.selectedFC = this.flowCellsGrid.selectedItem;
+			this.addWindow.parentView = this;
+			mx.managers.PopUpManager.centerPopUp(this.addWindow);
+			addWindow.setFocus();
+		}
+
 		private function getFragmentSizeRange(item:Object, col:DataGridColumn):String {
 			return (item.@fragmentSizeFrom != "" ? item.@fragmentSizeFrom : "?") + " - " + 
 			       (item.@fragmentSizeTo != "" ? item.@fragmentSizeTo : "?");
@@ -140,9 +155,6 @@
 	    	</mx:CheckBox>
 		  </mx:HBox>          	  
 
-
-      	  
-
       </mx:HBox>
 
 	<mx:VDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
@@ -150,10 +162,16 @@
 			<mx:VBox width="100%" height="100%" verticalGap="1">			
 				<mx:VBox width="100%" height="100%" verticalGap="1">		
 				    <mx:HBox width="100%" verticalAlign="bottom">
+				        <mx:HBox width="100%" verticalAlign="middle" paddingTop="8">
+				        	<mx:Label text="{'Flow Cell ' + flowCellsGrid.selectedItem.@number}"  fontWeight="bold"/>
+				        	<mx:LinkButton label="Preparation report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintablePrepForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				        	<mx:LinkButton label="Run report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				        	<mx:LinkButton label="Edit flow cell" fontStyle="normal" textDecoration="underline" color="#2017D8" click="prepareToEdit()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				        </mx:HBox>
 				        <mx:Spacer width="100%"/>
-						<mx:Label text="{'(' + this.flowCells.length + ' flow cells)'}" fontWeight="normal"/>				    	
+				        <mx:Label text="{'(' + this.flowCells.length + ' flow cells)'}" fontWeight="normal" textAlign="right"/>
 				    </mx:HBox>	
-					<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" dataProvider="{flowCells}">
+					<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" dataProvider="{flowCells}" doubleClickEnabled="true" doubleClick="prepareToEdit()">
 						<mx:columns>
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
 							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
@@ -165,64 +183,6 @@
 					</mx:DataGrid>		
 				</mx:VBox>
 			</mx:VBox>
-		</mx:VBox>
-		<mx:VBox width="100%" height="100%" verticalGap="1">
-			<mx:HBox width="100%" verticalAlign="middle" paddingTop="8">
-				<mx:Label text="{'Flow Cell ' + flowCellsGrid.selectedItem.@number}"  fontWeight="bold"/>
-				<mx:LinkButton label="Preparation report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintablePrepForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
-				<mx:LinkButton label="Run report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
-			</mx:HBox>
-
-			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="100%" horizontalScrollPolicy="auto">	
-				<mx:columns>
-					<mx:DataGridColumn  headerText="Chan #" dataField="@number" width="50"/>
-					<mx:DataGridColumn width="50" headerText="Control" >
-	                  <mx:itemRenderer>
-	                    <mx:Component >
-	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
-	                          <mx:Image source="{data.@isControl == 'Y' ? parentApplication.iconCheck : ''}">
-	                    	 </mx:Image> 
-	                        </mx:HBox>
-	                    </mx:Component>
-	                  </mx:itemRenderer>
-	                </mx:DataGridColumn> 					
-					<mx:DataGridColumn  dataField="@contentNumbers" width="180" headerText="Seq Sample #"/> 
-					<mx:DataGridColumn  dataField="@numberSequencingCyclesActual" width="90" headerText="# Cycles (actual)">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="# Cycles"/>
-							        <mx:Label text="(actual)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Read 1 Clusters Pass Filters (M)"  width="90" dataField="@read1ClustersPassedFilterM" editable="true">			                
-						<mx:headerRenderer > 
-							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-									<mx:Label text="Read 1 Clusters"/>
-									<mx:Label text="PF (M)"/>
-								</mx:VBox>
-							</mx:Component>
-						</mx:headerRenderer> 
-					</mx:DataGridColumn>					
-					<mx:DataGridColumn headerText="Read 2 Clusters Pass Filters (M)"  width="90" dataField="@read2ClustersPassedFilterM" editable="true">			                
-						<mx:headerRenderer > 
-							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-									<mx:Label text="Read 2 Clusters"/>
-									<mx:Label text="PF (M)"/>
-								</mx:VBox>
-							</mx:Component>
-						</mx:headerRenderer> 
-					</mx:DataGridColumn>					
-					<mx:DataGridColumn headerText="Q30 (Gb)" width="90" dataField="@q30Gb" editable="true"/>			                
-					
-				    <mx:DataGridColumn  dataField="@fileName" width="100" headerText="Folder name"/>
-					<mx:DataGridColumn  dataField="@workflowStatus" width="100" headerText="Status"/>
-				</mx:columns>			
-			</mx:DataGrid>			
 		</mx:VBox>
 	</mx:VDividedBox>
 		

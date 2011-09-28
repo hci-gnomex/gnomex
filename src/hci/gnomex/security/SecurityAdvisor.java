@@ -9,6 +9,7 @@ import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.DictionaryEntryUserOwned;
+import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
@@ -617,6 +618,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canUpdate = true;
         } 
       }  
+    }
+    //
+    // FlowCell
+    //
+    else if (object instanceof FlowCell) {
+
+    	// Admins
+    	if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+    		canUpdate = true;
+      }
     }
     //
     // Dictionary

@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.3.1
+---------------------
+* Added edit flow cell screen which allows for adding and removing channels and assigning different sequence lanes to a channel
+* Added the ability to select a theme for experiment types on the experiment platform window
+* Experiment types with unassigned themes are categorized under 'Other' header on seq setup tab on seq submission
 
 5.3 (Sept 26, 2011)
 ---------------------
