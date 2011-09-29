@@ -220,7 +220,7 @@
 							   				         </mx:Component>
 							   				     </mx:itemRenderer>
 							   				</mx:DataGridColumn>
-							   				<mx:DataGridColumn headerText="Description" dataField="@description" editable="false" width="200">
+							   				<mx:DataGridColumn headerText="Description" dataField="@description" editable="false" width="270">
 							   				     <mx:itemRenderer>
 							   				         <mx:Component>
 							   				         <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
