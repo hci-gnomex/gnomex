@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="678" height="382" 
+				creationComplete="{init()}"
+				xmlns:util="views.util.*" 
+				showCloseButton="true" close="{closeWindow()}"
+				title="Edit Institutions" xmlns:renderers="views.renderers.*">
+	
+	<mx:HTTPService
+		id="saveInstitution"
+		url="SaveInstitution.gx"
+		resultFormat="e4x"
+		result="onSaveInstitution(event)"
+		showBusyCursor="false"
+		fault="parentApplication.onFailHttpRequest('Failed to save Institution', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.CheckBox;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			private var idInstitution:Object = null;
+			
+			private function closeWindow():void 
+			{
+				if(dirty.isDirty())
+				{
+					promptToSaveDirty();
+				}
+				else
+				{
+					parentApplication.dictionaryManager.reload();
+					PopUpManager.removePopUp(this);
+				}
+				
+			}
+			
+			private function init():void {
+			}
+			
+			private function addInstitution(event:MouseEvent):void 
+			{
+				dirty.setDirty();
+				institutionList.addItem((<Institution institution="***Click to Edit***" description="***Click to Edit***" isActive="N"/>));
+				
+			}
+			
+			private function removeInstitution(event:MouseEvent):void
+			{
+				if(institutionGrid.selectedItem != null)
+				{
+					dirty.setDirty()
+					institutionList.removeItemAt(institutionList.getItemIndex(institutionGrid.selectedItem));
+					
+				}
+				else
+					return;		
+			}
+			
+			private function onSaveInstitution(event:ResultEvent): void
+			{
+				if (saveInstitution.lastResult.name() == "SUCCESS") 
+				{
+					idInstitution = saveInstitution.lastResult.@idInstitution;
+					
+					//parentApplication.institutionList.send();
+				} 
+				else 
+				{
+					//mx.controls.Alert.show("Save Successful");
+				}
+			}	
+			
+			private function save(): void
+			{
+				dirty.resetDirty();
+				var params:Object = new Object();
+				params.institutionsXMLString = "<institutionList>" + this.institutionList.toXMLString() + "</institutionList>";
+				saveInstitution.send(params);
+			}
+			
+			public function promptToSaveDirty():void {
+				if (dirty.isDirty()) {
+					Alert.show("Your changes have not been saved.  Would you like your changes to be saved before closing?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToSaveDirty);
+					
+				}
+				else
+					closeWindow();
+			}
+			
+			private function onPromptToSaveDirty(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					save();
+					closeWindow();
+				}
+				else
+				{
+					dirty.resetDirty();
+					closeWindow();
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="institutionList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value != '')}"/>
+	<mx:XMLListCollection id="newInstitution"/>
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		
+		
+		<mx:HBox width="100%" horizontalAlign="right" backgroundImage="@Embed(source='../../assets/filterBar.png')">
+			<mx:LinkButton label="Add Institution" styleName="linkMenuButton" click="addInstitution(event)"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
+			<mx:LinkButton label="Remove Institution" styleName="linkMenuButton" click="removeInstitution(event)"  disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" textAlign="right"/>
+		</mx:HBox>
+		
+		<mx:HDividedBox height="100%" width="100%" >
+			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">	
+				<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
+					<mx:DataGrid width="100%" height="100%" id="institutionGrid"  dataProvider="{institutionList}" sortableColumns="true" editable="true">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Institution" width="300"  editable="true" dataField="@institution"/> 
+							<mx:DataGridColumn headerText="Description" width="300"  editable="true" dataField="@description"/> 
+							<mx:DataGridColumn headerText="Active" dataField="@isActive" rendererIsEditor="true" itemRenderer="{CheckBox.getFactory('Y', 'N', '@isActive', true)}"
+											   width="40" editorDataField="selected" editable = "false"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:ControlBar width="100%" horizontalAlign="right"   paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
+						<util:DirtyNote id="dirty"/>
+						<mx:Button id="saveButton" label="Save"
+								   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+						</mx:Button>
+						<mx:Button label="Close"  click="promptToSaveDirty()"/>
+					</mx:ControlBar>
+				</mx:VBox>
+			</mx:ViewStack>
+		</mx:HDividedBox>
+	</mx:VBox>
+</mx:TitleWindow>
