@@ -1,4 +1,7 @@
 ﻿GNomEx Release Notes
+5.3.2
+---------------------
+*Added Institution Window to allow user to add and remove institutions
 
 5.3.1
 ---------------------
