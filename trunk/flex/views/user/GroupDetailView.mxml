@@ -59,9 +59,9 @@
 		import mx.events.DataGridEvent;
 		import mx.events.CollectionEventKind;
         import mx.events.PropertyChangeEvent;
-
-
 		
+		import views.util.InstitutionWindow;
+
 		private var savedIdLab:Object = '';
 		private var dictionaryEditor:DictionaryEditor;
 		
@@ -454,6 +454,12 @@
 	    private function getSubmitterInfo(item:Object, col:int):String {
 			return item.@submitterEmail + ' ' + item.@submitterUID;
 		}
+		
+		private function showNewInstitutionWindow():void{
+			mx.managers.PopUpManager.centerPopUp(InstitutionWindow(mx.managers.PopUpManager.createPopUp(this, InstitutionWindow, true)));
+			this.setFocus();
+	
+		}
 	]]>
 </mx:Script>	  
 
@@ -512,7 +518,10 @@
 								</mx:VBox>
 							</mx:VBox>
 							<mx:VBox verticalGap="0" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="33%">
-							    <mx:Label text="Institutions"/>
+								<mx:HBox horizontalAlign="left">
+								<mx:Label text="Institutions"/>
+									<mx:LinkButton  id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0"/>
+								</mx:HBox>	
 								   <mx:HBox horizontalAlign="left" horizontalGap="6">
 								    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display" >			       	
 								    </mx:ComboBox>
