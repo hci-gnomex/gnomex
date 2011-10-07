@@ -690,7 +690,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 } 
               }
             } 
-            if(contactEmail.length() > 0 || ccEmail.length() > 0) {        
+            if((contactEmail != null && contactEmail.length() > 0) || ccEmail.length() > 0) {        
               try {
                 sendTotalPriceEmail(sess, contactEmail, ccEmail, billedAccountName);
               } catch (Exception e) {
