@@ -1,7 +1,12 @@
 ﻿GNomEx Release Notes
+
+---------------------
+* Added hci.gnomex.daemon.DatasetExpirationCheckd which checks for privacy expiration and sends out advance warning when it is set to expire.
+* Fixed bug where null pointer exception generated if lab billing email not present and estimated charges notification being sent out.
+
 5.3.2
 ---------------------
-*Added Institution Window to allow user to add and remove institutions
+* Added Institution Window to allow user to add and remove institutions
 
 5.3.1
 ---------------------
