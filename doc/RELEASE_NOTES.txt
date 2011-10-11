@@ -1,6 +1,6 @@
 ﻿GNomEx Release Notes
 
-5.3.1
+5.3.1 (Oct 10, 2011)
 ---------------------
 * Added edit flow cell screen which allows for adding and removing channels and assigning different sequence lanes to a channel
 * Added the ability to select a theme for experiment types on the experiment platform window
@@ -9,6 +9,7 @@
 * Added Institution Window to allow user to add and remove institutions
 * Added hci.gnomex.daemon.DatasetExpirationCheckd which checks for privacy expiration and sends out advance warning when it is set to expire.
 * Fixed bug where null pointer exception generated if lab billing email not present and estimated charges notification being sent out.
+* Added new table columns to SequenceLane to record data pipeline info: readCount and pipelineVersion
 
 5.3 (Sept 26, 2011)
 ---------------------
