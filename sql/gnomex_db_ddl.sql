@@ -1740,6 +1740,8 @@ CREATE TABLE `gnomex`.`SequenceLane` (
   `analysisInstructions` VARCHAR(2000) NULL,
   `idGenomeBuildAlignTo` INT(10) NULL,
   `idFlowCellChannel` INT(10) NULL,
+  `readCount` INT(10) NULL,
+  `pipelineVersion` VARCHAR(10) NULL,
   PRIMARY KEY (`idSequenceLane`),
   CONSTRAINT `FK_SequenceLane_GenomeBuild` FOREIGN KEY `FK_SequenceLane_GenomeBuild` (`idGenomeBuildAlignTo`)
     REFERENCES `gnomex`.`GenomeBuild` (`idGenomeBuild`)
