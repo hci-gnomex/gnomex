@@ -330,6 +330,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `percentagePrice` DECIMAL(3, 2) NOT NULL,
   `notes` VARCHAR(500) NULL,
   `idLab` INT(10) NOT NULL,
+  `completeDate` DATETIME NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY `FK_BillingItem_PriceCategory` (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)

@@ -185,6 +185,7 @@
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
+		import mx.controls.DateField;
 		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 		import mx.core.DragSource;
 		import mx.events.CloseEvent;
@@ -383,7 +384,8 @@
 				    " category='' description='' " +
 				    " codeBillingChargeKind=''" +				
 					" idBillingPeriod=''" +				
-					" idBillingAccount=''" +				
+					" idBillingAccount=''" +
+					" completeDateOther=''" +
 					" qty=''" +
 					" unitPrice=''" + 
 					" totalPrice=''" +
@@ -1145,8 +1147,15 @@
  			
  			for each(var request:XML in billingItems) {
  				if (request.@isDirty == "Y") { 
- 					for each(var bi:XML in request.BillingItem) {
-						if(bi.@isDirty == "Y") {
+					
+					for each(var bi1:Object in request.BillingItem) {
+						if(bi1.@isDirty == "Y"){
+							bi1.@completeDate = bi1.@completeDateOther;
+						}
+					}
+ 					
+					for each(var bi:XML in request.BillingItem) {
+						if(bi.@isDirty == "Y") {				
 							params.billingItemXMLString += bi.toXMLString();								
 						}
  					}
@@ -1766,7 +1775,11 @@
 			billingItemGrid.selectedItem.@isDirty = "Y";
 		}
 		
-
+		private function getCompleteDateString(item:Object,col:int):String
+		{
+			return item.@completeDateOther.toString();
+		}
+		
  	]]>
  </mx:Script>	
 
@@ -1775,6 +1788,8 @@
   .percentageEmphasis {fontWeight:bold; color: #AA082A;}
   .normal {}    
 </mx:Style>
+	
+  <mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
  
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
  
@@ -2004,7 +2019,7 @@
         			      editorDataField="value" 
         				  rendererIsEditor="false"
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
-						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>                 
+						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>						
         				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="18" wordWrap="true">
 			              <mx:itemRenderer>
 			                  <mx:Component>
@@ -2019,6 +2034,15 @@
 			                  </mx:Component>
 			              </mx:itemRenderer>
         				</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn  id = "cDate"  
+											headerText="Complete Date"
+											dataField="@completeDate"
+											width="11" 
+											itemEditor="views.renderers.CompleteDateFieldEditor"
+											itemRenderer="mx.controls.Label" 
+											rendererIsEditor="false" 
+											labelFunction="getCompleteDateString"
+											editorDataField="selectedDate"/>													
         				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true">
         				  <mx:itemRenderer>
 			                  <mx:Component>
@@ -2052,7 +2076,7 @@
         				  rendererIsEditor="false"
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
 						  itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
-        			</mx:columns>
+					</mx:columns>
         			 
         		</mx:AdvancedDataGrid>     
    
