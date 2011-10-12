@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="678" height="382" 
+				xmlns:util="views.util.*" 
+				xmlns:views="views.*"
+				xmlns:hci="hci.flex.controls.*"
+				showCloseButton="true" close="{closeWindow()}"
+				title="Slide Configuration" xmlns:renderers="views.renderers.*">
+	
+	<mx:HTTPService
+		id="saveSimple"
+		url="SaveSimpleSlide.gx"
+		resultFormat="e4x"
+		result="onSaveSimple(event)"
+		showBusyCursor="false"
+		fault="parentApplication.onFailHttpRequest('Failed to save Slide', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.CheckBox;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.experiment.ExperimentEditView;
+			import views.experiment.TabSetupView;
+			
+			
+			[Bindable]
+			public var fullSlideDesign:Object;
+			
+			[Bindable]
+			public var codeRequestCategory:Object;
+			
+			public var codeApplication:Object;
+			
+					
+			private function closeWindow():void 
+			{
+				if(dirty.isDirty())
+				{
+					promptToSaveDirty();
+				}
+				else
+				{
+					parentApplication.dictionaryManager.reload();
+					PopUpManager.removePopUp(this);
+				}
+				
+			}
+
+			public function init():void {
+				references.filterFunction = filterForData;
+				references.refresh();
+				
+				for(var j:int = 0; j < fullAppList.length; j++)
+					for(var k:int = 0; k < references.length; k++)
+					{
+						if(fullAppList.getItemAt(j).@codeApplication == references.getItemAt(k).@codeApplication)
+							finalAppList.addItem(fullAppList.getItemAt(j));
+					}
+
+			}
+			
+			private function filterForData(item:Object):Boolean{
+				if(item.@codeRequestCategory == codeRequestCategory) 
+					return true;
+				else 
+					return false;      
+			}
+			
+			
+			public function promptToSaveDirty():void {
+				if (dirty.isDirty()) {
+					Alert.show("Your changes have not been saved.  Would you like your changes to be saved before closing?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToSaveDirty);
+				}
+				else
+					closeWindow();
+			}
+			
+			private function onPromptToSaveDirty(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					save();
+					closeWindow();
+				}
+				else
+				{
+					dirty.resetDirty();
+					closeWindow();
+				}
+			}
+			
+			private function save(): void
+			{
+				dirty.resetDirty();
+				
+				var params:Object = new Object();
+				params.name = slideName.text;
+				params.idVendor = sdIdVendor.value;
+				params.idOrganism = sdIdOrganism.value;
+				params.idSlideProduct = "";
+				params.isActive = cBox.selected ? "Y" : "N";
+				params.idSlideDesign = "";
+				
+				params.applicationXMLString = "<applications>"+spApplications.toXMLString()+"</applications>";
+				
+				saveSimple.send(params);
+			}
+				
+			
+			private function onSaveSimple(event:ResultEvent): void
+			{
+				if (saveSimple.lastResult.name() == "SUCCESS") 
+				{
+					fullSlideDesign = saveSimple.lastResult.@idSlideDesign;
+					mx.controls.Alert.show("Save Successful");
+					
+					//parentApplication.institutionList.send();
+				} 
+
+			}
+			
+			private function updateApplications(application:Object):void
+			{
+				
+				for(var i:int = 0; i < spApplications.length; i++)
+				{
+					if(spApplications.getItemAt(i).@value == application.@value)
+					{
+						spApplications.removeItemAt(i);
+						return;
+					}
+				}
+				var code:String;
+				var category:String;
+				var node:XML = null;
+				code = application.@value;
+				category = application.@display;
+				
+				node = new XML("<Application value='"+code+"' display='"+category+"' codeApplication='"+code+"' isActive='Y' application='"+category+"' canWrite='Y' datakey='"+code+"'/>");
+				
+				spApplications.addItem(node);
+			}
+
+			
+		]]>	
+	</mx:Script>
+	<mx:XMLListCollection id="finalAppList"/>
+	<mx:XMLListCollection id="spApplications"/>
+	<mx:XMLListCollection id="references" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '')}"/>
+	<mx:XMLListCollection id="fullAppList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != '')}"/>
+
+	<mx:VBox height="100%" width="100%" verticalGap="0">
+		<mx:HBox verticalGap="2">
+			<mx:Label width="85" text="Slide Name: " />
+			<mx:TextInput id="slideName" backgroundColor="#FBF8F8" width="413" change="dirty.setDirty()"/>
+			<mx:Label text="Is Active: "/>
+			<mx:CheckBox id="cBox" change="dirty.setDirty()"/>
+		</mx:HBox>
+		<mx:VBox height="100%" width="100%">
+			<mx:ViewStack id="theViews"  width="100%" height="75" creationPolicy="all">	
+				
+				<mx:HBox y="70" right="10" left="10" width="100%">
+					<mx:VBox left="10" top="25%" width="250" id="vbox3" verticalGap="2">
+						<mx:Label text="Vendor:" top="85" left="10" width="50%" id="label2"/>
+						<hci:ComboBox top="102" left="188" width="250" 
+									  id="sdIdVendor"
+									  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
+									  prompt=" "
+									  value="{sdIdVendor.selectedItem.@idVendor}"
+									  change="dirty.setDirty()">
+						</hci:ComboBox>
+					</mx:VBox>
+					<mx:VBox left="213" top="25%" width="250" id="vbox2" verticalGap="2">
+						<mx:Label text="Organism:" top="85" left="188" width="50%" id="label3"/>
+						<hci:ComboBox top="102" left="188"
+									  id="sdIdOrganism"
+									  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+									  prompt=" "
+									  value="{sdIdOrganism.selectedItem.@idOrganism}"
+									  width="250" change="dirty.setDirty()">
+						</hci:ComboBox>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:ViewStack>
+				<mx:Label text="Select application(s) to add..." left="10" top="142" height="18" width="432" id="label5"/>
+
+			<mx:VBox left="213" top="79" width="507" id="vbox1" verticalAlign="top" height="179" backgroundColor="#FFFFFF" verticalGap="0">
+				<mx:Repeater dataProvider="{finalAppList}"
+							 id="checkApplication">
+					<mx:CheckBox id="check" paddingTop="0" label="{checkApplication.currentItem.@application}" data="{checkApplication.currentItem.@value}" change="dirty.setDirty()" click="updateApplications(event.currentTarget.getRepeaterItem())"/>
+				</mx:Repeater>
+				<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
+				<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
+				<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
+			<util:DirtyNote id="dirty"/>
+			<mx:Button id="saveButton" label="Save"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			<mx:Button label="Close" click="promptToSaveDirty()"/>
+		</mx:ControlBar>
+	</mx:VBox>
+</mx:TitleWindow>

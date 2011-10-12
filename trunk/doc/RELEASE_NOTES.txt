@@ -1,4 +1,8 @@
 ﻿GNomEx Release Notes
+5.3.3
+---------------------
+*Added a simple slide configuration window
+*Allows users to create a new slide while registering a new experiment
 
 5.3.2
 ---------------------

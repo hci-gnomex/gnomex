@@ -94,11 +94,9 @@
           </mx:AddChild>
           <mx:RemoveChild target="{vbox4}"/>
           <mx:AddChild relativeTo="{hbox2}" position="lastChild">
-              <mx:LinkButton  id="newProjectButton0" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
-              </mx:LinkButton>
+         
           </mx:AddChild>
           <mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
-          <mx:RemoveChild target="{newProjectButton1}"/>
           <mx:SetProperty target="{label12}" name="width" value="160"/>
           <mx:SetProperty target="{text7}" name="width" value="160"/>
           <mx:SetProperty target="{text2}" name="width" value="160"/>
@@ -109,11 +107,12 @@
 	  	<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 	  		<mx:HBox width="100%" horizontalGap="0">
 	  			<mx:Text width="160">
-	  				<mx:htmlText>Microaray slide</mx:htmlText>
+	  				<mx:htmlText>Microarray slide</mx:htmlText>
 	  			</mx:Text>
 	  			<mx:ComboBox labelField="@display" width="420" id="slideProductComboAdmin" change="{pickSlideProduct(slideProductComboAdmin)}"  close="{pickSlideProduct(slideProductComboAdmin)}"   >							
 	  				<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
 	  			</mx:ComboBox>
+				<mx:LinkButton  id="newSimple" label="New..." click="showNewSimpleSlideWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0" enabled="{parentDocument.requestCategory.@codeRequestCategory != ''}"/>
 	  		</mx:HBox>
 	  	</mx:AddChild>
 	  	<mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
@@ -227,10 +226,16 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
+		import views.slide.SimpleSlideConfigWindow;
+		
 		import views.experiment.ProjectDetailWindow;
 		import views.experiment.RequestCloneWindow;
+		import views.slide.SimpleSlideConfigWindow;
 		import views.util.PromptXMLListCollection;
 		import views.util.WorkAuthorizationWindow;
+		
+		[Bindable]
+		public var requestCategory:Object;
 
         [Bindable]
         private var lab:Object = null;
@@ -294,7 +299,7 @@
 		}
 		
 		public function getRequestCategory():Object {
-			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestTypeGroup.selectedValue);
+			requestCategory= parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestTypeGroup.selectedValue);
 			return requestCategory;			 
 		}
 		
@@ -479,8 +484,7 @@
 				
 			}
 		}			
-	
-		
+
 		public function getSlideProductCombo():mx.controls.ComboBox {
 			var theSlideProductCombo:mx.controls.ComboBox = null;
 			if (currentState.indexOf("AdminExternal") == 0) {
@@ -562,10 +566,8 @@
     			parentDocument.enableNextButtons();
     		}
 
-    		
     		callLater(postSetupCompleteness, [isComplete]);
-    		
-    		
+	
         }
         
         private function postSetupCompleteness(isComplete:Boolean):void {
@@ -611,7 +613,6 @@
         }
 
 		private function onGetProjectRequestList(event:ResultEvent):void {
-			
 			this.requestCloneWindow = RequestCloneWindow(PopUpManager.createPopUp(this, RequestCloneWindow, true));
 			PopUpManager.centerPopUp(requestCloneWindow);
 			requestCloneWindow.expandAllNodes();
@@ -646,8 +647,8 @@
 		
 		private function highlightRequestCategory():void {
 			for (var i:int = 0; i < radioRequestCategory.length; i++) {
-            	radioRequestCategory[i].setStyle("fontWeight", radioRequestCategory[i].selected    == true ?  "bold" : "normal");	
-   			}
+            	radioRequestCategory[i].setStyle("fontWeight", radioRequestCategory[i].selected == true ?  "bold" : "normal");	
+   			} 
 		}
 		
 		private function pickSlideProduct(slideProductCombo:ComboBox):void {
@@ -672,6 +673,16 @@
 				getSlideProductCombo().selectedIndex = 0;
 				parentDocument.filteredSlideProductList.refresh();
 			}
+			
+		}
+		
+		private function showNewSimpleSlideWindow():void{
+			var slideWindow:SimpleSlideConfigWindow = SimpleSlideConfigWindow(mx.managers.PopUpManager.createPopUp(this, SimpleSlideConfigWindow, true));
+			mx.managers.PopUpManager.centerPopUp(slideWindow);
+			slideWindow.codeRequestCategory = requestCategory.@codeRequestCategory;
+			slideWindow.init();
+			this.setFocus();
+			
 		}
         
 
@@ -791,7 +802,7 @@
 						<mx:LinkButton  id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
 							<mx:enabled>{projectCombo.selectedItem != null &amp;&amp; projectCombo.selectedItem.@idProject != &quot;&quot;}</mx:enabled>
 						</mx:LinkButton>
-						<mx:LinkButton  id="newProjectButton1" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
+						<mx:LinkButton  id="newSlide" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
 						</mx:LinkButton>
 					</mx:HBox>					
 				</mx:HBox>
