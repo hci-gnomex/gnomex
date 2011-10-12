@@ -238,6 +238,9 @@
 				
 		[Bindable]
 		public var request:Object;
+			
+		[Bindable]
+		public var requestCategory:Object;
 		
 		[Bindable]
 		public var lab:Object;
@@ -333,6 +336,7 @@
 
     			isInitialized = true;
 			}
+			
 			// Force the setting of request category name to reset
 			// the state if we are toggling between register external
 			// experiment and submit internal experiment.
@@ -775,9 +779,6 @@
 			
 		}
 		
-
-
-		
 		private function nextTab():void {
 			theTab.selectedIndex++;
 		}
@@ -826,7 +827,7 @@
 		
 		
 		public function setRequestCategoryName():void {
-			var requestCategory:Object = getRequestCategory();
+			requestCategory = getRequestCategory();
 		
 			if (requestCategory == null) {
 				return;
@@ -1293,7 +1294,7 @@
 
 		
 		public function getRequestCategory():Object {			
-			var requestCategory:Object = null;
+			requestCategory = null;
 			if (this.isAmendState()) {
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', getAmendRequestCategory());				
 			} else if (!isEditState()) {
