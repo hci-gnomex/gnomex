@@ -1,9 +1,12 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingStatus;
+import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +20,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 
-public class BillingItemParser implements Serializable {
+public class BillingItemParser extends DetailObject implements Serializable {
   
   /**
    * 
@@ -66,6 +69,12 @@ public class BillingItemParser implements Serializable {
         billingItem.setIdLab(!node.getAttributeValue("idLab").equals("") ? new Integer(node.getAttributeValue("idLab")) : null);
         billingItem.setQty(!node.getAttributeValue("qty").equals("") ? new Integer(node.getAttributeValue("qty")) : null);
         
+        if (node.getAttributeValue("completeDate") != null && !node.getAttributeValue("completeDate").equals("")) {
+          billingItem.setCompleteDate(this.parseDate(node.getAttributeValue("completeDate")));
+        } else {
+          billingItem.setCompleteDate(null);
+        }
+        
         String unitPrice = node.getAttributeValue("unitPrice");
         unitPrice = unitPrice.replaceAll("\\$", "");
         unitPrice = unitPrice.replaceAll(",", "");
@@ -86,9 +95,24 @@ public class BillingItemParser implements Serializable {
           billingItem.setTotalPrice(null);
         }
         
+        if (node.getAttributeValue("codeBillingStatus") != null && !node.getAttributeValue("codeBillingStatus").equals("")) {
+          String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
+
+          // If we have toggled from not complete to complete, set complete date
+          if (codeBillingStatus.equals(BillingStatus.COMPLETED) && billingItem.getIdBillingItem() != null) {
+            if (billingItem.getCodeBillingStatus() == null || 
+                billingItem.getCodeBillingStatus().equals("") ||
+                !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+              billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
+            }
+          }
+          billingItem.setCodeBillingStatus(codeBillingStatus);  
+        }
+        
         // Set the billing status
         String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
         billingItem.setCodeBillingStatus(codeBillingStatus);
+        
         
         // Set the billing status
         String currentCodeBillingStatus = node.getAttributeValue("currentCodeBillingStatus");

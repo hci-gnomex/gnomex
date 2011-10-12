@@ -168,6 +168,7 @@
 		<property name="codeBillingStatus" column="codeBillingStatus" type="string"/>
 		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
 		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
+		<property name="completeDate" column="completeDate" type="date"/>
 		<many-to-one name="billingPeriod" column="idBillingPeriod" class="hci.gnomex.model.BillingPeriod" cascade="none" insert="false" update="false" />
 		<property name="idPriceCategory" column="idPriceCategory" type="integer"/>
 		<many-to-one name="priceCategory" column="idPriceCategory" class="hci.gnomex.model.PriceCategory" cascade="none" insert="false" update="false" />

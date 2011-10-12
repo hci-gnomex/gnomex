@@ -90,7 +90,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   
   public Element makeDetail() throws Exception {
     
-    int columnCount = 9;
+    int columnCount = 10;
     // Find out if any billing items have % other than 100%.  If
     // so, show % column.
     boolean showPercentCol = false;
@@ -120,10 +120,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
     Element rowh = new Element("TR");
     table.addContent(rowh);
-    this.addHeaderCell(rowh, "Date", "left");
+    this.addHeaderCell(rowh, "Req Date", "left");
     this.addHeaderCell(rowh, "Req ID");
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Service");
+    this.addHeaderCell(rowh, "Date", "left");
     this.addHeaderCell(rowh, "Description"    );
     this.addHeaderCell(rowh, "Notes"    );
     if (showPercentCol) {
@@ -138,22 +139,25 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       String requestNumber = (String)i.next();
       Request request = (Request)requestMap.get(requestNumber);      
       List billingItems = (List)billingItemMap.get(requestNumber);
+      String client = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";        
       
+      
+      Element rowR = new Element("TR");
+      table.addContent(rowR);
+      this.addCell(rowR, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
+      this.addCell(rowR, request.getNumber());
+      this.addCell(rowR, client);
       
       BigDecimal totalPriceForRequest = new BigDecimal(0);
       for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
         BillingItem bi = (BillingItem)i1.next();
         
-       
-        String client = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";        
-        
         
         Element row = new Element("TR");
         table.addContent(row);
-        this.addCell(row, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
-        this.addCell(row, request.getNumber());
-        this.addCell(row, client);
+        this.addEmptyCell(row, new Integer(3));
         this.addCell(row, this.getHTMLString(bi.getCategory() != null ? bi.getCategory() : "&nbsp;"));
+        this.addCell(row, this.formatDate(bi.getCompleteDate(), this.DATE_OUTPUT_SLASH));
         this.addCell(row, this.getHTMLString(bi.getDescription() != null ? bi.getDescription() : "&nbsp;"));
         this.addCell(row, this.getHTMLString(bi.getNotes() != null && !bi.getNotes().equals("") ? bi.getNotes() : "&nbsp;"));
         if (showPercentCol) {

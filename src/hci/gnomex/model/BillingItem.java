@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 
 import javax.swing.text.NumberFormatter;
 
+import java.sql.Date;
 
 public class BillingItem extends HibernateDetailObject {
   
@@ -31,6 +32,7 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idLab;
   private Lab            lab;
   private String         notes;
+  private Date           completeDate;
   
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -154,6 +156,21 @@ public class BillingItem extends HibernateDetailObject {
     this.billingAccount = billingAccount;
   }
   
+  public Date getCompleteDate()
+  {
+    return completeDate;
+  }
+
+  public void setCompleteDate(Date completeDate)
+  {
+    this.completeDate = completeDate;
+  }
+  
+  public String getCompleteDateOther() {
+    return this.formatDate(this.completeDate, this.DATE_OUTPUT_SLASH); 
+  }
+
+
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getBillingAccount");
     this.excludeMethodFromXML("getLab");
