@@ -71,7 +71,7 @@ public class GetSlideList extends GNomExCommand implements Serializable {
         
         Hibernate.initialize(sp.getSlideDesigns());
         Iterator sdIter = sp.getSlideDesigns().iterator();
-        if (sp.getIsSlideSet().equals("Y")) {
+        if (sp.getIsSlideSet() != null && sp.getIsSlideSet().equals("Y")) {
           slideNode = new Element("SlideProduct");
           slideNode.setAttribute("name",sp.getName());
           slideNode.setAttribute("id", sp.getIdSlideProduct().toString());
