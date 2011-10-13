@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  show="init()"
 	label="Hyb setup" width="100%" height="100%" enabled="false">
 	<mx:states>
 		<mx:State name="SetupState">
@@ -12,29 +12,50 @@
 		import mx.collections.XMLListCollection;
 		
 		public var validNumberOfHybs:Boolean = true;
+		private var slideSourcesSorted:Boolean = false;
 		
-		public function getCheckedCodeSlideSource():String {
-			if (this.coreSlideSourceCheckbox.selected == true) {
-				return "CORE";
-			} else if (this.clientSlideSourceCheckbox.selected == true ) {
-				return "CLIENT";
-			} else if (this.stripSlideSourceCheckbox.selected== true) {
-				return "REUSE";
-			} else {
-				return '';
+		private function init():void {
+			if (!slideSourcesSorted) {
+				slideSources.refresh();
+				slideSourcesSorted = true;
+			}
+		} 
+		
+		public function unselectSlideSources():void {
+			for (var x:int = 0; x < slideSourceCheckbox.length; x++) {
+				slideSourceCheckbox[x].selected = false;
 			}
 		}
-		private function toggleCheckedCodeSlideSource(checkBoxNumber:int):void {
-			if (checkBoxNumber == 1) {
-				this.clientSlideSourceCheckbox.selected = false;
-				this.stripSlideSourceCheckbox.selected  = false;
-			} else if (checkBoxNumber == 2) {
-				this.coreSlideSourceCheckbox.selected = false;
-				this.stripSlideSourceCheckbox.selected  = false;
-			} else if (checkBoxNumber == 3) {
-				this.coreSlideSourceCheckbox.selected  = false;
-				this.clientSlideSourceCheckbox.selected = false;
-			} 
+		
+		public function selectDefaultSlideSource():void {
+			for (var x:int = 0; x < slideSourceCheckbox.length; x++) {
+				if (slideSources.getItemAt(x).@codeSlideSource == 'CORE') {
+					slideSourceCheckbox[x].selected = true;
+					break;
+				}
+			}
+			
+		}
+		
+		public function getCheckedCodeSlideSource():String {
+			var codeSlideSource:String = "";
+			for (var x:int = 0; x < slideSourceCheckbox.length; x++) {
+				if (slideSourceCheckbox[x].selected == true) {
+					codeSlideSource = slideSources.getItemAt(x).@codeSlideSource;
+					break;
+				}
+				
+			}
+			return codeSlideSource;
+		}
+		
+		private function toggleCheckedCodeSlideSource(codeSlideSource:String):void {
+			for (var x:int = 0; x < slideSourceCheckbox.length; x++) {
+				if (slideSources.getItemAt(x).@codeSlideSource == codeSlideSource) {
+					continue;
+				}
+				slideSourceCheckbox[x].selected = false;
+			}
 		}
 		
 		private function validateSlideUse():void {
@@ -217,9 +238,63 @@
 			checkHybSetupCompleteness();
 			initializeApplicationName();
 		}
+		
+		private function pickSlideSource(codeSlideSource:String):void {
+			this.toggleCheckedCodeSlideSource(codeSlideSource);
+			parentDocument.hybsView.initializeHybsGrid();
+			clearHybSlideDesigns();
+			parentDocument.initializeSlideDesigns(slideProductCombo);
+			propagateCheckCodeSlideSource();
+			checkHybSetupCompleteness();			
+		}
+		
+		private function sortSlideSource(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var sortOrder1:int = obj1.hasOwnProperty("@sortOrder") ? obj1.@sortOrder : -1;
+				var sortOrder2:int = obj2.hasOwnProperty("@sortOrder") ? obj2.@sortOrder : -1;
+
+				var display1:String = obj1.@display;
+				var display2:String = obj2.@display;
+				
+				if (sortOrder1 == -1 && sortOrder2 == -1) {
+					if (display1 < display2) {
+						return -1;
+					} else if (display1 > display2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				} else if (sortOrder1 == -1) {
+					return -1;
+				} else if (sortOrder2 == -1) {
+					return 1;
+				} else {
+					
+				}
+			
+				if (sortOrder1 < sortOrder2) {
+					return -1;
+				} else if (sortOrder1 > sortOrder2) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}
+		}
+		
+
       
 	]]>
 </mx:Script>
+	
+	<mx:XMLListCollection id="slideSources" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SlideSource').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" sort="{slideSourceSort}"/>
+	<mx:Sort id="slideSourceSort" compareFunction="sortSlideSource"/>
     <mx:NumberValidator id="numberOfHybsValidator" source="{numberOfHybs}" property="text" 
         required="true" allowNegative="false" domain="int" maxValue="100" />
     <mx:NumberValidator id="slideOrganismValidator"
@@ -299,9 +374,9 @@
 		<mx:HBox width="100%" horizontalGap="0" id="slideSourceContainer">
 			<mx:Label text="(6) Where will the microarrays come from?" width="250" />
 			<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="slideUseBox" styleName="requiredBox">
-				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(1);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();" paddingTop="0" paddingBottom="1"/>
-				<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(2);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();" paddingTop="0" paddingBottom="1"/>
-				<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  change="validateSlideUse()"  click="this.toggleCheckedCodeSlideSource(3);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();" paddingBottom="1" paddingTop="0"/>
+				<mx:Repeater id="slideSourceRepeater" dataProvider="{slideSources}">
+					<mx:CheckBox label="{slideSourceRepeater.currentItem.@slideSource}"  id="slideSourceCheckbox"   change="{validateSlideUse()}" click="{pickSlideSource(event.currentTarget.getRepeaterItem().@codeSlideSource)}" paddingTop="0" paddingBottom="1"/>
+				</mx:Repeater>
 			</mx:VBox>
 		</mx:HBox>
 		

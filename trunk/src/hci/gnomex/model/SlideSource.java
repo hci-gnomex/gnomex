@@ -14,6 +14,7 @@ public class SlideSource extends DictionaryEntry implements Serializable {
   private String codeSlideSource;
   private String slideSource;  
   private String isActive;
+  private Integer sortOrder;
   
   public String getDisplay() {
     String display = this.getNonNullString(getSlideSource());
@@ -54,6 +55,14 @@ public class SlideSource extends DictionaryEntry implements Serializable {
   
   public void setSlideSource(String slideSource) {
     this.slideSource = slideSource;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 
 }
