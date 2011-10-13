@@ -285,6 +285,10 @@
 		<delete>
 			<fileset dir="${dist.dir}" includes="${ear.name}" />
 		</delete>
+		
+		<!-- Use UNIX eol convention for .sh files -->
+		<fixcrlf srcdir="${basedir}/scripts" includes="*.sh"
+		         eol="lf" eof="remove" />		
 
 		<ear destfile="${dist.dir}/${ear.name}"
 			 appxml="${metainf.dir}/ear/application.xml">
@@ -453,7 +457,7 @@
 		</replaceregexp>
 		
 		<!-- Use UNIX eol convention for .sh files -->
-		<fixcrlf srcdir="${opensource.dir}/scripts" includes="index_gnomex.sh"
+		<fixcrlf srcdir="${opensource.dir}/scripts" includes="*.sh"
 		         eol="lf" eof="remove" />		
 
 		<!-- Get rid of proxy and change to MySQL jdbc driver in hibernate.cfg.xml files -->
