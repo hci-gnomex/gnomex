@@ -754,9 +754,7 @@
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
 				hybSetupView.isCatalogRadio.selected = true;
-				hybSetupView.coreSlideSourceCheckbox.selected = false;
-			 	hybSetupView.clientSlideSourceCheckbox.selected = false;
-				hybSetupView.stripSlideSourceCheckbox.selected = false;
+			 	hybSetupView.unselectSlideSources();
 
 				hybSetupView.organismCombo.enabled = true;
 				hybSetupView.slideProductCombo.enabled = true;
@@ -2116,7 +2114,7 @@
 				// takes care of necessary initialization.
 				//initializeSlideDesigns();
 
-				hybSetupView.coreSlideSourceCheckbox.selected = true;
+				hybSetupView.selectDefaultSlideSource();
 				
 			}			
 			if (isEditState()) {
@@ -3709,9 +3707,7 @@
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
 				hybSetupView.isCatalogRadio.selected = true;
-				hybSetupView.coreSlideSourceCheckbox.selected = false;
-			 	hybSetupView.clientSlideSourceCheckbox.selected = false;
-				hybSetupView.stripSlideSourceCheckbox.selected = false;
+				hybSetupView.unselectSlideSources();
 
 				hybSetupView.organismCombo.enabled = true;
 				hybSetupView.slideProductCombo.enabled = true;

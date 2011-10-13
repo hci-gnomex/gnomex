@@ -148,6 +148,7 @@
 	<Dictionary displayName="Microarray Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
+	<Dictionary displayName="Microarray Slide Source" className="hci.gnomex.model.SlideSource"  editable="Y"/>
 
 
 	
@@ -161,7 +162,6 @@
 	<Dictionary displayName="User Permission Kind"  className="hci.gnomex.model.UserPermissionKind" editable="N" />
 	<Dictionary displayName="Visibility" className="hci.gnomex.model.Visibility" editable="N" />
 	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" editable="N"/>
-	<Dictionary displayName="Slide Source" className="hci.gnomex.model.SlideSource"  editable="N"/>
 
 </Dictionaries>
 	

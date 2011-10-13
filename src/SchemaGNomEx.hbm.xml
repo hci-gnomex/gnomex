@@ -1384,12 +1384,13 @@
 	</class>
 	
 	<!-- hci.gnomex.model.SlideSource -->
-	<class name="hci.gnomex.model.SlideSource" table="SlideSource">
+	<class name="hci.gnomex.model.SlideSource" table="SlideSource" >
 		<id name="codeSlideSource" column="codeSlideSource" type="string">
 			<generator class="assigned"/>
 		</id>
 		<property name="slideSource" column="slideSource" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.State -->
