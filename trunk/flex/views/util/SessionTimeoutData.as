@@ -89,7 +89,7 @@ package views.util
 		
 		
 		public static function  handleFault(event:FaultEvent):int{
-			onFailHttpRequest('Unable to save work list', event);
+			onFailHttpRequest('Unable to check session status', event);
 			return -1;
 		}
 		
