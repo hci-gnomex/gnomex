@@ -6,6 +6,7 @@
 	xmlns:WorkflowView="WorkflowView.*" 
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
     creationPolicy="all"
+	show="init()"
 	label="Workflow" width="100%" height="100%"  >
 
     <mx:Script>
@@ -16,7 +17,27 @@
 			
 			import views.util.DataGridAlternatingGroup;
 			import views.util.FillButtonClickEvent;
-							
+				
+		private function init():void {
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA');
+			
+			var rcGAII:Object = null;
+			if (requestCategory != null) {
+				if (requestCategory is XMLList) {
+					var rcList:XMLList = XMLList(requestCategory);
+					if (rcList.length() > 0) {
+						rcGAII = rcList[0];
+					}
+				} else {
+					rcGAII = requestCategory;
+				} 
+			} 
+			if (rcGAII == null || rcGAII.@isActive == 'N') {
+				if (navBar.contains(solexaTab)) {
+					navBar.removeChild(solexaTab);
+				}
+			}
+		}
 		
 		public function checkDirty():void {
 		}
@@ -123,7 +144,7 @@
 				
 				</mx:VBox>
 			</mx:Canvas >
-			<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow">
+			<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow" visible="true">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
 			  		<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4">
