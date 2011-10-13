@@ -192,6 +192,8 @@
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.treeClasses.TreeItemRenderer;
+			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.CursorManager;
@@ -204,13 +206,13 @@
 			import views.util.AboutView;
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
+			import views.util.DownloadHints;
+			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
 			import views.util.SessionTimeoutData;
-			import views.util.WorkAuthorizationWindow;
-			import mx.core.IFlexDisplayObject;
-			import views.util.DownloadHints;			
+			import views.util.WorkAuthorizationWindow;			
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -421,6 +423,20 @@
 	        [@Embed(source="assets/ding.mp3")]
 	        public var soundDing:Class;
 			
+			
+			[Bindable]
+			public var expIcons:XML = new XML(
+				<items>
+					<item label="(None)" icon="assets/noIcon.png" />					
+					<item label="" icon="assets/DNA_diag.png" />
+					<item label="" icon="assets/DNA_diag_lightening.png" />
+					<item label="" icon="assets/microarray_chip.png" />
+					<item label="" icon="assets/microarray_small.png" />
+					<item label="" icon="assets/microarray_small_single_color.png" />
+					<item label="" icon="assets/chart_line.png" />
+				</items>    
+			);
+						
 			private var isGuest:Boolean = false;
 	        
 	        
@@ -1517,6 +1533,13 @@
         }
         
 		public function getTreeIcon(item:Object):Class {
+				if(item is XML) {
+					// If icon path defined then use it
+					var itemIcon:String = item.@icon;
+					if(itemIcon != null && itemIcon.length > 0) {
+						return IconUtility.getClass(item, itemIcon, 16, 16);
+					}
+				}
 				if (item.name() == "Lab" || item.name() == "BillingLab") {
 					return this.iconGroup;
 				} else if (item.name() == "Project" || item.name() == "AnalysisGroup" || item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList" || item.name() == "Status" || item.name() == "Protocols" ) {
@@ -1553,7 +1576,9 @@
 					} else {
 						return this.iconSlide;
 					}
-				}else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "SOLEXA") {
+				}
+				/*
+				else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "SOLEXA") {
 					return this.iconSolexa;
 				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "HISEQ") {
 					return this.iconHiSeq;
@@ -1569,7 +1594,9 @@
 					return this.iconMicroarray;
 				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_ILLUMINA) {
 					return this.iconSolexa;
-				} else if (item.name() == "RequestDownload") {
+				}
+				*/
+				else if (item.name() == "RequestDownload") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;
 					} else {
