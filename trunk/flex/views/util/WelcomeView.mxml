@@ -54,6 +54,7 @@
 			<mx:AddChild relativeTo="{hbox5}" position="before" target="{button5}"/>
 			<mx:RemoveChild target="{vbox1}"/>
 			<mx:SetStyle target="{label6}" name="paddingTop" value="30"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (admin privileges)'}"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
@@ -61,6 +62,7 @@
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (you have not been assigned to any Lab groups in GNomEx)'}"/>
 		</mx:State>
 		<mx:State name="ExternalUserState">
 		</mx:State>
@@ -97,6 +99,13 @@
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (you have not been assigned to any Lab groups in GNomEx)'}"/>
+		</mx:State>
+		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
+		</mx:State>
+		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -115,7 +124,7 @@
 			public function checkSecurity():void {
 				if (parentApplication.currentState == "GuestState") {
 					if (parentApplication.isUniversityOnlyUser) {
-						this.currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState"
+						this.currentState = parentApplication.isExternalDataSharingSite ? "UnivGuestESState" : "UnivGuestState"
 					} else {
 						this.currentState = "GuestState";
 					}
@@ -230,9 +239,9 @@
 		]]> 
 	</mx:Script>
 	
-	<mx:Text text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="12" top="12"/>
+	<mx:Text text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="12" top="12" id="text1"/>
 	<mx:Text  bottom="2" right="2" text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
-	<mx:VBox   top="12" right ="2"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFFFFF" backgroundAlpha="1" id="vbox11">
+	<mx:VBox   top="12" right ="12"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFFFFF" backgroundAlpha="1" id="vbox11">
 		<mx:Text text="{parentApplication.bulletin}" fontSize="11"  width="300" fontStyle="italic" />  			
 	</mx:VBox>
 	<mx:VBox    
