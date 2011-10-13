@@ -41,13 +41,13 @@
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
 			
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent;
-			import mx.events.CloseEvent;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
 			
 			
 			[Bindable]
@@ -115,8 +115,12 @@
 				params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
 				params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
 				
-				params.icon = this.theIcon.text;				
-				
+				//params.icon = this.theIcon.text;
+				if(iconCombo.selectedIndex > 0) {
+					params.icon = iconCombo.selectedItem.@icon;
+				} else {
+					params.icon = "";
+				}
 				
 				params.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@value : '';
 				params.numberOfChannels = this.numberOfChannelsStepper.value;
@@ -128,20 +132,32 @@
 				params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
 				
 				saveExperimentPlatform.send(params);
-			}
-			
+			}			
 			
 			private function pickType():void {
+				var iconToCheck:String = "";
 				if (this.typeRadioGroup.selectedValue == 'QC') {
-					this.theIcon.text = "assets/chart_line.png";
+					iconToCheck = "assets/chart_line.png";
 					dirty.setDirty();
 				} else if (this.typeRadioGroup.selectedValue == 'MICROARRAY') {
-					this.theIcon.text = "assets/microarray_small.png";
+					iconToCheck = "assets/microarray_small.png";
 					dirty.setDirty();
 				} else if (this.typeRadioGroup.selectedValue == 'ILLUMINA') {
-					this.theIcon.text = "assets/DNA_diag.png";				
+					iconToCheck = "assets/DNA_diag.png";				
 					dirty.setDirty();
-				} 			
+				}
+				
+				if(iconToCheck.length > 0) {
+					var expIconLst:XMLList = parentApplication.expIcons.item; 
+					iconCombo.selectedIndex = 0;
+					for(var i:Number = 0; i < expIconLst.length(); i++) {
+						if(expIconLst[i].@icon == iconToCheck) {
+							iconCombo.selectedIndex = i;
+							break;
+						}
+					}					
+				}
+
 			}
 			
 			private function onSaveExperimentPlatform(event:ResultEvent): void {
@@ -209,6 +225,15 @@
 					vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
 					organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
 					
+					var expIconLst:XMLList = parentApplication.expIcons.item; 
+					iconCombo.selectedIndex = 0;
+					for(var i:Number = 0; i < expIconLst.length(); i++) {
+						if(expIconLst[i].@icon == requestCategory.@icon) {
+							iconCombo.selectedIndex = i;
+							break;
+						}
+					}
+
 					dirty.resetDirty();
 					
 					showHideAppColumns();
@@ -482,8 +507,25 @@
 				}
 			}
 			
+			private function getIcon(item:Object):Class {
+				if(item is XML) {
+					// If icon path defined then use it
+					var itemIcon:String = item.@icon;
+					if(itemIcon != null && itemIcon.length > 0) {
+						return IconUtility.getClass(item, itemIcon, 16, 16);
+					}
+				}				
+				//if (this[item.@icon]){
+				//	return this[item.@icon];
+				//}				
+				return null;				
+			}	
+
+			
 		]]>
 	</mx:Script>
+	
+	
 	
 	<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
 	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
@@ -553,9 +595,14 @@
 								<mx:CheckBox id="isExternalCheckbox" label="External Experiments" click="{dirty.setDirty()}" selected="{requestCategory.@isExternal == 'Y' ? true : false}"/>
 								<mx:Spacer width="100%"/>
 							</mx:HBox>
-							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+							<!--mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Icon" width="80"/>
 								<mx:TextInput id="theIcon" width="100%" change="{dirty.setDirty()}" text="{requestCategory.@icon}"/>
+								<mx:Spacer width="10"/>
+							</mx:HBox-->
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Icon" width="80"/>
+								<util:IconComboBox id="iconCombo" dataProvider="{parentApplication.expIcons..item}" labelField="@label" change="{dirty.setDirty()}"  iconFunction="getIcon"  x="10" y="10" rowCount="12"/>
 								<mx:Spacer width="10"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
