@@ -41,8 +41,7 @@
 				{
 					parentApplication.dictionaryManager.reload();
 					PopUpManager.removePopUp(this);
-				}
-				
+				}	
 			}
 			
 			private function init():void {
@@ -51,7 +50,7 @@
 			private function addInstitution(event:MouseEvent):void 
 			{
 				dirty.setDirty();
-				institutionList.addItem((<Institution institution="***Click to Edit***" description="***Click to Edit***" isActive="N"/>));
+				institutionList.addItem((<Institution institution="***Click to Edit***" description="***Click to Edit***" isActive="Y"/>));
 				
 			}
 			
@@ -129,12 +128,12 @@
 		<mx:HDividedBox height="100%" width="100%" >
 			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">	
 				<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-					<mx:DataGrid width="100%" height="100%" id="institutionGrid"  dataProvider="{institutionList}" sortableColumns="true" editable="true">
+					<mx:DataGrid width="100%" height="100%" id="institutionGrid"  dataProvider="{institutionList}" sortableColumns="true" editable="true" change = "dirty.setDirty()">
 						<mx:columns>
-							<mx:DataGridColumn headerText="Institution" width="300"  editable="true" dataField="@institution"/> 
+							<mx:DataGridColumn headerText="Institution" width="300"  editable="true" dataField="@institution" /> 
 							<mx:DataGridColumn headerText="Description" width="300"  editable="true" dataField="@description"/> 
 							<mx:DataGridColumn headerText="Active" dataField="@isActive" rendererIsEditor="true" itemRenderer="{CheckBox.getFactory('Y', 'N', '@isActive', true)}"
-											   width="40" editorDataField="selected" editable = "false"/>
+											   width="40" editorDataField="selected" editable = "false" />
 						</mx:columns>
 					</mx:DataGrid>
 					<mx:ControlBar width="100%" horizontalAlign="right"   paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
