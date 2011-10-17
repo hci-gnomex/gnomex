@@ -71,8 +71,8 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
         mcDoc = sax.build(reader);
         applicationParser = new ApplicationParser(mcDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse microarrayCategoryXMLString", je );
-        this.addInvalidField( "microarrayCategoryXMLString", "Invalid microarrayCategoryXMLString");
+        log.error( "Cannot parse applicationXMLString", je );
+        this.addInvalidField( "applicationXMLString", "Invalid applicationXMLString");
       }
     }
 
