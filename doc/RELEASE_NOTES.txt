@@ -14,6 +14,7 @@
 * Removed GAIIx workflow tab (configurable based on de-activating request category)
 * Fix search view so that checked project experiment factor or design stays checked after scrolling
 * Added ant call to build script convert to Unix CRLF for all shell scripts (.sh)
+* Fixed the Edit Flow Cell window so that a single click does not register as a change
 
 
 5.3.1 (Oct 10, 2011)

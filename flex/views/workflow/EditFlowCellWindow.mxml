@@ -211,7 +211,12 @@
 			}
 			
 			protected function gridItemEditBegin(event:DataGridEvent):void {
-				if(!dblClickEditMode) event.preventDefault();
+				if(!dblClickEditMode) {
+					event.preventDefault();
+				} else {
+					hasChanged = true;
+				}
+				
 			}
 			
 			protected function channelEditWindow():void {
@@ -308,8 +313,7 @@
 											  doubleClickEnabled="true"
 											  itemDoubleClick="gridDoubleClick(event)"
 											  itemEditBegin="gridItemEditBegin(event)"
-											  dataTipFunction="editToolTip" 
-											  change="hasChanged=true">	
+											  dataTipFunction="editToolTip">	
 							    	<mx:columns>
 						    			<mx:DataGridColumn  id = "channelNumber"
 															headerText="Channel" 
