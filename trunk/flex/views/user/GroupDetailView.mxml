@@ -518,12 +518,12 @@
 								</mx:VBox>
 							</mx:VBox>
 							<mx:VBox verticalGap="0" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="33%">
-								<mx:HBox horizontalAlign="left">
-								<mx:Label text="Institutions"/>
-									<mx:LinkButton  id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0"/>
-								</mx:HBox>	
+									<mx:HBox horizontalAlign="left" verticalAlign="top">
+										<mx:Label text="Institutions" paddingTop="3"/>
+										<mx:LinkButton paddingBottom="5"   id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton"/>
+									</mx:HBox>	
 								   <mx:HBox horizontalAlign="left" horizontalGap="6">
-								    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display" >			       	
+								    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value != '')}" id="institutionCombo" labelField="@display" >			       	
 								    </mx:ComboBox>
 								   	   <mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 								   	   	   <mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
