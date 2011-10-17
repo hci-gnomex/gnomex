@@ -116,9 +116,9 @@ Panel {
 }
 
 .loginWindow {	
-	headerColors: #527098, #4593AD;
-	borderColor: #4593AD;
-	backgroundColor: #4593AD;
+	headerColors: #a1a99b, #B3BBAD;
+	borderColor: #B3BBAD;
+	backgroundColor: #B3BBAD;
 }
 
 .loginTitleStyle {
