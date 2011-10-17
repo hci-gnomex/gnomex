@@ -22,18 +22,16 @@
         
    	<mx:Script>           
         <![CDATA[
-	    	import mx.utils.ArrayUtil;
-	    	import mx.events.CloseEvent;
 	    	import mx.collections.Sort;
 	    	import mx.collections.XMLListCollection;
-	    	import mx.collections.XMLListCollection;
-	        import mx.controls.Alert;
-	        import mx.rpc.events.ResultEvent;        
-	        import mx.managers.CursorManager;
-	        import mx.managers.PopUpManager;
-	        import mx.events.CloseEvent;
-	        import mx.rpc.events.FaultEvent;
-	        import mx.utils.ArrayUtil;		        	        	        	        	
+	    	import mx.controls.Alert;
+	    	import mx.events.CloseEvent;
+	    	import mx.managers.CursorManager;
+	    	import mx.managers.PopUpManager;
+	    	import mx.rpc.events.FaultEvent;
+	    	import mx.rpc.events.ResultEvent;
+	    	import mx.utils.ArrayUtil;
+		        	        	        	        	
 		 	  
 			private function clearPwd():void {
 				txtPassword.text = "";
@@ -69,30 +67,40 @@
 			private function onFailLogin():void {
 				this.txtUserName.setFocus();
 				loginFailedMessage.visible = true;
-			}			
+			}	
+			
+			private function loginAsGuest():void {
+				var params:Object = new Object();
+				params.j_username = "guest";
+				params.j_password = "guest";
+				loginService.send(params);
+			}
    		]]>
    	</mx:Script>
 	
 	<mx:HBox horizontalGap="100" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
 		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="400" height="100%">
-			<mx:TitleWindow id="loginWindow" width="310" height="150"
-							layout="vertical" horizontalAlign="right" verticalGap="10"
+			<mx:TitleWindow id="loginWindow" width="296" height="174"
+							layout="vertical" verticalAlign="middle" horizontalAlign="right" verticalGap="10"
 							title="Login" styleName="loginWindow"
 							defaultButton="{loginButton}" titleStyleName="loginTitleStyle" >	
-				<mx:VBox verticalAlign="top" styleName="form" horizontalAlign="left" paddingLeft="4" paddingRight="4" paddingTop="10" paddingBottom="1" verticalGap="0" height="100%" width="100%">
-					<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left" horizontalGap="0">
+				<mx:VBox verticalAlign="middle" styleName="form" horizontalAlign="left" paddingLeft="4" paddingRight="4" paddingTop="10" verticalGap="10" height="100%" width="100%" paddingBottom="4">
+					<mx:HBox width="100%"  horizontalAlign="left" horizontalGap="0" verticalAlign="middle">
 						<mx:Label text="User name" width="70" textAlign="left"/>
 						<mx:TextInput id="txtUserName" visible="true" width="100%"/> 
 					</mx:HBox> 
-					<mx:HBox width="100%" verticalAlign="middle" paddingTop="10" horizontalAlign="left" horizontalGap="0">
+					<mx:HBox width="100%" verticalAlign="middle"  horizontalAlign="left"  horizontalGap="0">
 						<mx:Label text="Password" width="70" textAlign="left"/>
 						<mx:TextInput id="txtPassword" displayAsPassword="true" width="100%" />
 					</mx:HBox> 
 					<mx:Spacer height="100%"/>
-					<mx:Text textAlign="left" htmlText="Login failed.  Please try again." color="#A82009" fontWeight="bold" fontStyle="normal" visible="false" id="loginFailedMessage"/>
+					<mx:HBox>
+						<mx:LinkButton click="changePassword()"  label="Change or reset password" textAlign="left"  textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton"/>
+						<mx:LinkButton click="loginAsGuest()"  label="Login as guest" textAlign="left" textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton" icon="@Embed(source='../../assets/bullet_go.png')" paddingRight="0" textIndent="0" horizontalGap="0"/>						
+					</mx:HBox>
 				</mx:VBox>
-				<mx:ControlBar textAlign="left" horizontalAlign="right" verticalAlign="bottom">
-					<mx:LinkButton click="changePassword()"  label="Change or reset your password" textAlign="left" color="#FFFFFF" textDecoration="underline" paddingLeft="0" paddingBottom="0"/>
+				<mx:ControlBar textAlign="left" horizontalGap="8" horizontalAlign="left" verticalAlign="middle">
+					<mx:Text  id="loginFailedMessage" textAlign="left" htmlText="Login failed.  Please try again." color="#931E26" fontWeight="bold" fontStyle="normal" visible="false" />
 					<mx:Spacer width="100%"/>
 					<mx:Button label="Login" click="loginService.send()"  id="loginButton"/>					
 				</mx:ControlBar>
