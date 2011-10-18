@@ -1,7 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.3.4
+--------------------
+* Added IlluminaExomeCapturePerCapPlugin to account for per capture pricing on exome captures.
 
-5.3.2
+
+5.3.2 (Oct 17, 2011)
 ---------------------
 * Added complete date field to BillingItem. 
 * Added complete date to the billing view with the option to set or edit it.
