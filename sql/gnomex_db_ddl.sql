@@ -1890,6 +1890,7 @@ CREATE TABLE `gnomex`.`SlideSource` (
   `codeSlideSource` VARCHAR(10) NOT NULL,
   `slideSource` VARCHAR(100) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`codeSlideSource`)
 )
 ENGINE = INNODB;

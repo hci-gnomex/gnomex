@@ -1231,9 +1231,9 @@ VALUES  (7,'CGH'),
 
 
 INSERT INTO `gnomex`.`SlideSource`(`codeSlideSource`, `slideSource`, `isActive`)
-VALUES ('CLIENT', 'Lab', 'Y'),
-  ('CORE', 'Core Facility', 'Y'),
-  ('REUSE', 'Stripped Slide', 'Y');
+VALUES ('CLIENT', 'New microarray purchased by lab', 'Y'),
+  ('CORE', 'New microarray purchased from core facility', 'Y'),
+  ('REUSE', 'Strip and reuse existing microarray', 'Y');
 
 INSERT INTO `gnomex`.`State`(`codeState`, `state`, `isActive`)
 VALUES ('AK', 'Alaska', 'Y'),
