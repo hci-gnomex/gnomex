@@ -150,10 +150,10 @@ is not yet configured to work.
 6. Copy fdtClient.jar to your default web directory.  (For example, create a directory called 
    fdt under var/www/html/ if your system is running the standard apache server.)
    
-7. Make a directory for the fdt file monitor daemon and copy the necessary files:
+7. Make a directory for the fdt file monitor daemon and copy the files located in the fdt distribution:
    >mkdir /path/to/fdtfiledaemon
    >mkdir /path/to/fdtfieldaemon/tasks
-   >cp scripts/fdtFileDaemon.jar /path/to/fdtfiledaemon/
+   >cp fdtFileDaemon.jar /path/to/fdtfiledaemon/
    >cp scripts/fdtfiledaemon.sh /path/to/fdtfiledaemon/
    
 8. Modify /path/to/fdtfiledaemon/fdtfiledaemon.sh.  Edit /path/to/fdtfiledaemon/ and /path/to/fdt_staging_dir to point
