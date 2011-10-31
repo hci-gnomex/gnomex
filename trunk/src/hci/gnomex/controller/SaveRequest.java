@@ -36,6 +36,7 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.LabeledSampleNumberComparator;
@@ -93,6 +94,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private String           requestXMLString;
   private Document         requestDoc;
   private RequestParser    requestParser;
+
+  private String                       filesToRemoveXMLString;
+  private Document                     filesToRemoveDoc;
+  private FileDescriptorUploadParser   filesToRemoveParser;
   
   private BillingPeriod    billingPeriod;
   
@@ -141,6 +146,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
       this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
+    }
+    
+    if (request.getParameter("filesToRemoveXMLString") != null && !request.getParameter("filesToRemoveXMLString").equals("")) {
+      filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString") +  "</FilesToRemove>";
+      
+      StringReader reader = new StringReader(filesToRemoveXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        filesToRemoveDoc = sax.build(reader);
+        filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse filesToRemoveXMLString", je );
+        this.addInvalidField( "FilesToRemoveXMLString", "Invalid filesToRemove xml");
+      }
     }
     
     totalPrice = "";    
@@ -218,6 +237,35 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               
         // save request
         saveRequest(requestParser.getRequest(), sess);
+        
+     // Remove files from file system
+        if (filesToRemoveParser != null) {
+          for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
+            String fileName = (String)i.next();
+            
+            // Remove references of file in TransferLog
+            String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+            List transferLogs = sess.createQuery(queryBuf).list();
+            // Go ahead and delete the transfer log if there is just one row.
+            // If there are multiple transfer log rows for this filename, just
+            // bypass deleting the transfer log since it is not possible
+            // to tell which entry should be deleted.
+            if (transferLogs.size() == 1) {
+              TransferLog transferLog = (TransferLog)transferLogs.get(0);
+              sess.delete(transferLog);
+            } 
+
+            boolean success = new File(fileName).delete();
+            if (!success) { 
+              // File was not successfully deleted
+              throw new Exception("Unable to delete file " + fileName);
+            }
+            
+
+          }
+          sess.flush();
+        }
+        
         
         // Figure out which samples will be deleted
         if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {

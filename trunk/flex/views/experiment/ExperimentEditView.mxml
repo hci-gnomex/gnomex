@@ -180,6 +180,21 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="cacheFDTFileDownloadList" 
+		url="CacheFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onCacheFDTFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
   
 	<mx:Script>
 		<![CDATA[
@@ -280,6 +295,8 @@
 		private var seqRunTypeSorter:Sort;
 		private var filteredAppListSorter:Sort;
 
+		[Bindable]
+		private var selectedFileList:XMLListCollection;
 		
 		[Bindable]
 		private var experimentCategoryName:String;
@@ -820,6 +837,7 @@
 			} else {
 				this.userWarningStack.selectedIndex = 0;
 			}
+			refreshDownloadList();
 		}
 
 		
@@ -2768,6 +2786,10 @@
 			params.requestXMLString = request.toXMLString();
 			params.idProject = request.@idProject;
 			
+			if (downloadView.getFilesToDelete().length > 0) {
+				params.filesToRemoveXMLString = downloadView.getFilesToDelete().toXMLString();			
+			}
+			
 			saveExistingRequest.send(params);			
 			
 		}
@@ -3888,6 +3910,149 @@
 			this.submitButton.enabled = agreeCheckbox.selected;
 		}
 			
+			public function filterList():void {	}
+			
+			private function getBrowseParameters():Object {
+				var params:Object = new Object();
+				if (parentDocument.selectedIdProject != null) {
+					params.idProject = parentDocument.selectedIdProject;
+				}
+				if (parentDocument.selectedIdRequest != null) {
+					params.idRequest = parentDocument.selectedIdRequest;
+				}
+				params.idLab = parentDocument.selectedIdLab;
+				
+				
+				if (parentDocument.currentState == 'AdminState' && parentDocument.allExperimentsCheckbox.selected) {
+					params.allExperiments = 'Y';
+				} else {
+					if (parentDocument.currentState == 'AdminState') {
+						if (parentDocument.selectedIdLab == null && parentDocument.browseLabCombo.selectedItem != null) {
+							params.idLab = parentDocument.browseLabCombo.selectedItem.@idLab;
+						}
+						if (parentDocument.browseUserCombo.selectedItem != null) {
+							params.idAppUser = parentDocument.browseUserCombo.selectedItem.@idAppUser;
+						}
+					} else if (parentDocument.currentState != "GuestState")  {
+						if (parentDocument.myExperimentsCheckbox.selected) {
+							params.idAppUser = parentApplication.getIdAppUser();
+						}				
+						if (parentDocument.userAllExperimentsCheckbox.selected) {
+							params.allExperiments = 'Y';
+						}
+					}
+					if (parentDocument.lastWeekCheckbox.selected) {
+						params.lastWeek = 'Y';
+					}
+					if (parentDocument.lastMonthCheckbox.selected) {
+						params.lastMonth = 'Y';
+					}
+					if (parentDocument.lastYearCheckbox.selected) { 
+						params.lastYear = 'Y';
+					}
+					if (parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
+						params.publicExperimentsInOtherGroups = 'Y';
+					}
+					params.isMicroarray  = this.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
+					params.isNextGenSeq  = this.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
+					params.isBioanalyzer = this.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
+					
+				}
+				
+				return params;					
+			}
+			
+			public function reloadDownloadList():void {
+				// Getting the download list is slow since we now show an expanded file
+				// view by default.  Only show downloads at request or project level.
+				if (parentDocument.selectedIdProject != null || 
+					parentDocument.selectedIdRequest != null) {
+					downloadView.getRequestDownloadList.send(getBrowseParameters());
+					downloadView.browseMessage = "";
+				} else {
+					downloadView.browseMessage = "Click on a project or request to narrow download selection.";
+					downloadView.downloadSizeMessage = "";
+					downloadView.rowCountMessage = "";
+					downloadView.downloadTree.visible = false;
+				}
+			}
+			
+			public function refreshDownloadList():void {
+				if (theTab.selectedChild == downloadView) {
+					// Getting the download list is slow since we now show an expanded file
+					// view by default.  Only show downloads at request or project level.
+					if (parentDocument.selectedIdProject != null || 
+						parentDocument.selectedIdRequest != null) {
+						downloadView.getRequestDownloadList.send(getBrowseParameters());
+						downloadView.browseMessage = "";
+					} else {
+						downloadView.browseMessage = "Click on a project or request to narrow download selection.";
+						downloadView.downloadSizeMessage = "";
+						downloadView.rowCountMessage = "";
+						downloadView.downloadTree.visible = false;
+					}
+				}
+			}
+			
+			public function refreshDownloadListForExperiment():void {
+				var params:Object = new Object();
+				params.requestNumber = parentDocument.selectedExperiment.@number;
+				downloadView.getRequestDownloadList.send(params);
+				
+			}
+			public function showAlternateDownloadPage():void {
+				if (parentDocument.selectedIdRequest != null) {
+					var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+						'.gx?idRequest=' + 
+						parentDocument.selectedIdRequest);
+					navigateToURL(url, '_blank');					 
+				} else if (this.theTab.selectedChild == this.downloadView) {
+					var requestNumbers:String = "";
+					for each(var dl:Object in this.downloadView.downloadList) {
+						if (requestNumbers.length > 0) {
+							requestNumbers += ":"
+						}
+						requestNumbers += dl.@requestNumber;
+					}
+					if (requestNumbers.length > 0) {
+						var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+							(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+							'.gx?requestNumbers=' + 
+							requestNumbers);
+						navigateToURL(url1, '_blank');					
+						
+					}
+					
+				}
+			}
+			public function downloadFilesUsingFDT():void {
+				var selectedFiles:XMLList = downloadView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
+				selectedFileList = new XMLListCollection(selectedFiles);					
+				
+				if (selectedFileList.length == 0) {
+					mx.controls.Alert.show("Please select the files to download.");
+				} else {
+					cacheFDTFileDownloadList.send();
+				}
+			}
+			
+			private function onCacheFDTFileDownloadList(event:ResultEvent):void {
+				// We have cached the selected analysis files
+				// Now call the URL to start the FDT app using webstart
+				showFastDataTransferDownloadPage();
+			}
+			
+			
+			public function showFastDataTransferDownloadPage():void {
+				
+				var paramStr:String =  selectedFileList.toXMLString();			
+				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
+				url.contentType = "text/xml";
+				url.method = URLRequestMethod.GET;
+				navigateToURL(url, '_self');					
+				
+			}
 			
 		]]>
 	</mx:Script>
@@ -3956,10 +4121,26 @@
 			
 			<experiment:TabConfirmView id="confirmView">				
 			</experiment:TabConfirmView>
+			
+			
+			<experiment:ExperimentDownloadView id="downloadView" 
+											   label="Files" 
+											   borderStyle="none" deleteButtonVisible="true">
+			</experiment:ExperimentDownloadView>
+				
 		</mx:TabNavigator>
 	</mx:VBox>  
 	
  	   <mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1">
+		   <mx:HBox  visible="{theTab.selectedChild==downloadView}" verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
+			   <mx:Button id="downloadExpandedFilesButton" 
+						  click="downloadView.downloadExpandedFiles()" 
+						  icon="@Embed('../../assets/download.png')" 
+						  toolTip="Download selected files"
+						  label="Download"/>
+			   <mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
+			   <mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+		   </mx:HBox>
  		<mx:ViewStack id="buttonStack" width="100%">
 	 	    <mx:HBox width="100%"  verticalAlign="middle">
 				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.png')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
@@ -4004,9 +4185,9 @@
 	            </mx:Button>
 
 	 	    </mx:HBox>
- 			
+			
  		</mx:ViewStack>
- 	   	
+		   
  	   </mx:ControlBar>
  	   
 	
