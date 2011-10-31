@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" xmlns:util="views.util.*">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" xmlns:util="views.util.*" label="Files">
 
  
    <mx:HTTPService  
@@ -33,27 +33,32 @@
 
  <mx:Script>
  <![CDATA[
- 	import mx.events.CloseEvent;
- 	import views.experiment.DownloadProgressView;
- 	import mx.formatters.DateFormatter;
-    import mx.rpc.events.ResultEvent;
  	import flash.display.Sprite;
-    import flash.net.FileReference;
-    import flash.net.URLRequest;
-    import flash.net.URLRequestMethod;
-    import flash.net.URLVariables;
-    import mx.managers.PopUpManager;
-    import mx.events.ListEvent;
-    import mx.controls.Alert;
-    import hci.flex.controls.CheckBox;
-    import views.renderers.CheckBoxGroupedItem;
-    import mx.events.CollectionEvent;
-    import mx.events.CollectionEventKind;
-    import mx.events.PropertyChangeEvent;
-	import views.util.FileUtil;
+ 	import flash.net.FileReference;
+ 	import flash.net.URLRequest;
+ 	import flash.net.URLRequestMethod;
+ 	import flash.net.URLVariables;
+ 	
+ 	import hci.flex.controls.CheckBox;
+ 	
+ 	import mx.controls.Alert;
+ 	import mx.events.CloseEvent;
+ 	import mx.events.CollectionEvent;
+ 	import mx.events.CollectionEventKind;
+ 	import mx.events.ListEvent;
+ 	import mx.events.PropertyChangeEvent;
+ 	import mx.formatters.DateFormatter;
+ 	import mx.managers.PopUpManager;
+ 	import mx.rpc.events.ResultEvent;
+ 	
+ 	import views.experiment.DownloadProgressView;
+ 	import views.renderers.CheckBoxGroupedItem;
+ 	import views.util.FileUtil;
         
     public var downloadProgressWindow:DownloadProgressView;
-
+	 
+	[Bindable]
+	public var deleteButtonVisible:Boolean = false;
 
  	[Bindable]
     public var rowCountMessage:String = new String();
@@ -95,6 +100,7 @@
     	parentDocument.filterList();
 		this.downloadList.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 		this.downloadList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
+		filesToDelete.removeAll();
     		
     }
     
@@ -249,20 +255,112 @@
 
 	}
 
+	 private function removeFile():void  {
+		 var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
+		 selectedFileList = new XMLListCollection(selectedFiles);
+		 
+		 if (selectedFileList.length == 0) {
+			 Alert.show("Please select the files to delete.");
+			 return;
+		 }
+		 Alert.show("Are you sure you want to remove the file?",
+			 "Confirm",
+			 (Alert.YES | Alert.NO), this, 
+			 onPromptToRemoveFile,						
+			 parentApplication.iconWarning);
+	 }
+	 
+	 private function onPromptToRemoveFile(event:CloseEvent):void {
+		 if (event.detail == Alert.YES) {
+			 removeFileImpl();
+		 }
+	 }
+	 
+	 private function removeFileImpl():void {
+		 parentDocument.dirty.setDirty();
+		for each (var f:Object in getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true")){
+			filesToDelete.addItem(f);
+			
+			var children:XMLList = XMLList(f.parent()).children();
+			for (var i:Number = 0; i < children.length(); i++){
+				if (children[i] == f){
+					delete children[i];
+				}
+			} 
+		}
+	 }
+	 
+	 private function promptToRemoveAllFiles():void {
+		 Alert.show("Are you sure you want to remove all the files?",
+			 "Confirm",
+			 (Alert.YES | Alert.NO), this, 
+			 onPromptToRemoveAllFiles,						
+			 parentApplication.iconWarning);
+	 }
+	 
+	 private function onPromptToRemoveAllFiles(event:CloseEvent):void  {
+		 if (event.detail == Alert.YES) {
+			 removeAllFilesImpl();
+		 }
+	 }
+	 
+	 private function removeAllFilesImpl():void  {
+		parentDocument.dirty.setDirty();
+//		for each(var f:Object in downloadTree) {
+//			filesToDelete.addItem(f);
+//		}
+//		
+//		var children:XMLList = downloadList.children();
+//		for (var i:Number = 0; i < children.length(); i++){
+//			delete children[i];
+//		}
+//		
+		for each (var f:Object in getRequestDownloadList.lastResult..FileDescriptor){
+			filesToDelete.addItem(f);
+			
+			var children:XMLList = XMLList(f.parent()).children();
+			for (var i:Number = 0; i < children.length(); i++){
+				if (children[i] == f){
+					delete children[i];
+				}
+			} 
+		}
+	 }
     
+	 public function getFilesToDelete():XMLListCollection{
+		 return filesToDelete;
+	 }
  ]]>
  </mx:Script>
  
     <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.Request}"/>
+	<mx:XMLListCollection  id="filesToDelete"  />
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" verticalGap="0">
 		<mx:HBox width="100%">
-			<mx:Label text="{downloadSizeMessage}" fontWeight="normal" fontStyle="normal" width="200"/>
+			<mx:HBox width="200" height="100%" verticalAlign="middle">
+				<mx:Label text="{downloadSizeMessage}" fontWeight="normal" fontStyle="normal" />
+			</mx:HBox>
 			<mx:Spacer width="10"/>
-			<mx:HBox width="100%" horizontalAlign="center" styleName="warningLabel">
+			<mx:HBox width="100%" horizontalAlign="center" styleName="warningLabel" height="100%" verticalAlign="middle">
 				<mx:Label text="{browseMessage}"/>			
 			</mx:HBox>
-			<mx:Spacer width="210"/>
+			<mx:Spacer width="100%" height="100%"/>
+			<mx:HBox id="deleteButtonsContainer" height="100%" visible="{deleteButtonVisible}" horizontalAlign="right">
+				<mx:LinkButton textDecoration="underline" 
+							   label="Remove (from file system)" 
+							   icon="@Embed(source='../../assets/delete.png')" 
+							   id="deleteFileButton" 
+							   toolTip="Delete selected files" 
+							   click="removeFile()"/>
+				
+				<mx:LinkButton textDecoration="underline" 
+							   label="Delete all" 
+							   icon="@Embed('../../assets/folder_delete.png')"  
+							   id="clearFilesButton" 
+							   toolTip="Delete all files" 
+							   click="promptToRemoveAllFiles()"/>
+			</mx:HBox>
 		</mx:HBox>
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
                  groupItemRenderer="views.renderers.CheckBoxGroupedItem"

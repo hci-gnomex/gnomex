@@ -3,8 +3,9 @@
     xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"   creationPolicy="all"
-	xmlns:util="views.util.*" >
-   <mx:HTTPService  
+	xmlns:util="views.util.*" xmlns:experiment="views.experiment.*" >
+   
+	<mx:HTTPService  
     id="getProtocol" 
     url="GetProtocol.gx"
     resultFormat="e4x"
@@ -13,22 +14,41 @@
     fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)"
 	method="POST"
     useProxy="false">
-    
   </mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="cacheFDTFileDownloadList" 
+		url="CacheFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onCacheFDTFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
   	 
 <mx:Script>
 	<![CDATA[
-		import mx.managers.PopUpManager;
-		import mx.events.CloseEvent;
-		import mx.controls.Alert;
-		import views.experiment.ExperimentEditView;
-		import hci.flex.controls.DropdownLabel; 
-		import mx.rpc.events.ResultEvent;
-		import views.experiment.ConvertIlluminaRequestWindow;
-		import mx.collections.GroupingField;
+		import hci.flex.controls.DropdownLabel;
+		
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
+		import mx.collections.GroupingField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.IndexChangedEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
 		import mx.utils.ObjectUtil;
+		
+		import views.experiment.ConvertIlluminaRequestWindow;
+		import views.experiment.ExperimentEditView;
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.URLRenderer;
 		
@@ -60,8 +80,6 @@
 					parentDocument.requestFormButton.visible = false;				
 				}
 			}
-			
-			
 		}
 	
 		public function setupForm(selectedExperiment:Object):void {
@@ -119,10 +137,7 @@
 					parentDocument.analysisButton.enabled = false;
 				}
 			}
-			
-
 			showQCFieldsCheckBox.selected = selectedExperiment.@isExternal == 'Y' ? false : true;
-
 
 			getRequestCategoryName();
 			getExperimentCategoryName();
@@ -130,6 +145,7 @@
 			getVisibilityName();
 			callLater(showHideColumns);
 			this.addNonStandardSampleColumns();
+//			theTab.selectedIndex = 0;
 		}
 		
 		public function initializeBarcoding():void {
@@ -378,7 +394,6 @@
            return String(x);     		
         }
 	
-        
         private function showHideColumns():void {
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
@@ -500,7 +515,6 @@
 				if (exists) {
 					continue;
 				}
-				
    				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
    				newCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
    				newCol.headerText = headerName;
@@ -533,8 +547,6 @@
    		
         }
 
-        
-        
         private function showProtocol(idProtocol:Object, protocolClassName:String):void {
         	var params:Object = new Object();
         	params.id = idProtocol;
@@ -558,8 +570,7 @@
    			PopUpManager.centerPopUp(convertWindow);
    			convertWindow.init(this.selectedExperiment);
     	}  
-    	 
-		
+    	
 		public function getSampleTreeIcon(item:Object):Class {
 			if (item == null) {
 				return parentApplication.iconGroup;
@@ -569,7 +580,133 @@
 		}   
 		public function getLaneTreeIcon(item:Object):Class {
 			return null; 
-		}   
+		} 
+		
+		public function refreshDownloadList():void {
+			if (theTab.selectedChild == filesView) {
+				// Getting the download list is slow since we now show an expanded file
+				// view by default.  Only show downloads at request or project level.
+				if (parentDocument.parentDocument.selectedIdProject != null || 
+					parentDocument.parentDocument.selectedIdRequest != null) {
+					filesView.getRequestDownloadList.send(getBrowseParameters());
+					filesView.browseMessage = "";
+				} else {
+					filesView.browseMessage = "Click on a project or request to narrow download selection.";
+					filesView.downloadSizeMessage = "";
+					filesView.rowCountMessage = "";
+					filesView.downloadTree.visible = false;
+				}
+				theTab.selectedChild = filesView;
+			}
+		}
+		
+		private function getBrowseParameters():Object {
+			var params:Object = new Object();
+			if (parentDocument.parentDocument.selectedIdProject != null) {
+				params.idProject = parentDocument.parentDocument.selectedIdProject;
+			}
+			if (parentDocument.parentDocument.selectedIdRequest != null) {
+				params.idRequest = parentDocument.parentDocument.selectedIdRequest;
+			}
+			params.idLab = parentDocument.parentDocument.selectedIdLab;
+			
+			if (parentDocument.parentDocument.currentState == 'AdminState' && parentDocument.parentDocument.allExperimentsCheckbox.selected) {
+				params.allExperiments = 'Y';
+			} else {
+				if (parentDocument.parentDocument.currentState == 'AdminState') {
+					if (parentDocument.parentDocument.selectedIdLab == null && parentDocument.parentDocument.browseLabCombo.selectedItem != null) {
+						params.idLab = parentDocument.parentDocument.browseLabCombo.selectedItem.@idLab;
+					}
+					if (parentDocument.parentDocument.browseUserCombo.selectedItem != null) {
+						params.idAppUser = parentDocument.parentDocument.browseUserCombo.selectedItem.@idAppUser;
+					}
+				} else if (parentDocument.parentDocument.currentState != "GuestState")  {
+					if (parentDocument.parentDocument.myExperimentsCheckbox.selected) {
+						params.idAppUser = parentApplication.getIdAppUser();
+					}				
+					if (parentDocument.parentDocument.userAllExperimentsCheckbox.selected) {
+						params.allExperiments = 'Y';
+					}
+				}
+				if (parentDocument.parentDocument.lastWeekCheckbox.selected) {
+					params.lastWeek = 'Y';
+				}
+				if (parentDocument.parentDocument.lastMonthCheckbox.selected) {
+					params.lastMonth = 'Y';
+				}
+				if (parentDocument.parentDocument.lastYearCheckbox.selected) { 
+					params.lastYear = 'Y';
+				}
+				if (parentDocument.parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
+					params.publicExperimentsInOtherGroups = 'Y';
+				}
+				params.isMicroarray  = this.parentDocument.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
+				params.isNextGenSeq  = this.parentDocument.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
+				params.isBioanalyzer = this.parentDocument.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
+			}
+			return params;					
+		}
+		
+		public function filterList():void{		}
+
+		protected function tabChangeHandler(event:IndexChangedEvent):void
+		{
+			refreshDownloadList();
+		}
+		
+		[Bindable]
+		private var selectedFileList:XMLListCollection;
+		
+		public function downloadFilesUsingFDT():void {
+			var selectedFiles:XMLList = filesView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
+			selectedFileList = new XMLListCollection(selectedFiles);					
+			
+			if (selectedFileList.length == 0) {
+				mx.controls.Alert.show("Please select the files to download.");
+			} else {
+				cacheFDTFileDownloadList.send();
+			}
+		}
+		
+		private function onCacheFDTFileDownloadList(event:ResultEvent):void {
+			// We have cached the selected analysis files
+			// Now call the URL to start the FDT app using webstart
+			showFastDataTransferDownloadPage();
+		}
+		
+		public function showFastDataTransferDownloadPage():void {
+			var paramStr:String =  selectedFileList.toXMLString();			
+			var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
+			url.contentType = "text/xml";
+			url.method = URLRequestMethod.GET;
+			navigateToURL(url, '_self');						
+		}
+		
+		public function showAlternateDownloadPage():void {
+			if (parentDocument.parentDocument.selectedIdRequest != null) {
+				var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+					(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+					'.gx?idRequest=' + 
+					parentDocument.parentDocument.selectedIdRequest);
+				navigateToURL(url, '_blank');					 
+			} else if (theTab.selectedChild == filesView ) {
+				var requestNumbers:String = "";
+				for each(var dl:Object in filesView.downloadList) {
+					if (requestNumbers.length > 0) {
+						requestNumbers += ":"
+					}
+					requestNumbers += dl.@requestNumber;
+				}
+				if (requestNumbers.length > 0) {
+					var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+						(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+						'.gx?requestNumbers=' + 
+						requestNumbers);
+					navigateToURL(url1, '_blank');	
+				}
+			}
+		}
+
 	]]>
 </mx:Script>
 
@@ -642,8 +779,8 @@
 	        </mx:HBox>	  
 		</mx:VBox>
             
-        <mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2">
-			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0">
+        <mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" id="vbox3">
+			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0" change="tabChangeHandler(event)">
 
 				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
 					<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
@@ -809,12 +946,29 @@
 				</mx:VBox>
     			</mx:Canvas>
 				
-
+				<experiment:ExperimentDownloadView id="filesView" >
+				</experiment:ExperimentDownloadView>
+						   
 			</mx:TabNavigator>
-            	
+			
         </mx:VBox>      
-	
+		
 	</mx:VBox>
+	
+	<mx:HBox  verticalAlign="middle" 
+			  visible="{theTab.selectedChild==filesView}" 
+			  includeInLayout="{theTab.selectedChild==filesView}" 
+			  width="100%" horizontalAlign="left" 
+			  id="downloadExpandedFilesButtonView"  paddingBottom="5" paddingLeft="5">
+		<mx:Button id="downloadExpandedFilesButton" 
+				   click="filesView.downloadExpandedFiles()" 
+				   icon="@Embed('../../assets/download.png')" 
+				   toolTip="Download selected files"
+				   label="Download"/>
+		<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+	</mx:HBox>
+	
 </mx:VBox>
 
 <mx:states>
