@@ -13,532 +13,538 @@
 			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
 		</mx:State>
 	</mx:states>
-<mx:Script>
-	<![CDATA[
-		import hci.flex.controls.DropdownLabel;
-		import hci.flex.controls.TextInput;
-		import hci.flex.dictionary.DictionaryEditor;
-		import hci.flex.dictionary.DictionaryEvent;
-		
-		import mx.collections.XMLListCollection;
-		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-		import mx.controls.dataGridClasses.DataGridColumn;
-		import mx.events.ListEvent;
-		import mx.managers.PopUpManager;
-		
-		import views.renderers.CheckBoxRenderer;
-		import views.renderers.ComboBox;
-		import views.renderers.MultiselectRenderer;
-		import views.renderers.URLRenderer;
-		import views.util.AnnotationAdvancedDataGridColumn;
-		import views.util.AnnotationDataGridColumn;
-		import views.util.SampleCharacteristicEvent;
-		import views.util.SampleCharacteristicWindow;
-		
-		private var dictionaryEditor:DictionaryEditor; 
-		
-		public var ignoreToggle:Boolean = false;
-		
-		public function checkSecurity():void {
-			if (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') {
-				currentState = "ExternalState";
-			} else if (parentDocument.isEditState()  && parentDocument.request.@isExternal != 'Y') {
-				currentState = "EditState";
-			} else if (parentApplication.submitInternalExperiment()) {
-				currentState = "";
-			} else {
-				currentState = "ExternalState";
-			}
-
-		}
-		
-       	private function propagateTreatment():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@treatment = this.treatmentTextInput.text;
-			}
-			if (this.treatmentTextInput.text != '') {
-				parentDocument.samplesView.treatmentColumn.visible = true;
-				if (!parentDocument.isEditState()) {
-					parentDocument.confirmView.treatmentConfirmColumn.visible = true;				
-				}
-				parentDocument.request.@treatment = 'Y';
-			} else {
-				parentDocument.samplesView.treatmentColumn.visible = false;
-				if (!parentDocument.isEditState()) {
-					parentDocument.confirmView.treatmentConfirmColumn.visible = false;				
-				}
-				parentDocument.request.@treatment = 'N';
-				
-			}
-		}
-		
-		public function showSampleAnnotationColumn(idSampleCharacteristic:String, show:Boolean):void {
-			if (parentDocument.samplesView.samplesGrid == null) {
-				return;
-			}
-			for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
-				var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
-				if ( dc.dataField == "@ANNOT" + idSampleCharacteristic) {
-					dc.visible = show;
-					break;					
-				}
-			}
-			for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
-				var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
-				if ( dc1.dataField == "@ANNOT" + idSampleCharacteristic) {
-					dc1.visible = show;
-					break;
-				}
-			}
-		}
-		
-		private function toggleSampleAnnotationCheck(event:ListEvent):void {
-   			if (event.columnIndex == 0) {
-	   			return;
-   			}
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.controls.TextInput;
+			import hci.flex.dictionary.DictionaryEditor;
+			import hci.flex.dictionary.DictionaryEvent;
 			
+			import mx.collections.XMLListCollection;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
 			
-			// We don't want the typing in the the text field for "Other" to be treated
-			// as a toggle off
-			var sc:Object = parentApplication.getSampleCharacteristic(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic);
-			if (sc.@sampleCharacteristic.toString() == "Other") {
-				if (ignoreToggle) {
-					return;					
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.URLRenderer;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.AnnotationDataGridColumn;
+			import views.util.SampleCharacteristicEvent;
+			import views.util.SampleCharacteristicWindow;
+			
+			private var dictionaryEditor:DictionaryEditor; 
+			
+			public var ignoreToggle:Boolean = false;
+			
+			public function checkSecurity():void {
+				if (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') {
+					currentState = "ExternalState";
+				} else if (parentDocument.isEditState()  && parentDocument.request.@isExternal != 'Y') {
+					currentState = "EditState";
+				} else if (parentApplication.submitInternalExperiment()) {
+					currentState = "";
+				} else {
+					currentState = "ExternalState";
+				}
+				
+			}
+			
+			private function propagateTreatment():void {
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@treatment = this.treatmentTextInput.text;
+				}
+				if (this.treatmentTextInput.text != '') {
+					parentDocument.samplesView.treatmentColumn.visible = true;
+					if (!parentDocument.isEditState()) {
+						parentDocument.confirmView.treatmentConfirmColumn.visible = true;				
+					}
+					parentDocument.request.@treatment = 'Y';
+				} else {
+					parentDocument.samplesView.treatmentColumn.visible = false;
+					if (!parentDocument.isEditState()) {
+						parentDocument.confirmView.treatmentConfirmColumn.visible = false;				
+					}
+					parentDocument.request.@treatment = 'N';
+					
 				}
 			}
-   			
-   			if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
-				
-				sampleAnnotationGrid.selectedItem.@isSelected = "false";
-				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, false);
-				
-			} else {
-				sampleAnnotationGrid.selectedItem.@isSelected = "true";
-				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, true);
-			}
-		}
-				
-		//
-        // Configure sample characteristics
-        //
-		private function editSampleCharacteristicDictionary():void {
-			var configWindow:SampleCharacteristicWindow = SampleCharacteristicWindow(PopUpManager.createPopUp(parentApplication.theBody, SampleCharacteristicWindow, true));
-			PopUpManager.centerPopUp(configWindow);
-		
-            parentApplication.removeEventListener(SampleCharacteristicEvent.DATA_REFRESHED,
-            				 				      onSampleCharacteristicRefreshed);		                                  
-			parentApplication.addEventListener(SampleCharacteristicEvent.DATA_REFRESHED,   
-			                                   onSampleCharacteristicRefreshed);
-
-		
-		}
-		
-
-		public function onSampleCharacteristicRefreshed(event:Event):void{
-			parentDocument.sampleCharacteristicEntries.refresh();
 			
-			this.checkForRemovedAnnotations();   
-			this.checkForNewAnnotations();
-			this.addNonStandardSampleColumns();
-       		
-			
-			//if (parentDocument.isEditState()) {
-			//	callLater(refreshEditWindow);
-			//}    		
-        }	
-        
-        private function refreshEditWindow():void {
-			//parentDocument.setupEditForm(parentApplication.navExperimentView.selectedExperiment);
-        }
-        
-        private function checkForNewAnnotations():void {
-       		var sc:XML;
-       		var annotation:Object;
-       		var exists:Boolean = false;
-       		for each(sc in parentApplication.sampleCharacteristicList) {
-       			exists = false; 
-				
-
-       			for each(annotation in parentDocument.request.SampleCharacteristicEntries.SampleCharacteristicEntry) {
-					if (sc.@value == annotation.@idSampleCharacteristic) {
-						exists = true;
+			public function showSampleAnnotationColumn(idSampleCharacteristic:String, show:Boolean):void {
+				if (parentDocument.samplesView.samplesGrid == null) {
+					return;
+				}
+				for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
+					var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
+					if ( dc.dataField == "@ANNOT" + idSampleCharacteristic) {
+						dc.visible = show;
+						break;					
+					}
+				}
+				for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
+					var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
+					if ( dc1.dataField == "@ANNOT" + idSampleCharacteristic) {
+						dc1.visible = show;
 						break;
-					}      				
-       			}
-       			if (!exists) {
-       				
-       				var node:XML = new XML("<SampleCharacteristicEntry/>");
-       				node.@idSampleCharacteristic = sc.@value;
-       				node.@sampleCharacteristic = sc.@display; 
-       				node.@otherLabel = "";
-       				node.@isSelected = "false";
-       			
-       				parentDocument.sampleCharacteristicEntries.addItem(node);
+					}
+				}
+			}
+			
+			private function toggleSampleAnnotationCheck(event:ListEvent):void {
+				if (event.columnIndex == 0) {
+					return;
+				}
+				
+				
+				// We don't want the typing in the the text field for "Other" to be treated
+				// as a toggle off
+				var sc:Object = parentApplication.getSampleCharacteristic(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic);
+				if (sc.@sampleCharacteristic.toString() == "Other") {
+					if (ignoreToggle) {
+						return;					
+					}
+				}
+				
+				if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
+					
+					sampleAnnotationGrid.selectedItem.@isSelected = "false";
+					showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, false);
+					
+				} else {
+					sampleAnnotationGrid.selectedItem.@isSelected = "true";
+					showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, true);
+				}
+			}
+			
+			//
+			// Configure sample characteristics
+			//
+			private function editSampleCharacteristicDictionary():void {
+				var configWindow:SampleCharacteristicWindow = SampleCharacteristicWindow(PopUpManager.createPopUp(parentApplication.theBody, SampleCharacteristicWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+				parentApplication.removeEventListener(SampleCharacteristicEvent.DATA_REFRESHED,
+					onSampleCharacteristicRefreshed);		                                  
+				parentApplication.addEventListener(SampleCharacteristicEvent.DATA_REFRESHED,   
+					onSampleCharacteristicRefreshed);
+				
+				
+			}
+			
+			
+			public function onSampleCharacteristicRefreshed(event:Event):void{
+				parentDocument.sampleCharacteristicEntries.refresh();
+				
+				this.checkForRemovedAnnotations();   
+				this.checkForNewAnnotations();
+				this.addNonStandardSampleColumns();
+				
+				
+				//if (parentDocument.isEditState()) {
+				//	callLater(refreshEditWindow);
+				//}    		
+			}	
+			
+			private function refreshEditWindow():void {
+				//parentDocument.setupEditForm(parentApplication.navExperimentView.selectedExperiment);
+			}
+			
+			private function checkForNewAnnotations():void {
+				var sc:XML;
+				var annotation:Object;
+				var exists:Boolean = false;
+				for each(sc in parentApplication.sampleCharacteristicList) {
+					exists = false; 
 					
 					
-
-       			}
-       		}
-			parentDocument.sampleCharacteristicEntries.refresh();
-        }
-        
-        public function addNonStandardSampleColumns():void {
-       		var annotation:Object;
-       		for each(annotation in parentDocument.sampleCharacteristicEntries) {
-				addNonStandardColumn(annotation);
-				parentDocument.samplesView.samplesGrid.validateNow();
-   			}
-			
-        }
-		
-		private function addNonStandardColumn(annotation:Object):void {
-			var addNewColumn:Boolean = true;
-			var colExisting:AdvancedDataGridColumn = null;
-			var colConfirmExisting:DataGridColumn = null;
-			
-			var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
-			if (sampleCharacteristic == null) {
-				return;
+					for each(annotation in parentDocument.request.SampleCharacteristicEntries.SampleCharacteristicEntry) {
+						if (sc.@value == annotation.@idSampleCharacteristic) {
+							exists = true;
+							break;
+						}      				
+					}
+					if (!exists) {
+						
+						var node:XML = new XML("<SampleCharacteristicEntry/>");
+						node.@idSampleCharacteristic = sc.@value;
+						node.@sampleCharacteristic = sc.@display; 
+						node.@otherLabel = "";
+						node.@isSelected = "false";
+						
+						parentDocument.sampleCharacteristicEntries.addItem(node);
+						
+						
+						
+					}
+				}
+				parentDocument.sampleCharacteristicEntries.refresh();
 			}
 			
-			
-			var headerName:String = "";
-			if (sampleCharacteristic.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
-				headerName = annotation.@otherLabel;
-				annotation.@isSelected = "true";
-			} else {
-				headerName = annotation.@sampleCharacteristic;
+			public function addNonStandardSampleColumns():void {
+				var annotation:Object;
+				for each(annotation in parentDocument.sampleCharacteristicEntries) {
+					addNonStandardColumn(annotation);
+					parentDocument.samplesView.samplesGrid.validateNow();
+				}
+				
 			}
 			
-			// Find out if we have already added this column.  If we have,
-			// we won't add it again, but we will update it because
-			// its sample characteristic may have changed.
-			addNewColumn = true;
-			for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
-				if (col.dataField == ("@ANNOT" + annotation.@idSampleCharacteristic)) {
-					colExisting = col;
-					addNewColumn = false;
-					break;
-				}    				
-			}
-			if (!parentDocument.isEditState()) {
-				for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
-					if (cCol.dataField == ("@ANNOT" + annotation.@idSampleCharacteristic)) {
-						colConfirmExisting = cCol;
+			private function addNonStandardColumn(annotation:Object):void {
+				var addNewColumn:Boolean = true;
+				var colExisting:AdvancedDataGridColumn = null;
+				var colConfirmExisting:DataGridColumn = null;
+				
+				var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
+				if (sampleCharacteristic == null) {
+					return;
+				}
+				
+				
+				var headerName:String = "";
+				if (sampleCharacteristic.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
+					headerName = annotation.@otherLabel;
+					annotation.@isSelected = "true";
+				} else {
+					headerName = annotation.@sampleCharacteristic;
+				}
+				
+				// Find out if we have already added this column.  If we have,
+				// we won't add it again, but we will update it because
+				// its sample characteristic may have changed.
+				addNewColumn = true;
+				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
+					if (col.dataField == ("@ANNOT" + annotation.@idSampleCharacteristic)) {
+						colExisting = col;
+						addNewColumn = false;
 						break;
 					}    				
 				}
-			}
-			
-			
-			
-			// new column for sample grid
-			var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
-			var fieldName:String = "@ANNOT" + annotation.@idSampleCharacteristic;
-			newCol.dataField  = fieldName;
-			newCol.headerText = headerName;
-			newCol.visible    = annotation.@isSelected == "true" ? true : false;
-			
-			// new column for sample grid on confirmation tab
-			var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn(fieldName);
-			aCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
-			aCol.headerText = headerName;
-			aCol.visible    = annotation.@isSelected == "true" ? true : false;
-			
-			if (colExisting != null) {
-				colExisting.headerText = headerName;
-				colExisting.visible    = annotation.@isSelected == "true" ? true : false;
+				if (!parentDocument.isEditState()) {
+					for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
+						if (cCol.dataField == ("@ANNOT" + annotation.@idSampleCharacteristic)) {
+							colConfirmExisting = cCol;
+							break;
+						}    				
+					}
+				}
 				
-			}
-			if (colConfirmExisting != null) {
-				colConfirmExisting.headerText = headerName;
-				colConfirmExisting.visible    = annotation.@isSelected == "true" ? true : false;
-			}
-			
-			// We only show inactive options when it is edit state.
-			var includeInactiveOptions:Boolean = parentDocument.isEditState();
-			
-			newCol.editable = false;
-			aCol.editable = false;
-			newCol.characteristicType = sampleCharacteristic.@codeCharacteristicType;
-			if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
-				newCol.itemRenderer =  MultiselectRenderer.create();
-				aCol.itemRenderer =  MultiselectRenderer.create(false);
+				
+				
+				// new column for sample grid
+				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
+				var fieldName:String = "@ANNOT" + annotation.@idSampleCharacteristic;
+				newCol.dataField  = fieldName;
+				newCol.headerText = headerName;
+				newCol.visible    = annotation.@isSelected == "true" ? true : false;
+				
+				// new column for sample grid on confirmation tab
+				var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn(fieldName);
+				aCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
+				aCol.headerText = headerName;
+				aCol.visible    = annotation.@isSelected == "true" ? true : false;
+				
 				if (colExisting != null) {
-					colExisting.itemRenderer =  MultiselectRenderer.create();
+					colExisting.headerText = headerName;
+					colExisting.visible    = annotation.@isSelected == "true" ? true : false;
+					
 				}
 				if (colConfirmExisting != null) {
-					colConfirmExisting.itemRenderer =  MultiselectRenderer.create();
+					colConfirmExisting.headerText = headerName;
+					colConfirmExisting.visible    = annotation.@isSelected == "true" ? true : false;
 				}
-			} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
-				newCol.itemRenderer = URLRenderer.create();
-				aCol.itemRenderer = URLRenderer.create(false);
-				if (colExisting != null) {
-					colExisting.itemRenderer = URLRenderer.create();
-				}
-				if (colConfirmExisting != null) {
-					colConfirmExisting.itemRenderer = URLRenderer.create();
-				}
-			} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
-				newCol.itemRenderer = CheckBoxRenderer.create();
-				if (colExisting != null) {
-					colExisting.itemRenderer = CheckBoxRenderer.create();
-				}
-				if (colConfirmExisting != null) {
-					colExisting.itemRenderer = CheckBoxRenderer.create();
-				}
-			} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
-				newCol.editable = true;
-				newCol.editorDataField = "value"
-				newCol.itemRenderer = views.renderers.DropdownLabel.create(
-					parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
-					'@option', 
-					'@idSampleCharacteristicOption', 
-					fieldName);                
-				aCol.itemRenderer = views.renderers.DropdownLabel.create(
-					parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
-					'@option', 
-					'@idSampleCharacteristicOption', 
-					fieldName,
-					false);       
-				newCol.itemEditor = views.renderers.ComboBox.create(
-					parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
-					"@option",
-					"@idSampleCharacteristicOption",
-					fieldName, 
-					null,
-					true,
-					true, 
-					false,
-					true);
-				if (colExisting != null) {
-					colExisting.editable = true;
-					colExisting.editorDataField = "value"
-					colExisting.itemRenderer = views.renderers.DropdownLabel.create(
+				
+				// We only show inactive options when it is edit state.
+				var includeInactiveOptions:Boolean = parentDocument.isEditState();
+				
+				newCol.editable = false;
+				aCol.editable = false;
+				newCol.characteristicType = sampleCharacteristic.@codeCharacteristicType;
+				if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
+					newCol.itemRenderer =  MultiselectRenderer.create();
+					aCol.itemRenderer =  MultiselectRenderer.create(false);
+					if (colExisting != null) {
+						colExisting.itemRenderer =  MultiselectRenderer.create();
+					}
+					if (colConfirmExisting != null) {
+						colConfirmExisting.itemRenderer =  MultiselectRenderer.create();
+					}
+				} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
+					newCol.itemRenderer = URLRenderer.create();
+					aCol.itemRenderer = URLRenderer.create(false);
+					if (colExisting != null) {
+						colExisting.itemRenderer = URLRenderer.create();
+					}
+					if (colConfirmExisting != null) {
+						colConfirmExisting.itemRenderer = URLRenderer.create();
+					}
+				} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
+					newCol.itemRenderer = CheckBoxRenderer.create();
+					if (colExisting != null) {
+						colExisting.itemRenderer = CheckBoxRenderer.create();
+					}
+					if (colConfirmExisting != null) {
+						colExisting.itemRenderer = CheckBoxRenderer.create();
+					}
+				} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
+					newCol.editable = true;
+					newCol.editorDataField = "value"
+					newCol.itemRenderer = views.renderers.DropdownLabel.create(
 						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
 						'@option', 
 						'@idSampleCharacteristicOption', 
-						fieldName); 
-					colExisting.itemEditor = views.renderers.ComboBox.create(
+						fieldName);                
+					aCol.itemRenderer = views.renderers.DropdownLabel.create(
+						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
+						'@option', 
+						'@idSampleCharacteristicOption', 
+						fieldName,
+						false);       
+					newCol.itemEditor = views.renderers.ComboBox.create(
 						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
 						"@option",
 						"@idSampleCharacteristicOption",
 						fieldName, 
 						null,
 						true,
-						true,
+						true, 
 						false,
 						true);
+					if (colExisting != null) {
+						colExisting.editable = true;
+						colExisting.editorDataField = "value"
+						colExisting.itemRenderer = views.renderers.DropdownLabel.create(
+							parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
+							'@option', 
+							'@idSampleCharacteristicOption', 
+							fieldName); 
+						colExisting.itemEditor = views.renderers.ComboBox.create(
+							parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
+							"@option",
+							"@idSampleCharacteristicOption",
+							fieldName, 
+							null,
+							true,
+							true,
+							false,
+							true);
+						
+					}
+					if (colConfirmExisting != null) {
+						colConfirmExisting.editable = true;
+						colConfirmExisting.editorDataField = "value"
+						colConfirmExisting.itemRenderer = views.renderers.DropdownLabel.create(
+							parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
+							'@option', 
+							'@idSampleCharacteristicOption', 
+							fieldName); 
+						
+					}
+				} else  {
+					// Assume text
+					newCol.editable   = true;
+					newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+					newCol.itemEditor   = views.renderers.TextInput.create(fieldName);
+					if (colExisting != null) {
+						colExisting.editable   = true;
+						colExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						colExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
+					}
+					if (colConfirmExisting != null) {
+						colConfirmExisting.editable   = true;
+						colConfirmExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						colConfirmExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
+					}
+				}
+				
+				
+				if (addNewColumn) {
+					var columns:Array = parentDocument.samplesView.samplesGrid.columns;
+					var newColumns:Array = new Array();
+					for each(var column:AdvancedDataGridColumn in columns) {
+						if (column.dataField == "@description") {
+							newColumns.push(newCol);
+						}
+						newColumns.push(column);
+					}
+					parentDocument.samplesView.samplesGrid.columns = newColumns;
 					
 				}
-				if (colConfirmExisting != null) {
-					colConfirmExisting.editable = true;
-					colConfirmExisting.editorDataField = "value"
-					colConfirmExisting.itemRenderer = views.renderers.DropdownLabel.create(
-						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions), 
-						'@option', 
-						'@idSampleCharacteristicOption', 
-						fieldName); 
+				
+				// Add to confirm samples grid     (if this is a submit request, not an edit request)  				
+				if (addNewColumn && !parentDocument.isEditState()) {
+					
+					var confirmColumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
+					var newConfirmColumns:Array = new Array();
+					for each(var confirmCol:DataGridColumn in confirmColumns) {
+						if (confirmCol.dataField == "@description") {
+							newConfirmColumns.push(aCol);
+						}
+						newConfirmColumns.push(confirmCol);
+					}
+					parentDocument.confirmView.samplesGridConfirm.columns = newConfirmColumns;
 					
 				}
-			} else  {
-				// Assume text
-				newCol.editable   = true;
-				newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-				newCol.itemEditor   = views.renderers.TextInput.create(fieldName);
-				if (colExisting != null) {
-					colExisting.editable   = true;
-					colExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-					colExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
-				}
-				if (colConfirmExisting != null) {
-					colConfirmExisting.editable   = true;
-					colConfirmExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-					colConfirmExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
-				}
-			}
-			
-			
-			if (addNewColumn) {
-				var columns:Array = parentDocument.samplesView.samplesGrid.columns;
-				var newColumns:Array = new Array();
-				for each(var column:AdvancedDataGridColumn in columns) {
-					if (column.dataField == "@description") {
-						newColumns.push(newCol);
-					}
-					newColumns.push(column);
-				}
-				parentDocument.samplesView.samplesGrid.columns = newColumns;
 				
 			}
 			
-			// Add to confirm samples grid     (if this is a submit request, not an edit request)  				
-			if (addNewColumn && !parentDocument.isEditState()) {
-				
-				var confirmColumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
-				var newConfirmColumns:Array = new Array();
-				for each(var confirmCol:DataGridColumn in confirmColumns) {
-					if (confirmCol.dataField == "@description") {
-						newConfirmColumns.push(aCol);
-					}
-					newConfirmColumns.push(confirmCol);
-				}
-				parentDocument.confirmView.samplesGridConfirm.columns = newConfirmColumns;
-				
-			}
-			
-		}
-
-        private function checkForRemovedAnnotations():void {
-       		var annotation:Object;
-       		var exists:Boolean = false;
-			for each(annotation in parentDocument.sampleCharacteristicEntries) {
-				exists = false;
-				for each(var sc:XML in parentApplication.sampleCharacteristicList) {
-					if (sc.@value == annotation.@idSampleCharacteristic) {
-						exists = true;
-						break;
-					}      				 
-       			}
-       			if (!exists) {
-					// Remove the sample characteristic entry
-					parentDocument.sampleCharacteristicEntries.removeItemAt(parentDocument.sampleCharacteristicEntries.getItemIndex(annotation));
-       			}
-       		}
-			
-			// Hide the existing annotation columns that don't have a corresponding sample characteristic entry
-			for each(var sampleCharacteristic:Object in parentApplication.sampleCharacteristicList) {
-				exists = false;
-				for each(var sce:XML in parentDocument.sampleCharacteristicEntries) {
-					if (sce.@value == sampleCharacteristic.@idSampleCharacteristic) {
-						exists = true;
-						break;
-					}      				 
-				}
-				
-				if (!exists) {
-					for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
-						if (col.dataField == ("@ANNOT" + sampleCharacteristic.@idSampleCharacteristic)) {
-							col.visible = false;
+			private function checkForRemovedAnnotations():void {
+				var annotation:Object;
+				var exists:Boolean = false;
+				for each(annotation in parentDocument.sampleCharacteristicEntries) {
+					exists = false;
+					for each(var sc:XML in parentApplication.sampleCharacteristicList) {
+						if (sc.@value == annotation.@idSampleCharacteristic) {
+							exists = true;
 							break;
-						}    				
+						}      				 
 					}
-					if (!parentDocument.isEditState()) {
-						for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
-							if (cCol.dataField == ("@ANNOT" + sampleCharacteristic.@idSampleCharacteristic)) {
-								cCol.visible = false;
+					if (!exists) {
+						// Remove the sample characteristic entry
+						parentDocument.sampleCharacteristicEntries.removeItemAt(parentDocument.sampleCharacteristicEntries.getItemIndex(annotation));
+					}
+				}
+				
+				// Hide the existing annotation columns that don't have a corresponding sample characteristic entry
+				for each(var sampleCharacteristic:Object in parentApplication.sampleCharacteristicList) {
+					exists = false;
+					for each(var sce:XML in parentDocument.sampleCharacteristicEntries) {
+						if (sce.@value == sampleCharacteristic.@idSampleCharacteristic) {
+							exists = true;
+							break;
+						}      				 
+					}
+					
+					if (!exists) {
+						for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
+							if (col.dataField == ("@ANNOT" + sampleCharacteristic.@idSampleCharacteristic)) {
+								col.visible = false;
 								break;
 							}    				
 						}
+						if (!parentDocument.isEditState()) {
+							for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
+								if (cCol.dataField == ("@ANNOT" + sampleCharacteristic.@idSampleCharacteristic)) {
+									cCol.visible = false;
+									break;
+								}    				
+							}
+						}
+						
 					}
 					
 				}
 				
+				
 			}
-
-        	
-        }
-		public function changeOtherHeaderLabelAndToggle(data:Object):void {
-			if (data.@otherLabel == '' ) {
-				data.@isSelected = false;	
-			} else {
-				data.@isSelected = true;
-			}		
-			changeOtherHeaderLabel(data);
+			public function changeOtherHeaderLabelAndToggle(data:Object):void {
+				if (data.@otherLabel == '' ) {
+					data.@isSelected = false;	
+				} else {
+					data.@isSelected = true;
+				}		
+				changeOtherHeaderLabel(data);
+				
+			}
 			
-		}
-		
-		public function changeOtherHeaderLabel(data:Object):void {
-
-			parentDocument.request.@otherLabel = data.@otherLabel;
-			
-			if (parentDocument.samplesView.samplesGrid != null) {
-				for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
-					var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
-					if ( dc.dataField == "@ANNOT" + data.@idSampleCharacteristic) {
-						dc.headerText = data.@otherLabel;
-						dc.visible = data.@isSelected == "true" ? true : false;
-						break;	
+			public function changeOtherHeaderLabel(data:Object):void {
+				
+				parentDocument.request.@otherLabel = data.@otherLabel;
+				
+				if (parentDocument.samplesView.samplesGrid != null) {
+					for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
+						var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
+						if ( dc.dataField == "@ANNOT" + data.@idSampleCharacteristic) {
+							dc.headerText = data.@otherLabel;
+							dc.visible = data.@isSelected == "true" ? true : false;
+							break;	
+						}
+					}
+				}
+				if (parentDocument.confirmView != null && parentDocument.confirmView.samplesGridConfirm != null) {
+					for (var y:Number = 0; y < parentDocument.confirmView.samplesGridConfirm.columnCount; y++) {
+						var dc1:DataGridColumn = parentDocument.confirmView.samplesGridConfirm.columns[y];
+						if ( dc1.dataField == "@ANNOT" + data.@idSampleCharacteristic) {
+							dc1.headerText = data.@otherLabel;
+							dc1.visible = data.@isSelected == "true" ? true : false;
+							break;					
+						}
 					}
 				}
 			}
-			if (parentDocument.confirmView != null && parentDocument.confirmView.samplesGridConfirm != null) {
-				for (var y:Number = 0; y < parentDocument.confirmView.samplesGridConfirm.columnCount; y++) {
-					var dc1:DataGridColumn = parentDocument.confirmView.samplesGridConfirm.columns[y];
-					if ( dc1.dataField == "@ANNOT" + data.@idSampleCharacteristic) {
-						dc1.headerText = data.@otherLabel;
-						dc1.visible = data.@isSelected == "true" ? true : false;
-						break;					
-					}
-				}
+			
+			public function createToolTip(event:ListEvent):void{
+				sampleAnnotationGrid.toolTip = sampleAnnotationGrid.dataProvider[event.rowIndex].@description;	
 			}
-
-
-		}
-
-		
-	]]>
-</mx:Script>
+			
+			public function deleteToolTip(obj:Object):void{
+				sampleAnnotationGrid.toolTip = null;
+			}
+			
+		]]>
+	</mx:Script>
 	
 	<mx:VBox width="100%" height="100%">
-	    <mx:HBox verticalAlign="bottom"  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
-  			  <mx:TextArea styleName="instructionBox" width="660" wordWrap="true" height="74" visible="true" id="textarea1">
+		<mx:HBox verticalAlign="bottom"  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
+			<mx:TextArea styleName="instructionBox" width="660" wordWrap="true" height="74" visible="true" id="textarea1">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a<br>       subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
+			</mx:TextArea>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" height="100%" horizontalGap="24">
 			<mx:VBox height="100%" verticalGap="1">
-			    <mx:HBox>
-				    <mx:Text width="300" height="100%" id="text1">
-				    	<mx:text>(1) Check sample characteristics:</mx:text>
-				    </mx:Text>
-			    	
-			    </mx:HBox>
-			    <mx:HBox width="100%" height="100%">
+				<mx:HBox>
+					<mx:Text width="300" height="100%" id="text1">
+						<mx:text>(1) Check sample characteristics:</mx:text>
+					</mx:Text>
+					
+				</mx:HBox>
+				<mx:HBox width="100%" height="100%">
 					<mx:VBox width="100%" height="100%" verticalGap="0">
-					  <mx:DataGrid id="sampleAnnotationGrid" height="100%" 
-						dataProvider="{parentDocument.sampleCharacteristicEntries}" 
-						showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20">
-					    <mx:columns>
-					        <mx:DataGridColumn headerText=" " 
-					        	width="20" 
-					        	editable="true"                        	
-					        	dataField="@isSelected" 
-					        	editorDataField="selected"
-					        	itemRenderer="views.renderers.CheckBoxIsSelectedSampleCharacteristic" >
-					        </mx:DataGridColumn>
-					        <mx:DataGridColumn  
-					        	headerText="Sample characteristics"
-					        	editable="false" editorDataField="selected" 
-					        	dataField="@sampleCharacteristic">
-					            <mx:itemRenderer>
-					                <mx:Component >
-					                     <mx:HBox>
-					                       <mx:Label text="{data.@sampleCharacteristic}">			                           	
-					                       </mx:Label>
-					                       <mx:TextInput id="scOtherLabel" fontSize="9"
-					                       	text="{data.@otherLabel}"
-											focusIn="{parentDocument.ignoreToggle = true}"
-											focusOut="{parentDocument.ignoreToggle = false}"
-					                       	change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}" 
-					                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
-					                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
-					                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
-					                       	editable="{data.@sampleCharacteristic == 'Other' ? true : false}">			                           
-					                       </mx:TextInput>
-					                     	
-					                     </mx:HBox>
-					                </mx:Component>
-					            </mx:itemRenderer>
-					        </mx:DataGridColumn>
-					    </mx:columns>
-					  </mx:DataGrid>
-
-		  			  <mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editSampleCharacteristicDictionary()" id="editSampleAnnotationButton">		  	
-		 		      </mx:LinkButton>						
+						<mx:DataGrid id="sampleAnnotationGrid" height="100%"
+									 dataProvider="{parentDocument.sampleCharacteristicEntries}" 
+									 showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20" itemRollOver="createToolTip(event)" itemRollOut="deleteToolTip(event)" >
+							<mx:columns>
+								<mx:DataGridColumn headerText=" " 
+												   width="20" 
+												   editable="true"                        	
+												   dataField="@isSelected" 
+												   editorDataField="selected"
+												   itemRenderer="views.renderers.CheckBoxIsSelectedSampleCharacteristic">
+								</mx:DataGridColumn>
+								<mx:DataGridColumn  
+									headerText="Sample characteristics"
+									editable="false" editorDataField="selected" 
+									dataField="@sampleCharacteristic" >
+									<mx:itemRenderer>
+										<mx:Component >
+											<mx:HBox>
+												<mx:Label text="{data.@sampleCharacteristic}">			                           	
+												</mx:Label>
+												<mx:TextInput id="scOtherLabel" fontSize="9"
+															  text="{data.@otherLabel}"
+															  focusIn="{parentDocument.ignoreToggle = true}"
+															  focusOut="{parentDocument.ignoreToggle = false}"
+															  change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}" 
+															  width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
+															  height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
+															  visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
+															  editable="{data.@sampleCharacteristic == 'Other' ? true : false}">			                           
+												</mx:TextInput>
+												
+											</mx:HBox>
+										</mx:Component>
+									</mx:itemRenderer>
+								</mx:DataGridColumn>
+							</mx:columns>
+						</mx:DataGrid>
+						
+						<mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editSampleCharacteristicDictionary()" id="editSampleAnnotationButton">		  	
+						</mx:LinkButton>						
 					</mx:VBox>
-			    </mx:HBox>
+				</mx:HBox>
 				
 			</mx:VBox>
 			<mx:VBox height="100%" verticalGap="2" width="100%" id="vbox2">
@@ -554,9 +560,8 @@
 				
 			</mx:VBox>
 			
-			
 		</mx:HBox>
-	
+		
 	</mx:VBox>
-
+	
 </mx:Canvas>
