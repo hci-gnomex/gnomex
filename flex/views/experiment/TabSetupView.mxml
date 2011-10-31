@@ -127,6 +127,7 @@
 	  			<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"    change="{pickSlideProduct(slideProductCombo)}" close="{pickSlideProduct(slideProductCombo)}"    >							
 	  				<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
 	  			</mx:ComboBox>
+				<mx:LinkButton  id="newSimple1" label="New..." click="showNewSimpleSlideWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0" enabled="{parentDocument.requestCategory.@codeRequestCategory != ''}"/>
 	  		</mx:HBox>
 	  	</mx:AddChild>
 	  	<mx:SetProperty target="{label12}" name="width" value="160"/>
@@ -226,8 +227,6 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
-		import views.slide.SimpleSlideConfigWindow;
-		
 		import views.experiment.ProjectDetailWindow;
 		import views.experiment.RequestCloneWindow;
 		import views.slide.SimpleSlideConfigWindow;
@@ -239,6 +238,7 @@
 
         [Bindable]
         private var lab:Object = null;
+		
         		
         public var idAppUser:Object = '';
 
@@ -646,9 +646,16 @@
 		}
 		
 		private function highlightRequestCategory():void {
-			for (var i:int = 0; i < radioRequestCategory.length; i++) {
-            	radioRequestCategory[i].setStyle("fontWeight", radioRequestCategory[i].selected == true ?  "bold" : "normal");	
-   			} 
+
+			for(var i:int = 0; i < radioRequestCategory.length; i++){
+				if(radioRequestCategory[i].value[0] == requestCategory[0].@value){
+					radioRequestCategory[i].selected = true;
+					radioRequestCategory[i].setStyle("fontWeight", "bold");				
+				}
+				else
+					radioRequestCategory[i].setStyle("fontWeight", "normal");
+				
+			}
 		}
 		
 		private function pickSlideProduct(slideProductCombo:ComboBox):void {
@@ -784,7 +791,7 @@
 					    	<mx:RadioButton id="radioRequestCategory" groupName="requestTypeGroup" 
 					    		label="{requestCategoryRepeater.currentItem.@display}" 
 					    		value="{requestCategoryRepeater.currentItem.@value}" 
-					    		click="highlightRequestCategory();parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()"  width="206"/>							
+					    		click="parentDocument.setRequestCategoryName();checkSetupCompleteness();highlightRequestCategory()"  change="checkSetupCompleteness()"  width="206"/>							
 					  	  <mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="9"/>							
 						</mx:HBox>
 					</mx:Repeater>
