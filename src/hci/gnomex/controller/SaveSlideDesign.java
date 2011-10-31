@@ -325,5 +325,6 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
     slideDesign.setAccessionNumberArrayExpress(slideDesignScreen.getAccessionNumberArrayExpress());
     slideDesign.setIsActive(slideDesignScreen.getIsActive());
   }
+    
 
 }
