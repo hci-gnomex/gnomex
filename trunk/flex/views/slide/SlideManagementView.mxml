@@ -102,10 +102,11 @@
 	
 <mx:Script>
 	<![CDATA[
-		import mx.events.CloseEvent;
 		import mx.controls.Alert;
+		import mx.events.CloseEvent;
 		import mx.events.IndexChangedEvent;
 		import mx.rpc.events.ResultEvent;
+		
 		import views.util.DirtyNote;
 		
 		
@@ -139,6 +140,7 @@
         private var isInitialized:Boolean = false;
 		
 		private function init():void {
+			
 			if (!isInitialized) {
 				initializeData();
 			}
@@ -156,6 +158,48 @@
 				params = new Object();
 				params.idSlideProduct = fullSlideProduct.@idSlideProduct;
 				callGetSlideProduct(params);
+			}
+			
+		}
+		
+		private function filterForData(item:Object):Boolean{
+			for(var i:int = 0; i < requestCategory.length; i++)
+			{
+				if(requestCategory.getItemAt(i).@codeRequestCategory == item.@codeRequestCategory)
+					return true;
+			}
+			return false;      
+		}
+		
+		private function filterApps(item:Object):Boolean{
+			for(var i:int = 0; i < requestCatApp.length; i++)
+			{
+				if(requestCatApp.getItemAt(i).@codeApplication == item.@codeApplication)
+				return true;
+			}
+				return false;
+		}
+		
+		private function setCheckBoxes(realAppsList:XMLListCollection, Applications:XMLList):void{
+			for(var i:int = 0; i < realAppsList.length; i++)
+			{
+				for(var j:int = 0; j < Applications.length(); j++)
+				{
+				if(realAppsList.getItemAt(i).@application == Applications[j].@application)
+				{
+					realAppsList.getItemAt(i).@isActive = 'Y';
+					break;
+				}
+				else
+					realAppsList.getItemAt(i).@isActive = 'N';
+				}
+			}
+		}
+		
+		private function newSlideCheckBox(realAppsList:XMLListCollection):void{
+			for(var i:int = 0; i < realAppsList.length; i++)
+			{
+				realAppsList.getItemAt(i).@isActive = 'N';
 			}
 		}
 		
@@ -206,6 +250,11 @@
 				this.fullSlideProduct = getSlideProduct.lastResult;
 				this.fullSlideDesign = null;
 				this.fullSlideProductApplications = new XMLList(getSlideProduct.lastResult.applications.Application);
+				requestCatApp.filterFunction = filterForData;
+				requestCatApp.refresh();
+				realApps.filterFunction = filterApps;
+				realApps.refresh();
+				setCheckBoxes(realApps, this.fullSlideProductApplications);
 				if (lastSavedSlideProductId != null) {
 					selectSlideView("SlideProduct");
 				} else {
@@ -215,6 +264,12 @@
 				this.fullSlideDesign = getSlideDesign.lastResult;
 				this.fullSlideProduct = null;
 				this.fullSlideDesignApplications = new XMLList(getSlideDesign.lastResult.SlideProduct.applications.Application);
+				requestCatApp.filterFunction = filterForData;
+				requestCatApp.refresh();
+				realApps.filterFunction = filterApps;
+				realApps.refresh();
+				setCheckBoxes(realApps, this.fullSlideDesignApplications);
+				
 				this.fullSlideDesignArrayCoordinates = new XMLList(getSlideDesign.lastResult.arrayCoordinates.ArrayCoordinate);
 				if (lastSavedSlideDesignId != null) {
 					selectSlideView("SlideDesign");
@@ -292,8 +347,8 @@
 		public function callSaveSlideProduct():void {
 			// gather the params to post
 			var params:Object = new Object();
-			params.idSlideProduct = idSlideProduct.text;
-			params.slideSet = idSlideProduct.text;
+//			params.idSlideProduct = idSlideProduct.text;
+//			params.slideSet = idSlideProduct.text;
 			if (spIdVendor.selectedIndex > -1) {
 				params.idVendor = spIdVendor.selectedItem.@value;
 			}
@@ -351,7 +406,7 @@
 			params.catalogNumber = sdCatalogNumber.text;
 			params.arraysPerSlide = arraysPerSlide.text;
 			params.arrayCoordinateXMLString ="<arrayCoordinates>"+ sdArrayCoordiantes.toXMLString()+"</arrayCoordinates>";
-			params.applicationXMLString = "<applications>"+sdApplications.toXMLString()+"</applications>";
+			params.applicationXMLString = "<applications>"+spApplications.toXMLString()+"</applications>";
 			params.accessionNumberArrayExpress = "";
 			params.isInSlideSet = isInSlideSet.text;
 			params.slideSet = sdIdSlideProduct.text;
@@ -407,6 +462,12 @@
 			} else {
 				prepareToAddSlideDesign(new CloseEvent("empty",false,false,0));
 			}
+			requestCatApp.filterFunction = filterForData;
+			requestCatApp.refresh();
+			realApps.filterFunction = filterApps;
+			realApps.refresh();
+			newSlideCheckBox(realApps);
+			realApps.refresh();
 		}
 		
 		public function prepareToAddSlideDesign(event:CloseEvent):void {
@@ -436,7 +497,7 @@
 				this.currentState = "";
 			}
 			sdRemoveArrayCoord.enabled = false;
-			sdRemoveCategory.enabled = false;
+			//sdRemoveCategory.enabled = false;
 			newArrayRow.text = null;
 			newArrayCol.text = null;
 			newArrayName.text = null;
@@ -454,60 +515,7 @@
 			slideViews.selectedChild = slideProductView;
 			titleLabelText = "New Slide Set";
 			spIsActive.selected = true;
-			spRemoveCategory.enabled = false;
-		}
-		
-		public function addApplication(event:MouseEvent):void {
-			dirty.setDirty();
-			var code:String;
-			var category:String;
-			var node:XML = null;
-			if (slideViews.selectedChild == slideDesignView) {
-				if (sdApplication.selectedItem != null) {
-					code = sdApplication.selectedItem.@value;
-					category = sdApplication.selectedItem.@display;
-					if (validateApplication(code)) {
-						node = new XML("<Application value='"+code+"' display='"+category+"' codeApplication='"+code+"' isActive='Y' application='"+category+"' canWrite='Y' datakey='"+code+"'/>");
-						sdApplications.addItem(node);
-					} else {
-						Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
-					}
-				}
-			} else if (slideViews.selectedChild == slideProductView){
-				if (spApplication.selectedItem != null) {
-					code = spApplication.selectedItem.@value;
-					category = spApplication.selectedItem.@display;
-					if (validateApplication(code)) {
-						node = new XML("<Application value='"+code+"' display='"+category+"' codeApplication='"+code+"' isActive='Y' application='"+category+"' canWrite='Y' datakey='"+code+"'/>");
-						spApplications.addItem(node);
-					} else {
-						Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
-					}
-				}
-			}
-				
-			
-		}
-		
-		public function removeApplication(event:MouseEvent):void {
-			dirty.setDirty();
-			if (slideViews.selectedChild == slideDesignView) {
-				if (sdApplicationsList.selectedItem != null 
-					&& sdApplications.contains(sdApplicationsList.selectedItem)) {
-					sdApplications.removeItemAt(sdApplicationsList.selectedIndex);
-					sdRemoveCategory.enabled = false;
-				} else {
-					Alert.show("Please select a category before clicking the remove button.","Microarray category not selected");
-				}
-			} else if (slideViews.selectedChild == slideProductView){
-				if (spApplicationsList.selectedItem != null 
-					&& spApplications.contains(spApplicationsList.selectedItem)) {
-					spApplications.removeItemAt(spApplicationsList.selectedIndex);
-					spRemoveCategory.enabled = false;
-				} else {
-					Alert.show("Please select a category before clicking the remove button.","Microarray category not selected");
-				}
-			}
+			//spRemoveCategory.enabled = false;
 		}
 		
 		public function validateApplication(codeCat:String):Boolean {
@@ -573,7 +581,7 @@
 					}
 				}
 			} else {
-				Alert.show("Please select an Array Coordinate to romove before clicking the delete button.","No Array Coordinate Selected");
+				Alert.show("Please select an Array Coordinate to remove before clicking the delete button.","No Array Coordinate Selected");
 			}
 		}
 		
@@ -616,7 +624,7 @@
 				slideViews.selectedChild = slideProductView;
 				titleLabelText = "Slide Set: "+fullSlideProduct.@name;
 				saveSlideButton.enabled=true;
-				spRemoveCategory.enabled = false;
+				//spRemoveCategory.enabled = false;
 				for each(var item:Object in parentApplication.promptedLabList) {
 					if (item.@idLab == fullSlideProduct.@idLab) {
 						this.spIdLab.selectedItem = item;
@@ -630,7 +638,7 @@
 				newArrayRow.text = null;
 				newArrayCol.text = null;
 				newArrayName.text = null;
-				sdRemoveCategory.enabled = false;
+				//sdRemoveCategory.enabled = false;
 				sdRemoveArrayCoord.enabled = false;
 				for each(var labItem:Object in parentApplication.promptedLabList) {
 					if (labItem.@idLab == fullSlideDesign.SlideProduct.@idLab) {
@@ -660,9 +668,45 @@
 			} else {
 				return false;
 			}
-        }          
-
+        }  
 		
+		private function updateApplications(application:Object):void
+		{
+			for(var i:int = 0; i < spApplications.length; i++)
+			{
+				if(spApplications.getItemAt(i).@value == application.@value)
+				{
+					spApplications.removeItemAt(i);
+					return;
+				}
+			}
+			var code:String;
+			var category:String;
+			var node:XML = null;
+			code = application.@value;
+			category = application.@display;
+			
+			node = new XML("<Application value='"+code+"' display='"+category+"' codeApplication='"+code+"' isActive='Y' application='"+category+"' canWrite='Y' datakey='"+code+"'/>");
+			
+			spApplications.addItem(node);
+		}
+		
+		private function isSelectedDesign(application:String):Boolean
+		{
+			if(check.label == fullSlideDesign.@application)
+				return true;
+			else
+				return false;
+		}
+		
+		private function isSelectedProduct(application:Object):Boolean
+		{
+			if(check1.label == fullSlideProduct.@application)
+				return true;
+			else
+				return false;
+		}
+
 	]]>
 </mx:Script>
 	
@@ -671,7 +715,12 @@
 	<!--mx:XMLListCollection id="slideProduct" source="{fullSlideProduct}"/-->
 	<mx:XMLListCollection id="sdApplications" source="{fullSlideDesignApplications}"/>
 	<mx:XMLListCollection id="sdArrayCoordiantes" source="{fullSlideDesignArrayCoordinates}"/>
+	
 	<mx:XMLListCollection id="spApplications" source="{fullSlideProductApplications}"/>
+	
+	<mx:XMLListCollection id="realApps" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != '')}"/>
+	<mx:XMLListCollection id="requestCatApp" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '')}"/>
+	<mx:XMLListCollection id="requestCategory" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value != '' &amp;&amp; @type == 'MICROARRAY')}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0">
 		<mx:VBox styleName="panelBox"  width="300" height="100%"  id="slideBrowserPanel">
@@ -787,30 +836,16 @@
 							</hci:ComboBox>
 						</mx:VBox>		
 				</mx:HBox>
-					<mx:HBox y="187" right="10" left="10" height="141" id="hbox1" width="100%">
-					<mx:VBox x="10" y="192" width="100%">
+					<mx:HBox y="187" right="10" left="10" height="100%" id="hbox1" width="100%">
+					<mx:VBox x="10" y="192" width="100%" verticalGap="0" height="100%">
 						<mx:Label text="Application:" left="10" top="142" height="18" width="100%" id="label5"/>
-						<hci:ComboBox top="159" left="10" height="22" width="100%"
-							 id="sdApplication"
-							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry}"
-							prompt="Select application to add..."
-							></hci:ComboBox>
+						<mx:Repeater dataProvider="{realApps}" height ="100%"
+									 id="sdApplication">
+							<mx:CheckBox id="check" paddingTop="0" label="{sdApplication.currentItem.@application}" data="{sdApplication.currentItem.@value}" change="dirty.setDirty()" selected="{sdApplication.currentItem.@isActive == 'Y' ? true : false}" click="updateApplications(event.currentTarget.getRepeaterItem())"/>
+						</mx:Repeater>
 						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
 						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
 						<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
-					</mx:VBox>
-					<mx:VBox x="279" y="142">
-						<mx:Button id="sdAddCategory" click="addApplication(event)" icon="@Embed(source='../../assets/add.png')" width="25" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="true" x="279" y="159"/>
-						<mx:Button id="sdRemoveCategory" click="removeApplication(event)" icon="@Embed(source='../../assets/delete.png')" width="25" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="false" y="189" x="279"/>
-					</mx:VBox>
-					<mx:VBox right="10" left="312" y="142" height="100%" width="100%">
-						<mx:Label text="Application List:" left="312" top="142" height="18" width="135" id="label6"/>
-						<mx:List left="312" right="10" top="159" height="100%" 
-							id="sdApplicationsList"
-							dataProvider="{sdApplications}"
-							labelField="@application"
-							click="sdRemoveCategory.enabled = true" width="100%">
-						</mx:List>
 					</mx:VBox>
 					</mx:HBox>
 			</mx:VBox>
@@ -930,35 +965,20 @@
 						 		width="100%" change="dirty.setDirty();">
 								</hci:ComboBox>
 						</mx:VBox>
-						
+					</mx:HBox>
+					<mx:HBox y="187" right="10" left="10" height="100%" id="hbox5" width="100%">
+						<mx:VBox x="10" y="192" width="100%" verticalGap="0" height="100%">
+							<mx:Label text="Application:" left="10" top="142" height="18" width="100%" id="label6"/>
+							<mx:Repeater dataProvider="{realApps}" height ="100%"
+										 id="sdApplication1">
+								<mx:CheckBox id="check1" paddingTop="0" label="{sdApplication1.currentItem.@application}" data="{sdApplication1.currentItem.@value}" change="dirty.setDirty()" selected="{sdApplication1.currentItem.@isActive == 'Y' ? true : false}" click="updateApplications(event.currentTarget.getRepeaterItem())"/>
+							</mx:Repeater>
+							<mx:TextInput id="idSlideDesign1" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
+							<mx:TextInput id="isInSlideSet1" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
+							<mx:TextInput id="sdIdSlideProduct1" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
+						</mx:VBox>
 					</mx:HBox>
 					
-					<mx:HRule left="10" right="10" height="1" styleName="formrule" y="178"/>
-					<mx:HBox left="10" right="10" height="141" y="187">
-					<mx:VBox width="100%">
-					<mx:Label text="Application:" left="10" top="142" height="18" width="100%"/>
-					<hci:ComboBox top="159" left="10" height="22" width="100%"
-						 id="spApplication"
-						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry}"
-						prompt="Select application to add...">
-						</hci:ComboBox>
-					<mx:TextInput id="idSlideProduct" text="{fullSlideProduct.@idSlideProduct}" editable="false" enabled="false" visible="false" width="100%" left="10" top="189"/>
-					<mx:TextInput id="isSlideSet" text="{fullSlideProduct.@isSlideSet}" editable="false" enabled="false" visible="false" top="219" left="10" width="100%"/>
-					</mx:VBox>
-					<mx:VBox>
-					<mx:Button  id="spAddCategory" click="addApplication(event)" x="279" y="159" icon="@Embed(source='../../assets/add.png')" width="25" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="true"/>					
-					<mx:Button  id="spRemoveCategory" click="removeApplication(event)" x="279" y="189" icon="@Embed(source='../../assets/delete.png')" width="25" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="false"/>
-					</mx:VBox>
-					<mx:VBox width="100%" height="100%">
-					<mx:Label text="Application List:" left="312" top="142" height="18" width="94"/>
-					<mx:List left="312" right="10" top="159" height="100%" 
-						id="spApplicationsList"
-						dataProvider="{spApplications}"
-						labelField="@application"
-						click="spRemoveCategory.enabled = true" width="100%">
-					</mx:List>
-					</mx:VBox>
-					</mx:HBox>
 				</mx:Canvas>
 				
 			</mx:ViewStack>
@@ -969,8 +989,6 @@
 			
 		</mx:VBox>
 	</mx:HDividedBox>
-	
-	
 	<mx:states>
 		<mx:State name="SlideOfSetState">
 			<mx:RemoveChild target="{hbox2}"/>
@@ -979,6 +997,8 @@
 			<mx:RemoveChild target="{vbox1}"/>
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:RemoveChild target="{hbox3}"/>
+			<mx:AddChild relativeTo="{slideProductView}" position="lastChild">
+			</mx:AddChild>
 		</mx:State>
 		
 	</mx:states>
