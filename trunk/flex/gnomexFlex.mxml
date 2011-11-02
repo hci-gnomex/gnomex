@@ -174,7 +174,18 @@
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService >
-	     
+	
+	<mx:HTTPService 
+		id="getLaunchProperties"	    
+		url="GetLaunchProperties.gx"
+		resultFormat="e4x"
+		result="onGetLaunchProperties(event)"
+		fault="onFailHttpRequest('Get launch properties failed', event)"
+		showBusyCursor="true"
+		destination="getLaunchProperties"
+		useProxy="false">
+	</mx:HTTPService> 
+	
         <mx:Style source="css/gnomex_flex.css" />
 
         
@@ -203,6 +214,7 @@
 			
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
+			import views.user.UserPublicView;
 			import views.util.AboutView;
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
@@ -218,6 +230,9 @@
             public var dictionaryManager:DictionaryManager;
 			
 			private var navSearchView:NavSearchView;
+			
+			private var userPublicView:UserPublicView;
+			
             
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -559,23 +574,40 @@
 			private var currentProgressInterval:uint = 0;
 			
 			[Bindable]
+			public var isUnivUserAuth:Boolean = false;
+			
+			[Bindable]
 			public var version:String = "";
 			
 			[Bindable]
 			public var idAppUser:Object = null;
 			
 			private function init():void {
-				if (!isGuestMode()) {
-					checkLogin.send();
-				} else {
-					// If Guest Mode then go straight to original init code
-					stateStack.selectedChild = initViews; 
-					linkbutton1.visible = true;
-					linkbutton3.visible = true;
-					loggedInInit();					
-				}
-						
+				getLaunchProperties.send();
 			} 
+			
+			private function onGetLaunchProperties(event:ResultEvent):void {
+				if (getLaunchProperties.lastResult.name() == 'LaunchProperties') {
+					var prop:String = getLaunchProperties.lastResult.Property.(@name == PROPERTY_UNIVERSITY_USER_AUTHENTICATION).@value;
+					if (prop == 'Y') {
+						this.isUnivUserAuth = true;
+					} else {
+						this.isUnivUserAuth = false;
+					}					
+					if (!isGuestMode()) {
+						checkLogin.send();
+					} else {
+						// If Guest Mode then go straight to original init code
+						stateStack.selectedChild = initViews; 
+						linkbutton1.visible = true;
+						linkbutton3.visible = true;
+						loggedInInit();					
+					}
+				}
+				else {
+					Alert.show("An error occurred getting launch properties");
+				}
+			}
 			
 			protected function applicationCompleteHandler(event:FlexEvent):void
 			{
@@ -764,7 +796,7 @@
 				// through show event (init()).  The next time
 				// through, we will make the call directly.
 				if (navAnalysisView.isInitialized) {
-					navAnalysisView.refreshAnalysisForLookup();
+					navAnalysisView.refreshAnalysisForLookup()
 				}
 
 				this.stateStack.selectedChild = theViews;
@@ -772,6 +804,27 @@
 				theViews.selectedChild = navAnalysisView;
 				
 			}
+			
+			public function showUserWindow(idAppUser:String):void {	
+				var userNode:XML = <AppUser  id=''/>;
+				userNode.@id = idAppUser;
+				navUsersView.itemToSelect = userNode;				
+
+				// We have to make sure that the first time a lookup
+				// occurs after lauch, we refresh the lab list
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navUsersView.isInitialized) {
+					navUsersView.initializeData();
+				}				
+				
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navUsersView;
+			}
+			
+			
+			
 
 			public function showBillingAccountDetail(idLab:String):void {
 				var theLab:Object = this.getLabList.lastResult.Lab.(@idLab == idLab);
@@ -824,12 +877,33 @@
 				navSearchView.simpleSearchText = this.searchText.text;
             }
             
-            public function showSearch():void {
+			public function showSearch():void {
 				navSearchView = NavSearchView(PopUpManager.createPopUp(this,  NavSearchView, false));
 				PopUpManager.centerPopUp(navSearchView);
 				navSearchView.init();
 			}
-            
+			
+			public function showUserPublicView():void {
+				userPublicView = UserPublicView(PopUpManager.createPopUp(this,  UserPublicView, false));
+				userPublicView.currentState = "editPublicAppUserState";
+				PopUpManager.centerPopUp(userPublicView);
+				userPublicView.init();
+			}
+			
+			public function accountSignup():void {
+				userPublicView = UserPublicView(PopUpManager.createPopUp(this,  UserPublicView, false));
+				if (isUnivUserAuth) {
+					userPublicView.currentState = "universityUserState";					
+				} else {
+					userPublicView.currentState = "externalInterfaceOnlyState";
+				}
+
+	
+				userPublicView.radioUniversityUser.selected = true;
+				PopUpManager.centerPopUp(userPublicView);
+				//userPublicView.init();
+			}
+			
 			public function showDictionaries():void {
 				PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));
 			}
@@ -919,16 +993,27 @@
             		return false;
             	}
             }
-            public function launchBillingAccountDetail():Boolean {
-            	if (Application.application.parameters.launchWindow != null &&
-            	    Application.application.parameters.launchWindow == "BillingAccountDetail" &&
-            	    Application.application.parameters.idLab != null ) {
-       				return true;
-            	} else { 
-            		return false;
-            	}
-            }
-            
+			
+			public function launchBillingAccountDetail():Boolean {
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "BillingAccountDetail" &&
+					Application.application.parameters.idLab != null ) {
+					return true;
+				} else { 
+					return false;
+				}
+			}
+			
+			public function launchAppUser():Boolean {
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "UserDetail" &&
+					Application.application.parameters.idLab != null ) {
+					return true;
+				} else { 
+					return false;
+				}
+			}
+			
             public function launchWorkAuthForm():Boolean {
             	if (Application.application.parameters.launchWindow != null &&
             	    Application.application.parameters.launchWindow == "WorkAuthForm") {
@@ -953,14 +1038,22 @@
             	}
             }
             
-            public function getLaunchIdLab():String {
-            	if (Application.application.parameters.idLab != null) {
-       				return Application.application.parameters.idLab;
-            	} else {
-            		return "";
-            	}
-            }
-            
+			public function getLaunchIdLab():String {
+				if (Application.application.parameters.idLab != null) {
+					return Application.application.parameters.idLab;
+				} else {
+					return "";
+				}
+			}
+			
+			public function getLaunchIdAppUser():String {
+				if (Application.application.parameters.idLab != null) {
+					return Application.application.parameters.idAppUser;
+				} else {
+					return "";
+				}
+			}
+			
             private function loggedInInit():void {
             	appProgressBar = new AppProgressView();
             	appProgressBar.currentState = "StartupState";
@@ -1429,8 +1522,10 @@
    					this.showAnalysisForNumber(getLaunchAnalysisNumber());
 	        	} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
    					this.showBillingAccountDetail(this.getLaunchIdLab());
-	        	} else if (launchWorkAuthForm() && !isGuestMode()) {
-   					this.showWorkAuthWindow();
+				} else if (launchWorkAuthForm() && !isGuestMode()) {
+					this.showWorkAuthWindow();
+				} else if (launchAppUser() && hasPermission("canAccessAnyObject")) {
+					this.showUserWindow(this.getLaunchIdAppUser());
 	        	} else {
 					if (showUsage && showUsageOnStartup) {
 						theViews.selectedChild = this.navUsageView;

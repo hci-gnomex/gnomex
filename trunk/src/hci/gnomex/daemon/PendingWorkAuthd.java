@@ -3,7 +3,6 @@ package hci.gnomex.daemon;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyHelper;
 
@@ -22,11 +21,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.mail.*;
-import javax.mail.internet.*;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -336,34 +330,5 @@ public class PendingWorkAuthd extends TimerTask {
       }
 
   } 
-  
-  public void postMail( String recipients, String subject, String message , String from) throws MessagingException
-  {
-    //Set the host smtp address
-    Properties props = new Properties();
-    props.put("mail.smtp.host", "hci-mail.hci.utah.edu");
-
-    // create some properties and get the default Session
-
-    javax.mail.Session session = javax.mail.Session.getDefaultInstance(props, null);
-
-    // create a message
-    Message msg = new MimeMessage(session);
-
-    // set the from and to address
-    InternetAddress addressFrom = new InternetAddress(from);
-    msg.setFrom(addressFrom);
-
-    msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse( recipients, false ));
-
-
-    // Optional : You can also set your custom headers in the Email if you Want
-   // msg.addHeader("MyHeaderName", "myHeaderValue");
-
-    // Setting the Subject and Content Type
-    msg.setSubject(subject);
-    msg.setContent(message, "text/plain");
-    Transport.send(msg);
-  }  
   
 }

@@ -161,8 +161,12 @@
 			  checkSecurity();
 			  
 			  if (itemToSelect != null) {
-			  	this.navBar.selectedChild = this.groupsView;
-			  	this.groupDetailView.theTab.selectedChild = this.groupDetailView.billingAccountsTab;
+				if (itemToSelect.name() == "AppUser") {
+					this.navBar.selectedChild = this.usersView;				
+				} else {
+					this.navBar.selectedChild = this.groupsView;
+					this.groupDetailView.theTab.selectedChild = this.groupDetailView.billingAccountsTab;					
+				}
 			  }
 			  
 			  if (!isInitialized) {
@@ -329,7 +333,7 @@
           	labs.refresh();
           }
           
-          private function callGetAppUser():void 
+          public function callGetAppUser():void 
            {
           	var call:Object = getAppUser.send();
           	call.marker = "doneGetAppUser";

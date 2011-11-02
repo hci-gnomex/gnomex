@@ -7,6 +7,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetExpandedFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
+import hci.gnomex.daemon.UploadNotification.DummyEntityRes;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.ExperimentFile;
@@ -95,6 +96,11 @@ public class RegisterFiles extends TimerTask {
   private String                       flowCellDirFlag;
   private Calendar                     asOfDate;
   
+  private String                       last_upload_notification = "";
+  private String                       contact_email_core_facility = "";
+  
+  private Properties                   mailProps;
+  
   private Transaction                  tx;
 
   public RegisterFiles(String[] args) {
@@ -141,6 +147,7 @@ public class RegisterFiles extends TimerTask {
       app.initialize();
       app.registerExperimentFiles();
       app.registerAnalysisFiles();
+      app.sendUploadNotifications();
 
     } catch (Exception e) {
       if (tx != null) {
@@ -161,6 +168,10 @@ public class RegisterFiles extends TimerTask {
     baseFlowCellDir     = ph.getFlowCellDirectory(serverName);
     baseAnalysisDir     = ph.getAnalysisReadDirectory(serverName);
     flowCellDirFlag     = ph.getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
+    last_upload_notification = ph.getProperty(Property.LAST_UPLOAD_NOTIFICATION);
+    contact_email_core_facility = ph.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    
+    setMailProps();
     
     // Figure out how far back we should look at experiments
     
@@ -418,7 +429,163 @@ public class RegisterFiles extends TimerTask {
     return fileMap;
   }
   
- 
+  private void sendUploadNotifications() throws Exception { 
+    Connection myConn = null;
+    try 
+    {
+      myConn = sess.connection();
+      Statement stmt = myConn.createStatement();
+      ResultSet rs = null;
+      
+      String currentEmail = "";
+      String currentLab = "";
+      StringBuffer outputStr = new StringBuffer("");
+      
+      StringBuffer buf = new StringBuffer("select distinct\n");
+      buf.append("   substring(tl.fileName, 0, CHARINDEX('/', fileName)) as number,\n");
+      buf.append("   isnull(l.lastName, '') + isnull(', ' + l.firstName, '') + ' Lab' as labName,\n");
+      buf.append("   au.email\n");
+      buf.append(" from TransferLog tl\n");
+      buf.append("   join Lab l\n");
+      buf.append("     join UploadAlerts ua\n");
+      buf.append("       join AppUser au\n");
+      buf.append("       on ua.idAppUser = au.idAppUser\n");
+      buf.append("     on l.idLab = ua.idLab\n");
+      buf.append("   on l.idLab = tl.idLab\n");
+      buf.append(" where transferType = 'upload'\n");
+      buf.append(" and endDateTime is not null\n");
+      buf.append(" and endDateTime > '" + last_upload_notification + "'\n");
+      buf.append(" order by email, labName, number");      
+      
+      rs = stmt.executeQuery(buf.toString());
+      while(rs.next()) {
+        String thisEmail = rs.getString("email");
+        if(thisEmail == null || thisEmail.length() < 3) {
+          // Ignore users for whom no email specified
+          continue;
+        }
+        if(thisEmail.compareTo(currentEmail) != 0) {
+          if(currentEmail.length() > 0) {
+            outputStr.append("</span></td></tr>");  
+            sendEmail(currentEmail, outputStr);
+          }
+          currentEmail = thisEmail;
+          outputStr = new StringBuffer("");  
+          String thisLab = rs.getString("labName");
+          currentLab = thisLab;
+          outputStr.append("<tr><td width='250'><span class='fontClass'>" + thisLab + "</span></td><td width='350'><span class='fontClass'>");                    
+        } else {
+          String thisLab = rs.getString("labName");
+          if(thisLab.compareTo(currentLab) != 0) {
+            if(currentLab.length() > 0) {
+              outputStr.append("</span></td></tr>");              
+            }
+            outputStr.append("<tr><td width='250'><span class='fontClass'>" + thisLab + "</span></td><td width='350'><span class='fontClass'>");
+            currentLab = thisLab;
+          }         
+        }
+        String thisNumber = rs.getString("number");
+        outputStr.append(thisNumber + " ");         
+      }
+      if(currentEmail.length() > 0) {
+        outputStr.append("</span></td></tr>");  
+        sendEmail(currentEmail, outputStr);
+      }
+      rs.close();
+      stmt.close();       
+      
+      tx = sess.beginTransaction();
+      String endDateTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS").format(Calendar.getInstance().getTime());
+      buf = new StringBuffer("update Property\n");
+      buf.append(" set propertyValue = '" + endDateTime + "'\n");
+      buf.append(" where propertyName = '" + Property.LAST_UPLOAD_NOTIFICATION + "'\n");
+      stmt = myConn.createStatement();
+      stmt.executeUpdate(buf.toString());
+      stmt.close();
+      sess.flush();
+      tx.commit();
+    }
+
+    catch (Exception ex) {
+      throw ex;
+    }
+    finally {
+      if(myConn != null) {
+        try {
+          myConn.close();        
+        } catch (SQLException e) {
+          System.out.println( e.toString() );
+          e.printStackTrace();
+        }
+      }
+    }       
+  }
+
+  
+  private void setMailProps() {
+    // Set up mail properties
+    boolean foundHost = false;
+    mailProps = new Properties();
+    File serverFile = new File("../../" + Constants.SERVER_FILE);
+    if(serverFile.exists()) {
+      try {
+        SAXBuilder builder = new SAXBuilder();
+        // Just in case the orion site is down, we don't want 
+        // to fail because the dtd is unreachable 
+        builder.setEntityResolver(new DummyEntityRes());
+        
+        org.jdom.Document doc = builder.build(serverFile);
+        Element root = doc.getRootElement();
+        
+        Element mailElement = root.getChild("mail-session");
+        if(mailElement != null) {
+          if (mailElement.getAttributeValue("smtp-host") != null) {
+            foundHost = true;
+            mailProps.put("mail.smtp.host", mailElement.getAttributeValue("smtp-host"));
+            Iterator i = mailElement.getChildren("property").iterator();
+            while (i.hasNext()) {
+              Element e = (Element) i.next();
+              if (e.getAttributeValue("name") != null && e.getAttributeValue("value") != null) {
+                mailProps.put(e.getAttributeValue("name"), e.getAttributeValue("value"));
+              }
+            }
+
+          } 
+          
+        }
+
+      } catch (JDOMException e) {
+        System.out.println( e.toString() );
+        e.printStackTrace();
+      }
+    }
+    if (!foundHost) {
+      // Set this as default if smtp-host not found
+      mailProps.put("mail.smtp.host", "hci-mail.hci.utah.edu");  
+    }    
+  }  
+  
+  private void sendEmail(String currentEmail, StringBuffer outputStr) throws Exception {
+    
+    
+    // Build message body in html
+    StringBuffer body = new StringBuffer("");
+    
+    body.append("<html><head><title>Analysis/Experiment Uploads</title><meta http-equiv='content-style-type' content='text/css'></head>");
+    body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
+    body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
+    body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
+    body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
+    body.append("<table width='100%' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td valign='top' align='left'>");
+
+    body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
+    body.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='350'><span class='fontClassBold'>Analysis/Experiment(s)</span></td></tr>");
+    body.append(outputStr);
+    body.append("</table></td></tr></table></body></html>");    
+    
+    MailUtil.send(mailProps, currentEmail, "", contact_email_core_facility, "GNomEx Upload Alert", body.toString(), true);      
+  }
+   
   private static Date getWakeupTime(){
     Calendar tomorrow = new GregorianCalendar();
     tomorrow.add(Calendar.DATE, fONE_DAY);
