@@ -18,6 +18,7 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH = "contact_email_core_facility_workauth";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "contact_email_core_facility_workauth_reminder";
   public static final String        FLOWCELL_DIRECTORY_FLAG             = "flowcell_directory_flag";
+  public static final String        LAST_UPLOAD_NOTIFICATION            = "last_upload_notification";
   public static final String        QC_DIRECTORY                        = "qc_directory";
   public static final String        LUCENE_INDEX_DIRECTORY              = "lucene_index_directory";
   public static final String        LUCENE_EXPERIMENT_INDEX_DIRECTORY   = "lucene_experiment_index_directory";

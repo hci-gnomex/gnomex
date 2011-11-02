@@ -852,6 +852,7 @@ DROP TABLE IF EXISTS `gnomex`.`LabCollaborator`;
 CREATE TABLE `gnomex`.`LabCollaborator` (
   `idLab` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
+  `sendUploadAlert` CHAR(1) NULL,
   PRIMARY KEY (`idLab`, `idAppUser`),
   CONSTRAINT `FK_LabCollaborator_Lab` FOREIGN KEY `FK_LabCollaborator_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -966,6 +967,7 @@ DROP TABLE IF EXISTS `gnomex`.`LabManager`;
 CREATE TABLE `gnomex`.`LabManager` (
   `idLab` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
+  `sendUploadAlert` CHAR(1) NULL,
   PRIMARY KEY (`idLab`, `idAppUser`),
   CONSTRAINT `FK_LabManager_Lab` FOREIGN KEY `FK_LabManager_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -984,6 +986,7 @@ CREATE TABLE `gnomex`.`LabUser` (
   `idAppUser` INT(10) NOT NULL,
   `sortOrder` INT(10) NULL,
   `isActive` CHAR(1) NULL,
+  `sendUploadAlert` CHAR(1) NULL,
   PRIMARY KEY (`idLab`, `idAppUser`),
   CONSTRAINT `FK_LabUser_AppUser` FOREIGN KEY `FK_LabUser_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)

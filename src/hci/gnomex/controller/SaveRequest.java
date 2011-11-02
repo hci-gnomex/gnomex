@@ -197,6 +197,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     
     Session sess = null;
+    String billingAccountMessage = "";
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
@@ -235,6 +236,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           labelMap.put(l.getLabel(), l.getIdLabel());
         }
               
+        try {
         // save request
         saveRequest(requestParser.getRequest(), sess);
         
@@ -641,7 +643,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         
         
-        String billingAccountMessage = "";
+        billingAccountMessage = "";
         if (!requestParser.isExternalExperiment()) {
           sess.refresh(requestParser.getRequest());
 
@@ -707,6 +709,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
              "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +             
              "\" billingAccountMessage = \"" + billingAccountMessage +
              "\"/>";
+        } catch (Exception e1) {
+          log.error("An exception has occurred in SaveRequest ", e1);
+          e1.printStackTrace();
+          throw new RollBackCommandException(e1.getMessage());
+        }
         
         if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
           sess.refresh(requestParser.getRequest());
@@ -762,9 +769,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveRequest ", e);
+      log.error("An exception has occurred while emailing in SaveRequest ", e);
       e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {

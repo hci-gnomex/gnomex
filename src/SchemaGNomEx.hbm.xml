@@ -128,6 +128,20 @@
 		</set>
 	</class>
 	
+    <!-- hci.gnomex.model.AppUserPublic -->
+	<class name="hci.gnomex.model.AppUserPublic" table="AppUser">
+		<id name="idAppUser" column="idAppUser" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="firstName" column="firstName" type="string"/>
+		<property name="lastName" column="lastName" type="string"/>
+		<property name="email" column="email" type="string"/>
+		<property name="phone" column="phone" type="string"/>
+		<property name="department" column="department" type="string"/>
+		<property name="institute" column="institute" type="string"/>
+	</class>	
+	
+	
 	<!-- hci.gnomex.model.BillingAccount -->
 	<class name="hci.gnomex.model.BillingAccount" table="BillingAccount">
 		<id name="idBillingAccount" column="idBillingAccount" type="integer">

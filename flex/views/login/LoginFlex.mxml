@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
-	show="clearPwd()"
+	show="clearPwd()" horizontalScrollPolicy="off" verticalScrollBarStyleName="off"
 	paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" defaultButton="{loginButton}" 
 	>
 
@@ -43,8 +43,11 @@
 			
 			private function changePassword():void {
 				parentApplication.showChangePasswordBeforeLogin();
-			}	
-
+			}
+			
+			private function accountSignup():void {
+				parentApplication.accountSignup();
+			}
 			
 			private function sendLogin(event:CloseEvent):void {
 				if (event.detail == Alert.OK) {
@@ -80,7 +83,7 @@
 	
 	<mx:HBox horizontalGap="100" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
 		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="400" height="100%">
-			<mx:TitleWindow id="loginWindow" width="296" height="174"
+			<mx:TitleWindow id="loginWindow" width="296" height="236" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 							layout="vertical" verticalAlign="middle" horizontalAlign="right" verticalGap="10"
 							title="Login" styleName="loginWindow"
 							defaultButton="{loginButton}" titleStyleName="loginTitleStyle" >	
@@ -92,13 +95,17 @@
 					<mx:HBox width="100%" verticalAlign="middle"  horizontalAlign="left"  horizontalGap="0">
 						<mx:Label text="Password" width="70" textAlign="left"/>
 						<mx:TextInput id="txtPassword" displayAsPassword="true" width="100%" />
+					</mx:HBox> 			
+					<mx:HBox width="100%" verticalAlign="middle"  horizontalAlign="left"  horizontalGap="0">
+						<mx:Label text="" width="70" textAlign="left"/>
+						<mx:VBox width="100%" horizontalAlign="left">
+							<mx:LinkButton click="loginAsGuest()"  label="Login as guest" textAlign="left" textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton" icon="@Embed(source='../../assets/bullet_go.png')" paddingRight="0" textIndent="0" horizontalGap="0"/>						
+							<mx:LinkButton click="changePassword()"  label="Change or reset password" textAlign="left"  textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton" icon="@Embed(source='../../assets/bullet_go.png')" paddingRight="0" textIndent="0" horizontalGap="0"/>
+							<mx:LinkButton click="accountSignup()"  label="Sign up for new account" textAlign="left"  textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton" icon="@Embed(source='../../assets/bullet_go.png')" paddingRight="0" textIndent="0" horizontalGap="0"/>
+							<mx:Spacer height="100%"/>	
+						</mx:VBox>
 					</mx:HBox> 
-					<mx:Spacer height="100%"/>
-					<mx:HBox>
-						<mx:LinkButton click="changePassword()"  label="Change or reset password" textAlign="left"  textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton"/>
-						<mx:LinkButton click="loginAsGuest()"  label="Login as guest" textAlign="left" textDecoration="underline" paddingLeft="0" paddingBottom="0" styleName="formLinkButton" icon="@Embed(source='../../assets/bullet_go.png')" paddingRight="0" textIndent="0" horizontalGap="0"/>						
-					</mx:HBox>
-				</mx:VBox>
+					</mx:VBox>
 				<mx:ControlBar textAlign="left" horizontalGap="8" horizontalAlign="left" verticalAlign="middle">
 					<mx:Text  id="loginFailedMessage" textAlign="left" htmlText="Login failed.  Please try again." color="#931E26" fontWeight="bold" fontStyle="normal" visible="false" />
 					<mx:Spacer width="100%"/>

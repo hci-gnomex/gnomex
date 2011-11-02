@@ -89,7 +89,12 @@
 	          		parentApplication.navUsersView.itemToSelect = itemToSelect;
     	      		parentApplication.navUsersView.refreshAppUserList();
 				} else { 
-					Alert.show("An error occurred while saving the user record.");
+					if (saveAppUser.lastResult.name() == "ERROR") {
+						Alert.show(saveAppUser.lastResult.@message);	
+					} else {
+						Alert.show("An error occurred while saving the user record.");						
+					}
+
 				}
 
             	

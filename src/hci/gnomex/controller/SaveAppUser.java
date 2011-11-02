@@ -49,6 +49,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
   public Command execute() throws RollBackCommandException {
     
+
+    
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
@@ -56,9 +58,27 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         AppUser appUser = null;
         
+        boolean checkUsername = true;
+        boolean isUsedUsername = false;
+        boolean isUseduNID = false;
+        
+        if (appUserScreen.getuNID() != null && 
+            !appUserScreen.getuNID().trim().equals("")) {
+          checkUsername = false;
+        }        
+        
+        
         if (isNewAppUser) {
-          if (userNameAlreadyExists(sess, appUserScreen.getUserNameExternal(), null)) {
-            this.addInvalidField("username exists", "The User name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
+          if(checkUsername) {
+            if (userNameAlreadyExists(sess, appUserScreen.getUserNameExternal(), null)) {
+              this.addInvalidField("Username exists", "The User name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
+              isUsedUsername = true;
+            }            
+          } else {
+            if (uNID_AlreadyExists(sess, appUserScreen.getuNID(), null)) {
+              this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " already exists.  Please use another.");
+              isUseduNID = true;
+            }            
           }
           
           if (this.isValid()) {
@@ -79,20 +99,29 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               }
               
             }
-            
+           
             sess.save(appUser);
             
           }
         } else {
           
-          appUser = (AppUser)sess.load(AppUser.class, appUserScreen.getIdAppUser());
-          initializeAppUser(appUser);            
+          if(checkUsername) {
+            if (userNameAlreadyExists(sess, appUserScreen.getUserNameExternal(), appUserScreen.getIdAppUser())) {
+              this.addInvalidField("Username exists", "The User name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
+              isUsedUsername = true;
+            }            
+          } else {
+            if (uNID_AlreadyExists(sess, appUserScreen.getuNID(), appUserScreen.getIdAppUser())) {
+              this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " already exists.  Please use another.");
+              isUseduNID = true;
+            }            
+          }          
           
-          if (userNameAlreadyExists(sess, appUser.getUserNameExternal(), appUser.getIdAppUser())) {
-            this.addInvalidField("username exists", "The User name " + appUser.getUserNameExternal() + " already exists.  Please assign another name.");
+          if (this.isValid()) {
+            appUser = (AppUser)sess.load(AppUser.class, appUserScreen.getIdAppUser());
+            initializeAppUser(appUser);                
           }
-          
-          
+
         }
 
         
@@ -101,7 +130,18 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          setResponsePage(this.ERROR_JSP);
+          if(isUsedUsername || isUseduNID) {
+            String outMsg = "";
+            if(isUsedUsername) {
+              outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
+            } else {
+              outMsg = "uNID '" + appUserScreen.getuNID() + "' is already being used. Please select a different uNID.";                            
+            }
+            this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+            setResponsePage(this.SUCCESS_JSP);            
+          } else {
+            setResponsePage(this.ERROR_JSP);            
+          }
         }
       
       } else {
@@ -180,6 +220,21 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT a.userNameExternal from AppUser as a where a.userNameExternal = '"); 
     buf.append(userNameExternal + "'");
+    if (idAppUser != null) {
+      buf.append(" AND a.idAppUser != " + idAppUser);
+    }
+    List users = sess.createQuery(buf.toString()).list();
+    return users.size() > 0;    
+  }
+  
+  private static boolean uNID_AlreadyExists(Session sess, String uNID, Integer idAppUser) {
+    if (uNID == null || uNID.equals("")) {
+      return false;
+    }
+
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT a.uNID from AppUser as a where a.uNID = '"); 
+    buf.append(uNID + "'");
     if (idAppUser != null) {
       buf.append(" AND a.idAppUser != " + idAppUser);
     }

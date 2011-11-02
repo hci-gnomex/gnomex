@@ -186,6 +186,9 @@
 			
 			private function showAdvancedSearch():void {				
 				parentApplication.showSearch();
+			}
+			private function showUserPublicView():void {				
+				parentApplication.showUserPublicView();
 			}		
 			private function showSlides():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.slideManagementView;
@@ -285,6 +288,7 @@
 				</mx:HBox>
 				<mx:LinkButton label="Perform advanced search" click="showAdvancedSearch()" styleName="dashboardButton"  id="button7"  toolTip="Perform advanced search on experiments, analysis, and protocols" icon="@Embed(source='../../assets/magnifier.png')"/>
 				<mx:LinkButton label="Change password" click="changePassword()" styleName="dashboardButton"  id="button13"  icon="@Embed(source='../../assets/user.png')"/>
+				<mx:LinkButton label="Change user account settings" click="showUserPublicView()" styleName="dashboardButton"  id="button14"  icon="@Embed(source='../../assets/user.png')"/>
 				<mx:LinkButton label="View experiment protocol descriptions" click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
 				<mx:LinkButton id="usageButton"  label="Track Usage" styleName="dashboardButton" 
 							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
