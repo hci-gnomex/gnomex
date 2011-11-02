@@ -7,7 +7,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetExpandedFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
-import hci.gnomex.daemon.UploadNotification.DummyEntityRes;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.ExperimentFile;
