@@ -339,8 +339,10 @@
 					this.currentState = "EditState";
 				} else if (!parentApplication.submitInternalExperiment()) {
 					this.currentState = "";
+					this.theTab.removeChild(downloadView);
 				}else {
 					this.currentState = "";
+					this.theTab.removeChild(downloadView);
 				}
 				
 
@@ -4122,10 +4124,7 @@
 			<experiment:TabConfirmView id="confirmView">				
 			</experiment:TabConfirmView>
 			
-			
-			<experiment:ExperimentDownloadView id="downloadView" 
-											   label="Files" 
-											   borderStyle="none" deleteButtonVisible="true">
+			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" deleteButtonVisible="true" visible="false" includeInLayout="false" >
 			</experiment:ExperimentDownloadView>
 				
 		</mx:TabNavigator>
@@ -4353,7 +4352,7 @@
     		<mx:AddChild relativeTo="{hbox7}" position="lastChild" >
     			<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
     		</mx:AddChild>
-    	</mx:State>
+		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
@@ -4559,7 +4558,7 @@
                 	
                 </mx:VBox>
             </mx:AddChild>
-            <mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
+			<mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
             <mx:RemoveChild target="{setupView}"/>
             <mx:SetProperty target="{titleLabel}" name="text" value="Add services to existing experiment "/>
         </mx:State>

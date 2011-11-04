@@ -1,5 +1,6 @@
 ﻿GNomEx Release Notes
 ---------------------
+- Removed the files tab on experimentDetailView when submitting an order.
 - Removed hard coding for experiment icons. Interface now displays the icon specified in the Experiment Platform configuration.
 - Changed icon selection in Experiment Platform Configuration window from text field to combobox.
 - Fixed null pointer problem in GetSlideList.java.
