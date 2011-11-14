@@ -380,7 +380,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
      }
     } else {
       // We load the doc directly from the app root
-      instructionDoc = parser.build(new FileInputStream(Constants.WEBCONTEXT_DIR + instructionURL));
+      instructionDoc = parser.build(new FileInputStream(GNomExFrontController.getWebContextPath() + instructionURL));
     }
     
     if (instructionDoc != null) {                  

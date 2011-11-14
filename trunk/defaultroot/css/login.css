@@ -1,0 +1,199 @@
+html {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  }
+
+h1 {
+  color: white;
+  font-weight: normal;
+  font-size: 18pt;
+  margin-top: 10px;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+a {
+  color: #ffffff;
+  padding: 10px;
+  font-size: 10pt;
+  text-decoration: none;
+  }
+a:active {
+  color: #15c;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+a.login {
+  color: blue;
+  float: left;
+  padding-left: 0px;
+  padding-top: 15px;
+  padding-bottom: 2px;
+}
+
+.header-bar {
+  height: 70px;
+  width: 100%;
+  border: none;
+  overflow: hidden;
+  padding-left: 10px;
+  padding-top: 0px;
+  margin-top: 0px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  background: transparent url(../assets/navbar_wide.png) no-repeat;}
+
+
+.box {
+  background-color: #ececd9;
+  border: none;
+  overflow: auto;
+  padding: 10px;
+  width: 310px;
+  float: center;
+}
+
+
+.boxMedium {
+  background-color: #ececd9;
+  border: none;
+  overflow: auto;
+  padding: 10px;
+  width: 390px;
+  float: center;
+}
+
+
+.boxWide {
+  background-color: #ececd9;
+  border: none;
+  overflow: auto;
+  padding: 10px;
+  width: 420px;
+  float: center;
+}
+
+.col1 {
+  clear:both;
+  float:left;
+  width: 100px;
+  padding-top: 5px;
+  margin-top: 5px;
+  padding-right: 2px;
+  margin-right: 2px;
+}
+
+.col1Wide {
+  clear:both;
+  float:left;
+  width: 180px;
+  padding-top: 5px;
+  margin-top: 5px;
+  padding-right: 2px;
+  margin-right: 2px;
+}
+
+.col2 {
+  float:left;
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.bottomPanel {
+  float: bottom;
+  clear: both;
+}
+
+.buttonPanel {
+  float: right;
+  padding-top: 15px;
+  margin-top: 10px;
+}
+
+input.submit {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  width: 70px;
+  height: 30px;
+}  
+
+input.text {
+    height: 23px;
+    float: left;
+    font-size: 10pt;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    width: 185;
+}
+
+
+
+input.text.textWide {
+  float: left;
+   width: 280px;
+    height: 23px;
+    font-size: 10pt;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.textWide {
+  float: left;
+   width: 280px;
+    height: 23px;
+    font-size: 10pt;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+
+div.left {
+  float: left;
+}
+
+div.leftButton {
+  clear:both;
+  float: left;
+  padding-top: 10px;
+  margin-top: 10px;
+  border: none;
+  width: 150;
+}
+
+div.right {
+	float: right;
+        padding-right: 2px;
+        margin-right: 5px;
+        padding-top: 2px;
+        margin-top: 2px;
+}
+
+
+div.rightMenu {
+	float: right;
+        padding-right: 10px;
+        margin-right: 10px;
+        padding-top: 5px;
+        margin-top: 5px;
+}
+
+.containerMessage{
+  width: 400px;
+  height: 100px;
+  float: center;
+  clear: left;
+  border: none;
+  background-color: #ececd9;
+  padding-top: 10px;
+  margin-top: 10px;
+  padding-bottom: 0px;
+}
+
+.message {
+  color: SeaGreen;
+  margin-top: 15px;
+  padding-top: 15px;
+  float: center;
+}

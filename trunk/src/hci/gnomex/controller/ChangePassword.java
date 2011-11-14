@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Property;
 import hci.gnomex.security.EncrypterService;
@@ -34,15 +35,18 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   private String oldPassword;
   private String newPassword;
   private String newPasswordConfirm;
+  private String responsePageSuccess = null;
+  private String responsePageError = null;
   
-  private StringBuffer requestURL;
   private AppUser appUser = null;
   private Property labContactEmail = null;
   private String regErrorMsg = null;
   
+  private String launchAppURL = "";
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
   	try {	
-    	this.requestURL = request.getRequestURL();  
+    	this.launchAppURL = this.getLaunchAppURL(request);
       
       if (request.getParameter("userName") != null && ! request.getParameter("userName").equals("")) {
       	this.userName = request.getParameter("userName");
@@ -67,6 +71,12 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       	if (! newPassword.equals(newPasswordConfirm)) {
       		this.addInvalidField("passwords", "The two passwords you have entered do not match. Please re-enter your new password.");
       	}
+      }
+      if (request.getParameter("responsePageSuccess") != null && !request.getParameter("responsePageSuccess").equals("")) {
+        responsePageSuccess = request.getParameter("responsePageSuccess");
+      }
+      if (request.getParameter("responsePageError") != null && !request.getParameter("responsePageError").equals("")) {
+        responsePageError = request.getParameter("responsePageError");
       }
       
       this.validate();
@@ -167,25 +177,25 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   public void validate() {
     // See if we have a valid form
     if (isValid()) {
-      setResponsePage(this.SUCCESS_JSP);
+      setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
     } else {
-      setResponsePage(this.ERROR_JSP);
+      setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
     }
   }
   
   public void sendConfirmationEmail(String email, String newPwd)  throws NamingException, MessagingException {
-  	//This is to send it to the right application server, without hard coding
-  	String url = requestURL.substring(0, requestURL.indexOf("ChangePassword.gx"));
   	
-  	String content = "<img src=\"" + url + "assets/hciLogo.png\"/><h3>Your GNomEx Password Has Been Reset</h3><b>"
-  		+ "<p>Your new temporary password is " + newPwd + ". Please take a moment to change your temporary password to a new password of your choice the next time you log in.</p>";
-  	
-  	MailUtil.send(
+  	StringBuffer content = new StringBuffer();
+    content.append("Your GNomEx password has been reset. Your new temporary password is:<br><br>" + newPwd + "<br><br>");
+    content.append("Please take a moment to change your temporary password to a new password the next time you log in.<br>");
+    content.append("<a href=\"" + launchAppURL + "\">" + "Login to " + Constants.APP_NAME + "</a>");      
+
+    MailUtil.send(
   		email,
   		null,
   		this.labContactEmail.getPropertyValue(),
   		"Your GNomEx password has been reset",
-  		content,
+  		content.toString(),
   		true
   	);
   }

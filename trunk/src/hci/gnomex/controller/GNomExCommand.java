@@ -42,18 +42,6 @@ public abstract class GNomExCommand extends Command implements Serializable {
 
   /**  Constructor for the Command object */
   public GNomExCommand() {
-    this.initLog4j();
-  }
-  
-  /**
-  * The method to initialize Log4j
-  */
-  protected static void initLog4j() {
-    String configFile = Constants.WEBCONTEXT_DIR + Constants.LOGGING_PROPERTIES;
-    if (configFile == null) {
-      System.err.println("No configuration file specified for log4j!");
-    }
-    org.apache.log4j.PropertyConfigurator.configure(configFile);
   }
 
   protected void setRowCommands(HttpServletRequest request) {
@@ -117,7 +105,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
   
   public String getAppURL(HttpServletRequest request) throws Exception {
     boolean isLocalHost = request.getServerName().equalsIgnoreCase("localhost") || request.getServerName().equals("127.0.0.1")  || InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress();
-    return "http"+ (isLocalHost ? "://" : "s://") + request.getServerName() + request.getContextPath();    
+    return "http"+ (isLocalHost ? "://" : "s://") + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();    
   }
   
   public String getLaunchAppURL(HttpServletRequest request) throws Exception {

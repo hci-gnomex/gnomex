@@ -43,7 +43,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   // put any instance variables here (usually the DetailObjects used by this command)
   private DictionaryManager manager;
 
-  public static final String  DICTIONARY_NAMES_XML = "applications/gnomex/Dictionaries.xml";
+  public static final String  DICTIONARY_NAMES_XML = "Dictionaries.xml";
   
   public String SUCCESS_JSP = "/getXML.jsp";
   public String ERROR_JSP = "/message.jsp";
@@ -55,7 +55,12 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   }
 
   protected static void initLog4j() {
-    String configFile = Constants.WEBCONTEXT_DIR + Constants.LOGGING_PROPERTIES;
+    String configFile = "";
+    if (GNomExFrontController.isTomcat()) {
+      configFile = GNomExFrontController.getWebContextPath() + "WEB-INF/classes/" + Constants.LOGGING_PROPERTIES;      
+    } else {
+      configFile = GNomExFrontController.getWebContextPath() + Constants.LOGGING_PROPERTIES;      
+    }
     if (configFile == null) {
       System.err.println("No configuration file specified for log4j!");
     }
@@ -74,7 +79,13 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     	Session sess = HibernateSession.currentSession(this.username);
     
     	//Get the dictionary manager and load it if it isn't already loaded
-    	manager = DictionaryManager.getDictionaryManager(DICTIONARY_NAMES_XML, sess, this, true);
+    	String dictionaryFileName = null;
+    	if (GNomExFrontController.isTomcat()) {
+    	  dictionaryFileName = GNomExFrontController.getWebContextPath() + "WEB-INF/classes/" + DICTIONARY_NAMES_XML;    	  
+    	} else {
+        dictionaryFileName = GNomExFrontController.getWebContextPath() + "../" + DICTIONARY_NAMES_XML;        
+    	}
+    	manager = DictionaryManager.getDictionaryManager(dictionaryFileName, sess, this, true);
       manager.loadCommand(this, request);
       
       // Force personal ownership of dictionary entry if user not admin

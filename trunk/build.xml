@@ -18,7 +18,7 @@
        	<mkdir dir="${build.class.dir}" />
        	<mkdir dir="${dist.dir}" />
 
-				<!-- Paths -->
+		<!-- Paths -->
         <path id="project.class.path">
           <fileset dir="${lib.hcienv.dir}"          includes="*.jar" />
           <fileset dir="${lib.dir}" 				includes="*.jar" />
@@ -26,13 +26,22 @@
           <fileset dir="${orion.dir}" 			    includes="*.jar" />
         </path>
 		
-		    <!-- Up to date check on flex app -->
-		  	<uptodate property="flexUpToDate" targetfile="${build.dir}/${flexapp.name}.swf">
+        <path id="project.tomcat.class.path">
+            <fileset dir="${lib.dir}" 				    includes="*.jar" />
+            <fileset dir="${lib.tomcat.dir}" 		    includes="*.jar" />
+        	<fileset dir="${lib.tomcat.common.dir}"     includes="*.jar" />
+        	<fileset dir="${lib.openejb.dir}" 		    includes="*.jar" />
+        </path>		
+		
+		<!-- Up to date check on flex app -->
+		<uptodate property="flexUpToDate" targetfile="${build.dir}/${flexapp.name}.swf">
 		    	<srcfiles dir="${flexapp.dir}">
 	  	    	<include name="**/*.as"/>
 	    	  	<include name="**/*.mxml"/>
 	    		</srcfiles>
-	  		</uptodate>
+	  	</uptodate>
+		
+
 
 	</target>
 
@@ -56,6 +65,20 @@
 		<antcall target="deploy" />
 	</target>
 
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All (tomcat)                                   -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all-tomcat">
+		<antcall target="clean" />
+		<antcall target="compile-tomcat" />
+		<antcall target="jar-tomcat" />
+		<antcall target="clientjar"/>
+		<antcall target="flex"/>
+		<antcall target="war-tomcat" />
+		<antcall target="deploy-tomcat" />
+	</target>
 
 
 
@@ -107,9 +130,35 @@
 
             <src path="${src.dir}" />
       		<exclude name="**/fdt/**"/>      		
+      		<exclude name="**/tomcat/**"/>      		
+		    <exclude name="**/*Tomcat**"/>      		
         </javac>
 	</target>
 
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Compile                                        -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile-tomcat" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling (tomcat)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.tomcat.class.path">
+
+            <src path="${src.dir}"/>
+            <exclude name="**/fdt/**"/>      		
+          	<exclude name="**/security/SecurityManager**"/>      		
+        </javac>
+	</target>
 
 
 
@@ -156,6 +205,49 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
+	<!-- Jar                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="jar-tomcat" depends="init, compile-tomcat">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files  (tomcat)                         +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${jar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${jar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<exclude name="hci/gnomex/httpclient/*.class" />
+            	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
+            	<exclude name="hci/gnomex/utility/CachedSessionFactory.class" />
+            	<exclude name="hci/gnomex/utility/CachedGuestSessionFactory.class" />
+            	<include name="**/*.class" />
+            	<include name="**/*.properties" />
+            </fileset>
+
+			<manifest>
+			  <attribute name="class-path" value="log4j.jar"/>
+					<section name="gnomex">
+	  	      <attribute name="Built-By" value="${user.name}"/>
+  	  	    <attribute name="Implementation-Version" value="${gnomex_version}"/>
+					</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" includes="ejb-jar.xml" />
+        </jar>
+		
+
+	</target>
+
+	
+	<!-- ============================================== -->
+	<!--                                                -->
 	<!-- Client Jar                                     -->
 	<!--                                                -->
 	<!-- ============================================== -->
@@ -193,6 +285,43 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
+	<!-- Realm Jar                                     -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="realmjar" depends="init, compile-tomcat">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building realm jar file                              +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${realmjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${realmjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/security/EncrypterService.class" />
+            	<include name="hci/gnomex/security/tomcat/*Realm.class" />
+            </fileset>
+
+			<manifest>
+				<section name="gnomexRealm">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
+        </jar>
+		
+
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
 	<!-- Flex                                           -->
 	<!--                                                -->
 	<!-- ============================================== -->
@@ -223,13 +352,25 @@
 		      history="false"
 		      template="express-installation"
 		      output="${build.dir}"/>
+		
+		<!--  Create gnomexFlex.jsp with parameters -->
 		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.name}.jsp"/>
-	  <replace file="${build.dir}/${flexapp.name}.jsp"
+		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.guest.name}.jsp"/>
+	    <replace file="${build.dir}/${flexapp.name}.jsp"
 	                         token="&lt;html lang=&quot;en&quot;&gt;"
 	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
 		<replace file="${build.dir}/${flexapp.name}.jsp"
     											 token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
 		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&quot;,"/>
+		<!--  Create gnomexGuestFlex.jsp - hardcoded isGuest parameters -->
+		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.guest.name}.jsp"/>
+	    <replace file="${build.dir}/${flexapp.guest.name}.jsp"
+	                         token="&lt;html lang=&quot;en&quot;&gt;"
+	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
+		<replace file="${build.dir}/${flexapp.guest.name}.jsp"
+    						   token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=Y&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&quot;,"/>
+		<!-- Copy the image files in the assets directory -->
 		<copy todir="${build.dir}/assets" overwrite="true">
 					<fileset dir="${flexapp.dir}/assets">
 						<include name="*.*" />
@@ -253,9 +394,63 @@
 			<fileset dir="${dist.dir}" includes="${war.name}" />
 		</delete>
 
+		<!-- Need to edit login.jsp to remove action="j_security_check" for Orion only -->
+		<copy todir="${dist.dir}/orion" file="${webroot.dir}/login.jsp"/>
+		<replace file="${dist.dir}/orion/login.jsp"
+				     token="action=&quot;j_security_check&quot;"
+      	     value="">
+		</replace>
+		<copy todir="${dist.dir}/orion" file="${webroot.dir}/login_failed.jsp"/>
+		<replace file="${dist.dir}/orion/login_failed.jsp"
+				     token="action=&quot;j_security_check&quot;"
+      	     value="">
+		</replace>			
+		
+		<!-- Need to edit all jsps with ${param.XXX} notation.  Doesn't work with Orion -->
+		<replaceregexp  file="${dist.dir}/orion/login.jsp"
+			     match="value=&quot;(.*)param(.*)&quot;"
+		         replace="">
+		</replaceregexp>
+		<copy todir="${dist.dir}/orion" file="${webroot.dir}/login_failed.jsp"/>
+		<replaceregexp  file="${dist.dir}/orion/login_failed.jsp"
+	             byline="true"
+			     match="value=&quot;(.*)param(.*)&quot;"
+		         replace="">
+		</replaceregexp>
+		<copy todir="${dist.dir}/orion" file="${webroot.dir}/change_password.jsp"/>
+		<replaceregexp  file="${dist.dir}/orion/change_password.jsp"
+   	             byline="true"
+			     match="value=&quot;(.*)param(.*)&quot;"
+		         replace="">
+		</replaceregexp>
+		<copy todir="${dist.dir}/orion" file="${webroot.dir}/reset_password.jsp"/>
+		<replaceregexp  file="${dist.dir}/orion/reset_password.jsp"
+		         byline="true"
+			     match="value=&quot;(.*)param(.*)&quot;"
+		         replace="">
+		</replaceregexp>
+		<copy todir="${dist.dir}/orion" file="${webroot.dir}/register_user.jsp"/>
+		<replaceregexp  file="${dist.dir}/orion/register_user.jsp"
+			     byline="true"
+			     match="value=&quot;(.*)param(.*)&quot;"
+		         replace="">
+		</replaceregexp>
+		
 		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/web.xml">
 			<fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
+				<exclude name="login.jsp"/>
+				<exclude name="login_failed.jsp"/>
+				<exclude name="change_password.jsp"/>
+				<exclude name="reset_password.jsp"/>
+				<exclude name="register_user.jsp"/>
+			</fileset>
+			<fileset dir="${dist.dir}/orion">
+				<include name="login.jsp"/>
+				<include name="login_failed.jsp"/>
+				<include name="change_password.jsp"/>
+				<include name="reset_password.jsp"/>
+				<include name="register_user.jsp"/>
 			</fileset>
 			<fileset dir="${build.dir}">
 				<include name="*.swf" />
@@ -265,8 +460,81 @@
 				<include name="assets/*.*" />
 			</fileset>		
 	  </war>
+		
+	  <delete  dir="${dist.dir}/orion" /> 
 	</target>
 
+	
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- War                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="war-tomcat" depends="init, compile-tomcat, flex">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building war files  (tomcat)                         +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${war.name}" />
+		</delete>
+		
+		<!-- Use UNIX eol convention for .sh files -->
+		<fixcrlf srcdir="${basedir}/scripts" includes="*.sh"
+		         eol="lf" eof="remove" />	
+		
+		<!-- Use the tomcat versions of these jsps -->
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getHTML.jsp"/>
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getXML.jsp"/>
+		
+		<!-- Use the tomcat version of the script files -->
+		<copy todir="${dist.dir}/tomcat/scripts">
+		    <fileset dir="${basedir}/scripts/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/tomcat/scripts" overwrite="true">
+		    <fileset dir="${basedir}/scripts/tomcat/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+
+		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
+			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
+			 <lib dir="${lib.dir}"                  includes="*.jar"/>
+			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
+			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
+			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
+			 <classes dir="${lib.dir}"              includes="*.properties"/> 
+		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
+		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+		     <fileset dir="${webroot.dir}">
+				<include name="**/*.*" />
+			 	<exclude name="WEB-INF/**"/>
+				<exclude name="tomcat/**" />
+			 	<exclude name="getXML.jsp"/>
+			 	<exclude name="getHTML.jsp"/>
+		 	 </fileset>
+			 <fileset dir="${dist.dir}/tomcat">
+				<include name="*.jsp" />
+		 	 </fileset>
+			<fileset dir="${dist.dir}/tomcat">
+				<include name="scripts/*.*" />
+			</fileset>						
+			<fileset dir="${build.dir}">
+				<include name="*.swf" />
+				<include name="*.html" />
+				<include name="*.jsp" />
+				<include name="*.js" />
+				<include name="assets/*.*" />
+			</fileset>		
+	  </war>
+	  
+	  <delete  dir="${dist.dir}/tomcat" />
+
+	</target>
 
 
 
@@ -325,6 +593,22 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<copy file="${dist.dir}/${ear.name}" todir="${orion.dir}/applications"/>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- deploy                                         -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="deploy-tomcat" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Deploying (tomcat)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>
+		<delete  dir="${tomcat.dir}/webapps/${app.name}" />
+		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
 
 
@@ -409,6 +693,7 @@
 	          <exclude name="**/.settings/**"/>
 		      <exclude name="**/SecurityManager.java"/>
 		      <exclude name="**/SecurityManagerLocal.java"/>
+		      <exclude name="**/GNomExLDAPRealm.java"/>
 	  	 	</fileset>
 	  </copy>
 
@@ -422,6 +707,10 @@
 
 		<!-- Change realm name in web.xml from hciEnv to gnomex.  -->
 		<replace file="${opensource.dir}/defaultroot/WEB-INF/web.xml"
+				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
+      	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
+		</replace>
+		<replace file="${opensource.dir}/defaultroot/WEB-INF/tomcat/web.xml"
 				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
       	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
 		</replace>
@@ -472,24 +761,6 @@
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
 
-		<!-- Copy jar files normally in hciEnv directly to gnomex/lib -->
-	  <copy todir="${opensource.dir}/lib">
-	    <fileset dir="${hcienv.dir}/lib">
-	      <include name="antlr-2.7.6rc1.jar"/>
-	      <include name="asm.jar"/>
-	      <include name="asm-attrs.jar"/>
-	      <include name="cglib-2.1.3.jar"/>
-		    <include name="ehcache-1.1.jar"/>
-	      <include name="hibernate3.jar"/>
-	      <include name="Hibernate3Utils.jar"/>
-	      <include name="HCIDictionary.jar"/>
-	      <include name="HCIReport.jar"/>
-	      <exclude name="**/CVS"/>
-	      <exclude name="**/.cvsignore"/>
-	      <exclude name="**/Thumbs.db"/>
-	    </fileset>
-	  </copy>
-
 		<!-- Create a special lite version of altio_cod.jar from hciEnv/lib,
 		     omitting util classes (CODPanel, CODWindow) -->
 		<unzip src="${hcienv.dir}/lib/altio_cod.jar"
@@ -516,47 +787,21 @@
 	  </copy>
 		
 		
-    <!-- Set the default security manager in orion-application.xml to SecurityManagerGNomEx -->
-    <replaceregexp  file="${opensource.dir}/META-INF/ear/orion-application.xml"
-					       match="&lt;user-manager\s+class=&quot;(.*)hci.gnomex.security.SecurityManager&quot;(.*)&gt;"
-                 replace="&lt;user-manager class=&quot;hci.gnomex.security.SecurityManagerGNomEx&quot;&gt;"
-			           byline="true">
-    </replaceregexp>
 
-		
-		
-		<!-- By default, gnomex will run unsecure (http: instead of https).
-		     Change the Constants.java file so that the front controller
-		     will not reject unsecure (http:) requests. -->
-		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
-				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
-		         replace="REQUIRE_SECURE_REMOTE           = false;">
-		</replaceregexp>
-		
-		<!-- Build ear again, this time allowing http (nonsecure) connections -->
-		<subant target="ear">
-		   <fileset dir="${opensource.dir}" includes="build.xml"/>
+		<!-- Make an orion specific release -->
+		<subant target="-release-opensource-orion">
+			   <property name="basedir" value="${basedir}"/>
+			   <property name="dist.dir" value="${dist.dir}"/>
+			   <fileset dir="${opensource.dir}" includes="build.xml"/>			
 		</subant>
 
-		<subant target="clientjar">
-			<fileset dir="${opensource.dir}" includes="build.xml"/>
+
+		<!-- Make a tomcat specific release -->
+		<subant target="-release-opensource-tomcat">
+			   <property name="basedir" value="${basedir}"/>
+			   <property name="dist.dir" value="${dist.dir}"/>
+			   <fileset dir="${opensource.dir}" includes="build.xml"/>			
 		</subant>
-
-		<!-- Compile GNomex to run secure (https) only-->
-		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
-				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
-		         replace="REQUIRE_SECURE_REMOTE           = true;">
-		</replaceregexp>
-
-		<!-- All files have been customized for open source.  Now call the target to build the gnomex ear for open source -->
-		<subant target="ear">
-		   <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
-		   <fileset dir="${opensource.dir}" includes="build.xml"/>
-		</subant>
-		
-
-		
-		
 		
 		<!-- Get rid of local directory properties in build.properties.  Set back to default -->
 		<replace file="${opensource.dir}/build.properties"
@@ -567,10 +812,93 @@
 				     token="c:/flex_sdk"
 		         value="/path/to/flex_sdk">
 		</replace>
+		<replace file="${opensource.dir}/build.properties"
+				     token="C:/apache-tomcat-5.5.31"
+		         value="/path/to/tomcat">
+		</replace>
+		
 
+	</target>
+	
+	
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- release-opensource-orion                       -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-release-opensource-orion" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Releasing open source  (orion)                       +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+		  <!-- Copy jar files normally in hciEnv directly to gnomex/lib -->
+		  <copy todir="${opensource.dir}/lib">
+		    <fileset dir="${hcienv.dir}/lib">
+		      <include name="antlr-2.7.6rc1.jar"/>
+		      <include name="asm.jar"/>
+		      <include name="asm-attrs.jar"/>
+		      <include name="cglib-2.1.3.jar"/>
+			  <include name="ehcache-1.1.jar"/>
+		      <include name="hibernate3.jar"/>
+		      <include name="Hibernate3Utils.jar"/>
+		      <include name="HCIDictionary.jar"/>
+		      <include name="HCIReport.jar"/>
+		      <exclude name="**/CVS"/>
+		      <exclude name="**/.cvsignore"/>
+		      <exclude name="**/Thumbs.db"/>
+		    </fileset>
+		  </copy>
+			
+	    <!-- Set the default security manager in orion-application.xml to SecurityManagerGNomEx -->
+	    <replaceregexp  file="${opensource.dir}/META-INF/ear/orion-application.xml"
+						       match="&lt;user-manager\s+class=&quot;(.*)hci.gnomex.security.SecurityManager&quot;(.*)&gt;"
+	                 replace="&lt;user-manager class=&quot;hci.gnomex.security.SecurityManagerGNomEx&quot;&gt;"
+				           byline="true">
+	    </replaceregexp>
+
+			
+			
+			<!-- By default, gnomex will run unsecure (http: instead of https).
+			     Change the Constants.java file so that the front controller
+			     will not reject unsecure (http:) requests. -->
+			<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
+					     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
+			         replace="REQUIRE_SECURE_REMOTE           = false;">
+			</replaceregexp>
+			
+			<!-- Build ear again, this time allowing http (nonsecure) connections -->
+			<subant target="ear">
+				<property name="dist.dir" value="${opensource.dir}/dist"/>
+			   <fileset dir="${opensource.dir}" includes="build.xml"/>
+			</subant>
+
+			<subant target="clientjar">
+				<property name="dist.dir" value="${opensource.dir}/dist"/>
+				<fileset dir="${opensource.dir}" includes="build.xml"/>
+			</subant>
+
+			<!-- Compile GNomex to run secure (https) only-->
+			<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
+					     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
+			         replace="REQUIRE_SECURE_REMOTE           = true;">
+			</replaceregexp>
+
+			<!-- Build ear again, this time allowing https (secure) connections -->
+			<subant target="ear">
+			   <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
+			   <fileset dir="${opensource.dir}" includes="build.xml"/>
+			</subant>
+		
+		
+		
+		
+		
 		<!-- Copy over the jars required in orion/lib -->
-	  <copy todir="${opensource.dir}/orion">
-	    <fileset dir="${orion.dir}">
+		<copy todir="${opensource.dir}/orion">
+	     <fileset dir="${orion.dir}">
 	      <include name="lib/commons*.jar"/>
 	      <include name="lib/dom4j*.jar"/>
 	      <include name="lib/hci_*.jar"/>
@@ -578,20 +906,21 @@
 	      <include name="lib/hsql*.jar"/>
 	      <include name="lib/dom4j*.jar"/>
 	      <include name="lib/jaas*.jar"/>
-		    <include name="lib/jcs*.jar"/>
-		    <include name="lib/jdom*.jar"/>
+		  <include name="lib/jcs*.jar"/>
+		  <include name="lib/jdom*.jar"/>
 	      <include name="lib/jta*.jar"/>
 	      <include name="lib/jtds*.jar"/>
-		    <include name="lib/log4j*.jar"/>
-		    <include name="lib/mysql*.jar"/>
-		    <include name="lib/naming-common.jar"/>
-		    <include name="lib/rowset*.jar"/>
+		  <include name="lib/log4j*.jar"/>
+		  <include name="lib/mysql*.jar"/>
+		  <include name="lib/naming-common.jar"/>
+		  <include name="lib/rowset*.jar"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
 	    </fileset>
 	  </copy>
 		
-		<!-- Copy example orion config files -->
+	  <!-- Copy example orion config files -->
+      <mkdir dir="${opensource.dir}/orion/config" />
 	  <copy todir="${opensource.dir}/orion/config">
 	    <fileset dir="${basedir}/orion_config">
 	      <include name="*/**"/>
@@ -653,20 +982,139 @@
 		
 		<!-- Create the zip file -->
      	<mkdir dir="${opensource.dir}/release/" />
-		<zip destfile="${opensource.dir}/release/${opensource.name}.zip" >
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist/secure"/>
-			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
-			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
-			<zipfileset dir="${opensource.dir}/scripts" includes="*/**" prefix="${opensource.name}/gnomex/scripts"/>
-			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
-			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
+		<zip destfile="${opensource.dir}/release/${opensource.orion.name}.zip" >
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.orion.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.orion.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.orion.name}/gnomex/dist/secure"/>
+			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.orion.name}/gnomex/doc"/>
+			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.orion.name}/gnomex/sql"/>
+			<zipfileset dir="${opensource.dir}/scripts" includes="*.*" prefix="${opensource.orion.name}/gnomex/scripts"/>
+			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.orion.name}/orion"/>
+			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.orion.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.orion.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.orion.name}"/>
 		</zip>
-	
+		
 	</target>
 
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- check-for-tomcat                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-check-for-tomcat">
+	    <available file="${tomcat.dir}"  type="dir" property="tomcat.present"/>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- release-opensource-tomcat                       -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-release-opensource-tomcat" depends="init,-check-for-tomcat" if="tomcat.present">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Releasing open source  (tomcat)                      +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+	    <!-- Use the opensource version of the context file -->
+		<move file="${opensource.dir}/META-INF/context_opensource.xml" tofile="context.xml"/>
+			
+		<!-- By default, gnomex will run unsecure (http: instead of https).
+		     Change the Constants.java file so that the front controller
+		     will not reject unsecure (http:) requests. -->
+		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
+		         replace="REQUIRE_SECURE_REMOTE           = false;">
+		</replaceregexp>
+			
+		<!-- Build ear again, this time allowing http (nonsecure) connections -->
+		<subant target="war-tomcat">
+			<property name="dist.dir" value="${opensource.dir}/dist"/>
+			<fileset dir="${opensource.dir}" includes="build.xml"/>
+		</subant>
+
+		<subant target="clientjar">
+			<property name="dist.dir" value="${opensource.dir}/dist"/>
+			<fileset dir="${opensource.dir}" includes="build.xml"/>
+		</subant>
+
+	    <subant target="realmjar">
+			<property name="dist.dir" value="${opensource.dir}/dist"/>
+		    <fileset dir="${opensource.dir}" includes="build.xml"/>
+	    </subant>
+
+	    <!-- Compile GNomex to run secure (https) only-->
+		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
+		         replace="REQUIRE_SECURE_REMOTE           = true;">
+		</replaceregexp>
+
+		<!-- Build ear again, this time allowing https (secure) connections -->
+		<subant target="war-tomcat">
+		   <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
+		   <fileset dir="${opensource.dir}" includes="build.xml"/>
+		</subant>
+		
+		<!-- Copy over the jars required in tomcat/common/lib -->
+		<copy todir="${opensource.dir}/tomcat/common/lib">
+	       <fileset dir="${lib.tomcat.common.dir}">
+	        <include name="*.jar"/>
+	      </fileset>
+	    </copy>
+		
+	  <!-- Copy example tomcat config files -->
+      <mkdir dir="${opensource.dir}/tomcat/conf" />
+	  <copy todir="${opensource.dir}/tomcat/conf">
+	    <fileset dir="${basedir}/tomcat_config">
+	      <include name="*/**"/>
+	      <exclude name="**/CVS"/>
+	      <exclude name="**/.cvsignore"/>
+	    </fileset>
+	  </copy>
+		
+		<!-- Change to use MySSQL jdbc driver in openejb.xml -->
+		<replace file="${opensource.dir}/tomcat/conf/openejb.xml"
+				  token="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+		         value="com.mysql.jdbc.Driver">
+		</replace>
+		<replace file="${opensource.dir}/tomcat/conf/openejb.xml"
+				     token="jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
+		         value="jdbc:mysql://localhost:3306/gnomex">
+		</replace>
+		
+		
+		<!-- Use the tomcat version of the script files -->
+		<copy todir="${opensource.dir}/dist/tomcat/scripts">
+		    <fileset dir="${basedir}/scripts/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${opensource.dir}/dist/tomcat/scripts" overwrite="true">
+		    <fileset dir="${basedir}/scripts/tomcat/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+
+		
+		<!-- Create the zip file -->
+     	<mkdir dir="${opensource.dir}/release/" />
+		<zip destfile="${opensource.dir}/release/${opensource.tomcat.name}.zip" >
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.war" prefix="${opensource.tomcat.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.tomcat.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_realm.jar" prefix="${opensource.tomcat.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.war" prefix="${opensource.tomcat.name}/gnomex/dist/secure"/>
+			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.tomcat.name}/gnomex/doc"/>
+			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.tomcat.name}/gnomex/sql"/>
+			<zipfileset dir="${opensource.dir}/dist/tomcat/scripts" includes="*.*" prefix="${opensource.tomcat.name}/gnomex/scripts"/>
+			<zipfileset dir="${opensource.dir}/tomcat" prefix="${opensource.tomcat.name}/tomcat"/>
+			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.tomcat.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.tomcat.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.tomcat.name}"/>
+		</zip>
+
+		<delete dir="${opensource.dir}/dist/tomcat/scripts"/>
+		
+	</target>
 
 </project>

@@ -1,10 +1,7 @@
 package hci.gnomex.lucene;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
-import hci.gnomex.constants.Constants;
-import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
@@ -12,11 +9,9 @@ import hci.gnomex.model.SampleCharacteristicEntry;
 import hci.gnomex.model.SampleCharacteristicEntryValue;
 import hci.gnomex.model.SampleCharacteristicOption;
 import hci.gnomex.model.Visibility;
-import hci.gnomex.security.SecurityManagerGNomEx.DummyEntityRes;
-import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.PropertyHelper;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
@@ -31,11 +26,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -53,22 +43,14 @@ import org.xml.sax.SAXException;
 
 public class BuildSearchIndex extends DetailObject {
 
-  private Configuration   configuration;
-  private Session         sess;
-  private SessionFactory  sessionFactory;
 
-
-  private String gnomex_db_driver;
-  private String gnomex_db_url;
-  private String gnomex_db_username;
-  private String gnomex_db_password;
-  
+  private BatchDataSource dataSource = new BatchDataSource();
+  private Session sess;
   
   private PropertyHelper propertyHelper;
   private Map dictionaryMap;
   
   private String serverName;
-  
   
   private Map projectRequestMap;
   private Map projectAnnotationMap;
@@ -129,27 +111,13 @@ public class BuildSearchIndex extends DetailObject {
   private void connect()
       throws Exception
   {
-    registerDataSources(new File("../../" + Constants.DATA_SOURCES));
-    
-    configuration = new Configuration()
-    .addFile("SchemaGNomEx.hbm.xml");
-    
-      
-    configuration.setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'")
-                 .setProperty("hibernate.connection.driver_class", this.gnomex_db_driver)
-                 .setProperty("hibernate.connection.username", this.gnomex_db_username)
-                 .setProperty("hibernate.connection.password", this.gnomex_db_password)
-                 .setProperty("hibernate.connection.url", this.gnomex_db_url )
-                 .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.HashtableCacheProvider");
-                 
-    
-    sessionFactory = configuration.buildSessionFactory();
-    sess = sessionFactory.openSession();
+    dataSource.connect();
+    sess = dataSource.getSession();
   }
   
   private void disconnect() 
     throws Exception {
-    sess.close();
+    dataSource.close();
   }
   
   private void init() throws Exception {
@@ -1398,41 +1366,9 @@ public class BuildSearchIndex extends DetailObject {
     
     return doc;
   }
-
-  private void registerDataSources(File xmlFile) {
-    if(xmlFile.exists()) {
-      try {
-        SAXBuilder builder = new SAXBuilder();
-        // Just in case the orion site is down, we don't want 
-        // to fail because the dtd is unreachable 
-        builder.setEntityResolver(new DummyEntityRes());
-        
-        org.jdom.Document doc = builder.build(xmlFile);
-        this.registerDataSources(doc);
-      } catch (JDOMException e) {
-      }
-    }
-  }
-
   
 
-  private void registerDataSources(org.jdom.Document doc) {
-    Element root = doc.getRootElement();
-    if (root.getChildren("data-source") != null) {
-      Iterator i = root.getChildren("data-source").iterator();
-      while (i.hasNext()) {
-        Element e = (Element) i.next();
-        if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("GNOMEX_GUEST")) {
-          this.gnomex_db_driver = e.getAttributeValue("connection-driver");
-          this.gnomex_db_url = e.getAttributeValue("url");
-          this.gnomex_db_password = e.getAttributeValue("password");
-          this.gnomex_db_username = e.getAttributeValue("username");
-        } 
-      }
-    }
-  }
-
-
+  
   // Bypassed dtd validation when reading data sources.
   public class DummyEntityRes implements EntityResolver
   {

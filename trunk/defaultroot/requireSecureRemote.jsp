@@ -1,4 +1,4 @@
-<%@ page import="javax.servlet.*, javax.servlet.http.*, java.net.* hci.gnomex.constants.*" %>
+<%@ page import="javax.servlet.*, javax.servlet.http.*, java.net.*, hci.gnomex.constants.*" %>
 <%
 
 if (Constants.REQUIRE_SECURE_REMOTE && !request.isSecure()) {

@@ -1,0 +1,38 @@
+
+<Resource id="jdbc/gnomex" type="DataSource"> 
+JdbcDriver com.mysql.jdbc.Driver 
+JdbcUrl jdbc:mysql://localhost:3306/gnomex?autoReconnect=true 
+UserName gnomex
+Password gnomex_password_goes_here
+  JtaManaged        true
+  DefaultAutoCommit   true
+  InitialSize       3
+  MaxActive         20
+  MinIdle           20
+  MaxIdle           0
+  MaxWait           50000
+  ValidationQuery   SELECT 1
+  TestOnBorrow      true
+  TestOnReturn      false
+  TestWhileIdle     false
+</Resource> 
+
+
+<Resource id="jdbc/gnomexGuest" type="DataSource"> 
+JdbcDriver com.mysql.jdbc.Driver 
+JdbcUrl jdbc:mysql://localhost:3306/gnomex?autoReconnect=true 
+UserName gnomexGuest
+Password gnomex_guest_password_goes_here
+  JtaManaged        true
+  DefaultAutoCommit   true
+  InitialSize       3
+  MaxActive         20
+  MinIdle           20
+  MaxIdle           0
+  MaxWait           50000
+  ValidationQuery   SELECT 1
+  TestOnBorrow      true
+  TestOnReturn      false
+  TestWhileIdle     false
+</Resource> 
+

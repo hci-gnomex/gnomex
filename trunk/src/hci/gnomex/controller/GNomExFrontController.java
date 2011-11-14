@@ -16,11 +16,15 @@ import javax.servlet.http.*;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.MailUtil;
+import hci.utility.server.JNDILocator;
 import hci.framework.control.*;
 import javax.ejb.*;
 
 import java.net.InetAddress;
 import java.rmi.*;
+
+import javax.mail.Session;
 import javax.naming.*;
 
 import org.jdom.output.XMLOutputter;
@@ -30,20 +34,63 @@ import hci.utility.server.JNDILocator;
 public class GNomExFrontController extends HttpServlet {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GNomExFrontController.class);
 
+  private static String     webContextPath;
+  private static Session    mailSession;
   /**
    *  Initialize global variables
    *
    *@exception  ServletException  Description of the Exception
    */
-  public void init() throws ServletException {
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+    webContextPath = config.getServletContext().getRealPath("/");    
+    
+    // First try to get the mail session using the Orion lookup.
+    // If that fails, try the lookup based on JNDI for Apache Tomcat
+    try {
+      Context ec = (Context)new InitialContext();
+      mailSession = ( Session ) ec.lookup(Constants.MAIL_SESSION);
+    } catch(Exception e) {
+      try {
+        Context ec = (Context)new InitialContext().lookup("java:comp/env");
+        mailSession = ( Session ) ec.lookup(Constants.MAIL_SESSION);
+      } catch  (Exception me){
+        System.out.println("cannot get mail session " + me.toString());
+      }
+    }
+
     initLog4j();
+  }
+  
+  public static void setWebContextPath(String theWebContextPath) {
+    // Need to set for so that jsps have access to webcontextpath
+    // to determine if tomcat or orion hibernate session
+   webContextPath = theWebContextPath;
+  }
+  
+  public static String getWebContextPath() {
+    return webContextPath;
+  }
+  
+  public static Session getMailSession() {
+    return mailSession;
+  }
+  
+  public static boolean isTomcat() {
+    return getWebContextPath().contains("tomcat");
   }
 
 
   /**
    */
   protected static void initLog4j() {
-    String configFile = Constants.WEBCONTEXT_DIR + Constants.LOGGING_PROPERTIES;
+    String configFile = "";
+    if (isTomcat()) {
+      configFile = webContextPath + "/WEB-INF/classes/" +Constants.LOGGING_PROPERTIES;
+    } else {
+      configFile = GNomExFrontController.getWebContextPath() + Constants.LOGGING_PROPERTIES;
+    }
+    org.apache.log4j.PropertyConfigurator.configure(configFile);
     if (configFile == null) {
       System.err.println("No configuration file specified for log4j!");
     }
@@ -179,6 +226,7 @@ public class GNomExFrontController extends HttpServlet {
           log.error(e.getClass().getName() + " while executing command " + commandClass);
           log.error("The stacktrace for the error:");
           log.error(e.getMessage());
+          e.printStackTrace();
           
         	this.forwardWithError(request, response);
         }
@@ -262,9 +310,22 @@ public class GNomExFrontController extends HttpServlet {
     SBGNomExRequestProcessorHome home = null;
 
     try {
-      // look up home interface
-      home = (SBGNomExRequestProcessorHome) JNDILocator.getJNDILocator().getEJBHome("SBGNomExRequestProcessor", SBGNomExRequestProcessorHome.class, true);
 
+      // look up home interface
+      if (isTomcat()) {
+        // OpenEJB lookup
+        Properties p = new Properties();
+        p.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
+        p.put("openejb.loader", "embed");
+        Context context = (Context) new InitialContext(p);        
+        home = (SBGNomExRequestProcessorHome)context.lookup("SBGNomExRequestProcessorRemoteHome");
+      } else {
+        // Orion lookup
+        home = (SBGNomExRequestProcessorHome) JNDILocator.getJNDILocator().getEJBHome("SBGNomExRequestProcessor", SBGNomExRequestProcessorHome.class, true);
+      }
+      
+
+      
       // create a remote reference
       remote = home.create();
 

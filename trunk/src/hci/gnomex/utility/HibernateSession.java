@@ -19,6 +19,7 @@ import org.hibernate.SessionFactory;
 
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
 
 import javax.naming.*;
 import javax.servlet.ServletContext;
@@ -36,8 +37,13 @@ public class HibernateSession {
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
     if (s == null) {
-      SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);     
-      s = sf.openSession();
+      
+      if (GNomExFrontController.isTomcat()) {
+        s = HibernateGuestUtil.getSessionFactory().openSession();
+      } else {
+        SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);     
+        s = sf.openSession();
+      }
       session.set(s);
     }
     

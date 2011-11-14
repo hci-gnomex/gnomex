@@ -2,20 +2,14 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.httpclient.TransferLoggerMain;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisGroup;
-import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
-import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyHelper;
-import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,9 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.Element;
-
-import com.ibm.bsf.util.event.adapters.java_awt_event_ActionAdapter;
 
 
 
