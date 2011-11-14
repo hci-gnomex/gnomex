@@ -999,16 +999,16 @@
 		<!-- Create the zip file -->
      	<mkdir dir="${opensource.dir}/release/" />
 		<zip destfile="${opensource.dir}/release/${opensource.orion.name}.zip" >
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.orion.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.orion.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.orion.name}/gnomex/dist/secure"/>
-			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.orion.name}/gnomex/doc"/>
-			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.orion.name}/gnomex/sql"/>
-			<zipfileset dir="${opensource.dir}/scripts" includes="*.*" prefix="${opensource.orion.name}/gnomex/scripts"/>
-			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.orion.name}/orion"/>
-			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.orion.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.orion.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.orion.name}"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist/secure"/>
+			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
+			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
+			<zipfileset dir="${opensource.dir}/scripts" includes="*.*" prefix="${opensource.name}/gnomex/scripts"/>
+			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
+			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
 		</zip>
 		
 	</target>
@@ -1110,24 +1110,31 @@
 			</fileset>
 		</copy>
 
-		
+		<!-- Use the tomcat version of the README_INSTALL -->
+		<copy todir="${opensource.dir}/dist/tomcat">
+		    <fileset dir="${opensource.dir}">
+			    <include name="README_INSTALL_TOMCAT.txt" />
+			</fileset>
+		</copy>
+		<move file="${opensource.dir}/dist/tomcat/README_INSTALL_TOMCAT.txt"  tofile="${opensource.dir}/dist/tomcat/README_INSTALL.txt"/> 
+			
 		<!-- Create the zip file -->
      	<mkdir dir="${opensource.dir}/release/" />
 		<zip destfile="${opensource.dir}/release/${opensource.tomcat.name}.zip" >
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.war" prefix="${opensource.tomcat.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.tomcat.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_realm.jar" prefix="${opensource.tomcat.name}/gnomex/dist"/>
-			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.war" prefix="${opensource.tomcat.name}/gnomex/dist/secure"/>
-			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.tomcat.name}/gnomex/doc"/>
-			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.tomcat.name}/gnomex/sql"/>
-			<zipfileset dir="${opensource.dir}/dist/tomcat/scripts" includes="*.*" prefix="${opensource.tomcat.name}/gnomex/scripts"/>
-			<zipfileset dir="${opensource.dir}/tomcat" prefix="${opensource.tomcat.name}/tomcat"/>
-			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.tomcat.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_INSTALL_TOMCAT.txt" prefix="${opensource.tomcat.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.tomcat.name}"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.war" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_client.jar" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex_realm.jar" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.war" prefix="${opensource.name}/gnomex/dist/secure"/>
+			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
+			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
+			<zipfileset dir="${opensource.dir}/dist/tomcat/scripts" includes="*.*" prefix="${opensource.name}/gnomex/scripts"/>
+			<zipfileset dir="${opensource.dir}/tomcat" prefix="${opensource.name}/tomcat"/>
+			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${opensource.dir}/dist/tomcat" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
 		</zip>
 
-		<delete dir="${opensource.dir}/dist/tomcat/scripts"/>
+		<delete dir="${opensource.dir}/dist/tomcat"/>
 		
 	</target>
 
