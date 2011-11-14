@@ -1,4 +1,4 @@
-Installing GNomEx_$VERSION
+Installing gnomex_$VERSION
 ------------------------------------------
 
 System Requirements
@@ -17,7 +17,7 @@ To compile GNomEx:
 
 Install Instructions
 --------------------
-1. Download and uncompress the the GNomEx open source distribution (GNomEx_$VERSION.zip) from SourceForge 
+1. Download and uncompress the the GNomEx open source distribution (gnomex_$VERSION.zip) from SourceForge 
    (http://sourceforge.net/projects/gnomex).
  
 2. Install Java, 1.6+. Make sure to set the JAVA_HOME environment variable.
@@ -26,7 +26,7 @@ Install Instructions
    a. Download Orion application server (http://www.orionserver.com/) and unzip
 	 b. Modify Orion configuration
 	   - Copy the tools.jar file located in the Java SDK lib directory (/usr/java/latest/lib/tools.jar) to /path/to/orion 
-	   - Copy all jar files in /path/to/GNomEx_$VERSION/orion/lib to /path/to/orion/lib
+	   - Copy all jar files in /path/to/gnomex_$VERSION/orion/lib to /path/to/orion/lib
 	 c. Login as root
 	 d. Start Orion application server
 	    >cd /path/to/orion
@@ -35,7 +35,7 @@ Install Instructions
 	 		Orion Application Server page appears.  You may need to open
 	 		up port 80 to gain access and punch holes through your firewalls.
 	 e. Shut down the server
-	 f. Copy the /path/to/GNomEx_$VERSION/gnomex/dist/gnomex.ear into /path/to/orion/applications/
+	 f. Copy the /path/to/gnomex_$VERSION/gnomex/dist/gnomex.ear into /path/to/orion/applications/
 	 
 4. Install the MySQL database server 5.XX (http://mysql.com)
    - Login to mysql.
@@ -59,16 +59,16 @@ Install Instructions
      FLUSH PRIVILEGES;  
      
    - Login into MySQL as gnomex user and run the SQL scripts
-     /path/to/GNomEx_$VERSION/gnomex/sql/gnomex_db_ddl.sql to create the gnomex database and  
-     /path/to/GNomEx_$VERSION/gnomex/sql/gnomex_db_populate.sql to load the dictionaries.
+     /path/to/gnomex_$VERSION/gnomex/sql/gnomex_db_ddl.sql to create the gnomex database and  
+     /path/to/gnomex_$VERSION/gnomex/sql/gnomex_db_populate.sql to load the dictionaries.
      
      >mysql -u gnomex -p
      [enter gnomex password]
      
-     SOURCE ~/GNomEx_$VERSION/gnomex/sql/gnomex_db_ddl.sql
-     SOURCE ~/GNomEx_$VERSION/gnomex/sql/gnomex_db_populate.sql
+     SOURCE ~/gnomex_$VERSION/gnomex/sql/gnomex_db_ddl.sql
+     SOURCE ~/gnomex_$VERSION/gnomex/sql/gnomex_db_populate.sql
 
-5. Copy the following files in /path/to/GNomEx_$VERSION/orion/config to 
+5. Copy the following files in /path/to/gnomex_$VERSION/orion/config to 
    /path/to/orion/config:
    a. data-sources.xml 
       - Change the passwords to match your MySQL gnomex user and 
@@ -187,10 +187,10 @@ is not yet configured to work.
      set up a shell script which will be executed when FDT performs a transfer:
      
      a.  Create a directory /path/to/fdtapplogger
-     b.  Copy /path/to/GNomEx_$VERSION/gnomex/scripts/transfer_logger.sh to 
+     b.  Copy /path/to/gnomex_$VERSION/gnomex/scripts/transfer_logger.sh to 
               /path/to/fdtapplogger/
      c.  Modify transfer_logger.sh to match your filepath and server name (-server argument)
-     d.  Copy /path/to/GNomEx_$VERSION/gnomex/dist/gnomex_client.jar to     
+     d.  Copy /path/to/gnomex_$VERSION/gnomex/dist/gnomex_client.jar to     
               /path/to/fdtapplogger/  
      e.  Make the fdt user account to owner and the fdt group the group.  Give read and execute permissions 
          to the script and jar.
@@ -208,7 +208,7 @@ To run GNomEx from a secure web-site (https:), deploy the secure gnomex.ear, mod
 configuration, and set up a server certificate. 
    
 
-1. Copy the /path/to/GNomEx_$VERSION/gnomex/dist/secure/gnomex.ear into /path/to/orion/applications/
+1. Copy the /path/to/gnomex_$VERSION/gnomex/dist/secure/gnomex.ear into /path/to/orion/applications/
 
 2. Modify the Orion configuration:
 
