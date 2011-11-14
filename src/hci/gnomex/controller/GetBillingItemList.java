@@ -137,6 +137,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
             for(Iterator i1 = otherBillingItemRows.iterator(); i1.hasNext();) {
               Object[] otherRow = (Object[])i1.next();
               BillingItem otherBillingItem = (BillingItem)otherRow[8];
+              otherBillingItem.setCurrentCodeBillingStatus(otherBillingItem.getCodeBillingStatus());
               Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
               otherBillingItemNode.setAttribute("other", "Y");
               otherBillingItemNode.setAttribute("isDirty","N");
