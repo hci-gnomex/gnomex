@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Request;
@@ -203,7 +204,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     StringBuffer buf = new StringBuffer();
     BufferedReader input =  null;
     try {
-      input = new BufferedReader(new FileReader(Constants.WEBCONTEXT_DIR + Constants.REQUEST_FORM_EMAIL_CSS));
+      input = new BufferedReader(new FileReader(GNomExFrontController.getWebContextPath() + Constants.REQUEST_FORM_EMAIL_CSS));
     } catch (FileNotFoundException ex) {
       System.out.println(ex.toString());
     }

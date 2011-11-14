@@ -8,8 +8,8 @@
         <property name="jdbc.use_streams_for_binary">true</property>
         <property name="connection.datasource">jdbc/GNOMEX_GUEST</property>
 
-        <property name="connection.provider_class">com.opensourceconnections.msjdbcproxy.HibernateProvider</property>
-        <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+        
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
       
 
         <!-- ENTER ALL MAPPING FILES HERE, USE THE FOLLOWING AS AN EXAMPLE -->

@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.controller.GNomExFrontController;
+
 import java.util.Date;
 import java.util.Properties;
 
@@ -15,15 +17,14 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 
 public class MailUtil
 {
-
-  //~ Static fields/initializers ---------------------------------------------
-    public static final String MAIL_SESSION = "mail/MailSession";
 
     //~ Methods ----------------------------------------------------------------
     public static void send( String to,
@@ -36,9 +37,9 @@ public class MailUtil
                AddressException,
                MessagingException {
 
-        InitialContext ic = new InitialContext(  );
-        Session session = ( Session ) ic.lookup( MAIL_SESSION );
-        send(session, to, cc, from, subject, body, formatHtml);        
+        
+      Session session = GNomExFrontController.getMailSession();
+      send(session, to, cc, from, subject, body, formatHtml);        
 
     }
     

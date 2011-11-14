@@ -1,0 +1,23 @@
+<Context path="/gnomex" docBase="webapps/gnomex" debug="0" reloadable="true" allowLinking="true">
+
+
+  <Valve
+	    className="org.apache.catalina.valves.FastCommonAccessLogValve"
+	    directory="${catalina.home}/logs/"
+	    prefix="gnomex-"
+	    suffix=".log"
+	    pattern="combined" />
+
+	    
+  <Resource auth="Container" 
+    mail.smtp.host="yourmailserver.someplace.somewhere.edu" 
+    name="mail/MailSession" 
+    type="javax.mail.Session"/>
+
+    
+  <!-- GNomEx Realm for authenticating user  -->
+  <Realm className="hci.gnomex.security.tomcat.GNomExRealm"/>
+
+    
+</Context>
+

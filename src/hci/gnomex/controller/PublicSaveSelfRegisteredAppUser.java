@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
@@ -33,20 +34,45 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   
 
   private AppUser        appUserScreen;
-  private Property       labContactEmail = null;
+  private Property       adminEmailProperty = null;
   private String         requestedLab = "";
   private StringBuffer   requestURL;
   
-  
-  public void validate() {
-  }
+  private String responsePageSuccess = null;
+  private String responsePageError = null;
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     this.requestURL = request.getRequestURL(); 
     appUserScreen = new AppUser();
     HashMap errors = this.loadDetailObject(request, appUserScreen);
-    requestedLab = request.getParameter("lab");
     this.addInvalidFields(errors);
+
+    requestedLab = request.getParameter("lab");
+    
+    if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) &&
+        (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) &&
+        (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) &&
+        (requestedLab == null || requestedLab.equals(""))) {
+      this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
+    }
+    
+    if ((appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals("")) &&
+        (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
+      this.addInvalidField("userNameRequiredField", "User name is required");
+    }
+    
+    if (appUserScreen.getUserNameExternal() != null && !this.appUserScreen.getUserNameExternal().equals("")) {
+      if (appUserScreen.getPasswordExternal() == null || appUserScreen.getPasswordExternal().equals(""))
+      this.addInvalidField("passwordRqrd", "Password is required");
+    }
+
+    if (request.getParameter("responsePageSuccess") != null && !request.getParameter("responsePageSuccess").equals("")) {
+      responsePageSuccess = request.getParameter("responsePageSuccess");
+    }
+    if (request.getParameter("responsePageError") != null && !request.getParameter("responsePageError").equals("")) {
+      responsePageError = request.getParameter("responsePageError");
+    }
+    this.validate();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -96,6 +122,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           }
 
         }
+        
+        // Default to Lab permission kind
+        appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
 
         sess.save(appUser);
 
@@ -104,11 +133,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       if (this.isValid()) {
         sess.flush();
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
-        setResponsePage(this.SUCCESS_JSP);
+        setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
         
         String contactEmailProperty = "from Property p where p.propertyName='" + Property.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + "'";
 
-        labContactEmail = (Property) sess.createQuery(contactEmailProperty).uniqueResult();
+        adminEmailProperty = (Property) sess.createQuery(contactEmailProperty).uniqueResult();
         
         sendAccountRequestEmail(appUser);                      
         
@@ -121,9 +150,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
             outMsg = "uNID '" + appUserScreen.getuNID() + "' is already being used. Please select a different uNID.";                            
           }
           this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
-          setResponsePage(this.SUCCESS_JSP);            
+          setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);    
         } else {
-          setResponsePage(this.ERROR_JSP);            
+          setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
         }
       }
 
@@ -142,14 +171,18 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     
     return this;
   }
+
+
   
   public void sendAccountRequestEmail(AppUser appUser)  throws NamingException, MessagingException {
     //This is to send it to the right application server, without hard coding
     String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
     
+    StringBuffer intro = new StringBuffer();
+    intro.append("Your request for a GNomEx account has been received.  The core facility staff will verify the information and then activate your account.<br><br>");
     
     StringBuffer body = new StringBuffer();
-    body.append("Requested GNomEx Account:<br><br>");
+    body.append("Requested User Account:<br><br>");
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
     body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLab));
@@ -160,34 +193,46 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if(appUser.getuNID() != null && appUser.getuNID().length() > 0) {
       body.append("</td></tr><tr><td>University uNID:</td><td>" + this.getNonNullString(appUser.getuNID()));
     } else {
-      body.append("</td></tr><tr><td>External username:</td><td>" + this.getNonNullString(appUser.getUserNameExternal()));    
+      body.append("</td></tr><tr><td>Username:</td><td>" + this.getNonNullString(appUser.getUserNameExternal()));    
     }
     body.append("</td></tr></table>");
 
     
-    String labEmail = this.labContactEmail.getPropertyValue();
+    String adminEmail = this.adminEmailProperty.getPropertyValue();
 
     MailUtil.send(
         appUser.getEmail(),
         "",
-        labEmail,
+        adminEmail,
         "GNomEx User Account Request Received",
-        body.toString(),
+        intro.toString() + body.toString(),
         true
       );
     
-    body.append("<br><br>The account has been created but not activated.<br><br><a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.");
+
+    StringBuffer introForAdmin = new StringBuffer();
+    introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created by but not activated.<br><br>");
+    introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");
     
     MailUtil.send(
-        labEmail,
+        adminEmail,
         "",
-        labEmail,
-        "GNomEx User Account Request",
-        body.toString(),
+        adminEmail,
+        "GNomEx User Account Request for " + appUser.getFirstName() + " " + appUser.getLastName(),
+        introForAdmin.toString() + body.toString(),
         true
       );
 
-  }   
+  }
+  
+  public void validate() {
+    // See if we have a valid form
+    if (isValid()) {
+      setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
+    } else {
+      setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
+    }
+  }
   
   private class AppUserComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {

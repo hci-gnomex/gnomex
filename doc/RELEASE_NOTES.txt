@@ -1,23 +1,24 @@
 ﻿GNomEx Release Notes
 ---------------------
-- Removed the files tab on experimentDetailView when submitting an order.
-- Removed hard coding for experiment icons. Interface now displays the icon specified in the Experiment Platform configuration.
-- Changed icon selection in Experiment Platform Configuration window from text field to combobox.
-- Fixed null pointer problem in GetSlideList.java.
-- Changed build.xml to add idAppUser to url parameters at are passed to GNomEx on startup (allows launch directly to AppUser record).
-- Added sendUploadAlert field to table definitions for LabUser, LabManager, and LabCollatorator in gnomex_db_ddl.sql
-- Created gnomex_db_upgrade_to_5.4.1.sql to upgrade current db for above fields.
-- Added self-registration feature to allow new users to enter account info which then creates an inactive AppUser record and sends a request to admin to add user to appropriate lab and activate the account.
-- Changed User Account settings window to display labs user is member/manager/collaborator for and allow selection of labs for which to recieve upload alerts.
-- Altered RegisterFiles class to determine which labs have uploaded data and send out alerts.
-- Cleaned up extraneous code in PendingWorkAuthd
-- Changed register_files.cmd and register_files.sh to include java mail in path.
 
 
 5.3.4
 --------------------
+* Introduced code and configuration to run gnomex under Apache Tomcat server (with OpenEJB).
 * Added IlluminaExomeCapturePerCapPlugin to account for per capture pricing on exome captures.
 * Added a 'Files' tab to the experiment browse and edit views.  This allows the user to download experiment files and to delete files in edit view.
+* Removed the files tab on experimentDetailView when submitting an order.
+* Removed hard coding for experiment icons. Interface now displays the icon specified in the Experiment Platform configuration.
+* Changed icon selection in Experiment Platform Configuration window from text field to combobox.
+* Fixed null pointer problem in GetSlideList.java.
+* Changed build.xml to add idAppUser to url parameters at are passed to GNomEx on startup (allows launch directly to AppUser record).
+* Added sendUploadAlert field to table definitions for LabUser, LabManager, and LabCollatorator in gnomex_db_ddl.sql
+* Created gnomex_db_upgrade_to_5.4.1.sql to upgrade current db for above fields.
+* Added self-registration feature to allow new users to enter account info which then creates an inactive AppUser record and sends a request to admin to add user to appropriate lab and activate the account.
+* Changed User Account settings window to display labs user is member/manager/collaborator for and allow selection of labs for which to recieve upload alerts.
+* Altered RegisterFiles class to determine which labs have uploaded data and send out alerts.
+* Cleaned up extraneous code in PendingWorkAuthd
+* Changed register_files.cmd and register_files.sh to include java mail in path.
 
 
 5.3.2 (Oct 17, 2011)

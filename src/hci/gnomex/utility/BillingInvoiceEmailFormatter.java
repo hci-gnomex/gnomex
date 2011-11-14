@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.Lab;
@@ -112,7 +113,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     StringBuffer buf = new StringBuffer();
     BufferedReader input =  null;
     try {
-      input = new BufferedReader(new FileReader(Constants.WEBCONTEXT_DIR + Constants.INVOICE_FORM_CSS));
+      input = new BufferedReader(new FileReader(GNomExFrontController.getWebContextPath() + Constants.INVOICE_FORM_CSS));
     } catch (FileNotFoundException ex) {
       System.out.println(ex.toString());
     }

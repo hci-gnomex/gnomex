@@ -22,17 +22,6 @@
     <mx:Fade id="fadeOut" duration="100"/>
     <mx:Fade id="fadeIn" duration="100"/>	
 	
-	<mx:HTTPService 
-		id="checkLogin"	    
-		url="loginsucceeded.jsp"
-		resultFormat="text"
-		result="loggedIn(event)"
-		fault="notLoggedIn()"
-		showBusyCursor="true"
-		method="POST"
-		contentType="application/x-www-form-urlencoded"
-		useProxy="false">    
-	</mx:HTTPService> 
 	
 	<mx:HTTPService 
 		id="logoutService"	    
@@ -594,15 +583,10 @@
 					} else {
 						this.isUnivUserAuth = false;
 					}					
-					if (!isGuestMode()) {
-						checkLogin.send();
-					} else {
-						// If Guest Mode then go straight to original init code
-						stateStack.selectedChild = initViews; 
-						linkbutton1.visible = true;
-						linkbutton3.visible = true;
-						loggedInInit();					
-					}
+					stateStack.selectedChild = initViews; 
+					linkbutton1.visible = true;
+					linkbutton3.visible = true;
+					loggedInInit();					
 				}
 				else {
 					Alert.show("An error occurred getting launch properties");
@@ -630,33 +614,12 @@
 					logoutService.send();
 				}
 			}			
-			public function loggedIn(event: ResultEvent):void {     
-				if (event.result != "<SUCCESS/>") {
-					notLoggedIn();
-					return;
-				}
-				stateStack.selectedChild = initViews; 
-				linkbutton1.visible = true;
-				linkbutton3.visible = true;
-				loggedInInit();			
-			}
 			
-			private function notLoggedIn():void { 
-				stateStack.selectedChild = loggedOutViews;	
-				showLogin();
-			}
-			
-			public function showLogin():void {
-				loggedOutViews.selectedChild = loginView;
-				focusManager.setFocus(loginView.txtUserName);
-				//loginView.txtUserName.setFocus();
-			}
 			
 			public function loggedOut():void {
-				if(ExternalInterface.available) {
-					// Reload the page after logging out.
-					ExternalInterface.call("window.location.reload");					
-				}				
+				var urlRequest:URLRequest = new URLRequest("gnomexFlex.jsp");
+				navigateToURL(urlRequest,"_self");
+
 			}			
 			   
 			public function showChangePasswordBeforeLogin():void {
@@ -1852,10 +1815,6 @@
 	    	height="100%" paddingTop="3" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0" verticalGap="0">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
-					<mx:ViewStack id="loggedOutViews" visible="true" width="100%" height="100%" showEffect="{show}" creationPolicy="all">
-						<login:LoginFlex id="loginView" label="Log In" width="100%" height="100%" showEffect="{show}"/>
-						<login:Register id="registerView" label="Register" width="100%" height="100%" showEffect="{show}"/>
-					</mx:ViewStack>		    			  	     
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 			   
 						<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >

@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 
 
 public class Constants {
+  public static final String              DATA_SOURCES                     = "config/data-sources.xml";  
   
   public static final String              APP_NAME                        = "GNomEx";
   
@@ -19,7 +20,8 @@ public class Constants {
   
   public static final String              SQL_SERVER                      = "SQL SERVER";
   
-  public static final String              WEBCONTEXT_DIR                  = "applications/gnomex/gnomex/";
+  public static final String              MAIL_SESSION                    = "mail/MailSession";
+
   public static final String              INVOICE_FORM_CSS                = "css/invoiceForm.css";
   public static final String              REQUEST_FORM_CSS                = "css/requestForm.css";
   public static final String              REQUEST_FORM_EMAIL_CSS          = "css/requestFormEmail.css";
@@ -27,10 +29,6 @@ public class Constants {
   public static final String              REQUEST_FORM_PRINT_INSTRUCTIONS_CSS  = "css/requestFormPrintAll.css";
   public static final String              EMAIL_NOTIFY_CSS                = "css/emailNotify.css";
 
-  public static final String              DATA_SOURCES                     = "config/data-sources.xml";  
-
-  public static final String              SERVER_FILE                     = "config/server.xml";  
- 
   public static final String              LOGGING_PROPERTIES              = "gnomex_logging.properties";
   
   public static final String              WINDOW_TRACK_REQUESTS           = "ExperimentDetail";
