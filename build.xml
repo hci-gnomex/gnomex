@@ -637,7 +637,7 @@
 			  <exclude name=".actionScriptProperties"/>
 			  <exclude name=".flexProperties"/>
 			</fileset>
-    </delete>
+        </delete>
 		
 		
 		<!-- Copy README_INSTALL.txt and stick in actual version number into document -->				
@@ -647,8 +647,16 @@
 	      	     value="${gnomex_version}">
 		</replace>
 
+		<copy todir="${opensource.dir}" file="${basedir}/README_INSTALL_TOMCAT.txt"/>
+		<replace file="${opensource.dir}/README_INSTALL_TOMCAT.txt"
+					     token="$VERSION"
+	      	     value="${gnomex_version}">
+		</replace>
+
 		<!-- Use UNIX eol convention for README_INSTALL.txt file -->
 		<fixcrlf srcdir="${opensource.dir}" includes="README_INSTALL.txt"
+		         eol="lf" eof="remove" />		
+		<fixcrlf srcdir="${opensource.dir}" includes="README_INSTALL_TOMCAT.txt"
 		         eol="lf" eof="remove" />		
 
 		<!-- Copy README_UPGRADE.txt and stick in actual version number into document -->				
@@ -1115,7 +1123,7 @@
 			<zipfileset dir="${opensource.dir}/dist/tomcat/scripts" includes="*.*" prefix="${opensource.tomcat.name}/gnomex/scripts"/>
 			<zipfileset dir="${opensource.dir}/tomcat" prefix="${opensource.tomcat.name}/tomcat"/>
 			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.tomcat.name}"/>
-			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.tomcat.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_INSTALL_TOMCAT.txt" prefix="${opensource.tomcat.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.tomcat.name}"/>
 		</zip>
 
