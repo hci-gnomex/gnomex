@@ -684,6 +684,8 @@
 		      <include name="flex/**"/>
 		      <include name="src/**"/>
 		      <include name="lib/**"/>
+		      <exclude name="META-INF/context.xml"/>
+		      <include name="META-INF/context_opensource.xml"/>
 		      <include name="META-INF/**"/>
 		      <include name="defaultroot/**"/>
 		      <exclude name="defaultroot/doc/**"/>	  	
@@ -696,6 +698,9 @@
 		      <exclude name="**/GNomExLDAPRealm.java"/>
 	  	 	</fileset>
 	  </copy>
+
+	    <!-- Use the opensource version of the context file -->
+		<move file="${opensource.dir}/META-INF/context_opensource.xml"  tofile="${opensource.dir}/META-INF/context.xml"/> 
 
 		<!-- We only copy the gnomex/defaultroot/docs that start with blank in the file name -->	
 		<copy todir="${opensource.dir}/defaultroot/doc">
@@ -791,7 +796,7 @@
 		<!-- Make an orion specific release -->
 		<subant target="-release-opensource-orion">
 			   <property name="basedir" value="${basedir}"/>
-			   <property name="dist.dir" value="${dist.dir}"/>
+			   <property name="dist.dir" value="${opensource.dir}/dist"/>
 			   <fileset dir="${opensource.dir}" includes="build.xml"/>			
 		</subant>
 
@@ -799,7 +804,10 @@
 		<!-- Make a tomcat specific release -->
 		<subant target="-release-opensource-tomcat">
 			   <property name="basedir" value="${basedir}"/>
-			   <property name="dist.dir" value="${dist.dir}"/>
+			   <property name="dist.dir" value="${opensource.dir}/dist"/>
+			   <property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+			   <property name="lib.dir" value="${opensource.dir}/lib"/>
+			   <property name="src.dir" value="${opensource.dir}/src"/>
 			   <fileset dir="${opensource.dir}" includes="build.xml"/>			
 		</subant>
 		
@@ -1017,8 +1025,6 @@
 		<echo>+  Releasing open source  (tomcat)                      +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-	    <!-- Use the opensource version of the context file -->
-		<move file="${opensource.dir}/META-INF/context_opensource.xml" tofile="context.xml"/>
 			
 		<!-- By default, gnomex will run unsecure (http: instead of https).
 		     Change the Constants.java file so that the front controller
