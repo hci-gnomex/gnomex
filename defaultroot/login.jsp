@@ -32,7 +32,7 @@
     <h3>Sign In</h3>
 
       <div class="col1"><div class="right">User name</div></div>
-      <div class="col2"><input id="username" type="text" class="text" value="${param.j_username}"  name="j_username"></div>
+      <div class="col2"><input id="username" type="text" class="text" name="j_username" value="${param.j_username}" ></div>
 
    
       <div class="col1"><div class="right">Password</div></div>
