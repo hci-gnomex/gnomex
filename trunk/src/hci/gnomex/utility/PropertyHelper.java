@@ -232,6 +232,12 @@ public class PropertyHelper implements Serializable {
 			  property = this.getProperty(propertyName);       	
 		  }
 	  }   
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
+    }
 
 	  return property;
   }
@@ -250,6 +256,13 @@ public class PropertyHelper implements Serializable {
 			  property = this.getProperty(propertyName);       	
 		  }
 	  }   
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
+    }
+	  
 
 	  return addFileSepIfNec(property);
   }
@@ -267,6 +280,12 @@ public class PropertyHelper implements Serializable {
 			propertyName = PROPERTY_FLOWCELL_DIRECTORY;
 			property = this.getProperty(propertyName);				  
     	}  
+    }
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
     }
       
     return property;
@@ -286,6 +305,12 @@ public class PropertyHelper implements Serializable {
 			property = this.getProperty(propertyName);
     	}
     }
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
+    }
     
     return addFileSepIfNec(property);
   }
@@ -302,6 +327,12 @@ public class PropertyHelper implements Serializable {
       if (property == null || property.equals("")) {
           propertyName = PROPERTY_EXPERIMENT_READ_DIRECTORY;
           property = this.getProperty(propertyName);    	  
+      }
+    }
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
       }
     }
     return property;    
