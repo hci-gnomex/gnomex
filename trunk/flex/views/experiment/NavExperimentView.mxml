@@ -686,8 +686,7 @@
 				showEditView = false;						
 			} else {
 			    theViews.selectedChild = detailView;
-				detailView.detail.setupForm(this.selectedExperiment);
-				
+				detailView.detail.setupForm(this.selectedExperiment);				
 			}
 
 		    theViews.visible = true;

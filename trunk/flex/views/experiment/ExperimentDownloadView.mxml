@@ -58,7 +58,10 @@
     public var downloadProgressWindow:DownloadProgressView;
 	 
 	[Bindable]
-	public var deleteButtonVisible:Boolean = false;
+	public var uploadButtonsVisible:Boolean = false;
+
+	[Bindable]
+	public var removeFileButtonsVisible:Boolean = false;
 
  	[Bindable]
     public var rowCountMessage:String = new String();
@@ -173,7 +176,7 @@
     	var estimatedSize:Number = call.marker;
     	if (filesExceedingMaxMessage != "") {
     		message =  
-    			"The following files exceed the 4 GB maximum:\n" + this.filesExceedingMaxMessage + ".\n\nDo you want to be directed to the browser page for downloading large files individually?"
+    			"The following files exceed the " + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\nDo you want to be directed to the browser page for downloading large files individually?"
     		title = "Download file exceeds maximum size"; 
 			Alert.show( message,
 				title,
@@ -183,7 +186,7 @@
 
     	} else if (estimatedSize >= FileUtil.MAX_DOWNLOAD_SIZE) {
     		message =  
-    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the " + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
     		title = "Total download size exceeds maximum size"; 
 			Alert.show( message, title);
 
@@ -254,6 +257,30 @@
     	downloadSizeMessage = "Ready to download " + FileUtil.getFileSizeText(selectedDownloadSize);
 
 	}
+	 
+	 private function showExperimentUploadWindow():void {
+		 var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
+		 var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
+		 if (idRequest != null && idRequest != "") {
+			 ExperimentEditView.showExperimentUploadWindow(parentApplication.theBody, idRequest, requestNumber);		 
+		 }
+	 }
+	 
+	 private function showExperimentOrganizeWindow():void {
+		 var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
+		 var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
+		 if (idRequest != null && idRequest != "") {
+			 ExperimentEditView.showExperimentOrganizeWindow(parentApplication.theBody, idRequest, requestNumber);		 
+		 }
+	 }
+	 
+	 private function showExperimentFDTUploadWindow():void {
+		 var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
+		 var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
+		 if (idRequest != null && idRequest != "") {
+			 ExperimentEditView.showExperimentUploadFDTWindow(parentApplication.theBody, idRequest, requestNumber);		 
+		 }
+	 }
 
 	 private function removeFile():void  {
 		 var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
@@ -346,22 +373,42 @@
 				<mx:Label text="{browseMessage}"/>			
 			</mx:HBox>
 			<mx:Spacer width="100%" height="100%"/>
-			<mx:HBox id="deleteButtonsContainer" height="100%" visible="{deleteButtonVisible}" horizontalAlign="right">
-				<mx:LinkButton textDecoration="underline" 
-							   label="Remove (from file system)" 
-							   icon="@Embed(source='../../assets/delete.png')" 
-							   id="deleteFileButton" 
-							   toolTip="Delete selected files" 
-							   click="removeFile()"/>
-				
-				<mx:LinkButton textDecoration="underline" 
-							   label="Delete all" 
-							   icon="@Embed('../../assets/folder_delete.png')"  
-							   id="clearFilesButton" 
-							   toolTip="Delete all files" 
-							   click="promptToRemoveAllFiles()"/>
-			</mx:HBox>
+			
 		</mx:HBox>
+		<mx:HBox id="deleteButtonsContainer"  includeInLayout="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" visible="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" horizontalAlign="right">
+			<mx:LinkButton fontSize="9" label="Upload files" 
+						   click="showExperimentUploadWindow()" 
+						   visible="{this.uploadButtonsVisible}"
+						   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
+			<mx:LinkButton fontSize="9" label="FDT Upload files" 
+						   visible="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
+						   includeInLayout="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
+						   click="showExperimentFDTUploadWindow()" 
+						   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
+			<mx:LinkButton fontSize="9" label="Organize files"  
+						   visible="{this.uploadButtonsVisible}"
+						   click="showExperimentOrganizeWindow()" 
+						   id="uploadOrganizeLink" 
+						   textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" 
+						   textAlign="left"/>
+			<mx:LinkButton textDecoration="underline" 
+						   visible="{this.removeFileButtonsVisible}"
+						   includeInLayout="{this.removeFileButtonsVisible}"
+						   label="Remove (from file system)" 
+						   icon="@Embed(source='../../assets/delete.png')" 
+						   id="deleteFileButton" 
+						   toolTip="Delete selected files" 
+						   click="removeFile()"/>
+			<mx:LinkButton textDecoration="underline" 
+						   visible="{this.removeFileButtonsVisible}"
+						   includeInLayout="{this.removeFileButtonsVisible}"
+						   label="Delete all" 
+						   icon="@Embed('../../assets/folder_delete.png')"  
+						   id="clearFilesButton" 
+						   toolTip="Delete all files" 
+						   click="promptToRemoveAllFiles()"/>
+		</mx:HBox>
+
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
                  groupItemRenderer="views.renderers.CheckBoxGroupedItem"
 				 dropEnabled="false"  

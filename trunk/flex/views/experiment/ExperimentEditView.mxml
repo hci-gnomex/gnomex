@@ -841,7 +841,9 @@
 			} else {
 				this.userWarningStack.selectedIndex = 0;
 			}
-			refreshDownloadList();
+			if (!this.isAmendState()) {
+				refreshDownloadList();
+			}
 		}
 
 		
@@ -4147,22 +4149,13 @@
 			<experiment:TabConfirmView id="confirmView">				
 			</experiment:TabConfirmView>
 			
-			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" deleteButtonVisible="true" visible="false" includeInLayout="false" >
+			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" uploadButtonsVisible="true" removeFileButtonsVisible="true" visible="false" includeInLayout="false" >
 			</experiment:ExperimentDownloadView>
 				
 		</mx:TabNavigator>
 	</mx:VBox>  
 	
  	   <mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1">
-		   <mx:HBox  visible="{theTab.selectedChild==downloadView}" verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
-			   <mx:Button id="downloadExpandedFilesButton" 
-						  click="downloadView.downloadExpandedFiles()" 
-						  icon="@Embed('../../assets/download.png')" 
-						  toolTip="Download selected files"
-						  label="Download"/>
-			   <mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
-			   <mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-		   </mx:HBox>
  		<mx:ViewStack id="buttonStack" width="100%">
 	 	    <mx:HBox width="100%"  verticalAlign="middle">
 				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.png')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
@@ -4199,6 +4192,21 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%"   horizontalAlign="left" paddingRight="1" id="hbox8">
+				<mx:HBox  visible="{theTab.selectedChild==downloadView}" verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
+					<mx:Button id="downloadExpandedFilesButton" 
+							   click="downloadView.downloadExpandedFiles()" 
+							   icon="@Embed('../../assets/download.png')" 
+							   toolTip="Download selected files"
+							   label="Download"/>
+					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
+							   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+							   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
+							   icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
+							   includeInLayout="{parentApplication.isFDTSupported ? false : true}"
+							   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
+							   icon="@Embed(source='../../assets/download_large.png')"/>
+				</mx:HBox>
 				<mx:Spacer width="100%"/>
 	 	        <util:DirtyNote id="dirty"  />
  				<mx:Button id="saveButton" label="Save" 
@@ -4354,16 +4362,14 @@
     			<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" width="100%" paddingBottom="4">
 					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
-    				<mx:LinkButton label="Downloads" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
+    				<mx:LinkButton label="Downloads" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
     				<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
     				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
     							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
     				</mx:LinkButton>
     				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkButtonToHiSeqOrGAIIx" textAlign="left">    	        
     				</mx:LinkButton>
-    				<mx:LinkButton fontSize="9" label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
     				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
-    				<mx:LinkButton fontSize="9" label="Organize files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentOrganizeWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadOrganizeLink" textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" textAlign="left"/>
     			</mx:HBox>
     		</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
@@ -4585,6 +4591,7 @@
 			<mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
             <mx:RemoveChild target="{setupView}"/>
             <mx:SetProperty target="{titleLabel}" name="text" value="Add services to existing experiment "/>
+			<mx:RemoveChild target="{downloadView}"/>
         </mx:State>
         <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
             <mx:RemoveChild target="{sampleSetupView}"/>

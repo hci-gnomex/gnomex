@@ -610,8 +610,14 @@
 		             	icon="@Embed('../../assets/download.png')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
-					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
-					<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
+							   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+							   label="FDT Download"  
+							   click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
+							   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
+							   label="HTTP Download" 
+							   click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 	            </mx:HBox>		                    
 	        </mx:ViewStack>
 		</mx:HBox>
