@@ -1,6 +1,8 @@
 ﻿GNomEx Release Notes
 ---------------------
-
+* Changes to add Description field to Annotations.
+* Remove Files tab from amend request.
+* Fix for problem that resulted in old billing statements being sent out.
 
 5.3.4
 --------------------
