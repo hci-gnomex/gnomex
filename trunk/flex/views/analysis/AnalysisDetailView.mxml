@@ -268,7 +268,7 @@
 	    	var estimatedSize:Number = call.marker;
 	    	if (filesExceedingMaxMessage != "") {
 	    		message =  
-	    			"The following files exceed the 4 GB maximum:\n" + this.filesExceedingMaxMessage + ".\n\nDo you want to be directed to the browser page for downloading large files individually?"
+	    			"The following files exceed the " + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\nDo you want to be directed to the browser page for downloading large files individually?"
 	    		title = "Download file exceeds maximum size"; 
 				Alert.show( message,
 					title,
@@ -278,7 +278,7 @@
 	
 	    	} else if (estimatedSize >= FileUtil.MAX_DOWNLOAD_SIZE) {
 	    		message =  
-	    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+	    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the "  + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
 	    		title = "Total download size exceeds maximum size"; 
 				Alert.show( message, title);
 	
@@ -569,8 +569,14 @@
 				   toolTip="Download selected folders"
 				   label="Download"  
 				   visible="{theTab.selectedChild == filesView}"/>
-		<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}" label="FDT Download" click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
-		<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}" label="HTTP Download"  click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}" 
+				   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}"
+				   label="FDT Download" click="{this.downloadFilesUsingFDT()}" 
+				   icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}" 
+				   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}"
+				   label="HTTP Download"  
+				   click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 		
 	</mx:HBox>
 	
