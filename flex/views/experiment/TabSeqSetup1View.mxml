@@ -19,7 +19,7 @@
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
-					<mx:NumericStepper id="numberSamplesPerChannel" minimum="1" stepSize="1" maximum="{this.maxSamplesPerChannel}">
+					<mx:NumericStepper id="numberSamplesPerChannel" minimum="0" stepSize="1" maximum="{this.maxSamplesPerChannel}">
 						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.checkSeqSetup1Completeness();</mx:change>
 					</mx:NumericStepper>
 				</mx:HBox>
