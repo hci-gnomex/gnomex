@@ -145,7 +145,15 @@
 			getVisibilityName();
 			callLater(showHideColumns);
 			this.addNonStandardSampleColumns();
-//			theTab.selectedIndex = 0;
+			
+			if (theTab.selectedChild == this.filesView) {
+				downloadExpandedFilesButtonView.visible = true;
+				downloadExpandedFilesButtonView.includeInLayout = true;
+			} else {
+				downloadExpandedFilesButtonView.visible = false;
+				downloadExpandedFilesButtonView.includeInLayout = false;
+			}
+
 		}
 		
 		public function initializeBarcoding():void {
@@ -322,7 +330,9 @@
 		}
 		
 		public function showDownloads():void {
-			parentDocument.parentDocument.showExperimentDownloads();
+			this.theTab.selectedChild = this.filesView;
+			downloadExpandedFilesButtonView.visible = true;
+			downloadExpandedFilesButtonView.includeInLayout = true;
 		}
 
 	  	public function promptToDeleteExperiment():void {
@@ -946,7 +956,7 @@
 				</mx:VBox>
     			</mx:Canvas>
 				
-				<experiment:ExperimentDownloadView id="filesView" >
+				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUpdate == 'Y'}" >
 				</experiment:ExperimentDownloadView>
 						   
 			</mx:TabNavigator>
@@ -965,8 +975,14 @@
 				   icon="@Embed('../../assets/download.png')" 
 				   toolTip="Download selected files"
 				   label="Download"/>
-		<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download"  click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
-		<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" label="HTTP Download" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
+				   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+				   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
+				   icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
+				   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
+				   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
+				   icon="@Embed(source='../../assets/download_large.png')"/>
 	</mx:HBox>
 	
 </mx:VBox>
