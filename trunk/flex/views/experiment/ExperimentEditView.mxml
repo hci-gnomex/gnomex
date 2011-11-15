@@ -334,6 +334,7 @@
 				// Set the base state
 				if (this.id == "amendRequestView") {
 					this.currentState = 'AmendState';
+					this.theTab.removeChild(downloadView);
 					this.nextButton.enabled = false;
 				} else if (this.id == "editView") {
 					this.currentState = "EditState";
@@ -689,7 +690,8 @@
         
         
         public function cancelRequest():void {
-        	getNewRequest.send();
+        	//getNewRequest.send();
+			request = null;
 			initializeSubmitForm();
         	parentApplication.theViews.selectedIndex = 0;
         	
@@ -1199,6 +1201,9 @@
 			var keep:Boolean = false;
 			
 			var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(sce.@idSampleCharacteristic);
+			if(sce.@idSampleCharacteristic == "-1") {
+				return true;	// Special case for "Description" field which is not a "real" sampleCharacteristic 
+			}
 			if (this.isApplicableSampleCharacteristic(sampleCharacteristic)) {
 				if (sce.@isSelected == 'true' || sampleCharacteristic.@isActive != 'N') {
 					keep = true;
@@ -1683,6 +1688,7 @@
 			} 
 			
 			request = clonedRequest;
+			
 			request.@idRequest = "0";
 			request.@number = "";
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
@@ -1896,16 +1902,17 @@
 				
 				// Comment out since seq lib treatments are not in use for now
 				//this.seqSetupView.currentState = "EditState";  
-					
-				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					lanesView.currentState = 'LanesAdminState';
-				} else if (request.@isExternal == 'Y') {
-					lanesView.currentState = 'LanesAdminState';						
-				} else {
-					lanesView.currentState = '';
-				} 
-
 				
+				if(request.@isExternal != 'Y') {
+					if (parentApplication.hasPermission("canWriteAnyObject")) {
+						lanesView.currentState = 'LanesAdminState';
+					} else if (request.@isExternal == 'Y') {
+						lanesView.currentState = 'LanesAdminState';						
+					} else {
+						lanesView.currentState = '';
+					} 					
+				}
+
 				this.sampleCharacteristicEntries.refresh();
 
 
@@ -1974,6 +1981,7 @@
 				if (theTab.contains(this.billingTab)) {
 					theTab.removeChild(billingTab);
 				}
+				linkButtonToHiSeqOrGAIIx.visible = false;
 			} else {
 				if (!theTab.contains(this.billingTab)) {
 					theTab.addChild(billingTab);
@@ -2009,10 +2017,21 @@
 			
 		}
 		
-		
+		private function addDescriptionFieldToAnnotations(sc:XMLList, isSelected:Boolean):void {
+			var scXML:XML = sc[0];
+			var descNode:XML = <SampleCharacteristicEntry idSampleCharacteristic="-1" sampleCharacteristic="Description" otherLabel="" isSelected="false" isActive="Y"/>;
+			if(isSelected) {
+				descNode.@isSelected = "true";
+			}			
+			scXML.appendChild(descNode);
+			this.sampleCharacteristicEntries.refresh();
+		}
 		
 		private function onGetNewRequest(event:ResultEvent):void {
 			existingLanes = null;
+			if(!parentApplication.isInternalExperimentSubmission) {
+				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').SampleCharacteristicEntries, true);			
+			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idAppUser = setupView.idAppUser;
 			
@@ -2991,6 +3010,10 @@
 		}
 		
 		private function onGetRequest(event:ResultEvent):void {
+			if(!parentApplication.isInternalExperimentSubmission) {
+				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).SampleCharacteristicEntries, 
+					getRequest.lastResult..Request.(@idRequest = request.@idRequest).@hasSampleDescription=="Y");			
+			}	
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
 			
 			parentApplication.navExperimentView.showEditView = true;	
@@ -4336,7 +4359,7 @@
     				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
     							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
     				</mx:LinkButton>
-    				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" textAlign="left">    	        
+    				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkButtonToHiSeqOrGAIIx" textAlign="left">    	        
     				</mx:LinkButton>
     				<mx:LinkButton fontSize="9" label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
     				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
@@ -4454,7 +4477,8 @@
 			</mx:AddChild>
          </mx:State>
 		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
-				<mx:RemoveChild target="{instructionsView}"/>		
+			<mx:RemoveChild target="{lanesView}"/>		
+			<mx:RemoveChild target="{instructionsView}"/>		
 		</mx:State>
         <mx:State name="BaseSubmitState">
             <mx:SetStyle target="{agreeCheckbox}" name="fontStyle" value="italic"/>
