@@ -227,6 +227,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String codeRequestCategory = (String)row[2];
         String hybNumber =  (String)row[5];
         String createDate = this.formatDate((java.sql.Date)row[0]);
+        Integer idRequest = row[21] != null ? (Integer)row[21] : Integer.valueOf(0);
         
         String appUserName = "";
         if (row[29] != null) {
@@ -251,6 +252,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           requestNode = new Element("Request");
           requestNode.setAttribute("displayName", requestNumber);
           requestNode.setAttribute("requestNumber", requestNumber);
+          requestNode.setAttribute("idRequest", idRequest.toString());
           requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
           requestNode.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
           requestNode.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
@@ -281,6 +283,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("idRequest", row[21].toString());
         n.setAttribute("createDate", createDate);
         n.setAttribute("requestNumber", (String)row[1]);
+        n.setAttribute("idRequest", idRequest.toString());
         n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
         n.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
         n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
