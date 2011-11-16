@@ -2,7 +2,7 @@
 ---------------------
 
 
-5.3.4
+5.3.3
 --------------------
 * Introduced code and configuration to run gnomex under Apache Tomcat server (with OpenEJB).
 * Added IlluminaExomeCapturePerCapPlugin to account for per capture pricing on exome captures.
