@@ -237,7 +237,7 @@
 		    	estimatedDownloadSize = 0;
 				for each (var item:Object in selectedFileList) {
 					var size:Number = FileUtil.getEstimatedCompressedSize(item);
-    				if (size > FileUtil.MAX_DOWNLOAD_SIZE) {
+    				if (size > parentApplication.MAX_DOWNLOAD_SIZE) {
     					if (filesExceedingMaxMessage.length > 0) {
     						filesExceedingMaxMessage += ", ";
     					}
@@ -267,18 +267,22 @@
 	    	var title:String = "";
 	    	var estimatedSize:Number = call.marker;
 	    	if (filesExceedingMaxMessage != "") {
-	    		message =  
-	    			"The following files exceed the " + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\nDo you want to be directed to the browser page for downloading large files individually?"
-	    		title = "Download file exceeds maximum size"; 
+				message = "The following files exceed the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\n";
+				if (parentApplication.isFDTSupported) {
+					message += "Do you want to be download using FDT instead?";
+				} else {
+					message += "Do you want to be directed to the browser page for downloading large files individually?";
+				}
+				title = "Download file exceeds maximum size"; 
 				Alert.show( message,
 					title,
 					(Alert.OK | Alert.CANCEL), this, 
 					onAlternateDownloadFiles,						
 					parentApplication.iconWarning);
 	
-	    	} else if (estimatedSize >= FileUtil.MAX_DOWNLOAD_SIZE) {
+	    	} else if (estimatedSize >= parentApplication.MAX_DOWNLOAD_SIZE) {
 	    		message =  
-	    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the "  + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+	    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the "  + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
 	    		title = "Total download size exceeds maximum size"; 
 				Alert.show( message, title);
 	
@@ -308,7 +312,11 @@
 
 		private function onAlternateDownloadFiles(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
-				showAlternateDownloadPage();	
+				if (parentApplication.isFDTSupported) {
+					downloadFilesUsingFDT();
+				} else {
+					showAlternateDownloadPage();	
+				}
 			} 		
 		}
 		

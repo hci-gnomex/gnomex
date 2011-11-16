@@ -9,8 +9,8 @@
 	<mx:VBox verticalGap="20" fontSize="10" paddingTop="8" paddingLeft="8" width="100%" height="100%">
 		
 		<mx:VBox width="100%" verticalGap="2" height="100%">
-			<mx:Text text="{'Q:  I am having trouble downloading more than ' + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + ' at a time.  Is there another way to download the files?'}"  paddingBottom="1"/>
-			<mx:Text text="{'A:  Files over '  + FileUtil.MAX_DOWNLOAD_SIZE_DISPLAY + ' can be downloaded using Fast Data Transfer.  After selecting the files to download, click the FDT Download button.'}"  fontSize="10" paddingBottom="6" width="100%"/>
+			<mx:Text text="{'Q:  I am having trouble downloading more than ' + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + ' at a time.  Is there another way to download the files?'}"  paddingBottom="1"/>
+			<mx:Text text="{'A:  Files over '  + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + ' can be downloaded using Fast Data Transfer.  After selecting the files to download, click the FDT Download button.'}"  fontSize="10" paddingBottom="6" width="100%"/>
 			<mx:HRule width="100%"/>
 			<mx:Text text="Q:  When I try to use Fast Data Transfer (FDT), a .jnlp file is downloaded.  What do I do with this file?"  paddingBottom="1"/>
 			<mx:Text text="A:  This file should launch the FDT Java application using Java webstart.  Your browser needs to associate the .jnlp with the Java Web Start application."  fontSize="10" paddingBottom="6" width="100%"/>
