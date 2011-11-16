@@ -135,6 +135,30 @@
         </javac>
 	</target>
 
+	
+	<!--                                                -->
+	<!-- Compile client                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile-client" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling (client)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.class.path">
+
+            <src path="${src.dir}" />
+      		<include name="**/httpclient/**"/>      		
+        </javac>
+	</target>
+	
 	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- Compile                                        -->
@@ -251,7 +275,7 @@
 	<!-- Client Jar                                     -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="clientjar" depends="init, compile">
+	<target name="clientjar" depends="init, compile-client">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building jar files                                   +</echo>
@@ -471,7 +495,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war-tomcat" depends="init, compile-tomcat, flex">
+	<target name="war-tomcat" depends="init, jar-tomcat, flex">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files  (tomcat)                         +</echo>
@@ -535,6 +559,59 @@
 	  <delete  dir="${dist.dir}/tomcat" />
 
 	</target>
+	
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- check-for-commonlib                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-check-for-commonlib">
+	    <available file="${basedir}/libCommon"  type="dir" property="commonlib.present"/>
+	</target>
+	
+	<target name="-cleanlib">
+		<delete dir="${distdir}/lib"/>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Copy jar files from lib                        -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-copylib" depends="-cleanlib, -copycommonlib">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Copying jar files in lib                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>		
+
+		<copy todir="${dist.dir}/lib">
+		    <fileset dir="${basedir}/lib">
+			    <include name="*.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Copy jar files from libCommon (if dir exists)  -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-copycommonlib" depends="-check-for-commonlib" if="commonlib.present">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Copying jar files in commonLib                       +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>		
+		
+		<copy todir="${dist.dir}/lib">
+		    <fileset dir="${basedir}/libCommon">
+			    <include name="*.jar" />
+			</fileset>
+		</copy>
+	</target>
 
 
 
@@ -543,7 +620,7 @@
 	<!-- ear                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="ear" depends="init, jar, war">
+	<target name="ear" depends="init, jar, war, -copylib">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building ear files                                   +</echo>
@@ -561,20 +638,20 @@
 		<ear destfile="${dist.dir}/${ear.name}"
 			 appxml="${metainf.dir}/ear/application.xml">
 
-      <fileset dir="${basedir}"		 	    includes="lib/*.*" />
-      <fileset dir="${dist.dir}"	        includes="${jar.name}" />
-      <fileset dir="${dist.dir}"		    includes="${war.name}" />
-      <fileset dir="${src.dir}"             includes="*.hbm.xml" />
-      <fileset dir="${basedir}/scripts">
-      	<exclude name="httpclient*.cmd" />
-      	<exclude name="httpclient*.sh" />
-        <include name="*.cmd" />
-        <include name="*.sh" />
-      </fileset>
-      <fileset dir="${src.dir}"			    includes="Dictionaries.xml" />
+          <fileset dir="${dist.dir}"		 	includes="lib/*.*" />
+          <fileset dir="${dist.dir}"	        includes="${jar.name}" />
+          <fileset dir="${dist.dir}"		    includes="${war.name}" />
+          <fileset dir="${src.dir}"             excludes="*.tomcat.hbm.xml" includes="*.hbm.xml" />
+          <fileset dir="${basedir}/scripts">
+      	      <exclude name="httpclient*.cmd" />
+      	      <exclude name="httpclient*.sh" />
+              <include name="*.cmd" />
+              <include name="*.sh" />
+          </fileset>
+          <fileset dir="${src.dir}"			    includes="Dictionaries.xml" />
 
-      <metainf dir="${metainf.dir}/ear" includes="*.xml" />
-    </ear>
+          <metainf dir="${metainf.dir}/ear" includes="*.xml" />
+        </ear>
 	</target>
 
 
@@ -728,21 +805,20 @@
       	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
 		</replace>
 		
-		<!-- Remove all references to hciEnv and hciFlex in build files and scripts -->
-		<replaceregexp  file="${opensource.dir}/build.properties"
-				     match="lib\.hcienv\.dir=(.*)"
-		         replace="">
+		<!-- Change build path (orion) to include libCommon -->
+		<replaceregexp  file="${opensource.dir}/build.xml"
+				     match="&lt;fileset(.*)dir=&quot;(.*)lib.hcienv.dir}(.*)"
+		         replace="&lt;fileset dir=&quot;&#36;\{lib.common.dir\}&quot;\/&gt;">
 		</replaceregexp>
+
+		
+		<!-- Remove all references to hciEnv and hciFlex in build files and scripts -->
 		<replaceregexp  file="${opensource.dir}/build.properties"
 				     match="hcienv\.dir=(.*)"
 		         replace="">
 		</replaceregexp>
 		<replaceregexp  file="${opensource.dir}/build.properties"
 				     match="hciflex\.dir=(.*)"
-		         replace="">
-		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/build.xml"
-				     match="&lt;fileset(.*)dir=&quot;(.*)lib.hcienv.dir}(.*)"
 		         replace="">
 		</replaceregexp>
 		<replaceregexp  file="${opensource.dir}/build.xml"
@@ -805,6 +881,9 @@
 		<subant target="-release-opensource-orion">
 			   <property name="basedir" value="${basedir}"/>
 			   <property name="dist.dir" value="${opensource.dir}/dist"/>
+			   <property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+			   <property name="lib.dir" value="${opensource.dir}/lib"/>
+			   <property name="src.dir" value="${opensource.dir}/src"/>
 			   <fileset dir="${opensource.dir}" includes="build.xml"/>			
 		</subant>
 
@@ -849,9 +928,10 @@
 		<echo>+  Releasing open source  (orion)                       +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
+		
 
-		  <!-- Copy jar files normally in hciEnv directly to gnomex/lib -->
-		  <copy todir="${opensource.dir}/lib">
+		  <!-- Copy jar files normally in hciEnv directly to gnomex/libCommon -->
+		  <copy todir="${opensource.dir}/libCommon">
 		    <fileset dir="${hcienv.dir}/lib">
 		      <include name="antlr-2.7.6rc1.jar"/>
 		      <include name="asm.jar"/>
@@ -876,7 +956,13 @@
 	    </replaceregexp>
 
 			
-			
+
+		<!-- Delete the build dir and the gnomex jars so that we rebuild all classes for the tomcat version -->
+		<delete dir="${opensource.dir}/dist/build.ant"/>
+		<delete dir="${opensource.dir}/dist/lib"/>
+		<delete file="${opensource.dir}/dist/${jar.name}"/>
+		<delete file="${opensource.dir}/dist/secure/${jar.name}"/>
+
 			<!-- By default, gnomex will run unsecure (http: instead of https).
 			     Change the Constants.java file so that the front controller
 			     will not reject unsecure (http:) requests. -->
@@ -885,15 +971,23 @@
 			         replace="REQUIRE_SECURE_REMOTE           = false;">
 			</replaceregexp>
 			
-			<!-- Build ear again, this time allowing http (nonsecure) connections -->
+			<!-- Build ear, allowing http (nonsecure) connections -->
 			<subant target="ear">
 				<property name="dist.dir" value="${opensource.dir}/dist"/>
-			   <fileset dir="${opensource.dir}" includes="build.xml"/>
+			    <property name="basedir" value="${opensource.dir}"/>
+				<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+				<property name="lib.dir" value="${opensource.dir}/lib"/>
+				<property name="src.dir" value="${opensource.dir}/src"/>
+			    <fileset dir="${opensource.dir}" includes="build.xml"/>
 			</subant>
 
 			<subant target="clientjar">
 				<property name="dist.dir" value="${opensource.dir}/dist"/>
-				<fileset dir="${opensource.dir}" includes="build.xml"/>
+			    <property name="basedir" value="${opensource.dir}"/>
+				<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+				<property name="lib.dir" value="${opensource.dir}/lib"/>
+				<property name="src.dir" value="${opensource.dir}/src"/>
+			    <fileset dir="${opensource.dir}" includes="build.xml"/>
 			</subant>
 
 			<!-- Compile GNomex to run secure (https) only-->
@@ -904,8 +998,12 @@
 
 			<!-- Build ear again, this time allowing https (secure) connections -->
 			<subant target="ear">
-			   <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
-			   <fileset dir="${opensource.dir}" includes="build.xml"/>
+				<property name="dist.dir" value="${opensource.dir}/dist/secure"/>
+				<property name="basedir" value="${opensource.dir}"/>
+				<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+				<property name="lib.dir" value="${opensource.dir}/lib"/>
+				<property name="src.dir" value="${opensource.dir}/src"/>
+				<fileset dir="${opensource.dir}" includes="build.xml"/>
 			</subant>
 		
 		
@@ -1042,19 +1140,38 @@
 		         replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
 			
+		<!-- Delete the build dir and the gnomex jars so that we rebuild all classes for the tomcat version -->
+		<delete dir="${opensource.dir}/dist/build.ant"/>
+		<delete dir="${opensource.dir}/dist/lib"/>
+		<delete file="${opensource.dir}/dist/${jar.name}"/>
+		<delete file="${opensource.dir}/dist/secure/${jar.name}"/>
+		
 		<!-- Build ear again, this time allowing http (nonsecure) connections -->
 		<subant target="war-tomcat">
 			<property name="dist.dir" value="${opensource.dir}/dist"/>
-			<fileset dir="${opensource.dir}" includes="build.xml"/>
+			<property name="webroot.dir" value="${opensource.dir}/defaultroot"/>
+		    <property name="basedir" value="${opensource.dir}"/>
+			<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+			<property name="lib.dir" value="${opensource.dir}/lib"/>
+			<property name="src.dir" value="${opensource.dir}/src"/>
+		    <fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
 
 		<subant target="clientjar">
 			<property name="dist.dir" value="${opensource.dir}/dist"/>
-			<fileset dir="${opensource.dir}" includes="build.xml"/>
+		    <property name="basedir" value="${opensource.dir}"/>
+			<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+			<property name="lib.dir" value="${opensource.dir}/lib"/>
+			<property name="src.dir" value="${opensource.dir}/src"/>
+		    <fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
 
 	    <subant target="realmjar">
 			<property name="dist.dir" value="${opensource.dir}/dist"/>
+		    <property name="basedir" value="${opensource.dir}"/>
+			<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+			<property name="lib.dir" value="${opensource.dir}/lib"/>
+			<property name="src.dir" value="${opensource.dir}/src"/>
 		    <fileset dir="${opensource.dir}" includes="build.xml"/>
 	    </subant>
 
@@ -1066,8 +1183,13 @@
 
 		<!-- Build ear again, this time allowing https (secure) connections -->
 		<subant target="war-tomcat">
-		   <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
-		   <fileset dir="${opensource.dir}" includes="build.xml"/>
+		    <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
+			<property name="webroot.dir" value="${opensource.dir}/defaultroot"/>
+		    <property name="basedir" value="${opensource.dir}"/>
+			<property name="metainf.dir" value="${opensource.dir}/META-INF"/>
+			<property name="lib.dir" value="${opensource.dir}/lib"/>
+			<property name="src.dir" value="${opensource.dir}/src"/>
+		    <fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
 		
 		<!-- Copy over the jars required in tomcat/common/lib -->
