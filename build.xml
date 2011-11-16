@@ -564,15 +564,15 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- check-for-commonlib                            -->
+	<!-- check-for-libenv                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-check-for-commonlib">
-	    <available file="${basedir}/libCommon"  type="dir" property="commonlib.present"/>
+	<target name="-check-for-libenv">
+	    <available file="${lib.env.dir}"  type="dir" property="libenv.present"/>
 	</target>
 	
 	<target name="-cleanlib">
-		<delete dir="${distdir}/lib"/>
+		<delete dir="${dist.dir}/lib"/>
 	</target>
 
 	<!-- ============================================== -->
@@ -580,7 +580,7 @@
 	<!-- Copy jar files from lib                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-copylib" depends="-cleanlib, -copycommonlib">
+	<target name="-copylib" depends="-cleanlib, -copylibenv">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Copying jar files in lib                            +</echo>
@@ -588,7 +588,7 @@
 		<echo>+ ===================================================== +</echo>		
 
 		<copy todir="${dist.dir}/lib">
-		    <fileset dir="${basedir}/lib">
+		    <fileset dir="${lib.dir}">
 			    <include name="*.jar" />
 			</fileset>
 		</copy>
@@ -596,18 +596,18 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- Copy jar files from libCommon (if dir exists)  -->
+	<!-- Copy jar files from libEnv (if dir exists)     -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-copycommonlib" depends="-check-for-commonlib" if="commonlib.present">
+	<target name="-copylibenv" depends="-check-for-libenv" if="libenv.present">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  Copying jar files in commonLib                       +</echo>
+		<echo>+  Copying jar files in libEnv                         +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>		
 		
 		<copy todir="${dist.dir}/lib">
-		    <fileset dir="${basedir}/libCommon">
+		    <fileset dir="${lib.env.dir}">
 			    <include name="*.jar" />
 			</fileset>
 		</copy>
@@ -805,10 +805,10 @@
       	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
 		</replace>
 		
-		<!-- Change build path (orion) to include libCommon -->
+		<!-- Change build path (orion) to include libEnv -->
 		<replaceregexp  file="${opensource.dir}/build.xml"
 				     match="&lt;fileset(.*)dir=&quot;(.*)lib.hcienv.dir}(.*)"
-		         replace="&lt;fileset dir=&quot;&#36;\{lib.common.dir\}&quot;\/&gt;">
+		         replace="&lt;fileset dir=&quot;&#36;\{lib.env.dir\}&quot;\/&gt;">
 		</replaceregexp>
 
 		
@@ -930,8 +930,8 @@
 		<echo>+ ===================================================== +</echo>
 		
 
-		  <!-- Copy jar files normally in hciEnv directly to gnomex/libCommon -->
-		  <copy todir="${opensource.dir}/libCommon">
+		  <!-- Copy jar files normally in hciEnv directly to gnomex/libEnv -->
+		  <copy todir="${opensource.dir}/libEnv">
 		    <fileset dir="${hcienv.dir}/lib">
 		      <include name="antlr-2.7.6rc1.jar"/>
 		      <include name="asm.jar"/>
@@ -1011,7 +1011,7 @@
 		
 		
 		<!-- Copy over the jars required in orion/lib -->
-		<copy todir="${opensource.dir}/orion">
+		<copy todir="${opensource.dir}/dist/server/orion">
 	     <fileset dir="${orion.dir}">
 	      <include name="lib/commons*.jar"/>
 	      <include name="lib/dom4j*.jar"/>
@@ -1034,8 +1034,8 @@
 	  </copy>
 		
 	  <!-- Copy example orion config files -->
-      <mkdir dir="${opensource.dir}/orion/config" />
-	  <copy todir="${opensource.dir}/orion/config">
+      <mkdir dir="${opensource.dir}/dist/server/orion/config" />
+	  <copy todir="${opensource.dir}/dist/server/orion/config">
 	    <fileset dir="${basedir}/orion_config">
 	      <include name="*/**"/>
 	      <exclude name="**/CVS"/>
@@ -1044,50 +1044,50 @@
 	  </copy>
 		
 		<!-- Change name of db user accounts from orion data sources example -->
-		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+		<replace file="${opensource.dir}/dist/server/orion/config/data-sources.xml"
 				     token="SysGNomEx"
 		         value="gnomex">
 		</replace>
-		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+		<replace file="${opensource.dir}/dist/server/orion/config/data-sources.xml"
 				     token="GuestGNomEx"
 		         value="gnomexGuest">
 		</replace>		
 		
 		<!-- Change to use MySSQL jdbc driver in orion data sources example -->
-		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+		<replace file="${opensource.dir}/dist/server/orion/config/data-sources.xml"
 				     token="connection-driver=&quot;com.microsoft.jdbc.sqlserver.SQLServerDriver&quot;"
 		         value="connection-driver=&quot;com.mysql.jdbc.Driver&quot;">
 		</replace>
-		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+		<replace file="${opensource.dir}/dist/server/orion/config/data-sources.xml"
 				     token="url=&quot;jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
 		         value="url=&quot;jdbc:mysql://localhost:3306/gnomex&quot;">
 		</replace>
 		
 		<!-- Get rid of hciEnv web app in orion server.xml -->
-		<replaceregexp  file="${opensource.dir}/orion/config/server.xml"
+		<replaceregexp  file="${opensource.dir}/dist/server/orion/config/server.xml"
 					       match="&lt;application\s+name=&quot;hciEnv&quot;(.*)"
 				         replace="">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/orion/config/server.xml"
+		<replaceregexp  file="${opensource.dir}/dist/server/orion/config/server.xml"
 					       match="parent=&quot;hciEnv&quot;"
 				         replace="">
 		</replaceregexp>
 		
 		<!-- Comment out gnomex and ssl in orion secure-web-site.xml since
 		     default configuration will assume gnomex is run unsecure (http:) -->
-		<replaceregexp  file="${opensource.dir}/orion/config/secure-web-site.xml"
+		<replaceregexp  file="${opensource.dir}/dist/server/orion/config/secure-web-site.xml"
 					       match="&lt;ssl-config(.*)&gt;"
 				         replace="&lt;\!\-\-    &lt;ssl-config\1&gt;    \-\-&gt;"
 			           byline="true">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/orion/config/secure-web-site.xml"
+		<replaceregexp  file="${opensource.dir}/dist/server/orion/config/secure-web-site.xml"
 					       match="&lt;web-app\s+application=&quot;gnomex&quot;(.*)&gt;"
 				         replace="&lt;\!\-\-    &lt;web-app\1application=&quot;gnomex&quot;\1&gt;    \-\-&gt;"
 			           byline="true">
 		</replaceregexp>
 		
 		<!-- Comment out the reference to security-web-site.xml in server.xml -->
-		<replaceregexp  file="${opensource.dir}/orion/config/server.xml"
+		<replaceregexp  file="${opensource.dir}/dist/server/orion/config/server.xml"
 							       match="&lt;web-site\s+path=&quot;(.*)secure-web-site.xml&quot;(.*)&gt;"
 						         replace="&lt;\!\-\-    &lt;web-site\1path=&quot;\1secure-web-site.xml&quot;\1&gt;    \-\-&gt;"
 					           byline="true">
@@ -1103,7 +1103,7 @@
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
 			<zipfileset dir="${opensource.dir}/scripts" includes="*.*" prefix="${opensource.name}/gnomex/scripts"/>
-			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
+			<zipfileset dir="${opensource.dir}/dist/server/orion" prefix="${opensource.name}/orion"/>
 			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
@@ -1193,15 +1193,15 @@
 		</subant>
 		
 		<!-- Copy over the jars required in tomcat/common/lib -->
-		<copy todir="${opensource.dir}/tomcat/common/lib">
+		<copy todir="${opensource.dir}/dist/server/tomcat/common/lib">
 	       <fileset dir="${lib.tomcat.common.dir}">
 	        <include name="*.jar"/>
 	      </fileset>
 	    </copy>
 		
 	  <!-- Copy example tomcat config files -->
-      <mkdir dir="${opensource.dir}/tomcat/conf" />
-	  <copy todir="${opensource.dir}/tomcat/conf">
+      <mkdir dir="${opensource.dir}/dist/server/tomcat/conf" />
+	  <copy todir="${opensource.dir}/dist/server/tomcat/conf">
 	    <fileset dir="${basedir}/tomcat_config">
 	      <include name="*/**"/>
 	      <exclude name="**/CVS"/>
@@ -1210,11 +1210,11 @@
 	  </copy>
 		
 		<!-- Change to use MySSQL jdbc driver in openejb.xml -->
-		<replace file="${opensource.dir}/tomcat/conf/openejb.xml"
+		<replace file="${opensource.dir}/dist/server/tomcat/conf/openejb.xml"
 				  token="com.microsoft.jdbc.sqlserver.SQLServerDriver"
 		         value="com.mysql.jdbc.Driver">
 		</replace>
-		<replace file="${opensource.dir}/tomcat/conf/openejb.xml"
+		<replace file="${opensource.dir}/dist/server/tomcat/conf/openejb.xml"
 				     token="jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
 		         value="jdbc:mysql://localhost:3306/gnomex">
 		</replace>
@@ -1250,7 +1250,7 @@
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
 			<zipfileset dir="${opensource.dir}/dist/tomcat/scripts" includes="*.*" prefix="${opensource.name}/gnomex/scripts"/>
-			<zipfileset dir="${opensource.dir}/tomcat" prefix="${opensource.name}/tomcat"/>
+			<zipfileset dir="${opensource.dir}/dist/server/tomcat" prefix="${opensource.name}/tomcat"/>
 			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}/dist/tomcat" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
