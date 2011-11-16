@@ -20,7 +20,7 @@
 * Cleaned up extraneous code in PendingWorkAuthd
 * Changed register_files.cmd and register_files.sh to include java mail in path.
 * Set initial value to 0 for number of samples per flowcell channel on Submit Window (for seq requests), forcing client to choose a number (used to default to 1).
-* Show 'upload' and 'organize files' link for all experiments that can be editted by user, not just external experiments.
+* Show 'upload' and 'organize files' link for all experiments that can be edited by user, not just external experiments.
 * Prompt for FDT upload/download of download size exceeds 1 GB (rather than 4 GB).
 * Changes to add Description field to Annotations.
 * Remove Files tab from amend request.
@@ -235,7 +235,7 @@ submitted.  Needed so that index tag dropdown is appropriately enabled on lib pr
 5.1.7.3 (July 15, 2011)
 ---------------------
 * Fixed for the scrolling speed problem on the billing window price drag/drop. 
-* Added a property to define who receives the pending work authorizations message, fixed the problem with the account number in the work auth notification email.
+* Added a property to define who recieves the pending work authorizations message, fixed the problem with the account number in the work auth notification email.
 
 
 5.1.7.2 (July 14, 2011)
