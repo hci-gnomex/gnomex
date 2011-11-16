@@ -2,13 +2,9 @@ package views.util
 {
 	public class FileUtil
 	{
-	
-		public static const   MAX_DOWNLOAD_SIZE_DISPLAY:String = '1 GB';
-		public static const   MAX_DOWNLOAD_SIZE:Number = (1 * GB);
-
-		public static const  KB:Number = Math.pow(2, 10);
-		public static const  MB:Number = Math.pow(2, 20);
-		public static const  GB:Number = Math.pow(2, 30);
+		public static const  KB:Number = 1024;
+		public static const  MB:Number = Math.pow(1024,2) ;
+		public static const  GB:Number = Math.pow(1024,3);		
 
 		public function FileUtil()
 		{

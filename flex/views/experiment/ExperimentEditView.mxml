@@ -4591,7 +4591,7 @@
 			<mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
             <mx:RemoveChild target="{setupView}"/>
             <mx:SetProperty target="{titleLabel}" name="text" value="Add services to existing experiment "/>
-			<mx:RemoveChild target="{downloadView}"/>
+			
         </mx:State>
         <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
             <mx:RemoveChild target="{sampleSetupView}"/>

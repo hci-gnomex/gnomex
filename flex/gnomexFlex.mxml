@@ -558,7 +558,11 @@
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
-			 
+			
+			
+			public var MAX_DOWNLOAD_SIZE_DISPLAY:String = '1 GB';
+			public var MAX_DOWNLOAD_SIZE:Number = Math.pow(1024,3);
+			
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
 			
