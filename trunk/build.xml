@@ -1055,11 +1055,11 @@
 		
 		<!-- Change to use MySSQL jdbc driver in orion data sources example -->
 		<replace file="${opensource.dir}/dist/server/orion/config/data-sources.xml"
-				     token="connection-driver=&quot;com.microsoft.jdbc.sqlserver.SQLServerDriver&quot;"
+				     token="connection-driver=&quot;com.microsoft.sqlserver.jdbc.SQLServerDriver&quot;"
 		         value="connection-driver=&quot;com.mysql.jdbc.Driver&quot;">
 		</replace>
 		<replace file="${opensource.dir}/dist/server/orion/config/data-sources.xml"
-				     token="url=&quot;jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
+				     token="url=&quot;jdbc:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
 		         value="url=&quot;jdbc:mysql://localhost:3306/gnomex&quot;">
 		</replace>
 		
@@ -1209,13 +1209,24 @@
 	    </fileset>
 	  </copy>
 		
+		<!-- Change name of db user accounts for openejb.xml -->
+		<replace file="${opensource.dir}/dist/server/tomcat/conf/openejb.xml"
+			  token="SysGNomEx"
+		      value="gnomex">
+		</replace>
+		<replace file="${opensource.dir}/dist/server/tomcat/conf/openejb.xml"
+			  token="GuestGNomEx"
+		      value="gnomexGuest">
+		</replace>		
+
+		
 		<!-- Change to use MySSQL jdbc driver in openejb.xml -->
 		<replace file="${opensource.dir}/dist/server/tomcat/conf/openejb.xml"
-				  token="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+				  token="com.microsoft.sqlserver.jdbc.SQLServerDriver"
 		         value="com.mysql.jdbc.Driver">
 		</replace>
 		<replace file="${opensource.dir}/dist/server/tomcat/conf/openejb.xml"
-				     token="jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
+				     token="jdbc:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
 		         value="jdbc:mysql://localhost:3306/gnomex">
 		</replace>
 		
