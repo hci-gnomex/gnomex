@@ -41,7 +41,6 @@
 		<property name="idAnalysisType" column="idAnalysisType" type="integer"/>
 		<property name="idAnalysisProtocol" column="idAnalysisProtocol" type="integer"/>
 		<property name="idOrganism" column="idOrganism" type="integer"/>
-		<property name="idGenomeBuild" column="idGenomeBuild" type="integer"/>
 		<property name="createDate" column="createDate" type="date"/>
 		<property name="codeVisibility" column="codeVisibility" type="string"/>		
 		<property name="idInstitution" column="idInstitution" type="integer"/>

@@ -156,7 +156,7 @@ public class CreateAnalysisMain {
       //
       // Login using forms based authentication
       //
-      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/loginsucceeded.jsp?j_username=" + userName + "&j_password=" + password);
+      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
       URLConnection conn = url.openConnection();
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;

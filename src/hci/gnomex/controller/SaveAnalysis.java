@@ -249,8 +249,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       if (isBatchMode) {
         getLab(sess);
         getAnalysisType(sess);
-        getGenomeBuild(sess);
         getOrganism(sess);
+        getGenomeBuilds(sess);
         getExistingAnalysisGroup(sess);
       }
       
@@ -312,7 +312,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           
           
         } else {
-          initializeAnalysis(analysis);
+          initializeAnalysis(sess, analysis);
         }
 
 
@@ -577,17 +577,21 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     
   }
   
-  private void getGenomeBuild(Session sess) throws Exception{
-    if (genomeBuild == null || genomeBuild.equals("")) {
-      throw new RollBackCommandException("genomeBuild not provided");
+  private void getGenomeBuilds(Session sess) throws Exception{
+    if (this.isBatchMode) {
+      if (genomeBuild == null || genomeBuild.equals("")) {
+        throw new RollBackCommandException("genomeBuild not provided");
+      }
+      
+      StringBuffer buf = new StringBuffer("SELECT gb from GenomeBuild gb where gb.genomeBuildName like '%" + genomeBuild + "%'");
+      GenomeBuild gb = (GenomeBuild)sess.createQuery(buf.toString()).uniqueResult();
+      if (gb == null) {
+        throw new RollBackCommandException("Genome build " + genomeBuild + " not found in gnomex db");
+      }
+      Set genomeBuilds = new TreeSet();
+      genomeBuilds.add(gb);
+      analysisScreen.setGenomeBuilds(genomeBuilds);
     }
-    
-    StringBuffer buf = new StringBuffer("SELECT gb from GenomeBuild gb where gb.genomeBuildName like '%" + genomeBuild + "%'");
-    GenomeBuild gb = (GenomeBuild)sess.createQuery(buf.toString()).uniqueResult();
-    if (gb == null) {
-      throw new RollBackCommandException("Genome build " + genomeBuild + " not found in gnomex db");
-    }
-    analysisScreen.setIdGenomeBuild(gb.getIdGenomeBuild());
   }
   
   private void getOrganism(Session sess) throws Exception{
@@ -618,14 +622,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
   }
 
-  private void initializeAnalysis(Analysis analysis) {
+  private void initializeAnalysis(Session sess, Analysis analysis) throws Exception {
     analysis.setName(RequestParser.unEscape(analysisScreen.getName()));
     analysis.setDescription(RequestParser.unEscapeBasic(analysisScreen.getDescription()));
     analysis.setIdLab(analysisScreen.getIdLab());
     analysis.setIdAnalysisProtocol(analysisScreen.getIdAnalysisProtocol());
     analysis.setIdAnalysisType(analysisScreen.getIdAnalysisType());
     analysis.setIdOrganism(analysisScreen.getIdOrganism());
-    analysis.setIdGenomeBuild(analysisScreen.getIdGenomeBuild());
     analysis.setCodeVisibility(analysisScreen.getCodeVisibility());
     analysis.setIdInstitution(analysisScreen.getIdInstitution());
     analysis.setPrivacyExpirationDate(analysisScreen.getPrivacyExpirationDate());

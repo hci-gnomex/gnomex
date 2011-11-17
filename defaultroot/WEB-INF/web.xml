@@ -284,6 +284,7 @@
 			<web-resource-name>Login</web-resource-name>
 			<description>Login</description>
 			<url-pattern>gnomexFlex.jsp</url-pattern>
+			<url-pattern>login_verify.jsp</url-pattern>
 			<url-pattern>CreateBillingItems.gx</url-pattern>
 			<url-pattern>CreateSecurityAdvisor.gx</url-pattern>
 			<url-pattern>uploadAnalysisFile.jsp</url-pattern>

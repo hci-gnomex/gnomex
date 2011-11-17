@@ -21,7 +21,6 @@ public class Analysis extends HibernateDetailObject {
   private Integer   idAnalysisType;
   private Integer   idAnalysisProtocol;
   private Integer   idOrganism;
-  private Integer   idGenomeBuild;
   private Date      createDate;
   private String    codeVisibility;
   private Integer   idInstitution;
@@ -153,16 +152,6 @@ public class Analysis extends HibernateDetailObject {
   
   public void setIdOrganism(Integer idOrganism) {
     this.idOrganism = idOrganism;
-  }
-
-  
-  public Integer getIdGenomeBuild() {
-    return idGenomeBuild;
-  }
-
-  
-  public void setIdGenomeBuild(Integer idGenomeBuild) {
-    this.idGenomeBuild = idGenomeBuild;
   }
 
   

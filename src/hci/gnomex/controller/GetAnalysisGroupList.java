@@ -234,12 +234,11 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisNode.setAttribute("idAnalysisType",     row[15] == null ? ""  : ((Integer)row[15]).toString());
     analysisNode.setAttribute("idAnalysisProtocol", row[16] == null ? ""  : ((Integer)row[16]).toString());
     analysisNode.setAttribute("idOrganism",         row[17] == null ? ""  : ((Integer)row[17]).toString());
-    analysisNode.setAttribute("idGenomeBuild",      row[18] == null ? ""  : ((Integer)row[18]).toString());
-    analysisNode.setAttribute("codeVisibility",     row[19] == null ? ""  : (String)row[19]);    
-    analysisNode.setAttribute("idAppUser",          row[22] == null ? ""  : ((Integer)row[22]).toString());    
+    analysisNode.setAttribute("codeVisibility",     row[18] == null ? ""  : (String)row[18]);    
+    analysisNode.setAttribute("idAppUser",          row[21] == null ? ""  : ((Integer)row[21]).toString());    
 
-    String lastName   = row[20] != null ? (String)row[20] : "";
-    String firstName  = row[21] != null ? (String)row[21] : "";
+    String lastName   = row[19] != null ? (String)row[19] : "";
+    String firstName  = row[20] != null ? (String)row[20] : "";
     String ownerName = "";
     if (firstName != "") {
       ownerName += firstName;
@@ -269,7 +268,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisNode.setAttribute("key", key);
 
     Integer idLab = (Integer)row[3];
-    Integer idAppUser = (Integer)row[22];
+    Integer idAppUser = (Integer)row[21];
     analysisNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
 
     analysisGroupNode.addContent(analysisNode);

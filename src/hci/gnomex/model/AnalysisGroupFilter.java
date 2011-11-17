@@ -53,7 +53,6 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        a.idAnalysisType, ");
     queryBuf.append("        a.idAnalysisProtocol, ");
     queryBuf.append("        a.idOrganism, ");
-    queryBuf.append("        a.idGenomeBuild, ");
     queryBuf.append("        a.codeVisibility, ");
     queryBuf.append("        owner.lastName, ");
     queryBuf.append("        owner.firstName, ");
