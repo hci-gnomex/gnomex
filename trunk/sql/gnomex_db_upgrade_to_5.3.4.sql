@@ -1,0 +1,1 @@
+alter table gnomex.Analysis remove column idGenomeBuild;

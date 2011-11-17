@@ -1,8 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.3.1
+--------------------
+* Fix CreateAnalysisMain for new jsp for forms based authentication. Fix SaveAnalysis to handle multiple genome builds.
 
-5.3.3
+
+5.3.3 (11/15/2011)
 --------------------
 * Introduced code and configuration to run gnomex under Apache Tomcat server (with OpenEJB).
 * Added IlluminaExomeCapturePerCapPlugin to account for per capture pricing on exome captures.

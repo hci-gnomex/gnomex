@@ -21,7 +21,6 @@ CREATE TABLE `gnomex`.`Analysis` (
   `idAnalysisType` INT(10) NULL,
   `idAnalysisProtocol` INT(10) NULL,
   `idOrganism` INT(10) NULL,
-  `idGenomeBuild` INT(10) NULL,
   `codeVisibility` VARCHAR(10) NOT NULL,
   `createDate` DATETIME NULL,
   `idAppUser` INT(10) NULL,
