@@ -670,7 +670,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName =getAnalysisDirectory(baseDir, analysis) +  "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
+    String fileName = getAnalysisDirectory(baseDir, analysis) + "/" + analysisFile.getFileName();    
     
     
     File f = new File(fileName);
