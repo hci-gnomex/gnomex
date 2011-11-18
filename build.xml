@@ -589,7 +589,7 @@
 
 		<copy todir="${dist.dir}/lib">
 		    <fileset dir="${lib.dir}">
-			    <include name="*.jar" />
+			    <include name="**" />
 			</fileset>
 		</copy>
 	</target>
@@ -608,7 +608,7 @@
 		
 		<copy todir="${dist.dir}/lib">
 		    <fileset dir="${lib.env.dir}">
-			    <include name="*.jar" />
+			    <include name="**" />
 			</fileset>
 		</copy>
 	</target>
@@ -641,7 +641,7 @@
           <fileset dir="${dist.dir}"		 	includes="lib/*.*" />
           <fileset dir="${dist.dir}"	        includes="${jar.name}" />
           <fileset dir="${dist.dir}"		    includes="${war.name}" />
-          <fileset dir="${src.dir}"             excludes="*.tomcat.hbm.xml" includes="*.hbm.xml" />
+          <fileset dir="${src.dir}"             includes="*.hbm.xml" />
           <fileset dir="${basedir}/scripts">
       	      <exclude name="httpclient*.cmd" />
       	      <exclude name="httpclient*.sh" />
