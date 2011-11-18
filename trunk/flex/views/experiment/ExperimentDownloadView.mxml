@@ -388,7 +388,7 @@
 						   includeInLayout="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
 						   click="showExperimentFDTUploadWindow()" 
 						   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
-			<mx:LinkButton fontSize="9" label="Organize files"  
+			<mx:LinkButton label="Organize files"  
 						   visible="{this.uploadButtonsVisible}"
 						   click="showExperimentOrganizeWindow()" 
 						   id="uploadOrganizeLink" 
