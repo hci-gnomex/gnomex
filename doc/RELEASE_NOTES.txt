@@ -4,7 +4,8 @@
 5.3.3.1 (11/17/2011)
 --------------------
 * Fix authentication code in httpclient java apps to use new login_verify.jsp 
-* Fixed SaveAnalysis to handle multiple genome builds; removed idGenomeBuild from Analysis
+* Fixed SaveAnalysis to handle multiple genome builds; removed idGenomeBuild from Analysis.
+* Fixed bug so that Analysis files can be removed (analysis number was duplicated in filepath).
 * Moved upload link down to files tab on Analysis detail and Analysis edit windows.
 
 
