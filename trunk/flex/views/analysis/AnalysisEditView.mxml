@@ -826,17 +826,13 @@
 <mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AppUser}"/>
 <mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
 
-	<mx:VBox width="100%" verticalGap="8">
+	<mx:VBox width="100%" verticalGap="2">
 		<mx:HBox horizontalGap="1">
 			<mx:Image source="{parentApplication.iconAnalysis}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
 		</mx:HBox>
-		<mx:HBox width="100%" horizontalAlign="left" paddingBottom="4">
+		<mx:HBox width="100%" horizontalAlign="left">
 			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">    	        
-			</mx:LinkButton>
-			<mx:LinkButton label="Upload files" click="showUploadWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')" fontSize="9" textAlign="left">    	        
-			</mx:LinkButton>
-			<mx:LinkButton label="FDT Upload files" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" visible="{parentApplication.isFDTSupported}" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')" fontSize="9" textAlign="left">    	        
 			</mx:LinkButton>
 			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" fontSize="9" textAlign="left"/>
 		</mx:HBox>
@@ -1084,6 +1080,19 @@
 		</mx:Canvas>
 		<mx:VBox verticalGap="2" label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 				<mx:HBox>
+					<mx:LinkButton label="Upload files" click="showUploadWindow()" 
+								   icon="@Embed(source='../../assets/upload.png')" 
+								   textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')" 
+								   textAlign="left">    	        
+					</mx:LinkButton>
+					<mx:LinkButton label="FDT Upload files" 
+								   click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" 
+								   visible="{parentApplication.isFDTSupported}" 
+								   includeInLayout="{parentApplication.isFDTSupported}" 
+								   textDecoration="underline" 
+								   disabledIcon="@Embed(source='../../assets/upload_disable.png')"
+								   textAlign="left">    	        
+					</mx:LinkButton>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()"/>
 					<mx:LinkButton id="clearFileButton" label="Clear all" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png')" icon="@Embed(source='../../assets/folder_delete.png')" toolTip="Clear all files"  textDecoration="underline" click="promptToRemoveAllAnalysisFiles()"/>					
 				</mx:HBox>

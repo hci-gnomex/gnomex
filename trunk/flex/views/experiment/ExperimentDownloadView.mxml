@@ -372,23 +372,18 @@
 	<mx:XMLListCollection  id="filesToDelete"  />
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" verticalGap="0">
-		<mx:HBox width="100%">
-			<mx:HBox width="200" height="100%" verticalAlign="middle">
-				<mx:Label text="{downloadSizeMessage}" fontWeight="normal" fontStyle="normal" />
-			</mx:HBox>
-			<mx:Spacer width="10"/>
-			<mx:HBox width="100%" horizontalAlign="center" styleName="warningLabel" height="100%" verticalAlign="middle">
-				<mx:Label text="{browseMessage}"/>			
-			</mx:HBox>
-			<mx:Spacer width="100%" height="100%"/>
-			
+
+		<mx:HBox width="100%" visible="{browseMessage != ''}" includeInLayout="{browseMessage != ''}" horizontalAlign="center" styleName="warningLabel" verticalAlign="middle">
+			<mx:Label text="{browseMessage}"/>			
 		</mx:HBox>
-		<mx:HBox id="deleteButtonsContainer"  includeInLayout="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" visible="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" horizontalAlign="right">
-			<mx:LinkButton fontSize="9" label="Upload files" 
+			
+		<mx:HBox id="deleteButtonsContainer"  includeInLayout="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" visible="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" horizontalAlign="right" paddingTop="2" paddingBottom="2">
+			<mx:LinkButton label="Upload files" 
 						   click="showExperimentUploadWindow()" 
 						   visible="{this.uploadButtonsVisible}"
-						   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
-			<mx:LinkButton fontSize="9" label="FDT Upload files" 
+						   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
+						   textAlign="left"/>
+			<mx:LinkButton label="FDT Upload files" 
 						   visible="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
 						   includeInLayout="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
 						   click="showExperimentFDTUploadWindow()" 
@@ -441,7 +436,11 @@
   				  <mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay"  headerText="Modified" width="50"/> 
   			    </mx:columns>
   			</mx:AdvancedDataGrid>
-		<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="{downloadSizeMessage}" fontWeight="normal" fontStyle="normal" />
+			<mx:Spacer width="100%"/>
+			<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
+		</mx:HBox>
 
 	</mx:VBox>
 	
