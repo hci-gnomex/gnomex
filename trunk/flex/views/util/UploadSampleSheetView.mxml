@@ -180,6 +180,10 @@
 				} else {
 					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
 				}
+				if(sampleGridDataRows.length==0) {
+					// Make sure there is an initial row
+					tabSamplesView.addSample();
+				}
 				for each (var ssRowItem:XML in ssRowList) {				
 					if(hasColNames.selected && ssRowCount==1) {
 						// Skip row 1 if it consists of column names
@@ -402,7 +406,7 @@
 						if (col.headerText == "") {
 							continue;	// This skips row number column
 						}
-						if (col.visible && col.dataField != null) {
+						if (col.visible && col.editable && col.dataField != null) {
 							var fieldType:String = "TEXT";
 							if(col is AnnotationAdvancedDataGridColumn) {
 								fieldType = AnnotationAdvancedDataGridColumn(col).characteristicType;

@@ -137,7 +137,7 @@ public class SequenceLane extends HibernateDetailObject {
   }
   
   public String getFlowCellNumber() {
-    if (flowCellChannel != null) {
+    if (flowCellChannel != null && flowCellChannel.getFlowCell() != null && flowCellChannel.getFlowCell().getNumber() != null) {
       return flowCellChannel.getFlowCell().getNumber().toString();
     } else {
       return "";
@@ -541,7 +541,7 @@ public class SequenceLane extends HibernateDetailObject {
       SequenceLane lane = (SequenceLane)i.next();
 
       String key = "";
-      if (lane.getIdFlowCellChannel() != null) {
+      if (lane.getIdFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell() != null &&  lane.getFlowCellChannel().getFlowCell().getNumber() != null) {
         key = "0-" + lane.getFlowCellChannel().getFlowCell().getNumber() + "-" + lane.getFlowCellChannel().getNumber();
       } else if (lane.getSample().getMultiplexGroupNumber() != null) {
         // Only consider the multiplex group of the sample if the lane was

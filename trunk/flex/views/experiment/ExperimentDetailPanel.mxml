@@ -21,12 +21,12 @@
 					<mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 					<mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>
-				<mx:LinkButton label="Downloads" fontSize="9" click="detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
+				<mx:LinkButton label="Downloads" fontSize="9" click="detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" visible="{detail.selectedExperiment.@isExternal != 'Y'}" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
 				<mx:LinkButton label="Printable form" fontSize="9" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
 				</mx:LinkButton>
-				<mx:LinkButton  fontSize="9" label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline"  textAlign="left">    	        
+				<mx:LinkButton id="linkButtonToHiSeqOrGAIIx"  fontSize="9" label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline"  textAlign="left">    	        
 				</mx:LinkButton>
 		</mx:HBox>
 	
