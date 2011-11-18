@@ -79,17 +79,34 @@
 				}
 				for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
 					var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
-					if ( dc.dataField == "@ANNOT" + idSampleCharacteristic) {
-						dc.visible = show;
-						break;					
+					if (idSampleCharacteristic == "-1") {
+						// Special treatment for "Description"
+						if ( dc.dataField == "@description") {
+							dc.visible = show;
+							break;					
+						}
+					} else {
+						if ( dc.dataField == "@ANNOT" + idSampleCharacteristic) {
+							dc.visible = show;
+							break;					
+						}						
 					}
+
 				}
 				for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
 					var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
-					if ( dc1.dataField == "@ANNOT" + idSampleCharacteristic) {
-						dc1.visible = show;
-						break;
-					}
+					if (idSampleCharacteristic == "-1") {
+						// Special treatment for "Description"
+						if ( dc1.dataField == "@description") {
+							dc1.visible = show;
+							break;					
+						}
+					} else {
+						if ( dc1.dataField == "@ANNOT" + idSampleCharacteristic) {
+							dc1.visible = show;
+							break;
+						}						
+					}					
 				}
 			}
 			
@@ -396,7 +413,7 @@
 				for each(annotation in parentDocument.sampleCharacteristicEntries) {
 					exists = false;
 					for each(var sc:XML in parentApplication.sampleCharacteristicList) {
-						if (sc.@value == annotation.@idSampleCharacteristic) {
+						if (sc.@value == annotation.@idSampleCharacteristic || annotation.@idSampleCharacteristic == "-1") {
 							exists = true;
 							break;
 						}      				 

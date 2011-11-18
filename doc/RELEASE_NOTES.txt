@@ -1,6 +1,17 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Added dropdown for Organism to initial screen for external experiment registration.
+* Made Organism field in Sample View read only for external experiment registration.
+* Removed columns not selected in the Annotations tab for external experiments.
+* Removed links/check boxes/fields: To GAIIx, Show QC Columns, Illumina Prep, Completed field for external exps.
+* Removed Sample Sequencing Run tab for external exps and made sure deleting corresponding samples does not initiate a prompt.
+* Implemented check to require completion of any required annotation fields in Sample View.
+* Removed Download link for external exps.
+* Fixed null pointer problem in SequenceLane.java that caused XML reflection error for some Experiments.
+
+
 5.3.3.1 (11/17/2011)
 --------------------
 * Fix authentication code in httpclient java apps to use new login_verify.jsp 

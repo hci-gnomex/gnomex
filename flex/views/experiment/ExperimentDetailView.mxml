@@ -104,13 +104,13 @@
 				} 
 			}
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
-			this.currentState = '';						
+			this.currentState = '';	
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
 				
 			} else if (this.selectedExperiment.@isExternal != 'Y' &&
-				       this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
-			           this.selectedExperiment.@codeRequestCategory == 'HISEQ') {
+				       (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
+			           this.selectedExperiment.@codeRequestCategory == 'HISEQ')) {
 				currentState = 'SolexaState';
 			} else if (requestCategory.@type == 'MICROARRAY') {
 				if (this.selectedExperiment.@isExternal != 'Y') {
@@ -128,6 +128,18 @@
 
 			} else if (requestCategory.@type == 'ILLUMINA' && this.selectedExperiment.@isExternal == 'Y') {
 				currentState = 'ExternalSeqState';
+				if(headerBox != null) {
+					headerBox.visible = false;
+				}
+				if(hbox2 != null) {
+					hbox2.visible = false;		
+				}
+				if(showQCFieldsCheckBox != null) {
+					showQCFieldsCheckBox.visible = false;				
+				}
+				if(showSeqPrepFieldsCheckBox != null) {
+					showSeqPrepFieldsCheckBox.visible = false;
+				}
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -136,8 +148,37 @@
 				} else {
 					parentDocument.analysisButton.enabled = false;
 				}
+				if(this.selectedExperiment.@isExternal == 'Y') {
+					parentDocument.linkButtonToHiSeqOrGAIIx.visible = false;			
+				}
 			}
-			showQCFieldsCheckBox.selected = selectedExperiment.@isExternal == 'Y' ? false : true;
+			
+			if(this.selectedExperiment.@isExternal == 'Y') {
+				if(lanesConfirmContainer != null && theTab.contains(lanesConfirmContainer)) {
+					//theTab.setChildIndex(lanesConfirmContainer, 2);
+					//lanesConfirmContainer.enabled = false;
+					/*
+					var index:int = theTab.getChildIndex(lanesConfirmContainer);
+					if (index > 0) {
+						var tabButton:Button = theTab.getTabAt(index);
+						if(tabButton != null) {
+							lanesConfirmContainer.tabIndex = theTab.numChildren+1;
+							//tabButton.visible = false;
+						}						
+					}
+					*/
+
+				}
+				showQCFieldsCheckBox.visible = false;					
+			}
+			else {
+				showQCFieldsCheckBox.visible = true;
+				showQCFieldsCheckBox.selected = true;
+			}
+			
+			
+			
+			//showQCFieldsCheckBox.selected = selectedExperiment.@isExternal == 'Y' ? false : true;
 
 			getRequestCategoryName();
 			getExperimentCategoryName();
@@ -405,9 +446,18 @@
         }
 	
         private function showHideColumns():void {
+			if(this.selectedExperiment.@isExternal == 'Y') {
+				if(this.showQCFieldsCheckBox != null) {
+					this.showQCFieldsCheckBox.selected = false;	
+				}
+				if(this.showSeqPrepFieldsCheckBox != null) {
+					this.showSeqPrepFieldsCheckBox.selected = false;
+				}				
+			}
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
 				organismCol.visible = true;
+				descriptionCol.visible = (this.selectedExperiment[0].@hasSampleDescription=="Y");
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -423,7 +473,9 @@
 			} else if (currentState == 'ExternalMicroarrayState') {
 				sampleTypeCol.visible = true;
 				organismCol.visible = true;
-				samplePrepCol.visible = true;
+				//samplePrepCol.visible = true;
+				samplePrepCol.visible = false;
+				descriptionCol.visible = (this.selectedExperiment[0].@hasSampleDescription=="Y");
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -500,6 +552,9 @@
        		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
        		for each(annotation in this.selectedExperiment.SampleCharacteristicEntries.SampleCharacteristicEntry) {
+				if(annotation.@idSampleCharacteristic == "-1") {
+					continue;
+				}
 				
 				var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
 				var headerName:String = "";
@@ -740,11 +795,11 @@
         	</mx:VBox>
         	<mx:VBox verticalGap="0">
         		 <mx:HBox verticalGap="0" horizontalGap="0">
-        		   <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submited by'}" width="100" fontWeight="bold"/>
+        		   <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" fontWeight="bold"/>
         		   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
         		 </mx:HBox>
         	       <mx:HBox verticalGap="0" horizontalGap="0">
-        	         <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submited on'}"  width="100" fontWeight="bold"/>
+        	         <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" fontWeight="bold"/>
         	         <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
         	       </mx:HBox>
                   <mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
@@ -1260,12 +1315,13 @@
 		<mx:RemoveChild target="{hbox2}"/>
 		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
 	</mx:State>
-	<mx:State name="ExternalSeqState" basedOn="SolexaState">
-		<mx:RemoveChild target="{protocolsBox}"/>
+	<!--mx:State name="ExternalSeqState" basedOn="SolexaState"-->
+	<mx:State name="ExternalSeqState">
+		<!--mx:RemoveChild target="{protocolsBox}"/>
 		<mx:RemoveChild target="{headerBox}"/>
 		<mx:RemoveChild target="{hbox2}"/>
 		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
-		<mx:RemoveChild target="{showSeqPrepFieldsCheckBox}"/>
+		<mx:RemoveChild target="{showSeqPrepFieldsCheckBox}"/-->
 	</mx:State>
 </mx:states>
 	

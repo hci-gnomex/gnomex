@@ -631,7 +631,17 @@
         }
         
  
-          
+		private function addDescriptionFieldToAnnotations(sc:XMLList, isSelected:Boolean):void {
+			var scXML:XML = sc[0];
+			var descNode:XML = <SampleCharacteristicEntry idSampleCharacteristic="-1" sampleCharacteristic="Description" otherLabel="" isSelected="false" isActive="Y"/>;
+			if(isSelected) {
+				descNode.@isSelected = "true";
+			}	
+			if (editView.theTab.contains(editView.annotationView)) {
+				editView.annotationView.showSampleAnnotationColumn("-1", isSelected);
+			}
+			scXML.appendChild(descNode);
+		}          
 		  
 		private function onGetRequest(event:ResultEvent):void {
 			if (getRequest.lastResult.name() == "SUCCESS") {
@@ -662,6 +672,10 @@
 		    }
 
 			if (selectedIdRequest != null) {
+				if(getRequest.lastResult.Request.(@idRequest == selectedIdRequest).@isExternal == 'Y') {
+					addDescriptionFieldToAnnotations(getRequest.lastResult.Request.(@idRequest == selectedIdRequest).SampleCharacteristicEntries, 
+						getRequest.lastResult..Request.(@idRequest == selectedIdRequest).@hasSampleDescription=="Y");			
+				}	
 				selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);			
 			} else {
 				selectedExperiment = getRequest.lastResult.Request.(@number == selectedRequestNumber);
@@ -686,7 +700,8 @@
 				showEditView = false;						
 			} else {
 			    theViews.selectedChild = detailView;
-				detailView.detail.setupForm(this.selectedExperiment);				
+				detailView.detail.setupForm(this.selectedExperiment);
+				
 			}
 
 		    theViews.visible = true;

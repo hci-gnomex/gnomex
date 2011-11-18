@@ -55,6 +55,12 @@
 						
 		public function addSample():void {
 			var emptyNode:XML = null;
+			var idOrganism:String = "";
+			if (parentDocument.setupView.sampleOrganismCombo != null && parentDocument.setupView.sampleOrganismCombo.selectedItem != null) {
+				idOrganism = parentDocument.setupView.sampleOrganismCombo.selectedItem.@value;
+			} else if (parentDocument.setupView.sampleOrganismCombo1 != null && parentDocument.setupView.sampleOrganismCombo1.selectedItem != null) {
+				idOrganism = parentDocument.setupView.sampleOrganismCombo1.selectedItem.@value;
+			}
 			if (parentDocument.isSolexaState()) {
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
@@ -83,7 +89,7 @@
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
 					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.analysisInstructions.text : '') + "'" +				
 					" prepInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.prepInstructions.text : '') + "'" +				
-					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : '') + "'" +				
+					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
 					" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 					"/>");
@@ -113,7 +119,7 @@
 					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
-					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : '') + "'" +				
+					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
 					" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 					"/>");
@@ -164,7 +170,7 @@
 				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 				" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value  : '') + "'" +				
 				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
-				" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : '') + "'" +				
+				" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 				" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" 	+	
 				" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 				"/>");
@@ -194,6 +200,7 @@
         
 		
 		private function deleteSample():void {
+			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
 			if (samplesGrid.selectedItems.length > 0) {
 				for each(var sample:Object in samplesGrid.selectedItems) {
@@ -230,7 +237,7 @@
 							}
 						}
 						for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
-							if (sample.@idSample.indexOf("Sample") >= 0) {
+							if (sample.@idSample.indexOf("Sample") >= 0 || isExternal) {
 								parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
 							} else {
 								Alert.show("Please remove sequence lanes for sample " + sample.@name + " before attempting to delete sample.");
@@ -396,6 +403,7 @@
 			        		//isEntered(sample, "@idSamplePrepMethod") &&	don't require b/c old requests won't have this filled in        		
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
+							reqdAnnotationsEntered(sample)&& 
 							numberOfAdditionalLanes > 0) {
 			        		
 		        			completeCount++;
@@ -406,10 +414,11 @@
 	        			if (isEntered(sample, "@name") &&
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idSampleType") &&
-	        			    isEntered(sample, "@idOrganism") &&
-			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
+							isEntered(sample, "@idOrganism") &&
+			        		(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&	        		
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
+							reqdAnnotationsEntered(sample) &&  
 	        			    (isEntered(sample, "@numberSequencingLanes") || numberOfAdditionalLanes > 0)) {
 	        			    	
 	        			   
@@ -422,6 +431,7 @@
 		        	} else if (!parentApplication.submitInternalExperiment() && parentDocument.isSolexaState()) {
 						if (isEntered(sample, "@name") &&
 							isEntered(sample, "@idSampleType") &&
+							reqdAnnotationsEntered(sample) &&  
 							isEntered(sample, "@idOrganism")) {
 							
 							completeCount++;
@@ -429,11 +439,12 @@
 					} else {
 	        			if (isEntered(sample, "@name") &&
 			        		isEntered(sample, "@idSampleType") &&	        		
-			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
+			        		(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&	        		
 			        		isEntered(sample, "@idSeqLibProtocol") &&	        		
 			        		isEntered(sample, "@concentration") &&
-			        		isEntered(sample, "@idOrganism") &&
+							isEntered(sample, "@idOrganism") &&
 			        		isEntered(sample, "@idSeqRunType") &&
+							reqdAnnotationsEntered(sample) &&  
 			        		isEntered(sample, "@idNumberSequencingCycles")) {
 			        			
 			        			
@@ -463,15 +474,17 @@
 		        } else if (currentState != null && currentState.indexOf('QCSamples') >= 0){
 					if (!parentApplication.submitInternalExperiment()) {
 						if (isEntered(sample, "@name") &&
-							isEntered(sample, "@idSamplePrepMethod") &&	
+							(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&	
+							reqdAnnotationsEntered(sample) &&
 							isEntered(sample, "@idSampleType")) {
 							completeCount++;
 						}
 					} else {
 						if (isEntered(sample, "@name") &&
 							isEntered(sample, "@idSampleType") &&		        		
-							isEntered(sample, "@idSamplePrepMethod") &&		        		
+							(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&		        		
 							isEntered(sample, "@concentration") &&
+							reqdAnnotationsEntered(sample) &&							
 							isEntered(sample, "@codeConcentrationUnit") ) {
 							
 							if (!parentDocument.isEditState() &&
@@ -488,9 +501,10 @@
         		} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
-			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
+			        	(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&		        		
 			        	(isEntered(sample, "@concentration") || !parentApplication.submitInternalExperiment()) &&  // only require concentration on internal requests
-			        	isEntered(sample, "@idOrganism")) {
+						reqdAnnotationsEntered(sample) &&
+						isEntered(sample, "@idOrganism")) {
 			        	
 			        	if (parentDocument.getRequestCategory().@numberOfChannels == "2") {
 			        		if (isEntered(sample, "@label")) {
@@ -601,14 +615,29 @@
         	
         
         }
-        private function isEntered(sample:Object, fieldName:String):Boolean {
-        	if (!sample.hasOwnProperty(fieldName) || sample[fieldName] == '') {
-        		return false;
-        	} else {
-        		return true;
-        	}
-        }
+		
+		private function isEntered(sample:Object, fieldName:String):Boolean {
+			if (!sample.hasOwnProperty(fieldName) || sample[fieldName] == '') {
+				return false;
+			} else {
+				return true;
+			}
+		}
 
+        private function reqdAnnotationsEntered(sample:Object):Boolean {
+			for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
+				if (col is views.util.AnnotationAdvancedDataGridColumn && col.visible) {
+					if (!sample.hasOwnProperty(col.dataField) || sample[col.dataField] == '') {
+						var idSampleCharacteristic:String = col.dataField.substr(6);
+						var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(idSampleCharacteristic);
+						if(sampleCharacteristic.@isRequired == "Y") {
+							return false;	
+						}
+					}					
+				}
+			}
+			return true;
+        }
         
         private function showMaxLaneError(numberSeqLanes:String):void {
 			Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
@@ -793,12 +822,21 @@
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
 			this.otherSamplePrepMethodCol.visible = !isExternal;
+			this.preppedByCoreCol.visible = !isExternal;
+			this.samplePrepMethodCol.visible = !isExternal;
+			this.otherSamplePrepMethodCol.visible = !isExternal;
+			this.seqLibProtocolCol.visible = !isExternal;
         	
 			showCCNumberCheckbox.visible =  !isExternal;
 			showCCNumberCheckbox.width = isExternal ? 0 : 250;
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
         	this.showQCFieldsCheckBox.visible = parentDocument.isEditState() && !isExternal;
         	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0 && !isExternal;
+			
+			if(isExternal) {
+				this.showQCFieldsCheckBox.selected = false;
+				this.showSeqPrepFieldsCheckBox.selected = false;
+			}
         	
         	if (showQCFieldsCheckBox.selected || showSeqPrepFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
@@ -808,20 +846,19 @@
 				concentrationUnitColumn.editable = !isExternal;
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
-				samplePrepMethodCol.visible = true;
-				otherSamplePrepMethodCol.visible = true;
+				//samplePrepMethodCol.visible = true;
+				//otherSamplePrepMethodCol.visible = true;
 				seqLibProtocolCol.visible = false;
 				preppedByCoreCol.visible = false;
 				numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible =  false;
-				preppedByCoreCol.visible =  false;
 				idSeqRunTypeCol.visible =  false;
 
         	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
-				preppedByCoreCol.visible = !isExternal;
+				//preppedByCoreCol.visible = !isExternal;  // (RC: moved above to all cases)
 				//corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
@@ -846,9 +883,10 @@
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
+				sampleOrganismColumn.editable = !isExternal;
 				chipTypeColumn.visible = false; 
-				samplePrepMethodCol.visible = !isExternal;
-				otherSamplePrepMethodCol.visible = !isExternal;
+				//samplePrepMethodCol.visible = !isExternal;
+				//otherSamplePrepMethodCol.visible = !isExternal;
 				labelColumn.visible = false;
 				
 				
@@ -863,8 +901,8 @@
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
-				samplePrepMethodCol.visible = true;
-				otherSamplePrepMethodCol.visible = true;
+				//samplePrepMethodCol.visible = true;
+				//otherSamplePrepMethodCol.visible = true;
 				
 				
 				if (parentDocument.isEditState()) {
@@ -883,8 +921,9 @@
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
-				samplePrepMethodCol.visible = true;
-				otherSamplePrepMethodCol.visible = true;
+				sampleOrganismColumn.editable = !isExternal;
+				//samplePrepMethodCol.visible = true;
+				//otherSamplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = !parentDocument.isEditState();
 			}
@@ -1281,7 +1320,7 @@
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@treatment').newInstance(), '')}" editorDataField="value"/>
  	                   
-					<mx:AdvancedDataGridColumn headerText="Description" width="140" dataField="@description" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
+					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Description" width="140" dataField="@description" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
                     <util:AdvancedDataGridColumnWithType characteristicType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"

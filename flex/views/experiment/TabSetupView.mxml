@@ -42,7 +42,7 @@
          <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
          <mx:SetStyle target="{label1}" name="paddingTop"/>
          <mx:SetProperty target="{text6}" name="width" value="200"/>
-         <mx:AddChild relativeTo="{vbox1}" position="lastChild">
+         <mx:AddChild relativeTo="{vbox1}" position="lastChild">	 		 
             <mx:HBox width="100%" horizontalGap="0" id="hbox1" verticalAlign="top">
                 <mx:Text text="Experiment type" width="200" id="labelApplication"/>
                 <mx:RadioButtonGroup id = "radioGroupApp">       	
@@ -62,6 +62,21 @@
          <mx:SetProperty target="{projectCombo}" name="width" value="345"/>
          <mx:SetStyle target="{editProjectButton}" name="paddingRight" value="0"/>
          <mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
+		  <mx:AddChild relativeTo="{label1}" position="before">
+			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg" verticalAlign="top">
+				  <mx:Text text="Organism" width="200" id="labelOrg"/>
+				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
+					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
+					  <mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
+				  </mx:ComboBox>
+				  <mx:Label text="Please specify" paddingLeft="6">
+					  <mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
+				  </mx:Label>
+				  <mx:TextInput width="500" id="otherOrganism" change="{checkSetupCompleteness();}" maxChars="200">
+					  <mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
+				  </mx:TextInput>				
+			  </mx:HBox>
+		  </mx:AddChild>		  
       </mx:State>
       <mx:State name="AdminExternalExperimentState" basedOn="AdminState">
          <mx:RemoveChild target="{hbox5}"/>
@@ -76,7 +91,7 @@
           <mx:SetProperty target="{text7}" name="htmlText" value="Submitter"/>
          <mx:SetStyle target="{label1}" name="verticalAlign" value="middle"/>
           <mx:SetStyle target="{appUserContainer}" name="verticalAlign" value="middle"/>
-          <mx:AddChild relativeTo="{vbox1}" position="lastChild">
+          <mx:AddChild relativeTo="{vbox1}" position="lastChild">				  
               <mx:HBox width="100%" horizontalGap="0" id="hbox0" verticalAlign="top">
                   <mx:Text text="Experiment type" width="160" id="labelApplication0"/>
                   <mx:RadioButtonGroup id = "radioGroupAppAdmin">       	
@@ -101,8 +116,23 @@
           <mx:SetProperty target="{text7}" name="width" value="160"/>
           <mx:SetProperty target="{text2}" name="width" value="160"/>
           <mx:SetProperty target="{text6}" name="width" value="160"/>
-          <mx:SetProperty target="{label11}" name="width" value="160"/>
-      </mx:State>
+          <mx:SetProperty target="{label11}" name="width" value="160"/>	  
+		  <mx:AddChild relativeTo="{label1}" position="before">
+			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
+				  <mx:Text text="Organism" width="200" id="labelOrg1"/>
+				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" change="pickOrganism()" close="pickOrganism()">							
+					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
+					  <mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
+				  </mx:ComboBox>
+				  <mx:Label text="Please specify" paddingLeft="6">
+					  <mx:visible>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other'}</mx:visible>
+				  </mx:Label>
+				  <mx:TextInput width="500" id="otherOrganism1" change="{checkSetupCompleteness();}" maxChars="200">
+					  <mx:visible>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other'}</mx:visible>
+				  </mx:TextInput>				
+			  </mx:HBox>
+		  </mx:AddChild>		  
+      </mx:State>	   
 	  <mx:State name="AdminExternalMicroarrayState" basedOn="AdminExternalExperimentState">
 	  	<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 	  		<mx:HBox width="100%" horizontalGap="0">
@@ -534,6 +564,12 @@
 							isComplete = true;
 						}
 					}
+					// Also check for selection of Organism
+					if(!isComplete && hasOrganism()) {
+						isComplete = true;
+					} else if (!hasOrganism()) {
+						isComplete = false;
+					}
 				}
         	} 
         	
@@ -545,7 +581,7 @@
 					parentDocument.seqSetupView.enabled = isComplete;
 				} else {
 					parentDocument.samplesView.enabled = isComplete;
-					if (isComplete) {
+					if (isComplete && parentApplication.submitInternalExperiment()) {
 						parentDocument.samplesView.initializeSamplesGrid();
 					}
 				}
@@ -559,7 +595,7 @@
 					parentDocument.sampleSetupView.enabled = isComplete;
 				} else {
 					parentDocument.samplesView.enabled = isComplete;
-					if (isComplete) {
+					if (isComplete && parentApplication.submitInternalExperiment()) {
 						parentDocument.samplesView.initializeSamplesGrid();
 					}
 				}
@@ -569,6 +605,20 @@
     		callLater(postSetupCompleteness, [isComplete]);
 	
         }
+		
+		private function hasOrganism():Boolean {
+			if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
+				return true;
+			} else if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' && this.sampleOrganismCombo.selectedItem.@display != 'Other') {
+				return true;
+			} else if (this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@display == 'Other' && this.otherOrganism1.text != '') {
+				return true;
+			} else if (this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@value != '' && this.sampleOrganismCombo1.selectedItem.@display != 'Other') {
+				return true;
+			} else {
+				return false;
+			}
+		}
         
         private function postSetupCompleteness(isComplete:Boolean):void {
 			if (parentDocument == null) {
@@ -691,7 +741,31 @@
 			this.setFocus();
 			
 		}
-        
+		
+		private function pickOrganism():void {
+			parentDocument.samplesView.initializeSamplesGrid();
+			
+			if (parentDocument.annotationView != null) {
+				parentDocument.annotationView.onSampleCharacteristicRefreshed(null);
+			}
+			
+			/*
+			if (parentDocument.isMicroarrayState()) {
+				//parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;				
+				parentDocument.hybSetupView.checkForSlideProductWarning();
+			}
+			*/
+
+			for each (var sample:Object in parentDocument.samples) {
+				if (sampleOrganismCombo != null && sampleOrganismCombo.selectedItem != null) {
+					sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+				} else if (sampleOrganismCombo1 != null && sampleOrganismCombo1.selectedItem != null) {
+					sample.@idOrganism = this.sampleOrganismCombo1.selectedItem.@value;
+				}
+			}
+			checkSetupCompleteness();
+		} 
+		
 
 	]]>
 </mx:Script>
@@ -819,8 +893,7 @@
 					<mx:htmlText>(5) Name your experiment.</mx:htmlText>
 				</mx:Text>
 				<mx:TextInput id="experimentName" width="400" maxChars="200"/>
-			</mx:HBox>
-			
+			</mx:HBox>		
 		</mx:VBox>
 
 </mx:Canvas>
