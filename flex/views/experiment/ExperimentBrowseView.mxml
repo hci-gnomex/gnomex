@@ -320,8 +320,10 @@
 	public function refreshFilterView():void {
 		if (theViews.selectedChild == projectDetailView) {
 			filterListView.visible = false;
+			filterListView.includeInLayout = false;
 		} else {
 			filterListView.visible = true;
+			filterListView.includeInLayout = true;
 		}
 	}
 	
