@@ -87,13 +87,13 @@
     </mx:HTTPService >
 	
 	<mx:HTTPService 
-		id="getSampleCharacteristicList" 
-		url="GetSampleCharacteristicList.gx"
+		id="getPropertyList" 
+		url="GetPropertyList.gx"
 		resultFormat="e4x"
 		showBusyCursor="false"
-		destination="getSampleCharacteristicList"
-		result="onGetSampleCharacteristicList(event)"
-		fault="onFailHttpRequest('Failed to get sample characteristic list', event)"
+		destination="getPropertyList"
+		result="onGetPropertyList(event)"
+		fault="onFailHttpRequest('Failed to get property list', event)"
 		useProxy="false">
 		<mx:request>
 		</mx:request>
@@ -211,7 +211,7 @@
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.PromptXMLListCollection;
-			import views.util.SampleCharacteristicEvent;
+			import views.admin.PropertyEvent;
 			import views.util.SessionTimeoutData;
 			import views.util.WorkAuthorizationWindow;			
            
@@ -517,7 +517,7 @@
 			[Bindable]
 			public var promptedWorkAuthLabList:PromptXMLListCollection;
 			[Bindable]
-			public var sampleCharacteristicList:XMLListCollection;
+			public var propertyList:XMLListCollection;
 			[Bindable]
 			public var organismList:XMLListCollection;
 
@@ -1401,16 +1401,16 @@
             
 	        
             private function onGetProjectList(event:ResultEvent):void {
-				getSampleCharacteristicList.send();
+				getPropertyList.send();
 				getOrganismList.send();
 				
 	       	    showProgress(10);
 	        	enableApp();
 	        }
 	        
-			private function onGetSampleCharacteristicList(event:ResultEvent):void {
-				sampleCharacteristicList = new XMLListCollection(getSampleCharacteristicList.lastResult.SampleCharacteristic);
-				this.dispatchEvent(new SampleCharacteristicEvent(SampleCharacteristicEvent.DATA_REFRESHED));
+			private function onGetPropertyList(event:ResultEvent):void {
+				propertyList = new XMLListCollection(getPropertyList.lastResult.Property);
+				this.dispatchEvent(new PropertyEvent(PropertyEvent.DATA_REFRESHED));
 				
 				if (currentState == null || currentState == "") {
 					showProgress(10);
@@ -1452,7 +1452,7 @@
 	        	    dictionaryManager.xml != null &&
 	        	    manageLabList != null &&
 	        	    promptedLabList != null &&
-				    sampleCharacteristicList != null) {
+				    propertyList != null) {
 	        	    
 	        	    if (this.isGuestMode()) {
 	        	    	done = true;
@@ -1675,18 +1675,22 @@
 				}
 		}
 			
-			public function getSampleCharacteristic(idSampleCharacteristic:String):Object {
-				var sampleCharacteristic:XML = null;
-				for each(var sc:XML in sampleCharacteristicList) {
-					if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
-						if (sc is XMLList) {
-							sampleCharacteristic = sc[0];
+			public function getSampleProperty(idProperty:String):Object {
+				var property:XML = null;
+				for each(var prop:XML in propertyList) {
+					if (prop.@idProperty == idProperty) {
+						if (prop is XMLList) {
+							property = prop[0];
 						} else {
-							sampleCharacteristic = sc as XML;
+							property = prop as XML;
 						}
+						break;
 					}
 				}
-				return sampleCharacteristic;
+				if (property == null) {
+					Alert.show("Cannot find property " + idProperty);
+				}
+				return property;
 			}		
 			
 			public function getOrganism(idOrganism:String):Object {
@@ -1704,19 +1708,19 @@
 			}		
 			
 		
-			public function getSampleCharacteristicOptions(idSampleCharacteristic:String, includeInactive:Boolean=true):XMLList {
-			var sampleCharacteristic:XML = null;
-			for each(var sc:XML in sampleCharacteristicList) {
-				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
-					sampleCharacteristic = sc;
+			public function getPropertyOptions(idProperty:String, includeInactive:Boolean=true):XMLList {
+			var property:XML = null;
+			for each(var prop:XML in propertyList) {
+				if (prop.@idProperty == idProperty) {
+					property = prop;
 					break;
 				}
 			}
-			if (sampleCharacteristic != null) {
+			if (property != null) {
 				if (includeInactive) {
-					return sampleCharacteristic.options.SampleCharacteristicOption;					
+					return property.options.PropertyOption;					
 				} else {
-					return sampleCharacteristic.options.SampleCharacteristicOption.(@value == '' || @isActive != 'N');					
+					return property.options.PropertyOption.(@value == '' || @isActive != 'N');					
 				}
 			} else {
 				return new XMLList();

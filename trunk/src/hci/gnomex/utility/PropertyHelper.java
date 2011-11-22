@@ -1,6 +1,6 @@
 package hci.gnomex.utility;
 
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
 import java.io.IOException;
@@ -145,9 +145,9 @@ public class PropertyHelper implements Serializable {
   
   
   private void loadProperties(Session sess)  {
-    List properties = sess.createQuery("select p from Property as p").list();
+    List properties = sess.createQuery("select p from PropertyDictionary as p").list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
-      Property prop = (Property)i.next();
+      PropertyDictionary prop = (PropertyDictionary)i.next();
       propertyMap.put(prop.getPropertyName(), prop.getPropertyValue());
     }   
   }

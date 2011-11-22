@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
@@ -100,7 +100,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
 
         // Make sure the system is configured to run FDT
-        String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
+        String fdtSupported = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
         if (fdtSupported == null || !fdtSupported.equals("Y")) {
           showError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
           return;
@@ -183,11 +183,11 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
               } 
               
               // change ownership to HCI_fdt user
-              String fdtUser = PropertyHelper.getInstance(sess).getProperty(Property.FDT_USER);
+              String fdtUser = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
               if (fdtUser == null || fdtUser.equals("")) {
                 fdtUser = "fdt";
               }
-              String fdtGroup = PropertyHelper.getInstance(sess).getProperty(Property.FDT_GROUP);
+              String fdtGroup = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_GROUP);
               if (fdtGroup == null || fdtGroup.equals("")) {
                 fdtGroup = "fdt_security";
               }

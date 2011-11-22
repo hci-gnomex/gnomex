@@ -15,7 +15,7 @@ import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.SampleCharacteristic;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.SamplePrepMethod;
 import hci.gnomex.model.SamplePrepMethodRequestCategory;
 import hci.gnomex.model.SamplePrepMethodSampleType;

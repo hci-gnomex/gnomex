@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -32,7 +32,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      Property propUniversityUserAuth = (Property)sess.createQuery("from Property p where p.propertyName='" + Property.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
+      PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
     
       this.xmlResult = "<LaunchProperties>";
       this.xmlResult += "<Property name='university_user_authentication' value='" + (propUniversityUserAuth.getPropertyValue() != null ? propUniversityUserAuth.getPropertyValue() : "N") + "'/>";

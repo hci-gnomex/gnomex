@@ -1,6 +1,6 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
 <%@ page import="org.hibernate.Session" %>
-<%@ page import="hci.gnomex.model.Property" %>
+<%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
 <html>
 
@@ -28,12 +28,12 @@ boolean showCampusInfoLink = false;
 Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
-  Property propUniversityUserAuth = (Property)sess.createQuery("from Property p where p.propertyName='" + Property.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
+  PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
+  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyDictionaryValue() != null && propUniversityUserAuth.getPropertyDictionaryValue().equals("Y")) {
     showCampusInfoLink = true;
   }  
 } catch (Exception e){
-  message = "Cannot obtain property " + Property.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
+  message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateGuestSession.closeGuestSession();

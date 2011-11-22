@@ -10,7 +10,7 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
-import hci.gnomex.model.SampleCharacteristic;
+import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -30,10 +30,10 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 
-public class GetSampleCharacteristicList extends GNomExCommand implements Serializable {
+public class GetPropertyList extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetSampleCharacteristicList.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPropertyList.class);
 
   
   public void validate() {
@@ -60,12 +60,12 @@ public class GetSampleCharacteristicList extends GNomExCommand implements Serial
 
       DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
 
-      Document doc = new Document(new Element("SampleCharacteristicList"));
+      Document doc = new Document(new Element("PropertyList"));
 
-      List sampleCharacteristics = sess.createQuery("SELECT sc from SampleCharacteristic sc order by sc.sampleCharacteristic").list();
+      List properties = sess.createQuery("SELECT prop from Property prop order by prop.name").list();
 
-      for(Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
-        SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)i.next();
+      for(Iterator i = properties.iterator(); i.hasNext();) {
+        Property sampleCharacteristic = (Property)i.next();
         this.getSecAdvisor().flagPermissions(sampleCharacteristic);
         Element node = sampleCharacteristic.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(node);
@@ -76,20 +76,20 @@ public class GetSampleCharacteristicList extends GNomExCommand implements Serial
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetSampleCharacteristicList ", e);
+      log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetSampleCharacteristicList ", e);
+      log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetSampleCharacteristicList ", e);
+      log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetSampleCharacteristicList ", e);
+      log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

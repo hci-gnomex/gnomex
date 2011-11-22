@@ -5,7 +5,7 @@ package views.renderers
 	import flash.display.DisplayObject;
 	import flash.text.TextField;
 
-	public class CheckBoxIsSelectedSampleCharacteristic extends CheckBox
+	public class CheckBoxIsSelectedProperty extends CheckBox
 	{
 		  private var _data:Object;
 		  
@@ -32,10 +32,10 @@ package views.renderers
           	}
           	if (this.selected) {
           		_data.@isSelected = "true";
-          		parentDocument.showSampleAnnotationColumn(_data.@idSampleCharacteristic, true);
+          		parentDocument.showSampleAnnotationColumn(_data.@idProperty, true);
           	} else {
           		_data.@isSelected = "false";
-          		parentDocument.showSampleAnnotationColumn(_data.@idSampleCharacteristic, false);
+          		parentDocument.showSampleAnnotationColumn(_data.@idProperty, false);
           	}
           }
 			override protected function updateDisplayList(w:Number, h:Number):void

@@ -7,7 +7,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountParser;
 import hci.gnomex.utility.DictionaryHelper;
@@ -345,21 +345,21 @@ public class SaveLab extends GNomExCommand implements Serializable {
     
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
-    String coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    String coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     boolean isTestEmail = false;
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (submitterEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         isTestEmail = true;
         submitterSubject = "TEST - " + submitterSubject;
-        coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
+        coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       }
     }
     
     submitterNote.append("The following work authorization " +
-        "has been approved by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
+        "has been approved by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) +  
         ".  Lab members can now submit experiment " +
         "requests against this account in GNomEx " + launchAppURL + ".");
 
@@ -379,7 +379,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       // Email submitter
       MailUtil.send(submitterEmail, 
             null,
-            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
             submitterSubject, 
             submitterNote.toString() + body.toString(),
             false); 
@@ -389,11 +389,11 @@ public class SaveLab extends GNomExCommand implements Serializable {
       if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
         String contactEmail = lab.getContactEmail();
         if (isTestEmail) {
-          contactEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
+          contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
         MailUtil.send(contactEmail, 
             null,
-            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
             isTestEmail ? submitterSubject + " (for lab contact " + lab.getContactEmail() + ")" : submitterSubject, 
             submitterNote.toString() + body.toString(),
             false); 

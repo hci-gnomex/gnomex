@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.SampleCharacteristic;
+import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -20,15 +20,15 @@ import org.hibernate.exception.ConstraintViolationException;
 
 
 
-public class DeleteSampleCharacteristic extends GNomExCommand implements Serializable {
+public class DeleteProperty extends GNomExCommand implements Serializable {
   
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteSampleCharacteristic.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProperty.class);
   
   
-  private Integer      idSampleCharacteristic = null;
+  private Integer      idProperty = null;
   
  
   
@@ -38,41 +38,41 @@ public class DeleteSampleCharacteristic extends GNomExCommand implements Seriali
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-   if (request.getParameter("idSampleCharacteristic") != null && !request.getParameter("idSampleCharacteristic").equals("")) {
-     idSampleCharacteristic = new Integer(request.getParameter("idSampleCharacteristic"));
+   if (request.getParameter("idProperty") != null && !request.getParameter("idProperty").equals("")) {
+     idProperty = new Integer(request.getParameter("idProperty"));
    } else {
-     this.addInvalidField("idSampleCharacteristic", "idSampleCharacteristic is required.");
+     this.addInvalidField("idProperty", "idProperty is required.");
    }
 
   }
 
   public Command execute() throws RollBackCommandException {
     Session sess = null;
-    SampleCharacteristic sampleCharacteristic = null;
+    Property property = null;
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      sampleCharacteristic = (SampleCharacteristic)sess.load(SampleCharacteristic.class, idSampleCharacteristic);
+      property = (Property)sess.load(Property.class, idProperty);
       
       // Check permissions
-      if (this.getSecAdvisor().canDelete(sampleCharacteristic)) {
+      if (this.getSecAdvisor().canDelete(property)) {
         
         //
-        // Clear out sampleCharacteristic organism list
+        // Clear out property organism list
         //
-        sampleCharacteristic.setOrganisms(new TreeSet());
+        property.setOrganisms(new TreeSet());
         sess.flush();
         
         //
-        // Clear out sampleCharacteristic platform list
+        // Clear out property platform list
         //
-        sampleCharacteristic.setPlatforms(new TreeSet());
+        property.setPlatforms(new TreeSet());
         sess.flush();
         
         //
-        // Delete sampleCharacteristic
+        // Delete property
         //
-        sess.delete(sampleCharacteristic);
+        sess.delete(property);
       
         
         sess.flush();
@@ -85,26 +85,26 @@ public class DeleteSampleCharacteristic extends GNomExCommand implements Seriali
         setResponsePage(this.SUCCESS_JSP);
    
       } else {
-        this.addInvalidField("insufficient permission", "Insufficient permissions to delete sampleCharacteristic.");
+        this.addInvalidField("insufficient permission", "Insufficient permissions to delete property.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
-      this.addInvalidField("constraint", "Sample annotation set to inactive.  Unable to delete because of sample annotations on existing experiments.");
+      this.addInvalidField("constraint", "Property set to inactive.  Unable to delete because of sample annotations on existing experiments.");
       
       try {
         sess.clear();
-        sampleCharacteristic = (SampleCharacteristic)sess.load(SampleCharacteristic.class, idSampleCharacteristic);
-        sampleCharacteristic.setIsActive("N");
+        property = (Property)sess.load(Property.class, idProperty);
+        property.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        log.error("An exception has occurred in DeleteSampleCharacteristic when trying to inactivate sample characteristic ", e);
+        log.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteSampleCharacteristic ", e);
+      log.error("An exception has occurred in DeleteProperty ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

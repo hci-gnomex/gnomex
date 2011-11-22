@@ -228,15 +228,15 @@ public class Request extends HibernateDetailObject {
 
     Document doc = super.toXMLDocument(list, dateOutputStyle);
     
-    // Sample characteristics & treatments
+    // Sample properties & treatments
     String otherLabel = null;
-    Map idSampleCharacteristics = new HashMap();
+    Map idProperties = new HashMap();
     boolean hasTreatment = false;
     for(Iterator i = getSamples().iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
-      for (Iterator i1 = sample.getSampleCharacteristicEntries().iterator(); i1.hasNext();) {
-        SampleCharacteristicEntry entry = (SampleCharacteristicEntry) i1.next();
-        idSampleCharacteristics.put(entry.getIdSampleCharacteristic(), "Y");
+      for (Iterator i1 = sample.getPropertyEntries().iterator(); i1.hasNext();) {
+        PropertyEntry entry = (PropertyEntry) i1.next();
+        idProperties.put(entry.getIdProperty(), "Y");
         if (entry.getOtherLabel() != null && !entry.getOtherLabel().equals("")) {
           otherLabel = entry.getOtherLabel();
         }
@@ -245,9 +245,9 @@ public class Request extends HibernateDetailObject {
         hasTreatment = true;
       }
     }
-    for(Iterator i = idSampleCharacteristics.keySet().iterator(); i.hasNext();) {
-      Integer idSampleCharacteristic = (Integer)i.next();
-      doc.getRootElement().setAttribute("ANNOT" + idSampleCharacteristic, "Y");
+    for(Iterator i = idProperties.keySet().iterator(); i.hasNext();) {
+      Integer idProperty = (Integer)i.next();
+      doc.getRootElement().setAttribute("ANNOT" + idProperty, "Y");
     }
     
     // Treatments
@@ -257,7 +257,7 @@ public class Request extends HibernateDetailObject {
     
     // Other label
     if (otherLabel != null) {
-      doc.getRootElement().setAttribute(SampleCharacteristicEntry.OTHER_LABEL, otherLabel);
+      doc.getRootElement().setAttribute(PropertyEntry.OTHER_LABEL, otherLabel);
     }
     
 

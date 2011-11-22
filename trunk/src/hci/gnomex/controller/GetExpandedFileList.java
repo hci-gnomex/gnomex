@@ -5,7 +5,7 @@ import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyHelper;
 import hci.framework.control.Command;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -76,7 +76,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List requestNumbers = new ArrayList<String>();
-    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
    
     //  For each request number
     for(Iterator i = requestNumbers.iterator(); i.hasNext();) {
@@ -125,7 +125,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           
           fd.setDirectoryName(tokens[1]);
           
-          if (fd.getFlowCellIndicator() != null && fd.getFlowCellIndicator().equals(dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG))) {
+          if (fd.getFlowCellIndicator() != null && fd.getFlowCellIndicator().equals(dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG))) {
             boolean isValidFlowCell = false;
             for(Iterator i3 = request.getSequenceLanes().iterator(); i3.hasNext();) {
               SequenceLane lane = (SequenceLane)i3.next();

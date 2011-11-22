@@ -6,7 +6,7 @@ import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -57,9 +57,9 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
  
   public String format() throws Exception {
 
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(this.dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME), 
-        this.dictionaryHelper.getProperty(Property.CONTACT_NAME_CORE_FACILITY),
-        this.dictionaryHelper.getProperty(Property.CONTACT_PHONE_CORE_FACILITY),
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME), 
+        this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
+        this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         billingPeriod, lab, billingAccount, billingItemMap, requestMap);
     
     Element root = new Element("HTML");

@@ -6,7 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.CharacteristicType;
+import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Lab;
@@ -17,14 +17,14 @@ import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
-import hci.gnomex.model.SampleCharacteristic;
-import hci.gnomex.model.SampleCharacteristicEntry;
-import hci.gnomex.model.SampleCharacteristicEntryValue;
-import hci.gnomex.model.SampleCharacteristicOption;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
@@ -214,7 +214,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
       // The following code makes sure any ccNumbers that have been entered actually exist
       PropertyHelper propertyHelper = PropertyHelper.getInstance(sess);
-      if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
+      if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
         validateCCNumbers();
       }
 
@@ -694,7 +694,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
           this.createResultDirectories(requestParser.getRequest(), 
-              dictionaryHelper.getProperty(Property.QC_DIRECTORY), 
+              dictionaryHelper.getPropertyDictionary(PropertyDictionary.QC_DIRECTORY), 
               dictionaryHelper.getMicroarrayDirectoryForWriting(serverName));
         }
 
@@ -890,12 +890,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }  
     
     
-    // Delete the existing sample characteristic entries
+    // Delete the existing sample property entries
     if (!isNewSample) {
-      for(Iterator i = sample.getSampleCharacteristicEntries().iterator(); i.hasNext();) {
-        SampleCharacteristicEntry entry = (SampleCharacteristicEntry)i.next();
+      for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
+        PropertyEntry entry = (PropertyEntry)i.next();
         for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
-          SampleCharacteristicEntryValue v = (SampleCharacteristicEntryValue)i1.next();
+          PropertyEntryValue v = (PropertyEntryValue)i1.next();
           sess.delete(v);
         }
         sess.flush();
@@ -904,49 +904,49 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
 
-    // Create sample characteristic entries
+    // Create sample property entries
     Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
     for(Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext(); ) {
      
-      Integer idSampleCharacteristic = (Integer)i.next();
-      String value = (String)sampleAnnotations.get(idSampleCharacteristic);
-      SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)dh.getSampleCharacteristic(idSampleCharacteristic);
+      Integer idProperty = (Integer)i.next();
+      String value = (String)sampleAnnotations.get(idProperty);
+      Property property = (Property)dh.getProperty(idProperty);
      
       
-      SampleCharacteristicEntry entry = new SampleCharacteristicEntry();
+      PropertyEntry entry = new PropertyEntry();
       entry.setIdSample(sample.getIdSample());
-      SampleCharacteristic sc = dh.getSampleCharacteristic(idSampleCharacteristic);
-      if (sc.getSampleCharacteristic().equals("Other")) {
+      Property sc = dh.getProperty(idProperty);
+      if (sc.getName().equals("Other")) {
           entry.setOtherLabel(requestParser.getOtherCharacteristicLabel());
       }
-      entry.setIdSampleCharacteristic(idSampleCharacteristic);
+      entry.setIdProperty(idProperty);
       entry.setValue(value);
       sess.save(entry);
       sess.flush();
       
-      // If the sample characteristic type is "url", save the options.
-      if (value != null && !value.equals("") && sampleCharacteristic.getCodeCharacteristicType().equals(CharacteristicType.URL)) {
+      // If the sample property type is "url", save the options.
+      if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
         Set urlValues = new TreeSet();
         String[] valueTokens = value.split("\\|");
         for (int x = 0; x < valueTokens.length; x++) {
           String v = valueTokens[x];
-          SampleCharacteristicEntryValue urlValue = new SampleCharacteristicEntryValue();
+          PropertyEntryValue urlValue = new PropertyEntryValue();
           urlValue.setValue(v);
-          urlValue.setIdSampleCharacteristicEntry(entry.getIdSampleCharacteristicEntry());
+          urlValue.setIdPropertyEntry(entry.getIdPropertyEntry());
           sess.save(urlValue);
         }
       }
       sess.flush();
       
-      // If the sample characteristic type is "multi-option", save the options.
-      if (value != null && !value.equals("") && sampleCharacteristic.getCodeCharacteristicType().equals(CharacteristicType.MULTI_OPTION)) {
+      // If the sample property type is "multi-option", save the options.
+      if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.MULTI_OPTION)) {
         Set options = new TreeSet();
         String[] valueTokens = value.split(",");
         for (int x = 0; x < valueTokens.length; x++) {
           String v = valueTokens[x];
-          for (Iterator i1 = sampleCharacteristic.getOptions().iterator(); i1.hasNext();) {
-            SampleCharacteristicOption option = (SampleCharacteristicOption)i1.next();
-            if (v.equals(option.getIdSampleCharacteristicOption().toString())) {
+          for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
+            PropertyOption option = (PropertyOption)i1.next();
+            if (v.equals(option.getIdPropertyOption().toString())) {
                 options.add(option);
             }
           }
@@ -1511,10 +1511,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
     } else {
       if (requestParser.isNewRequest()) {
-        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
         ".  You will receive email notification when the experiment is complete.");   
       } else {
-        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
         ".  You will receive email notification when the experiment is complete.");   
         
       }
@@ -1531,7 +1531,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }
@@ -1540,7 +1540,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (send) {
       MailUtil.send(requestParser.getRequest().getAppUser().getEmail(), 
           null,
-          (requestParser.isExternalExperiment() ? dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY)), 
+          (requestParser.isExternalExperiment() ? dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY)), 
           subject, 
           emailFormatter.format(),
           true);      
@@ -1574,10 +1574,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
 
     if (requestParser.isNewRequest()) {
-      emailBody.append("An experiment request has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+      emailBody.append("An experiment request has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
       ".");   
     } else {
-      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
       ".");   
       
     }
@@ -1594,7 +1594,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String subject = "Estimated Microarray charges for request " + requestNumber;
      
     
-    String senderEmail = requestParser.isExternalExperiment() ? dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    String senderEmail = requestParser.isExternalExperiment() ? dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if (contactEmail == null || contactEmail.length() == 0) {
       contactEmail = ccEmail;
@@ -1612,7 +1612,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
         emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "<br><br>";

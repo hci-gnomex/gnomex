@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
@@ -86,7 +86,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         baseDir = dh.getAnalysisReadDirectory(req.getServerName());
        
-        archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));        
+        archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));        
         
         Map fileNameMap = new HashMap();
         long compressedFileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap);

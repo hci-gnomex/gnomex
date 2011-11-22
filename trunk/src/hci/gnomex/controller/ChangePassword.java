@@ -4,7 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncrypterService;
 
 import hci.gnomex.utility.HibernateSession;
@@ -39,7 +39,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   private String responsePageError = null;
   
   private AppUser appUser = null;
-  private Property labContactEmail = null;
+  private PropertyDictionary labContactEmail = null;
   private String regErrorMsg = null;
   
   private String launchAppURL = "";
@@ -135,9 +135,9 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         	sess.update(appUser);
         	sess.flush();	
         	
-          String contactEmailProperty = "from Property p where p.propertyName='" + Property.CONTACT_EMAIL_CORE_FACILITY + "'";
+          String contactEmailProperty = "from Property p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY + "'";
 
-          labContactEmail = (Property) sess.createQuery(contactEmailProperty).uniqueResult();
+          labContactEmail = (PropertyDictionary) sess.createQuery(contactEmailProperty).uniqueResult();
         	
         	sendConfirmationEmail(appUser.getEmail(), randPwd);  
         }      

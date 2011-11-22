@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyHelper;
 
@@ -66,7 +66,7 @@ public class CustomCaptchaURLServlet extends HttpServlet {
       //
       
       sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
-      String portNumber = PropertyHelper.getInstance(sess).getProperty(Property.HTTP_PORT);
+      String portNumber = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.HTTP_PORT);
       if (portNumber == null) {
         portNumber = "";
       } else {

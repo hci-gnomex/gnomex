@@ -67,7 +67,7 @@ public class Sample extends HibernateDetailObject {
   private String      ccNumber;
   private Integer     multiplexGroupNumber;
   private String      barcodeSequence;
-  private Set         sampleCharacteristicEntries;
+  private Set         propertyEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
   
@@ -163,13 +163,13 @@ public class Sample extends HibernateDetailObject {
   }
 
   
-  public Set getSampleCharacteristicEntries() {
-    return sampleCharacteristicEntries;
+  public Set getPropertyEntries() {
+    return propertyEntries;
   }
 
   
-  public void setSampleCharacteristicEntries(Set sampleCharacteristicEntries) {
-    this.sampleCharacteristicEntries = sampleCharacteristicEntries;
+  public void setPropertyEntries(Set propertyEntries) {
+    this.propertyEntries = propertyEntries;
   }
 
   
@@ -237,7 +237,7 @@ public class Sample extends HibernateDetailObject {
   }
   
   public void registerMethodsToExcludeFromXML() {
-    this.excludeMethodFromXML("getSampleCharacteristicEntries");
+    this.excludeMethodFromXML("getPropertyEntries");
     this.excludeMethodFromXML("getTreatmentEntries");
     this.excludeMethodFromXML("getLabeledSamples");
   }
@@ -249,11 +249,11 @@ public class Sample extends HibernateDetailObject {
   public Document toXMLDocument(List list, int dateOutputStyle ) throws XMLReflectException {
 
     Document doc = super.toXMLDocument(list, dateOutputStyle);
-    for (Iterator i = getSampleCharacteristicEntries().iterator(); i.hasNext();) {
-      SampleCharacteristicEntry entry = (SampleCharacteristicEntry) i.next();
-      doc.getRootElement().setAttribute("ANNOT" + entry.getIdSampleCharacteristic().toString(), entry.getValue());
+    for (Iterator i = getPropertyEntries().iterator(); i.hasNext();) {
+      PropertyEntry entry = (PropertyEntry) i.next();
+      doc.getRootElement().setAttribute("ANNOT" + entry.getIdProperty().toString(), entry.getValue());
       if (entry.getOtherLabel() != null && !entry.getOtherLabel().equals("")) {
-        doc.getRootElement().setAttribute(SampleCharacteristicEntry.OTHER_LABEL, entry.getOtherLabel());
+        doc.getRootElement().setAttribute(PropertyEntry.OTHER_LABEL, entry.getOtherLabel());
       }
     }
     

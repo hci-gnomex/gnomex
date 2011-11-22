@@ -2,11 +2,11 @@ package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ConcentrationUnit;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
-import hci.gnomex.model.SampleCharacteristic;
-import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.TreatmentEntry;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
@@ -39,7 +39,7 @@ public class RequestParser implements Serializable {
   private String          otherCharacteristicLabel;
   private List            sampleIds = new ArrayList();
   private Map             sampleMap = new HashMap();
-  private Map             characteristicsToApplyMap = new TreeMap();
+  private Map             propertiesToApplyMap = new TreeMap();
   private Map             seqLibTreatmentMap = new HashMap();
   private Map             collaboratorMap = new HashMap();
   private Map             sampleAnnotationMap = new HashMap();
@@ -66,7 +66,7 @@ public class RequestParser implements Serializable {
     otherCharacteristicLabel = null;
     sampleIds = new ArrayList();
     sampleMap = new HashMap();
-    characteristicsToApplyMap = new TreeMap();
+    propertiesToApplyMap = new TreeMap();
     seqLibTreatmentMap = new HashMap();
     collaboratorMap = new HashMap();
     sampleAnnotationMap = new HashMap();
@@ -177,7 +177,7 @@ public class RequestParser implements Serializable {
     
     request.setName(this.unEscape(n.getAttributeValue("name"))); 
     
-    otherCharacteristicLabel = this.unEscape(n.getAttributeValue(SampleCharacteristicEntry.OTHER_LABEL));
+    otherCharacteristicLabel = this.unEscape(n.getAttributeValue(PropertyEntry.OTHER_LABEL));
     
     request.setCodeRequestCategory(n.getAttributeValue("codeRequestCategory"));
 
@@ -229,10 +229,10 @@ public class RequestParser implements Serializable {
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 
-    for (Iterator i1 = n.getChild("SampleCharacteristicEntries").getChildren("SampleCharacteristicEntry").iterator(); i1.hasNext();) {
+    for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
       Element scNode = (Element)i1.next();
       if (scNode.getAttributeValue("isSelected").equals("true")) {
-        this.characteristicsToApplyMap.put(scNode.getAttributeValue("idSampleCharacteristic"), null);        
+        this.propertiesToApplyMap.put(scNode.getAttributeValue("idProperty"), null);        
       }
     }
     
@@ -371,7 +371,7 @@ public class RequestParser implements Serializable {
       sample.setPrepInstructions(null);
     }
     
-    if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
+    if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
       if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
         String ccNumber = n.getAttributeValue("ccNumber");
         sample.setCcNumber(ccNumber);
@@ -401,7 +401,7 @@ public class RequestParser implements Serializable {
       }
       
       if (value != null && !value.equals("") && 
-          this.characteristicsToApplyMap.containsKey(attributeName)) {
+          this.propertiesToApplyMap.containsKey(attributeName)) {
         annotations.put(Integer.valueOf(attributeName), value);
         sampleAnnotationCodeMap.put(attributeName, null);
       }
@@ -806,7 +806,7 @@ public class RequestParser implements Serializable {
   
   
   public Map getCharacteristicsToApplyMap() {
-    return characteristicsToApplyMap;
+    return propertiesToApplyMap;
   }
   
   public Map getSampleAnnotationCodeMap() {

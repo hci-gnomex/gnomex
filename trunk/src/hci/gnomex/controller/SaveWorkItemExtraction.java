@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
@@ -191,7 +191,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
-    introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
+    introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
@@ -203,7 +203,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }
@@ -212,7 +212,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     if (send) {
       MailUtil.send(request.getAppUser().getEmail(), 
           null,
-          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
           true);

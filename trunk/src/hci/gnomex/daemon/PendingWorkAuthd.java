@@ -1,7 +1,7 @@
 package hci.gnomex.daemon;
 
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
@@ -106,7 +106,7 @@ public class PendingWorkAuthd extends TimerTask {
       app.connect();
       
       propertyHelper = PropertyHelper.getInstance(sess);
-      String contactList = propertyHelper.getQualifiedProperty(Property.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName); 
+      String contactList = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName); 
       
       String subject = "Pending Work Authorizations";
       

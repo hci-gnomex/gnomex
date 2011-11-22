@@ -409,10 +409,10 @@
 						if (col.visible && col.editable && col.dataField != null) {
 							var fieldType:String = "TEXT";
 							if(col is AnnotationAdvancedDataGridColumn) {
-								fieldType = AnnotationAdvancedDataGridColumn(col).characteristicType;
+								fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
 							}
 							if(col is AdvancedDataGridColumnWithType) {
-								fieldType = AdvancedDataGridColumnWithType(col).characteristicType;
+								fieldType = AdvancedDataGridColumnWithType(col).propertyType;
 							}
 							
 							var selectedSSColumn:String = "0";

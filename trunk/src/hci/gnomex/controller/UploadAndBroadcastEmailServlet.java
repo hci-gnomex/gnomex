@@ -4,7 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
@@ -161,7 +161,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
           if (dh.isProductionServer(req.getServerName())) {
             send = true;
           } else {
-            if (appUser.getEmail().equals(dh.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+            if (appUser.getEmail().equals(dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
               send = true;
               theSubject = "TEST - " + subject;
             }
@@ -171,7 +171,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
           if (send) {
             MailUtil.send(appUser.getEmail(), 
                 null,
-                dh.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY),
+                dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
                 theSubject,
                 body.toString(),
                 format.equalsIgnoreCase("HTML") ? true : false); 

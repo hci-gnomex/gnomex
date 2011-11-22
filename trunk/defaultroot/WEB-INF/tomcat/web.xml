@@ -319,9 +319,9 @@
 			<url-pattern>/DeletePriceCategory.gx</url-pattern>
 			<url-pattern>/DeletePriceSheet.gx</url-pattern>
 			<url-pattern>/DeleteProject.gx</url-pattern>
+			<url-pattern>/DeleteProperty.gx</url-pattern>
 			<url-pattern>/DeleteProtocol.gx</url-pattern>
 			<url-pattern>/DeleteRequest.gx</url-pattern>
-			<url-pattern>/DeleteSampleCharacteristic.gx</url-pattern>
 			<url-pattern>/DeleteSlideDesign.gx</url-pattern>
 			<url-pattern>/DeleteSlideSet.gx</url-pattern>
 			<url-pattern>/DeleteWorkItem.gx</url-pattern>
@@ -339,11 +339,11 @@
 			<url-pattern>/SavePriceCategory.gx</url-pattern>
 			<url-pattern>/SavePriceSheet.gx</url-pattern>
 			<url-pattern>/SaveProject.gx</url-pattern>
+			<url-pattern>/SaveProperty.gx</url-pattern>
 			<url-pattern>/SaveProtocol.gx</url-pattern>
 			<url-pattern>/SaveRequest.gx</url-pattern>
 			<url-pattern>/SaveRequestProject.gx</url-pattern>
 			<url-pattern>/SaveRequestSlideProject.gx</url-pattern>
-			<url-pattern>/SaveSampleCharacteristic.gx</url-pattern>
 			<url-pattern>/SaveSlideDesign.gx</url-pattern>
 			<url-pattern>/SaveSlideProduct.gx</url-pattern>
 			<url-pattern>/SaveSlideSet.gx</url-pattern>

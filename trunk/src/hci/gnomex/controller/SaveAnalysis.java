@@ -11,7 +11,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;

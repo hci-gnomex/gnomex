@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
 
@@ -58,7 +58,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
       
       
       Map fileNameMap = new HashMap();      
-      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
       this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
       
       if (isValid()) {

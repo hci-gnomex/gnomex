@@ -9,7 +9,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
@@ -208,9 +208,9 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Map billingItemMap, Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(dh.getProperty(Property.CORE_FACILITY_NAME),
-        dh.getProperty(Property.CONTACT_NAME_CORE_FACILITY),
-        dh.getProperty(Property.CONTACT_PHONE_CORE_FACILITY),
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(dh.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME),
+        dh.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
+        dh.getPropertyDictionary(PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         billingPeriod, 
         lab, billingAccount, billingItemMap, requestMap);
 
@@ -299,7 +299,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    String coreFacilityName = dh.getProperty(Property.CORE_FACILITY_NAME);
+    String coreFacilityName = dh.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME);
     
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, 
         billingPeriod, lab, billingAccount, billingItemMap, requestMap);
@@ -311,7 +311,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       if (dh.isProductionServer(serverName)) {
         send = true;
       } else {
-        if (contactEmail.equals(dh.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+        if (contactEmail.equals(dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
           send = true;
           subject = "(TEST) " + subject;
         } else {
@@ -326,7 +326,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       try {
         MailUtil.send(contactEmail, 
           null,
-          dh.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+          dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
           true);

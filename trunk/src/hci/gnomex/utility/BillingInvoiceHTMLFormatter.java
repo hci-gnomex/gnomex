@@ -9,7 +9,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 

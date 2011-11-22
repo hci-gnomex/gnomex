@@ -3,7 +3,7 @@ package hci.gnomex.daemon;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
@@ -107,14 +107,14 @@ public class DatasetExpirationCheckd extends TimerTask {
       app.connect();
       
       propertyHelper = PropertyHelper.getInstance(sess);
-      String datasetPrivacyExp = propertyHelper.getQualifiedProperty(Property.DATASET_PRIVACY_EXPIRATION, serverName);
+      String datasetPrivacyExp = propertyHelper.getQualifiedProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION, serverName);
       if(datasetPrivacyExp == null || datasetPrivacyExp.length() == 0) {
         System.out.println("Feature disabled: DATASET_PRIVACY_EXPIRATION has not been set.");        
         app.disconnect();
         return;
       }
       
-      String datasetPrivacyExpWarning = propertyHelper.getQualifiedProperty(Property.DATASET_PRIVACY_EXPIRATION_WARNING, serverName);
+      String datasetPrivacyExpWarning = propertyHelper.getQualifiedProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION_WARNING, serverName);
       if(datasetPrivacyExpWarning == null || datasetPrivacyExpWarning.length() == 0) {
         expWarningDays = 0;
       } else {
@@ -161,9 +161,9 @@ public class DatasetExpirationCheckd extends TimerTask {
     
     
     
-    //if (submitterEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+    //if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
     
-    String contactEmailSoftwareTester = propertyHelper.getQualifiedProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER, serverName);
+    String contactEmailSoftwareTester = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName);
     
 
     

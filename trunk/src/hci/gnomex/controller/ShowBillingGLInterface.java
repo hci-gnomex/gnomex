@@ -9,7 +9,7 @@ import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -317,7 +317,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             }
             
             // Show the microarray credit for the total billing (internal customers)
-            this.addMicroarrayTotal(billingPeriod, dh, Property.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
+            this.addMicroarrayTotal(billingPeriod, dh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
             
             // Get the total price for all external PO billing items
             buf = new StringBuffer();
@@ -334,10 +334,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               if (totalPriceExternalPO != null) {
                 
                 // Show the microarray debit for the total billing (customers billed from POs)
-                this.addMicroarrayTotal(billingPeriod, dh, Property.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
+                this.addMicroarrayTotal(billingPeriod, dh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
                 
                 // Show the microarray credit for the total billing (customers billed from POs)
-                this.addMicroarrayTotal(billingPeriod, dh, Property.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
+                this.addMicroarrayTotal(billingPeriod, dh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
               }
 
               
@@ -451,12 +451,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
    
     
     values.add(getFixedWidthValue("L", 1)); // record type
-    values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_BUSINESS_UNIT), 5));  // business unit
+    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_BUSINESS_UNIT), 5));  // business unit
     values.add(getFixedWidthEmptyValue(6)); // journal line number (blank)
-    values.add(getFixedWidthValue(dh.getProperty(account), 6)); // account
-    values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_FUND), 5)); // fund
-    values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_ORG), 10)); // dept id
-    values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
+    values.add(getFixedWidthValue(dh.getPropertyDictionary(account), 6)); // account
+    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_FUND), 5)); // fund
+    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_ORG), 10)); // dept id
+    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
     values.add(getFixedWidthEmptyValue(5));  // au (blank for credits)
     values.add(getFixedWidthEmptyValue(4)); // budget year (blank)
     values.add(getFixedWidthEmptyValue(15)); // project id

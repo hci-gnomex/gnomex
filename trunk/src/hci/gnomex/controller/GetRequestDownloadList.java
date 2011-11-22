@@ -4,7 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
@@ -406,7 +406,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               String theCreateYear  = dateTokens[2];
               String sortDate = theCreateYear + createMonth + createDay;      
 
-              String fcKey = theCreateYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
+              String fcKey = theCreateYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
               String fcCodeRequestCategory = row[2] == null ? "" : (String)row[2];
               
               Element n1 = new Element("RequestDownload");
@@ -472,7 +472,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private void hashFolders(Set folders, TreeMap rowMap, DictionaryHelper dh, String baseKey, Object[] row) {
     for(Iterator i1 = folders.iterator(); i1.hasNext();) {
       String folderName = (String)i1.next();
-      if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
+      if (folderName.equals(dh.getPropertyDictionary(PropertyDictionary.QC_DIRECTORY))) {
         continue;
       }
       if (folderName.equals(Constants.UPLOAD_STAGING_DIR)) {
@@ -502,7 +502,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List requestNumbers = new ArrayList<String>();
-    GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, key, requestNumbers, requestMap, directoryMap, dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+    GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, key, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
     List directoryKeys   = (List)requestMap.get(requestNumber);
     for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
       String directoryKey = (String)i1.next();
