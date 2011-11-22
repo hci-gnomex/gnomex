@@ -1687,9 +1687,6 @@
 						break;
 					}
 				}
-				if (property == null) {
-					Alert.show("Cannot find property " + idProperty);
-				}
 				return property;
 			}		
 			
