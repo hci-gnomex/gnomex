@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
@@ -34,7 +34,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   
 
   private AppUser        appUserScreen;
-  private Property       adminEmailProperty = null;
+  private PropertyDictionary       adminEmailProperty = null;
   private String         requestedLab = "";
   private StringBuffer   requestURL;
   
@@ -135,9 +135,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
         setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
         
-        String contactEmailProperty = "from Property p where p.propertyName='" + Property.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + "'";
+        String contactEmailProperty = "from Property p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + "'";
 
-        adminEmailProperty = (Property) sess.createQuery(contactEmailProperty).uniqueResult();
+        adminEmailProperty = (PropertyDictionary) sess.createQuery(contactEmailProperty).uniqueResult();
         
         sendAccountRequestEmail(appUser);                      
         

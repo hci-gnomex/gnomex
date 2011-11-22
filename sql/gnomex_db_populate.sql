@@ -630,7 +630,7 @@ VALUES (1, 'Human', NULL, 'HUMAN', NULL, 'Y', NULL),
   (25, 'Asteromyia carbonifera', 'AC', NULL, NULL, 'Y', NULL),
   (26, 'Aspergillus fumigatus', 'Af', NULL, NULL, 'Y', NULL);
 
-INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
+INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
  (1,'workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
  (2,'qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),
  (3,'workauth1_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
@@ -769,7 +769,7 @@ INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('MO
  
 
 
-INSERT INTO `gnomex`.`SampleCharacteristic`(`idSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codeCharacteristicType, isRequired)
+INSERT INTO `gnomex`.`Property`(`idProperty`, `name`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codePropertyType, isRequired)
 VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT', 'N'),
   (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT', 'N'),
   (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT', 'N'),

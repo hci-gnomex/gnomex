@@ -8,10 +8,10 @@ import hci.dictionary.model.DictionaryEntry;
 import hci.hibernate3utils.HibernateDetailObject;
 
 
-public class SampleCharacteristicOption  extends DictionaryEntry {
+public class PropertyOption  extends DictionaryEntry {
   
-  private Integer idSampleCharacteristicOption;
-  private Integer idSampleCharacteristic;
+  private Integer idPropertyOption;
+  private Integer idProperty;
   private String  option;
   private Integer sortOrder;
   private String  isActive;
@@ -29,7 +29,7 @@ public class SampleCharacteristicOption  extends DictionaryEntry {
   }
   
   public String getValue() {
-    return idSampleCharacteristicOption.toString();
+    return idPropertyOption.toString();
   }
   public String getIsActive() {
     return isActive;
@@ -40,12 +40,12 @@ public class SampleCharacteristicOption  extends DictionaryEntry {
   }
 
   
-  public Integer getIdSampleCharacteristicOption() {
-    return idSampleCharacteristicOption;
+  public Integer getIdPropertyOption() {
+    return idPropertyOption;
   }
   
-  public void setIdSampleCharacteristicOption(Integer idSampleCharacteristicOption) {
-    this.idSampleCharacteristicOption = idSampleCharacteristicOption;
+  public void setIdPropertyOption(Integer idPropertyOption) {
+    this.idPropertyOption = idPropertyOption;
   }
 
   
@@ -66,12 +66,12 @@ public class SampleCharacteristicOption  extends DictionaryEntry {
     this.sortOrder = sortOrder;
   }
 
-  public Integer getIdSampleCharacteristic() {
-    return idSampleCharacteristic;
+  public Integer getIdProperty() {
+    return idProperty;
   }
 
-  public void setIdSampleCharacteristic(Integer idSampleCharacteristic) {
-    this.idSampleCharacteristic = idSampleCharacteristic;
+  public void setIdProperty(Integer idProperty) {
+    this.idProperty = idProperty;
   }
 
   

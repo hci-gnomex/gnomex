@@ -42,8 +42,8 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
-import hci.gnomex.model.SampleCharacteristic;
-import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 
@@ -238,17 +238,17 @@ public class GetRequest extends GNomExCommand implements Serializable {
             SequenceLane.addMultiplexLaneNodes(multiplexLanesNode, request.getSequenceLanes(), request.getCreateDate());
           }
           
-          // Show list of sample characteristic entries
-          Element scParentNode = new Element("SampleCharacteristicEntries");
+          // Show list of property entries
+          Element scParentNode = new Element("PropertyEntries");
           requestNode.addContent(scParentNode);
           boolean hasCCNumber = false;
           boolean hasSampleDescription = false;
-          for(Iterator i = dh.getSampleCharacteristicMap().keySet().iterator(); i.hasNext();) {
-            Integer idSampleCharacteristic = (Integer)i.next();
-            SampleCharacteristic sc = (SampleCharacteristic)dh.getSampleCharacteristic(idSampleCharacteristic);
+          for(Iterator i = dh.getPropertyMap().keySet().iterator(); i.hasNext();) {
+            Integer idProperty = (Integer)i.next();
+            Property prop = (Property)dh.getProperty(idProperty);
 
-            Element scNode = new Element("SampleCharacteristicEntry");
-            SampleCharacteristicEntry entry = null;
+            Element scNode = new Element("PropertyEntry");
+            PropertyEntry entry = null;
             
             for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
               Sample sample = (Sample)i1.next();
@@ -258,19 +258,19 @@ public class GetRequest extends GNomExCommand implements Serializable {
               if(sample.getDescription()!=null && sample.getDescription().length() > 0) {
                 hasSampleDescription = true;
               }
-              for(Iterator i2 = sample.getSampleCharacteristicEntries().iterator(); i2.hasNext();) {
-                SampleCharacteristicEntry scEntry = (SampleCharacteristicEntry)i2.next();
-                if (scEntry.getIdSampleCharacteristic().equals(sc.getIdSampleCharacteristic())) {
-                  entry = scEntry;
+              for(Iterator i2 = sample.getPropertyEntries().iterator(); i2.hasNext();) {
+                PropertyEntry propEntry = (PropertyEntry)i2.next();
+                if (propEntry.getIdProperty().equals(prop.getIdProperty())) {
+                  entry = propEntry;
                   break;
                 }
               }
             }
-            scNode.setAttribute("idSampleCharacteristic", sc.getIdSampleCharacteristic().toString());
-            scNode.setAttribute("sampleCharacteristic", sc.getSampleCharacteristic());
+            scNode.setAttribute("idProperty", prop.getIdProperty().toString());
+            scNode.setAttribute("name", prop.getName());
             scNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
-            scNode.setAttribute("isSelected", (sc.getIsRequired() != null && sc.getIsRequired().equals("Y")) || entry != null ? "true" : "false");
-            scNode.setAttribute("isActive", sc.getIsActive() != null ? sc.getIsActive() : "Y");
+            scNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null ? "true" : "false");
+            scNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
                 
             scParentNode.addContent(scNode);
             

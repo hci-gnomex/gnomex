@@ -4,7 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -73,7 +73,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       String createYear = "";
       String targetNumber = "";
       
-      String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
+      String fdtSupported = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
       if (fdtSupported == null || !fdtSupported.equals("Y")) {
         this.addInvalidField("fdtNotSupport", "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
       }
@@ -183,11 +183,11 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   }
   
   public static void changeOwnershipAndPermissions(Session sess, String dir) throws Exception {
-    String fdtUser = PropertyHelper.getInstance(sess).getProperty(Property.FDT_USER);
+    String fdtUser = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
     if (fdtUser == null || fdtUser.equals("")) {
       fdtUser = "fdt";
     }
-    String fdtGroup = PropertyHelper.getInstance(sess).getProperty(Property.FDT_GROUP);
+    String fdtGroup = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_GROUP);
     if (fdtGroup == null || fdtGroup.equals("")) {
       fdtGroup = "fdtsecurity";
     }

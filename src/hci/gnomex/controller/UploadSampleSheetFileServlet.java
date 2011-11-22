@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
@@ -95,7 +95,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
       MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE); 
       Part part;
       
-      directoryName = dh.getProperty(Property.TEMP_DIRECTORY);
+      directoryName = dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY);
       if (directoryName == null || directoryName.equals("")) {
         res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
         throw new ServletException("Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");

@@ -423,7 +423,7 @@
            	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
 			 if (parentDocument.parentDocument.editView.theTab.contains(parentDocument.parentDocument.editView.annotationView)) {
-				 parentDocument.parentDocument.editView.annotationView.onSampleCharacteristicRefreshed(null);
+				 parentDocument.parentDocument.editView.annotationView.onPropertyRefreshed(null);
 				 parentDocument.parentDocument.editView.annotationView.checkSecurity();
 			 } 
 			 //parentDocument.editView.removeDataListeners();
@@ -543,32 +543,32 @@
         }
 
 		// Get all options (include inactive)
-		public function getSampleCharacteristicOptions(idSampleCharacteristic:String):XMLList {
-			return parentApplication.getSampleCharacteristicOptions(idSampleCharacteristic, true);
+		public function getPropertyOptions(idProperty:String):XMLList {
+			return parentApplication.getPropertyOptions(idProperty, true);
 		}
         
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
        		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
-       		for each(annotation in this.selectedExperiment.SampleCharacteristicEntries.SampleCharacteristicEntry) {
-				if(annotation.@idSampleCharacteristic == "-1") {
+       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
+				if(annotation.@idProperty == "-1") {
 					continue;
 				}
 				
-				var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
+				var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
 				var headerName:String = "";
-				if (sampleCharacteristic.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
+				if (property.@name == "Other" && annotation.@otherLabel != "" ) {
 					headerName = annotation.@otherLabel;
 					annotation.@isSelected = "true";
 				} else {
-					headerName = annotation.@sampleCharacteristic;
+					headerName = annotation.@name;
 				}
 
 				exists = false;
 				
        			for each(col in samplesGridConfirm.columns) {
-					if (col.dataField == ("@ANNOT" + annotation.@idSampleCharacteristic)) {
+					if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
 						exists = true;
 						col.visible    = annotation.@isSelected == "true" ? true : false;       				
 						col.headerText = headerName;
@@ -581,32 +581,38 @@
 					continue;
 				}
    				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
-   				newCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
+   				newCol.dataField  = "@ANNOT" + annotation.@idProperty;
    				newCol.headerText = headerName;
    				newCol.visible    = (annotation.@isSelected == "true" ? true : false);
 				
-				if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
+				if (property.@codePropertyType == 'MOPTION') {
 					newCol.itemRenderer =  MultiselectRenderer.create(false);
-				} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
+				} else if (property.@codePropertyType == 'URL') {
 					newCol.itemRenderer = URLRenderer.create(false);
-				} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
+				} else if (property.@codePropertyType == 'CHECK') {
 					// checkbox is just normal label renderer
-				} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
+				} else if (property.@codePropertyType == 'OPTION') {
 					             
 					newCol.itemRenderer = views.renderers.DropdownLabel.create(
-						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic), 
+						parentApplication.getPropertyOptions(annotation.@idProperty), 
 						'@option', 
-						'@idSampleCharacteristicOption', 
-						"@ANNOT" + annotation.@idSampleCharacteristic,
+						'@idPropertyOption', 
+						"@ANNOT" + annotation.@idProperty,
 						false);                
 				} 
 				
-   				var columns:Array = samplesGridConfirm.columns;
-   				// Pop the description; we want it to be the last column
-   				var descCol:AdvancedDataGridColumn = AdvancedDataGridColumn(columns.pop());
-   				columns.push(newCol);
-   				columns.push(descCol);
-   				samplesGridConfirm.columns = columns;
+
+				// Place the new column right after the description column
+				var columns:Array = samplesGridConfirm.columns;
+				var newColumns:Array = new Array();
+				for each(var column:AdvancedDataGridColumn in columns) {
+					if (column.dataField == "@description") {
+						newColumns.push(newCol);
+					}
+					newColumns.push(column);
+				}
+				samplesGridConfirm.columns = newColumns;
+
 				samplesGridConfirm.validateNow();
    			} 
    		
@@ -880,6 +886,9 @@
 							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
+
+							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
+							
 							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber"/>
 			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Index Tag"  width="75" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
@@ -937,7 +946,6 @@
 							<mx:AdvancedDataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 	
 							<mx:AdvancedDataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
-							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
 						</mx:columns>
 					</mx:AdvancedDataGrid>
 				</mx:VBox>

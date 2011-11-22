@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Text xmlns:mx="http://www.adobe.com/2006/mxml"
-		 implements="mx.controls.listClasses.IDropInListItemRenderer"
+		 implements="mx.controls.listClasses.IDropInListItemRenderer" 
 		 toolTip="click to Edit…" click="callLater(openPopup)" doubleClickEnabled="true"
-		 text="{urlDisplayString}">
+		 text="{urlDisplayString}" textDecoration="underline">
 	
 	<mx:Script>
 		<![CDATA[
@@ -25,6 +25,7 @@
 			[Bindable]
 			public var urlDisplayString:String;
 			
+			[Bindable]
 			public var isEditable:Boolean = true;
 			
 			private var pop:URLPopup;
@@ -79,17 +80,15 @@
 			}
 			
 			private function openPopup():void{
-				if (!isEditable) {
-					return;
-				}
+
 				if (_listData == null || _listData.dataField == null || !(data is XML)) {
 					return;
 				}
 
 				pop= URLPopup(PopUpManager.createPopUp(parentApplication.theBody, URLPopup,true));
-				var sampleCharacteristicName:String = parentApplication.getSampleCharacteristic(_listData.dataField.substr(6)).@sampleCharacteristic;
+				var propertyName:String = parentApplication.getSampleProperty(_listData.dataField.substr(6)).@name;
 				
-				pop.initializeData(sampleCharacteristicName, this.txt);
+				pop.initializeData(propertyName, this.txt, isEditable);
 
 				pop.opener=this;
 			}

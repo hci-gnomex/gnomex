@@ -746,7 +746,7 @@
 			parentDocument.samplesView.initializeSamplesGrid();
 			
 			if (parentDocument.annotationView != null) {
-				parentDocument.annotationView.onSampleCharacteristicRefreshed(null);
+				parentDocument.annotationView.onPropertyRefreshed(null);
 			}
 			
 			/*

@@ -3,11 +3,11 @@ package hci.gnomex.lucene;
 import hci.dictionary.model.DictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.SampleCharacteristicEntry;
-import hci.gnomex.model.SampleCharacteristicEntryValue;
-import hci.gnomex.model.SampleCharacteristicOption;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.PropertyHelper;
@@ -156,7 +156,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildExperimentIndex() throws Exception{
 
-    IndexWriter experimentIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY, serverName), new StandardAnalyzer(), true);
+    IndexWriter experimentIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_EXPERIMENT_INDEX_DIRECTORY, serverName), new StandardAnalyzer(), true);
 
     // Get basic project/request data
     getProjectRequestData(sess);
@@ -192,7 +192,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildProtocolIndex() throws Exception{
 
-    IndexWriter protocolIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    IndexWriter protocolIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_PROTOCOL_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
 
     // Get basic protocol data
     getProtocolData(sess);
@@ -218,7 +218,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildAnalysisIndex() throws Exception{
 
-    IndexWriter analysisIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    IndexWriter analysisIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_ANALYSIS_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
 
     // Get analysis data
     getAnalysisData(sess);
@@ -692,13 +692,13 @@ public class BuildSearchIndex extends DetailObject {
   private void getSampleAnnotations(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT s.idRequest, ");
-    buf.append("       sc.sampleCharacteristic, ");
-    buf.append("       sce,  ");
-    buf.append("       sce.otherLabel  ");
-    buf.append("FROM   Sample s, SampleCharacteristicEntry as sce, SampleCharacteristic sc ");
-    buf.append("WHERE  sce.value is not NULL ");
-    buf.append("AND    s.idSample = sce.idSample ");
-    buf.append("AND    sce.idSampleCharacteristic = sc.idSampleCharacteristic ");
+    buf.append("       p.name, ");
+    buf.append("       pe,  ");
+    buf.append("       pe.otherLabel  ");
+    buf.append("FROM   Sample s, PropertyEntry as pe, Property p ");
+    buf.append("WHERE  pe.value is not NULL ");
+    buf.append("AND    s.idSample = pe.idSample ");
+    buf.append("AND    pe.idProperty = p.idProperty ");
     buf.append("ORDER BY s.idRequest ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -1110,19 +1110,19 @@ public class BuildSearchIndex extends DetailObject {
         for(Iterator i1 = sampleAnnotationRows.iterator(); i1.hasNext();) {
           Object[] row = (Object[])i1.next();
           String sampleCharactersticName = (String)row[1];
-          SampleCharacteristicEntry entry = (SampleCharacteristicEntry)row[2];
+          PropertyEntry entry = (PropertyEntry)row[2];
           String otherLabel = (String)row[3];
           sampleAnnotations.append(sampleCharactersticName != null && !sampleCharactersticName.trim().equals("") ? sampleCharactersticName + " " : "");
           if (entry != null) {
             if (entry.getOptions() != null && entry.getOptions().size() > 0) {
               for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
-                SampleCharacteristicOption option = (SampleCharacteristicOption)i2.next();
+                PropertyOption option = (PropertyOption)i2.next();
                 sampleAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
               }
               
             } else if (entry.getValues() != null && entry.getValues().size() > 0) {
               for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
-                SampleCharacteristicEntryValue entryValue = (SampleCharacteristicEntryValue)i2.next();
+                PropertyEntryValue entryValue = (PropertyEntryValue)i2.next();
                 sampleAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
               }
               

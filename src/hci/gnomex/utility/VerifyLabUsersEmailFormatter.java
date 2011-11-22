@@ -6,7 +6,7 @@ import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -130,9 +130,9 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
     emailFooter.append("<br>");
     emailFooter.append("Thanks,");
     emailFooter.append("<br>");
-    emailFooter.append(dictionaryHelper.getProperty(Property.CONTACT_NAME_CORE_FACILITY));
+    emailFooter.append(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY));
     emailFooter.append("<br>");
-    emailFooter.append(dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME));
+    emailFooter.append(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME));
      
     body.addContent(emailFooter.toString());
   }

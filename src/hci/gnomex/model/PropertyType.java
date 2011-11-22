@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 
 
-public class CharacteristicType extends DictionaryEntry implements Serializable {
+public class PropertyType extends DictionaryEntry implements Serializable {
   
   public static final String    TEXT         = "TEXT";
   public static final String    URL          = "URL";
@@ -13,7 +13,7 @@ public class CharacteristicType extends DictionaryEntry implements Serializable 
   public static final String    OPTION       = "OPTION";
   public static final String    MULTI_OPTION = "MOPTION";
   
-  private String codeCharacteristicType;
+  private String codePropertyType;
   private String name;  
   private String isActive;
   
@@ -23,7 +23,7 @@ public class CharacteristicType extends DictionaryEntry implements Serializable 
   }
 
   public String getValue() {
-    return getCodeCharacteristicType();
+    return getCodePropertyType();
   }
 
   
@@ -39,13 +39,13 @@ public class CharacteristicType extends DictionaryEntry implements Serializable 
   }
 
   
-  public String getCodeCharacteristicType() {
-    return codeCharacteristicType;
+  public String getCodePropertyType() {
+    return codePropertyType;
   }
 
   
-  public void setCodeCharacteristicType(String codeCharacteristicType) {
-    this.codeCharacteristicType = codeCharacteristicType;
+  public void setCodePropertyType(String codePropertyType) {
+    this.codePropertyType = codePropertyType;
   }
 
   public String getName() {

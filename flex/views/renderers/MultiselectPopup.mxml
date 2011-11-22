@@ -55,7 +55,7 @@
 						if (optionsString.length > 0) {
 							optionsString += ",";
 						}
-						optionsString += option.@idSampleCharacteristicOption;
+						optionsString += option.@idPropertyOption;
 					}
 				}
 				(opener as MultiselectRenderer).updateDP(optionsString);

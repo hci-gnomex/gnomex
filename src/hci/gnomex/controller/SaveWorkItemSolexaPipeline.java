@@ -4,7 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
@@ -231,7 +231,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     StringBuffer introNote = new StringBuffer();
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
-    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
+    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
@@ -246,7 +246,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
       if (request.getAppUser() != null  &&
           request.getAppUser().getEmail() != null && 
           !request.getAppUser().getEmail().equals("") &&
-          request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+          request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }
@@ -255,7 +255,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     if (send) {
       MailUtil.send(request.getAppUser().getEmail(), 
           null,
-          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
           true);

@@ -10,7 +10,7 @@ import hci.gnomex.controller.GetRequestDownloadList;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.ExperimentFile;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.BatchDataSource;
@@ -156,7 +156,7 @@ public class RegisterFiles extends TimerTask {
     baseExperimentDir   = ph.getMicroarrayDirectoryForReading(serverName);
     baseFlowCellDir     = ph.getFlowCellDirectory(serverName);
     baseAnalysisDir     = ph.getAnalysisReadDirectory(serverName);
-    flowCellDirFlag     = ph.getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
+    flowCellDirFlag     = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
     
     // Figure out how far back we should look at experiments
     

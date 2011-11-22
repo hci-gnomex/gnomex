@@ -37,7 +37,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Visibility;
 
 
@@ -132,7 +132,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      usageUserVisibility = PropertyHelper.getInstance(sess).getProperty(Property.USAGE_USER_VISIBILITY);
+      usageUserVisibility = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.USAGE_USER_VISIBILITY);
 
       // Guests cannot run this command
       if (this.getSecAdvisor().isGuest()) {
@@ -143,7 +143,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       // Admins can run this command.  Normal gnomex users can if usage_user_visibility
       // property is set to an appropriate level ('masked' or 'full').
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      } else if (usageUserVisibility.equals("") || usageUserVisibility.equals(Property.OPTION_USER_USER_VISIBILITY_NONE)) {
+      } else if (usageUserVisibility.equals("") || usageUserVisibility.equals(PropertyDictionary.OPTION_USER_USER_VISIBILITY_NONE)) {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Property usage_user_visibility does not allow users to access usage data");
         setResponsePage(this.ERROR_JSP);
       }
@@ -654,7 +654,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     String labName = "";
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       labName = lab.getName();
-    } else if (usageUserVisibility.equals(Property.OPTION_USER_USER_VISIBILITY_MASKED)) {
+    } else if (usageUserVisibility.equals(PropertyDictionary.OPTION_USER_USER_VISIBILITY_MASKED)) {
       if (this.getSecAdvisor().isGroupIAmMemberOf(lab.getIdLab()) || this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab())) {
         labName = lab.getName();
       } else {

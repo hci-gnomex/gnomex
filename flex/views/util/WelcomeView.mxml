@@ -27,7 +27,7 @@
 					<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
 								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
 					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Sample Annotations" styleName="dashboardButton" 
-								   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+								   click="showPropertyWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platforms" styleName="dashboardButton" 
 								   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
@@ -113,6 +113,7 @@
 			import hci.flex.dictionary.DictionaryEditor;
 			
 			import mx.managers.PopUpManager;
+			import views.admin.PropertyWindow;
 			
 			public function checkDirty():void {
 			}
@@ -216,8 +217,8 @@
 				PopUpManager.centerPopUp(broadcastEmailWindow);
 			}			
 			
-			private function showSampleCharacteristicWindow():void {
-				var configWindow:SampleCharacteristicWindow = SampleCharacteristicWindow(PopUpManager.createPopUp(parentApplication.theBody, SampleCharacteristicWindow, true));
+			private function showPropertyWindow():void {
+				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
 				PopUpManager.centerPopUp(configWindow);
 				
 			}
@@ -268,7 +269,7 @@
 				<mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
 				<mx:LinkButton label="Download Experiment Results" click="showExperimentDownloads()" styleName="dashboardButton"  id="button3"  toolTip="Download experiment raw data files" icon="@Embed(source='../../assets/download.png')"/>
 				<mx:LinkButton id="sampleCharacteristicButton0"  label="Configure Sample Annotations" styleName="dashboardButton" 
-							   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+							   click="showPropertyWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 				<mx:LinkButton id="organismButton0"  label="Configure Organisms" styleName="dashboardButton" 
 							   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
 			</mx:VBox> 

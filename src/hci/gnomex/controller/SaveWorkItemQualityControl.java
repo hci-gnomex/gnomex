@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -222,12 +222,12 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
     if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";
-      introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
+      introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     } else {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " in progress";
       introNote.append("Request " + request.getNumber() + " is in progress.  ");
-      introNote.append("The " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + " has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
+      introNote.append("The " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + " has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     } 
     
@@ -236,7 +236,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         emailSubject = "TEST - " + emailSubject;
       }
@@ -248,7 +248,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
       
       MailUtil.send(request.getAppUser().getEmail(), 
             null,
-            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
             emailSubject, 
             emailFormatter.formatQualityControl(),
             true);      

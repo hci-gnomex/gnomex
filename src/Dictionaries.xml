@@ -7,7 +7,7 @@
 	</Dictionary>
 	<Dictionary displayName="Admin - Institution" className="hci.gnomex.model.Institution"  >
 	</Dictionary>
-	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.Property" scrub="Y"/>
+	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.PropertyDictionary" scrub="Y"/>
   <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />
 

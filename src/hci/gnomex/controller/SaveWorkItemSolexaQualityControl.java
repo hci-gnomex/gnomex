@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -202,7 +202,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
     emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " in progress";
     introNote.append("Request " + request.getNumber() + " is in progress.  ");
-    introNote.append("The " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + " has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
+    introNote.append("The " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + " has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
     introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     
     
@@ -213,7 +213,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
       if (request.getAppUser() != null  &&
           request.getAppUser().getEmail() != null && 
           !request.getAppUser().getEmail().equals("") &&
-          request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+          request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         emailSubject = "TEST - " + emailSubject;
       }
@@ -225,7 +225,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
       
       MailUtil.send(request.getAppUser().getEmail(), 
           null,
-          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           emailSubject, 
           emailFormatter.formatQualityControl(),
           true);      

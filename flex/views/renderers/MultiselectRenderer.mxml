@@ -43,7 +43,7 @@
 				var values:Array = new Array();
 				values = data[_listData.dataField].split(",");
 				var idx:Object = null;
-				var allOptions:XMLList = parentApplication.getSampleCharacteristicOptions(_listData.dataField.substr(6));
+				var allOptions:XMLList = parentApplication.getPropertyOptions(_listData.dataField.substr(6));
 					
 				var option:XML = null;
 				for each(option in allOptions) {
@@ -51,7 +51,7 @@
 					var isSelected:Boolean = false;
 					if (values != null) {
 						for (idx in values) {
-							if (values[idx] != null && theOption.@idSampleCharacteristicOption == values[idx]) {
+							if (values[idx] != null && theOption.@idPropertyOption == values[idx]) {
 								isSelected = true;
 								break;
 							}
@@ -88,10 +88,10 @@
 					return;
 				}
 				pop= MultiselectPopup(PopUpManager.createPopUp(this, MultiselectPopup,true));
-				var sampleCharacteristicName:String = parentApplication.getSampleCharacteristic(_listData.dataField.substr(6)).@sampleCharacteristic;
+				var propertyName:String = parentApplication.getSampleProperty(_listData.dataField.substr(6)).@name;
 				// Use parent document to get options because then we will know if inactive options are included
-				var options:XMLList = parentDocument.getSampleCharacteristicOptions(_listData.dataField.substr(6));
-				pop.initializeData(sampleCharacteristicName, this.txt, options);
+				var options:XMLList = parentDocument.getPropertyOptions(_listData.dataField.substr(6));
+				pop.initializeData(propertyName, this.txt, options);
 				pop.opener=this;
 			}
 			

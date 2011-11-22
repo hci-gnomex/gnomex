@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
@@ -125,10 +125,10 @@ public class DownloadResultsServlet extends HttpServlet {
         baseDirFlowCell = dh.getFlowCellDirectory(req.getServerName());
         baseDir = dh.getMicroarrayDirectoryForReading(req.getServerName());
         
-        archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));
+        archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));
        
         Map fileDescriptorMap = new HashMap();
-        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
 
         
         

@@ -10,7 +10,7 @@ package views.util
 		 *  
 		 *  @default false
 		 */
-		public var characteristicType:String = 'Text';
+		public var propertyType:String = 'Text';
 		
 		public function AnnotationAdvancedDataGridColumn(name:String)
 		{

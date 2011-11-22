@@ -13,10 +13,10 @@ import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
-import hci.gnomex.model.SampleCharacteristic;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
@@ -496,8 +496,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         } 
       }
       // Filter out server-only properties
-      else if (object instanceof Property) {
-        Property prop = (Property)object;
+      else if (object instanceof PropertyDictionary) {
+        PropertyDictionary prop = (PropertyDictionary)object;
         if (!prop.getForServerOnly().equals("Y")) {
           canRead = true;
         } 
@@ -857,7 +857,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     // Sample Characteristic can be deleted if user owns it
     //
-    else if (object instanceof SampleCharacteristic) {
+    else if (object instanceof Property) {
       canDelete = canUpdate(object);
     }
     //

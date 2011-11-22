@@ -31,7 +31,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 

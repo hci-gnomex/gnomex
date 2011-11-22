@@ -7,7 +7,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -189,7 +189,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       send = true;
       theSubject = subject;
     } else {
-      if (sendTo.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (sendTo.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         theSubject = "TEST - " + subject;
       }
@@ -198,7 +198,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     if (send) {
       MailUtil.send(sendTo, 
           ccTo,
-          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           theSubject, 
           emailBody,
           true);

@@ -5,10 +5,10 @@ import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.OligoBarcode;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
-import hci.gnomex.model.SampleCharacteristic;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SeqRunType;
@@ -41,7 +41,7 @@ public class DictionaryHelper implements Serializable {
   private Map              billingPeriodMap = new HashMap();
   private Map              seqLibTreatmentMap = new HashMap();
   private Map              slideDesignMap = new HashMap();
-  private Map              sampleCharacteristicMap = new HashMap();
+  private Map              propertyMap = new HashMap();
   private List             seqRunTypeList = new ArrayList();
 
   public DictionaryHelper() {    
@@ -133,27 +133,27 @@ public class DictionaryHelper implements Serializable {
     }
     
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT sc from SampleCharacteristic as sc ");
-    List sampleCharacteristics = sess.createQuery(queryBuf.toString()).list();
-    for (Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
-      SampleCharacteristic sc = (SampleCharacteristic)i.next();
+    queryBuf.append("SELECT p from Property as p ");
+    List properties = sess.createQuery(queryBuf.toString()).list();
+    for (Iterator i = properties.iterator(); i.hasNext();) {
+      Property prop = (Property)i.next();
       try {
-        Hibernate.initialize(sc.getOptions());        
+        Hibernate.initialize(prop.getOptions());        
       } catch (HibernateException e) {
-        System.out.println("warning - unable to initialize options on sample characteristic " + sc.getIdSampleCharacteristic() + " " + e.toString());
+        System.out.println("warning - unable to initialize options on property " + prop.getIdProperty() + " " + e.toString());
       } 
-      sampleCharacteristicMap.put(sc.getIdSampleCharacteristic(), sc);
+      propertyMap.put(prop.getIdProperty(), prop);
       
     }
 
    }
   
-  public SampleCharacteristic getSampleCharacteristic(Integer idSampleCharacteristic) {
-    return (SampleCharacteristic)sampleCharacteristicMap.get(idSampleCharacteristic);
+  public Property getProperty(Integer idProperty) {
+    return (Property)propertyMap.get(idProperty);
   }
   
-  public Map getSampleCharacteristicMap() {
-    return sampleCharacteristicMap;
+  public Map getPropertyMap() {
+    return propertyMap;
   }
   
   public String getSampleType(Sample sample) {
@@ -405,7 +405,7 @@ public class DictionaryHelper implements Serializable {
     return barcodeSequence;
   }
   
-  public String getProperty(String name) {
+  public String getPropertyDictionary(String name) {
     return propertyHelper.getProperty(name);
   }
   

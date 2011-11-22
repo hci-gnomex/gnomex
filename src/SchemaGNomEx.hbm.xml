@@ -551,9 +551,9 @@
 		<property name="ccNumber" column="ccNumber" type="string" />
 		<property name="multiplexGroupNumber" column="multiplexGroupNumber" type="integer"/>
 		<property name="barcodeSequence" column="barcodeSequence" type="string" />
-		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
+		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
-			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />
+			<one-to-many class="hci.gnomex.model.PropertyEntry" />
 		</set>
 		<set name="treatmentEntries" table="Treatment" lazy="false" cascade="delete">
 			<key column="idSample"/>
@@ -565,33 +565,33 @@
 		</set>
   </class>
 	
-	<!-- hci.gnomex.model.SampleCharacteristicEntry -->
-	<class name="hci.gnomex.model.SampleCharacteristicEntry" table="SampleCharacteristicEntry">
-		<id name="idSampleCharacteristicEntry" column="idSampleCharacteristicEntry" type="integer">
+	<!-- hci.gnomex.model.PropertyEntry -->
+	<class name="hci.gnomex.model.PropertyEntry" table="PropertyEntry">
+		<id name="idPropertyEntry" column="idPropertyEntry" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer"/>
+		<property name="idProperty" column="idProperty" type="integer"/>
 		<property name="idSample" column="idSample" type="integer"/>
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
 		
-		<set name="options" table="SampleCharacteristicEntryOption" lazy="true" cascade="none">
-			<key column="idSampleCharacteristicEntry"/>
-			<many-to-many column="idSampleCharacteristicOption" class="hci.gnomex.model.SampleCharacteristicOption"/>
+		<set name="options" table="PropertyEntryOption" lazy="true" cascade="none">
+			<key column="idPropertyEntry"/>
+			<many-to-many column="idPropertyOption" class="hci.gnomex.model.PropertyOption"/>
 		</set>
-		<set name="values" table="SampleCharacteristicEntryValue" lazy="true" cascade="delete">
-			<key column="idSampleCharacteristicEntry"/>
-			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntryValue" />
+		<set name="values" table="PropertyEntryValue" lazy="true" cascade="delete">
+			<key column="idPropertyEntry"/>
+			<one-to-many class="hci.gnomex.model.PropertyEntryValue" />
 		</set>		
 		
 	</class>
 	
-	<!-- hci.gnomex.model.SampleCharacteristicEntryValue -->
-	<class name="hci.gnomex.model.SampleCharacteristicEntryValue" table="SampleCharacteristicEntryValue">
-		<id name="idSampleCharacteristicEntryValue" column="idSampleCharacteristicEntryValue" type="integer">
+	<!-- hci.gnomex.model.PropertyEntryValue -->
+	<class name="hci.gnomex.model.PropertyEntryValue" table="PropertyEntryValue">
+		<id name="idPropertyEntryValue" column="idPropertyEntryValue" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="idSampleCharacteristicEntry" column="idSampleCharacteristicEntry" type="integer"/>
+		<property name="idPropertyEntry" column="idPropertyEntry" type="integer"/>
 		<property name="value" column="value" type="string"/>
 	</class>
 	
@@ -811,15 +811,6 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
-	<!-- hci.gnomex.model.CharacteristicType -->
-	<class name="hci.gnomex.model.CharacteristicType" table="CharacteristicType">
-		<id name="codeCharacteristicType" column="codeCharacteristicType" type="string">
-			<generator class="assigned"/>
-		</id>
-		<property name="name" column="name" type="string"/>
-		<property name="isActive" column="isActive" type="string"/>
-	</class>
-
     <!-- hci.gnomex.model.ConcentrationUnit -->
 	<class name="hci.gnomex.model.ConcentrationUnit" table="ConcentrationUnit">
 		<id name="codeConcentrationUnit" column="codeConcentrationUnit" type="string">
@@ -864,6 +855,15 @@
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 		<property name="description" column="description" type="string"/>
 		<property name="url" column="url" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.PropertyType -->
+	<class name="hci.gnomex.model.PropertyType" table="PropertyType">
+		<id name="codePropertyType" column="codePropertyType" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="name" column="name" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
@@ -1105,8 +1105,8 @@
 	
 	
   <!-- hci.gnomex.model.Property -->
-	<class name="hci.gnomex.model.Property" table="Property">
-		<id name="idProperty" column="idProperty" type="integer">
+	<class name="hci.gnomex.model.PropertyDictionary" table="PropertyDictionary">
+		<id name="idPropertyDictionary" column="idPropertyDictionary" type="integer">
 			<generator class="native"/>
 		</id>
 		<property name="propertyName"        column="propertyName" type="string"/>
@@ -1171,43 +1171,43 @@
 		<property name="idFeatureExtractionProtocolDefault" column="idFeatureExtractionProtocolDefault" type="integer"/>
 	</class>
 	
-	<!-- hci.gnomex.model.SampleCharacteristic -->
-	<class name="hci.gnomex.model.SampleCharacteristic" table="SampleCharacteristic">
-		<id name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer">
+	<!-- hci.gnomex.model.Property -->
+	<class name="hci.gnomex.model.Property" table="Property">
+		<id name="idProperty" column="idProperty" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="sampleCharacteristic" column="sampleCharacteristic" type="string"/>
+		<property name="name" column="name" type="string"/>
 		<property name="description" column="description" type="string"/>
 		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
-		<property name="codeCharacteristicType" column="codeCharacteristicType" type="string"/>
+		<property name="codePropertyType" column="codePropertyType" type="string"/>
 		<property name="isRequired" column="isRequired" type="string"/>
 
-		<set name="options" table="SampleCharacteristicOption" lazy="false" cascade="delete" order-by="sortOrder">
-			<key column="idSampleCharacteristic"/>
-			<one-to-many class="hci.gnomex.model.SampleCharacteristicOption" />
+		<set name="options" table="PropertyOption" lazy="false" cascade="delete" order-by="sortOrder">
+			<key column="idProperty"/>
+			<one-to-many class="hci.gnomex.model.PropertyOption" />
 		</set>	
-		<set name="organisms" table="SampleCharacteristicOrganism" lazy="false" cascade="none">
-			<key column="idSampleCharacteristic"/>
+		<set name="organisms" table="PropertyOrganism" lazy="false" cascade="none">
+			<key column="idProperty"/>
 			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>			
 		</set>
-		<set name="platforms" table="SampleCharacteristicPlatform" lazy="false" cascade="none">
-			<key column="idSampleCharacteristic"/>
+		<set name="platforms" table="PropertyPlatform" lazy="false" cascade="none">
+			<key column="idProperty"/>
 			<many-to-many column="codeRequestCategory" class="hci.gnomex.model.RequestCategory"/>			
 		</set>
 
 			
 	</class>
 	
-		<!-- hci.gnomex.model.SampleCharacteristicOption -->
-	<class name="hci.gnomex.model.SampleCharacteristicOption" table="SampleCharacteristicOption">
-		<id name="idSampleCharacteristicOption" column="idSampleCharacteristicOption" type="integer">
+		<!-- hci.gnomex.model.PropertyOption -->
+	<class name="hci.gnomex.model.PropertyOption" table="PropertyOption">
+		<id name="idPropertyOption" column="idPropertyOption" type="integer">
 			<generator class="native"/>
 		</id>
 		<property name="option" column="value" type="string"/>
-		<property name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer"/>
+		<property name="idProperty" column="idProperty" type="integer"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>

@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
@@ -100,7 +100,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-        archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));
+        archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));
         
 
         parser.parse();

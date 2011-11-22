@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-				width="516" height="250" showCloseButton="true" close="save()" creationComplete="centerMe()"
+				width="{isEditable ? 516 : 200}" height="250" showCloseButton="true" close="save()" creationComplete="centerMe()"
 				title="URLs" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	
 	
@@ -17,11 +17,15 @@
 			
 			[Bindable]
 			public var urlList:XMLListCollection;
+			
+			[Bindable]
+			private var isEditable:Boolean = true;
 
 			public var opener:Object;
 			
-			public function initializeData(title:String, urlString:String):void {
+			public function initializeData(title:String, urlString:String, isEditable:Boolean):void {
 				this.title = title;
+				this.isEditable = isEditable;
 				var urls:Array = new Array();
 				urls = urlString.split("|");
 				var idx:Object = null;
@@ -50,6 +54,10 @@
 			
 			
 			private function save():void{
+				if (!isEditable) {
+					cancel();
+					return;
+				}
 				var urlString:String = "";
 				var url:XML = null;
 				for each(url in urlList) {
@@ -169,14 +177,14 @@
 			<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@value == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
 				<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
 					<mx:LinkButton id="urlLink" click="{navigateToURLLink(event.target.instanceIndices)}" label="{urlRepeater.currentItem.@alias != 'Enter alias here...' &amp;&amp; urlRepeater.currentItem.@alias != '' ? urlRepeater.currentItem.@alias : urlRepeater.currentItem.@value}"  paddingLeft="0" textDecoration="underline" color="#121CE8" width="100%" textAlign="left"/>
-					<mx:LinkButton label="Edit" click="{showURLEdit(event.target.instanceIndices)}" fontSize="9" textDecoration="underline"/>
-					<mx:Image source="assets/bullet_delete.png"  click="{removeURL(event.currentTarget.instanceIndices)}" />						
+					<mx:LinkButton label="Edit" click="{showURLEdit(event.target.instanceIndices)}" includeInLayout="{isEditable}" visible="{isEditable}" fontSize="9" textDecoration="underline"/>
+					<mx:Image source="assets/bullet_delete.png" includeInLayout="{isEditable}" visible="{isEditable}" click="{removeURL(event.currentTarget.instanceIndices)}" />						
 				</mx:HBox>
-				<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="0" horizontalAlign="left">
-					<mx:TextInput id="aliasText" enter="{tabToURLText(event.target.instanceIndices)}" click="{selectAliasText(event.currentTarget.instanceIndices)}" text="{urlRepeater.currentItem.@alias}"  width="110" color="#8D7B7B"/>	
+				<mx:HBox width="100%" visible="{isEditable}" includeInLayout="{isEditable}" verticalAlign="middle"  horizontalGap="0" horizontalAlign="left">
+					<mx:TextInput id="aliasText" visible="{isEditable}" includeInLayout="{isEditable}" enter="{tabToURLText(event.target.instanceIndices)}" click="{selectAliasText(event.currentTarget.instanceIndices)}" text="{urlRepeater.currentItem.@alias}"  width="110" color="#8D7B7B"/>	
 					<mx:Spacer width="6"/>
-					<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@value}" enter="{showURLLink(event.target.instanceIndices)}" click="{selectURLText(event.currentTarget.instanceIndices)}" width="100%" color="#8D7B7B"/>						
-					<mx:LinkButton label="Show link" click="{showURLLink(event.target.instanceIndices)}" fontSize="9" textDecoration="underline" textAlign="left"/>
+					<mx:TextInput id="urlText" visible="{isEditable}" includeInLayout="{isEditable}" text="{urlRepeater.currentItem.@value}" enter="{showURLLink(event.target.instanceIndices)}" click="{selectURLText(event.currentTarget.instanceIndices)}" width="100%" color="#8D7B7B"/>						
+					<mx:LinkButton label="Show link" visible="{isEditable}" includeInLayout="{isEditable}" click="{showURLLink(event.target.instanceIndices)}" fontSize="9" textDecoration="underline" textAlign="left"/>
 				</mx:HBox>
 			</mx:ViewStack>		
 			

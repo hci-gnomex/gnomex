@@ -7,7 +7,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PriceSheet;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -137,29 +137,29 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
-    String coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
+    String coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (coreEmail == null || coreEmail.equals("")) {
-      coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+      coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (submitterEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         submitterSubject = "TEST - " + submitterSubject;
         coreSubject = "TEST - " + coreSubject;
-        coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
+        coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       }
     }
     
     submitterNote.append("The following work authorization " +
-        "has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
+        "has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) +  
         ".  After the account information is reviewed and approved, " +
         "you will be notified by email that experiment " +
         "requests can now be submitted against this account in GNomEx.");
 
     coreNote.append("The following work authorization " +
-        "has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
+        "has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) +  
         " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
 
     body.append("\n");
@@ -179,7 +179,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       try {
         MailUtil.send(submitterEmail, 
             null,
-            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
             submitterSubject, 
             submitterNote.toString() + body.toString(),
             false);             
@@ -191,11 +191,11 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
       
       // Email core facility
-      if (dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY) != null &&
-          !dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY).equals("")) {
+      if (dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY) != null &&
+          !dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY).equals("")) {
         MailUtil.send(coreEmail, 
             null,
-            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY),
+            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
             coreSubject,
             coreNote.toString() + body.toString(),
             false);           

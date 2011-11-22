@@ -6,11 +6,11 @@ import java.util.Set;
 import hci.hibernate3utils.HibernateDetailObject;
 
 
-public class SampleCharacteristicEntry extends HibernateDetailObject {
+public class PropertyEntry extends HibernateDetailObject {
   public static final String     OTHER_LABEL = "otherLabel";
   
-  private Integer idSampleCharacteristicEntry;
-  private Integer idSampleCharacteristic;
+  private Integer idPropertyEntry;
+  private Integer idProperty;
   private Integer idSample;
   private String  value;
   private String  otherLabel;
@@ -27,12 +27,12 @@ public class SampleCharacteristicEntry extends HibernateDetailObject {
     this.idSample = idSample;
   }
   
-  public Integer getIdSampleCharacteristicEntry() {
-    return idSampleCharacteristicEntry;
+  public Integer getIdPropertyEntry() {
+    return idPropertyEntry;
   }
   
-  public void setIdSampleCharacteristicEntry(Integer idSampleCharacteristicEntry) {
-    this.idSampleCharacteristicEntry = idSampleCharacteristicEntry;
+  public void setIdPropertyEntry(Integer idPropertyEntry) {
+    this.idPropertyEntry = idPropertyEntry;
   }
 
   
@@ -71,12 +71,12 @@ public class SampleCharacteristicEntry extends HibernateDetailObject {
     this.values = values;
   }
 
-  public Integer getIdSampleCharacteristic() {
-    return idSampleCharacteristic;
+  public Integer getIdProperty() {
+    return idProperty;
   }
 
-  public void setIdSampleCharacteristic(Integer idSampleCharacteristic) {
-    this.idSampleCharacteristic = idSampleCharacteristic;
+  public void setIdProperty(Integer idProperty) {
+    this.idProperty = idProperty;
   }
 
 }

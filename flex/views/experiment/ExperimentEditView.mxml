@@ -457,7 +457,7 @@
 			initFilters();
 
 			if (theTab.contains(this.annotationView)) {
-				this.sampleCharacteristicEntries.refresh();
+				this.propertyEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns(); 
 			}
 			
@@ -1024,7 +1024,7 @@
 			 
 			
 			if (theTab.contains(annotationView) && request != null) {
-				annotationView.onSampleCharacteristicRefreshed(null);
+				annotationView.onPropertyRefreshed(null);
 			}
 			this.setupView.checkSecurity();
 		}
@@ -1199,15 +1199,15 @@
 			return keep;
 		}
 			
-		public function filterSampleCharacteristicEntry(sce:Object):Boolean {
+		public function filterPropertyEntry(sce:Object):Boolean {
 			var keep:Boolean = false;
 			
-			var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(sce.@idSampleCharacteristic);
-			if(sce.@idSampleCharacteristic == "-1") {
-				return true;	// Special case for "Description" field which is not a "real" sampleCharacteristic 
+			var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
+			if(sce.@idProperty == "-1") {
+				return true;	// Special case for "Description" field which is not a "real" property 
 			}
-			if (this.isApplicableSampleCharacteristic(sampleCharacteristic)) {
-				if (sce.@isSelected == 'true' || sampleCharacteristic.@isActive != 'N') {
+			if (this.isApplicableProperty(property)) {
+				if (sce.@isSelected == 'true' || property.@isActive != 'N') {
 					keep = true;
 				}
 			}
@@ -1216,14 +1216,14 @@
 		}
 			
 			
-		public function isApplicableSampleCharacteristic(sampleCharacteristic:XML):Boolean {
+		public function isApplicableProperty(property:XML):Boolean {
 			var filterByOrganism:Boolean = false;
-			if (sampleCharacteristic.descendants("Organism").length() > 0) {
+			if (property.descendants("Organism").length() > 0) {
 				filterByOrganism = true;	
 			}
 			
 			var filterByPlatform:Boolean = false;
-			if (sampleCharacteristic.descendants("RequestCategory").length() > 0) {
+			if (property.descendants("RequestCategory").length() > 0) {
 				filterByPlatform = true;	
 			}
 			
@@ -1233,7 +1233,7 @@
 				keep = true;
 			} else {
 				if (this.getOrganism() != null) {
-					for each(var organism:XML in sampleCharacteristic.descendants("Organism")) {
+					for each(var organism:XML in property.descendants("Organism")) {
 						if (this.getOrganism().@idOrganism == organism.@idOrganism) {
 							keep = true;
 							break;
@@ -1248,7 +1248,7 @@
 				} else {
 					keep = false;
 					if (this.getRequestCategory() != null) {
-						for each(var rc:XML in sampleCharacteristic.descendants("RequestCategory")) {
+						for each(var rc:XML in property.descendants("RequestCategory")) {
 							if (this.getRequestCategory().@codeRequestCategory.toString() == rc.@codeRequestCategory) {
 								keep = true;
 								break;
@@ -1915,7 +1915,7 @@
 					} 					
 				}
 
-				this.sampleCharacteristicEntries.refresh();
+				this.propertyEntries.refresh();
 
 
 			} else if (request.@codeRequestCategory == 'QC') {
@@ -1952,7 +1952,7 @@
 				hybSetupView.label = "Slide";
 				hybSetupView.numberOfHybsContainer.visible = false;
 				hybSetupView.slideSourceContainer.visible = false;
-				this.sampleCharacteristicEntries.refresh();
+				this.propertyEntries.refresh();
 
 			}
 			
@@ -2021,24 +2021,24 @@
 		
 		private function addDescriptionFieldToAnnotations(sc:XMLList, isSelected:Boolean):void {
 			var scXML:XML = sc[0];
-			var descNode:XML = <SampleCharacteristicEntry idSampleCharacteristic="-1" sampleCharacteristic="Description" otherLabel="" isSelected="false" isActive="Y"/>;
+			var descNode:XML = <PropertyEntry idProperty="-1" property="Description" otherLabel="" isSelected="false" isActive="Y"/>;
 			if(isSelected) {
 				descNode.@isSelected = "true";
 			}			
 			scXML.appendChild(descNode);
-			this.sampleCharacteristicEntries.refresh();
+			this.propertyEntries.refresh();
 		}
 		
 		private function onGetNewRequest(event:ResultEvent):void {
 			existingLanes = null;
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').SampleCharacteristicEntries, true);			
+				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries, true);			
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
-				this.sampleCharacteristicEntries.refresh();
+				this.propertyEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns();
 				this.annotationView.checkSecurity();
 			} 
@@ -2192,7 +2192,7 @@
 		
 		
 		
-		public function sortSampleCharacteristics(obj1:Object, obj2:Object, fields:Array=null):int {
+		public function sortProperties(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
 				return 0;
 			} else if (obj1 == null) {
@@ -2200,8 +2200,8 @@
 			} else if (obj2 == null) {
 				return -1;
 			} else {
-				var sc1:String = obj1.@sampleCharacteristic;
-				var sc2:String = obj2.@sampleCharacteristic;
+				var sc1:String = obj1.@name;
+				var sc2:String = obj2.@name;
 				
 				if (sc1 == 'Other') {
 					return 1;
@@ -3013,7 +3013,7 @@
 		
 		private function onGetRequest(event:ResultEvent):void {
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).SampleCharacteristicEntries, 
+				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).PropertyEntries, 
 					getRequest.lastResult..Request.(@idRequest = request.@idRequest).@hasSampleDescription=="Y");			
 			}	
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
@@ -3569,7 +3569,7 @@
 			setupAmendForm(request);
 			
 			if (theTab.contains(this.annotationView)) {
-				this.sampleCharacteristicEntries.refresh();
+				this.propertyEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns();
 			} 
 		}
@@ -4084,9 +4084,9 @@
 		]]>
 	</mx:Script>
 	
-  	<mx:XMLListCollection id="sampleCharacteristicEntries" source="{request.SampleCharacteristicEntries.SampleCharacteristicEntry}" 
-	  	 sort="{sampleCharacteristicSorter}"  filterFunction="{filterSampleCharacteristicEntry}"/>
-	<mx:Sort id="sampleCharacteristicSorter" compareFunction="sortSampleCharacteristics" unique="true"/>
+  	<mx:XMLListCollection id="propertyEntries" source="{request.PropertyEntries.PropertyEntry}" 
+	  	 sort="{propertySorter}"  filterFunction="{filterPropertyEntry}"/>
+	<mx:Sort id="propertySorter" compareFunction="sortProperties" unique="true"/>
 
 
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>
