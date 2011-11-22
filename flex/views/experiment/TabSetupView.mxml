@@ -146,6 +146,7 @@
 	  		</mx:HBox>
 	  	</mx:AddChild>
 	  	<mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
+	  	<mx:SetProperty target="{labelOrg1}" name="width" value="160"/>
 		  
 	  </mx:State>
 	  <mx:State name="ExternalMicroarrayState" basedOn="ExternalExperimentState">
@@ -166,6 +167,7 @@
 	  	<mx:SetProperty target="{label11}" name="width" value="160"/>
 	  	<mx:SetProperty target="{labelApplication}" name="width" value="160"/>
 	  	<mx:SetProperty target="{projectCombo}" name="width" value="400"/>
+	  	<mx:SetProperty target="{labelOrg}" name="width" value="160"/>
 		   
 	  </mx:State>
    </mx:states>
