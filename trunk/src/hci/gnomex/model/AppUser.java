@@ -24,6 +24,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private String  isActive;
   private String  userNameExternal;
   private String  passwordExternal;
+  private String  ucscUrl;
   private Set     labs;
   private Set     collaboratingLabs;
   private Set     managingLabs;
@@ -236,6 +237,14 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     } else {
       return -1;      
     }
+  }
+
+  public String getUcscUrl() {
+    return ucscUrl;
+  }
+
+  public void setUcscUrl(String ucscUrl) {
+    this.ucscUrl = ucscUrl;
   }  
 
 

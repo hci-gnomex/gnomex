@@ -14,7 +14,11 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   private String  mageOntologyDefinition;
   private String  isActive;
   private Integer idAppUser;
-  
+  private String  das2Name;
+  private Integer sortOrder;
+  private String  binomialName;
+  private String  NCBITaxID;  
+
   /*
   private Set<GenomeBuild>     genomeBuilds;
   
@@ -104,6 +108,38 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
+  }
+
+  public String getDas2Name() {
+    return das2Name;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public String getBinomialName() {
+    return binomialName;
+  }
+
+  public String getNCBITaxID() {
+    return NCBITaxID;
+  }
+
+  public void setDas2Name(String das2Name) {
+    this.das2Name = das2Name;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
+  }
+
+  public void setBinomialName(String binomialName) {
+    this.binomialName = binomialName;
+  }
+
+  public void setNCBITaxID(String nCBITaxID) {
+    NCBITaxID = nCBITaxID;
   }
 
 

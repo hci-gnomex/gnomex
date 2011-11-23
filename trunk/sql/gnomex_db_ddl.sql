@@ -114,6 +114,7 @@ CREATE TABLE `gnomex`.`AnalysisGroup` (
   `idLab` INT(10) NULL,
   `codeVisibility` VARCHAR(10) NULL,
   `idAppUser` INT(10) NULL,
+  ucscUrl varchar(250) null,
   PRIMARY KEY (`idAnalysisGroup`),
   CONSTRAINT `FK_AnalysisGroup_AppUser` FOREIGN KEY `FK_AnalysisGroup_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -729,7 +730,17 @@ CREATE TABLE `gnomex`.`GenomeBuild` (
   `isActive` CHAR(1) NULL,
   `isLatestBuild` CHAR(1) NULL,
   `idAppUser` INT(10) NULL,
+  `das2Name` varchar(200) NULL,  
+  `buildDate` datetime  NULL,
+  `coordURI` varchar(2000)  NULL,
+  `coordVersion` varchar(50)  NULL,
+  `coordSource` varchar(50)  NULL,
+  `coordTestRange` varchar(100)  NULL,
+  `coordAuthority` varchar(50)  NULL,
+  `ucscName` varchar(100)  NULL,
+  `dataPath` varchar(500)  NULL,
   PRIMARY KEY (`idGenomeBuild`),
+  UNIQUE KEY `Index_GenomeBuildDas2Name` (`das2Name`),
   CONSTRAINT `FK_GenomeBuild_Organism` FOREIGN KEY `FK_GenomeBuild_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
     ON DELETE NO ACTION
@@ -1102,7 +1113,14 @@ CREATE TABLE `gnomex`.`Organism` (
   `mageOntologyDefinition` VARCHAR(5000) NULL,
   `isActive` CHAR(1) NULL,
   `idAppUser` INT(10) NULL,
+  `das2Name` varchar(200) NOT NULL,
+  `sortOrder` int(10) unsigned  NULL,
+  `binomialName` varchar(200) NOT NULL,
+  `NCBITaxID` varchar(45)  NULL,  
   PRIMARY KEY (`idOrganism`),
+  UNIQUE KEY `Index_OrganismName` (`name`),
+  UNIQUE KEY `Index_OrganismDas2Name` (`das2Name`),
+  UNIQUE KEY `Index_OrganismBinomialName` (`binomialName`)  
   CONSTRAINT `FK_Organism_AppUser` FOREIGN KEY `FK_Organism_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
