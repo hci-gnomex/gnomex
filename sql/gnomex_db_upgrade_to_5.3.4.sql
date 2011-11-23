@@ -126,3 +126,26 @@ alter table PropertyEntryValue add
     REFERENCES gnomex.PropertyEntry (idPropertyEntry)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+    
+-- Add columns to Organism
+alter table Organism add column  `das2Name` varchar(200) NULL;
+alter table Organism add column  `sortOrder` int(10) unsigned  NULL;
+alter table Organism add column  `binomialName` varchar(200) NULL;
+alter table Organism add column  `NCBITaxID` varchar(45)  NULL;
+
+-- Add columns to GenomeBuild
+alter table GenomeBuild add column  `das2Name` varchar(200) NULL;
+alter table GenomeBuild add column  `buildDate` datetime  NULL;
+alter table GenomeBuild add column  `coordURI` varchar(2000)  NULL;
+alter table GenomeBuild add column  `coordVersion` varchar(50)  NULL;
+alter table GenomeBuild add column  `coordSource` varchar(50)  NULL;
+alter table GenomeBuild add column  `coordTestRange` varchar(100)  NULL;
+alter table GenomeBuild add column  `coordAuthority` varchar(50)  NULL;
+alter table GenomeBuild add column  `ucscName` varchar(100)  NULL;
+alter table GenomeBuild add column  `dataPath` varchar(500)  NULL;
+
+-- Add columns for AppUser
+alter table AppUser add column ucscUrl  varchar(250) null;
+
+  

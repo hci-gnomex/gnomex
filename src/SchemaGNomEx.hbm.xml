@@ -113,6 +113,7 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="userNameExternal" column="userNameExternal" type="string"/>
 		<property name="passwordExternal" column="passwordExternal" type="string"/>
+		<property name="ucscUrl" column="ucscUrl" type="string"/>
 		<set name="labs" table="LabUser" lazy="true" cascade="none">
 			<key column="idAppUser"/>
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
@@ -897,6 +898,14 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="isLatestBuild" column="isLatestBuild" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
+		<property name="das2Name" column="das2Name" type="string"/>
+	    <property name="buildDate" column="buildDate" type="date"/>
+        <property name="coordURI" column="coordURI" type="string"/>
+		<property name="coordVersion" column="coordVersion" type="string"/>
+		<property name="coordTestRange" column="coordTestRange" type="string"/>
+		<property name="coordAuthority" column="coordAuthority" type="string"/>
+		<property name="ucscName" column="ucscName" type="string"/>
+		<property name="dataPath" column="dataPath" type="string"/>
 	</class>
 
 	<!-- hci.gnomex.model.HybProtocol -->
@@ -1012,7 +1021,10 @@
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
-		
+		<property name="das2Name" column="das2Name" type="string"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
+		<property name="binomialName" column="binomialName" type="string"/>
+		<property name="NCBITaxID" column="NCBITaxID" type="string"/>		
 		<!--set name="genomeBuilds" table="GenomeGuild" lazy="false" cascade="delete" order-by="genomeBuildName">
 			<key column="idOrganism"/>
 			<one-to-many class="hci.gnomex.model.GenomeBuild" />
