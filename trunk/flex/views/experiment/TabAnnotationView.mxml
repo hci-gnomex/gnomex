@@ -119,7 +119,7 @@
 				// We don't want the typing in the the text field for "Other" to be treated
 				// as a toggle off
 				var sc:Object = parentApplication.getSampleProperty(sampleAnnotationGrid.selectedItem.@idProperty);
-				if (sc.@name.toString() == "Other") {
+				if (sc == null || sc.@name.toString() == "Other") {
 					if (ignoreToggle) {
 						return;					
 					}
@@ -137,7 +137,7 @@
 			}
 			
 			//
-			// Configure sample characteristics
+			// Configure properties
 			//
 			private function editPropertyDictionary():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
