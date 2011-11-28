@@ -523,10 +523,10 @@
 										<mx:LinkButton paddingBottom="5"   id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton"/>
 									</mx:HBox>	
 								   <mx:HBox horizontalAlign="left" horizontalGap="6">
-								    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value != '')}" id="institutionCombo" labelField="@display" >			       	
+								    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value)}" id="institutionCombo" labelField="@display" >			       	
 								    </mx:ComboBox>
 								   	   <mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								   	   	   <mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > -1 ? true : false}</mx:enabled>
+								   	   	   <mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
 								   	   </mx:Button>
 								   	   <mx:Button click="removeInstitution()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{institutionsGrid.selectedItem != null}" width="25"/>
 								   </mx:HBox>
