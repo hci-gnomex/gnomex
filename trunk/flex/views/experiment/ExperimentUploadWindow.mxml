@@ -61,7 +61,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onOrganizeExperimentUploadFiles(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to organize experiment upload filest', event)"
+	fault="parentApplication.onFailHttpRequest('Failed to organize experiment upload files', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService >
@@ -453,7 +453,7 @@
 		{
 		    // Show the default "drop line" in the Tree control
 		    //downloadTree.showDropFeedback(event);
-		    // Cancel default behavious
+		    // Cancel default behaviors
 		    
 		    
 		    var r:int = downloadTree.calculateDropIndex(event);
