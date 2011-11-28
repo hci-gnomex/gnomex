@@ -21,6 +21,13 @@
 	    <description>The CheckSessionStatus to check session status</description>
 	    <servlet-class>hci.gnomex.controller.CheckSessionStatus</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>ExperimentQueue</servlet-name>
+	    <display-name>ExperimentQueue</display-name>
+	    <description>The ExperimentQueue to check experiment status</description>
+	    <servlet-class>hci.gnomex.controller.ExperimentQueue</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -181,6 +188,11 @@
 	</servlet-mapping>	
 	
 	<servlet-mapping>
+		<servlet-name>ExperimentQueue</servlet-name>
+		<url-pattern>ExperimentQueue.gx</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>DownloadResultsServlet.gx</url-pattern>
 	</servlet-mapping>
@@ -321,6 +333,7 @@
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>			
 			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
+			<url-pattern>ExperimentQueue.gx</url-pattern>	
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>
