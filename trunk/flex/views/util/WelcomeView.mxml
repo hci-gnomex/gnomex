@@ -261,7 +261,7 @@
 					<mx:Label text="Experiments" id="label2" styleName="welcomeLabel"/>
 				</mx:HBox>
 				<mx:LinkButton label="Submit Experiment Request"  click="submitRequest()"  
-							   styleName="dashboardButton" id="button1"  toolTip="Submit new work requests for Microarray, Next generation sequencing or quality controlservices" icon="@Embed(source='../../assets/flask_add.png')"/>
+							   styleName="dashboardButton" id="button1"  toolTip="Submit new work requests for Microarray, Next generation sequencing or quality control services" icon="@Embed(source='../../assets/flask_add.png')"/>
 				<mx:LinkButton label="Add services to Experiment Request"  click="amendRequest()" 
 							   styleName="dashboardButton" id="amendButton"  toolTip="Add microarray or next gen sequencing services to an existing experiment request" icon="@Embed(source='../../assets/flask_edit.png')"/>
 				<mx:LinkButton label="Register External Experiment"  click="submitExternalExperiment()"  
