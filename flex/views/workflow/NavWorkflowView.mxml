@@ -154,7 +154,7 @@
 			  		<mx:HRule>
 			  		</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-			  		<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
+			  		<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{solexaViews.selectedChild=this.blankSolexa;detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="hiSeqTab" width="100%" height="100%" icon="{parentApplication.iconHiSeq}" toolTip="HiSeq workflow">
@@ -167,7 +167,7 @@
 			  		<mx:HRule>
 			  		</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-			  		<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
+			  		<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
 				</mx:VBox>
 			</mx:Canvas>
 			
