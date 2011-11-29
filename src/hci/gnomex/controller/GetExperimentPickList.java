@@ -163,16 +163,16 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
             addRequestNode(row, dh);          
-            addItemNode(row,sess);
+            addItemNode(row,sess, dh);
           }
         } else if (idRequest.intValue() != prevIdRequest.intValue()) {
           if (idRequest.intValue() != -2) {
             addRequestNode(row, dh);          
-            addItemNode(row,sess);
+            addItemNode(row,sess, dh);
           }
         } else {
           if (idRequest.intValue() != -2) {
-            addItemNode(row,sess);
+            addItemNode(row,sess,dh);
           }
         }
 
@@ -245,7 +245,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     this.requestSampleTypeMap = new HashMap();
   }
 
-  private void addItemNode(Object[] row, Session sess) {
+  private void addItemNode(Object[] row, Session sess, DictionaryHelper dh) {
     itemNode = new Element("Item");
     itemNode.setAttribute("idRequest",                row[1] == null ? ""  : ((Integer)row[1]).toString());
     itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
@@ -288,6 +288,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
 
     StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
+   
     if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       label.append(" -  ");
       label.append(itemNode.getAttributeValue("sampleName1"));
@@ -307,8 +308,9 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     }
     itemNode.setAttribute("label", label.toString());
 
-    // Set the solexa request label to the concatenation of sample types and flow cell types
-    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
+    // Set the next gen request label to the concatenation of sample types and flow cell types
+    RequestCategory requestCategory = dh.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
+    if (requestCategory.isNextGenSeqRequestCategory()) {
       StringBuffer buf = new StringBuffer();
       for (Iterator i = requestSeqRunTypeMap.keySet().iterator(); i.hasNext();) {
         buf.append(i.next());
