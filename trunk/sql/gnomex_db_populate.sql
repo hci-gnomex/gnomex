@@ -1394,6 +1394,10 @@ VALUES ('OWNER', 'Owner'),
   ('MEM', 'Members'),
   ('INST', 'Institution'),
   ('PUBLIC', 'Public');
+  
+  
+
+
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

@@ -7,7 +7,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.FileDescriptor;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -142,8 +142,8 @@ public class DownloadSingleFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
-        baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForReading(req.getServerName());
-        baseDirFlowCell = PropertyHelper.getInstance(sess).getFlowCellDirectory(req.getServerName());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForReading(req.getServerName());
+        baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(req.getServerName());
         
           
         
@@ -200,13 +200,13 @@ public class DownloadSingleFileServlet extends HttpServlet {
           String theCreateYear  = dateTokens[2];
           String sortDate = theCreateYear + createMonth + createDay;    
           
-          String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+          String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
           if (keys.length() > 0) {
             keys.append(":");
           }
           keys.append(fcKey);
         }
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
         
         
         

@@ -87,7 +87,7 @@
 			       (item.@seqPrepGelFragmentSizeTo != "" ? item.@seqPrepGelFragmentSizeTo : "?");
 		}    	
 		private function getOrganism(item:Object, col:DataGridColumn):String {
-			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.Organism', item.@idOrganism);
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', item.@idOrganism);
 		}
 		private function getNumberSequencingCycles(item:Object, col:DataGridColumn):String {
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);

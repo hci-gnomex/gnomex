@@ -223,7 +223,7 @@
 					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
 					
 					vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
-					organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
+					organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
 					
 					var expIconLst:XMLList = parentApplication.expIcons.item; 
 					iconCombo.selectedIndex = 0;
@@ -609,7 +609,7 @@
 								<mx:Text text="Default Organism" 
 										 width="80" visible="{isInternalCheckbox.selected}" />
 								<mx:ComboBox width="100%" id="organismCombo"
-											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}" 
+											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
 											 labelField="@display" visible="{isInternalCheckbox.selected}" close="{this.dirty.setDirty();}"/>
 							</mx:HBox>
 							

@@ -23,7 +23,7 @@ import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.File;
@@ -500,7 +500,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           
         String filePathInfo = "";
         if (isBatchMode) {
-          String baseDir = PropertyHelper.getInstance(sess).getAnalysisWriteDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisWriteDirectory(serverName);
           filePathInfo = " filePath=\"" + getAnalysisDirectory(baseDir, analysis) + "\"";
         }
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"" + filePathInfo + "/>";

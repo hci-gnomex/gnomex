@@ -1,8 +1,15 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.security.SecurityAdvisor;
+
 import java.io.Serializable;
 import java.util.Set;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 
 
 
@@ -18,18 +25,8 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   private Integer sortOrder;
   private String  binomialName;
   private String  NCBITaxID;  
+  private Set     genomeBuilds;
 
-  /*
-  private Set<GenomeBuild>     genomeBuilds;
-  
-  public Set<GenomeBuild> getGenomeBuilds() {
-    return genomeBuilds;
-  }
-
-  public void setGenomeBuilds(Set<GenomeBuild> genomeBuilds) {
-    this.genomeBuilds = genomeBuilds;
-  }
-  */
 
   public String getDisplay() {
     String display = this.getNonNullString(getOrganism());
@@ -142,7 +139,34 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
     NCBITaxID = nCBITaxID;
   }
 
+  private Set getGenomeBuilds() {
+    return genomeBuilds;
+  }
 
+  private void setGenomeBuilds(Set genomeBuilds) {
+    this.genomeBuilds = genomeBuilds;
+  }
+
+  public Document getXML(SecurityAdvisor secAdvisor) throws UnknownPermissionException {
+    Document doc = DocumentHelper.createDocument();
+    Element root = doc.addElement("Organism");
+    
+    root.addAttribute("label",        this.getBinomialName());
+    root.addAttribute("idOrganism",   this.getIdOrganism().toString());
+    root.addAttribute("name",         this.getDas2Name() != null ? this.getDas2Name() : "");        
+    root.addAttribute("commonName",   this.getOrganism() != null ? this.getOrganism() : "");        
+    root.addAttribute("binomialName", this.getBinomialName() != null ? this.getBinomialName() : "");        
+    root.addAttribute("NCBITaxID",    this.getNCBITaxID() != null ? this.getNCBITaxID() : "");    
+    root.addAttribute("canWrite",     secAdvisor.canUpdate(this) ? "Y" : "N");
+
+    return doc;
+  }
+
+  
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getGenomeBuilds");
+    this.excludeMethodFromXML("getExcludedMethodsMap");
+  }
 
 
 }

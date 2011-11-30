@@ -10,7 +10,7 @@ import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,7 +47,7 @@ public class BuildSearchIndex extends DetailObject {
   private BatchDataSource dataSource = new BatchDataSource();
   private Session sess;
   
-  private PropertyHelper propertyHelper;
+  private PropertyDictionaryHelper propertyHelper;
   private Map dictionaryMap;
   
   private String serverName;
@@ -122,7 +122,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void init() throws Exception {
 
-    propertyHelper = PropertyHelper.getInstance(sess);
+    propertyHelper = PropertyDictionaryHelper.getInstance(sess);
 
     // Cache dictionary value-to-display
     dictionaryMap = new HashMap();

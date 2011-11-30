@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -132,7 +132,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      usageUserVisibility = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.USAGE_USER_VISIBILITY);
+      usageUserVisibility = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USAGE_USER_VISIBILITY);
 
       // Guests cannot run this command
       if (this.getSecAdvisor().isGuest()) {

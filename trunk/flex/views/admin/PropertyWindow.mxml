@@ -284,7 +284,7 @@
 				 <mx:Text text="Only show annotation for these organisms:" width="80"/>
 				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
 				 	   <mx:HBox horizontalAlign="left" horizontalGap="6">
-				 	    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
+				 	    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
 				 	    </mx:ComboBox>
 				 	   	   <mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 				 	   	   	   <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>

@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -62,7 +62,7 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
       //
       
       sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
-      String portNumber = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.HTTP_PORT);
+      String portNumber = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.HTTP_PORT);
       if (portNumber == null) {
         portNumber = "";
       } else {

@@ -19,8 +19,8 @@
 	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-  <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" editable="N" >
-			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+    <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuildLite" editable="N" >
+	  <Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
       <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
       <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
@@ -38,7 +38,7 @@
   	  <Filter className="hci.gnomex.model.ScanProtocol"              filterField="idScanProtocolDefault"/>
   	  <Filter className="hci.gnomex.model.FeatureExtractionProtocol" filterField="idFeatureExtractionProtocolDefault"/>  	  
 	</Dictionary>
-	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism" editable="N">
+	<Dictionary displayName="Organism" className="hci.gnomex.model.OrganismLite" editable="N">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	

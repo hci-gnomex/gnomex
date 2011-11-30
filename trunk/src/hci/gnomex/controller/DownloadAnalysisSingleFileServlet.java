@@ -5,7 +5,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -113,7 +113,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
-        baseDir = PropertyHelper.getInstance(sess).getAnalysisReadDirectory(req.getServerName());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(req.getServerName());
         
           
         Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);

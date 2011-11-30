@@ -738,7 +738,7 @@
 		//
         private function lookupOrganism(item:Object, col:Object):String {
         	if (item != null  && item.hasOwnProperty("@idOrganism")) {
-	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', item.@idOrganism);
+	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', item.@idOrganism);
 	        	if (d != null) {
 	        		return d.@display;
 	        	} else {
@@ -952,7 +952,7 @@
                     </mx:AdvancedDataGridColumn>                 											
 					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="35"  
 					 showDataTips="true" 
-                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
+                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
 					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="25" 
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}">

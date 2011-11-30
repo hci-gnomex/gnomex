@@ -9,7 +9,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -99,7 +99,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
         
         Request request = (Request)sess.load(Request.class, idRequest);
-        String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
         baseDir += "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
         
         

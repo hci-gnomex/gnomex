@@ -196,9 +196,9 @@
 			expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 			analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
 			analysisProtocolCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
-			organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', analysis.@idOrganism);
+			organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
 			filteredGenomeBuildList.refresh();
-			//genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', analysis.@idGenomeBuild);
+			//genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuildLite', analysis.@idGenomeBuild);
 			visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
 			privacyExpirationPicker.text = analysis.@privacyExpirationDate;
 			
@@ -217,13 +217,13 @@
 		
 		
 		public function initializeDataProviders():void {
-			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
+			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite');
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			
 			
 			analysisTypeCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');								
 			analysisProtocolCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');								
-			organismCombo.dataProvider         = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');							
+			organismCombo.dataProvider         = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.OrganismLite');							
 			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;								
 
 		}
@@ -1068,7 +1068,7 @@
 					     		    <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 					     		    <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
 					     		    <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
-					     		                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry,'@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
+					     		                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry,'@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
 					     		  <mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 					     		  </mx:columns>
 					     		</mx:DataGrid>

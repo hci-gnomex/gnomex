@@ -432,7 +432,7 @@
         	filteredSeqRunTypeList.refresh();
         	
         	
-        	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild'));
+        	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
         	        	
         	
         	filteredNumberSequencingCycleAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
@@ -578,7 +578,7 @@
 						}
 					}
 				}
-				var organismList:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', idOrganism);
+				var organismList:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', idOrganism);
 				if (organismList.length() > 0) {
 					return organismList[0];
 				} else {
@@ -1049,7 +1049,7 @@
 			// Select the default organism on sample setup if the request category specifies one
 			var requestCategory:Object = getRequestCategory();
 			if (requestCategory.@idOrganism != '') {
-				var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
+				var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
 				if (organism is XMLList) {
 					sampleSetupView.sampleOrganismCombo.selectedItem = organism[0];
 					
@@ -2121,7 +2121,7 @@
 			if (isMicroarrayState() || this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {
 					if (request.@idOrganismSampleDefault != '') {
-						sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);											
+						sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', request.@idOrganismSampleDefault);											
 					}
 				}
 			}
@@ -2130,7 +2130,7 @@
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', theSlideProduct.@idOrganism);
+				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', theSlideProduct.@idOrganism);
 
 				if (theSlideProduct.@isCustom == 'Y') {
 					hybSetupView.isCustomRadio.selected = true;				

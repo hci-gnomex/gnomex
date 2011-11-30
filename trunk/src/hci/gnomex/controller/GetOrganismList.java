@@ -6,6 +6,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.GenomeBuildLite;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
@@ -70,16 +71,17 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
         this.getSecAdvisor().flagPermissions(organism);
         Element node = organism.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
-        StringBuffer query = new StringBuffer("SELECT gb from GenomeBuild gb");
+        StringBuffer query = new StringBuffer("SELECT gb from GenomeBuildLite gb");
         query.append(" where gb.idOrganism=" + organism.getIdOrganism());
         query.append(" order by gb.genomeBuildName");
         List genomeBuilds = sess.createQuery(query.toString()).list();
         
         Element gbEle = new Element("genomeBuilds");
         for(Iterator j = genomeBuilds.iterator(); j.hasNext();) {
-          GenomeBuild genomeBuild = (GenomeBuild)j.next();
+          GenomeBuildLite genomeBuild = (GenomeBuildLite)j.next();
           this.getSecAdvisor().flagPermissions(genomeBuild);
           Element childNode = genomeBuild.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+          childNode.setName("GenomeBuild");
           gbEle.addContent(childNode);
         }
         node.addContent(gbEle);

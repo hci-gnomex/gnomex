@@ -80,6 +80,7 @@ alter table PropertyOption add
    ON UPDATE NO ACTION;
    
    
+   
 
 -- Rename SampleCharacteristicEntry to PropertyEntry
 rename table SampleCharacteristicEntry to PropertyEntry;
@@ -100,7 +101,7 @@ alter table PropertyEntry add
     REFERENCES `gnomex`.`Property` (`idProperty`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-       
+          
    
 -- Rename table SampleCharacteristicEntryOption
 rename table SampleCharacteristicEntryOption to PropertyEntryOption;
@@ -137,7 +138,6 @@ alter table Organism add column  `NCBITaxID` varchar(45)  NULL;
 -- Add columns to GenomeBuild
 alter table GenomeBuild add column  `das2Name` varchar(200) NULL;
 alter table GenomeBuild add column  `buildDate` datetime  NULL;
-alter table GenomeBuild add column  `coordURI` varchar(2000)  NULL;
 alter table GenomeBuild add column  `coordVersion` varchar(50)  NULL;
 alter table GenomeBuild add column  `coordSource` varchar(50)  NULL;
 alter table GenomeBuild add column  `coordTestRange` varchar(100)  NULL;
@@ -148,4 +148,149 @@ alter table GenomeBuild add column  `dataPath` varchar(500)  NULL;
 -- Add columns for AppUser
 alter table AppUser add column ucscUrl  varchar(250) null;
 
+
+-- Add new GenoPub tables (Segment, GenomeVersion, DataTrack, etc.)
+--
+-- Table structure for table `GenomeBuildAlias`
+--
+DROP TABLE IF EXISTS `GenomeBuildAlias`;
+CREATE TABLE `GenomeBuildAlias` (
+  `idGenomeBuildAlias` int(10) unsigned NOT NULL auto_increment,
+  `alias` varchar(100) NOT NULL,
+  `idGenomeBuild` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`idGenomeBuildAlias`),
+  KEY `FK_GenomeBuildAlias_GenomeBuild` (`idGenomeBuild`),
+  CONSTRAINT `FK_GenomeBuildAlias_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`)
+) ENGINE=InnoDB;
+
+
+--
+-- Table structure for table dbo.gpSegment 
+--
+--
+-- Table structure for table `Segment`
+--
+
+DROP TABLE IF EXISTS `Segment`;
+CREATE TABLE `Segment` (
+  `idSegment` int(10) unsigned NOT NULL auto_increment,
+  `length` int(10) unsigned NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `sortOrder` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`idSegment`),
+  KEY `FK_Segment_GenomeBuild` (`idGenomeBuild`),
+  CONSTRAINT `FK_Segment_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`)
+) ENGINE=InnoDB;
+
+
+--
+-- Table structure for table `DataTrack`
+--
+
+DROP TABLE IF EXISTS `DataTrack`;
+CREATE TABLE `DataTrack` (
+  `idDataTrack` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(2000) NOT NULL,
+  `description` varchar(10000) default NULL,
+  `fileName` varchar(2000) default NULL,
+  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `codeVisibility` varchar(10) NOT NULL,
+  `idAppUser` int(10) unsigned default NULL,
+  `idLab` int(10) unsigned default NULL,
+  `summary` varchar(5000) default NULL,
+  `createdBy` varchar(200) default NULL,
+  `createDate` datetime default NULL,
+  `isLoaded` char(1) default 'N',
+  `idInstitution` int(10) unsigned default NULL,
+  `dataPath` varchar(500) default NULL,
+  PRIMARY KEY  (`idDataTrack`),
+  KEY `FK_DataTrack_GenomeBuild` (`idGenomeBuild`),
+  KEY `FK_DataTrack_AppUser` (`idAppUser`),
+  KEY `FK_DataTrack_Visibility` (`codeVisibility`),
+  KEY `FK_DataTrack_group` USING BTREE (`idLab`),
+  KEY `FK_DataTrack_Institution` (`idInstitution`),
+  CONSTRAINT `FK_DataTrack_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`),
+  CONSTRAINT `FK_DataTrack_Institution` FOREIGN KEY (`idInstitution`) REFERENCES `Institution` (`idInstitution`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_DataTrack_AppUser` FOREIGN KEY (`idAppUser`) REFERENCES `AppUser` (`idAppUser`),
+  CONSTRAINT `FK_DataTrack_Lab` FOREIGN KEY (`idLab`) REFERENCES `Lab` (`idLab`),
+  CONSTRAINT `FK_DataTrack_Visibility` FOREIGN KEY (`codeVisibility`) REFERENCES `Visibility` (`codeVisibility`)
+) ENGINE=InnoDB;
+
+
+--
+-- Table structure for table `DataTrackCollaborator`
+--
+
+DROP TABLE IF EXISTS `DataTrackCollaborator`;
+CREATE TABLE `DataTrackCollaborator` (
+  `idDataTrack` int(10) unsigned NOT NULL,
+  `idAppUser` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`idDataTrack`,`idAppUser`),
+  KEY `FK_DataTrackCollaborator_AppUser` (`idAppUser`),
+  CONSTRAINT `FK_DataTrackCollaborator_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_DataTrackCollaborator_AppUser` FOREIGN KEY (`idAppUser`) REFERENCES `AppUser` (`idAppUser`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `DataTrackFolder`
+--
+
+DROP TABLE IF EXISTS `DataTrackFolder`;
+CREATE TABLE `DataTrackFolder` (
+  `idDataTrackFolder` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(2000) NOT NULL,
+  `description` varchar(10000) default NULL,
+  `idParentDataTrackFolder` int(10) unsigned default NULL,
+  `idGenomeBuild` int(10) unsigned default NULL,
+  `idLab` int(10) unsigned default NULL,
+  `createdBy` varchar(200) default NULL,
+  `createDate` datetime default NULL,
+  PRIMARY KEY  USING BTREE (`idDataTrackFolder`),
+  KEY `FK_DataTrackFolder_GenomeBuild` (`idGenomeBuild`),
+  KEY `FK_DataTrackFolder_parentDataTrackFolder` USING BTREE (`idParentDataTrackFolder`),
+  KEY `FK_DataTrackFolder_Lab` (`idLab`),
+  CONSTRAINT `FK_DataTrackFolder_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`),
+  CONSTRAINT `FK_DataTrackFolder_parentDataTrackFolder` FOREIGN KEY (`idParentDataTrackFolder`) REFERENCES `DataTrackFolder` (`idDataTrackFolder`),
+  CONSTRAINT `FK_DataTrackFolder_Lab` FOREIGN KEY (`idLab`) REFERENCES `Lab` (`idLab`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `DataTrackToFolder`
+--
+
+DROP TABLE IF EXISTS `DataTrackToFolder`;
+CREATE TABLE `DataTrackToFolder` (
+  `idDataTrack` int(10) unsigned NOT NULL,
+  `idDataTrackFolder` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`idDataTrack`,`idDataTrackFolder`),
+  KEY `FK_DataTrackToDataTrackFolder_DataTrackFolder` (`idDataTrackFolder`),
+  CONSTRAINT `FK_DataTrackToDataTrackFolder_DataTrackFolder` FOREIGN KEY (`idDataTrackFolder`) REFERENCES `DataTrackFolder` (`idDataTrackFolder`),
+  CONSTRAINT `FK_DataTrackToGrouping_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`)
+) ENGINE=InnoDB;
+
+
+--
+-- Table structure for table `UnloadDataTrack`
+--
+
+DROP TABLE IF EXISTS `UnloadDataTrack`;
+CREATE TABLE `UnloadDataTrack` (
+  `idUnloadDataTrack` int(10) unsigned NOT NULL auto_increment,
+  `typeName` varchar(2000) NOT NULL,
+  `idAppUser` int(10) unsigned default NULL,
+  `idGenomeBuild` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`idUnloadDataTrack`),
+  KEY `FK_UnloadDataTrack_AppUser` (`idAppUser`),
+  KEY `FK_UnloadDataTrack_GenomeBuild` (`idGenomeBuild`)
+) ENGINE=InnoDB;
+
   
+
+-- Add column idDataTrack to PropertyEntry
+alter table PropertyEntry add column idDataTrack int(10) null;
+alter table PropertyEntry add   
+CONSTRAINT `FK_PropertyEntry_DataTrack` FOREIGN KEY `FK_PropertyEntry_DataTrack` (`idDataTrack`)
+    REFERENCES DataTrack (`idDataTrack`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;

@@ -1,6 +1,7 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.4 (11/29/2011)
 --------------------
 * Added dropdown for Organism to initial screen for external experiment registration.
 * Made Organism field in Sample View read only for external experiment registration.
@@ -10,6 +11,7 @@
 * Implemented check to require completion of any required annotation fields in Sample View.
 * Removed Download link for external exps.
 * Fixed null pointer problem in SequenceLane.java that caused XML reflection error for some Experiments.
+* Fix bug in GetExperimentPickList that was causing error on next gen experiments that were not Illumina requests. (Bugs item #3444572)
 
 
 5.3.3.1 (11/17/2011)

@@ -273,8 +273,8 @@
     }
  	
  	public function sortOrganism(item1:Object, item2:Object):int {
-    	var v1:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Organism", item1.@idOrganism);
-    	var v2:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Organism", item2.@idOrganism);
+    	var v1:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OrganismLite", item1.@idOrganism);
+    	var v2:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OrganismLite", item2.@idOrganism);
     	
     	if (v1 > v2) {
     		return 1;
@@ -359,7 +359,7 @@
 				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50" sortCompareFunction="sortAnalysisProtocol"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisProtocol').DictionaryEntry,'@display', '@value', '@idAnalysisProtocol')}"/>                 
 				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50" sortCompareFunction="sortOrganism"
- 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value','@idOrganism')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry,'@display', '@value','@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 			         </mx:columns>
 			       </mx:DataGrid> 	    

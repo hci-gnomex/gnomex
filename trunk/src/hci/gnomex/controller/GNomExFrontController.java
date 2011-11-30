@@ -221,6 +221,7 @@ public class GNomExFrontController extends HttpServlet {
           response.setHeader("altio.status", "0");
           response.setHeader("altio.message", "Success");        	
         	this.forwardWithError(request, response, msg);
+        	
         }
         else {
           log.error(e.getClass().getName() + " while executing command " + commandClass);

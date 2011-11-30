@@ -17,7 +17,7 @@ import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,7 +152,7 @@ public class RegisterFiles extends TimerTask {
   }
   
   private void initialize() throws Exception {
-    PropertyHelper ph = PropertyHelper.getInstance(sess);
+    PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
     baseExperimentDir   = ph.getMicroarrayDirectoryForReading(serverName);
     baseFlowCellDir     = ph.getFlowCellDirectory(serverName);
     baseAnalysisDir     = ph.getAnalysisReadDirectory(serverName);

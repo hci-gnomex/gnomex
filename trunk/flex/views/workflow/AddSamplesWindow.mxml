@@ -518,7 +518,7 @@
 																   headerText="Genome Build (align to)"  
 																   editable="false" 
 																   dataField="@idGenomeBuildAlignTo" 						             						             
-																   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry,'@display', '@value', '@idGenomeBuildAlignTo')}">
+																   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry,'@display', '@value', '@idGenomeBuildAlignTo')}">
 													<mx:headerRenderer > 
 														<mx:Component>
 															<mx:VBox verticalGap="0"   

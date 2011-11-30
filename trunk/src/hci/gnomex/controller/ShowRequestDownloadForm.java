@@ -10,7 +10,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -95,8 +95,8 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 
       if (this.isValid()) {
         // Format an HTML page with links to download the files
-        String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
-        String baseDirFlowCell = PropertyHelper.getInstance(sess).getFlowCellDirectory(serverName);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
+        String baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
         Document doc = formatDownloadHTML(sess, secAdvisor, experiments, baseDir, baseDirFlowCell, baseURL);
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -234,7 +234,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
         boolean flattenSubDirs = true;
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, folder, requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), null);
         
         if (i.hasNext()) {
@@ -256,14 +256,14 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         String theCreateYear  = dateTokens[2];
         String sortDate = theCreateYear + createMonth + createDay;    
         
-        String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+        String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
         
         Map requestMap = new TreeMap();
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
         boolean flattenSubDirs = true;
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, flowCell.getNumber(), requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), flowCell.getIdFlowCell());
         
       }
