@@ -130,13 +130,18 @@ public class ExperimentQueue extends HttpServlet {
       hrefTable.addContent(contentNav);
       body.addContent(hrefTable);
       
-      for(Object temp : nsca)
+      for(String temp : listItems)
       {
-        NumberSequencingCyclesAllowed cycle = (NumberSequencingCyclesAllowed)temp;
-    
+        
+        StringBuffer query1 = new StringBuffer("SELECT n from NumberSequencingCyclesAllowed n" +
+        		" where n.name = " + "'" + temp + "'");
+        List results = sess.createQuery(query1.toString()).list();
+        
+        NumberSequencingCyclesAllowed cycle = (NumberSequencingCyclesAllowed)results.get(0);
+        
 
       //Start for loop here  for(Dictionary Entry : numbersequencingcyclesAllowed){
-      StringBuffer query1 = new StringBuffer("select seqLane.number, flowCell.lastCycleDate, " +
+      StringBuffer query2 = new StringBuffer("select seqLane.number, flowCell.lastCycleDate, " +
       		"user.lastName, user.firstName from Request as r, FlowCellChannel as flowCell " +
           "join r.appUser as user " +
       		"join r.sequenceLanes as seqLane " +
@@ -147,7 +152,7 @@ public class ExperimentQueue extends HttpServlet {
       		" and seqLane.idFlowCellChannel = flowCell.idFlowCellChannel " + 
       		"Order by flowCell.lastCycleDate asc");
 
-      List<Object[]> sqlResults = sess.createQuery(query1.toString()).list();
+      List<Object[]> sqlResults = sess.createQuery(query2.toString()).list();
       
       if (sqlResults.size() == 0)
         continue;
