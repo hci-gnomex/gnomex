@@ -361,9 +361,9 @@
 			// the state if we are toggling between register external
 			// experiment and submit internal experiment.
 			if (!isEditState() && !isAmendState()) { 
-				if (!parentApplication.isInternalExperimentSubmission) {
+				if (!parentApplication.isInternalExperimentSubmission) {	
 					
-				}
+				} 
 			}
 			
 			
@@ -692,20 +692,31 @@
         public function cancelRequest():void {
         	//getNewRequest.send();
 			request = null;
+			deleteNonStandardColumns();
 			initializeSubmitForm();
         	parentApplication.theViews.selectedIndex = 0;
         	
         }
-        
-
+			
+		public function startNewRequest():void {
+			request = null;
+			deleteNonStandardColumns();
+			this.setupSubmitForm();
+		}
+			
+		private function deleteNonStandardColumns():void {
+			if (theTab.contains(this.annotationView)) {
+				this.annotationView.deleteNonStandardColumns();
+			} 
+		}
+			
 		private function setupSubmitForm():void {
 			if (request == null) {
 				getNewRequest.send();
 				buttonStack.selectedIndex = 0;
 			}
 		}
-		
-		
+				
 		public function initializeSubmitForm():void {	
 
 			if (isAmendState() ){
@@ -2021,7 +2032,7 @@
 		
 		private function addDescriptionFieldToAnnotations(sc:XMLList, isSelected:Boolean):void {
 			var scXML:XML = sc[0];
-			var descNode:XML = <PropertyEntry idProperty="-1" property="Description" otherLabel="" isSelected="false" isActive="Y"/>;
+			var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;
 			if(isSelected) {
 				descNode.@isSelected = "true";
 			}			

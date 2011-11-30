@@ -65,7 +65,7 @@
 		  <mx:AddChild relativeTo="{label1}" position="before">
 			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg" verticalAlign="top">
 				  <mx:Text text="Organism" width="200" id="labelOrg"/>
-				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
+				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							
 					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 					  <mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 				  </mx:ComboBox>
@@ -120,7 +120,7 @@
 		  <mx:AddChild relativeTo="{label1}" position="before">
 			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
 				  <mx:Text text="Organism" width="200" id="labelOrg1"/>
-				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" change="pickOrganism()" close="pickOrganism()">							
+				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" change="pickOrganism()">							
 					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 					  <mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 				  </mx:ComboBox>
@@ -745,26 +745,16 @@
 		}
 		
 		private function pickOrganism():void {
+			
 			parentDocument.samplesView.initializeSamplesGrid();
 			
-			if (parentDocument.annotationView != null) {
-				parentDocument.annotationView.onPropertyRefreshed(null);
-			}
-			
 			/*
-			if (parentDocument.isMicroarrayState()) {
-				//parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;				
-				parentDocument.hybSetupView.checkForSlideProductWarning();
+			if (parentDocument.annotationView != null) {
+				//parentDocument.annotationView.onPropertyRefreshed(null);
 			}
 			*/
+			
 
-			for each (var sample:Object in parentDocument.samples) {
-				if (sampleOrganismCombo != null && sampleOrganismCombo.selectedItem != null) {
-					sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
-				} else if (sampleOrganismCombo1 != null && sampleOrganismCombo1.selectedItem != null) {
-					sample.@idOrganism = this.sampleOrganismCombo1.selectedItem.@value;
-				}
-			}
 			checkSetupCompleteness();
 		} 
 		

@@ -506,7 +506,7 @@
 			
 			// Select the default organism on sample setup if the request category specifies one
 			if (!parentDocument.isQCState()) {
-				if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.selectedItem.@value == '') {
+				if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
 					var requestCategory:Object = parentDocument.getRequestCategory();
 					if (requestCategory.@idOrganism != '') {
 						var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);

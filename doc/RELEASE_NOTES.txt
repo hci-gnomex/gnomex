@@ -1,6 +1,9 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment
+
 5.3.4 (11/29/2011)
 --------------------
 * Added dropdown for Organism to initial screen for external experiment registration.
