@@ -130,7 +130,7 @@
 		       	<mx:DataGridColumn headerText="Analysis Type" width="25"  editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
 					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisType').DictionaryEntry,'@display', '@value', '@idAnalysisType')}"/>
 		       	<mx:DataGridColumn headerText="Organism" width="25"   editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
-					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value',  '@idOrganism')}"/>
+					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry,'@display', '@value',  '@idOrganism')}"/>
 		       	<mx:DataGridColumn headerText="Description" width="40" dataField="@description"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Visibility"  width="40" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="true" 

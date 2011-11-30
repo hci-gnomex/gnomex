@@ -8,6 +8,8 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.AppUserLite;
+import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
@@ -65,6 +67,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          CAN_BE_LAB_COLLABORATOR                     = "canBeLabCollaborator";            
   public static final String          CAN_SUBMIT_WORK_AUTH_FORMS                  = "canSubmitWorkAuthForms";            
   
+  public static final String          USER_SCOPE_LEVEL  = "USER";
+  public static final String          GROUP_SCOPE_LEVEL = "GROUP";
+  public static final String          ALL_SCOPE_LEVEL   = "ALL";
 
 
   // Session info
@@ -388,6 +393,76 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }
     }
+    // 
+    // DataTrack
+    //
+    else if (object instanceof DataTrack) {
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // Normal gnomex users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        DataTrack dt = (DataTrack)object;
+
+        // First check to see if user is listed as a collaborator on this specific
+        // data track
+        for (Iterator i = dt.getCollaborators().iterator(); i.hasNext();) {
+          AppUser collaborator = (AppUser)i.next();
+          if (this.isLoggedInUser(collaborator.getIdAppUser())) {
+            canRead = true;
+            break;
+          }
+        }
+
+        // Next, look at visibility to find out if user has access to this
+        // data track.
+        if (!canRead) {
+          // DataTrack has owner visibility
+          if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
+            // Is owner of data track or manager of lab's data track
+            if (isOwner(dt.getIdAppUser()) || isGroupIManage(dt.getIdLab())) {
+              canRead = true;
+            }            
+          }        
+          // DataTrack has membership visibility
+          else if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+            if (isGroupIAmMemberOf(dt.getIdLab()) || isGroupIManage(dt.getIdLab())) {
+              canRead = true;
+            }            
+          }
+          // DataTrack has membership + collaborator visiblity
+          else if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
+            if (isGroupIAmMemberOf(dt.getIdLab()) || 
+                isGroupIManage(dt.getIdLab()) || 
+                isGroupICollaborateWith(dt.getIdLab())) {
+              canRead = true;
+            } 
+          }
+          // DataTrack has institution visibility
+          else if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+            if (isInstitutionIAmMemberOf(dt.getIdInstitution())) {
+              canRead = true;
+            }            
+          }
+          // DataTrack has public visibility
+          else if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+            canRead = true;
+          }
+          
+        }
+
+      }
+      // Guest users
+      else {
+        DataTrack a = (DataTrack)object;
+        
+        // Request has public visibility
+        if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          canRead = true;
+        }
+      }
+    }
     
     //
     // Project
@@ -446,6 +521,35 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         AnalysisGroup ag = (AnalysisGroup)object;
         // Analysis group is accessible if any of its analysis are marked as public
         if (ag.hasPublicAnalysis()) {
+          canRead = true;
+        }
+      }     
+    } 
+    //
+    // DataTrackFolder
+    //
+    else if (object instanceof DataTrackFolder) {
+      
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // GNomEx Users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        DataTrackFolder dtf = (DataTrackFolder)object;
+        if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getIdLab()) || isGroupICollaborateWith(dtf.getIdLab())) {
+          canRead = true;
+        } else {
+          if (dtf.hasPublicDataTracks()) {
+            canRead = true;
+          }
+        }
+      }  
+      // Guests
+      else {
+        DataTrackFolder dtf = (DataTrackFolder)object;
+        // Analysis group is accessible if any of its analysis are marked as public
+        if (dtf.hasPublicDataTracks()) {
           canRead = true;
         }
       }     

@@ -5,7 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -83,8 +83,8 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
       if (this.isValid()) {
         
         // Format an HTML page with links to download the files
-        String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
-        String baseDirFlowCell = PropertyHelper.getInstance(sess).getFlowCellDirectory(serverName);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
+        String baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
         Document doc = ShowRequestDownloadForm.formatDownloadHTML(sess, secAdvisor, experiments, baseDir, baseDirFlowCell, baseURL);
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();

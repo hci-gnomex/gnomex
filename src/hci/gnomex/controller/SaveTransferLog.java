@@ -7,7 +7,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -58,7 +58,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
-      String fdtDirectory = PropertyHelper.getInstance(sess).GetFDTDirectory(serverName);
+      String fdtDirectory = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName);
       
       
       HashMap filePartMap  = parseFileName(transferLog.getFileName(), fdtDirectory);

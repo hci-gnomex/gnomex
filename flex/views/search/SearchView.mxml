@@ -82,7 +82,7 @@
        	microarrayCombo.dataProvider = parentDocument.filteredSlideProductList;
        	
        	applicationCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application');
-       	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');
+       	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.OrganismLite');
        	requestCategoryCombo.dataProvider        = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategory');
        	sampleTypeCombo.dataProvider             = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType');
        	analysisTypeCombo.dataProvider           = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');

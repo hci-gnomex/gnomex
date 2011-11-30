@@ -5,7 +5,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -48,7 +48,7 @@ public class PendingWorkAuthd extends TimerTask {
   
   private ArrayList<String> waList; 
   
-  private PropertyHelper propertyHelper; 
+  private PropertyDictionaryHelper propertyHelper; 
   
   private static PendingWorkAuthd app;
   
@@ -105,7 +105,7 @@ public class PendingWorkAuthd extends TimerTask {
     try {
       app.connect();
       
-      propertyHelper = PropertyHelper.getInstance(sess);
+      propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       String contactList = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName); 
       
       String subject = "Pending Work Authorizations";

@@ -186,7 +186,7 @@
 						<mx:Label text="Organism:" top="85" left="188" width="50%" id="label3"/>
 						<hci:ComboBox top="102" left="188"
 									  id="sdIdOrganism"
-									  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+									  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}"
 									  prompt=" "
 									  value="{sdIdOrganism.selectedItem.@idOrganism}"
 									  width="250" change="dirty.setDirty()">

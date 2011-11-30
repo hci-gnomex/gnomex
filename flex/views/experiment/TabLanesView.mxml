@@ -331,8 +331,8 @@
        	                      itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}"/>
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
-           	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', false)}"                 
-       	                      itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo', true)}"/>
+           	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', false)}"                 
+       	                      itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo', true)}"/>
 						<mx:DataGridColumn  editable="true" width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             

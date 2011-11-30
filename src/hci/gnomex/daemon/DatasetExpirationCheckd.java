@@ -8,7 +8,7 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -54,7 +54,7 @@ public class DatasetExpirationCheckd extends TimerTask {
   
   private ArrayList<String> waList; 
   
-  private PropertyHelper propertyHelper; 
+  private PropertyDictionaryHelper propertyHelper; 
   
   private static DatasetExpirationCheckd app;
   
@@ -106,7 +106,7 @@ public class DatasetExpirationCheckd extends TimerTask {
 
       app.connect();
       
-      propertyHelper = PropertyHelper.getInstance(sess);
+      propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       String datasetPrivacyExp = propertyHelper.getQualifiedProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION, serverName);
       if(datasetPrivacyExp == null || datasetPrivacyExp.length() == 0) {
         System.out.println("Feature disabled: DATASET_PRIVACY_EXPIRATION has not been set.");        

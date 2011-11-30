@@ -41,7 +41,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleNumberComparator;
@@ -213,7 +213,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       requestParser.parse(sess);
       
       // The following code makes sure any ccNumbers that have been entered actually exist
-      PropertyHelper propertyHelper = PropertyHelper.getInstance(sess);
+      PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
         validateCCNumbers();
       }
@@ -910,13 +910,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
      
       Integer idProperty = (Integer)i.next();
       String value = (String)sampleAnnotations.get(idProperty);
-      Property property = (Property)dh.getProperty(idProperty);
+      Property property = (Property)dh.getPropertyObject(idProperty);
      
       
       PropertyEntry entry = new PropertyEntry();
       entry.setIdSample(sample.getIdSample());
-      Property sc = dh.getProperty(idProperty);
-      if (sc.getName().equals("Other")) {
+      if (property.getName().equals("Other")) {
           entry.setOtherLabel(requestParser.getOtherCharacteristicLabel());
       }
       entry.setIdProperty(idProperty);

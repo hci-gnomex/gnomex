@@ -9,7 +9,7 @@ import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -89,7 +89,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
         if (secAdvisor.canRead(analysis)) { 
 
           // Format an HTML page with links to download the files
-          String baseDir = PropertyHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
           Document doc = formatDownloadHTML(analysis, baseDir, baseURL);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();

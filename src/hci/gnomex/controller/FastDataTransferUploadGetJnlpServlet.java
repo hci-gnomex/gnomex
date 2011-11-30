@@ -5,7 +5,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
 
         // Make sure the system is configured to run FDT
-        String fdtSupported = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
+        String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
         if (fdtSupported == null || !fdtSupported.equals("Y")) {
           showError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
           return;
@@ -95,18 +95,18 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
         try {
           ServletOutputStream out = response.getOutputStream();
 
-          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid;    
+          String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid;    
 
           out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
           out.println("<jnlp spec=\"1.0\"");
-          String codebase_param = PropertyHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
+          String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
           out.println("codebase=\""+codebase_param+"\">");
           out.println("<!--");
           out.println("");
           out.println("Command line upload instructions:");
           out.println("");
-          String fdtJarLoc = PropertyHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
-          String fdtServerName = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
+          String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
+          String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
           if (fdtJarLoc == null || fdtJarLoc.equals("")) {
             fdtJarLoc = "http://monalisa.cern.ch/FDT/";
           }

@@ -278,13 +278,13 @@ public class RequestParser implements Serializable {
       sample = (Sample)sess.load(Sample.class, new Integer(idSampleString));
     }
     
-    PropertyHelper propertyHelper = PropertyHelper.getInstance(sess);
+    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
     initializeSample(n, sample, idSampleString, isNewSample, propertyHelper);
         
   }
   
  
-  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyHelper propertyHelper) throws Exception {
+  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyDictionaryHelper propertyHelper) throws Exception {
     
     sample.setName(unEscape(n.getAttributeValue("name")));
     

@@ -15,8 +15,8 @@ import org.hibernate.Session;
 
 
 
-public class PropertyHelper implements Serializable {
-  private static PropertyHelper   theInstance;
+public class PropertyDictionaryHelper implements Serializable {
+  private static PropertyDictionaryHelper   theInstance;
   
   private Map                      propertyMap = new HashMap();
 
@@ -35,7 +35,7 @@ public class PropertyHelper implements Serializable {
   private static final String    PROPERTY_FDT_JAR_LOCATION                    = "fdt_jar_location";
 
   
-  public PropertyHelper() {    
+  public PropertyDictionaryHelper() {    
   }
 
   public String getFDTFileDaemonTaskDir(String serverName) {
@@ -127,17 +127,17 @@ public class PropertyHelper implements Serializable {
 	  return property;
   }
   
-  public static synchronized PropertyHelper getInstance(Session sess) {
+  public static synchronized PropertyDictionaryHelper getInstance(Session sess) {
     if (theInstance == null) {
-      theInstance = new PropertyHelper();
+      theInstance = new PropertyDictionaryHelper();
       theInstance.loadProperties(sess);
     }
     return theInstance;
     
   }
   
-  public static synchronized PropertyHelper reload(Session sess) {
-    theInstance = new PropertyHelper();
+  public static synchronized PropertyDictionaryHelper reload(Session sess) {
+    theInstance = new PropertyDictionaryHelper();
     theInstance.loadProperties(sess);  
     return theInstance;
     

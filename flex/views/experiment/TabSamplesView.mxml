@@ -1230,8 +1230,8 @@
 											   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="170" headerText="Organism"  dataField="@idOrganism" 
 											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
-											   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
+											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
+											   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
 					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
 											   width="140" dataField="@otherOrganism"
 											   visible="{parentApplication.isInternalExperimentSubmission}"

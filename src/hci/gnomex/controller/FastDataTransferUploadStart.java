@@ -8,7 +8,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -73,7 +73,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       String createYear = "";
       String targetNumber = "";
       
-      String fdtSupported = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
+      String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
       if (fdtSupported == null || !fdtSupported.equals("Y")) {
         this.addInvalidField("fdtNotSupport", "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
       }
@@ -132,7 +132,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         String uuidStr = uuid.toString();
 
         // Directories must be created one level at a time so that permissions will be set properly in Linux      
-        String softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
+        String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
         makeDirectory(softlinks_dir);
         changeOwnershipAndPermissions(sess, softlinks_dir);
       
@@ -142,7 +142,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         changeOwnershipAndPermissions(sess, softlinks_dir);
         
         // Set task for moving files when uploaded
-        String taskFileDir = PropertyHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 
+        String taskFileDir = PropertyDictionaryHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 
         addTask(taskFileDir, softlinks_dir, targetDir);                
 
         this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + File.separator + targetNumber + "'/>";
@@ -183,11 +183,11 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   }
   
   public static void changeOwnershipAndPermissions(Session sess, String dir) throws Exception {
-    String fdtUser = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
+    String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
     if (fdtUser == null || fdtUser.equals("")) {
       fdtUser = "fdt";
     }
-    String fdtGroup = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_GROUP);
+    String fdtGroup = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_GROUP);
     if (fdtGroup == null || fdtGroup.equals("")) {
       fdtGroup = "fdtsecurity";
     }

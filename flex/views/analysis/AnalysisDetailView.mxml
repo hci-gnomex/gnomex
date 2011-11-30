@@ -144,11 +144,11 @@
 			analysisProtocolName = dict.@display.toString();
 		}
 		private function getOrganismName():void {
-			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', parentDocument.selectedAnalysis.@idOrganism);
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', parentDocument.selectedAnalysis.@idOrganism);
 			organismName = dict.@display.toString();
 		}
 		private function getGenomeBuildName():void {
-			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', parentDocument.selectedAnalysis.@idGenomeBuild);
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuildLite', parentDocument.selectedAnalysis.@idGenomeBuild);
 			genomeBuildName = dict.@display.toString();
 		}		
 		private function getVisibilityName():void {

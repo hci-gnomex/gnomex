@@ -15,7 +15,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 
 import java.io.Serializable;
@@ -147,7 +147,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      PropertyHelper ph = PropertyHelper.getInstance(sess);
+      PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
 
       
       if (!isAnalysisOnlySearch) {

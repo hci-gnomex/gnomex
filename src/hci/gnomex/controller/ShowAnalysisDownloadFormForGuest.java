@@ -7,7 +7,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -82,7 +82,7 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
         if (secAdvisor.canRead(analysis)) { 
           
           // Format an HTML page with the download links for this analysis
-          String baseDir = PropertyHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
           Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis, baseDir, baseURL);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();

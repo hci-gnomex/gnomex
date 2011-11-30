@@ -66,7 +66,7 @@
 			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg" verticalAlign="top">
 				  <mx:Text text="Organism" width="200" id="labelOrg"/>
 				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
-					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
+					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 					  <mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 				  </mx:ComboBox>
 				  <mx:Label text="Please specify" paddingLeft="6">
@@ -121,7 +121,7 @@
 			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
 				  <mx:Text text="Organism" width="200" id="labelOrg1"/>
 				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" change="pickOrganism()" close="pickOrganism()">							
-					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
+					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 					  <mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 				  </mx:ComboBox>
 				  <mx:Label text="Please specify" paddingLeft="6">

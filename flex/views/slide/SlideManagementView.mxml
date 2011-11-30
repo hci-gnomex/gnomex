@@ -796,7 +796,7 @@
 							<mx:Label text="Organism:" top="85" left="188" width="100%" id="label3"/>
 							<hci:ComboBox top="102" left="188"
 								id="sdIdOrganism"
-								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}"
 								prompt=" "
 								value="{fullSlideDesign.SlideProduct.@idOrganism}"
 								width="100%" change="dirty.setDirty()">
@@ -930,7 +930,7 @@
 							<mx:Label text="Organism:" top="85" left="188" width="100%"/>
 							<hci:ComboBox  left="188" right="150" top="102"
 								id="spIdOrganism"
-								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}"
 								prompt=" "
 								value="{fullSlideProduct.@idOrganism}"
 						 		width="100%" change="dirty.setDirty();">

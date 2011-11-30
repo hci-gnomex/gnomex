@@ -3,8 +3,12 @@ package hci.gnomex.utility;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.controller.ManageDictionaries;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.OligoBarcode;
+import hci.gnomex.model.Organism;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -33,16 +37,28 @@ import org.hibernate.Session;
 public class DictionaryHelper implements Serializable {
   private static DictionaryHelper theInstance;
   
-  private PropertyHelper   propertyHelper;
-  private List             requestCategoryList = new ArrayList();
-  private Map              requestCategoryMap = new HashMap();
-  private Map              oligoBarcodeMap = new HashMap();
-  private Map              submissionInstructionMap = new HashMap();
-  private Map              billingPeriodMap = new HashMap();
-  private Map              seqLibTreatmentMap = new HashMap();
-  private Map              slideDesignMap = new HashMap();
-  private Map              propertyMap = new HashMap();
-  private List             seqRunTypeList = new ArrayList();
+  private PropertyDictionaryHelper propertyDictionaryHelper;
+  private List                     requestCategoryList      = new ArrayList();
+  private Map                      requestCategoryMap       = new HashMap();
+  private Map                      oligoBarcodeMap          = new HashMap();
+  private Map                      submissionInstructionMap = new HashMap();
+  private Map                      billingPeriodMap         = new HashMap();
+  private Map                      seqLibTreatmentMap       = new HashMap();
+  private Map                      slideDesignMap           = new HashMap();
+  private Map                      propertyDictionaryMap    = new HashMap();
+  private List                     seqRunTypeList           = new ArrayList();
+
+  // For DataTrack functionality
+  private final HashMap<Integer, Property>            propertyMap  = new HashMap<Integer, Property>();
+  private final List<Property>                        propertyList = new ArrayList<Property>();
+  private final HashMap<Integer, Organism>            organismMap  = new HashMap<Integer, Organism>();
+  private final  List<Organism>                       organismList = new ArrayList<Organism>();
+  private final HashMap<Integer, GenomeBuild>         genomeBuildMap  = new HashMap<Integer, GenomeBuild>();
+  private final List<GenomeBuild>                     genomeBuildList = new ArrayList<GenomeBuild>();
+  private final HashMap<Integer, List<GenomeBuild>>   organismToGenomeBuildMap = new HashMap<Integer, List<GenomeBuild>>();
+  private final HashMap<Integer, AppUser>             appUserMap               = new HashMap<Integer, AppUser>();
+  private final HashMap<Integer, Lab>                 labMap  = new HashMap<Integer, Lab>();
+  private final List<Lab>                             labList = new ArrayList<Lab>();
 
   public DictionaryHelper() {    
   }
@@ -58,7 +74,7 @@ public class DictionaryHelper implements Serializable {
   
   public static synchronized DictionaryHelper reload(Session sess) {
     theInstance = new DictionaryHelper();
-    PropertyHelper.reload(sess);
+    PropertyDictionaryHelper.reload(sess);
     theInstance.loadDictionaries(sess);  
     return theInstance;
     
@@ -71,7 +87,7 @@ public class DictionaryHelper implements Serializable {
       throw new RuntimeException("Please run ManageDictionaries command first");
     }
     
-    propertyHelper = PropertyHelper.getInstance(sess);
+    propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
     
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
       Object de = i.next();
@@ -133,7 +149,7 @@ public class DictionaryHelper implements Serializable {
     }
     
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT p from Property as p ");
+    queryBuf.append("SELECT p from Property as p order by p.name");
     List properties = sess.createQuery(queryBuf.toString()).list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
       Property prop = (Property)i.next();
@@ -143,17 +159,53 @@ public class DictionaryHelper implements Serializable {
         System.out.println("warning - unable to initialize options on property " + prop.getIdProperty() + " " + e.toString());
       } 
       propertyMap.put(prop.getIdProperty(), prop);
+      propertyList.add(prop);
+    }
+    
+    List<Organism> organisms = (List<Organism>) sess.createQuery("SELECT d from Organism d order by d.binomialName").list();
+    for (Organism d : organisms) {
+      organismMap.put(d.getIdOrganism(), d);
+      organismList.add(d);
+    }
+
+    List<GenomeBuild> genomeBuilds = (List<GenomeBuild>) sess.createQuery("SELECT d from GenomeBuild d order by d.buildDate desc, d.genomeBuildName asc").list();
+    for (GenomeBuild d : genomeBuilds) {
+      genomeBuildMap.put(d.getIdGenomeBuild(), d);
+      genomeBuildList.add(d);
+
+      List<GenomeBuild> versions = organismToGenomeBuildMap.get(d.getIdOrganism());
+      if (versions == null) {
+        versions = new ArrayList<GenomeBuild>();
+        organismToGenomeBuildMap.put(d.getIdOrganism(), versions);
+      }
+      versions.add(d);
+    }
+
+    List<Lab> labs = (List<Lab>) sess.createQuery("SELECT d from Lab d order by d.lastName, d.firstName").list();
+    for (Lab l : labs) {
+      labMap.put(l.getIdLab(), l);
+      labList.add(l);
+    }
+
+
+    
+    queryBuf = new StringBuffer();
+    queryBuf.append("SELECT au from AppUser as au ");
+    List appUsers = sess.createQuery(queryBuf.toString()).list();
+    for (Iterator i = appUsers.iterator(); i.hasNext();) {
+      AppUser appUser = (AppUser)i.next();
+      appUserMap.put(appUser.getIdAppUser(), appUser);
       
     }
 
    }
   
-  public Property getProperty(Integer idProperty) {
-    return (Property)propertyMap.get(idProperty);
+  public Property getPropertyDictionary(Integer idProperty) {
+    return (Property)propertyDictionaryMap.get(idProperty);
   }
   
-  public Map getPropertyMap() {
-    return propertyMap;
+  public Map getPropertyDictionaryMap() {
+    return propertyDictionaryMap;
   }
   
   public String getSampleType(Sample sample) {
@@ -388,7 +440,68 @@ public class DictionaryHelper implements Serializable {
     }
     return billingPeriod;
   }
+  
 
+  public List<Organism> getOrganisms() {
+    return this.organismList;
+  }
+
+  public List<GenomeBuild> getGenomeBuilds(Integer idOrganism) {
+    return this.organismToGenomeBuildMap.get(idOrganism);
+  }
+
+  
+  public GenomeBuild getGenomeBuildObject(Integer idGenomeBuild) {
+    return (GenomeBuild)genomeBuildMap.get(idGenomeBuild);
+  }
+  public String getOrganismName(GenomeBuild genomeBuild) {
+    if (genomeBuild != null && genomeBuild.getIdOrganism() != null) {
+      Organism organism = organismMap.get(genomeBuild.getIdOrganism());
+      if (organism != null) {
+        return organism.getOrganism();
+      } else {
+        return "";
+      }     
+    } else {
+      return "";
+    }
+  }
+  public String getOrganismBinomialName(Integer idOrganism) {
+    Organism organism = organismMap.get(idOrganism);
+    if (organism != null) {
+      return organism.getBinomialName();
+    } else {
+      return "";
+    }
+  }
+  public String getOrganismBinomialName(GenomeBuild genomeBuild) {
+    if (genomeBuild != null && genomeBuild.getIdOrganism() != null) {
+      Organism organism = organismMap.get(genomeBuild.getIdOrganism());
+      if (organism != null) {
+        return organism.getBinomialName();
+      } else {
+        return "";
+      }     
+    } else {
+      return "";
+    }
+  }
+  public String getGenomeBuildName(Integer idGenomeBuild) {
+    GenomeBuild genomeBuild = genomeBuildMap.get(idGenomeBuild);
+    if (genomeBuild != null) {
+      return genomeBuild.getGenomeBuildName();
+    } else {
+      return "";
+    }
+  }
+
+  public AppUser getAppUserObject(Integer idAppUser) {
+    return appUserMap.get(idAppUser);
+  }
+  
+  public Lab getLabObject(Integer idLab) {
+    return labMap.get(idLab);
+  }
 
   public Map getSubmissionInstructionMap() {
     return submissionInstructionMap;
@@ -404,37 +517,45 @@ public class DictionaryHelper implements Serializable {
     }
     return barcodeSequence;
   }
+  public List<Property> getPropertyList() {
+    return propertyList;
+  }
+  
+  public Property getPropertyObject(Integer idProperty) {
+    return propertyMap.get(idProperty);
+  }
+
   
   public String getPropertyDictionary(String name) {
-    return propertyHelper.getProperty(name);
+    return propertyDictionaryHelper.getProperty(name);
   }
   
   public boolean isProductionServer(String serverName) {
-    return propertyHelper.isProductionServer(serverName);
+    return propertyDictionaryHelper.isProductionServer(serverName);
   }
   
   public String getAnalysisReadDirectory(String serverName) {
-	  return propertyHelper.getAnalysisReadDirectory(serverName);
+	  return propertyDictionaryHelper.getAnalysisReadDirectory(serverName);
   }
 
   public String getAnalysisWriteDirectory(String serverName) {
-	  return propertyHelper.getAnalysisWriteDirectory(serverName);
+	  return propertyDictionaryHelper.getAnalysisWriteDirectory(serverName);
   }
 	  
   public String getFlowCellDirectory(String serverName) {
-    return propertyHelper.getFlowCellDirectory(serverName);
+    return propertyDictionaryHelper.getFlowCellDirectory(serverName);
   }
 
   public String getMicroarrayDirectoryForWriting(String serverName) {
-    return propertyHelper.getMicroarrayDirectoryForWriting(serverName);
+    return propertyDictionaryHelper.getMicroarrayDirectoryForWriting(serverName);
   }
 
   public  String getMicroarrayDirectoryForReading(String serverName) {
-    return propertyHelper.getMicroarrayDirectoryForReading(serverName);
+    return propertyDictionaryHelper.getMicroarrayDirectoryForReading(serverName);
      
   }
   public String parseMainFolderName(String serverName, String fileName) {
-    return propertyHelper.parseMainFolderName(serverName, fileName);
+    return propertyDictionaryHelper.parseMainFolderName(serverName, fileName);
   }
   
 }

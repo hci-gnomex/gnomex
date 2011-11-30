@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.gnomex.model.PropertyDictionary;
 import hci.framework.control.RollBackCommandException;
@@ -289,7 +289,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");
         } else {
           try {
-            zipEntryName = PropertyHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath());   
+            zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath());   
           } catch (IOException  e) {
             throw new RuntimeException("Cannot get canonical file name for " + f1.getName());
           }  

@@ -19,6 +19,9 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   private Integer  idAppUser;
   private String   codePropertyType;
   private String   isRequired;
+  private String   forSample;
+  private String   forAnalysis;
+  private String   forDataTrack;
   private Set      options = new TreeSet();
   private Set      organisms = new TreeSet();
   private Set      platforms = new TreeSet();
@@ -155,6 +158,30 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
 
   public void setIsRequired(String isRequired) {
     this.isRequired = isRequired;
+  }
+
+  public String getForSample() {
+    return forSample;
+  }
+
+  public String getForAnalysis() {
+    return forAnalysis;
+  }
+
+  public String getForDataTrack() {
+    return forDataTrack;
+  }
+
+  public void setForSample(String forSample) {
+    this.forSample = forSample;
+  }
+
+  public void setForAnalysis(String forAnalysis) {
+    this.forAnalysis = forAnalysis;
+  }
+
+  public void setForDataTrack(String forDataTrack) {
+    this.forDataTrack = forDataTrack;
   }
     
 }

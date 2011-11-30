@@ -9,7 +9,7 @@ import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
-import hci.gnomex.utility.PropertyHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -100,7 +100,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
 
         // Make sure the system is configured to run FDT
-        String fdtSupported = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
+        String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
         if (fdtSupported == null || !fdtSupported.equals("Y")) {
           showError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
           return;
@@ -173,7 +173,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
             // Make softlinks dir
             if(softlinks_dir.length() == 0) {							
-              softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(req.getServerName())+uuid.toString();
+              softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(req.getServerName())+uuid.toString();
               File dir = new File(softlinks_dir);
               boolean success = dir.mkdir();
               if (!success) {
@@ -183,11 +183,11 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
               } 
               
               // change ownership to HCI_fdt user
-              String fdtUser = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
+              String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
               if (fdtUser == null || fdtUser.equals("")) {
                 fdtUser = "fdt";
               }
-              String fdtGroup = PropertyHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_GROUP);
+              String fdtGroup = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_GROUP);
               if (fdtGroup == null || fdtGroup.equals("")) {
                 fdtGroup = "fdt_security";
               }
@@ -247,15 +247,15 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
           out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		      out.println("<jnlp spec=\"1.0\"");
-		      String codebase_param = PropertyHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
+		      String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
 		      out.println("codebase=\""+codebase_param+"\">");
           out.println("<!--");
           out.println("");
           out.println("Command line download instructions:");
           out.println("");
-          String fdtJarLoc = PropertyHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
-          String fdtServerName = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
-          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+requestNumberBase;          
+          String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
+          String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
+          String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+requestNumberBase;          
           if (fdtJarLoc == null || fdtJarLoc.equals("")) {
             fdtJarLoc = "http://monalisa.cern.ch/FDT/";
           }

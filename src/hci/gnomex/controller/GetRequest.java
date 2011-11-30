@@ -243,11 +243,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
           requestNode.addContent(scParentNode);
           boolean hasCCNumber = false;
           boolean hasSampleDescription = false;
-          for(Iterator i = dh.getPropertyMap().keySet().iterator(); i.hasNext();) {
-            Integer idProperty = (Integer)i.next();
-            Property prop = (Property)dh.getProperty(idProperty);
+          for(Iterator i = dh.getPropertyList().iterator(); i.hasNext();) {
+            Property prop = (Property)i.next();
+            
+            if (prop.getForSample() == null || !prop.getForSample().equals("Y")) {
+              continue;
+            }
 
-            Element scNode = new Element("PropertyEntry");
+            Element peNode = new Element("PropertyEntry");
             PropertyEntry entry = null;
             
             for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
@@ -266,13 +269,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 }
               }
             }
-            scNode.setAttribute("idProperty", prop.getIdProperty().toString());
-            scNode.setAttribute("name", prop.getName());
-            scNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
-            scNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null ? "true" : "false");
-            scNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
+            peNode.setAttribute("idProperty", prop.getIdProperty().toString());
+            peNode.setAttribute("name", prop.getName());
+            peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
+            peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null ? "true" : "false");
+            peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
                 
-            scParentNode.addContent(scNode);
+            scParentNode.addContent(peNode);
             
           }
           requestNode.setAttribute("hasCCNumber", hasCCNumber ? "Y":"N");

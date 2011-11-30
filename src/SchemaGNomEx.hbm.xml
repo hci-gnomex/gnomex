@@ -194,6 +194,70 @@
     <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="notes" column="notes" type="string"/>
   </class>	
+  
+    <!--  DataTrack -->
+    <class name="hci.gnomex.model.DataTrack" table="DataTrack">
+        <id name="idDataTrack"                      column="idDataTrack"               type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="name"                        column="name"                       type="string"/>
+        <property name="summary"                     column="summary"                    type="string"/>
+        <property name="description"                 column="description"                type="string"/>
+        <property name="fileName"                    column="fileName"                   type="string"/>
+        <property name="dataPath"                    column="dataPath"                   type="string"/>
+        <property name="codeVisibility"              column="codeVisibility"             type="string"/>
+        <property name="idGenomeBuild"               column="idGenomeBuild"              type="integer"/>
+        <property name="idAppUser"                   column="idAppUser"                  type="integer"/>
+        <property name="idLab"                       column="idLab"                      type="integer"/>
+    	<many-to-one name="lab"                      column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+        <property name="idInstitution"               column="idInstitution"              type="integer"/>
+        <property name="createdBy"                   column="createdBy"                  type="string"/>
+        <property name="createDate"                  column="createDate"                 type="java.sql.Date"/>
+        <property name="isLoaded"                    column="isLoaded"                   type="string"/>
+        
+		<set name="folders" table="DataTrackToFolder" lazy="true" cascade="none">
+			<key column="idDataTrack"/>
+			<many-to-many column="idDataTrackFolder" class="hci.gnomex.model.DataTrackFolder"/>
+		</set>    
+		
+		<set name="collaborators" table="DataTrackCollaborator" lazy="true" cascade="none">
+		   <key column="idDataTrack"/>
+		   <many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+		</set>					 
+		
+		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
+			<key column="idDataTrack"/>
+			<one-to-many class="hci.gnomex.model.PropertyEntry" />
+		</set>
+	      
+      
+    </class>
+
+    <!--  DataTrackFolder -->
+    <class name="hci.gnomex.model.DataTrackFolder" table="DataTrackFolder">
+        <id name="idDataTrackFolder"  column="idDataTrackFolder"    type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="name"                        column="name"                       type="string"/>
+        <property name="description"                 column="description"                type="string"/>
+        <property name="idParentDataTrackFolder"     column="idParentDataTrackFolder"    type="integer"/>
+    	<many-to-one name="parentFolder"             column="idParentDataTrackFolder" class="hci.gnomex.model.DataTrackFolder" cascade="none" insert="false" update="false" />
+        <property name="idGenomeBuild"               column="idGenomeBuild"              type="integer"/>
+        <property name="idLab"                       column="idLab"                      type="integer"/>
+        <property name="createdBy"                   column="createdBy"                  type="string"/>
+        <property name="createDate"                  column="createDate"                 type="java.sql.Date"/>
+        
+        <set name="folders" table="DataTrackFolder" lazy="true" cascade="all" order-by="name">
+			    <key column="idParentDataTrackFolder"/>
+			    <one-to-many class="hci.gnomex.model.DataTrackFolder" />
+		</set>   
+
+		<set name="dataTracks" table="DataTrackToFolder" lazy="true" cascade="none">
+			    <key column="idDataTrackFolder"/>
+			    <many-to-many column="idDataTrack" class="hci.gnomex.model.DataTrack"/>
+		</set>
+    </class>
+  
 	
 	<!-- hci.gnomex.model.ExperimentDesignEntry -->
 	<class name="hci.gnomex.model.ExperimentDesignEntry" table="ExperimentDesignEntry">
@@ -904,10 +968,49 @@
 		<property name="coordVersion" column="coordVersion" type="string"/>
 		<property name="coordTestRange" column="coordTestRange" type="string"/>
 		<property name="coordAuthority" column="coordAuthority" type="string"/>
+		<property name="coordSource" column="coordSource" type="string"/>
 		<property name="ucscName" column="ucscName" type="string"/>
 		<property name="dataPath" column="dataPath" type="string"/>
+	    <set name="segments" table="Segment" lazy="true" cascade="none" order-by="sortOrder">
+		    <key column="idGenomeBuild"/>
+		    <one-to-many class="hci.gnomex.model.Segment" />
+	    </set>        
+	    <set name="aliases" table="GenomeBuildAlias" lazy="true" cascade="none" order-by="alias">
+		    <key column="idGenomeBuild"/>
+		    <one-to-many class="hci.gnomex.model.GenomeBuildAlias" />
+	    </set>        
+	    <set name="dataTrackFolders" table="DataTrackFolder" lazy="false" cascade="none" order-by="name">
+		    <key column="idGenomeBuild"/>
+		    <one-to-many class="hci.gnomex.model.DataTrackFolder" />
+	    </set>        
+	    <set name="dataTracks" table="DataTrack" lazy="true" cascade="none" order-by="name">
+		    <key column="idGenomeBuild"/>
+		    <one-to-many class="hci.gnomex.model.DataTrack" />
+	    </set>        
+		
 	</class>
 
+	<!-- hci.gnomex.model.GenomeBuildLite -->
+	<class name="hci.gnomex.model.GenomeBuildLite" table="GenomeBuild">
+		<id name="idGenomeBuild" column="idGenomeBuild" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="genomeBuildName" column="genomeBuildName" type="string"/>
+		<property name="idOrganism" column="idOrganism" type="integer"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="isLatestBuild" column="isLatestBuild" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
+	</class>
+    
+    <!--  GenomeBuildAlias -->
+    <class name="hci.gnomex.model.GenomeBuildAlias" table="GenomeBuildAlias">
+        <id name="idGenomeBuildAlias"  column="idGenomeBuildAlias"   type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="alias"            column="alias"              type="string"/>
+    </class> 
+
+    
 	<!-- hci.gnomex.model.HybProtocol -->
 	<class name="hci.gnomex.model.HybProtocol" table="HybProtocol">
 		<id name="idHybProtocol" column="idHybProtocol" type="integer">
@@ -1025,10 +1128,24 @@
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="binomialName" column="binomialName" type="string"/>
 		<property name="NCBITaxID" column="NCBITaxID" type="string"/>		
-		<!--set name="genomeBuilds" table="GenomeGuild" lazy="false" cascade="delete" order-by="genomeBuildName">
+		<set name="genomeBuilds" table="GenomeBuild" lazy="false" cascade="delete" order-by="genomeBuildName">
 			<key column="idOrganism"/>
 			<one-to-many class="hci.gnomex.model.GenomeBuild" />
-		</set-->			
+		</set>			
+	</class>
+	
+	
+	<!-- hci.gnomex.model.OrganismLite -->
+	<class name="hci.gnomex.model.OrganismLite" table="Organism">
+		<id name="idOrganism" column="idOrganism" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="organism" column="organism" type="string"/>
+		<property name="abbreviation" column="abbreviation" type="string"/>
+		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
+		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 	
 		<!-- hci.gnomex.model.PriceSheet -->
@@ -1196,6 +1313,9 @@
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<property name="codePropertyType" column="codePropertyType" type="string"/>
 		<property name="isRequired" column="isRequired" type="string"/>
+		<property name="forSample" column="forSample" type="string"/>
+		<property name="forAnalysis" column="forAnalysis" type="string"/>
+		<property name="forDataTrack" column="forDataTrack" type="string"/>
 
 		<set name="options" table="PropertyOption" lazy="false" cascade="delete" order-by="sortOrder">
 			<key column="idProperty"/>
@@ -1348,6 +1468,18 @@
 		<property name="url" column="url" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
+	
+	
+    <!--  Segment -->
+    <class name="hci.gnomex.model.Segment" table="Segment">
+        <id name="idSegment"            column="idSegment"         type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="name"            column="name"              type="string"/>
+        <property name="length"          column="length"            type="integer"/>
+        <property name="sortOrder"       column="sortOrder"         type="integer"/>
+        <property name="idGenomeBuild" column="idGenomeBuild"   type="integer"/>
+    </class>
 
 	<!-- hci.gnomex.model.SequencingControl -->
 	<class name="hci.gnomex.model.SequencingControl" table="SequencingControl">
