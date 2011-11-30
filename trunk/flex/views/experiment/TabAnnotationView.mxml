@@ -407,6 +407,26 @@
 				
 			}
 			
+			public function deleteNonStandardColumns():void {
+				var newColumns:Array = new Array();
+				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
+					if (col.dataField == null || col.dataField.indexOf("@ANNOT") < 0) {
+						newColumns.push(col);
+					}
+				}
+				parentDocument.samplesView.samplesGrid.columns = newColumns;
+				
+				var newConfirmColumns:Array = new Array();
+				for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
+					if (cCol.dataField == null || cCol.dataField.indexOf("@ANNOT") < 0) {
+						newConfirmColumns.push(cCol);
+					}    				
+				}
+				parentDocument.confirmView.samplesGridConfirm.columns = newConfirmColumns;
+			}
+			
+			
+			
 			private function checkForRemovedAnnotations():void {
 				var annotation:Object;
 				var exists:Boolean = false;

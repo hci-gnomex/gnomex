@@ -114,6 +114,7 @@
 			
 			import mx.managers.PopUpManager;
 			import views.admin.PropertyWindow;
+			import views.experiment.ExperimentEditView;
 			
 			public function checkDirty():void {
 			}
@@ -141,6 +142,10 @@
 			}
 			
 			private function submitRequest():void {
+				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
+				if(this.parentApplication.submitRequestView.request != null && !this.parentApplication.isInternalExperimentSubmission) {
+					this.parentApplication.submitRequestView.startNewRequest();
+				}
 				this.parentApplication.isInternalExperimentSubmission = true;
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
 				// If new experiment then initialize ShowCCNumber checkbox
@@ -148,6 +153,10 @@
 			}
 			
 			private function submitExternalExperiment():void {
+				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
+				if(this.parentApplication.submitRequestView.request != null && this.parentApplication.isInternalExperimentSubmission) {
+					this.parentApplication.submitRequestView.startNewRequest();
+				}
 				this.parentApplication.isInternalExperimentSubmission = false;
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
 				// If new experiment then initialize ShowCCNumber checkbox
