@@ -13,6 +13,15 @@ public class GenomeBuildLite extends DictionaryEntry implements Serializable, Di
   private String        isActive;
   private String        isLatestBuild;
   private Integer       idAppUser;
+  private String        das2Name;
+  private java.sql.Date buildDate;
+  private String        coordURI;
+  private String        coordVersion;
+  private String        coordSource;
+  private String        coordTestRange;
+  private String        coordAuthority;
+  private String        ucscName;
+  private String        dataPath;
   
   public String getDisplay() {
     String display = this.getNonNullString(getGenomeBuildName());
@@ -83,6 +92,78 @@ public class GenomeBuildLite extends DictionaryEntry implements Serializable, Di
   
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
+  }
+
+  public String getDas2Name() {
+    return das2Name;
+  }
+
+  public void setDas2Name(String das2Name) {
+    this.das2Name = das2Name;
+  }
+
+  public java.sql.Date getBuildDate() {
+    return buildDate;
+  }
+
+  public void setBuildDate(java.sql.Date buildDate) {
+    this.buildDate = buildDate;
+  }
+
+  public String getCoordURI() {
+    return coordURI;
+  }
+
+  public void setCoordURI(String coordURI) {
+    this.coordURI = coordURI;
+  }
+
+  public String getCoordVersion() {
+    return coordVersion;
+  }
+
+  public void setCoordVersion(String coordVersion) {
+    this.coordVersion = coordVersion;
+  }
+
+  public String getCoordSource() {
+    return coordSource;
+  }
+
+  public void setCoordSource(String coordSource) {
+    this.coordSource = coordSource;
+  }
+
+  public String getCoordTestRange() {
+    return coordTestRange;
+  }
+
+  public void setCoordTestRange(String coordTestRange) {
+    this.coordTestRange = coordTestRange;
+  }
+
+  public String getCoordAuthority() {
+    return coordAuthority;
+  }
+
+  public void setCoordAuthority(String coordAuthority) {
+    this.coordAuthority = coordAuthority;
+  }
+
+  public String getUcscName() {
+    return ucscName;
+  }
+
+  public void setUcscName(String ucscName) {
+    this.ucscName = ucscName;
+  }
+
+  public String getDataPath() {
+    return dataPath;
+  }
+
+  public void setDataPath(String dataPath) {
+    this.dataPath = dataPath;
   }
 
 }

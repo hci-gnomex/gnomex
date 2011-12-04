@@ -1,0 +1,842 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+		   label="Data Tracks" width="100%" height="100%" 
+		   xmlns:views="views.*" 
+		   xmlns:datatrack="views.datatrack.*"
+		   xmlns:util="views.util.*"
+		   creationPolicy="all"  show="init()"
+		   cornerRadius="10" >
+	<mx:states>
+		<mx:State name="AdminState">
+			<mx:SetProperty target="{reloadDas2ServerButton}" name="includeInLayout" value="{currentState == 'AdminState'}"/>
+			<mx:SetProperty target="{reloadDas2ServerButton}" name="visible" value="{currentState == 'AdminState'}"/>
+			<mx:SetProperty target="{reloadDas2ServerButton}" name="width" value="146"/>
+		</mx:State>
+		<mx:State name="UserState"/>
+		<mx:State name="GuestState"/>
+	</mx:states>
+
+<mx:HTTPService  
+	id="getDataTrackList" 
+	url="GetDataTrackList.gx"
+	destination="getDataTrackList"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetDataTrackList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get data track list', event)"
+	method="POST" 
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+	
+	
+<mx:Script>
+<![CDATA[
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
+	import mx.controls.Menu;
+	import mx.controls.ToolTip;
+	import mx.core.DragSource;
+	import mx.events.CloseEvent;
+	import mx.events.DragEvent;
+	import mx.events.ListEvent;
+	import mx.events.MenuEvent;
+	import mx.managers.DragManager;
+	import mx.managers.PopUpManager;
+	import mx.managers.ToolTipManager;
+	import mx.rpc.events.ResultEvent;
+	
+	private var lastTreeItem:ListEvent;
+	
+	public var treeItemToSelect:Object = null; 
+	
+	[Bindable]
+	private var dataTrackCount:String = "";
+	
+	private var hitCount:int = 0;
+	private var firstHitItem:XML = null;
+	private var currentIndex:int = 0;
+	private var hitToolTip:ToolTip = null;
+
+	
+	
+	public function checkDirty():void {
+	}
+
+	
+
+	
+	public function init():void {
+		getDataTrackList.send();
+		checkSecurity();
+	}
+	
+	private function checkSecurity():void {
+		currentState = "";
+		if (parentApplication.hasPermission("canWriteAnyObject")) {
+			currentState = "AdminState";
+		} else if (parentApplication.currentState == "GuestState") {
+			currentState = "GuestState";
+		} else {
+			this.currentState = "UserState";
+		}
+	}
+	
+	private function onGetDataTrackList(event:ResultEvent): void {
+		if (getDataTrackList.lastResult.name() != "DataTrackList") {
+			Alert.show(getDataTrackList.lastResult..ACTMESSAGE.@TEXT);
+			browseTree.visible = false;
+			return;
+		}
+
+		
+		if (getDataTrackList.lastResult.Organism.length() == 0) {
+			browseTree.visible = false;
+		} else {
+			browseTree.visible = true;
+		}
+		var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
+		dataTrackCount = dataTracks.length() + " data tracks.";
+
+		callLater(expandAppropriateNodes);    	
+		
+	}
+	
+	private function expandAppropriateNodes():void {
+		var itemToSelect:XML = getItemToSelect();
+		
+		if (cbAlwaysExpandTree.selected) {
+			// If the user has check the 'Expand tree' checkbox,
+			// just expand all nodes
+			this.expandAllNodes();
+			browseTree.validateNow();
+			callLater(selectTreeItem);
+			
+		} else if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrackFolder")) {
+			// If there is a tree, expand so it and its ancestors.
+			recurseExpandParent(itemToSelect);
+			browseTree.validateNow();
+			callLater(selectTreeItem);
+		} else {
+			// If no item to select or we have selected organism or genome build, 
+			// expand out to first folder level for all organisms, genome build.
+			browseTree.expandItem(getDataTrackList.lastResult, true);
+			for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+				if (organism.@isPopulated == "Y") {
+					browseTree.expandItem(organism, true);  	
+					
+					for each(var gb:Object in organism.GenomeBuild) {
+						browseTree.expandItem(gb, true);
+					}
+				}
+			}
+			callLater(selectTreeItem);
+		}
+		
+	}		
+	
+	private function recurseExpandParent(item:XML):void {
+		if (item.name() != 'DataTrack') {
+			browseTree.expandItem(item, true);				
+		}
+		if (item.parent() != null) {
+			recurseExpandParent(item.parent());									
+		}
+		
+	}
+	private function selectTreeItem():void {
+		if (treeItemToSelect != null) {
+			var item:Object = getItemToSelect();
+			
+			if (item != null) {
+				browseTree.selectedItem = item[0];
+				browseTree.scrollToIndex(browseTree.selectedIndex);
+			} else {
+				browseTree.selectedItem = null;
+			}
+		}
+		selectView();				
+		
+	}
+	
+	private function getItemToSelect():XML {
+		if (treeItemToSelect == null) {
+			return null;
+		} 
+		
+		var item:XMLList = null;
+		if (treeItemToSelect.name() == "Organism") {
+			item = getDataTrackList.lastResult.Organism.(@idOrganism == treeItemToSelect.@idOrganism);
+		} else if (treeItemToSelect.name() == "GenomeBuild") {
+			item = getDataTrackList.lastResult..GenomeBuild.(@idGenomeBuild == treeItemToSelect.@idGenomeBuild);
+		} else if (treeItemToSelect.name() == "DataTrackFolder") {
+			item = getDataTrackList.lastResult..DataTrackFolder.(@idDataTrackFolder == treeItemToSelect.@idDataTrackFolder);
+		} else if (treeItemToSelect.name() == "DataTrack") {
+			item = getDataTrackList.lastResult..DataTrack.(@idDataTrack == treeItemToSelect.@idDataTrack && @idDataTrackFolder == treeItemToSelect.@idDataTrackFolder);
+		} else if (treeItemToSelect.name() == "LaunchDataTrack") {
+			item = getDataTrackList.lastResult..DataTrack.(@idDataTrack == treeItemToSelect.@idDataTrack);
+		}
+		if (item != null && item.length() > 0) {
+			return XML(item[0]);				
+		} else {
+			return null;
+		}
+		
+	}
+	
+	private function onTreeClick():void {
+		this.treeItemToSelect = this.browseTree.selectedItem;
+		/*if (this.dirtyOrganism != null) {
+			this.dirtyOrganism.resetDirty();
+		}
+		if (this.dirtyGenomeVersion != null) {
+			this.dirtyGenomeVersion.resetDirty();
+			this.sequenceFilesToRemove = new XMLListCollection();
+			
+		} 
+		if (this.dirtyAnnotationGrouping != null) {
+			this.dirtyAnnotationGrouping.resetDirty();
+		}
+		if (this.dirtyAnnotation != null) {
+			this.dirtyAnnotation.resetDirty();
+			this.annotationFilesToRemove = new XMLListCollection();
+		}*/
+		this.selectView();
+	}
+
+	
+	public function selectView():void {
+		if (this.browseTree.selectedItem == null) {
+			this.removeButtonStack.selectedIndex = 0;
+			this.mainViewStack.selectedChild = this.blankView;
+			return;
+		}
+		
+		if (this.browseTree.selectedItem.name() == "Organism") {
+			this.removeButtonStack.selectedIndex = 1;
+			//this.mainViewStack.selectedChild = this.organismView;                
+		} else if (this.browseTree.selectedItem.name() == "GenomeBuild") {
+			this.removeButtonStack.selectedIndex = 2;
+			//var parms:Object = new Object();
+			//parms.idGenomeVersion = this.browseTree.selectedItem.@idGenomeVersion;
+			//getGenomeVersion.send(parms);
+			//this.mainViewStack.selectedChild = this.genomeVersionView;                
+		} else if (this.browseTree.selectedItem.name() == "DataTrackFolder") {
+			this.removeButtonStack.selectedIndex = 3;
+			//this.mainViewStack.selectedChild = this.annotationGroupingView;
+			if (this.browseTree.selectedItem.@canWrite == "Y") {
+				/*if (this.agUserGroupStack != null) {
+				agUserGroupStack.selectedIndex = 0;
+				parentApplication.selectDictionaryComboBox(this.annotationGroupingUserGroupCombo, browseTree.selectedItem.@idUserGroup, parentApplication.dictionaryMyUserGroup);
+				}*/
+			} else {
+				/*if (this.agUserGroupStack != null) {
+				agUserGroupStack.selectedIndex = 1;
+				}*/
+			}
+			
+		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
+			this.mainViewStack.selectedChild = this.dataTrackView;                
+			
+			var parms1:Object = new Object();
+			parms1.idDataTrack = this.browseTree.selectedItem.@idDataTrack;
+			dataTrackView.getDataTrack.send(parms1);
+			
+			this.removeButtonStack.selectedIndex = 4;
+		} else {
+			this.removeButtonStack.selectedIndex = 0;
+		}
+	}
+	
+	
+	
+	private function expandOrganismNodes():void
+	{
+		browseTree.expandItem(getDataTrackList.lastResult, true);
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			browseTree.expandItem(organism, true);
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+	private function collapseAllNodes():void {
+		
+		browseTree.expandItem(getDataTrackList.lastResult, false);
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			browseTree.expandItem(organism, false);
+		}
+		for each(var gb:Object in getDataTrackList.lastResult..GenomeBuild) {
+			browseTree.expandItem(gb, false);
+		}
+		for each(var folder:Object in getDataTrackList.lastResult..DataTrackFolder) {
+			browseTree.expandItem(folder, false);
+		}
+		browseTree.validateNow();
+	}
+
+	private function collapseFolderNodes():void {
+		for each(var folder:Object in getDataTrackList.lastResult..DataTrackFolder) {
+			browseTree.expandItem(folder, false);
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+		
+	}
+	private function collapseOrganismNodes():void {
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			browseTree.expandItem(organism, false);
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+		
+	}
+	
+	public function expandAllNodes():void
+	{
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			if (organism.@isPopulated == "Y") {
+				browseTree.expandChildrenOf(organism,true);
+			}
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+	
+	
+	private function collapseAllBrowseNodes():void {
+		if (browseTree == null || browseTree.openItems == null) {
+			return;
+		}
+		
+		browseTree.openItems = [];
+		browseTree.validateNow();
+	}
+	
+
+	public function getTreeIcon(item:Object):Class {
+		if (item.name() == "Organism") {
+			if (item.@isPopulated == "Y") {
+				return parentApplication.iconOrganism;
+			} else {
+				return parentApplication.iconOrganismFaded;
+			}
+		} else if (item.name() == "DataTrackFolder") {
+			if (item.@idLab != '') {
+				return parentApplication.iconDataTrackFolderForGroup;					
+			} else {
+				return parentApplication.iconFolder;										
+			}
+		} else if (item.name() == "GenomeBuild") {
+			if (item.children() != null && item.children().length() > 0) {
+				return parentApplication.iconGenomeBuild;				
+			} else {
+				return parentApplication.iconGenomeBuildFaded;
+			}
+		} else if (item.name() == "DataTrack") {
+			if (item.@codeVisibility == "MEM") {
+				return parentApplication.iconDataTrackMember;
+			} else if (item.@codeVisibility == "MEMCOL") {
+				return parentApplication.iconDataTrackMemberCollab;
+			} else if (item.@codeVisibility == "OWNER") {
+				return parentApplication.iconDataTrackOwner;
+			} else if (item.@codeVisibility == "INST") {
+				return parentApplication.iconDataTrackInstitution;
+			} else {
+				return parentApplication.iconDataTrackPublic;
+			}
+		} else {
+			return parentApplication.iconDataTrack;
+		}
+	}     
+	private function onDragDrop( event:DragEvent ) : void {
+	}
+	
+	public function refreshDataTracks():void {
+		var parms:Object = new Object();
+		parms.idLab = this.labCombo.visible && this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
+		parms.isVisibilityPublic = this.cbVisibilityPublic.visible && this.cbVisibilityPublic.selected ? "Y" : "N";
+		parms.isVisibilityOwner = this.cbVisibilityOwner.visible && this.cbVisibilityOwner.selected ? "Y" : "N";
+		parms.isVisibilityMembers = this.cbVisibilityMem.visible && this.cbVisibilityMem.selected ? "Y" : "N";
+		parms.isVisibilityInstitute = this.cbVisibilityInstitute.visible && this.cbVisibilityInstitute.selected ? "Y" : "N";
+	    parms.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@idOrganism : "";
+		parms.idGenomeBuild = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+		
+		getDataTrackList.send(parms);
+	}
+	
+	private function locateByName():void {
+		//hitLabel.text = "";
+		hitCount = 0;
+		firstHitItem = null;
+		for each(var o:XML in getDataTrackList.lastResult..Organism) {
+			examine(o);			
+			for each(var gb:XML in o.GenomeBuild) {
+				examine(gb);
+				for each(var dt:XML in gb.DataTrack) {
+					examine(dt);
+				}
+				for each(var f:XML in gb..DataTrackFolder) {
+					examine(f);
+					for each(var dt1:XML in f.DataTrack) {
+						examine(dt1);
+					}
+				}					
+			}	
+		}
+		
+		browseTree.validateNow();
+		if (this.firstHitItem != null) {
+			browseTree.selectedItem = firstHitItem;
+			browseTree.scrollToIndex(browseTree.selectedIndex);
+			selectView();
+		}  else {
+			browseTree.selectedItem = null;
+		}
+		this.locateStack.selectedIndex = 1;
+		if (this.locateText.text != "") {
+			this.nextLocationButton.visible = hitCount > 0 ? true : false;
+			
+			// Show hit count in tooltip
+			var s:String = hitCount + " match" + (hitCount == 1 ? " found." : "es found.");
+			var globalPoint:Point  = this.locateText.contentToGlobal(new Point(this.locateText.x, this.locateText.y));
+			hitToolTip = ToolTipManager.createToolTip(s, this.locateText.x + 1, globalPoint.y + 22) as ToolTip;
+			
+			// destroy tooltip in 10 seconds
+			var minuteTimer:Timer = new Timer(1000, 3);
+			minuteTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onToolTipTimerComplete);
+			minuteTimer.start();
+		} else {
+			this.nextLocationButton.visible = false;
+		}
+	}
+	
+	private function onToolTipTimerComplete(evt:TimerEvent):void
+	{
+		ToolTipManager.destroyToolTip(hitToolTip);
+	}
+	
+	
+	private function jumpToNextMatch():void {
+		var jump:Boolean = false;
+		currentIndex = -1;
+		for each(var o:XML in getDataTrackList.lastResult..Organism) {
+			incrementIndex(o);
+			if (jump) {
+				break;
+			}
+			jump = jumpTo(o);
+			if (jump) {
+				break;
+			}
+			for each(var gv:XML in o.GenomeBuild) {
+				incrementIndex(gv);
+				if (jump) {
+					break;
+				}
+				jump = jumpTo(gv);
+				if (jump) {
+					break;
+				}
+				for each(var ra:XML in gv.DataTrack) {
+					incrementIndex(ra);
+					jump = jumpTo(ra);
+					if (jump) {
+						break;
+					}
+				}
+				for each(var ag:XML in gv..DataTrackFolder) {
+					incrementIndex(ag);
+					if (jump) {
+						break;
+					}
+					jump = jumpTo(ag);
+					if (jump) {
+						break;
+					}
+					for each(var a:XML in ag.DataTrack) {
+						incrementIndex(a);
+						jump = jumpTo(a);
+						if (jump) {
+							break;
+						}
+					}
+				}					
+			}	
+		}
+		if (!jump) {
+			this.browseTree.selectedItem = null;
+		}
+	}
+	private function incrementIndex(item:XML):void {
+		if (isOpenItem(item)) {
+			currentIndex++;
+		}
+		
+		item.@currentIndex = currentIndex;
+	}
+	
+	private function isOpenItem(item:XML):Boolean{
+		var isOpen:Boolean = false;
+		for each(var openItem:XML in browseTree.openItems) {
+			if (item == openItem) {
+				isOpen = true;
+				break;
+			}
+			
+			if (!isOpen) {
+				for each(var openChildItem:XML in openItem.elements()) {
+					if (item == openChildItem) {
+						isOpen = true;
+						break;
+					}
+				}
+				
+			}
+		} 	
+		return isOpen;		
+	}
+	
+	private function jumpTo(item:XML):Boolean {
+		if (item.@emphasize == "Y" &&
+			this.browseTree.selectedItem != item &&
+			this.browseTree.selectedIndex < currentIndex) {
+			browseTree.selectedItem = item;
+			browseTree.scrollToIndex(browseTree.selectedIndex);
+			selectView();
+			return true;
+		} else {
+			return false;
+		}			
+	}
+	
+	private function examine(item:XML):void {
+		item.@currentHit = "N";
+		if (this.locateText.text == "") {
+			firstHitItem = null;
+			item.@emphasize = "N";
+		} else {
+			examineAttribute(item, item.@label);
+			if (item.@emphasize != "Y") {
+				if (item.name() == "Organism") {
+					examineAttribute(item, item.@commonName);
+				} else if (item.name() == "GenomeBuild") {
+					examineAttribute(item, item.@name);
+				} else if (item.name() == "DataTrackFolder") {
+					examineAttribute(item, item.@description);
+				} else if (item.name() == "DataTrack") {
+					examineAttribute(item, item.@summary);
+					if (item.@emphasize != "Y") {
+						examineAttribute(item, item.@description);
+					}
+				}
+			}
+		}
+		
+		
+	}
+	
+	private function examineAttribute(item:XML, attribute:String):void {
+		if (attribute.toUpperCase().indexOf(this.locateText.text.toUpperCase()) > -1 ) {
+			if (firstHitItem == null) {
+				firstHitItem = item;
+			}
+			item.@emphasize = "Y";
+			hitCount++;
+			recurseExpandParent(item);		
+		} else {
+			item.@emphasize = "N";
+		}
+	}
+	
+	
+	private function cleanRichTextHTML(htmlText:String):String {
+		var pattern:RegExp = /<TEXTFORMAT.*?>/g;
+		var str:String = htmlText.replace(pattern, "");
+		pattern = /<FONT.*?>/g;
+		str = str.replace(pattern, "");
+		pattern = /<\/FONT.*?>/g;
+		str = str.replace(pattern, "");
+		pattern = /<\/TEXTFORMAT.*?>/g;
+		str = str.replace(pattern, "");
+		
+		return str;		    
+	}
+
+
+]]>
+</mx:Script>
+	
+<mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
+	<mx:VBox styleName="panelBox"   backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%" verticalGap="0">
+		<mx:VBox verticalGap="4" width="100%"  styleName="headerBar" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="top" borderStyle="solid">
+			<mx:HBox width="100%" styleName="menuBar" id="topBar">
+				<mx:LinkButton   label="New Data Track" 
+								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="New data track" 
+								 click="{/*addItem('DataTrack')*/}" 
+								 id="linkbutton4"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/datatrack_new_disable.png')" 
+								 icon="@Embed(source='../../assets/datatrack_new.png')"/>
+				<mx:VRule height="20" id="vrule4" width="2" 							   
+						  visible="{currentState != 'GuestState'}"
+						  includeInLayout="{currentState != 'GuestState'}"/>
+				<mx:LinkButton   label="New Folder" 
+								 icon="@Embed(source='../../assets/folder_new.png')" 
+								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
+								 disabledIcon="@Embed(source='../../assets/folder_new_disable.png')" 
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="New folder" 
+								 click="{/*addItem('DataTrack folder')*/}" 
+								 id="linkbutton3" textAlign="left" />
+				<mx:VRule height="20" id="vrule5" width="2" 
+						  visible="{currentState == 'AdminState'}"
+						  includeInLayout="{currentState == 'AdminState'}"/>
+				<mx:LinkButton  label="New Genome Build" 
+								icon="@Embed(source='../../assets/genome_build_new.png')" 
+								enabled="true"
+								disabledIcon="@Embed(source='../../assets/genome_build_new_disable.png')" 
+								visible="{currentState == 'AdminState'}"
+								includeInLayout="{currentState == 'AdminState'}"
+								styleName="linkMenuButton"   					        	
+								toolTip="Create a new genome build" 
+								click="{/*addItem('Genome version')*/}" 
+								leading="0" id="linkbutton2" textAlign="left" />
+				<mx:VRule height="20" id="vrule6" width="2" 
+						  visible="{currentState == 'AdminState'}"
+						  includeInLayout="{currentState == 'AdminState'}"/>
+				<mx:LinkButton  label="New Organism" 
+								icon="@Embed(source='../../assets/organism_new.png')" 
+								enabled="true"
+								disabledIcon="@Embed(source='../../assets/organism_new_disable.png')"  
+								visible="{currentState == 'AdminState'}"
+								includeInLayout="{currentState == 'AdminState'}"
+								toolTip="Create a new organism"
+								styleName="linkMenuButton"   					        	
+								click="{/*addItem('Organims')*/}" 
+								labelPlacement="right" textAlign="left" id="linkbutton1"  />
+				<mx:VRule height="20" id="vrule3" width="2" />
+				<mx:LinkButton label="Duplicate" styleName="menuLabelSmall" id="duplicateButton" 
+							   disabledIcon="@Embed(source='../../assets/duplicate_disable.png')" 
+							   icon="@Embed(source='../../assets/duplicate.png')" textAlign="left"
+							   visible="{currentState != 'GuestState'}"
+							   includeInLayout="{currentState != 'GuestState'}"
+							   click="{/*duplicateDataTrack.send()*/}"
+							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' }"
+							   />
+				<mx:VRule height="20" id="vrule0" width="2"									   
+						  visible="{currentState != 'GuestState'}"
+						  includeInLayout="{currentState != 'GuestState'}"/>
+				<mx:ViewStack id="removeButtonStack" creationPolicy="all"  paddingLeft="0" paddingRight="0"  paddingTop="0" 
+							  visible="{currentState != 'GuestState'}"
+							  includeInLayout="{currentState != 'GuestState'}">
+					<mx:HBox  horizontalGap="8" horizontalAlign="left" id="hbox5" >		           
+						<mx:LinkButton   
+							icon="@Embed(source='../../assets/crossout.png')" 
+							label="Remove"
+							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
+							enabled="false"
+							visible="{currentState == 'AdminState'}"
+							includeInLayout="{currentState == 'AdminState'}"
+							styleName="linkMenuButton" 
+							click="{/*this.promptToRemoveSelectedItems()*/}" toolTip="Delete organism" id="linkbutton7" />
+					</mx:HBox>
+					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6" 
+							 visible="{currentState == 'AdminState'}"
+							 includeInLayout="{currentState == 'AdminState'}">
+						<mx:LinkButton   
+							icon="@Embed(source='../../assets/crossout.png')" 
+							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
+							visible="{currentState == 'AdminState'}"
+							includeInLayout="{currentState == 'AdminState'}"
+							label="Remove" 
+							enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+							styleName="linkMenuButton" 
+							click="{/*this.promptToRemoveSelectedItems()*/}" toolTip="Delete organism"   id="removeOrganismButton"/>
+					</mx:HBox>
+					<mx:HBox  horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox7" 
+							  visible="{currentState == 'AdminState'}"
+							  includeInLayout="{currentState == 'AdminState'}">
+						<mx:LinkButton label="Remove" icon="@Embed(source='../../assets/crossout.png')" 
+									   disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
+									   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+									   visible="{currentState == 'AdminState'}"
+									   includeInLayout="{currentState == 'AdminState'}"
+									   styleName="linkMenuButton" 
+									   click="{/*this.promptToRemoveSelectedItems()*/}" 
+									   toolTip="Delete genome version"  id="removeGenomeBuildButton"/>
+					</mx:HBox>
+					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left"  id="hbox16">
+						<mx:LinkButton   icon="@Embed(source='../../assets/crossout.png')"  
+										 disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
+										 label="Remove"
+										 visible="{currentState != 'GuestState'}"
+										 includeInLayout="{currentState != 'GuestState'}"
+										 enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"								  					        	
+										 styleName="linkMenuButton" 
+										 click="{/*this.promptToRemoveSelectedItems()*/}" 
+										 toolTip="Delete annotation grouping"  id="removeDataTrackFolderButton"/>
+					</mx:HBox>
+					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox8" 
+							 visible="{currentState != 'GuestState'}"
+							 includeInLayout="{currentState == 'GuestState'}">
+						<mx:LinkButton  icon="@Embed(source='../../assets/crossout.png')"  
+										disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
+										label="Remove"
+										visible="{currentState != 'GuestState'}"
+										includeInLayout="{currentState != 'GuestState'}"
+										enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"								  					        	
+										styleName="linkMenuButton" 
+										click="/*this.promptToRemoveSelectedItems()*/" 
+										toolTip="Delete annotation"  id="removeDataTrackButton"/>
+					</mx:HBox>
+				</mx:ViewStack>
+				<mx:VRule height="20" id="vrule21" width="2" />
+				<mx:LinkButton styleName="linkMenuButton" label="Download" 
+							   icon="@Embed(source='../../assets/download.png')" 
+							   enabled="true"
+							   click="{treeItemToSelect=null;/*promptToDownloadSelectedItems()*/}" id="downloadButton" />
+				
+				<mx:VRule height="20" id="vrule21x" width="2" />	
+				<mx:LinkButton styleName="linkMenuButton" label="UCSC Browser" 
+							   icon="@Embed(source='../../assets/ucscFavicon.png')"
+							   disabledIcon="@Embed(source='../../assets/ucscFaviconDeselected.png')"  					        	
+							   toolTip="Create file link(s) for viewing the selected annotation in the UCSC Genome Browser"
+							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' /*&amp;&amp;  getDataTrack.lastResult.@ucscLinkFile != 'none'*/}"  
+							   click="{/*makeUCSCLink()*/}" 
+							   id="makeUCSCLinkButton" />
+				
+				
+				<mx:VRule height="20" id="vrule1" width="2"/>
+				<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
+							   icon="@Embed(source='../../assets/refresh.png')" 
+							   click="{treeItemToSelect=null;refreshDataTracks()}" id="linkbutton8"/>
+				
+				<mx:VRule height="20" id="vrule2" width="2"
+						  visible="{currentState != 'GuestState'}"
+						  includeInLayout="{currentState != 'GuestState'}"
+						  />
+				<mx:LinkButton styleName="linkMenuButton" label="Refresh DAS/2 Server" 
+							   visible="{currentState != 'GuestState'}"
+							   includeInLayout="{currentState != 'GuestState'}"
+							   icon="@Embed(source='../../assets/database_lightning.png')" 
+							   click="{/*refreshDAS2()*/}" 
+							   id="reloadDas2ServerButton" textAlign="left" />
+						
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="4" paddingTop="2" verticalAlign="middle" paddingBottom="2" id="hbox15"  backgroundAlpha="0.8" borderStyle="none" paddingRight="2" paddingLeft="2">
+				
+				<mx:Label text="Filters:" styleName="menuLabelSmall"/>
+				<mx:ComboBox labelField="@binomialName" id="organismCombo" change="refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism...">
+					<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
+				</mx:ComboBox>
+				<mx:ComboBox dataProvider="{organismCombo.selectedItem.genomeBuilds.GenomeBuild}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
+				
+				<mx:HBox horizontalGap="2" paddingLeft="4"
+						 visible="{currentState != 'GuestState'}"
+						 includeInLayout="{currentState != 'GuestState'}">
+					<mx:Label text="Visible to" 							
+							  visible="{currentState != 'GuestState'}"
+							  includeInLayout="{currentState != 'GuestState'}"
+							  styleName="menuLabelSmall" id="label3" paddingTop="0" paddingBottom="0"/>
+					<mx:CheckBox id="cbVisibilityOwner" label="Owner"  
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+					<mx:CheckBox id="cbVisibilityMem" label="Members"  
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+					<mx:CheckBox id="cbVisibilityInstitute" label="Institution" 							
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 paddingLeft="0" selected="true"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+					<mx:CheckBox id="cbVisibilityPublic" label="Public"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 selected="true" paddingLeft="0"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+					
+				</mx:HBox>
+				
+				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+							 visible="{currentState == 'AdminState'}"
+							 includeInLayout="{currentState == 'AdminState'}"
+							 prompt="Lab..."
+							 labelField="@name" change="{refreshDataTracks()}" styleName="menuLabelSmall"></mx:ComboBox>			
+			
+			</mx:HBox>
+
+        </mx:VBox>
+		
+		
+    </mx:VBox>
+	
+	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
+		<mx:VBox styleName="panelBox"   width="320" height="100%" id="navPanel" >
+			<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Data Tracks">
+				<mx:HBox width="100%" horizontalGap="0" paddingLeft="2" paddingBottom="2" verticalAlign="middle">
+					<mx:TextInput id="locateText"  width="100%"  enter="locateByName()" change="{this.locateStack.selectedIndex = 0}" styleName="menuLabelSmall" height="20"/>
+					<mx:ViewStack id="locateStack" >
+						<mx:HBox paddingLeft="2">
+							<mx:LinkButton label="Find"   width="90" paddingLeft="1" enabled="{locateText.text != ''}" 
+										   id="findLocationButton" styleName="linkMenuButton" click="this.locateByName()" textAlign="left" icon="@Embed(source='../../assets/magnifier.png')"/>
+						</mx:HBox>
+						<mx:HBox>
+							<mx:LinkButton label="Next match" width="90"  paddingLeft="1" visible="true" 
+										   id="nextLocationButton" styleName="linkMenuButton" 
+										   click="jumpToNextMatch()" textAlign="left" 
+										   icon="@Embed(source='../../assets/next.png')"/>
+						</mx:HBox>
+					</mx:ViewStack>
+				</mx:HBox>
+
+				<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+					
+					<mx:Tree width="100%" height="100%" 
+							 dataProvider="{getDataTrackList.lastResult}" 
+							 showRoot="false" 
+							 id="browseTree" 
+							 click="onTreeClick();"
+							 doubleClickEnabled="false" 
+							 borderStyle="solid"
+							 labelField="@label"
+							 dragEnabled="true" 
+							 dropEnabled="true" 
+							 dragMoveEnabled="true"
+							 dragDrop="onDragDrop(event);" 
+							 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
+					
+				</mx:VBox>
+				
+			</mx:VBox>
+			<mx:ControlBar width="100%" verticalAlign="bottom">				
+				<mx:CheckBox id="cbAlwaysExpandTree" label="Expand tree"  click="{browseTree.selectedItem=null;cbAlwaysExpandTree.selected ? expandAppropriateNodes() : this.collapseAllNodes();expandAppropriateNodes()}" styleName="menuLabelSmall" />
+				<mx:Spacer width="100%"/>
+				<mx:Label text="{dataTrackCount}" styleName="menuLabelSmall" />
+			</mx:ControlBar>
+		</mx:VBox>
+		
+		
+		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="all">
+			<mx:Panel id="blankView" width="100%" height="100%"   borderThicknessBottom="27">			    	
+			</mx:Panel>
+			
+			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">
+			</datatrack:DataTrackView>
+			
+		</mx:ViewStack>
+
+    </mx:HDividedBox>	
+
+	
+</mx:VBox>
+	
+</mx:Canvas>

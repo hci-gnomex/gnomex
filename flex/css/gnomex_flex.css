@@ -742,3 +742,58 @@ Text.progressLabel
 .monthHeaderStyle {
 	fontWeight: normal;	
 }
+
+.headerBar {
+	borderColor: #CACFD2; 
+	backgroundColor: #eeeedd;
+	borderStyle: solid;
+	cornerRadius: 6;
+	paddingLeft: 4;
+	paddingRight: 4;
+	paddingTop: 2;
+	paddingBottom: 4;
+	verticalGap: 2;
+}
+
+.menuLabel
+{
+	color: #463B40;
+}
+.menuLabelSmall
+{
+	fontSize: 9;
+	color: #463B40;
+}
+.linkMenuButton
+{
+	color: #463B40;
+	fontSize: 9;
+	textDecoration: normal;
+	horizontalGap: 0;
+	fontWeight: normal;
+	textRollOverColor: #463B40;
+	textSelectedColor: #463B40;
+}
+.linkMenuButtonSmall
+{
+	color: #463B40;
+	textDecoration: underline;
+	fontSize: 9;
+	horizontalGap: 0;
+	fontWeight: normal;
+	textRollOverColor: #463B40;
+	textSelectedColor: #463B40;
+}
+.panelBody
+{
+	borderStyle: solid;
+	borderThickness: 1;
+	dropShadowColor: #4A4949;
+	dropShadowEnabled: true;
+	paddingBottom: 4;
+	paddingLeft: 4;
+	paddingRight: 4;
+	paddingTop: 4;
+	verticalGap: 2; 
+	
+}

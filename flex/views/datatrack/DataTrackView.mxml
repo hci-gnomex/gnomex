@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+		  xmlns:mx="http://www.adobe.com/2006/mxml"     
+		  xmlns:views="views.*" 
+		  xmlns:util="views.util.*" 
+		  xmlns:datatracl="views.datatrack.*"
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+	
+	
+	<mx:VBox width="100%" verticalGap="2">
+		<mx:HBox horizontalGap="1">
+			<mx:Image source="{getDataTrack.lastResult.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : (getDataTrack.lastResult.@codeVisibility == 'MEM' ? parentApplication.iconDataTrackMember : (getDataTrack.lastResult.@codeVisibility == 'MEMCOL' ? parentApplication.iconDataTrackMemberCollab : (getDataTrack.lastResult.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackPublic)))}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Data Track ' + getDataTrack.lastResult.@number}" />
+		</mx:HBox>
+	</mx:VBox>
+	
+<mx:HTTPService             
+	id="getDataTrack" 
+	url="GetDataTrack.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetDataTrack(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get data track', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
+	
+<mx:HTTPService             
+	id="updateDataTrack" 
+	url="SaveDataTrack.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onUpdateDataTrack(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to update data track', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>   
+	
+<mx:XMLListCollection id="dataTrackFiles" source="{getDataTrack.lastResult.Files..File}"/>
+<mx:XMLListCollection id="dataTrackFilesToRemove"/> 
+<mx:XMLListCollection id="collaborators" source="{getDataTrack.lastResult.Collaborators.User}"/>
+<mx:XMLListCollection id="possibleCollaborators" source="{getDataTrack.lastResult.PossibleCollaborators.User}"/>
+<mx:XMLListCollection id="possibleInstitutes" source="{getDataTrack.lastResult.PossibleInstitutes.Institute}"/>
+<mx:XMLListCollection id="dataTrackProperties" source="{getDataTrack.lastResult..PropertyEntry}"/>
+	
+<mx:Script>	
+<![CDATA[
+	import mx.controls.Alert;
+	import mx.rpc.events.ResultEvent;
+	import views.admin.PropertyWindow;
+	import mx.managers.PopUpManager;
+
+	private function onGetDataTrack(event:ResultEvent):void {
+		if (getDataTrack.lastResult.name() == "DataTrack") {
+			if (this.parentDocument.currentState == "AdminState") {
+				this.dataTrackOwnerStack.selectedIndex = 0;
+			} else if (this.parentDocument.currentState == "UserState") {
+				this.dataTrackOwnerStack.selectedIndex = 1;
+			}
+			this.visibilityRadioGroup.selectedValue = getDataTrack.lastResult.@codeVisibility;
+			for each(var institute:Object in possibleInstitutes) {
+				if (institute.@idInstitute == getDataTrack.lastResult.@idInstitute.toString()) {
+					instituteCombo.selectedItem = institute;
+					break;
+				}
+			}
+			labCombo.selectedItem              = parentApplication.getLabList.lastResult.Lab.(@idLab == getDataTrack.lastResult.@idLab);
+			if (parentDocument.currentState == "AdminState") {
+				ownerCombo.selectedItem              = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == getDataTrack.lastResult.@idAppUser);
+			}
+			//this.collaboratorComboCheck.initialValues = this.collaborators;
+			this.dirtyDataTrack.resetDirty();
+			
+		} else if (getDataTrack.lastResult.name() == "Error") {
+			Alert.show(getDataTrack.lastResult.@message);
+		} else {
+			Alert.show("An error occurred while getting dataTrack");				
+		}		
+	}	
+	
+	private function onUpdateDataTrack(event:ResultEvent):void {
+		if (updateDataTrack.lastResult.name() == "SUCCESS") {
+			this.dirtyDataTrack.resetDirty();
+			parentDocument.treeItemToSelect = parentDocument.browseTree.selectedItem;
+			parentDocument.refreshDataTracks();			
+		} else if (updateDataTrack.lastResult.name() == "Error") {
+			Alert.show(updateDataTrack.lastResult.@message);
+		} else {
+			Alert.show("An error occurred while saving data track");				
+		}
+	}
+
+	private function removeRichTextButtons():void {
+		this.descriptionRichText.toolbar.removeChild(descriptionRichText.colorPicker);
+		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontFamilyCombo);
+		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontSizeCombo);
+	}
+
+	
+	/**
+	 *
+	 *  ANNOTATION PROPERTY FUNCTIONS
+	 *  
+	 */
+	private function onCreatePropertyLabel(dataTrackProperty:XML, index:int):void {
+		if (dataTrackProperty.@codePropertyType == 'TEXT') {
+			propertyValueViewStack[index].selectedIndex = 1;
+			propertyText[index].text = dataTrackProperty.@value;
+		} else if (dataTrackProperty.@codePropertyType == 'URL') {
+			propertyValueViewStack[index].selectedIndex = 0;
+			//var url:String = !dataTrackProperty.hasOwnProperty("@value") ||  dataTrackProperty.@value  == null || dataTrackProperty.@value == '' ? "http://" : dataTrackProperty.@value;
+			//propertyURL[index].htmlText =  "<a href='event:" + url + "'><u><font color='Blue'>" +  url + "</font></u></a>";
+		} else  if (dataTrackProperty.@codePropertyType == 'OPTION') {
+			propertyValueViewStack[index].selectedIndex = 2;
+			propertyCombo[index].dataProvider =  dataTrackProperty..PropertyOption;
+			for each(var theOption:XML in dataTrackProperty..PropertyOption) {
+				if (theOption.@selected == 'Y') { 
+					propertyCombo[index].selectedItem =  theOption;
+					break;   // just expecting a single option					
+				}
+			}
+		} else  if (dataTrackProperty.@codePropertyType == 'MOPTION') { 
+			propertyValueViewStack[index].selectedIndex = 4; 
+			/*var allOptions:XMLListCollection = new XMLListCollection();
+			var selectedOptions:XMLListCollection = new XMLListCollection();
+			for each(var option:XML in dataTrackProperty..PropertyOption) {
+				allOptions.addItem(option.copy());
+				if (option.@selected == 'Y') { 
+					selectedOptions.addItem(option.copy());	
+				}
+			}
+			propertyComboCheck[index].dataProvider = allOptions;
+			propertyComboCheck[index].initialValues = selectedOptions;
+			*/
+		} else if (dataTrackProperty.@codePropertyType == 'CHECK') {
+			propertyValueViewStack[index].selectedIndex = 3;
+			propertyCheck[index].selected = dataTrackProperty.@value == 'Y' ? true : false;
+		}
+	}
+	
+	private function initializePropertiesFromComponents():void {
+		for (var i:int = 0; i < dataTrackProperties.length; i++) {
+			var property:XML = XML(dataTrackProperties.getItemAt(i));
+			if (propertyValueViewStack[i].selectedIndex == 0) {
+				// url
+				property.@value = "";
+				for each (var propertyValue:XML in  property..PropertyValue) {
+					var pv:String = propertyValue.@url;
+					if (propertyValue.@urlAlias != null) {
+						pv += ',' + property.@urlAlias;
+					}
+					propertyValue.@value = pv;
+				}
+
+			} else if (propertyValueViewStack[i].selectedIndex == 1) {
+				// text
+				property.@value = propertyText[i].text;
+			} else if (propertyValueViewStack[i].selectedIndex == 2) {
+				// combo
+				property.@value = "";
+				for each (var option:XML in  property..PropertyOption) {
+					if (propertyCombo[i].selectedItem != null &&
+						option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
+						option.@selected = 'Y';
+					} else {
+						option.@selected = 'N';
+					}
+				}
+			} else if (propertyValueViewStack[i].selectedIndex == 3) {
+				// check
+				property.@value = propertyCheck[i].selected ? 'Y' : 'N';
+			} else if (propertyValueViewStack[i].selectedIndex == 4) {
+				// multi-select
+				property.@value = "";		
+				var idx:int = 0;
+				for each (var option:XML in  property..PropertyOption) {
+					if (multiselectCheck[i][idx].selected) {
+						option.@selected = 'Y';
+						if (property.@value != '') {
+							property.@value += ",";
+						}
+						property.@value = option.@name;
+					} else {
+						option.@selected = 'N';
+					}
+				}
+
+				/*
+				property.@value = "";
+				for each (var theOption:XML in  property..PropertyOption) {
+					var checked:Boolean = false;
+					for each (var checkedOption:XML in  propertyComboCheck[i].checkedItems) {
+						if (theOption.@idPropertyOption == checkedOption.@idPropertyOption) {
+							checked = true;
+							break;
+						}
+					}
+					theOption.@selected = checked ? 'Y' : 'N';
+				}
+				*/
+			}
+		}
+	}
+	
+	private function onPropertyURLClick(event:TextEvent):void {
+		var url:URLRequest = new URLRequest(event.target.text);
+		navigateToURL( url, '_blank' );
+	}
+	
+	private function removeProperty(dataTrackProperty:XML):void {
+		this.initializePropertiesFromComponents();
+		dataTrackProperties.removeItemAt(dataTrackProperties.getItemIndex(dataTrackProperty));
+	}
+	
+	
+	private function selectURLText(indices:Array):void {
+		if (urlText[indices[0]][indices[1]].text == 'Enter URL here...') {
+			urlText[indices[0]][indices[1]].selectionBeginIndex = 0;
+			urlText[indices[0]][indices[1]].selectionEndIndex = urlText[indices[0]][indices[1]].text.length;
+		} 
+	}
+
+	private function selectAliasText(indices:Array):void {
+		if (aliasText[indices[0]][indices[1]].text == 'Enter alias here...') {
+			aliasText[indices[0]][indices[1]].selectionBeginIndex = 0;
+			aliasText[indices[0]][indices[1]].selectionEndIndex = aliasText[indices[0]][indices[1]].text.length;
+		} 
+	}
+
+	private function onChangeURLText(indices:Array):void {
+		var newText:String = urlText[indices[0]][indices[1]].text;
+		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+		values.getItemAt(indices[1]).@value = newText;
+	}
+	
+	private function showURLLink(indices:Array):void {
+		if (urlText[indices[0]][indices[1]].text == 'Enter URL here...') {
+			return;
+		}
+		var isNew:Boolean = false;
+		if ( urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
+			isNew = true;
+		}
+		
+		var newUrlText:String = urlText[indices[0]][indices[1]].text;
+		var newUrlAlias:String = aliasText[indices[0]][indices[1]].text;
+		var newUrlDisplay:String = "";
+		if (newUrlAlias != 'Enter alias here...' && newUrlAlias != '') {
+			newUrlDisplay = newUrlAlias;
+		} else {
+			newUrlDisplay = newUrlText;
+		}
+		
+		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+		values.getItemAt(indices[1]).@urlDisplay = newUrlDisplay;
+		values.getItemAt(indices[1]).@url = newUrlText;
+		values.getItemAt(indices[1]).@urlAlias= newUrlAlias;		
+		
+		urlLink[indices[0]][indices[1]].label = newUrlDisplay;
+		
+		urlStack[indices[0]][indices[1]].selectedIndex = 0;
+		
+		if (isNew) {
+			addURL(indices);
+		}
+		
+		
+	}
+
+	private function navigateToURLLink(indices:Array):void {
+		if (urlLink[indices[0]][indices[1]].label == 'Enter URL here...') {
+			return;
+		}
+		var urlString:String = urlLink[indices[0]][indices[1]].label;
+		if (urlString.indexOf("http") < 0) {
+			urlString = "http://" + urlString;
+		}
+		var url:URLRequest = new URLRequest(urlString);
+		navigateToURL( url, '_blank' );
+	}
+	
+	private function showURLEdit(indices:Array):void {
+		urlStack[indices[0]][indices[1]].selectedIndex = 1;
+	}
+	
+	private function tabToURLText(indices:Array):void {
+		urlText[indices[0]][indices[1]].setFocus();
+	}
+	
+
+	private function removeURL(indices:Array):void {
+		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+		
+		var property:XML = XML(XMLListCollection(propertyRepeater.dataProvider).getItemAt(indices[0]));
+		delete property.PropertyEntryValue[indices[1]];
+		
+		values.removeItemAt(indices[1]);
+		
+		this.initializePropertiesFromComponents();
+		
+		propertyMainBox.removeAllChildren();
+		propertyRepeater.initializeRepeater(propertyMainBox, true);
+		
+	}
+	
+	private function addURL(indices:Array):void {
+		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+		
+		var property:XML = XML(XMLListCollection(propertyRepeater.dataProvider).getItemAt(indices[0]));
+		property.appendChild(new XMLList("<PropertyEntryValue idPropertyEntryValue='' urlAlias='Enter alias here...' url='Enter URL here...'/>"));
+		values = new XMLListCollection(property.PropertyEntryValue);
+		
+		this.initializePropertiesFromComponents();
+		propertyMainBox.removeAllChildren();
+		propertyRepeater.initializeRepeater(propertyMainBox, true);
+	}
+	
+	private function showPropertyConfigWindow():void {
+		var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
+		PopUpManager.centerPopUp(configWindow);
+		
+	}
+	
+
+		
+]]>
+</mx:Script>
+
+	<mx:TabNavigator width="100%" height="100%" tabWidth="130">
+		
+		<mx:HBox width="100%" height="100%" styleName="panelBody" verticalGap="0" label="Details">
+			<mx:VBox width="70%" height="100%" verticalGap="4">
+				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
+					<mx:Label text="Name"/>
+					<mx:TextInput width="100%" maxChars="2000" text="{getDataTrack.lastResult.@name}" id="dataTrackName" change="dirtyDataTrack.setDirty()"/>					    	
+				</mx:HBox>
+				<mx:VBox width="100%" verticalGap="0">
+					<mx:Label text="Summary" width="70"/>
+					<mx:TextInput width="100%" text="{getDataTrack.lastResult.@summary}" id="dataTrackSummary" change="dirtyDataTrack.setDirty()" maxChars="5000"  height="40"/>
+				</mx:VBox>
+				<mx:VBox width="100%" id="hbox3" verticalGap="0" height="100%">
+					<mx:Label text="Description" width="126"/>
+					<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+										id="descriptionRichText" width="100%" 
+										htmlText="{getDataTrack.lastResult.@description}" 
+										showControlBar="{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}"
+										change="{this.dirtyDataTrack.setDirty()}"
+										creationComplete="{removeRichTextButtons()}" 
+										paddingLeft="0" paddingRight="0" paddingTop="0" 
+										roundedBottomCorners="false" paddingBottom="0" 
+										borderThicknessRight="0" borderThicknessLeft="0" 
+										borderThicknessBottom="0" borderThickness="0" 
+										borderThicknessTop="0" height="100%" minHeight="80" />
+				</mx:VBox>
+				
+			</mx:VBox>
+			<mx:VBox width="30%" height="100%" verticalGap="0">
+				<mx:VBox id="propertyMainBox" width="100%" height="100%" verticalGap="4" paddingTop="2" >
+					<mx:Repeater  id="propertyRepeater" 
+								  dataProvider="{dataTrackProperties}">
+						<mx:HBox verticalAlign="top" width="100%"  horizontalGap="0" >
+							<mx:HBox width="126" horizontalGap="0" paddingLeft="0" paddingRight="0">
+								<mx:Text text="{propertyRepeater.currentItem.@name}" width="100%"  styleName="labelSmall"
+										 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
+								
+							</mx:HBox>
+							<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="250" >
+								<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" >
+									<mx:Repeater id="urlRepeater" dataProvider="{propertyRepeater.currentItem.PropertyEntryValue}" >
+										<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@url == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
+											<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
+												<mx:LinkButton id="urlLink" label="{urlRepeater.currentItem.@urlDisplay }"  
+															   click="{navigateToURLLink(event.target.instanceIndices)}" 
+															   paddingLeft="0" textDecoration="underline" color="#121CE8" 
+															   width="190" textAlign="left"/>
+												<mx:LinkButton label="Edit" 
+															   click="{showURLEdit(event.target.instanceIndices)}" 
+															   styleName="linkMenuButtonSmall"/>
+												<mx:Image source="{parentApplication.iconSmallDelete}"  
+														  click="{removeURL(event.currentTarget.instanceIndices)}" />						
+											</mx:HBox>
+											<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left">
+												<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
+															  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
+															  text="{urlRepeater.currentItem.@urlAlias}"  
+															  width="100" color="#8D7B7B"/>	
+												<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@url}" 
+															  enter="{showURLLink(event.target.instanceIndices)}" 
+															  change="{onChangeURLText(event.target.instanceIndices)}" 
+															  click="{selectURLText(event.currentTarget.instanceIndices)}" 
+															  width="100%" color="#8D7B7B"/>						
+												<mx:LinkButton label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
+											</mx:HBox>
+										</mx:ViewStack>		
+										
+									</mx:Repeater>
+									
+								</mx:VBox>
+
+								<mx:HBox >
+									<mx:TextInput id="propertyText"  styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
+									</mx:TextInput> 
+								</mx:HBox>
+								
+								<mx:HBox >
+									<mx:ComboBox id="propertyCombo" styleName="labelSmall" width="240" labelField="@name">
+									</mx:ComboBox>						
+								</mx:HBox>
+								
+								<mx:HBox width="100%" >
+									<mx:CheckBox id="propertyCheck"  styleName="labelSmall">
+									</mx:CheckBox>
+								</mx:HBox>
+								
+								<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
+									<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
+										<mx:CheckBox id="multiselectCheck"  styleName="labelSmall" 
+													   label="{multiselectRepeater.currentItem.@name}"  
+													   paddingLeft="0"  
+													   paddingTop="0"
+													   paddingBottom="0"
+													   selected="{multiselectRepeater.currentItem.@selected == 'Y' ? true : false}"
+													   width="100%" textAlign="left"/>
+									</mx:Repeater>
+								</mx:VBox>
+								
+							</mx:ViewStack>
+						</mx:HBox>
+					</mx:Repeater>	
+				</mx:VBox>
+				<mx:LinkButton label="Define property ..." click="showPropertyConfigWindow" 
+							   styleName="linkMenuButtonSmall"  textAlign="left" paddingLeft="0"/>					   
+				
+			</mx:VBox>
+			
+		</mx:HBox>
+		
+		<mx:VBox width="100%" height="100%" label="Files" id="vbox7" paddingTop="8">
+			<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox9">
+				<mx:HBox horizontalGap="2" width="100%">
+					<mx:LinkButton icon="@Embed(source='../../assets/upload.png')" 
+								   disabledIcon="@Embed(source='../../assets/upload_disable.png')" 
+								   click="{/*showDataTrackUploadWindow()*/}" 
+								   styleName="linkMenuButton"  label="Upload file(s)">
+						<mx:enabled>{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}</mx:enabled>
+					</mx:LinkButton>
+					<mx:LinkButton icon="@Embed(source='../../assets/upload_large.png')" 
+								   visible="{getDataTrack.lastResult.@canWrite == 'Y' &amp;&amp; parentApplication.isFDTSupported}"
+								   includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y' &amp;&amp; parentApplication.isFDTSupported}"
+								   click="{/*showDataTrackFDTUploadWindow()*/}" 
+								   styleName="linkMenuButton"  label="Upload file(s) using FDT">
+					</mx:LinkButton>
+					<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
+								   disabledIcon="@Embed(source='../../assets/page_remove_disable.png')"
+								   enabled="{dataTrackFileGrid.selectedItem != null &amp;&amp; getDataTrack.lastResult.@canWrite == 'Y' ? true : false}"  
+								   styleName="linkMenuButton"
+								   click="{/*removeDataTrackFile()*/}"  label="Remove file(s)"/>
+					<mx:Spacer width="100%"/>
+					<mx:Label text="{'(' + dataTrackFiles.length + ' files)'}"/>
+				</mx:HBox>
+				<mx:DataGrid  id="dataTrackFileGrid"
+							  dataProvider="{dataTrackFiles}"
+							  showHeaders="true"
+							  width="100%"  height="100%"						    		 
+							  allowMultipleSelection="true" >
+					<mx:columns>
+						<mx:DataGridColumn  dataField="@name" headerText="Name" width="10"/>  
+						<mx:DataGridColumn  dataField="@lastModified" headerText="Date" width="10"/>  
+						<mx:DataGridColumn  dataField="@size"  headerText="Size" width="5" />  
+					</mx:columns>							
+				</mx:DataGrid>
+			</mx:VBox>
+			
+		</mx:VBox>
+		
+		
+		
+		<mx:VBox width="100%" height="100%" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4">
+			<mx:HBox width="100%" horizontalGap="0" id="hbox1">
+				<mx:Text id="labelApplication" text="The level of visibility for this dataTrack:&#xd;"/>
+				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+				</mx:RadioButtonGroup>
+			</mx:HBox>
+			<mx:HBox paddingLeft="20" horizontalGap="0" width="100%">
+				<mx:VBox verticalGap="0">
+					<mx:RadioButtonGroup id="visibilityRadioGroup"/>
+					<mx:HBox horizontalGap="4" verticalAlign="middle">
+						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackOwner}"/>
+						<mx:RadioButton value="OWNER" groupName="visibilityRadioGroup"  click="dirtyDataTrack.setDirty();" label="Owner       (the owner and the group manager)"/>								  
+					</mx:HBox>
+					<mx:HBox horizontalGap="4"  verticalAlign="middle">
+						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
+						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup"  click="dirtyDataTrack.setDirty();" label="Members   (all members of the group)"/>
+					</mx:HBox>
+					<mx:HBox horizontalGap="4"  verticalAlign="middle">
+						<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
+						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="dirtyDataTrack.setDirty();" id="radioInstitutionVisibility" enabled="{possibleInstitutes.length > 0}" label="Institution  (all groups that are part of institution)"/>
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutes}" id="instituteCombo" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
+						</mx:ComboBox>					
+					</mx:HBox>
+					<mx:HBox horizontalGap="4"  verticalAlign="middle">
+						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrack}"/>
+						<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="dirtyDataTrack.setDirty();"/>
+					</mx:HBox>
+					
+				</mx:VBox>
+			</mx:HBox>
+			<mx:Spacer height="20"/>
+			<mx:VBox width="100%"  verticalGap="0">
+				<mx:Text  text="Individual collaborators allowed access to this data track:"/>
+				<mx:HBox horizontalGap="0" paddingLeft="20" width="100%">
+<!--					<util:ComboCheck width="100%"  displayMultipleItems="true"  
+									 change="dirtyDataTrack.setDirty();"
+									 dataProvider="{possibleCollaborators}" 
+									 dataField="@idUser"  valueField="@idUser"  
+									 valueSelectAll="false"
+									 displayField="@userDisplayName" 
+									 value="@name" id="collaboratorComboCheck">	
+					</util:ComboCheck>-->
+				</mx:HBox>
+			</mx:VBox>					  
+			<mx:Spacer height="20"/>
+			<mx:HBox horizontalGap="0" id="userGroupBox">
+				<mx:Label text="User Group" width="126"/>
+				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="170" labelField="@name" change="dirtyDataTrack.setDirty()"></mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" id="dataTrackOwnerBox">
+				<mx:Label text="Owner" width="126" id="label2"/>
+				<mx:ViewStack id="dataTrackOwnerStack"  width="170">
+					<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
+						<mx:ComboBox width="100%" id="ownerCombo" labelField="@name" dataProvider="{parentApplication.dictionaryUser}" change="dirtyDataTrack.setDirty()"></mx:ComboBox>							         			
+					</mx:HBox>
+					<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
+						<mx:Label text="{getDataTrack.lastResult.@owner}"/>							         			
+					</mx:HBox>
+				</mx:ViewStack>
+				
+			</mx:HBox>
+			<mx:HBox  horizontalGap="0"  id="hbox14" >
+				<mx:Label text="Created by" width="126"/>
+				<mx:Label width="170" text="{getDataTrack.lastResult.@createdBy + ' ' + getDataTrack.lastResult.@createDate}"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:TabNavigator>
+	<mx:ControlBar horizontalAlign="right" width="100%">				  
+		<mx:LinkButton  label="Show folder(s)" styleName="linkMenuButton"
+       				visible="{currentState == 'AdminState'}"
+					includeInLayout="{currentState == 'AdminState'}"
+					icon="@Embed(source='../../assets/folder.png')" 
+					click="{/*showDataTrackGroupingInfoWindow()*/}"/>
+		<mx:Spacer width="100%"/>
+		<util:DirtyNote id="dirtyDataTrack" 
+						visible="{currentState != 'GuestState'}"
+						includeInLayout="{currentState != 'GuestState'}"
+						enabled="{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}" />
+		<mx:Button  label="Save" id="saveDataTrackButton" 
+					click="/*saveDataTrack()*/" 
+					visible="{currentState != 'GuestState'}"
+					includeInLayout="{currentState != 'GuestState'}"
+					enabled="{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}"  
+					icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+	</mx:ControlBar>
+</mx:VBox>
+

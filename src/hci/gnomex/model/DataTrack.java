@@ -200,10 +200,10 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 		root.addAttribute("securityGroup", this.getLab() != null ? this.getLab().getName() : "");
 		root.addAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
 		root.addAttribute("createDate", this.getCreateDate() != null ? this.formatDate(this.getCreateDate()) : "");
-		root.addAttribute("annotationGroupingCount", Integer.valueOf(this.getFolders().size()).toString());
+		//root.addAttribute("folderCount", Integer.valueOf(this.getFolders().size()).toString());
 		root.addAttribute("number", this.getNumber());
 
-		// Only show annotation groupings and annotation files for detail
+		// Only show data track folders and data track files for detail
 		// (when data_root is provided).
 		// Also look for files that can be linked to the UCSC Genome Browser
 		if (data_root != null) {
@@ -328,13 +328,19 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 						Element valueNode = propNode.addElement("PropertyEntryValue");
 						valueNode.addAttribute("idPropertyEntryValue", av.getIdPropertyEntryValue().toString());
 						valueNode.addAttribute("value", av.getValue() != null ? av.getValue() : "");
+            valueNode.addAttribute("url", av.getUrl() != null ? av.getUrl() : "");
+            valueNode.addAttribute("urlDisplay", av.getUrlDisplay() != null ? av.getUrlDisplay() : "");
+            valueNode.addAttribute("urlAlias", av.getUrlAlias() != null ? av.getUrlAlias() : "");
 					}
 				}
 				if (property.getCodePropertyType().equals(PropertyType.URL)) {
 					// Add an empty value for URL
 					Element emptyNode = propNode.addElement("PropertyEntryValue");
 					emptyNode.addAttribute("idPropertyEntryValue", "");
-					emptyNode.addAttribute("value", "Enter URL here...");
+					emptyNode.addAttribute("url", "Enter URL here...");
+					emptyNode.addAttribute("urlAlias", "Enter alias here...");
+          emptyNode.addAttribute("urlDisplay", "");
+          emptyNode.addAttribute("value", "");
 				}
 
 				if (property.getOptions() != null && property.getOptions().size() > 0) {
@@ -360,7 +366,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 		}
 
 
-		root.addAttribute("canRead", secAdvisor.canRead(this) ? "Y" : "N");
+	  root.addAttribute("canRead", secAdvisor.canRead(this) ? "Y" : "N");
 		root.addAttribute("canWrite", secAdvisor.canUpdate(this) ? "Y" : "N");
 
 		return doc;

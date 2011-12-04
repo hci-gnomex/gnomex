@@ -682,7 +682,31 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         } 
         
       } 
-    }    
+    }   
+    //
+    // DataTrack
+    //
+    else if (object instanceof DataTrack) {
+      
+      // Admins
+      if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = true;
+      }
+      // Univerity GNomEx users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        DataTrack dt = (DataTrack)object;
+        
+        // Lab manager
+        if (isGroupIManage(dt.getIdLab())) {
+          canUpdate = true;
+        }
+        //  Owner of analysis
+        else if (isGroupIAmMemberOf(dt.getIdLab()) && isOwner(dt.getIdAppUser())) {
+          canUpdate = true;
+        } 
+        
+      } 
+    }      
     //
     // Project
     //
@@ -719,6 +743,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         } 
         //  Owner of analysis group
         else if (isGroupIAmMemberOf(ag.getIdLab()) && isOwner(ag.getIdAppUser())) {
+          canUpdate = true;
+        } 
+      }  
+    }
+    //
+    // DataTrackFolder
+    //
+    else if (object instanceof DataTrackFolder) {
+      // Admins
+      if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = true;
+      }
+      // University GNomEx users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        DataTrackFolder dtf = (DataTrackFolder)object;
+        // Lab members or managers
+        if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getIdLab())) {
           canUpdate = true;
         } 
       }  

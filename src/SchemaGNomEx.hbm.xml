@@ -225,7 +225,7 @@
 		   <many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
 		</set>					 
 		
-		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
+		<set name="propertyEntries" table="PropertyEntry" lazy="true" cascade="delete">
 			<key column="idDataTrack"/>
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />
 		</set>
@@ -639,6 +639,7 @@
 		<property name="idSample" column="idSample" type="integer"/>
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
+		<many-to-one name="property" column="idProperty" class="hci.gnomex.model.Property" cascade="none" insert="false" update="false" />
 		
 		<set name="options" table="PropertyEntryOption" lazy="true" cascade="none">
 			<key column="idPropertyEntry"/>
@@ -658,6 +659,8 @@
 		</id>
 		<property name="idPropertyEntry" column="idPropertyEntry" type="integer"/>
 		<property name="value" column="value" type="string"/>
+		<many-to-one name="propertyEntry" column="idPropertyEntry" class="hci.gnomex.model.PropertyEntry" cascade="none" insert="false" update="false" />
+		
 	</class>
 	
 	
@@ -979,7 +982,7 @@
 		    <key column="idGenomeBuild"/>
 		    <one-to-many class="hci.gnomex.model.GenomeBuildAlias" />
 	    </set>        
-	    <set name="dataTrackFolders" table="DataTrackFolder" lazy="false" cascade="none" order-by="name">
+	    <set name="dataTrackFolders" table="DataTrackFolder" lazy="true" cascade="none" order-by="name">
 		    <key column="idGenomeBuild"/>
 		    <one-to-many class="hci.gnomex.model.DataTrackFolder" />
 	    </set>        
@@ -1000,6 +1003,15 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="isLatestBuild" column="isLatestBuild" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
+		<property name="das2Name" column="das2Name" type="string"/>
+	    <property name="buildDate" column="buildDate" type="date"/>
+        <property name="coordURI" column="coordURI" type="string"/>
+		<property name="coordVersion" column="coordVersion" type="string"/>
+		<property name="coordTestRange" column="coordTestRange" type="string"/>
+		<property name="coordAuthority" column="coordAuthority" type="string"/>
+		<property name="coordSource" column="coordSource" type="string"/>
+		<property name="ucscName" column="ucscName" type="string"/>
+		<property name="dataPath" column="dataPath" type="string"/>
 	</class>
     
     <!--  GenomeBuildAlias -->
@@ -1128,7 +1140,7 @@
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="binomialName" column="binomialName" type="string"/>
 		<property name="NCBITaxID" column="NCBITaxID" type="string"/>		
-		<set name="genomeBuilds" table="GenomeBuild" lazy="false" cascade="delete" order-by="genomeBuildName">
+		<set name="genomeBuilds" table="GenomeBuild" lazy="true" cascade="delete" order-by="genomeBuildName">
 			<key column="idOrganism"/>
 			<one-to-many class="hci.gnomex.model.GenomeBuild" />
 		</set>			
