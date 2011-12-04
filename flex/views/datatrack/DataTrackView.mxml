@@ -177,15 +177,15 @@
 				// multi-select
 				property.@value = "";		
 				var idx:int = 0;
-				for each (var option:XML in  property..PropertyOption) {
+				for each (var opt:XML in  property..PropertyOption) {
 					if (multiselectCheck[i][idx].selected) {
-						option.@selected = 'Y';
+						opt.@selected = 'Y';
 						if (property.@value != '') {
 							property.@value += ",";
 						}
-						property.@value = option.@name;
+						property.@value += opt.@name;
 					} else {
-						option.@selected = 'N';
+						opt.@selected = 'N';
 					}
 				}
 
