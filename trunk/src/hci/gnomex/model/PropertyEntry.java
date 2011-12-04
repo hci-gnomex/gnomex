@@ -9,16 +9,16 @@ import hci.hibernate3utils.HibernateDetailObject;
 public class PropertyEntry extends HibernateDetailObject {
   public static final String     OTHER_LABEL = "otherLabel";
   
-  private Integer idPropertyEntry;
-  private Integer idProperty;
-  private Integer idSample;
-  private String  value;
-  private String  otherLabel;
-  private Set     options;
-  private Set     values;
-  
+  private Integer            idPropertyEntry;
+  private Integer            idProperty;
+  private Integer            idSample;
+  private String             value;
+  private String             otherLabel;
+  private Set                options;
+  private Set                values;
+  private Property           property;
 
-  
+
   public Integer getIdSample() {
     return idSample;
   }
@@ -78,5 +78,17 @@ public class PropertyEntry extends HibernateDetailObject {
   public void setIdProperty(Integer idProperty) {
     this.idProperty = idProperty;
   }
+  
+  public Property getProperty() {
+    return property;
+  }
 
+  public void setProperty(Property property) {
+    this.property = property;
+  }
+
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getProperty");
+    this.excludeMethodFromXML("getExcludedMethodsMap");
+  }
 }

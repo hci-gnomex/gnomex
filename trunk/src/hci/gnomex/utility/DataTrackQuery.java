@@ -27,6 +27,8 @@ import org.hibernate.Session;
 
 
 public class DataTrackQuery implements Serializable {
+  
+  long et = 0;
 
   
 	// Criteria
@@ -50,12 +52,12 @@ public class DataTrackQuery implements Serializable {
 	private static final int                         DATATRACK_LEVEL = 2;
 	
 	
-  private TreeMap<String, TreeMap<GenomeBuild, ?>> organismToVersion;
-  private HashMap<String, TreeMap<String, ?>>      versionToRootFolders;
+  private TreeMap<String, TreeMap<GenomeBuild, ?>> organismToGenomeBuild;
+  private HashMap<String, TreeMap<String, ?>>      genomeBuildToRootFolders;
   private HashMap<String, TreeMap<String, ?>>      folderToFolders;
   private HashMap<String, TreeMap<String, ?>>      folderToDataTracks;
 
-  private HashMap<String, List<Segment>>           versionToSegments;
+  private HashMap<String, List<Segment>>           genomeBuildToSegments;
 
   private HashMap<String, Organism>                organismMap;
   private HashMap<String, GenomeBuild>             genomeBuildNameMap;
@@ -104,20 +106,20 @@ public class DataTrackQuery implements Serializable {
 	@SuppressWarnings("unchecked")
 	public Document getDataTrackDocument(Session sess, SecurityAdvisor secAdvisor) throws Exception {
 	  // Run query to get dataTrack folders, organized under
-	  // organism and genome version
+	  // organism and genome build
 	  StringBuffer queryBuf = this.getDataTrackFolderQuery(secAdvisor);    	
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack folder query: " + queryBuf.toString());
 	  Query query = sess.createQuery(queryBuf.toString());
 	  List<Object[]> dataTrackFolderRows = (List<Object[]>)query.list();
 
 	  // Run query to get dataTrack folder and dataTracks, organized under
-	  // organism and genome version
+	  // organism and genome build
 	  queryBuf = this.getDataTrackQuery(secAdvisor);
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
 	  query = sess.createQuery(queryBuf.toString());
 	  List<Object[]> dataTrackRows = (List<Object[]>)query.list();
 
-	  // Now run query to get the genome version segments
+	  // Now run query to get the genome build segments
 	  queryBuf = this.getSegmentQuery();
 	  query = sess.createQuery(queryBuf.toString());
 	  List<Segment> segmentRows = (List<Segment>) query.list();
@@ -134,20 +136,20 @@ public class DataTrackQuery implements Serializable {
 		this.isServerRefreshMode = isServerRefreshMode ? "Y" : "N";
 		
 		// Run query to get dataTrack folders, organized under
-		// organism and genome version
+		// organism and genome build
 		StringBuffer queryBuf = this.getDataTrackFolderQuery(secAdvisor);    	
 		Logger.getLogger(this.getClass().getName()).fine("DataTrack folder query: " + queryBuf.toString());
     	Query query = sess.createQuery(queryBuf.toString());
 		List<Object[]> dataTrackFolderRows = (List<Object[]>)query.list();
 		
 		// Run query to get dataTracks, organized under dataTrack folder,
-		// organism, and genome version
+		// organism, and genome build
 		queryBuf = this.getDataTrackQuery(secAdvisor);    	
 		Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
     	query = sess.createQuery(queryBuf.toString());
 		List<Object[]> dataTrackRows = (List<Object[]>)query.list();
 		
-		// Now run query to get the genome version segments
+		// Now run query to get the genome build segments
 		queryBuf = this.getSegmentQuery();			
     	query = sess.createQuery(queryBuf.toString());
 		List<Segment> segmentRows = (List<Segment>)query.list();
@@ -248,11 +250,11 @@ public class DataTrackQuery implements Serializable {
 		
 
 		Document doc = DocumentHelper.createDocument();
-		Element root = doc.addElement("DataTracks");
+		Element root = doc.addElement("DataTrackList");
 		
 				
 		// Use hash to create XML Document.  Perform 2 passes so that organisms
-		// with populated genome versions (dataTracks or sequences) appear first
+		// with populated genome builds (dataTracks or sequences) appear first
 		// in the list.
 
 		fillOrganismNodes(root, dictionaryHelper, secAdvisor, true);
@@ -264,10 +266,10 @@ public class DataTrackQuery implements Serializable {
 	
 	private void fillOrganismNodes(Element root, DictionaryHelper dictionaryHelper, SecurityAdvisor secAdvisor, boolean fillPopulatedOrganisms) throws Exception {
 		Element organismNode = null;
-		Element versionNode  = null;
+		Element genomeBuildNode  = null;
 		String[] tokens;
-		for (String organismBinomialName : organismToVersion.keySet()) {
-			TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organismBinomialName);
+		for (String organismBinomialName : organismToGenomeBuild.keySet()) {
+			TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organismBinomialName);
 			Organism organism = organismMap.get(organismBinomialName);
 			
 			boolean keep = false;
@@ -286,29 +288,34 @@ public class DataTrackQuery implements Serializable {
 			organismNode.addAttribute("isPopulated", isPopulated ? "Y" : "N");
 			root.add(organismNode);
 			
-			// For each version, build up hierarchy
-			if (versionMap != null) {
-				for (GenomeBuild genomeBuild : versionMap.keySet()) {
+			// For each genome build, build up hierarchy
+			if (genomeBuildMap != null) {
+				for (GenomeBuild genomeBuild : genomeBuildMap.keySet()) {
 					
-					versionNode = genomeBuild.getXML(secAdvisor, null).getRootElement();
+					genomeBuildNode = genomeBuild.getXML(secAdvisor, null).getRootElement();
 					
-					// Indicate if the genome version has segments
+		       if (genomeBuild.getDas2Name() == null || genomeBuild.getDas2Name().equals("")) {
+		          System.out.println("Warning - skipping genome build " + genomeBuild.getGenomeBuildName() + " because das2 name is blank");
+		          continue;
+		        }
+
+					// Indicate if the genome build has segments
 					List<Segment> segments = this.getSegments(organism, genomeBuild.getDas2Name());
-					versionNode.addAttribute("hasSegments", (segments != null && segments.size() > 0 ? "Y" : "N"));					
+					genomeBuildNode.addAttribute("hasSegments", (segments != null && segments.size() > 0 ? "Y" : "N"));					
 					
-					// Attach the genome version node
-					organismNode.add(versionNode);
+					// Attach the genome build node
+					organismNode.add(genomeBuildNode);
 					
 					// For each root dataTrack folder, recurse to create dataTracks
 					// and folders.
-					TreeMap<String, ?> rootFolders = versionToRootFolders.get(genomeBuild.getDas2Name());
-					fillFolderNode(genomeBuild, versionNode, rootFolders, secAdvisor, dictionaryHelper, false);
+					TreeMap<String, ?> rootFolders = genomeBuildToRootFolders.get(genomeBuild.getDas2Name());
+					fillFolderNode(genomeBuild, genomeBuildNode, rootFolders, secAdvisor, dictionaryHelper, false);
 					
 					// If selection criteria was applied to query, prune out nodes that don't 
 					// have any content 
 					if (this.hasDataTrackCriteria()) {
-						if (!versionNode.hasContent()) {
-							organismNode.remove(versionNode);					
+						if (!genomeBuildNode.hasContent()) {
+							organismNode.remove(genomeBuildNode);					
 						}
 					}
 
@@ -331,18 +338,22 @@ public class DataTrackQuery implements Serializable {
 	private boolean hasPopulatedGenomes(Organism organism) {
 		boolean isPopulated = false;
 		
-		TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organism.getBinomialName());
-		if (versionMap != null) {
-			for (GenomeBuild genomeBuild : versionMap.keySet()) {
+		TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
+		if (genomeBuildMap != null) {
+			for (GenomeBuild genomeBuild : genomeBuildMap.keySet()) {
 				if (isPopulated) {
 					break;
+				}
+				if (genomeBuild.getDas2Name() == null || genomeBuild.getDas2Name().equals("")) {
+				  System.out.println("Warning - skipping genome build " + genomeBuild.getGenomeBuildName() + " because das2 name is blank");
+				  continue;
 				}
 				List<Segment> segments = this.getSegments(organism, genomeBuild.getDas2Name());
 				if (segments != null && segments.size() > 0) {
 					isPopulated = true;
 					break;
 				}
-				TreeMap<String, ?> rootFolders = versionToRootFolders.get(genomeBuild.getDas2Name());
+				TreeMap<String, ?> rootFolders = genomeBuildToRootFolders.get(genomeBuild.getDas2Name());
 				if (rootFolders != null && rootFolders.size() > 0) {
 					for (String folderKey : rootFolders.keySet()) {
 						
@@ -372,18 +383,18 @@ public class DataTrackQuery implements Serializable {
 	
 	private void hashDataTracks(List<Object[]> dataTrackFolderRows, List<Object[]> dataTrackRows, List<Segment> segmentRows, DictionaryHelper dictionaryHelper) {
 
-		organismToVersion        = new TreeMap<String, TreeMap<GenomeBuild, ?>>();
-		versionToRootFolders   = new HashMap<String, TreeMap<String, ?>>();
+		organismToGenomeBuild        = new TreeMap<String, TreeMap<GenomeBuild, ?>>();
+		genomeBuildToRootFolders   = new HashMap<String, TreeMap<String, ?>>();
 		folderToFolders      = new HashMap<String, TreeMap<String, ?>>();
 		folderToDataTracks    = new HashMap<String, TreeMap<String, ?>>();
-		versionToSegments        = new HashMap<String, List<Segment>>();
+		genomeBuildToSegments        = new HashMap<String, List<Segment>>();
 		
 		organismMap              = new HashMap<String, Organism>();
 		genomeBuildNameMap     = new HashMap<String, GenomeBuild>();
 		dataTrackFolderMap    = new HashMap<Integer, DataTrackFolder>();
 		dataTrackMap            = new HashMap<Integer, DataTrack>();
 		
-		// Prefill organism, genome version, and root dataTrack folder
+		// Prefill organism, genome build, and root dataTrack folder
 		// hash map with known entries
 		// since those without dataTracks would otherwise not show up.
 		for (Organism o : dictionaryHelper.getOrganisms()) {
@@ -401,8 +412,8 @@ public class DataTrackQuery implements Serializable {
 					continue;
 				}
 			}
-			TreeMap<GenomeBuild, ?> versionMap = new TreeMap<GenomeBuild, Object>(new GenomeBuildComparator());
-			organismToVersion.put(o.getBinomialName(), versionMap);
+			TreeMap<GenomeBuild, ?> genomeBuildMap = new TreeMap<GenomeBuild, Object>(new GenomeBuildComparator());
+			organismToGenomeBuild.put(o.getBinomialName(), genomeBuildMap);
 			if (dictionaryHelper.getGenomeBuilds(o.getIdOrganism()) != null) {
 				for(GenomeBuild v : dictionaryHelper.getGenomeBuilds(o.getIdOrganism())) {
 
@@ -412,14 +423,14 @@ public class DataTrackQuery implements Serializable {
 				  }
 					genomeBuildNameMap.put(v.getDas2Name(), v);
 
-					// If we are filtering by genome version, only include that one
+					// If we are filtering by genome build, only include that one
 					if (this.idGenomeBuild != null) {
 						if (!this.idGenomeBuild.equals(v.getIdGenomeBuild())) {
 							continue;
 						}
 					}
 
-					versionMap.put(v, null);
+					genomeBuildMap.put(v, null);
 
 					DataTrackFolder rootFolder = v.getRootDataTrackFolder();
 
@@ -427,14 +438,14 @@ public class DataTrackQuery implements Serializable {
 						String folderKey       = rootFolder.getName()  + KEY_DELIM + rootFolder.getIdDataTrackFolder();
 						TreeMap<String, String> folders = new TreeMap<String, String>();
 						folders.put(folderKey, null);
-						versionToRootFolders.put(v.getDas2Name(), folders);
+						genomeBuildToRootFolders.put(v.getDas2Name(), folders);
 					}
 
 				}
 
 			}
 		}
-		// Hash segments for each genome version
+		// Hash segments for each genome build
 		if (segmentRows != null) {
 			for (Segment segment : segmentRows) {
 				if (segment == null) {
@@ -442,13 +453,17 @@ public class DataTrackQuery implements Serializable {
 				}
 				GenomeBuild genomeBuild = dictionaryHelper.getGenomeBuildObject(segment.getIdGenomeBuild());
 				if (genomeBuild == null) {
-					System.out.println("Warning - Segment " + segment.getIdSegment() + " does not belong to a valid Genome Version");
+					System.out.println("Warning - Segment " + segment.getIdSegment() + " does not belong to a valid Genome Build");
 					continue;
 				}
-				List<Segment> segments = versionToSegments.get(genomeBuild.getDas2Name());
+				if (genomeBuild.getDas2Name() == null || genomeBuild.getDas2Name().equals("")) {
+				  System.out.println("Warning - Segment " + segment.getIdSegment() + " ignored because Genome Build " + genomeBuild.getGenomeBuildName() + " has a blank das2 name");
+				  continue;
+				}
+				List<Segment> segments = genomeBuildToSegments.get(genomeBuild.getDas2Name());
 				if (segments == null) {
 					segments = new ArrayList<Segment>();
-					versionToSegments.put(genomeBuild.getDas2Name(), segments);
+					genomeBuildToSegments.put(genomeBuild.getDas2Name(), segments);
 				}
 				segments.add(segment);
 			}			
@@ -462,18 +477,18 @@ public class DataTrackQuery implements Serializable {
 		
 		// Hash to create hierarchy:
 		//   Organism
-		//     Genome Version
+		//     Genome Build
 		//       DataTrack
 		//       DataTrack Folder
 		//          DataTrack
 
 		// Hash the dataTrack folder->dataTrack.  We get
 		// a row for each dataTrack folder.  
-		// 1. Hash the genome versions under the organism.
+		// 1. Hash the genome builds under the organism.
 		// 2. Hash the root dataTrack folders under the organism.
 		//    (root dataTracks are under the root dataTrack folder for
-		//     the genome version.  We just hide this dataTrack folder
-		//     and show the dataTracks under the genome version node instead.
+		//     the genome build.  We just hide this dataTrack folder
+		//     and show the dataTracks under the genome build node instead.
 		// 3. Hash the dataTrack folders under parent dataTrack folder
 		//    and the dataTracks under the parent dataTrack folder.
 		
@@ -484,27 +499,27 @@ public class DataTrackQuery implements Serializable {
 			DataTrackFolder dtFolder       = (DataTrackFolder) row[2];
 			DataTrackFolder parentAnnotFolder = (DataTrackFolder) row[3];
 			
-			// Hash genome versions for an organism
-			TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organism.getBinomialName());
-			if (versionMap == null) {
-				versionMap = new TreeMap<GenomeBuild, Object>(new GenomeBuildComparator());
-				organismToVersion.put(organism.getBinomialName(), versionMap);
+			// Hash genome builds for an organism
+			TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
+			if (genomeBuildMap == null) {
+				genomeBuildMap = new TreeMap<GenomeBuild, Object>(new GenomeBuildComparator());
+				organismToGenomeBuild.put(organism.getBinomialName(), genomeBuildMap);
 				organismMap.put(organism.getBinomialName(), organism);
 			}
-			if (genomeBuild != null && genomeBuild.getDas2Name() != null && genomeBuild.getDas2Name().equals("")) {
-				versionMap.put(genomeBuild, null);
+			if (genomeBuild != null && genomeBuild.getDas2Name() != null && !genomeBuild.getDas2Name().equals("")) {
+				genomeBuildMap.put(genomeBuild, null);
 				genomeBuildNameMap.put(genomeBuild.getDas2Name(), genomeBuild);
 			}
 
 			
-			// Hash root dataTrack folders for a genome version
+			// Hash root dataTrack folders for a genome build
 			String folderKey       = dtFolder.getName()  + KEY_DELIM + dtFolder.getIdDataTrackFolder();
 			if (parentAnnotFolder == null) {
 
-				TreeMap<String, ?> folderNameMap = versionToRootFolders.get(genomeBuild.getDas2Name());
+				TreeMap<String, ?> folderNameMap = genomeBuildToRootFolders.get(genomeBuild.getDas2Name());
 				if (folderNameMap == null) {
 					folderNameMap = new TreeMap<String, String>();
-					versionToRootFolders.put(genomeBuild.getDas2Name(), folderNameMap);
+					genomeBuildToRootFolders.put(genomeBuild.getDas2Name(), folderNameMap);
 				}
 				folderNameMap.put(folderKey, null);				
 			} else {
@@ -531,28 +546,28 @@ public class DataTrackQuery implements Serializable {
 			
 			// Load properties for dataTracks
 			if (dt != null) {
-				dt.loadProps(dictionaryHelper);				
+				//dt.loadProps(dictionaryHelper);				
 			}
 			
-			// Hash genome versions for an organism
-			TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organism.getBinomialName());
-			if (versionMap == null) {
-				versionMap = new TreeMap<GenomeBuild, Object>(new GenomeBuildComparator());
-				organismToVersion.put(organism.getBinomialName(), versionMap);
+			// Hash genome builds for an organism
+			TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
+			if (genomeBuildMap == null) {
+				genomeBuildMap = new TreeMap<GenomeBuild, Object>(new GenomeBuildComparator());
+				organismToGenomeBuild.put(organism.getBinomialName(), genomeBuildMap);
 			}
 			if (genomeBuild != null) {
-				versionMap.put(genomeBuild, null);
+				genomeBuildMap.put(genomeBuild, null);
 			}
 			
 			if (dtFolder != null) {
 				String folderKey       = dtFolder.getName()  + KEY_DELIM + dtFolder.getIdDataTrackFolder();
-				// Hash root dataTrack folders for a genome version
+				// Hash root dataTrack folders for a genome build
 				if (parentAnnotFolder == null) {
 
-					TreeMap<String, ?> folderNameMap = versionToRootFolders.get(genomeBuild.getDas2Name());
+					TreeMap<String, ?> folderNameMap = genomeBuildToRootFolders.get(genomeBuild.getDas2Name());
 					if (folderNameMap == null) {
 						folderNameMap = new TreeMap<String, String>();
-						versionToRootFolders.put(genomeBuild.getDas2Name(), folderNameMap);
+						genomeBuildToRootFolders.put(genomeBuild.getDas2Name(), folderNameMap);
 					}
 					folderNameMap.put(folderKey, null);				
 				} else {
@@ -595,36 +610,36 @@ public class DataTrackQuery implements Serializable {
 
 	public Set<Organism> getOrganisms() {
 		TreeSet<Organism> organisms = new TreeSet<Organism>(new OrganismComparator());
-		for(String organismBinomialName: organismToVersion.keySet()) {
+		for(String organismBinomialName: organismToGenomeBuild.keySet()) {
 			Organism organism = organismMap.get(organismBinomialName);
 			organisms.add(organism);
 		}
 		return organisms;
 	}
 	
-	public Set<String> getVersionNames(Organism organism) {
-		Set<String> versionNames = new TreeSet<String>();
+	public Set<String> getGenomeBuildNames(Organism organism) {
+		Set<String> genomeBuildNames = new TreeSet<String>();
 		
-		TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organism.getBinomialName());
-		if (versionMap != null) {
-			for(GenomeBuild version : versionMap.keySet()) {
-				versionNames.add(version.getDas2Name());
+		TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
+		if (genomeBuildMap != null) {
+			for(GenomeBuild gb : genomeBuildMap.keySet()) {
+				genomeBuildNames.add(gb.getDas2Name());
 			}
 		}
 		
-		return versionNames;
+		return genomeBuildNames;
 	}
 	
-	public List<Segment> getSegments(Organism organism, String genomeBuildName) {
+	public List<Segment> getSegments(Organism organism, String genomeBuildDas2Name) {
 		List<Segment> segments = null;
-		TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organism.getBinomialName());
+		TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
 			
-		// For each version...
-		if (versionMap != null) {
-			for (GenomeBuild genomeBuild: versionMap.keySet()) {
+		// For each genome build...
+		if (genomeBuildMap != null) {
+			for (GenomeBuild genomeBuild: genomeBuildMap.keySet()) {
 				
-				if (genomeBuild.getDas2Name().equals(genomeBuildName)) {
-					segments = versionToSegments.get(genomeBuild.getDas2Name());
+				if (genomeBuild.getDas2Name().equals(genomeBuildDas2Name)) {
+					segments = genomeBuildToSegments.get(genomeBuild.getDas2Name());
 					break;
 				}
 			}
@@ -636,16 +651,16 @@ public class DataTrackQuery implements Serializable {
 		List<QualifiedDataTrack> qualifiedDataTracks = new ArrayList<QualifiedDataTrack>();
 		
 				
-		TreeMap<GenomeBuild, ?> versionMap = organismToVersion.get(organism.getBinomialName());
+		TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
 			
-		// For each version...
-		if (versionMap != null) {
-			for (GenomeBuild genomeBuild : versionMap.keySet()) {
+		// For each genome build...
+		if (genomeBuildMap != null) {
+			for (GenomeBuild genomeBuild : genomeBuildMap.keySet()) {
 				
 				if (genomeBuild.getDas2Name().equals(genomeBuildName)) {
 					// For each root dataTrack folder, recurse dataTrack folder
 					// hierarchy to get leaf dataTracks.
-					TreeMap<String, ?> rootFolderNameMap = versionToRootFolders.get(genomeBuild.getDas2Name());
+					TreeMap<String, ?> rootFolderNameMap = genomeBuildToRootFolders.get(genomeBuild.getDas2Name());
 					String qualifiedName = "";
 					getQualifiedDataTrack(rootFolderNameMap, qualifiedDataTracks, qualifiedName, false);
 					
@@ -709,7 +724,8 @@ public class DataTrackQuery implements Serializable {
 
 	
 	private void fillFolderNode(GenomeBuild genomeBuild, Element parentNode, TreeMap<String, ?> theFolders, SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper, boolean showFolderLevel) throws Exception {
-		if (theFolders != null) {
+	  if (theFolders != null) {
+		  
 			for (String folderKey : theFolders.keySet()) {
 				String[] tokens     = folderKey.split(KEY_DELIM);
 				String folderName          = tokens[0];
@@ -730,6 +746,7 @@ public class DataTrackQuery implements Serializable {
 				
 				
 				// For each dataTrack
+
 				TreeMap<String, ?> dtNameMap = folderToDataTracks.get(folderKey);
 				if (dtNameMap != null && dtNameMap.size() > 0) {
 					folderNode.addAttribute("dataTrackCount", String.valueOf(dtNameMap.size()));
@@ -832,7 +849,15 @@ public class DataTrackQuery implements Serializable {
 	  this.AND();
 	  queryBuf.append(" org.binomialName is not NULL");
 	  this.AND();
+    queryBuf.append(" org.binomialName != ''");
+    this.AND();
 	  queryBuf.append(" org.das2Name is not NULL");
+	  this.AND();
+    queryBuf.append(" org.das2Name != ''");
+    this.AND();
+    queryBuf.append(" gb.das2Name is not NULL");
+    this.AND();
+    queryBuf.append(" gb.das2Name != ''");
     
 
 		// Search by organism
@@ -841,10 +866,10 @@ public class DataTrackQuery implements Serializable {
 			queryBuf.append(" org.idOrganism = ");
 			queryBuf.append(idOrganism);
 		}
-		// Search by genome version
+		// Search by genome build
 		if (idGenomeBuild != null) {
 			this.AND();
-			queryBuf.append(" ver.idGenomeBuild = ");
+			queryBuf.append(" gb.idGenomeBuild = ");
 			queryBuf.append(idGenomeBuild);
 		}
 		// Search for dataTracks and dataTrack groups for a particular group
@@ -852,11 +877,11 @@ public class DataTrackQuery implements Serializable {
 			this.AND();
 			queryBuf.append("(");
 			if (joinLevel == DATATRACK_LEVEL) {
-				queryBuf.append(" a.idLab = " + this.idLab);
+				queryBuf.append(" dataTrack.idLab = " + this.idLab);
 			} else if (joinLevel == FOLDER_LEVEL) {
-				queryBuf.append(" ag.idLab = " + this.idLab);
+				queryBuf.append(" folder.idLab = " + this.idLab);
 				queryBuf.append(" OR ");
-				queryBuf.append(" ag.idLab is NULL");
+				queryBuf.append(" folder.idLab is NULL");
 			}
 			queryBuf.append(")");
 		}
@@ -865,7 +890,7 @@ public class DataTrackQuery implements Serializable {
 			if (hasVisibilityCriteria()) {
 				this.AND();
 				int count = 0;
-				queryBuf.append(" a.codeVisibility in (");
+				queryBuf.append(" dataTrack.codeVisibility in (");
 				if (this.isVisibilityOwner.equals("Y")) {
 					queryBuf.append("'" + Visibility.VISIBLE_TO_OWNER + "'");
 					count++;

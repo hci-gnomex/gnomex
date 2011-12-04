@@ -5,6 +5,7 @@
 	xmlns:workflow="views.workflow.*"  
 	xmlns:experiment="views.experiment.*"  
 	xmlns:analysis="views.analysis.*" 
+	xmlns:datatrack="views.datatrack.*" 
 	xmlns:user="views.user.*"
 	xmlns:protocol="views.protocol.*"
 	xmlns:admin="views.admin.*"
@@ -201,6 +202,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.admin.PropertyEvent;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.user.UserPublicView;
@@ -211,7 +213,6 @@
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.PromptXMLListCollection;
-			import views.admin.PropertyEvent;
 			import views.util.SessionTimeoutData;
 			import views.util.WorkAuthorizationWindow;			
            
@@ -422,6 +423,73 @@
 			[Bindable]
 	        [Embed(source="assets/images_disable.png")]
 	        public var iconSlideSetInActive:Class;
+			
+
+			
+			
+			[Bindable]
+			[Embed(source="assets/genome_build.png")]
+			public var iconGenomeBuild:Class;
+			
+			[Bindable]
+			[Embed(source="assets/genome_build.png")]
+			public var iconGenomeBuildFaded:Class;
+						
+			
+			[Bindable]
+			[Embed(source="assets/folder_group.png")]
+			public var iconDataTrackFolderForGroup:Class;
+			
+			[Bindable]
+			[Embed(source="assets/organism.png")]
+			public var iconOrganism:Class;
+			
+			[Bindable]
+			[Embed(source="assets/organism_faded.png")]
+			public var iconOrganismFaded:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack_new.png")]
+			public var iconDataTrackNew:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack.png")]
+			public var iconDataTrack:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack_world.png")]
+			public var iconDataTrackPublic:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack_member.png")]
+			public var iconDataTrackMember:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack.png")]
+			public var iconDataTrackMemberCollab:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack_institution.png")]
+			public var iconDataTrackInstitution:Class;
+			
+			[Bindable]
+			[Embed(source="assets/datatrack_owner.png")]
+			public var iconDataTrackOwner:Class;
+			
+			
+			
+			[Bindable]
+			[Embed(source="assets/chart_organisation.png")]
+			public var iconInstitute:Class;
+			
+			[Bindable]
+			[Embed(source="assets/bullet_delete.png")]
+			public var iconSmallDelete:Class;
+
+			
+			
+			
+			
 	        
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]
@@ -520,6 +588,8 @@
 			public var propertyList:XMLListCollection;
 			[Bindable]
 			public var organismList:XMLListCollection;
+			[Bindable]
+			public var das2OrganismList:XMLListCollection;
 
 			private var properties:Object;
 			
@@ -1420,6 +1490,14 @@
 			
 			private function onGetOrganismList(event:ResultEvent):void {
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
+				das2OrganismList = new XMLListCollection();
+				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label=''/>;
+				das2OrganismList.addItem(emptyNode);
+				for each(var organism:XML in getOrganismList.lastResult.Organism) {
+					if (organism.@das2Name != '' && organism.@bionomialName != '') {
+						das2OrganismList.addItem(organism.copy());
+					}
+				}
 				this.dispatchEvent(new OrganismEvent(OrganismEvent.DATA_REFRESHED));
 				
 				if(submitRequestView != null && submitRequestView.sampleSetupView != null) {
@@ -1846,6 +1924,9 @@
 				        <analysis:NavAnalysisView id="navAnalysisView" width="100%" height="100%" 
 				        	icon="@Embed('assets/map.png')">
 				        </analysis:NavAnalysisView>
+						
+						<datatrack:NavDataTrackView id="navDataTrackView" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
+						</datatrack:NavDataTrackView>
 			
 				        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 				        </workflow:NavWorkflowView> 
