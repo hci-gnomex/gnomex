@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+		  xmlns:mx="http://www.adobe.com/2006/mxml"     
+		  xmlns:views="views.*" 
+		  xmlns:util="views.util.*" 
+		  xmlns:datatrack="views.datatrack.*"
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+	
+	
+	<mx:VBox width="100%" verticalGap="2">
+		<mx:HBox horizontalGap="1">
+			<mx:Image source="{parentApplication.iconGenomeBuild}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Genome Build ' + parentDocument.browseTree.selectedItem.@label}" />
+		</mx:HBox>
+	</mx:VBox>
+ 
+<mx:HTTPService             
+	id="getGenomeBuild" 
+	url="GetGenomeBuild.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetGenomeBuild(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get genome version', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 	
+
+<mx:HTTPService             
+	id="updateGenomeBuild" 
+	url="SaveGenomeBuild.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onUpdateGenomeBuild(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to update genome version', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>  
+	
+	
+<mx:XMLListCollection id="segments" source="{getGenomeBuild.lastResult..Segment}"/>
+<mx:XMLListCollection id="sequenceFiles" source="{getGenomeBuild.lastResult..SequenceFiles..File}"/>
+<mx:XMLListCollection id="sequenceFilesToRemove"/> 
+	
+<mx:Script>
+<![CDATA[
+	import mx.rpc.events.ResultEvent;
+	import mx.controls.Alert;
+	import mx.managers.PopUpManager;
+	
+	private function onGetGenomeBuild(event:ResultEvent):void {
+		if (getGenomeBuild.lastResult.name() == "GenomeBuild") {
+		} else if (getGenomeBuild.lastResult.name() == "Error") {
+			Alert.show(getGenomeBuild.lastResult.@message);
+		} else {
+			Alert.show("An error occurred while getting genome build ");				
+		}		
+	}	
+
+	public function saveGenomeBuild():void {
+		var params:Object = new Object();
+		params.idGenomeBuild     = parentDocument.browseTree.selectedItem.@idGenomeBuild;
+		params.name              = this.genomeBuildName.text;
+		params.buildDate         = this.buildDate.text;
+		params.ucscName          = this.ucscGenomeName.text;
+		params.idOrganism        = parentDocument.browseTree.selectedItem.@idOrganism;
+		params.coordURI          = this.coordURI.text;
+		params.coordBuild        = this.coordBuild.text;
+		params.coordSource       = this.coordSource.text;
+		params.coordTestRange    = this.coordTestRange.text;
+		params.coordAuthority    = this.coordAuthority.text;
+		
+		params.segmentsXML  = "<segments>" + segments.toXMLString() + "</segments>";
+		params.sequenceFilesToRemoveXML  = "<sequenceFilesToRemove>" + sequenceFilesToRemove.toXMLString() + "</sequenceFilesToRemove>";
+		
+		updateGenomeBuild.send(params);
+	}
+	
+	
+	private function onUpdateGenomeBuild(event:ResultEvent):void {
+		if (updateGenomeBuild.lastResult.name() == "SUCCESS") {
+			this.dirtyGenomeBuild.resetDirty();
+			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
+			parentDocument.refreshAnnotations();			
+		} else if (updateGenomeBuild.lastResult.name() == "Error") {
+			Alert.show(updateGenomeBuild.lastResult.@message);
+		} else {
+			Alert.show("An error occurred while saving genome version");				
+		}
+	}
+	
+	private function removeSegment():void {
+		this.dirtyGenomeBuild.setDirty();
+		for each(var item:Object in segmentGrid.selectedItems) {
+			segments.removeItemAt(segments.getItemIndex(item));
+		}
+	}
+	
+	private function addSegment():void {
+		this.dirtyGenomeBuild.setDirty();
+		var segmentNode:XML = new XML("<Segment " +
+			"name='chr?' " +
+			"length='' " +
+			"sortOrder='" + (segments.length + 1) + "' " +
+			"/>");
+		segments.addItem(segmentNode);
+		segmentGrid.scrollToIndex(segments.getItemIndex(segmentNode));
+	}
+	
+	private function showSegmentsImportWindow():void {
+		var importWindow:SegmentsImportWindow = SegmentsImportWindow(PopUpManager.createPopUp(parentApplication.mainArea, SegmentsImportWindow, true));
+		PopUpManager.centerPopUp(importWindow);
+		importWindow.idGenomeBuild = parentDocument.browseTree.selectedItem.@idGenomeBuild;
+		
+	}
+	
+	private function removeSequenceFile():void {
+		this.dirtyGenomeBuild.setDirty();
+		for each(var item:Object in sequenceFileGrid.selectedItems) {
+			sequenceFiles.removeItemAt(sequenceFiles.getItemIndex(item));
+			sequenceFilesToRemove.addItem(item);
+		}
+	}
+	
+	private function showSequenceUploadWindow():void {
+		var uploadWindow:SequenceFileUploadWindow = SequenceFileUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, SequenceFileUploadWindow, true));
+		PopUpManager.centerPopUp(uploadWindow);
+		uploadWindow.uploadBrowseButton.setFocus();
+		uploadWindow.init(this.parentDocument.browseTree.selectedItem);
+	}
+	
+	
+	
+	
+	
+	private function sortSortOrder(obj1:Object, obj2:Object):int {
+		var value1:Number = (obj1.@sortOrder == '' || obj1.@sortOrder == null) ? null : new Number(obj1.@sortOrder);
+		var value2:Number = (obj2.@sortOrder == '' || obj2.@sortOrder == null) ? null : new Number(obj2.@sortOrder);
+		
+		if (value1 < value2) {
+			return -1;
+		} else if (value1 > value2) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	private function sortLength(obj1:Object, obj2:Object):int {
+		var myPattern:RegExp = /,/g;  
+		
+		var len1:String  = obj1.@length;
+		len1 = len1.replace(myPattern, "");
+		
+		var len2:String  = obj2.@length;
+		len2 = len2.replace(myPattern, "");
+		
+		var value1:Number = (len1 == '' || len1 == null) ? null : new Number(len1);
+		var value2:Number = (len2 == '' || len2 == null) ? null : new Number(len2);
+		
+		if (value1 < value2) {
+			return -1;
+		} else if (value1 > value2) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+
+		
+]]>
+</mx:Script>
+	<mx:VBox styleName="form" width="100%" height="100%"  verticalGap="0" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:VBox width="100%" verticalGap="4">
+			<mx:HBox width="100%" >
+				<mx:Label text="Name:"  width="120"/>
+				<mx:TextInput id="genomeBuildName" width="100%" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyGenomeBuild.setDirty()" maxChars="200"/>
+			</mx:HBox>
+			<mx:HBox width="100%">
+				<mx:Label text="Build date:" width="120"/>
+				<mx:DateField id="buildDate" text="{parentDocument.browseTree.selectedItem.@buildDate}" change="dirtyGenomeBuild.setDirty()"/>
+			</mx:HBox>
+			<mx:HBox width="100%" >
+				<mx:Label text="UCSC name:" width="120"/>
+				<mx:TextInput id="ucscGenomeName"  width="100%" text="{parentDocument.browseTree.selectedItem.@ucscName}" change="dirtyGenomeBuild.setDirty()" maxChars="200"/>
+				<mx:Label text="Coord URI:" width="120"/>
+				<mx:TextInput id="coordURI"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordURI}" change="dirtyGenomeBuild.setDirty()" maxChars="2000"/>
+			</mx:HBox>
+			<mx:HBox width="100%" >
+				<mx:Label text="Coord version:" width="120"/>
+				<mx:TextInput id="coordBuild"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordBuild}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
+				<mx:Label text="Coord source:" width="120"/>
+				<mx:TextInput id="coordSource"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordSource}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
+			</mx:HBox>
+			<mx:HBox width="100%" >
+				<mx:Label text="Coord test range:" width="120"/>
+				<mx:TextInput id="coordTestRange"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordTestRange}" change="dirtyGenomeBuild.setDirty()" maxChars="100"/>
+				<mx:Label text="Coord authority:" width="120"/>
+				<mx:TextInput id="coordAuthority"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordAuthority}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
+			</mx:HBox>
+			
+		</mx:VBox>
+		<mx:Spacer height="8"/>			
+		<mx:HRule width="100%"/>
+		<mx:HBox width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" verticalGap="2" paddingTop="8" id="vbox10">
+				<mx:Label text="{'Segments (' + segments.length + '):'}"/>
+				<mx:HBox width="100%" horizontalGap="2">
+					<mx:LinkButton icon="@Embed(source='../../assets/segment_new.png')"
+								   click="addSegment()"
+								   styleName="linkMenuButton"
+								   disabledIcon="@Embed(source='../../assets/segment_new_disable.png')" label="New segment"  id="linkbutton6" textAlign="left">
+						<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+					</mx:LinkButton>
+					<mx:LinkButton icon="@Embed(source='../../assets/segment_remove.png')"
+								   disabledIcon="@Embed(source='../../assets/segment_remove_disable.png')"
+								   enabled="{segmentGrid.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"  
+								   click="removeSegment()"
+								   styleName="linkMenuButton" label="Remove segment(s)"/>
+					<mx:LinkButton label="Import" click="showSegmentsImportWindow()"  icon="@Embed(source='../../assets/segment_import.png')" disabledIcon="@Embed(source='../../assets/segment_import_disable.png')" styleName="linkMenuButton" id="linkbutton5" textAlign="right">
+						<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+					</mx:LinkButton>
+				</mx:HBox>
+				<mx:HBox horizontalGap="2" width="100%">
+					<mx:Spacer width="10"/>
+				</mx:HBox>
+				<mx:DataGrid  id="segmentGrid"
+							  dataProvider="{segments}"
+							  showHeaders="true"						    		 
+							  height="100%"  
+							  width="100%"
+							  editable="true"								
+							  allowMultipleSelection="true" itemEditBegin="dirtyGenomeBuild.setDirty()">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Name"    dataField="@name" width="7" editable="true"/>  
+						<mx:DataGridColumn headerText="Length"  textAlign="right" dataField="@length" width="7" editable="true" sortCompareFunction="sortLength"/>  
+						<mx:DataGridColumn headerText="Order" dataField="@sortOrder" width="7" editable="true"  sortCompareFunction="sortSortOrder"/>  
+					</mx:columns>							
+				</mx:DataGrid>
+			</mx:VBox>
+			<mx:VRule height="100%"/>
+			
+			
+			<mx:VBox width="100%" height="100%" id="seqFilesBox">
+				<mx:VBox width="100%" height="100%" verticalGap="2" paddingTop="8">
+					<mx:Label text="{'Sequence Files (' + sequenceFiles.length + '):'}"/>
+					<mx:HBox horizontalGap="2" width="100%">
+						<mx:LinkButton icon="@Embed(source='../../assets/page_new.png')" 
+									   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
+									   click="showSequenceUploadWindow()" 
+									   styleName="linkMenuButton"  label="Upload file(s)" textAlign="left">
+							<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+						</mx:LinkButton>
+						<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
+									   disabledIcon="@Embed(source='../../assets/page_remove_disable.png')"
+									   enabled="{sequenceFileGrid.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"  
+									   styleName="linkMenuButton"
+									   click="removeSequenceFile()"  label="Remove file(s)"/>
+					</mx:HBox>
+					<mx:DataGrid  id="sequenceFileGrid"
+								  dataProvider="{sequenceFiles}"
+								  showHeaders="true"
+								  width="100%"  						    		 
+								  height="100%"  allowMultipleSelection="true">
+						<mx:columns>
+							<mx:DataGridColumn  dataField="@name" headerText="Name" width="10"/>  
+							<mx:DataGridColumn  dataField="@lastModified" headerText="Date" width="10"/>  
+							<mx:DataGridColumn  dataField="@size"  headerText="Size" width="10" />  
+						</mx:columns>							
+					</mx:DataGrid>
+				</mx:VBox>
+				
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right" width="100%">
+		<util:DirtyNote id="dirtyGenomeBuild"/>
+		<mx:Button  label="Save" id="saveGenomeBuildButton"  click="saveGenomeBuild()" icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+		</mx:Button>
+	</mx:ControlBar>
+</mx:VBox>
+	

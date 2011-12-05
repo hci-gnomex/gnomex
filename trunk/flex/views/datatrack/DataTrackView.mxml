@@ -3,7 +3,7 @@
 		  xmlns:mx="http://www.adobe.com/2006/mxml"     
 		  xmlns:views="views.*" 
 		  xmlns:util="views.util.*" 
-		  xmlns:datatracl="views.datatrack.*"
+		  xmlns:datatrack="views.datatrack.*"
 		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
 	
 	
@@ -432,7 +432,7 @@
 						</mx:HBox>
 					</mx:Repeater>	
 				</mx:VBox>
-				<mx:LinkButton label="Define property ..." click="showPropertyConfigWindow" 
+				<mx:LinkButton label="Define property ..." click="showPropertyConfigWindow()" 
 							   styleName="linkMenuButtonSmall"  textAlign="left" paddingLeft="0"/>					   
 				
 			</mx:VBox>
