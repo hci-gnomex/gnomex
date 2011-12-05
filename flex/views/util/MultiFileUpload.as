@@ -62,7 +62,7 @@ package views.util
     import mx.controls.ProgressBar;
     import mx.controls.dataGridClasses.*;
     import mx.events.CollectionEvent;
-
+	import mx.events.CloseEvent;
     
     
     public class MultiFileUpload {
@@ -103,6 +103,8 @@ package views.util
         private var _maxFileSize:Number; //bytes
         private var _variables:URLVariables; //variables to passed along to the file upload handler on the server.
         
+        private var _skipCount:int = 0;
+        
         //Constructor    
         public function MultiFileUpload(
         								dataGrid:DataGrid,
@@ -126,6 +128,7 @@ package views.util
             _variables = variables;
             _maxFileSize = maxFileSize;
             _filefilter = filter;
+            _skipCount = 0;
             init();
         }
         
@@ -214,16 +217,50 @@ package views.util
         private function uploadFiles(event:Event):void{
            
             if (_files.length > 0){
+
                 _file = FileReference(_files.getItemAt(0));    
-                _file.addEventListener(Event.OPEN, openHandler);
-                _file.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-                _file.addEventListener(Event.COMPLETE, completeHandler);
-                _file.addEventListener(SecurityErrorEvent.SECURITY_ERROR,securityErrorHandler);
-                _file.addEventListener(HTTPStatusEvent.HTTP_STATUS,httpStatusHandler);
-                _file.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
-                _file.upload(_uploadURL);
-                 setupCancelButton(true);
+
+				var viableFile:Boolean = true;
+            	try{
+					_file.size;
+					if (_file.size == 0) {
+						viableFile = false;
+						trace("Skipping 0 length file " + _file.name);
+						_progressbar.label = "Skipping 0 length file " + _file.name;
+					}
+				} catch(e:Error){
+					viableFile = false;
+					Alert.show("Skipping file " + _file.name + " " + e.message)
+					_progressbar.label = "Skipping invalid file " + _file.name;
+				}
+				
+				if (viableFile) {
+		            _file.addEventListener(Event.OPEN, openHandler);
+		            _file.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+		            _file.addEventListener(Event.COMPLETE, completeHandler);
+		            _file.addEventListener(SecurityErrorEvent.SECURITY_ERROR,securityErrorHandler);
+		            _file.addEventListener(HTTPStatusEvent.HTTP_STATUS,httpStatusHandler);
+		            //_file.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+		            _file.upload(_uploadURL);
+		             setupCancelButton(true);
+				} else {
+					_skipCount++;
+					_files.removeItemAt(0);
+					uploadFiles(null);
+					
+					if (_files.length == 0) {
+					     setupCancelButton(false);
+                		 _progressbar.label = "Uploads Complete";
+        		         var uploadCompleted:Event = new Event(Event.COMPLETE);
+		                dispatchEvent(uploadCompleted);
+					}
+
+				}
             }
+        }
+        
+        public function getSkipCount():int {
+        	return _skipCount;
         }
         
         public function setUploadURLParameters(params:URLVariables):void {
@@ -417,13 +454,73 @@ package views.util
         }
         
         //  after a file upload is complete or attemted the server will return an http status code, code 200 means all is good anything else is bad.
+        //  after a file upload is complete or attemted the server will return an http status code, code 200 means all is good anything else is bad.
         private function httpStatusHandler(event:HTTPStatusEvent):void {
             if (event.status != 200){
-            		mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
-            						"HTTP status",0);
+            	var message:String = "";
+            	var title:String = "";
+            	if (event.status == 902) {
+            		message = "File '" + event.target.name + "' did not upload.\nUnsupported file extension.";
+            		title = "Unsupported file extension";
+            	} else if (event.status == 903) {
+            		message = "File '" + event.target.name + "' did not upload.\nThe file name does not match any of the segment names for the genome version.";
+            		title =  "Incorrect File Name";            		
+            	} else if (event.status == 904) {
+					message = "File '" + event.target.name + "' did not upload.\nInsufficient permissions to perform this operation.";
+					title =  "Insufficient permissiosn";            		
+				} else if (event.status == 905) {
+            		message = "File '" + event.target.name + "' did not upload.\nThe text formatted file exceeds the maximum allowed size (10,000 lines).\nConvert to xxx.useq\n(see http://useq.sourceforge.net/useqArchiveFormat.html) or other binary form.";
+            		title =  "Text File exceeds max allowed size";            		
+            	} else if (event.status == 906) {
+					message = "File '" + event.target.name + "' did not upload.\BAM  file does not appear to be sorted by coordinate. Use the Picard tools " +
+	                           "(http://picard.sourceforge.net) to sort by coordinate, generate bam index files (xxx.bam.bai), and validate both before uploading.";
+					title =  "Malformed BAM file";            		
+				} else if (event.status == 907) {
+					message = "File '" + event.target.name + "' did not upload.\nThe annotation name is invalid. Characters / and & are not allowed.";
+					title =  "Invalid annotation name";      
+				} else if (event.status == 908) {
+					message = "Problems were encountered bulk uploading files described in '" + event.target.name + "' .\nCheck that each full path actually exists and they have the proper permissions so that the web server can read and write to them (chmod -R 777 *).";
+					title =  "Bulk File Upload Problem";        		
+				} else {
+            		//message = "File '" + event.target.name + "' did not upload.\nStatus code " + event.status + " returned.";
+            		message = event.toString();
+            		title = "Upload Error";
+            		
+            	}
+            	
+            	if (_files.length > 1) {
+            		mx.controls.Alert.show(message + "\nDo you want to proceed with the remaining uploads?",
+            						title,
+            						(Alert.YES | Alert.NO), 
+            						null,
+            						onPromptToContinueUpload);
+            	} else {
+            		mx.controls.Alert.show(message,
+            						title);
+            	}
+            	
             }
         }
 
-        
+		private function onPromptToContinueUpload(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				_files.removeItemAt(0);
+				if (_files.length > 0){
+					_totalbytes = 0;
+					uploadFiles(null);
+				}else{
+					setupCancelButton(false);
+					_progressbar.label = "Uploads Complete";
+					var uploadCompleted:Event = new Event(Event.COMPLETE);
+					dispatchEvent(uploadCompleted);
+				}
+			}else{
+				setupCancelButton(false);
+				_progressbar.label = "Uploads Cancelled";
+				var completeEvent:Event = new Event(Event.COMPLETE);
+				dispatchEvent(completeEvent);
+			}
+		}
+
     }
 }

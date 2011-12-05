@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="{'Upload sequence files for:  ' + genomeBuild.@name}"
+	showCloseButton="true" 
+	width="442" 
+	height="286"
+	verticalGap="0"
+	close="closeWindow()"
+	defaultButton="{uploadBrowseButton}"
+	layout="vertical" backgroundAlpha="100">
+ 	
+  <mx:HTTPService  
+    id="getUploadURL" 
+    url="genopub/sequenceUploadURL"
+    resultFormat="e4x"
+    showBusyCursor="true" 
+    result="onGetUploadURL(event)" 
+	fault="parentApplication.onFailHttpRequest('Failed to get upload URL', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+    
+       
+    <mx:Script>
+	<![CDATA[
+	
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	import mx.controls.Alert;
+	import views.util.MultiFileUpload;
+	
+	[Bindable]
+	public var genomeBuild:Object = null;
+
+	private var multiFileUpload:MultiFileUpload;
+    
+
+	public function init(genomeBuild:Object):void {
+		this.genomeBuild = genomeBuild;
+		currentState = "";
+		getUploadURL.send();
+	}
+	
+	public function initializeFileUploadParameters():void{
+           var postVariables:URLVariables = new URLVariables;
+		   postVariables.idGenomeBuild = genomeBuild.@idGenomeBuild
+		   multiFileUpload.setUploadURLParameters(postVariables);  
+	}
+			
+	private function onGetUploadURL(event:ResultEvent):void {
+		if (getUploadURL.lastResult.name() == "UploadURL") {
+			var url:String = getUploadURL.lastResult.@url;
+			var fileExtensions:String = getUploadURL.lastResult.@fileExtensions;
+			initializeFileUploadControl(url, fileExtensions);
+			initializeFileUploadParameters();
+
+			this.uploadBrowseButton.setFocus();
+			this.defaultButton = this.uploadBrowseButton;
+			
+		}
+	}
+					
+	private function initializeFileUploadControl(uploadServletURL:String, fileExtensions:String):void{
+        
+        if (multiFileUpload == null) {
+	        var fileFilters:Array = new Array();
+	        var ff:FileFilter = new FileFilter("Sequence files (" + fileExtensions + ")", fileExtensions);
+			fileFilters.push(ff);
+			
+	        multiFileUpload = new MultiFileUpload(
+	            this.uploadFilesGrid,
+	            this.uploadBrowseButton,
+	            this.uploadDeleteButton,
+	            this.uploadClearButton,
+	            this.uploadButton,
+	            this.uploadProgressBar,
+	            uploadServletURL,
+	            postVariables,
+	            0,
+	            fileFilters
+	            );
+	        
+	       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+	       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+        	
+        } else {
+        	var postVariables:URLVariables = new URLVariables;
+	        postVariables.idGenomeBuild = genomeBuild.@idGenomeBuild;
+	        multiFileUpload.setUploadURLParameters(postVariables);  
+        }
+      
+   }
+   
+
+   public function onUploadFinished(event:Event):void{
+   		currentState = "FinishedState"
+   		
+   		if (multiFileUpload.getSkipCount() > 0) {
+   			Alert.show(multiFileUpload.getSkipCount() + " file(s) were skipped.\n(0 length files are not uploaded.)", "Upload Warning");
+   		}
+
+   		
+   		// Just close window when uploads complete.
+   		this.closeWindow();
+   }	
+   
+   public function onChooseFileToUpload(event:Event):void {
+   		this.uploadButton.enabled = true;
+   		this.uploadButton.setFocus();
+		this.defaultButton = this.uploadButton;
+   }
+
+   
+    private function closeWindow():void {
+    	parentApplication.dataTrackView.saveGenomeBuild();
+		PopUpManager.removePopUp(this);		
+	}
+	
+	]]>
+    </mx:Script>
+
+    <mx:XMLListCollection  id="files"  />
+
+	<mx:VBox styleName="panelBody" label="Files" width="100%" height="100%" >
+		<mx:VBox width="100%" height="100%" verticalGap="2">
+		          <mx:HBox  width="100%" >
+		              <mx:LinkButton id="uploadBrowseButton" 
+		              	label="Choose files" 
+		              	icon="{parentApplication.iconChooseFiles}"  
+		                disabledIcon="{parentApplication.iconChooseFilesDisabled}"  
+		                toolTip="Choose files" fontWeight="bold" textDecoration="underline"/>
+		              <mx:LinkButton id="uploadDeleteButton" label="Remove" 
+		              	icon="{parentApplication.iconDelete}"  
+		                disabledIcon="{parentApplication.iconDeleteDisabled}"  
+		              	toolTip="Remove file"  textDecoration="underline" visible="false"/>
+		              <mx:LinkButton label="Clear all" toolTip="Clear all files" 
+		              	id="uploadClearButton" 
+		              	icon="{parentApplication.iconDelete}"  
+		                disabledIcon="{parentApplication.iconDeleteDisabled}"  
+		              	textDecoration="underline" visible="false"/>
+		              <mx:HBox width="100%"  horizontalAlign="right">
+		                  <mx:VRule height="20"/>
+		              </mx:HBox>
+		          </mx:HBox>
+			<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
+			</mx:DataGrid>				
+		  		<mx:Spacer  width="100%" height="10"/>		
+		</mx:VBox>
+		<mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+	</mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button id="uploadButton"  
+			label="Upload" 
+			icon="{parentApplication.iconUpload}"
+			disabledIcon="{parentApplication.iconUploadDisabled}" enabled="false"/>
+		<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+	</mx:ControlBar>
+
+  <mx:states>
+    <mx:State name="FinishedState">
+      <mx:RemoveChild target="{uploadButton}"/>
+      <mx:SetProperty target="{cancelButton}" name="label" value="Close"/>
+    </mx:State>
+  </mx:states>
+	
+</mx:TitleWindow>

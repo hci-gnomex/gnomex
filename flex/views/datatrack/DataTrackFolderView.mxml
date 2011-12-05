@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+		  xmlns:mx="http://www.adobe.com/2006/mxml"     
+		  xmlns:views="views.*" 
+		  xmlns:util="views.util.*" 
+		  xmlns:datatrack="views.datatrack.*"
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+	
+	
+	<mx:VBox width="100%" verticalGap="2">
+		<mx:HBox horizontalGap="1">
+			<mx:Image source="{parentDocument.browseTree.selectedItem.@idLab != '' ? parentApplication.iconDataTrackFolderForGroup : parentApplication.iconFolder}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Data Track Folder ' + parentDocument.browseTree.selectedItem.@name}" />
+		</mx:HBox>
+	</mx:VBox>
+	
+
+	<mx:HTTPService             
+		id="updateDataTrackFolder" 
+		url="SaveDataTrackFolder.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onUpdateDataTrackFolder(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to update data track folder', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>	
+<mx:Script>
+<![CDATA[
+	import mx.rpc.events.ResultEvent;
+	import mx.controls.Alert;
+	
+	public function init():void {
+		if (parentDocument.browseTree.selectedItem.@canWrite == "Y") {
+			if (this.labStack != null) {
+				labStack.selectedIndex = 0;
+			}
+		} else {
+			if (this.labStack != null) {
+				labStack.selectedIndex = 1;
+			}
+		}
+		labCombo.selectedItem              = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.browseTree.selectedItem.@idLab);
+		this.dirtyDataTrackFolder.resetDirty();
+	}	
+	
+	private function save():void {
+		var params:Object = new Object();
+		params.idDataTrackFolder      = parentDocument.browseTree.selectedItem.@idDataTrackFolder;
+		params.name                   = this.folderName.text;
+		params.description            = parentDocument.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@id : "";
+		
+		updateDataTrackFolder.send(params);
+	}
+	
+	
+	private function onUpdateDataTrackFolder(event:ResultEvent):void {
+		if (updateDataTrackFolder.lastResult.name() == "SUCCESS") {
+			this.dirtyDataTrackFolder.resetDirty();
+			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
+			parentDocument.refreshAnnotations();			
+		} else if (updateDataTrackFolder.lastResult.name() == "Error") {
+			Alert.show(updateDataTrackFolder.lastResult.@message);
+		} else {
+			Alert.show("An error occurred while saving data track folder");				
+		}
+	}
+
+	private function removeRichTextButtons():void {
+		this.descriptionRichText.toolbar.removeChild(descriptionRichText.colorPicker);
+		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontFamilyCombo);
+		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontSizeCombo);
+	}
+		
+]]>
+</mx:Script>	
+	
+<mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
+	<mx:HBox width="100%" >
+		<mx:Label text="Name:"  width="120"/>
+		<mx:TextInput id="folderName" width="100%" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyDataTrackFolder.setDirty()" maxChars="2000"/>
+		<mx:Label text="Lab:" paddingLeft="8"/>
+		<mx:ViewStack id="labStack" width="100%">
+			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
+				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="dirtyDataTrackFolder.setDirty()"></mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
+				<mx:Label text="{parentDocument.browseTree.selectedItem.@lab}"/>							         			
+			</mx:HBox>
+		</mx:ViewStack>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%">
+		<mx:Label text="Description:" width="120"/>
+		<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+							id="descriptionRichText" width="100%" 
+							htmlText="{parentDocument.browseTree.selectedItem.@description}" 
+							showControlBar="{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+							change="this.dirtyDataTrackFolder.setDirty()"
+							creationComplete="removeRichTextButtons()"
+							paddingLeft="0" paddingRight="0" paddingTop="0" 
+							roundedBottomCorners="false" paddingBottom="0" 
+							borderThicknessRight="0" borderThicknessLeft="0" 
+							borderThicknessBottom="0" borderThickness="0" 
+							borderThicknessTop="0" height="100%" minHeight="50"/>
+	</mx:HBox>
+	<mx:HBox width="100%" horizontalGap="0" >
+		<mx:Label text="Created by:" width="126"/>
+		<mx:Label text="{parentDocument.browseTree.selectedItem.@createdBy + ' ' + parentDocument.browseTree.selectedItem.@createDate}" width="100%"/>
+	</mx:HBox>
+	
+</mx:VBox>
+
+<mx:ControlBar horizontalAlign="right" width="100%">
+	<util:DirtyNote id="dirtyDataTrackFolder"/>
+	<mx:Button  label="Save" id="saveDataTrackFolderButton"  click="save()" icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
+		<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+	</mx:Button>
+</mx:ControlBar>
+
+</mx:VBox>

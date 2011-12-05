@@ -218,26 +218,18 @@
 		
 		if (this.browseTree.selectedItem.name() == "Organism") {
 			this.removeButtonStack.selectedIndex = 1;
-			//this.mainViewStack.selectedChild = this.organismView;                
+			this.mainViewStack.selectedChild = this.organismView;                
 		} else if (this.browseTree.selectedItem.name() == "GenomeBuild") {
 			this.removeButtonStack.selectedIndex = 2;
-			//var parms:Object = new Object();
-			//parms.idGenomeVersion = this.browseTree.selectedItem.@idGenomeVersion;
-			//getGenomeVersion.send(parms);
-			//this.mainViewStack.selectedChild = this.genomeVersionView;                
+			var parms:Object = new Object();
+			parms.idGenomeBuild = this.browseTree.selectedItem.@idGenomeBuild;
+			genomeBuildView.getGenomeBuild.send(parms);
+			this.mainViewStack.selectedChild = this.genomeBuildView;                
 		} else if (this.browseTree.selectedItem.name() == "DataTrackFolder") {
 			this.removeButtonStack.selectedIndex = 3;
-			//this.mainViewStack.selectedChild = this.annotationGroupingView;
-			if (this.browseTree.selectedItem.@canWrite == "Y") {
-				/*if (this.agUserGroupStack != null) {
-				agUserGroupStack.selectedIndex = 0;
-				parentApplication.selectDictionaryComboBox(this.annotationGroupingUserGroupCombo, browseTree.selectedItem.@idUserGroup, parentApplication.dictionaryMyUserGroup);
-				}*/
-			} else {
-				/*if (this.agUserGroupStack != null) {
-				agUserGroupStack.selectedIndex = 1;
-				}*/
-			}
+			this.mainViewStack.selectedChild = this.dataTrackFolderView;
+			this.dataTrackFolderView.init();
+			
 			
 		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
 			this.mainViewStack.selectedChild = this.dataTrackView;                
@@ -355,6 +347,11 @@
 	private function onDragDrop( event:DragEvent ) : void {
 	}
 	
+	public function refreshDataTracksAndSelect(itemToSelect:XML):void {
+		treeItemToSelect = itemToSelect;
+		refreshDataTracks();
+	}
+
 	public function refreshDataTracks():void {
 		var parms:Object = new Object();
 		parms.idLab = this.labCombo.visible && this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
@@ -553,7 +550,7 @@
 	}
 	
 	
-	private function cleanRichTextHTML(htmlText:String):String {
+	public function cleanRichTextHTML(htmlText:String):String {
 		var pattern:RegExp = /<TEXTFORMAT.*?>/g;
 		var str:String = htmlText.replace(pattern, "");
 		pattern = /<FONT.*?>/g;
@@ -571,9 +568,15 @@
 </mx:Script>
 	
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
-	<mx:VBox styleName="panelBox"   backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%" verticalGap="0">
-		<mx:VBox verticalGap="4" width="100%"  styleName="headerBar" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="top" borderStyle="solid">
-			<mx:HBox width="100%" styleName="menuBar" id="topBar">
+	<mx:VBox styleName="panelBox"   
+			 backgroundSize="100%" width="100%" 
+			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+
+			<mx:HBox width="100%" 
+					 backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" 
+					 backgroundSize="100%"
+					 verticalAlign="middle" paddingTop="4" paddingBottom="4"
+					 id="topBar" horizontalGap="1">
 				<mx:LinkButton   label="New Data Track" 
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
 								 visible="{currentState != 'GuestState'}"
@@ -724,7 +727,7 @@
 						  visible="{currentState != 'GuestState'}"
 						  includeInLayout="{currentState != 'GuestState'}"
 						  />
-				<mx:LinkButton styleName="linkMenuButton" label="Refresh DAS/2 Server" 
+				<mx:LinkButton styleName="linkMenuButton" label="Refresh Server" 
 							   visible="{currentState != 'GuestState'}"
 							   includeInLayout="{currentState != 'GuestState'}"
 							   icon="@Embed(source='../../assets/database_lightning.png')" 
@@ -732,7 +735,9 @@
 							   id="reloadDas2ServerButton" textAlign="left" />
 						
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="4" paddingTop="2" verticalAlign="middle" paddingBottom="2" id="hbox15"  backgroundAlpha="0.8" borderStyle="none" paddingRight="2" paddingLeft="2">
+			<mx:HBox width="100%" horizontalGap="4" paddingTop="2" verticalAlign="middle" 
+					 paddingBottom="2" id="hbox15"   
+					 paddingRight="2" paddingLeft="2">
 				
 				<mx:Label text="Filters:" styleName="menuLabelSmall"/>
 				<mx:ComboBox labelField="@binomialName" id="organismCombo" change="refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism...">
@@ -774,7 +779,7 @@
 			
 			</mx:HBox>
 
-        </mx:VBox>
+        
 		
 		
     </mx:VBox>
@@ -832,6 +837,14 @@
 			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">
 			</datatrack:DataTrackView>
 			
+			<datatrack:OrganismView id="organismView" width="100%" height="100%" creationPolicy="all">
+			</datatrack:OrganismView>
+			
+			<datatrack:GenomeBuildView id="genomeBuildView" width="100%" height="100%" creationPolicy="all">
+			</datatrack:GenomeBuildView>
+
+			<datatrack:DataTrackFolderView id="dataTrackFolderView" width="100%" height="100%" creationPolicy="all">
+			</datatrack:DataTrackFolderView>
 		</mx:ViewStack>
 
     </mx:HDividedBox>	
