@@ -64,7 +64,7 @@ public class Constants {
   public static final String UCSC_WIG_TO_BIG_WIG_NAME = "wigToBigWig";
   public static final String UCSC_BED_TO_BIG_BED_NAME = "bedToBigBed";
 
-  public static final String[] ANNOTATION_FILE_EXTENSIONS = new String[] 
+  public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] 
                                                                 {
     ".bar",
     ".bam",
@@ -108,7 +108,16 @@ public class Constants {
     ".bnib", 
     ".fasta",
                                                               };
-
+  
+  
+  public static final int ERROR_CODE_OTHER                     = 901;
+  public static final int ERROR_CODE_UNSUPPORTED_FILE_TYPE     = 902;
+  public static final int ERROR_CODE_INCORRECT_FILENAME        = 903;
+  public static final int ERROR_CODE_INSUFFICIENT_PERMISSIONS  = 904;
+  public static final int ERROR_CODE_FILE_TOO_BIG              = 905;
+  public static final int ERROR_CODE_MALFORMED_BAM_FILE        = 906;
+  public static final int ERROR_CODE_INVALID_NAME              = 907;
+  public static final int ERROR_CODE_BULK_FILE_UPLOAD          = 908;
 
  
     

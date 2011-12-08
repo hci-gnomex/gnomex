@@ -14,7 +14,7 @@
 	
 <mx:HTTPService             
 	id="updateOrganism" 
-	url="genopub/organismUpdate"
+	url="SaveOrganism.gx"
 	resultFormat="e4x"
 	showBusyCursor="true"
 	result="onUpdateOrganism(event)"
@@ -33,10 +33,10 @@
 	private function save():void {
 		var params:Object = new Object();
 		params.idOrganism   = parentDocument.browseTree.selectedItem.@idOrganism;
-		params.commonName   = organismCommonName.text;
+		params.organism     = organismCommonName.text;
 		params.binomialName = organismBinomialName.text;
-		params.name         = organismName.text;
-		params.NCBITaxID    = organismNCBITaxID.text;
+		params.das2Name     = organismName.text;
+		params.ncbiTaxID    = organismNCBITaxID.text;
 		updateOrganism.send(params);
 	}
 	
@@ -46,11 +46,9 @@
 			this.dirtyOrganism.resetDirty();
 			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
 			parentDocument.refreshDataTracks();			
-		} else if (updateOrganism.lastResult.name() == "Error") {
-			Alert.show(updateOrganism.lastResult.@message);
-		} else {
-			Alert.show("An error occurred while saving organism");				
-		}
+		} else  {
+			Alert.show(updateOrganism.lastResult..ACTMESSAGE.@TEXT);
+		} 
 	}
 		
 ]]>

@@ -83,7 +83,9 @@ Tree {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
 	dropShadowEnabled: true;
+	dropIndicatorSkin: ClassReference("views.renderers.ListDropIndicator");
 }
+
 AdvancedDataGrid {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;

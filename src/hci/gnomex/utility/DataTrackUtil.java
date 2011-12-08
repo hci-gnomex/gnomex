@@ -11,16 +11,22 @@ import java.nio.channels.FileChannel;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import hci.gnomex.constants.Constants;
+import net.sf.samtools.*;
+
 
 public class DataTrackUtil {
 
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final double    KB = Math.pow(2, 10);
+	public static String[] nonAmbiguousLetters = {"A","B","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","T","U","V","W","X","Y","3","4","6","7","8","9"};   
 	
 	public static final Pattern toStripURL = Pattern.compile("[^a-zA-Z_0-9\\./]");
 	/**Strip out non [a-zA-Z_0-9] chars with the replaceWith.*/
@@ -150,10 +156,10 @@ public class DataTrackUtil {
 		return chroms;
 	}
 	
-	public static boolean isValidAnnotationFileType(String fileName) {		
+	public static boolean isValidDataTrackFileType(String fileName) {		
 		boolean isValid = false;
-		for (int x=0; x < Constants.ANNOTATION_FILE_EXTENSIONS.length; x++) {
-			if (fileName.toUpperCase().endsWith(Constants.ANNOTATION_FILE_EXTENSIONS[x].toUpperCase())) {
+		for (int x=0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+			if (fileName.toUpperCase().endsWith(Constants.DATATRACK_FILE_EXTENSIONS[x].toUpperCase())) {
 				isValid = true;
 				break;
 			}
@@ -228,4 +234,63 @@ public class DataTrackUtil {
 		}
 		return false;
 	}
+	
+
+  /**Does some minimal error checking on a bam alignment file.
+   * @return null if no problems, otherwise an error.*/
+  public static String checkBamFile(File bamFile) {
+    String message = null;
+    SAMFileReader reader = null;
+    Pattern oneTwoDigit = Pattern.compile("\\w{1,2}");
+    try {
+      reader = new SAMFileReader(bamFile);
+      //check sort order
+      SAMFileHeader h = reader.getFileHeader();
+      if (h.getSortOrder().compareTo(SAMFileHeader.SortOrder.coordinate) !=0) throw new Exception("Your bam file doesn't appear to be sorted by coordinate."); 
+      //check that their chromosomes aren't 1,2,3, should be chr1, chr2, chr3
+      List<SAMSequenceRecord> chroms = h.getSequenceDictionary().getSequences();
+      boolean badChroms = false;
+      boolean badMito = false;
+      for (SAMSequenceRecord r: chroms){
+        if (oneTwoDigit.matcher(r.getSequenceName()).matches()) badChroms = true;
+        if (r.getSequenceName().equals("chrMT")) badMito = true;
+      }
+      if (badChroms) throw new Exception("Your bam file contains chromosomes that are 1-2 letters/ numbers long. For DAS compatibility they need to start with 'chr'.");
+      if (badMito) throw new Exception("Your bam file contains a chrMT chromosome. For DAS compatibility convert it to chrM.");
+      //read an alignment
+      SAMRecordIterator it = reader.iterator();
+      if (it.hasNext()) it.next();
+      //clean up
+      reader.close();
+    } catch (Exception e){
+      message = e.getMessage();
+    } finally {
+      if (reader != null) reader.close();
+    }
+    return message;
+  }
+  
+  /**Creates pseudorandom Strings derived from an alphabet of String[] using the
+   * java.util.Random class.  Indicate how long you want a particular word and
+   * the number of words.*/
+  public static String[] createRandomWords(String[] alphabet,int lengthOfWord,int numberOfWords) {
+    ArrayList<String> words = new ArrayList<String>();
+    Random r = new Random();
+    int len = alphabet.length;
+    for (int i = 0; i < numberOfWords; i++) {
+      StringBuffer w = new StringBuffer();
+      for (int j = 0; j < lengthOfWord; j++) {
+        w.append(alphabet[r.nextInt(len)]);
+      }
+      words.add(w.toString());
+    }
+    String[] w = new String[words.size()];
+    words.toArray(w);
+    return w;
+  }
+
+  /**Returns a random word using nonambiguous alphabet.  Don't use this method for creating more than one word!*/
+  public static String createRandowWord(int lengthOfWord){
+    return createRandomWords(nonAmbiguousLetters, lengthOfWord,1)[0];
+  }
 }

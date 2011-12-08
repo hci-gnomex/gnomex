@@ -102,7 +102,7 @@ public class DeleteOrganism extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
-      this.addInvalidField("constraint", "Sample annotation set to inactive.  Unable to delete because of sample annotations on existing experiments.");
+      this.addInvalidField("constraint", "Organism set to inactive.  Unable to delete because organism is referenced on existing db objects.");
       
       try {
         sess.clear();
@@ -110,7 +110,7 @@ public class DeleteOrganism extends GNomExCommand implements Serializable {
         organism.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        log.error("An exception has occurred in DeleteOrganism when trying to inactivate sample characteristic ", e);
+        log.error("An exception has occurred in DeleteOrganism when trying to inactivate organism ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
         

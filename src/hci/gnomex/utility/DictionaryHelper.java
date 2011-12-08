@@ -170,6 +170,7 @@ public class DictionaryHelper implements Serializable {
 
     List<GenomeBuild> genomeBuilds = (List<GenomeBuild>) sess.createQuery("SELECT d from GenomeBuild d order by d.buildDate desc, d.genomeBuildName asc").list();
     for (GenomeBuild d : genomeBuilds) {
+      Hibernate.initialize(d.getDataTrackFolders());
       genomeBuildMap.put(d.getIdGenomeBuild(), d);
       genomeBuildList.add(d);
 

@@ -10,7 +10,7 @@
 	<mx:VBox width="100%" verticalGap="2">
 		<mx:HBox horizontalGap="1">
 			<mx:Image source="{parentDocument.browseTree.selectedItem.@idLab != '' ? parentApplication.iconDataTrackFolderForGroup : parentApplication.iconFolder}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Data Track Folder ' + parentDocument.browseTree.selectedItem.@name}" />
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Folder ' + parentDocument.browseTree.selectedItem.@name}" />
 		</mx:HBox>
 	</mx:VBox>
 	

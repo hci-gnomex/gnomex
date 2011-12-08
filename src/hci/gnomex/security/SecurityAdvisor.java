@@ -1000,6 +1000,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     } 
     //
+    // DataTrack
+    //
+    else if (object instanceof DataTrack) {
+      DataTrack dataTrack = (DataTrack)object;
+      canDelete = canUpdate(dataTrack);
+    } 
+    //
+    // DataTrackFolder
+    //
+    else if (object instanceof DataTrackFolder) {
+      DataTrackFolder folder = (DataTrackFolder)object;
+      canDelete = canUpdate(folder);
+    } 
+    //
     // Sample Characteristic can be deleted if user owns it
     //
     else if (object instanceof Property) {

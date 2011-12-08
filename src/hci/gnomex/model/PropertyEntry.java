@@ -12,6 +12,7 @@ public class PropertyEntry extends HibernateDetailObject {
   private Integer            idPropertyEntry;
   private Integer            idProperty;
   private Integer            idSample;
+  private Integer            idDataTrack;
   private String             value;
   private String             otherLabel;
   private Set                options;
@@ -90,5 +91,13 @@ public class PropertyEntry extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getProperty");
     this.excludeMethodFromXML("getExcludedMethodsMap");
+  }
+
+  public Integer getIdDataTrack() {
+    return idDataTrack;
+  }
+
+  public void setIdDataTrack(Integer idDataTrack) {
+    this.idDataTrack = idDataTrack;
   }
 }

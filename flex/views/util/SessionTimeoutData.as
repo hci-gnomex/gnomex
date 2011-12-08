@@ -25,7 +25,7 @@ package views.util
 		[Bindable]
 		public static var flexApplication:gnomexFlex;
 		
-		public function SessionTimeoutData()
+		public function SessionTimeoutData():void
 		{
 		}
 		

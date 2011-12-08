@@ -68,7 +68,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 
 	private Map<String, Object> props;  // tag/value representation of annotation properties
 
-
+  private Integer             folderCount;  // transient variable - initialized in DataTrackQuery
+  
 	public Integer getIdDataTrack() {
 		return idDataTrack;
 	}
@@ -130,7 +131,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 
 	public String getNumber() {
 		if (this.getIdDataTrack() != null) {
-			return "A" + this.getIdDataTrack();
+			return "DT" + this.getIdDataTrack();
 		} else {
 			return "";
 		}
@@ -172,6 +173,12 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   public void setIdInstitution(Integer idInstitution) {
     this.idInstitution = idInstitution;
   }
+  public Integer getFolderCount() {
+    return folderCount;
+  }
+  public void setFolderCount(Integer folderCount) {
+    this.folderCount = folderCount;
+  }
   @SuppressWarnings("unchecked")
 	public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh, String data_root) throws Exception {
 		Document doc = DocumentHelper.createDocument();
@@ -192,7 +199,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 		root.addAttribute("codeVisibility", this.getCodeVisibility());
 		root.addAttribute("idGenomeBuild", this.getIdGenomeBuild() != null ? this.getIdGenomeBuild().toString() : "");
 		root.addAttribute("idAppUser", this.getIdAppUser() != null ? this.getIdAppUser().toString() : "");
-		root.addAttribute("idLab", this.getLab() != null ? this.getLab().toString() : "");
+		root.addAttribute("idLab", this.getIdLab() != null ? this.getIdLab().toString() : "");
 		root.addAttribute("idInstitution", this.getIdInstitution() != null ? this.getIdInstitution().toString() : "");
 		root.addAttribute("owner", this.getIdAppUser() != null ? dh.getAppUserObject(this.getIdAppUser()).getDisplayName() : "");
 		root.addAttribute("genomeBuild", genomeBuild != null ? genomeBuild.getGenomeBuildName() : "");
@@ -200,13 +207,14 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 		root.addAttribute("securityGroup", this.getLab() != null ? this.getLab().getName() : "");
 		root.addAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
 		root.addAttribute("createDate", this.getCreateDate() != null ? this.formatDate(this.getCreateDate()) : "");
-		//root.addAttribute("folderCount", Integer.valueOf(this.getFolders().size()).toString());
 		root.addAttribute("number", this.getNumber());
+		root.addAttribute("folderCount", this.getFolderCount() != null ? this.getFolderCount().toString() : "");
 
 		// Only show data track folders and data track files for detail
 		// (when data_root is provided).
 		// Also look for files that can be linked to the UCSC Genome Browser
 		if (data_root != null) {
+      root.addAttribute("folderCount", Integer.valueOf(this.getFolders().size()).toString());
 			Element agsNode = root.addElement("DataTrackFolders");
 			for(DataTrackFolder ag : (Set<DataTrackFolder>)this.getFolders()) {
 				Element agNode = agsNode.addElement("DataTrackFolder");
@@ -585,13 +593,18 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	}
 
 	public String getDirectory(String data_root) {
+	  // TODO: GenoPub merge - Get Data path from analysis file
+	  /*
 	  String dataPath = null;
 	  if (this.getDataPath() != null && !this.getDataPath().equals("")) {
       dataPath = this.getDataPath();
     } else {
       dataPath = data_root;
     }
+
 	  return dataPath + this.getFileName();
+	  */
+	  return data_root + this.getFileName();
 	}
 
 
@@ -678,6 +691,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getProperties");
     this.excludeMethodFromXML("getFolders");
+    this.excludeMethodFromXML("getFolderCount");
     this.excludeMethodFromXML("getCollaborators");
     this.excludeMethodFromXML("getPropertyEntries");
     this.excludeMethodFromXML("getExcludedMethodsMap");

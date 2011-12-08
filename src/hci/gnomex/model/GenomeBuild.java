@@ -197,11 +197,11 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
     this.coordTestRange = coordTestRange;
   }
 
-  private String getCoordSource() {
+  public String getCoordSource() {
     return coordSource;
   }
 
-  private void setCoordSource(String coordSource) {
+  public void setCoordSource(String coordSource) {
     this.coordSource = coordSource;
   }
 
@@ -232,10 +232,11 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
     Document doc = DocumentHelper.createDocument();
     Element root = doc.addElement("GenomeBuild");
 
-    root.addAttribute("label", this.getDas2Name());       
-    root.addAttribute("idGenomeBuild",this.getIdGenomeBuild().toString());        
-    root.addAttribute("name",           this.getDas2Name());
-    root.addAttribute("ucscName",          this.getUcscName());
+    root.addAttribute("label",          this.getDas2Name());       
+    root.addAttribute("idGenomeBuild",  this.getIdGenomeBuild().toString());        
+    root.addAttribute("das2Name",       this.getDas2Name());
+    root.addAttribute("genomeBuildName",this.getGenomeBuildName());
+    root.addAttribute("ucscName",       this.getUcscName());
     root.addAttribute("buildDate",      this.getBuildDate() != null ? DataTrackUtil.formatDate(this.getBuildDate()) : "");       
     root.addAttribute("idOrganism",     this.getIdOrganism().toString());       
     root.addAttribute("coordURI",       this.getCoordURI() != null ? this.getCoordURI().toString() : ""); 
@@ -282,6 +283,8 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   }
 
   public String getSequenceDirectory(String data_root) {
+    //TODO: Uncomment when we have figured out where seq files should reside
+    /*
     String dataPath = null;
     if (this.getDataPath() != null && !this.getDataPath().equals("")) {
       dataPath = this.getDataPath();
@@ -289,6 +292,8 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
       dataPath = data_root;
     }
     return dataPath + getSequenceFileName();
+    */
+    return data_root + getSequenceFileName();
   }
 
 
@@ -384,10 +389,9 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   @SuppressWarnings("unchecked")
   private List getRootDataTrackFolders() {
     ArrayList rootGroupings = new ArrayList();
-    for (DataTrackFolder annotationGrouping : (Set<DataTrackFolder>) this
-        .getDataTrackFolders()) {
-      if (annotationGrouping.getIdParentDataTrackFolder() == null) {
-        rootGroupings.add(annotationGrouping);
+    for (DataTrackFolder folder : (Set<DataTrackFolder>) this.getDataTrackFolders()) {
+      if (folder.getIdParentDataTrackFolder() == null) {
+        rootGroupings.add(folder);
       }
     }
     return rootGroupings;
