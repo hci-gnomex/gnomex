@@ -32,6 +32,7 @@ public class BatchDataSource extends DetailObject {
   
   public Session connect() throws Exception {
     File file = new File("../../conf/openejb.xml");
+
     if (file.exists()) {
       return connectTomcat(file);
     } else {
@@ -64,7 +65,6 @@ public class BatchDataSource extends DetailObject {
                  .setProperty("hibernate.connection.password", this.gnomex_db_password)
                  .setProperty("hibernate.connection.url", this.gnomex_db_url )
                  .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.HashtableCacheProvider");
-  
     
     sessionFactory = configuration.buildSessionFactory();
     sess = sessionFactory.openSession();    
@@ -101,7 +101,7 @@ public class BatchDataSource extends DetailObject {
       Iterator i = root.getChildren("data-source").iterator();
       while (i.hasNext()) {
         Element e = (Element) i.next();
-        if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("GNOMEX_GUEST")) {
+        if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("GNOMEX")) {
           this.gnomex_db_driver = e.getAttributeValue("connection-driver");
           this.gnomex_db_url = e.getAttributeValue("url");
           this.gnomex_db_password = e.getAttributeValue("password");

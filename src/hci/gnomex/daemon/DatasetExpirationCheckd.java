@@ -1,6 +1,7 @@
 package hci.gnomex.daemon;
 
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.controller.CacheAnalysisFileDownloadList;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
@@ -30,6 +31,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.naming.NamingException;
 
+import org.apache.log4j.Level;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.xml.sax.EntityResolver;
@@ -103,7 +105,10 @@ public class DatasetExpirationCheckd extends TimerTask {
   public void run() {
    
     try {
+      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+      log.setLevel(Level.ERROR);
 
+      dataSource = new BatchDataSource();
       app.connect();
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
