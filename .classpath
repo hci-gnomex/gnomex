@@ -46,5 +46,7 @@
 	<classpathentry kind="lib" path="/hciEnv/lib/BSTX.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/Hibernate3Utils.jar" sourcepath="/Hibernate3Utils/src"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/XGNOMX.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TOMCAT_LIB"/>
+	<classpathentry kind="lib" path="lib/sam.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>
