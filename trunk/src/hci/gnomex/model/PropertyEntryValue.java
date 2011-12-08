@@ -52,21 +52,25 @@ public class PropertyEntryValue extends HibernateDetailObject {
   public String getUrlAlias() {
     String alias = "";
     if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
-      String tokens[] = getValue().split(",");
-      if (tokens.length > 1) {
-        alias = tokens[1];
-      } 
+      if (getValue() != null) {
+        String tokens[] = getValue().split(",");
+        if (tokens.length > 1) {
+          alias = tokens[1];
+        }         
+      }
     }
     return alias;
   }
   public String getUrl() {
     String url = "";
     if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
-      String tokens[] = getValue().split(",");
-      if (tokens.length > 1) {
-        url = tokens[0];
-      } else {
-        url = getValue();
+      if (getValue() != null) {
+        String tokens[] = getValue().split(",");
+        if (tokens.length > 1) {
+          url = tokens[0];
+        } else {
+          url = getValue();
+        }        
       }
     }
     return url;
@@ -75,11 +79,13 @@ public class PropertyEntryValue extends HibernateDetailObject {
   public String getUrlDisplay() {
     String urlDisplay = "";
     if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
-      String tokens[] = getValue().split(",");
-      if (tokens.length > 1) {
-        urlDisplay = tokens[1];
-      } else {
-        urlDisplay = getValue();
+      if (getValue() != null) {
+        String tokens[] = getValue().split(",");
+        if (tokens.length > 1) {
+          urlDisplay = tokens[1];
+        } else {
+          urlDisplay = getValue();
+        }        
       }
     }
     return urlDisplay;

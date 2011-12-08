@@ -24,7 +24,7 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   private String  das2Name;
   private Integer sortOrder;
   private String  binomialName;
-  private String  NCBITaxID;  
+  private String  ncbiTaxID;  
   private Set     genomeBuilds;
 
 
@@ -119,10 +119,6 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
     return binomialName;
   }
 
-  public String getNCBITaxID() {
-    return NCBITaxID;
-  }
-
   public void setDas2Name(String das2Name) {
     this.das2Name = das2Name;
   }
@@ -133,10 +129,6 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
 
   public void setBinomialName(String binomialName) {
     this.binomialName = binomialName;
-  }
-
-  public void setNCBITaxID(String nCBITaxID) {
-    NCBITaxID = nCBITaxID;
   }
 
   private Set getGenomeBuilds() {
@@ -156,7 +148,7 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
     root.addAttribute("name",         this.getDas2Name() != null ? this.getDas2Name() : "");        
     root.addAttribute("commonName",   this.getOrganism() != null ? this.getOrganism() : "");        
     root.addAttribute("binomialName", this.getBinomialName() != null ? this.getBinomialName() : "");        
-    root.addAttribute("NCBITaxID",    this.getNCBITaxID() != null ? this.getNCBITaxID() : "");    
+    root.addAttribute("NCBITaxID",    this.getNcbiTaxID() != null ? this.getNcbiTaxID() : "");    
     root.addAttribute("canWrite",     secAdvisor.canUpdate(this) ? "Y" : "N");
 
     return doc;
@@ -166,6 +158,14 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getGenomeBuilds");
     this.excludeMethodFromXML("getExcludedMethodsMap");
+  }
+
+  public String getNcbiTaxID() {
+    return ncbiTaxID;
+  }
+
+  public void setNcbiTaxID(String ncbiTaxID) {
+    this.ncbiTaxID = ncbiTaxID;
   }
 
 

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="{'Add new folder to ' + parentName}"
+	showCloseButton="true" 
+	width="452" 
+	height="140"
+	verticalGap="0"
+	close="closeWindow()"
+	titleIcon="{parentApplication.iconDataTrackFolder}"
+	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
+ 	
+    <mx:HTTPService             
+      id="saveDataTrackFolder" 
+      url="SaveDataTrackFolder.gx"
+      resultFormat="e4x"
+      result="onSaveDataTrackFolder(event)"
+      fault="parentApplication.onFailHttpRequest('Failed to add data track folder', event)"
+      method="POST"
+      useProxy="false">
+      <mx:request>
+         <name>{dataTrackFolderName.text}</name>
+         <idGenomeBuild>{genomeBuild.@idGenomeBuild}</idGenomeBuild>
+         <idParentDataTrackFolder>{idParentDataTrackFolder}</idParentDataTrackFolder>
+         <idUserGroup>{labCombo.selectedItem != null ? labCombo.selectedItem.@id : ''}</idUserGroup>
+      </mx:request>
+    </mx:HTTPService> 
+    
+       
+    <mx:Script>
+	<![CDATA[
+	
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	import mx.controls.Alert;
+	
+	[Bindable]
+	public var idParentDataTrackFolder:Object = null;
+	[Bindable]
+	public var parentName:Object = null;
+	[Bindable]
+	private var genomeBuild:Object = null;
+
+	public function init(genomeBuild:Object, parent:Object):void {
+		this.genomeBuild = genomeBuild;
+		if (parent != null) {
+			this.idParentDataTrackFolder = parent.@idDataTrackFolder;
+			parentName = parent.@label;		
+			
+			// If the parent folder is owned by a lab,
+			// setup this folder the same way.
+			if (parent.@idLab != null && parent.@idLab != "") {
+				for each (var item:Object in labCombo.dataProvider) {
+					if (item.@idLab == parent.@idLab) {
+						labCombo.selectedItem = item;
+						break;
+					}
+				}
+			}	
+		} else {
+			parentName = genomeBuild.@das2Name;
+		}
+	}
+	
+
+   	private function onSaveDataTrackFolder(event:ResultEvent):void {
+		if (saveDataTrackFolder.lastResult.name() == "SUCCESS") {			
+			closeWindow();
+			var itemToSelect:XML = new XML(
+			   "<DataTrackFolder " +
+			     "idDataTrackFolder='" + saveDataTrackFolder.lastResult.@idDataTrackFolder + "'" +
+			    "/>");
+			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+		} else {
+			Alert.show(saveDataTrackFolder.lastResult..ACTMESSAGE.@TEXT);
+		}	
+	}
+
+   
+    private function closeWindow():void {
+		PopUpManager.removePopUp(this);		
+	}
+	
+	]]>
+    </mx:Script>
+    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="10">
+		<mx:HBox  width="100%" paddingTop="4">
+			<mx:Label text="Folder name:" width="105"/>
+			<mx:TextInput id="dataTrackFolderName" width="100%" maxChars="2000"/>
+	</mx:HBox>
+		<mx:HBox width="100%" id="hbox2">
+			<mx:Label text="Lab:" width="105"/>
+			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name"></mx:ComboBox>
+		</mx:HBox>
+    	
+    </mx:VBox>
+
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button id="saveButton"  
+			enabled="{dataTrackFolderName.text != null ? true : false}" 
+			icon="{parentApplication.iconSave}" 
+			disabledIcon="{parentApplication.iconSaveDisabled}" 
+			label="Save"
+			click="{saveDataTrackFolder.send()}"/>
+		<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="New Species"
+	showCloseButton="true" 
+	width="390" 
+	height="228"
+	verticalGap="0"
+	close="closeWindow()"
+	defaultButton="{saveButton}"	
+	titleIcon="{parentApplication.iconOrganism}"
+	layout="vertical" backgroundAlpha="100">
+ 	
+    <mx:HTTPService             
+      id="addOrganism" 
+      url="SaveOrganism.gx"
+      resultFormat="e4x"
+      result="onAddOrganism(event)"
+      fault="parentApplication.onFailHttpRequest('Failed to add organism', event)"
+      method="POST"
+      useProxy="false">
+      <mx:request>
+         <das2Name>{das2Name.text}</das2Name>
+         <organism>{commonName.text}</organism>
+         <binomialName>{binomialName.text}</binomialName>
+      </mx:request>
+    </mx:HTTPService> 
+    
+       
+    <mx:Script>
+	<![CDATA[
+	
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	import mx.controls.Alert;
+
+   	private function onAddOrganism(event:ResultEvent):void {
+		if (addOrganism.lastResult.name() == "SUCCESS") {			
+			closeWindow();
+			var itemToSelect:XML = new XML(
+			   "<Organism " +
+			     "idOrganism='" + addOrganism.lastResult.@idOrganism + "'" +
+			    "/>");
+			    
+			// Refresh the data track tree
+			parentApplication.navDataTrackView.refreshDataTrackFilters("0");
+			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+			
+						
+
+
+		} else {
+			Alert.show(addOrganism.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+
+   
+    private function closeWindow():void {
+		PopUpManager.removePopUp(this);		
+	}
+	
+	]]>
+    </mx:Script>
+    
+    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="0">
+		<mx:HBox width="100%" paddingTop="4">
+			<mx:Label text="Common name:"  width="100"/>
+			<mx:TextInput id="commonName" width="100%" maxChars="100"/>
+		</mx:HBox>
+		<mx:Label text="Example: Human" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:HBox width="100%" paddingTop="10">
+			<mx:Label text="Binomial name:" width="100"/>
+			<mx:TextInput id="binomialName"  width="100%" maxChars="200"/>
+		</mx:HBox>
+		<mx:Label text="Example: Homo sapiens" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:HBox width="100%" paddingTop="10">
+			<mx:Label text="DAS2 name:" width="100"/>
+			<mx:TextInput id="das2Name"  width="100%" maxChars="200"/>
+		</mx:HBox>
+		<mx:Label text="Example: H_sapiens" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+    	
+    </mx:VBox>
+
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button id="saveButton"  
+			enabled="{commonName.text != &quot;&quot; &amp;&amp; binomialName.text != &quot;&quot; &amp;&amp; das2Name.text != &quot;&quot; ? true : false}" 
+			icon="{parentApplication.iconSave}" 
+			disabledIcon="{parentApplication.iconSaveDisabled}" 
+			label="Save"
+			click="{addOrganism.send()}"/>
+		<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

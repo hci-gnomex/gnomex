@@ -10,7 +10,7 @@ public class UnloadDataTrack extends DetailObject implements Serializable {
 
   private Integer             idUnloadDataTrack;
   private String              typeName;
-  private Integer             idUser;
+  private Integer             idAppUser;
   private Integer             idGenomeBuild;
 
   public Integer getIdUnloadDataTrack() {
@@ -25,11 +25,11 @@ public class UnloadDataTrack extends DetailObject implements Serializable {
   public void setTypeName(String typeName) {
     this.typeName = typeName;
   }
-  public Integer getIdUser() {
-    return idUser;
+  public Integer getIdAppUser() {
+    return idAppUser;
   }
-  public void setIdUser(Integer idUser) {
-    this.idUser = idUser;
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
   }
   public Integer getIdGenomeBuild() {
     return idGenomeBuild;

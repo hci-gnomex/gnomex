@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
-import hci.gnomex.utility.DataTrackQuery;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
@@ -47,7 +46,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
 
       // TODO: GENOPUB Need to send in analysis file data path?  
       if (this.getSecAdvisor().canRead(dataTrack)) {
-        Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), "c:/temp/AnalysisData/2010/A91");
+        Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), "c:/temp/GenoPub/");
         this.xmlResult = doc.asXML();
         setResponsePage(this.SUCCESS_JSP);
         

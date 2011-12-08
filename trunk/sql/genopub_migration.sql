@@ -21,6 +21,10 @@ update gnomex.Organism o join genopub.OrganismView ov on ov.idOrganismGNomEx = o
      o.NCBITaxID = ov.NCBITaxID;
 
 
+-- Change the DataTrack number (fileName) from 'Axxxx' to 'DTxxxx'
+update gnomex.DataTrack set fileName = 'DT' + convert(varchar(10), idDataTrack);
+GO
+
 -- Add genome versions that are not already in gnomex
 INSERT INTO gnomex.GenomeBuild
            (genomeBuildName
@@ -254,5 +258,5 @@ INSERT INTO gnomex.PropertyEntryValue
 GO
 
 
-
+-- Need to set dataPath on GenomeBuild
 

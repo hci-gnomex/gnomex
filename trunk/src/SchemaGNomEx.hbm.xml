@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
@@ -637,6 +636,7 @@
 		</id>
 		<property name="idProperty" column="idProperty" type="integer"/>
 		<property name="idSample" column="idSample" type="integer"/>
+		<property name="idDataTrack" column="idDataTrack" type="integer"/>
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
 		<many-to-one name="property" column="idProperty" class="hci.gnomex.model.Property" cascade="none" insert="false" update="false" />
@@ -736,6 +736,18 @@
 		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none"/>
 		<many-to-one name="flowCellChannel" column="idFlowCellChannel" class="hci.gnomex.model.FlowCellChannel" cascade="none"/>
 	</class>
+	
+	    <!--  UnloadDataTrack -->
+    <class name="hci.gnomex.model.UnloadDataTrack" table="UnloadDataTrack">
+        <id name="idUnloadDataTrack"                column="idUnloadDataTrack"         type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="typeName"                  column="typeName"               type="string"/>
+        <property name="idAppUser"                 column="idAppUser"                 type="integer"/>
+        <property name="idGenomeBuild"             column="idGenomeBuild"        type="integer"/>
+    </class>
+        
+	
     
 <!--                       -->
 <!--      DICTIONARIES     -->
@@ -1139,7 +1151,7 @@
 		<property name="das2Name" column="das2Name" type="string"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="binomialName" column="binomialName" type="string"/>
-		<property name="NCBITaxID" column="NCBITaxID" type="string"/>		
+		<property name="ncbiTaxID" column="NCBITaxID" type="string"/>		
 		<set name="genomeBuilds" table="GenomeBuild" lazy="true" cascade="delete" order-by="genomeBuildName">
 			<key column="idOrganism"/>
 			<one-to-many class="hci.gnomex.model.GenomeBuild" />

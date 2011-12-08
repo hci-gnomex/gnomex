@@ -432,14 +432,14 @@
 			public var iconGenomeBuild:Class;
 			
 			[Bindable]
-			[Embed(source="assets/genome_build.png")]
+			[Embed(source="assets/genome_build_faded.png")]
 			public var iconGenomeBuildFaded:Class;
 						
 			
 			[Bindable]
 			[Embed(source="assets/folder_group.png")]
 			public var iconDataTrackFolderForGroup:Class;
-			
+			 
 			[Bindable]
 			[Embed(source="assets/organism.png")]
 			public var iconOrganism:Class;
@@ -464,8 +464,8 @@
 			[Embed(source="assets/datatrack_member.png")]
 			public var iconDataTrackMember:Class;
 			
-			[Bindable]
-			[Embed(source="assets/datatrack.png")]
+			[Bindable] 
+			[Embed(source="assets/datatrack_member.png")]
 			public var iconDataTrackMemberCollab:Class;
 			
 			[Bindable]
@@ -711,10 +711,14 @@
 				
 			}  
 			private function lookupExperiment():void {
-				if (requestNumber.text.indexOf("A") == 0) {
-					this.showAnalysisForNumber(requestNumber.text);				
+				var number:String = requestNumber.text;
+				number = number.toUpperCase();
+				if (number.indexOf("DT") == 0) {
+					this.showDataTrackForNumber(number);				
+				} else if (number.indexOf("A") == 0) {
+					this.showAnalysisForNumber(number);				
 				} else {
-					showExperiment(requestNumber.text);
+					showExperiment(number);
 					
 				} 
 			}
@@ -842,6 +846,24 @@
 				
 			}
 			
+			public function showDataTrackForNumber(dataTrackNumber:String):void {
+				navDataTrackView.dataTrackNumber = dataTrackNumber;
+				
+				
+				// We have to make sure that the first time a lookup
+				// occurs after launch, we refresh the datatrack
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navDataTrackView.isInitialized) {
+					navDataTrackView.refreshDataTrackForLookup()
+				}
+				
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navDataTrackView;
+				
+			}
+
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
 				userNode.@id = idAppUser;
@@ -1849,7 +1871,7 @@
 			      <mx:HBox width="100%"  
 				  horizontalAlign="left" verticalAlign="top" horizontalGap="10"  styleName="catalogPanel" 
 			      	paddingBottom="6" id="hbox1" 
-			      	paddingTop="4" 
+			      	paddingTop="2" 
 			      	paddingLeft="4" paddingRight="4">
 						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
 							<mx:Image source="assets/hciLogo_hOnly.png"/>
@@ -1895,7 +1917,7 @@
 		  </mx:VBox>  
 		      
 	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="3" paddingBottom="0" paddingLeft="0" 
+	    	height="100%" paddingTop="6" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0" verticalGap="0">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >

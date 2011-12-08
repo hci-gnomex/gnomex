@@ -2,36 +2,30 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Organism;
-import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
-
 
 
 public class SaveOrganism extends GNomExCommand implements Serializable {
@@ -58,6 +52,18 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
     this.addInvalidFields(errors);
     if (organismScreen.getIdOrganism() == null || organismScreen.getIdOrganism().intValue() == 0) {
       isNewOrganism = true;
+    }
+    
+    // Make sure that the DAS2 name has no spaces or special characters
+    if (isValid() && organismScreen.getDas2Name() != null && organismScreen.getDas2Name() != null) {
+      if (organismScreen.getDas2Name().indexOf(" ") >= 0) {
+        addInvalidField("namespaces", "The DAS2 name cannot have spaces.");
+      }
+      Pattern pattern = Pattern.compile("\\W");
+      Matcher matcher = pattern.matcher(organismScreen.getDas2Name());
+      if (matcher.find()) {
+        this.addInvalidField("specialc", "The DAS2 name cannot have special characters.");
+      }      
     }
     
     
@@ -130,25 +136,27 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
             sess.flush();
             genomeBuildMap.put(genomeBuild.getIdGenomeBuild(), null);
             
-          }
-        }
-        
-        StringBuffer query = new StringBuffer("SELECT gb from GenomeBuild gb");
-        query.append(" where gb.idOrganism=" + o.getIdOrganism());
-        query.append(" order by gb.genomeBuildName");
-        List genomeBuilds = sess.createQuery(query.toString()).list();
-        
-        // Delete items no longer present
-        if (!genomeBuilds.isEmpty()) {          
-          Element gbEle = new Element("genomeBuilds");
-          for(Iterator j = genomeBuilds.iterator(); j.hasNext();) {
-            GenomeBuild gb = (GenomeBuild)j.next();
-            if (!genomeBuildMap.containsKey(gb.getIdGenomeBuild())) {
-              sess.delete(gb);
+            
+            
+            // Delete items no longer present
+            StringBuffer query = new StringBuffer("SELECT gb from GenomeBuild gb");
+            query.append(" where gb.idOrganism=" + o.getIdOrganism());
+            query.append(" order by gb.genomeBuildName");
+            List genomeBuilds = sess.createQuery(query.toString()).list();
+            
+            if (!genomeBuilds.isEmpty()) {          
+              Element gbEle = new Element("genomeBuilds");
+              for(Iterator j = genomeBuilds.iterator(); j.hasNext();) {
+                GenomeBuild gb = (GenomeBuild)j.next();
+                if (!genomeBuildMap.containsKey(gb.getIdGenomeBuild())) {
+                  sess.delete(gb);
+                }
+              }
             }
+            
           }
         }
-        
+
         sess.flush();
                
         DictionaryHelper.reload(sess);
@@ -157,7 +165,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
       
         setResponsePage(this.SUCCESS_JSP);
       } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save sample characteristic.");
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save organism.");
         setResponsePage(this.ERROR_JSP);
       }
       
@@ -184,6 +192,9 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
     o.setMageOntologyDefinition(organismScreen.getMageOntologyDefinition());
     o.setIsActive(organismScreen.getIsActive());
     o.setIdAppUser(organismScreen.getIdAppUser());
+    o.setBinomialName(organismScreen.getBinomialName());
+    o.setNcbiTaxID(organismScreen.getNcbiTaxID());
+    o.setDas2Name(organismScreen.getDas2Name());
   }
   
   

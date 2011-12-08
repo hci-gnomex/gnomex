@@ -19,6 +19,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+
+import net.sf.hibernate.Hibernate;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -33,6 +36,7 @@ public class DataTrackQuery implements Serializable {
   
 	// Criteria
 	private String             scopeLevel = "";
+	private String             number;
 	private Integer            idLab;
 	private Integer            idOrganism;
 	private Integer            idGenomeBuild;
@@ -90,6 +94,7 @@ public class DataTrackQuery implements Serializable {
 	
 	public DataTrackQuery(HttpServletRequest req) {
 		scopeLevel         = req.getParameter("scopeLevel");
+    number         = req.getParameter("number");
 		idLab        = DataTrackUtil.getIntegerParameter(req, "idLab");
 		idOrganism         = DataTrackUtil.getIntegerParameter(req, "idOrganism");
 		idGenomeBuild    = DataTrackUtil.getIntegerParameter(req, "idGenomeBuild");
@@ -105,6 +110,14 @@ public class DataTrackQuery implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	public Document getDataTrackDocument(Session sess, SecurityAdvisor secAdvisor) throws Exception {
+	  // If we are looking up data track by number, prime the idGenomeBuild
+	  // criteria so that the folders are limited to the genome build
+	  // of the specific data track
+	  if (number != null && !number.equals("")) {
+	    idGenomeBuild = (Integer)sess.createQuery("SELECT distinct dt.idGenomeBuild from DataTrack dt where dt.fileName = '" + number + "'").uniqueResult();
+	  }
+	  
+	  
 	  // Run query to get dataTrack folders, organized under
 	  // organism and genome build
 	  StringBuffer queryBuf = this.getDataTrackFolderQuery(secAdvisor);    	
@@ -119,13 +132,21 @@ public class DataTrackQuery implements Serializable {
 	  query = sess.createQuery(queryBuf.toString());
 	  List<Object[]> dataTrackRows = (List<Object[]>)query.list();
 
+	   
+    // Run query to get parent folder count by data track
+    queryBuf = this.getFolderCountQuery(secAdvisor);
+    Logger.getLogger(this.getClass().getName()).fine("Folder count query: " + queryBuf.toString());
+    query = sess.createQuery(queryBuf.toString());
+    List<Object[]> folderCountRows = (List<Object[]>)query.list();
+    
+	  
 	  // Now run query to get the genome build segments
 	  queryBuf = this.getSegmentQuery();
 	  query = sess.createQuery(queryBuf.toString());
 	  List<Segment> segmentRows = (List<Segment>) query.list();
 
 	  // Create an XML document
-	  Document doc = this.getDataTrackDocument(dataTrackFolderRows, dataTrackRows, segmentRows, DictionaryHelper.getInstance(sess), secAdvisor);
+	  Document doc = this.getDataTrackDocument(dataTrackFolderRows, dataTrackRows, folderCountRows, segmentRows, DictionaryHelper.getInstance(sess), secAdvisor);
 	  return doc;
 		
 	}
@@ -139,22 +160,30 @@ public class DataTrackQuery implements Serializable {
 		// organism and genome build
 		StringBuffer queryBuf = this.getDataTrackFolderQuery(secAdvisor);    	
 		Logger.getLogger(this.getClass().getName()).fine("DataTrack folder query: " + queryBuf.toString());
-    	Query query = sess.createQuery(queryBuf.toString());
+    Query query = sess.createQuery(queryBuf.toString());
 		List<Object[]> dataTrackFolderRows = (List<Object[]>)query.list();
 		
 		// Run query to get dataTracks, organized under dataTrack folder,
 		// organism, and genome build
 		queryBuf = this.getDataTrackQuery(secAdvisor);    	
 		Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
-    	query = sess.createQuery(queryBuf.toString());
+    query = sess.createQuery(queryBuf.toString());
 		List<Object[]> dataTrackRows = (List<Object[]>)query.list();
+		
+		
+		// Run query to get parent folder count by data track
+		queryBuf = this.getFolderCountQuery(secAdvisor);
+		Logger.getLogger(this.getClass().getName()).fine("Folder count query: " + queryBuf.toString());
+		query = sess.createQuery(queryBuf.toString());
+    List<Object[]> folderCountRows = (List<Object[]>)query.list();
+    
 		
 		// Now run query to get the genome build segments
 		queryBuf = this.getSegmentQuery();			
     	query = sess.createQuery(queryBuf.toString());
 		List<Segment> segmentRows = (List<Segment>)query.list();
 			
-		this.hashDataTracks(dataTrackFolderRows, dataTrackRows, segmentRows, DictionaryHelper.getInstance(sess));
+		this.hashDataTracks(dataTrackFolderRows, dataTrackRows, folderCountRows, segmentRows, DictionaryHelper.getInstance(sess));
 		
 	}
 	
@@ -181,6 +210,42 @@ public class DataTrackQuery implements Serializable {
 
 		return queryBuf;
 
+	}
+	
+	private StringBuffer getFolderCountQuery(SecurityAdvisor secAdvisor) throws Exception {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+
+    queryBuf.append(" SELECT     dataTrack.idDataTrack, count(folder) ");
+    queryBuf.append(" FROM       DataTrack dataTrack");
+    queryBuf.append(" JOIN       dataTrack.folders as folder ");
+    queryBuf.append(" LEFT JOIN  dataTrack.collaborators as collab ");
+
+    addWhere = true;
+    
+    if (secAdvisor != null) {
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false);
+    }
+    
+    
+    // If this is a server reload, get dataTracks not yet loaded
+    if (this.isServerRefreshMode.equals("Y")) {
+      this.AND();
+      queryBuf.append("(");
+      queryBuf.append(" dataTrack.isLoaded = 'N' ");
+
+      if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+        this.AND();
+        queryBuf.append(" dataTrack.idAppUser = " + secAdvisor.getIdAppUser());   
+      }
+
+      queryBuf.append(")");
+    }
+
+    queryBuf.append(" GROUP BY dataTrack.idDataTrack ");
+
+    return queryBuf;
+	  
 	}
 
 	private StringBuffer getDataTrackQuery(SecurityAdvisor secAdvisor) throws Exception {
@@ -243,10 +308,10 @@ public class DataTrackQuery implements Serializable {
 
 	}
 
-	private Document getDataTrackDocument(List<Object[]> dataTrackFolderRows, List<Object[]> dataTrackRows, List<Segment> segmentRows,  DictionaryHelper dictionaryHelper, SecurityAdvisor secAdvisor) throws Exception {
+	private Document getDataTrackDocument(List<Object[]> dataTrackFolderRows, List<Object[]> dataTrackRows, List<Object[]> folderCountRows, List<Segment> segmentRows,  DictionaryHelper dictionaryHelper, SecurityAdvisor secAdvisor) throws Exception {
 		
 		// Organize results rows into hash tables
-		hashDataTracks(dataTrackFolderRows, dataTrackRows, segmentRows, dictionaryHelper);		
+		hashDataTracks(dataTrackFolderRows, dataTrackRows, folderCountRows, segmentRows, dictionaryHelper);		
 		
 
 		Document doc = DocumentHelper.createDocument();
@@ -381,18 +446,18 @@ public class DataTrackQuery implements Serializable {
 	
 
 	
-	private void hashDataTracks(List<Object[]> dataTrackFolderRows, List<Object[]> dataTrackRows, List<Segment> segmentRows, DictionaryHelper dictionaryHelper) {
+	private void hashDataTracks(List<Object[]> dataTrackFolderRows, List<Object[]> dataTrackRows, List<Object[]> folderCountRows, List<Segment> segmentRows, DictionaryHelper dictionaryHelper) {
 
-		organismToGenomeBuild        = new TreeMap<String, TreeMap<GenomeBuild, ?>>();
+		organismToGenomeBuild      = new TreeMap<String, TreeMap<GenomeBuild, ?>>();
 		genomeBuildToRootFolders   = new HashMap<String, TreeMap<String, ?>>();
-		folderToFolders      = new HashMap<String, TreeMap<String, ?>>();
-		folderToDataTracks    = new HashMap<String, TreeMap<String, ?>>();
-		genomeBuildToSegments        = new HashMap<String, List<Segment>>();
+		folderToFolders            = new HashMap<String, TreeMap<String, ?>>();
+		folderToDataTracks         = new HashMap<String, TreeMap<String, ?>>();
+		genomeBuildToSegments      = new HashMap<String, List<Segment>>();
 		
-		organismMap              = new HashMap<String, Organism>();
-		genomeBuildNameMap     = new HashMap<String, GenomeBuild>();
-		dataTrackFolderMap    = new HashMap<Integer, DataTrackFolder>();
-		dataTrackMap            = new HashMap<Integer, DataTrack>();
+		organismMap                = new HashMap<String, Organism>();
+		genomeBuildNameMap         = new HashMap<String, GenomeBuild>();
+		dataTrackFolderMap         = new HashMap<Integer, DataTrackFolder>();
+		dataTrackMap               = new HashMap<Integer, DataTrack>();
 		
 		// Prefill organism, genome build, and root dataTrack folder
 		// hash map with known entries
@@ -494,10 +559,10 @@ public class DataTrackQuery implements Serializable {
 		
 		// First hash the dataTrack folders
 		for (Object[] row : dataTrackFolderRows) {
-			Organism organism                      = (Organism) row[0];
+			Organism organism                  = (Organism) row[0];
 			GenomeBuild genomeBuild            = (GenomeBuild)  row[1];
-			DataTrackFolder dtFolder       = (DataTrackFolder) row[2];
-			DataTrackFolder parentAnnotFolder = (DataTrackFolder) row[3];
+			DataTrackFolder dtFolder           = (DataTrackFolder) row[2];
+			DataTrackFolder parentAnnotFolder  = (DataTrackFolder) row[3];
 			
 			// Hash genome builds for an organism
 			TreeMap<GenomeBuild, ?> genomeBuildMap = organismToGenomeBuild.get(organism.getBinomialName());
@@ -538,10 +603,10 @@ public class DataTrackQuery implements Serializable {
 		
 		// Now hash the dataTrack rows
 		for (Object[] row : dataTrackRows) {
-			Organism organism                      = (Organism) row[0];
+			Organism organism                  = (Organism) row[0];
 			GenomeBuild genomeBuild            = (GenomeBuild)  row[1];
-			DataTrackFolder dtFolder       = (DataTrackFolder) row[2];
-			DataTrackFolder parentAnnotFolder = (DataTrackFolder) row[3];
+			DataTrackFolder dtFolder           = (DataTrackFolder) row[2];
+			DataTrackFolder parentAnnotFolder  = (DataTrackFolder) row[3];
 			DataTrack dt                       = (DataTrack) row[4];
 			
 			// Load properties for dataTracks
@@ -596,6 +661,17 @@ public class DataTrackQuery implements Serializable {
 				}			
 			}
 		}
+		
+    // Now set the folderCount for each dataTrack
+    for (Object[] row : folderCountRows) {
+      Integer idDataTrack                = (Integer) row[0];
+      Integer folderCount                = (Integer) row[1];
+      
+      DataTrack dataTrack = dataTrackMap.get(idDataTrack);
+      if (dataTrack != null) {
+        dataTrack.setFolderCount(folderCount);
+      }
+    }
 		
 	}
 	
@@ -859,6 +935,13 @@ public class DataTrackQuery implements Serializable {
     this.AND();
     queryBuf.append(" gb.das2Name != ''");
     
+    // Search for datatrack by number
+    if (number != null && !number.equals("")) {
+      if (joinLevel == DATATRACK_LEVEL) {
+        this.AND();
+        queryBuf.append(" dataTrack.fileName = '" + this.number + "'");
+      }
+    }
 
 		// Search by organism
 		if (idOrganism != null) {

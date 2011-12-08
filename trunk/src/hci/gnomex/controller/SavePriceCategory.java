@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.PriceSheet;
@@ -13,6 +14,7 @@ import hci.gnomex.utility.PriceCriteriaParser;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -83,7 +85,8 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
           initializePrice(priceCategory);
         }
 
-
+        sess.flush();
+        
         //
         // Attach price category to price sheet
         //
@@ -108,12 +111,12 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
             x.setIdPriceSheet(priceSheet.getIdPriceSheet());
             x.setPriceCategory(priceCategory);
             x.setSortOrder(Integer.valueOf(maxSortOrder.intValue() + 1));
-            priceCategories.add(x);            
+            sess.save(x);          
+            sess.flush();
           }
           
         }
  
-        sess.flush();
         
         this.xmlResult = "<SUCCESS idPriceCategory=\"" + priceCategory.getIdPriceCategory() + "\"/>";
       
@@ -149,6 +152,5 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
     priceCategory.setPluginClassName(priceCategoryScreen.getPluginClassName());
     
   }
-  
 
 }
