@@ -3,6 +3,7 @@
 
 --------------------
 * Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment
+* Fixed bugs in connect code for DatasetExpirationCheckd, PendingWorkAuthd, and RegisterFiles.
 
 5.3.4 (11/29/2011)
 --------------------
