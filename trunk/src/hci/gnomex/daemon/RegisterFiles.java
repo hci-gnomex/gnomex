@@ -53,6 +53,7 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.swing.text.DateFormatter;
 
+import org.apache.log4j.Level;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -131,6 +132,10 @@ public class RegisterFiles extends TimerTask {
     Calendar calendar = Calendar.getInstance();
 
     try {
+      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+      log.setLevel(Level.ERROR);
+
+      dataSource = new BatchDataSource();
       app.connect();
       
       

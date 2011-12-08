@@ -28,6 +28,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.log4j.Level;
 import org.hibernate.Session;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -103,6 +104,10 @@ public class PendingWorkAuthd extends TimerTask {
     }
     
     try {
+      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+      log.setLevel(Level.ERROR);
+
+      dataSource = new BatchDataSource();
       app.connect();
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
