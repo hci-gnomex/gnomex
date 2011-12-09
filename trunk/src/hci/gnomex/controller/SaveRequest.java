@@ -1615,6 +1615,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         send = true;
         subject = "TEST - " + subject;
         emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "<br><br>";
+        ccEmail = null;
       }
     }    
 

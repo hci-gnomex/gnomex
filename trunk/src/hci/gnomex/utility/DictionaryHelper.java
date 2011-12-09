@@ -333,7 +333,7 @@ public class DictionaryHelper implements Serializable {
   public String getGenomeBuild(Integer id) {
     String name = "";
     if (id != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.GenomeBuild", id.toString());
+      name = DictionaryManager.getDisplay("hci.gnomex.model.GenomeBuildLite", id.toString());
     }
     return name;
   }
