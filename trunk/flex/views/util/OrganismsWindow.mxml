@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="804" height="398" 
+				width="816" height="500" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{closeWindow()}"
@@ -30,16 +30,25 @@
 		
 <mx:Script>
 	<![CDATA[
-	import mx.managers.PopUpManager;
-	import mx.rpc.events.ResultEvent;
-	
-	import views.util.DirtyNote;
-	import views.util.OrganismEvent;
-	import mx.controls.Alert;
-	import mx.events.CloseEvent;
-	import hci.flex.controls.CheckBox;
+		import hci.flex.controls.CheckBox;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.DateField;
+		import mx.events.CloseEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.util.DirtyNote;
+		import views.util.OrganismEvent; 
 		
 	private var idOrganism:Object = null;
+	private	var tempArray:Array;
+		
+		
+    [Bindable]
+	public var genomeBuilder:ArrayCollection;
+		
 		
 	private function setDirty():void {
 		if (saveButton.enabled) {
@@ -101,10 +110,36 @@
 	private function onSelectOrganism():void {
 		if (oList.selectedItem != null) {
 			theViews.selectedIndex = 1;
+			
+			if(oList.selectedItem.@organism == "Enter name here.."){
+				var temp:Array = new Array();
+				
+				temp.push({idGenomeBuild: 'GenomeBuild0', das2Name: "", 
+					genomeBuildName: 'Click to enter info', isActive: 'Y'});
+				
+				genomeBuilder = new ArrayCollection(temp);
+			}
+			else{
+			theViews.selectedIndex = 1;
 
 			setOwnerCombo();
 
 			dirty.resetDirty();
+			
+ 		//theBuildDate = oList.selectedItem.genomeBuilds.GenomeBuild.@buildDate.toString();
+			var theDate:String = "";
+			tempArray = new Array();
+			
+			for each(var node:XML in genomeBuilds){
+				theDate = node.@buildDate.toString();
+				tempArray.push({idGenomeBuild: node.@idGenomeBuild.toString(), das2Name: node.@das2Name.toString(), buildDate: DateField.stringToDate(theDate, "YYYY-MM-DD"), 
+								genomeBuildName: node.@genomeBuildName.toString(), isActive: node.@isActive.toString()
+								});
+	
+			}
+			genomeBuilder = new ArrayCollection(tempArray);
+			
+		}
 		}
 	}
 		
@@ -124,13 +159,15 @@
 	private function addOrganism():void {
 		var newOrganism:XML = new XML("<Organism " +
 			" idOrganism=''" +
-			" organism='enter name here..'" +
+			" organism='Enter name here..'" +
 			" isActive='Y'" +
 			" canUpdate='Y'"  +
 			" canDelete='Y'" + 
 			" canRead='Y'" +
 			" mageOntologyCode=''" + 
 			" mageOntologyDefinition=''" + 
+			" das2Name=''" + 
+			" binomialName=''" +
 			" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
 			" />");
 		organisms.addItemAt(newOrganism, 0);
@@ -143,6 +180,8 @@
 		setOwnerCombo();
 		
 		setDirty();
+		
+		onSelectOrganism();
 
 	}
 		
@@ -177,19 +216,26 @@
 	}
 		
 	private function addGenomeBuild():void {
-		var newOption:XML = new XML("<GenomeBuild " +
-			" idGenomeBuild='GenomeBuild" + genomeBuilds.length + "'" +
-			" genomeBuildName='Enter Genome Build Name here..'" +
-			" isLatestBuild='Y'" +
-			" isActive='Y'" +
-			" />");
-		genomeBuilds.addItem(newOption);
+//		var newOption:XML = new XML("<GenomeBuild " +
+//			" idGenomeBuild='GenomeBuild" + genomeBuilds.length + "'" +
+//			" genomeBuildName='Enter Genome Build Name here..'" +
+//			" isLatestBuild='Y'" +
+//			" isActive='Y'" +
+//			" das2Name=''" + 
+//			" buildDate=''" +
+//			" />");
+//		genomeBuilds.addItem(newOption);
+		
+		genomeBuilder.source.push({idGenomeBuild: 'GenomeBuild' + genomeBuilder.length.toString(), das2Name: 'Enter das2Name...', buildDate: new Date(), genomeBuildName: 'Enter Name...',
+			isActive: 'Y'});
+		genomeBuilder.refresh();
 		setDirty();
 	}
 	
 	private function removeGenomeBuild():void {
 		if (this.genomeBuildGrid.selectedItem != null) {
-			genomeBuilds.removeItemAt(genomeBuilds.getItemIndex(genomeBuildGrid.selectedItem));
+			//genomeBuilds.removeItemAt(genomeBuilds.getItemIndex(genomeBuildGrid.selectedItem));
+			genomeBuilder.removeItemAt(genomeBuilder.getItemIndex(genomeBuildGrid.selectedItem));
 			setDirty();
 		}
 	}		
@@ -206,13 +252,31 @@
 		params.isActive = this.isActive.selected ? "Y" : "N";
 		params.mageOntologyCode = mageOntologyCode.text;
 		params.mageOntologyDefinition = mageOntologyDefinition.text; 
-		params.abbreviation = abbreviation.text; 
+		params.abbreviation = abbreviation.text;
+		params.das2Name = das2Name.text;
+		params.binomialName = binomialName.text;
+		params.taxID = taxID.text;
 		if (parentApplication.hasPermission("canWriteDictionaries")) {
 			params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
 		} else {
 			params.idAppUser = parentApplication.getIdAppUser();
 		}
-		params.genomeBuildsXMLString = "<genomeBuilds>" + this.genomeBuilds.toXMLString() + "</genomeBuilds>";
+		
+		params.genomeBuildsXMLString = "<genomeBuilds>";
+		for each(var temp:Object in genomeBuilder){
+			params.genomeBuildsXMLString += "<GenomeBuild " +
+			" idGenomeBuild=" + "\"" +  temp.idGenomeBuild + "\""+ 
+			" genomeBuildName=" + "\""+ temp.genomeBuildName + "\""+ 
+			" isActive=" + "\""+ temp.isActive + "\""+
+			" das2Name=" + "\""+ temp.das2Name + "\"" +  
+			" buildDate=" + "\""+ DateField.dateToString(temp.buildDate, "YYYY-MM-DD") + "\""+
+			" />";
+//		genomeBuilds.addItem(newOption);
+		}
+		
+		params.genomeBuildsXMLString += "</genomeBuilds>";
+		
+		//params.genomeBuildsXMLString = "<genomeBuilds>" + this.genomeBuilds.toXMLString() + "</genomeBuilds>";
 		
 		saveOrganism.send(params);
 		
@@ -226,7 +290,44 @@
 		} else {
 			mx.controls.Alert.show(saveOrganism.lastResult..ACTMESSAGE.@TEXT);
 		}
-	}				
+
+		
+	}
+		
+		private function checkToSave():void{
+			if(das2Name.text == "" || binomialName.text == "")
+			{
+				Alert.show("If Binomial name or das2Name are left blank they will not be displayed in the Data Tracks View." + "\n" + "Save Anyways?",
+							"MISSING FIELDS", (Alert.YES | Alert.NO), this, onCheckToSave);
+			}
+			
+			else if(!checkGenomeBuild())
+			{
+				Alert.show("You have left the das2Name field blank in the Genome Build grid. If you leave this field blank it will not be displayed in the Data Tracks View." + "\n" + "Save Anyways?",
+					"MISSING FIELDS", (Alert.YES | Alert.NO), this, onCheckToSave);
+			}
+			else
+				save();
+			
+		}
+		
+		private function checkGenomeBuild():Boolean{
+			for each(var temp:Object in genomeBuilder)
+			{
+				if(temp.das2Name == "")
+				{
+					return false;
+				}
+			}
+			
+			return true;
+			
+		}
+		
+		private function onCheckToSave(event:CloseEvent):void{
+			if(event.detail == Alert.YES)
+				save();
+		}
 		
 	]]>
 </mx:Script>
@@ -251,27 +352,42 @@
 	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
 		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="6">			 
 			 <mx:HBox width="100%" verticalGap="0">
-			  <mx:Label text="Name:" width="80"/>
-			  <mx:TextInput text="{oList.selectedItem.@organism}" change="{setDirty()}" width="100%" id="oName"  maxChars="100" />
-			  <mx:HBox >
-			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+			  <mx:Label text="Name:"  width="79"/>
+			  <mx:TextInput  text="{oList.selectedItem.@organism}" change="{setDirty()}" width="293" id="oName"  maxChars="100" />
+			  <mx:HBox  width="184" height="20.984848">
+			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()" width="101">
 			    <mx:selected>{oList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
 			   </mx:CheckBox>
-			   <mx:Spacer width="80"/>
 			  </mx:HBox>
+			 </mx:HBox>		 
+			 <mx:HBox width="100%" verticalGap="0">
+				 <mx:Text text="das2Name:"  width="79"/>
+				 <mx:TextInput text="{oList.selectedItem.@das2Name}" change="{setDirty()}" width="191" id="das2Name"  maxChars="100"/>
+				 <mx:HBox width="100%" verticalGap="0">
+					 <mx:Text id="binomialInput" text="Binomial Name:"  width="94"/>
+					 <mx:TextInput text="{oList.selectedItem.@binomialName}" change="{setDirty()}" width="184.4697" id="binomialName"  maxChars="100" height="20.984848"/>
+				 </mx:HBox>	
 			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0">
-			 	<mx:Text text="Abbreviation:" width="80"/>
-			 	<mx:TextInput text="{oList.selectedItem.@abbreviation}" change="{setDirty()}" width="192" id="abbreviation"  maxChars="10"/>
-			 </mx:HBox>			 
+				 <mx:Text text="Abbreviation:"/>
+				 <mx:TextInput text="{oList.selectedItem.@abbreviation}" change="{setDirty()}" width="31" id="abbreviation"  maxChars="100"/>
+				 <mx:HBox width="100%" verticalGap="0">
+					 <mx:Text text="Mage Code:" width="73"/>
+					 <mx:TextInput text="{oList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="71" id="mageOntologyCode"  maxChars="100"/>
+					 <mx:HBox width="100%" verticalGap="0" >
+						 <mx:Text text="Taxonomy I.D.:" width="94"/>
+						 <mx:TextInput text="{oList.selectedItem.@nCBITaxID}" change="{setDirty()}" width="54" id="taxID"  maxChars="100"/>
+						 <mx:HBox width="100%" verticalGap="0">
+							 <mx:Text text="Sort Order:" width="68"/>
+							 <mx:TextInput text="{oList.selectedItem.@sortOrder}" change="{setDirty()}" width="46.515152" id="sortOrder"  maxChars="100" height="20.984848"/>
+						 </mx:HBox>	
+					 </mx:HBox>	
+				 </mx:HBox>
+			 </mx:HBox>	
 			 <mx:HBox width="100%" verticalGap="0">
-				 <mx:Text text="Mage Code:" width="80"/>
-				 <mx:TextInput text="{oList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="192" id="mageOntologyCode"  maxChars="100"/>
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0">
-				 <mx:Text text="Mage Definition:" width="80"/>
-				 <mx:TextArea text="{oList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
-			 </mx:HBox>			 			 
+				 <mx:Text text="Mage Definition:" width="79"/>
+				 <mx:TextArea text="{oList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="486" id="mageOntologyDefinition"  maxChars="100" height="44.015152"/>
+			 </mx:HBox>	
 			 <mx:HBox width="100%" verticalGap="0" height="100%">
 				<mx:Text text="Genome Builds:" width="80"/>
 			  <mx:HBox width="100%" verticalGap="0" height="100%">
@@ -280,22 +396,30 @@
 			     <mx:LinkButton label="Add" styleName="linkMenuButton" click="addGenomeBuild()"   enabled="{oList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
 			     <mx:LinkButton label="Remove" styleName="linkMenuButton" click="removeGenomeBuild()" enabled="{oList.selectedItem.@canUpdate == 'Y' &amp;&amp; genomeBuildGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
 			    </mx:HBox>
-			    <mx:DataGrid change="setDirty()" id="genomeBuildGrid" dataProvider="{genomeBuilds}" editable="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="100%" width="100%" showHeaders="true" >
+			    <mx:DataGrid change="setDirty()" id="genomeBuildGrid" dataProvider="{genomeBuilder}" editable="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="100%" width="100%" showHeaders="true" >
 			     <mx:columns>
-			      <mx:DataGridColumn headerText="Name" width="120" dataField="@genomeBuildName"/>
-			      <!--mx:DataGridColumn headerText="Latest Build"  width="25" dataField="@isLatestBuild"/-->
+			      <mx:DataGridColumn headerText="Name" width="170" dataField="genomeBuildName"/>
+					<mx:DataGridColumn headerText="Das2Name" width="160" dataField="das2Name"/>
+					 <mx:DataGridColumn headerText ="Build Date" dataField = "buildDate" rendererIsEditor="true" editorDataField="selectedDate">
+						 <mx:itemRenderer>
+							 <mx:Component>
+								 <mx:DateField/>
+							 </mx:Component>
+						 </mx:itemRenderer>
+					 </mx:DataGridColumn>
+			      <!--mx:DataGridColumn headerText="Latest Build"  width="25" dataField="@isLatestBuild"/
 				  <mx:DataGridColumn headerText="Latest Build" dataField="@isLatestBuild" textAlign="center" width="50" editable="false">
 					 <mx:itemRenderer>
 						 <mx:Component>
 							 <mx:CheckBox selected="{(data.@isLatestBuild == 'Y')?true:false}" click="{data.@isLatestBuild = (data.@isLatestBuild != 'Y') ? 'Y' : 'N';}"/>
 						 </mx:Component>
 					 </mx:itemRenderer>
-				  </mx:DataGridColumn>					 					 
+				  </mx:DataGridColumn>-->					 					 
 			      <!--mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/-->
-				  <mx:DataGridColumn headerText="Active" dataField="@isActive" textAlign="center" width="50" editable="false">
+				  <mx:DataGridColumn headerText="Active" dataField="isActive" textAlign="center" width="50" editable="false">
 					 <mx:itemRenderer>
 						 <mx:Component>
-							 <mx:CheckBox selected="{(data.@isActive == 'Y')?true:false}" click="{data.@isActive = (data.@isActive != 'Y') ? 'Y' : 'N';}"/>
+							 <mx:CheckBox selected="{(data.isActive == 'Y')?true:false}" click="{data.isActive = (data.isActive != 'Y') ? 'Y' : 'N';}"/>
 						 </mx:Component>
 					 </mx:itemRenderer>
 				  </mx:DataGridColumn>					 					 
@@ -312,7 +436,7 @@
 		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
 			<util:DirtyNote id="dirty" />
 			<mx:Button id="saveButton" label="Save"  enabled="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"
-					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+					   icon="@Embed('../../assets/action_save.gif')" click="checkToSave()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
 			</mx:Button>
 			<mx:Button label="Close"  click="{closeWindow()}"/>
 			
