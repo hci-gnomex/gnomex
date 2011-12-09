@@ -216,15 +216,6 @@
 	}
 		
 	private function addGenomeBuild():void {
-//		var newOption:XML = new XML("<GenomeBuild " +
-//			" idGenomeBuild='GenomeBuild" + genomeBuilds.length + "'" +
-//			" genomeBuildName='Enter Genome Build Name here..'" +
-//			" isLatestBuild='Y'" +
-//			" isActive='Y'" +
-//			" das2Name=''" + 
-//			" buildDate=''" +
-//			" />");
-//		genomeBuilds.addItem(newOption);
 		
 		genomeBuilder.source.push({idGenomeBuild: 'GenomeBuild' + genomeBuilder.length.toString(), das2Name: 'Enter das2Name...', buildDate: new Date(), genomeBuildName: 'Enter Name...',
 			isActive: 'Y'});
