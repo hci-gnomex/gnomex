@@ -140,9 +140,6 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
             //construct date to set the build date. since it takes a date object.
             
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-          
-           
-            
             Date date1 = new Date(df.parse(node.getAttributeValue("buildDate")).getTime());
             
            
@@ -154,6 +151,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
             genomeBuildMap.put(genomeBuild.getIdGenomeBuild(), null);
             
             
+          }    
             
             
             // Delete items no longer present
@@ -172,7 +170,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
               }
             }
             
-          }
+          
         }
 
         sess.flush();
@@ -210,10 +208,6 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
     o.setMageOntologyDefinition(organismScreen.getMageOntologyDefinition());
     o.setIsActive(organismScreen.getIsActive());
     o.setIdAppUser(organismScreen.getIdAppUser());
-
-//    o.setDas2Name(organismScreen.getDas2Name());
-//    o.setBinomialName(organismScreen.getBinomialName());
-//    o.setNCBITaxID(organismScreen.getNCBITaxID());
 
     o.setBinomialName(organismScreen.getBinomialName());
     o.setNcbiTaxID(organismScreen.getNcbiTaxID());
