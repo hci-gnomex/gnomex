@@ -11,7 +11,12 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
+//import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -92,9 +97,10 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
 
         
         Organism o = null;
-              
+        
         if (isNewOrganism) {
           o = organismScreen;
+          
           
           sess.save(o);
           sess.flush();
@@ -130,11 +136,23 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
             genomeBuild.setGenomeBuildName(node.getAttributeValue("genomeBuildName"));
             genomeBuild.setIsLatestBuild(node.getAttributeValue("isLatestBuild"));
             genomeBuild.setIsActive(node.getAttributeValue("isActive"));
+            genomeBuild.setDas2Name(node.getAttributeValue("das2Name"));
+            //construct date to set the build date. since it takes a date object.
+            
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+          
+           
+            
+            Date date1 = new Date(df.parse(node.getAttributeValue("buildDate")).getTime());
+            
+           
+            genomeBuild.setBuildDate(date1);
             genomeBuild.setIdOrganism(o.getIdOrganism());
 
             sess.save(genomeBuild);
             sess.flush();
             genomeBuildMap.put(genomeBuild.getIdGenomeBuild(), null);
+            
             
             
             
@@ -192,9 +210,15 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
     o.setMageOntologyDefinition(organismScreen.getMageOntologyDefinition());
     o.setIsActive(organismScreen.getIsActive());
     o.setIdAppUser(organismScreen.getIdAppUser());
+
+//    o.setDas2Name(organismScreen.getDas2Name());
+//    o.setBinomialName(organismScreen.getBinomialName());
+//    o.setNCBITaxID(organismScreen.getNCBITaxID());
+
     o.setBinomialName(organismScreen.getBinomialName());
     o.setNcbiTaxID(organismScreen.getNcbiTaxID());
     o.setDas2Name(organismScreen.getDas2Name());
+
   }
   
   
