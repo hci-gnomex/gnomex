@@ -2,17 +2,13 @@ package hci.gnomex.controller;
 
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AppUserComparator;
 import hci.gnomex.utility.BulkFileUploadException;
@@ -26,13 +22,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -45,10 +37,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -59,14 +52,7 @@ import com.oreilly.servlet.multipart.Part;
 
 public class UploadDataTrackFileServlet extends HttpServlet {
   
-  private Integer idDataTrack = null;
-  private DataTrack dataTrack = null;
 
-  private String dataTrackName = null;
-  private String codeVisibility = null;
-  private Integer idGenomeBuild = null;
-  private Integer idDataTrackFolder = null;
-  private Integer idLab = null;
 
   private String fileName = null;
   private  StringBuffer bypassedFiles = new StringBuffer();
@@ -94,9 +80,22 @@ public class UploadDataTrackFileServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     Session sess = null;
+    Transaction tx = null;
+    
+    Integer idDataTrack = null;
+    DataTrack dataTrack = null;
+    String dataTrackName = null;
+    String codeVisibility = null;
+    Integer idGenomeBuild = null;
+    Integer idDataTrackFolder = null;
+    Integer idLab = null;
+    
     try {
       sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      tx = sess.beginTransaction();
+      tx.begin();
       
+     
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
@@ -127,7 +126,6 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       }
       
       if (secAdvisor.getIsGuest().equals("Y")) {
-        res.setStatus(Constants.ERROR_CODE_INSUFFICIENT_PERMISSIONS);
         throw new Exception("Insufficient permissions to upload data.");
       }
 
@@ -180,10 +178,13 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 
         // Make sure that name doesn't have forward slashes (/) or &.
         if (dataTrackName.contains("/") || dataTrackName.contains("&")) {
-          res.setStatus(Constants.ERROR_CODE_INVALID_NAME);
           throw new Exception("The dataTrack name cannnot contain characters / or &.");
         }
-        dataTrack = createNewDataTrack(sess, dataTrackName, codeVisibility, idGenomeBuild, idDataTrackFolder.intValue() == -99 ? null : idDataTrackFolder, idLab.intValue() == -99 ? null : idLab);
+        dataTrack = createNewDataTrack(sess, dataTrackName, 
+            codeVisibility, 
+            idGenomeBuild, 
+            idDataTrackFolder != null && idDataTrackFolder.intValue() == -99 ? null : idDataTrackFolder, 
+            idLab != null && idLab.intValue() == -99 ? null : idLab);
         sess.flush();       
       }
       
@@ -192,7 +193,6 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       }
       
       if (!secAdvisor.canUpdate(dataTrack)) {
-        res.setStatus(Constants.ERROR_CODE_INSUFFICIENT_PERMISSIONS);
         throw new Exception("Insufficient permissions to write to data track");
       }
 
@@ -240,7 +240,6 @@ public class UploadDataTrackFileServlet extends HttpServlet {
           // Is this a valid file extension?
           if (!DataTrackUtil.isValidDataTrackFileType(fileName)) {
             String message = "Bypassing upload of dataTrack file  " + fileName + " for dataTrack " + dataTrack.getName() + ".  Unsupported file extension.";        
-            res.setStatus(Constants.ERROR_CODE_UNSUPPORTED_FILE_TYPE);
             throw new Exception(message);
           }
 
@@ -249,7 +248,6 @@ public class UploadDataTrackFileServlet extends HttpServlet {
             GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
             if (!DataTrackUtil.fileHasSegmentName(fileName, genomeBuild)) {
               String message = "Bypassing upload of dataTrack file  " + fileName + " for dataTrack " + dataTrack.getName() + ".  File name is invalid because it does not start with a valid segment name.";                   
-              res.setStatus(Constants.ERROR_CODE_INCORRECT_FILENAME);
               throw new Exception(message);
             }
           }
@@ -263,19 +261,21 @@ public class UploadDataTrackFileServlet extends HttpServlet {
               if (!file.delete()) {
                 Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete file " + file.getName() + ".");
               }
-              res.setStatus(Constants.ERROR_CODE_FILE_TOO_BIG);
               throw new Exception("Aborting upload, text formatted dataTrack file '" + dataTrack.getName() + " exceeds the maximum allowed size ("+
                   Constants.MAXIMUM_NUMBER_TEXT_FILE_LINES+" lines). Convert to xxx.useq (see http://useq.sourceforge.net/useqArchiveFormat.html) or other binary form (xxx.bar).");
             }
             // bam file? check if it is sorted and can be read
             if (fileName.toUpperCase().endsWith(".BAM")) {
-              String error = DataTrackUtil.checkBamFile(file);
-              if (error != null ) {
-                if (!file.delete()) {
-                  Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete file " + file.getName() + ".");
+              try {
+                String error = DataTrackUtil.checkBamFile(file);
+                if (error != null ) {
+                  if (!file.delete()) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete file " + file.getName() + ".");
+                  }
+                  throw new Exception("Errors found with bam file -> "+fileName+". Aborting upload. "+error);
                 }
-                res.setStatus(Constants.ERROR_CODE_MALFORMED_BAM_FILE);
-                throw new Exception("Errors found with bam file -> "+fileName+". Aborting upload. "+error);
+              } catch (Exception e) {
+                throw new Exception("Bypassing upload of BAM file " + file.getName() + ". Unexpected error encountered " + e.toString());
               }
             }
           }
@@ -283,9 +283,32 @@ public class UploadDataTrackFileServlet extends HttpServlet {
         }
       }
       sess.flush();
+      tx.commit();
+      
+      Document doc = DocumentHelper.createDocument();
+      Element root = doc.addElement("SUCCESS");
+      root.addAttribute("idDataTrack", dataTrack.getIdDataTrack().toString());
+      root.addAttribute("idDataTrackFolder", idDataTrackFolder.toString());
+      root.addAttribute("idGenomeBuild", idGenomeBuild.toString());
+      XMLWriter writer = new XMLWriter(res.getOutputStream(), OutputFormat.createCompactFormat());
+      writer.write(doc);
+
     } catch (Exception e) {
       Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
       e.printStackTrace();
+      // TODO: Figure out auto-commit setting that prevents rollback
+      // not sure we want to rollback anyways....
+      //tx.rollback();
+      sess.flush();
+      tx.commit();
+      res.addHeader("message", e.getMessage());
+      Document doc = DocumentHelper.createDocument();
+      Element root = doc.addElement("ERROR");
+      root.addAttribute("message", e.getMessage());
+      XMLWriter writer = new XMLWriter(res.getOutputStream(), OutputFormat.createCompactFormat());
+      writer.write(doc);  
+      
+      
     } finally {
       if (tempBulkUploadFile != null && tempBulkUploadFile.exists()) tempBulkUploadFile.delete();
       if (sess != null) {
@@ -294,6 +317,8 @@ public class UploadDataTrackFileServlet extends HttpServlet {
         } catch (Exception e) {
         }
       }
+      res.setHeader("Cache-Control", "max-age=0, must-revalidate");
+
     }
   }
   private DataTrack createNewDataTrack(Session sess, String name, String codeVisibility, Integer idGenomeBuild, Integer idDataTrackFolder,  Integer idLab) throws Exception {
@@ -351,20 +376,20 @@ public class UploadDataTrackFileServlet extends HttpServlet {
   }
   private DataTrackFolder getDefaultDataTrackFolder(DataTrack sourceDataTrack, Session sess, Integer idDataTrackFolder) throws Exception{   
     // Get the folder this dataTrack is in.
-    DataTrackFolder ag = null;
+    DataTrackFolder folder = null;
     if (idDataTrackFolder == null || idDataTrackFolder.intValue() == -99) {
       // If this is a root dataTrack, find the default root dataTrack
       // folder for the genome version.
       GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, sourceDataTrack.getIdGenomeBuild()));
-      ag = gv.getRootDataTrackFolder();
-      if (ag == null) {
+      folder = gv.getRootDataTrackFolder();
+      if (folder == null) {
         throw new Exception("Cannot find root folder for " + gv.getDas2Name());
       }
     } else {
       // Otherwise, find the folder passed in as a request parameter.      
-      ag = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
+      folder = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
     }
-    return ag;
+    return folder;
   }
 
   /**Reads in a tab delimited file (name, fullPathFileName, summary, description) describing new DataTrackFolders to be created using a sourceDataTrackFolder as a template.
@@ -571,7 +596,6 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 
     // Make sure the user can write this annotation 
     if (!this.secAdvisor.canUpdate(sourceDataTrack)) {
-      res.setStatus(Constants.ERROR_CODE_INSUFFICIENT_PERMISSIONS);
       throw new Exception("Insufficient permision to write annotation.");
     }
 

@@ -68,7 +68,7 @@ public class UploadDataTrackURLServlet extends HttpServlet {
         portNumber = ":" + portNumber;           
       }
 
-      String baseURL =  "http"+  "://"  + req.getServerName() + ":" + portNumber + req.getContextPath();
+      String baseURL =  "http"+  "://"  + req.getServerName()  + portNumber + req.getContextPath();
       String URL = baseURL + "/UploadDataTrackFileServlet.gx";
       // Encode session id in URL so that session maintains for upload servlet when called from
       // Flex upload component inside FireFox, Safari

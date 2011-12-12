@@ -45,6 +45,9 @@ public class DataTrackQuery implements Serializable {
 	private String             isVisibilityMembers = "Y";
 	private String             isVisibilityInstitute = "Y";
 	private String             isServerRefreshMode = "N";
+	private String             emphasizeText = "";
+	
+	private int                hitCount = 0;
 
     
 	private StringBuffer       queryBuf;
@@ -102,6 +105,7 @@ public class DataTrackQuery implements Serializable {
 		this.isVisibilityMembers = DataTrackUtil.getFlagParameter(req, "isVisibilityMembers");
 		this.isVisibilityInstitute = DataTrackUtil.getFlagParameter(req, "isVisibilityInstitute");
 		this.isVisibilityPublic = DataTrackUtil.getFlagParameter(req, "isVisibilityPublic");
+		this.emphasizeText = req.getParameter("emphasizeText");
 		
 		if (scopeLevel == null || scopeLevel.equals("")) {
 			scopeLevel = SecurityAdvisor.ALL_SCOPE_LEVEL;
@@ -322,8 +326,10 @@ public class DataTrackQuery implements Serializable {
 		// with populated genome builds (dataTracks or sequences) appear first
 		// in the list.
 
+		hitCount = 0;
 		fillOrganismNodes(root, dictionaryHelper, secAdvisor, true);
 		fillOrganismNodes(root, dictionaryHelper, secAdvisor, false);
+    root.addAttribute("hitCount", Integer.valueOf(hitCount).toString());
 
 		return doc;
 		
@@ -351,6 +357,7 @@ public class DataTrackQuery implements Serializable {
 			
 			organismNode = organism.getXML(secAdvisor).getRootElement();
 			organismNode.addAttribute("isPopulated", isPopulated ? "Y" : "N");
+			emphasizeMatch(organismNode);
 			root.add(organismNode);
 			
 			// For each genome build, build up hierarchy
@@ -367,6 +374,7 @@ public class DataTrackQuery implements Serializable {
 					// Indicate if the genome build has segments
 					List<Segment> segments = this.getSegments(organism, genomeBuild.getDas2Name());
 					genomeBuildNode.addAttribute("hasSegments", (segments != null && segments.size() > 0 ? "Y" : "N"));					
+					emphasizeMatch(genomeBuildNode);
 					
 					// Attach the genome build node
 					organismNode.add(genomeBuildNode);
@@ -398,6 +406,42 @@ public class DataTrackQuery implements Serializable {
 			
 		}
 		
+	}
+	
+	private void emphasizeMatch(Element node) {
+	  boolean emphasize = false;
+	  if (emphasizeText != null && !emphasizeText.equals("")) {
+	    emphasize = isMatch(node, "label");
+	    if (!emphasize) {
+	      if (node.getName().equals("Organism")) {
+          emphasize = isMatch(node, "commonName");
+        } else if (node.getName().equals("GenomeBuild")) {
+          emphasize = isMatch(node, "genomeBuildName");
+        } else if (node.getName().equals("DataTrackFolder")) {
+          emphasize = isMatch(node, "description");
+        } else if (node.getName().equals("DataTrack")) {
+          emphasize = isMatch(node, "summary");
+          if (!emphasize) {
+            emphasize = isMatch(node, "description");
+          }
+        }	      
+	    }
+	    node.addAttribute("emphasize", emphasize ? "Y" : "N");
+	    if (emphasize) {
+	      hitCount++;
+	    }
+	  }
+	}
+	
+	private boolean isMatch(Element node, String attributeName) {
+	  if (node.attribute(attributeName) != null && node.attribute(attributeName).getValue() != null) {
+	    String value = node.attribute(attributeName).getValue();
+	    // The attribute matches the emphasize text if it is contained within its text. 
+	    // Match is case-insensitive.
+	    return value.toUpperCase().contains(emphasizeText.toUpperCase());
+	  } else {
+	    return false;
+	  }
 	}
 	
 	private boolean hasPopulatedGenomes(Organism organism) {
@@ -813,6 +857,7 @@ public class DataTrackQuery implements Serializable {
 					dtFolder = dataTrackFolderMap.get(idDataTrackFolder);
 					
 				    folderNode = dtFolder.getXML(secAdvisor, dictionaryHelper).getRootElement();
+				    emphasizeMatch(folderNode);
 				    parentNode.add(folderNode);
 					
 
@@ -835,6 +880,7 @@ public class DataTrackQuery implements Serializable {
 						
 						Element dtNode = dt.getXML(secAdvisor, dictionaryHelper, null).getRootElement();
 						dtNode.addAttribute("idDataTrackFolder", dtFolder != null ? dtFolder.getIdDataTrackFolder().toString() : "");	
+						emphasizeMatch(dtNode);
 						
 						folderNode.add(dtNode);
 

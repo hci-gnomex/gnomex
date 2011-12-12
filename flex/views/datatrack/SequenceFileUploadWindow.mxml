@@ -28,12 +28,12 @@
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
 	import mx.controls.Alert;
-	import views.util.MultiFileUpload;
+	import views.util.MultiFileUploadDataTrack;
 	
 	[Bindable]
 	public var genomeBuild:Object = null;
 
-	private var multiFileUpload:MultiFileUpload;
+	private var multiFileUpload:MultiFileUploadDataTrack;
     
 
 	public function init(genomeBuild:Object):void {
@@ -68,7 +68,7 @@
 	        var ff:FileFilter = new FileFilter("Sequence files (" + fileExtensions + ")", fileExtensions);
 			fileFilters.push(ff);
 			
-	        multiFileUpload = new MultiFileUpload(
+	        multiFileUpload = new MultiFileUploadDataTrack(
 	            this.uploadFilesGrid,
 	            this.uploadBrowseButton,
 	            this.uploadDeleteButton,
