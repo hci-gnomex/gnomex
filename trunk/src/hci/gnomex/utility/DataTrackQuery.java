@@ -13,14 +13,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
 
-import net.sf.hibernate.Hibernate;
+import javax.servlet.http.HttpServletRequest;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
