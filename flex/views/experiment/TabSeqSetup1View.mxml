@@ -58,12 +58,20 @@
        	public function propagateGenomeBuild():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.genomeBuildCombo.selectedItem != null) {
-					sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+					if(!alignCheckBox.selected) {
+						sample.@idGenomeBuildAlignTo = "";
+					} else {
+						sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;						
+					}
 				}
 			} 
 			for each (var lane:Object in parentDocument.lanes) {
 				if (this.genomeBuildCombo.selectedItem != null) {
-					lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+					if(!alignCheckBox.selected) {
+						lane.@idGenomeBuildAlignTo = "";
+					} else {
+						lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;						
+					}					
 				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);

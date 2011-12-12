@@ -2484,6 +2484,9 @@
 		}
 		
 		public function getMultiplexLanes():void {
+			if(this.isSolexaState()) {
+				this.seqSetup1View.propagateGenomeBuild();
+			}
 			initializeRequestXML();
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
