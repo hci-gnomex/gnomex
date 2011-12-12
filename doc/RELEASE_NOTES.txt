@@ -1,11 +1,15 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.5
 --------------------
-* Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment.
+* Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment
+* Introduced new GenoPub objects (DataTrack, DataTrackFolder, Segment, etc.) and user interface, marking the first phase of merging GenoPub functionality into GNomEx.
+* Tightened up hibernate code in SavePriceCategory in response to db lock that occurred in on production db server around 11:30 on Tuesday, Dec 6th.
 * Fixed bugs in connect code for DatasetExpirationCheckd, PendingWorkAuthd, and RegisterFiles.
 * Fixed problems with selected genome build not propagating to confirm view, printable experiment form, and confirmation email.
 * Fixed issue where actual customers were cc'd on request confirmation emails when system being tested.
+
 
 5.3.4 (11/29/2011)
 --------------------
