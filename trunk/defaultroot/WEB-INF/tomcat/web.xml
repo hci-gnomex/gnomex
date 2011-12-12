@@ -26,6 +26,13 @@
 		<servlet-name>CheckSessionStatus</servlet-name>
 	    <servlet-class>hci.gnomex.controller.CheckSessionStatus</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>ExperimentQueue</servlet-name>
+	    <display-name>ExperimentQueue</display-name>
+	    <description>The ExperimentQueue to check experiment status</description>
+	    <servlet-class>hci.gnomex.controller.ExperimentQueue</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -134,6 +141,20 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>UploadDataTrackFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadDataTrackFileServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadDataTrackURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadDataTrackURLServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadSampleSheetFileServlet
@@ -180,10 +201,14 @@
 		<url-pattern>*.gx</url-pattern>
 	</servlet-mapping>
 
-
 	<servlet-mapping>
 		<servlet-name>CheckSessionStatus</servlet-name>
 		<url-pattern>/CheckSessionStatus.gx</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+		<servlet-name>ExperimentQueue</servlet-name>
+		<url-pattern>/ExperimentQueue.gx</url-pattern>
 	</servlet-mapping>	
 
 	<servlet-mapping>
@@ -237,6 +262,11 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
+		<servlet-name>UploadDataTrackFileServlet</servlet-name>
+		<url-pattern>/UploadDataTrackFileServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
 		<url-pattern>/UploadSampleSheetFileServlet.gx</url-pattern>
 	</servlet-mapping>
@@ -252,6 +282,11 @@
 	</servlet-mapping>
 	
 	<servlet-mapping>
+		<servlet-name>UploadDataTrackURLServlet</servlet-name>
+		<url-pattern>/UploadDataTrackURLServlet.gx</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	
 		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
 		<url-pattern>/UploadSampleSheetURLServlet.gx</url-pattern>
 	</servlet-mapping>
@@ -312,7 +347,10 @@
 			<url-pattern>/DeleteAnalysis.gx</url-pattern>
 			<url-pattern>/DeleteAnalaysisGroup.gx</url-pattern>
 			<url-pattern>/DeleteAppUser.gx</url-pattern>
+			<url-pattern>/DeleteDataTrack.gx</url-pattern>
+			<url-pattern>/DeleteDataTrackList.gx</url-pattern>
 			<url-pattern>/DeleteExperimentPlatform.gx</url-pattern>
+			<url-pattern>/DeleteGenomeBuild.gx</url-pattern>
 			<url-pattern>/DeleteLab.gx</url-pattern>
 			<url-pattern>/DeleteOrganism.gx</url-pattern>
 			<url-pattern>/DeletePrice.gx</url-pattern>
@@ -325,12 +363,18 @@
 			<url-pattern>/DeleteSlideDesign.gx</url-pattern>
 			<url-pattern>/DeleteSlideSet.gx</url-pattern>
 			<url-pattern>/DeleteWorkItem.gx</url-pattern>
+			<url-pattern>/DuplicateDataTrack.gx</url-pattern>
+			<url-pattern>/MoveDataTrack.gx</url-pattern>
+			<url-pattern>/MoveDataTrackFolder.gx</url-pattern>
 			<url-pattern>/SaveAnalysis.gx</url-pattern>
 			<url-pattern>/SaveAnalaysisGroup.gx</url-pattern>
 			<url-pattern>/SaveAppUser.gx</url-pattern>
 			<url-pattern>/SaveBillingItemList.gx</url-pattern>
+			<url-pattern>/SaveDataTrack.gx</url-pattern>
+			<url-pattern>/SaveDataTrackList.gx</url-pattern>
 			<url-pattern>/SaveExperimentPlatform.gx</url-pattern>
 			<url-pattern>/SaveFlowCell.gx</url-pattern>
+			<url-pattern>/SaveGenomeBuild.gx</url-pattern>
 			<url-pattern>/SaveGroupMembership.gx</url-pattern>
 			<url-pattern>/SaveInstitution.gx</url-pattern>
 			<url-pattern>/SaveLab.gx</url-pattern>

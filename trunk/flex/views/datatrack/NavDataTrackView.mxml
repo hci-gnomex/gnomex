@@ -144,6 +144,7 @@
 	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
+	import mx.collections.XMLListCollection;
 	import mx.controls.Alert;
 	import mx.controls.Menu;
 	import mx.controls.ToolTip;
@@ -156,8 +157,8 @@
 	import mx.managers.PopUpManager;
 	import mx.managers.ToolTipManager;
 	import mx.rpc.events.ResultEvent;
+	
 	import views.renderers.TreeNodeRenderer;
-	import mx.collections.XMLListCollection;
 	
 	private static var alertButtonWidthDefault:Number = Alert.buttonWidth;
 	
@@ -251,9 +252,58 @@
 			}
 			dataTrackNumber = "";
 		}
+		
+		// If search text was entered, select the first tree node that matches
+		if (locateText.text != '' && locateText.text != 'enter search here...') {
+			selectEmphasizedTreeItem();
+			hitCount = getDataTrackList.lastResult.@hitCount;
+			this.locateStack.selectedIndex = 1;
+			
+			this.browseTree.validateNow();
+			
+			this.nextLocationButton.visible = hitCount > 0 ? true : false;
+			
+			// Show hit count in tooltip
+			var s:String = hitCount + " match" + (hitCount == 1 ? " found." : "es found.");
+			var globalPoint:Point  = this.locateText.contentToGlobal(new Point(this.locateText.x, this.locateText.y));
+			hitToolTip = ToolTipManager.createToolTip(s, this.locateText.x + 50, globalPoint.y + 22) as ToolTip;
+			
+			// destroy tooltip in 10 seconds
+			var minuteTimer:Timer = new Timer(1000, 5);
+			minuteTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onToolTipTimerComplete);
+			minuteTimer.start();
+		} else {
+			this.nextLocationButton.visible = false;
+		}
+
 
 		callLater(expandAppropriateNodes);    	
 		
+	}
+	
+	private function selectEmphasizedTreeItem():void {
+		for each(var o:Object in getDataTrackList.lastResult.Organism) {
+			var found:Boolean = selectEmphasizedNode(o);
+			if (found) {
+				break;
+			}
+		}	
+	}
+	
+	private function selectEmphasizedNode(node:Object):Boolean {
+		if (node.@emphasize == 'Y') {
+			treeItemToSelect = node;
+			return true;
+		} else {
+			var found:Boolean = false;
+			for each(var child:Object in node.children()) {
+				found = selectEmphasizedNode(child);
+				if (found) {
+					break;
+				}
+			}
+			return found;
+		}
 	}
 	
 	private function expandAppropriateNodes():void {
@@ -556,55 +606,25 @@
 		parms.isVisibilityInstitute = this.cbVisibilityInstitute.visible && this.cbVisibilityInstitute.selected ? "Y" : "N";
 	    parms.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@idOrganism : "";
 		parms.idGenomeBuild = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+		parms.emphasizeText = this.locateText.text == 'Enter search here... ' ? "" : this.locateText.text;;
 		
 		getDataTrackList.send(parms);
 	}
 	
-	private function locateByName():void {
-		//hitLabel.text = "";
-		hitCount = 0;
-		firstHitItem = null;
-		for each(var o:XML in getDataTrackList.lastResult..Organism) {
-			examine(o);			
-			for each(var gb:XML in o.GenomeBuild) {
-				examine(gb);
-				for each(var dt:XML in gb.DataTrack) {
-					examine(dt);
-				}
-				for each(var f:XML in gb..DataTrackFolder) {
-					examine(f);
-					for each(var dt1:XML in f.DataTrack) {
-						examine(dt1);
-					}
-				}					
-			}	
-		}
-		
-		browseTree.validateNow();
-		if (this.firstHitItem != null) {
-			browseTree.selectedItem = firstHitItem;
-			browseTree.scrollToIndex(browseTree.selectedIndex);
-			selectView();
-		}  else {
-			browseTree.selectedItem = null;
-		}
-		this.locateStack.selectedIndex = 1;
-		if (this.locateText.text != "") {
-			this.nextLocationButton.visible = hitCount > 0 ? true : false;
-			
-			// Show hit count in tooltip
-			var s:String = hitCount + " match" + (hitCount == 1 ? " found." : "es found.");
-			var globalPoint:Point  = this.locateText.contentToGlobal(new Point(this.locateText.x, this.locateText.y));
-			hitToolTip = ToolTipManager.createToolTip(s, this.locateText.x + 1, globalPoint.y + 22) as ToolTip;
-			
-			// destroy tooltip in 10 seconds
-			var minuteTimer:Timer = new Timer(1000, 3);
-			minuteTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onToolTipTimerComplete);
-			minuteTimer.start();
-		} else {
-			this.nextLocationButton.visible = false;
-		}
+	
+	private function selectLocateText():void {
+		if (locateText.text == 'Enter search here...') {
+			locateText.selectionBeginIndex = 0;
+			locateText.selectionEndIndex = locateText.text.length;
+		} 
 	}
+	private function locateByName():void {
+		if (locateText.text != 'Enter search here...' && locateText.text != '') {
+			refreshDataTracks();
+		} 
+	}
+	
+
 	
 	private function onToolTipTimerComplete(evt:TimerEvent):void
 	{
@@ -696,6 +716,7 @@
 		if (item.@emphasize == "Y" &&
 			this.browseTree.selectedItem != item &&
 			this.browseTree.selectedIndex < currentIndex) {
+			recurseExpandParent(item);	
 			browseTree.selectedItem = item;
 			browseTree.scrollToIndex(browseTree.selectedIndex);
 			selectView();
@@ -703,45 +724,6 @@
 		} else {
 			return false;
 		}			
-	}
-	
-	private function examine(item:XML):void {
-		item.@currentHit = "N";
-		if (this.locateText.text == "") {
-			firstHitItem = null;
-			item.@emphasize = "N";
-		} else {
-			examineAttribute(item, item.@label);
-			if (item.@emphasize != "Y") {
-				if (item.name() == "Organism") {
-					examineAttribute(item, item.@commonName);
-				} else if (item.name() == "GenomeBuild") {
-					examineAttribute(item, item.@name);
-				} else if (item.name() == "DataTrackFolder") {
-					examineAttribute(item, item.@description);
-				} else if (item.name() == "DataTrack") {
-					examineAttribute(item, item.@summary);
-					if (item.@emphasize != "Y") {
-						examineAttribute(item, item.@description);
-					}
-				}
-			}
-		}
-		
-		
-	}
-	
-	private function examineAttribute(item:XML, attribute:String):void {
-		if (attribute.toUpperCase().indexOf(this.locateText.text.toUpperCase()) > -1 ) {
-			if (firstHitItem == null) {
-				firstHitItem = item;
-			}
-			item.@emphasize = "Y";
-			hitCount++;
-			recurseExpandParent(item);		
-		} else {
-			item.@emphasize = "N";
-		}
 	}
 	
 	
@@ -1448,7 +1430,7 @@
 	}
 	
 	private function showAddDataTrackWindow():void {
-		var aWindow:DataTrackAddWindow = DataTrackAddWindow(PopUpManager.createPopUp(parentApplication.mainArea, DataTrackAddWindow, true));
+		var aWindow:DataTrackAddWindow = DataTrackAddWindow(PopUpManager.createPopUp(parentApplication.theBody, DataTrackAddWindow, true));
 		PopUpManager.centerPopUp(aWindow);
 		var gb:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
 		var folder:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
@@ -1596,7 +1578,7 @@
 				<mx:VRule height="20" id="vrule1" width="2"/>
 				<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
 							   icon="@Embed(source='../../assets/refresh.png')" 
-							   click="{treeItemToSelect=null;refreshDataTracks()}" id="linkbutton8"/>
+							   click="{treeItemToSelect=null;locateText.text='enter search here...';refreshDataTracks()}" id="linkbutton8"/>
 				
 				<mx:VRule height="20" id="vrule2" width="2"
 						  visible="{currentState != 'GuestState'}"
@@ -1663,11 +1645,13 @@
 		<mx:VBox styleName="panelBox"   width="320" height="100%" id="navPanel" >
 			<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Data Tracks">
 				<mx:HBox width="100%" horizontalGap="0" paddingLeft="2" paddingBottom="2" verticalAlign="middle">
-					<mx:TextInput id="locateText"  width="100%"  enter="locateByName()" change="{this.locateStack.selectedIndex = 0}" styleName="menuLabelSmall" height="20"/>
+					<mx:TextInput id="locateText" text="Enter search here..." width="100%"  enter="locateByName()" 
+								  click="{selectLocateText()}"
+								  change="{this.locateStack.selectedIndex = 0}" styleName="menuLabelSmall" height="20"/>
 					<mx:ViewStack id="locateStack" >
 						<mx:HBox paddingLeft="2">
 							<mx:LinkButton label="Find"   width="90" paddingLeft="1" enabled="{locateText.text != ''}" 
-										   id="findLocationButton" styleName="linkMenuButton" click="this.locateByName()" textAlign="left" icon="@Embed(source='../../assets/magnifier.png')"/>
+										   id="findLocationButton" styleName="linkMenuButton" click="locateByName()" textAlign="left" icon="@Embed(source='../../assets/magnifier.png')"/>
 						</mx:HBox>
 						<mx:HBox>
 							<mx:LinkButton label="Next match" width="90"  paddingLeft="1" visible="true" 

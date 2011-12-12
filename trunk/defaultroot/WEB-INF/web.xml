@@ -136,6 +136,20 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>UploadDataTrackFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadDataTrackFileServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadDataTrackURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadDataTrackURLServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadSampleSheetFileServlet
@@ -243,6 +257,11 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
+		<servlet-name>UploadDataTrackFileServlet</servlet-name>
+		<url-pattern>UploadDataTrackFileServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
 		<url-pattern>UploadSampleSheetFileServlet.gx</url-pattern>
 	</servlet-mapping>
@@ -258,6 +277,11 @@
 	</servlet-mapping>
 	
 	<servlet-mapping>
+		<servlet-name>UploadDataTrackURLServlet</servlet-name>
+		<url-pattern>UploadDataTrackURLServlet.gx</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	
 		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
 		<url-pattern>UploadSampleSheetURLServlet.gx</url-pattern>
 	</servlet-mapping>
@@ -310,6 +334,7 @@
 			<url-pattern>Delete*.gx</url-pattern>
 			<url-pattern>Save*.gx</url-pattern>
 			<url-pattern>SubmitWorkAuthForm.gx</url-pattern>
+			<url-pattern>DuplicateDataTrack.gx</url-pattern>
 			<url-pattern>GenerateUserAccountEmail.gx</url-pattern>
 			<url-pattern>GetAppUser.gx</url-pattern>
 			<url-pattern>GetAnalysisLabList.gx</url-pattern>
@@ -320,6 +345,8 @@
 			<url-pattern>GetWorkItemList.gx</url-pattern>
 			<url-pattern>GetUsageData.gx</url-pattern>
 			<url-pattern>MovePriceCategory.gx</url-pattern>
+			<url-pattern>MoveDataTrack.gx</url-pattern>
+			<url-pattern>MoveDataTrackFolder.gx</url-pattern>
 			<url-pattern>OrganizeExperimentUploadFiles.gx</url-pattern>
 			<url-pattern>Reassign*.gx</url-pattern>
 			<url-pattern>ShowAnalysisDownloadForm.gx</url-pattern>
@@ -330,6 +357,7 @@
 			<url-pattern>ShowRequestDownloadForm.gx</url-pattern>
 			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
+			<url-pattern>UploadDataTrackFileServlet.gx</url-pattern>
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>			
 			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	

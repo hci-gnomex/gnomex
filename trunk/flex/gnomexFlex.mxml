@@ -198,6 +198,7 @@
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.CursorManager;
+			import mx.managers.CursorManagerPriority;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -223,7 +224,8 @@
 			
 			private var userPublicView:UserPublicView;
 			
-            
+			private var cursorID:Number = 0;
+
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
 	        public var iconCheck:Class;
@@ -1837,6 +1839,16 @@
 		public function showUploadDownloadHints():void {
 			var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this.mainArea, DownloadHints, true));
 			PopUpManager.centerPopUp(hints);			 		
+		}
+			
+		public function busy():void {
+			cursorID=CursorManager.setCursor(
+				StyleManager.getStyleDeclaration("CursorManager").getStyle("busyCursor"),
+				CursorManagerPriority.HIGH);
+		}
+			
+		public function notBusy():void {
+			CursorManager.removeCursor(cursorID);
 		}
 
         ]]>

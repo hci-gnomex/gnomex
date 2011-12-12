@@ -28,7 +28,7 @@
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
 	import mx.controls.Alert;
-	import views.util.MultiFileUpload;
+	import views.util.MultiFileUploadDataTrack;
 
 	
 	[Bindable]
@@ -38,7 +38,7 @@
 	[Bindable]
 	public var dataTrackName:Object = null;
 
-	private var multiFileUpload:MultiFileUpload;
+	private var multiFileUpload:MultiFileUploadDataTrack;
     
 
 	public function init():void {
@@ -74,7 +74,7 @@
 	        var ff:FileFilter = new FileFilter("Genomic datasets (" + fileExtensions + ")", fileExtensions);
 			fileFilters.push(ff);
 	        
-	        multiFileUpload = new MultiFileUpload(
+	        multiFileUpload = new MultiFileUploadDataTrack(
 	            this.uploadFilesGrid,
 	            this.uploadBrowseButton,
 	            this.uploadDeleteButton,

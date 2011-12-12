@@ -345,6 +345,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
     // Assign a file directory name
     dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
+    sess.flush();
 
     return dataTrack;
 
