@@ -236,11 +236,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           labelMap.put(l.getLabel(), l.getIdLabel());
         }
               
-        try {
         // save request
         saveRequest(requestParser.getRequest(), sess);
         
-     // Remove files from file system
+        // Remove files from file system
         if (filesToRemoveParser != null) {
           for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
             String fileName = (String)i.next();
@@ -700,6 +699,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         
+        String emailErrorMessage = sendEmails(sess);
        
 
         this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + 
@@ -708,59 +708,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
              "\" deleteHybCount=\"" + this.hybsDeleted.size() +
              "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +             
              "\" billingAccountMessage = \"" + billingAccountMessage +
+             "\" emailErrorMessage = \"" + emailErrorMessage +
              "\"/>";
-        } catch (Exception e1) {
-          log.error("An exception has occurred in SaveRequest ", e1);
-          e1.printStackTrace();
-          throw new RollBackCommandException(e1.getMessage());
-        }
-        
-        if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
-          sess.refresh(requestParser.getRequest());
-          if (requestParser.getRequest().getAppUser() != null
-              && requestParser.getRequest().getAppUser().getEmail() != null
-              && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
-            try {
-              sendConfirmationEmail(sess);
-            } catch (Exception e) {
-              log.error("Unable to send confirmation email notifying submitter that request "
-                  + requestParser.getRequest().getNumber()
-                  + " has been submitted.  " + e.toString());
-            }
-          } else {
-            log.error("Unable to send confirmation email notifying submitter that request "
-                    + requestParser.getRequest().getNumber()
-                    + " has been submitted.  Request submitter or request submitter email is blank.");
-          }
-          if(this.totalPrice.length() > 0) {
-            Lab lab = requestParser.getRequest().getLab();
-            String billedAccountName = requestParser.getRequest().getBillingAccountName();
-            String contactEmail = lab.getContactEmail();
-            String ccEmail = "";
-            for(Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
-              AppUser manager = (AppUser)i1.next();
-              if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
-                if(manager.getEmail() != null) {
-                  ccEmail = ccEmail + manager.getEmail() + ", ";
-                } 
-              }
-            } 
-            if((contactEmail != null && contactEmail.length() > 0) || ccEmail.length() > 0) {        
-              try {
-                sendTotalPriceEmail(sess, contactEmail, ccEmail, billedAccountName);
-              } catch (Exception e) {
-                log.error("Unable to send estimated charges notification for request "
-                    + requestParser.getRequest().getNumber()
-                    + "  " + e.toString());
-              }
-            } else {
-              log.error("Unable to send estimated charges notification for request "
-                  + requestParser.getRequest().getNumber()
-                  + " has been submitted.  Contact or lab manager(s) email is blank.");
-            }              
-          }
-        }        
+      
       }
+        
     
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
@@ -768,11 +720,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
       
-    }catch (Exception e){
+    } catch (Exception e){
       log.error("An exception has occurred while emailing in SaveRequest ", e);
       e.printStackTrace();
-        
-    }finally {
+      throw new RollBackCommandException(e.toString());      
+    } finally {
       try {
        
         if (sess != null) {
@@ -784,6 +736,66 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+    
+  private String sendEmails(Session sess) {
+    
+    StringBuffer message = new StringBuffer();
+    if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
+      sess.refresh(requestParser.getRequest());
+      if (requestParser.getRequest().getAppUser() != null
+          && requestParser.getRequest().getAppUser().getEmail() != null
+          && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
+        try {
+          sendConfirmationEmail(sess);
+        } catch (Exception e) {
+          String msg = "Unable to send confirmation email notifying submitter that request "
+            + requestParser.getRequest().getNumber()
+            + " has been submitted.  " + e.toString();
+          log.error(msg);
+          message.append(msg + "\n");
+        }
+      } else {
+        String msg = ( "Unable to send confirmation email notifying submitter that request "
+                + requestParser.getRequest().getNumber()
+                + " has been submitted.  Request submitter or request submitter email is blank.");
+        log.error(msg);
+        message.append(msg + "\n");
+      }
+      if (this.totalPrice.length() > 0) {
+        Lab lab = requestParser.getRequest().getLab();
+        String billedAccountName = requestParser.getRequest().getBillingAccountName();
+        String contactEmail = lab.getContactEmail();
+        String ccEmail = "";
+        for(Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
+          AppUser manager = (AppUser)i1.next();
+          if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
+            if(manager.getEmail() != null) {
+              ccEmail = ccEmail + manager.getEmail() + ", ";
+            } 
+          }
+        } 
+        if((contactEmail != null && contactEmail.length() > 0) || ccEmail.length() > 0) {        
+          try {
+            sendTotalPriceEmail(sess, contactEmail, ccEmail, billedAccountName);
+          } catch (Exception e) {
+            String msg = "Unable to send estimated charges notification for request "
+                + requestParser.getRequest().getNumber()
+                + "  " + e.toString();
+            log.error(msg);
+            message.append(msg + "\n");
+          }
+        } else {
+          String msg = "Unable to send estimated charges notification for request "
+              + requestParser.getRequest().getNumber()
+              + " has been submitted.  Contact or lab manager(s) email is blank.";
+          log.error(msg);
+          message.append(msg + "\n");
+        }              
+      }
+    }        
+    return message.toString();
+    
   }
   
   private void validateCCNumbers() {
