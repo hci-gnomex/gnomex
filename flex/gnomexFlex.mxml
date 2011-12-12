@@ -715,9 +715,9 @@
 			private function lookupExperiment():void {
 				var number:String = requestNumber.text;
 				number = number.toUpperCase();
-				if (number.indexOf("DT") == 0) {
+				/*if (number.indexOf("DT") == 0) {
 					this.showDataTrackForNumber(number);				
-				} else if (number.indexOf("A") == 0) {
+				} else */if (number.indexOf("A") == 0) {
 					this.showAnalysisForNumber(number);				
 				} else {
 					showExperiment(number);
@@ -848,6 +848,7 @@
 				
 			}
 			
+			/*
 			public function showDataTrackForNumber(dataTrackNumber:String):void {
 				navDataTrackView.dataTrackNumber = dataTrackNumber;
 				
@@ -865,6 +866,7 @@
 				theViews.selectedChild = navDataTrackView;
 				
 			}
+			*/
 
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
@@ -1344,7 +1346,7 @@
  
             public function onDictionariesLoaded(event:Event):void {
             	properties = new Object();
-            	for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.Property")) {
+            	for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
             		if (prop.@value == '') {
             			continue; 
             		}
@@ -1959,8 +1961,8 @@
 				        	icon="@Embed('assets/map.png')">
 				        </analysis:NavAnalysisView>
 						
-						<datatrack:NavDataTrackView id="navDataTrackView" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
-						</datatrack:NavDataTrackView>
+<!--						<datatrack:NavDataTrackView id="navDataTrackView" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
+						</datatrack:NavDataTrackView>-->
 			
 				        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 				        </workflow:NavWorkflowView> 

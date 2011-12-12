@@ -55,12 +55,7 @@
 						
 		public function addSample():void {
 			var emptyNode:XML = null;
-			var idOrganism:String = "";
-			if (parentDocument.setupView.sampleOrganismCombo != null && parentDocument.setupView.sampleOrganismCombo.selectedItem != null) {
-				idOrganism = parentDocument.setupView.sampleOrganismCombo.selectedItem.@value;
-			} else if (parentDocument.setupView.sampleOrganismCombo1 != null && parentDocument.setupView.sampleOrganismCombo1.selectedItem != null) {
-				idOrganism = parentDocument.setupView.sampleOrganismCombo1.selectedItem.@value;
-			}
+			var idOrganism:String = parentDocument.setupView.getIdOrganism();
 			if (parentDocument.isSolexaState()) {
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
@@ -694,6 +689,10 @@
 			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idOrganism = idOrganism;
+				}
+			} else if (!parentApplication.submitInternalExperiment()) {
+				for each (var s:Object in parentDocument.samples) {
+					s.@idOrganism = idOrganism;
 				}
 			}
 		}

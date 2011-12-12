@@ -119,7 +119,7 @@
           <mx:SetProperty target="{label11}" name="width" value="160"/>	  
 		  <mx:AddChild relativeTo="{label1}" position="before">
 			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
-				  <mx:Text text="Organism" width="200" id="labelOrg1"/>
+				  <mx:Text text="Organism" width="160" id="labelOrg1"/>
 				  <mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" change="pickOrganism()">							
 					  <mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 					  <mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -558,19 +558,16 @@
 				} else {
 					// For external experiments, check the app radio button group and optionally the microarray slide
 					if (this.getApp() != '' && getApp() != null) {
-						if (currentState.indexOf("Microarray") > 0) {
-							if (getSlideProductCombo().selectedItem != null && getSlideProductCombo().selectedItem.@idSlideProduct != '') {
+						if (hasOrganism()) {
+							if (currentState.indexOf("Microarray") > 0) {
+								if (getSlideProductCombo().selectedItem != null && getSlideProductCombo().selectedItem.@idSlideProduct != '') {
+									isComplete = true;
+								}
+							} else {
 								isComplete = true;
 							}
-						} else {
-							isComplete = true;
+							
 						}
-					}
-					// Also check for selection of Organism
-					if(!isComplete && hasOrganism()) {
-						isComplete = true;
-					} else if (!hasOrganism()) {
-						isComplete = false;
 					}
 				}
         	} 
@@ -609,16 +606,24 @@
         }
 		
 		private function hasOrganism():Boolean {
-			if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
-				return true;
-			} else if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' && this.sampleOrganismCombo.selectedItem.@display != 'Other') {
-				return true;
-			} else if (this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@display == 'Other' && this.otherOrganism1.text != '') {
-				return true;
-			} else if (this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@value != '' && this.sampleOrganismCombo1.selectedItem.@display != 'Other') {
-				return true;
+			if (currentState == 'AdminExternalExperimentState' || currentState == 'AdminExternalMicroarrayState') {
+				return (this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@value != '') ||
+					(this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@display == 'Other' && this.otherOrganism1.text != '');				
+			} else if (currentState == 'ExternalExperimentState' || currentState == 'ExternalMicroarrayState') {
+				return (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '') ||
+					(this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '');				
 			} else {
 				return false;
+			}
+		}
+		
+		public function getIdOrganism():Object {
+			if (currentState == 'AdminExternalExperimentState' || currentState == 'AdminExternalMicroarrayState') {
+				return this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null ? this.sampleOrganismCombo1.selectedItem.@value : '';				
+			} else if (currentState == 'ExternalExperimentState' || currentState == 'ExternalMicroarrayState') {
+				return this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null ? this.sampleOrganismCombo.selectedItem.@value : '';				
+			} else {
+				return '';
 			}
 		}
         
@@ -753,7 +758,7 @@
 				//parentDocument.annotationView.onPropertyRefreshed(null);
 			}
 			*/
-			
+			parentDocument.samplesView.propagateOrganism(this.getIdOrganism());
 
 			checkSetupCompleteness();
 		} 
