@@ -372,7 +372,7 @@
 		      swf="${flexapp.name}"
 		      version-major="9"
 		      version-minor="0"
-		      version-revision="0"
+		      version-revision="28"
 		      history="false"
 		      template="express-installation"
 		      output="${build.dir}"/>
