@@ -1487,6 +1487,9 @@ CREATE TABLE `gnomex`.`Property` (
   `isActive` CHAR(1) NULL,
   `idAppUser` INT(10) NULL,
   `isRequired` CHAR(1) NULL,
+  `forSample` CHAR(1) NULL default 'Y',
+  `forAnalysis` CHAR(1) NULL default 'N',
+  `forDataTrack` CHAR(1) NULL default 'N',
   codePropertyType VARCHAR(10) not null,
   PRIMARY KEY (`idProperty`),
   CONSTRAINT `FK_Property_AppUser` FOREIGN KEY `FK_Property_AppUser` (`idAppUser`)
