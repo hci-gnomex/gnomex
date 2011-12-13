@@ -122,6 +122,7 @@ alter table PropertyEntryOption add
 rename table SampleCharacteristicEntryValue to PropertyEntryValue;
 alter table PropertyEntryValue drop key FK_SampleCharacteristicEntryValue_SampleCharacteristicEntry;
 alter table PropertyEntryValue change idSampleCharacteristicEntryValue idPropertyEntryValue int(10) auto_increment not null;
+alter table PropertyEntryValue change idSampleCharacteristicEntry idPropertyEntry int(10) not null;
 alter table PropertyEntryValue add
  CONSTRAINT FK_PropertyEntryValue_PropertyEntry FOREIGN KEY FK_PropertyEntryValue_PropertyEntry (idPropertyEntry)
     REFERENCES gnomex.PropertyEntry (idPropertyEntry)
@@ -157,7 +158,7 @@ DROP TABLE IF EXISTS `GenomeBuildAlias`;
 CREATE TABLE `GenomeBuildAlias` (
   `idGenomeBuildAlias` int(10) unsigned NOT NULL auto_increment,
   `alias` varchar(100) NOT NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   PRIMARY KEY  (`idGenomeBuildAlias`),
   KEY `FK_GenomeBuildAlias_GenomeBuild` (`idGenomeBuild`),
   CONSTRAINT `FK_GenomeBuildAlias_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`)
@@ -176,8 +177,8 @@ CREATE TABLE `Segment` (
   `idSegment` int(10) unsigned NOT NULL auto_increment,
   `length` int(10) unsigned NOT NULL,
   `name` varchar(100) NOT NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
-  `sortOrder` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
+  `sortOrder` int(10)  NOT NULL,
   PRIMARY KEY  (`idSegment`),
   KEY `FK_Segment_GenomeBuild` (`idGenomeBuild`),
   CONSTRAINT `FK_Segment_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`)
