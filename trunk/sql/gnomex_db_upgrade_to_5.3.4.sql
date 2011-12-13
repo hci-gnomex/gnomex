@@ -295,3 +295,9 @@ CONSTRAINT `FK_PropertyEntry_DataTrack` FOREIGN KEY `FK_PropertyEntry_DataTrack`
     REFERENCES DataTrack (`idDataTrack`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+    
+    
+-- Add columns to Property
+alter table Property add column forSample char(1) default 'Y';
+alter table Property add column forAnalyis char(1) default 'N';
+alter table Property add column forDataTrack char(1) default 'N';
