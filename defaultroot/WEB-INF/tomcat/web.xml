@@ -87,7 +87,13 @@
 		</servlet-class>
 	</servlet>
 	
-
+	<servlet>
+		<servlet-name>FastDataTransferDownloadDataTRackServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.FastDataTransferDownloadDownloadServlet
+		</servlet-class>
+	</servlet>
+	
 	<servlet>
 		<servlet-name>FastDataTransferDownloadAnalysisServlet</servlet-name>
 		<servlet-class>
@@ -127,6 +133,13 @@
 
 
 	<servlet>
+		<servlet-name>DownloadDataTrackFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.DownloadDataTrackFileServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadAnalysisFileServlet
@@ -153,6 +166,21 @@
 			hci.gnomex.controller.UploadDataTrackURLServlet
 		</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadSequenceFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadSequenceFileServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadSequenceURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadSequenceURLServlet
+		</servlet-class>
+	</servlet>
+	
 
 	<servlet>
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
@@ -222,6 +250,11 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
+		<servlet-name>DownloadDataTrackFileServlet</servlet-name>
+		<url-pattern>/DownloadDataTrackFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>DownloadFileServlet</servlet-name>
 		<url-pattern>/DownloadFileServlet.gx</url-pattern>
 	</servlet-mapping>
@@ -236,6 +269,11 @@
 		<url-pattern>/FastDataTransferDownloadAnalysisServlet.gx</url-pattern>
 	</servlet-mapping>
 	
+	<servlet-mapping>
+		<servlet-name>FastDataTransferDownloadDataTrackServlet</servlet-name>
+		<url-pattern>/FastDataTransferDownloadDataTrackServlet.gx</url-pattern>
+	</servlet-mapping>
+
 	<servlet-mapping>
 		<servlet-name>FastDataTransferUploadGetJnlpServlet</servlet-name>
 		<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>
@@ -264,6 +302,16 @@
 	<servlet-mapping>
 		<servlet-name>UploadDataTrackFileServlet</servlet-name>
 		<url-pattern>/UploadDataTrackFileServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadSequenceFileServlet</servlet-name>
+		<url-pattern>/UploadSequenceFileServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadSequenceURLServlet</servlet-name>
+		<url-pattern>/UploadSequenceURLServlet.gx</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>
@@ -364,6 +412,7 @@
 			<url-pattern>/DeleteSlideSet.gx</url-pattern>
 			<url-pattern>/DeleteWorkItem.gx</url-pattern>
 			<url-pattern>/DuplicateDataTrack.gx</url-pattern>
+			<url-pattern>/ImportSegments.gx</url-pattern>
 			<url-pattern>/MoveDataTrack.gx</url-pattern>
 			<url-pattern>/MoveDataTrackFolder.gx</url-pattern>
 			<url-pattern>/SaveAnalysis.gx</url-pattern>
@@ -427,6 +476,8 @@
 			<url-pattern>/ShowBillingTotalByLabReport.gx</url-pattern>
 			<url-pattern>/ShowRequestDownloadForm.gx</url-pattern>
 			<url-pattern>/SplitBillingAccounts.gx</url-pattern>
+			<url-pattern>/UploadDataTrackFileServlet.gx</url-pattern>
+			<url-pattern>/UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>/UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAndBroadcastEmailServlet</url-pattern>			

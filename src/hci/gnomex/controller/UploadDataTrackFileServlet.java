@@ -102,7 +102,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       // Get security advisor
       secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
       if (secAdvisor == null) {
-        System.out.println("UploadAnalysisFileServlet:  Warning - unable to find existing session. Creating security advisor.");
+        System.out.println("UploadDataTrackFileServlet:  Warning - unable to find existing session. Creating security advisor.");
         secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
       }
       
@@ -121,7 +121,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       // data with an active session and rejects the data, thus failing the upload.
       //
       if (secAdvisor == null) {
-        System.out.println("UploadAnalysisFileServlet: Error - Unable to find or create security advisor.");
+        System.out.println("UploadDataTrackFileServlet: Error - Unable to find or create security advisor.");
         throw new ServletException("Unable to upload analysis file.  Servlet unable to obtain security information. Please contact GNomEx support.");
       }
       

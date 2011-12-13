@@ -2,8 +2,11 @@ package hci.gnomex.utility;
 
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Segment;
+import hci.gnomex.model.UCSCLinkFiles;
 
 import javax.servlet.http.HttpServletRequest;
+
+import edu.utah.seq.useq.apps.USeq2UCSCBig;
 
 import java.io.*;
 import java.nio.MappedByteBuffer;
@@ -16,9 +19,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
 import net.sf.samtools.*;
 
 
@@ -27,12 +32,18 @@ public class DataTrackUtil {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private static final double    KB = Math.pow(2, 10);
 	public static String[] nonAmbiguousLetters = {"A","B","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","T","U","V","W","X","Y","3","4","6","7","8","9"};   
-	
+
+	private static HashSet<String> urlLinkFileExtensions = null;
+  private static boolean autoConvertUSeqArchives = true;
+  private static File ucscWig2BigWigExe;
+  private static File ucscBed2BigBedExe;
+  
 	public static final Pattern toStripURL = Pattern.compile("[^a-zA-Z_0-9\\./]");
 	/**Strip out non [a-zA-Z_0-9] chars with the replaceWith.*/
 	public static String stripBadURLChars(String name, String replaceWith){
 		return toStripURL.matcher(name).replaceAll(replaceWith);
 	}
+	
 
 	/** Fast & simple file copy. From GForman http://www.experts-exchange.com/M_500026.html*/
 	public static boolean copy(File source, File dest){
@@ -293,4 +304,171 @@ public class DataTrackUtil {
   public static String createRandowWord(int lengthOfWord){
     return createRandomWords(nonAmbiguousLetters, lengthOfWord,1)[0];
   }
+  
+  /**Returns null if no appropriate file is found for http linking or a UCSCLinkFiles object that will let you know if on the fly useq conversion is going on.
+   * For bw and bb, only one file will be returned for useq files converted to bw, might have two, one for each strand, for bam will have two, bam and its index bai.*/
+  public static UCSCLinkFiles fetchUCSCLinkFiles(List<File> files, String webContextPath) throws Exception{
+
+    if (urlLinkFileExtensions == null){
+      urlLinkFileExtensions = new HashSet<String>();
+      for (String ext: Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) urlLinkFileExtensions.add(ext);
+    }
+    
+    boolean canFetchExecutables = fetchUCSCExecutableFiles(webContextPath);
+    
+    //attempt to find the UCSC executables for converting bed and wig files to bigBed, bigWig formats
+    if (autoConvertUSeqArchives && canFetchExecutables == false){
+      autoConvertUSeqArchives = false;
+      Logger.getLogger(DataTrackUtil.class.getName()).warning("FAILED to find the UCSC big file executables, turning off useq auto conversion.");
+    }   
+
+    File useq = null;
+    boolean converting = false;
+    ArrayList<File> filesAL = new ArrayList<File>();
+    for (File f: files){
+      int index = f.getName().lastIndexOf(".");
+      if (index > 0) {
+        String ext = f.getName().substring(index);
+        //System.out.println("\nFile Extension "+ ext+" "+f.getName());
+        if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
+        else if (urlLinkFileExtensions.contains(ext))  filesAL.add(f);
+      }
+    }
+
+    //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
+    if (filesAL.size()==0 && useq !=null && autoConvertUSeqArchives){
+      //this can consume alot of resources and take 1-10min
+      USeq2UCSCBig c = new USeq2UCSCBig(ucscWig2BigWigExe, ucscBed2BigBedExe, useq);
+      filesAL = c.fetchConvertedFileNames();
+      //converting = true;
+      c.convert(); //same thread!
+      //c.start(); //separate thread!
+    }
+
+    if (filesAL.size() !=0){
+      File[] toReturn = new File[filesAL.size()];
+      filesAL.toArray(toReturn);
+      //stranded?
+      boolean stranded = false;
+      if (toReturn.length == 2){
+        String name = toReturn[0].getName();
+        if (name.endsWith("_Plus.bw") || name.endsWith("_Minus.bw")) stranded = true;
+      }
+      return new UCSCLinkFiles (toReturn, converting, stranded);
+    }
+
+    //something bad happened.
+    return null;
+  }
+  
+  /**Returns all files and if needed converts useq files to bw and bb. Returns null if something bad happened.*/
+  public static UCSCLinkFiles fetchURLLinkFiles(List<File> files, String webContextPath) throws Exception{
+    //fetch hashSet
+    if (urlLinkFileExtensions == null){
+      urlLinkFileExtensions = new HashSet<String>();
+      for (String ext: Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) urlLinkFileExtensions.add(ext);
+    }
+    
+    boolean canFetchExecutables = fetchUCSCExecutableFiles(webContextPath);
+    
+    //attempt to find the UCSC executables for converting bed and wig files to bigBed, bigWig formats
+    if (autoConvertUSeqArchives && canFetchExecutables == false){
+      autoConvertUSeqArchives = false;
+      Logger.getLogger(DataTrackUtil.class.getName()).warning("FAILED to find the UCSC big file executables, turning off useq auto conversion.");
+    } 
+    
+    File useq = null;
+    File bigFile = null;
+    
+    ArrayList<File> filesAL = new ArrayList<File>();
+    for (File f: files){
+      int index = f.getName().lastIndexOf(".");
+      if (index > 0) {
+        String ext = f.getName().substring(index);      
+        if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
+        else if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
+        filesAL.add(f);
+      }
+    }
+
+    //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
+    ArrayList<File> convertedUSeqFiles = null;
+    if (bigFile == null && useq !=null && autoConvertUSeqArchives){
+      //this can consume alot of resources and take 1-10min
+      USeq2UCSCBig c = new USeq2UCSCBig(ucscWig2BigWigExe, ucscBed2BigBedExe, useq);
+      convertedUSeqFiles = c.fetchConvertedFileNames();
+      //converting = true;
+    
+      c.convert(); //same thread!
+      //c.start(); //separate thread!
+    }
+
+    if (filesAL.size() !=0){
+      //stranded?
+      boolean stranded = false;
+      if (convertedUSeqFiles != null) {
+        filesAL.addAll(convertedUSeqFiles);
+        if (convertedUSeqFiles.size() == 2){
+          String name = convertedUSeqFiles.get(0).getName();
+          if (name.endsWith("_Plus.bw") || name.endsWith("_Minus.bw")) stranded = true;
+        }
+      }
+      File[] toReturn = new File[filesAL.size()];
+      filesAL.toArray(toReturn);
+      
+      return new UCSCLinkFiles (toReturn, false, stranded);
+    }
+
+    //something bad happened.
+    return null;
+  }
+
+  
+  public static File checkUCSCLinkDirectory(String baseURL, String webContextPath) throws Exception{
+    File urlLinkDir = new File (webContextPath, Constants.URL_LINK_DIR_NAME);
+    urlLinkDir.mkdirs();
+    if (urlLinkDir.exists() == false) throw new Exception("\nFailed to find and or make a directory to contain url softlinks for UCSC data distribution.\n");
+
+    //add redirect index.html if not present, send them to genopub
+    File redirect = new File (urlLinkDir, "index.html");
+    if (redirect.exists() == false){
+      String toWrite = "<html> <head> <META HTTP-EQUIV=\"Refresh\" Content=\"0; URL="+baseURL+"genopub\"> </head> <body>Access denied.</body>";
+      PrintWriter out = new PrintWriter (new FileWriter (redirect));
+      out.println(toWrite);
+      out.close();
+    }
+
+    //delete old softlinks within
+    DataTrackUtil.deleteNonIndexFiles(urlLinkDir, Constants.DAYS_TO_KEEP_URL_LINKS);
+
+    return urlLinkDir;
+  }
+
+
+  /**Returns 'bigWig' , 'bigBed', 'bam', or null for xxx.bw, xxx.bb, xxx.bam*/
+  public static String fetchUCSCDataType(File[] filesToLink) {
+    for (File f: filesToLink){
+      String name = f.getName();
+      if (name.endsWith(".bw")) return "bigWig";
+      if (name.endsWith(".bb")) return "bigBed";
+      if (name.endsWith(".bam")) return "bam";
+    }
+    return null;
+  }
+  
+  private static boolean fetchUCSCExecutableFiles(String webContextPath){
+    File ucscExtDir = new File (webContextPath, Constants.UCSC_EXECUTABLE_DIR_NAME);
+    ucscWig2BigWigExe = new File (ucscExtDir, Constants.UCSC_WIG_TO_BIG_WIG_NAME);
+    ucscBed2BigBedExe = new File (ucscExtDir, Constants.UCSC_BED_TO_BIG_BED_NAME);
+    //make executable
+    if (ucscWig2BigWigExe.exists()) ucscWig2BigWigExe.setExecutable(true);
+    if (ucscBed2BigBedExe.exists()) ucscBed2BigBedExe.setExecutable(true);
+    //check files
+    if (ucscWig2BigWigExe.canExecute() == false || ucscBed2BigBedExe.canExecute() == false) {
+      System.err.println("\nError: can't execute or find "+ucscWig2BigWigExe+" or "+ucscBed2BigBedExe);
+      return false;
+    }
+    return true;
+  }
+
 }
