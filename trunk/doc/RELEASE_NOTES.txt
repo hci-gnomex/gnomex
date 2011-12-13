@@ -1,6 +1,10 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.5 
+--------------------
+* Added email confirmation to bioinformatics core when a next gen sequencing experiment is finished and has a genome build align to filled in or analysis instructions.
+
 5.3.4 (12/12/2011)
 --------------------
 * Added dropdown for Organism to initial screen for external experiment registration.

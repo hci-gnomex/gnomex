@@ -608,6 +608,7 @@
 			public var PROPERTY_CORE_FACILITY_NAME:String                 = "core_facility_name";
 	        public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String         = "contact_name_core_facility";
 	        public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String        = "contact_email_core_facility";
+			public var PROPERTY_CONTACT_EMAIL_BIOINFORMATICS:String       = "contact_email_bioinformatics";
 	        public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String         = "contact_name_software_bugs";
 	        public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String        = "contact_email_software_bugs";
 			public var PROPERTY_HELP_URL:String                           = "help_url";

@@ -760,7 +760,8 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (66, 'dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N'),
  (67, 'dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
  (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
- (69, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N');
+ (69, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
+ (70,'contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N');
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)

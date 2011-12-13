@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
@@ -208,10 +209,23 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
 
+    String analysisInstruction = null;
+    String genomeAlignTo = null;
+    
     String finishedLaneText = "";
     int finishedLaneCount = 0;
+    
     for(Iterator i = lanes.iterator(); i.hasNext();) {
       SequenceLane lane = (SequenceLane)i.next();
+
+      if (lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("")) {
+        analysisInstruction = lane.getAnalysisInstructions();
+      }
+      if (lane.getIdGenomeBuildAlignTo() != null) {
+        GenomeBuild genomeBuild = (GenomeBuild)sess.load(GenomeBuild.class, lane.getIdGenomeBuildAlignTo());
+        genomeAlignTo = genomeBuild.getDisplay();
+      }
+      
       if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getPipelineDate() != null) {
         finishedLaneText += lane.getNumber();
         finishedLaneCount++;
@@ -227,16 +241,16 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
       return;
     }
     
-    
-    
+    // Send email to submitter
     StringBuffer introNote = new StringBuffer();
+    
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
-        
+    
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
     boolean send = false;
@@ -259,11 +273,53 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
           subject, 
           emailFormatter.format(),
           true);
-      
     }
     
+    // Send email to bioinformatics core
+    StringBuffer bioIntroNote = new StringBuffer();
+
+    bioIntroNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
+    bioIntroNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
+    bioIntroNote.append("<br>");
+    
+    if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
+      bioIntroNote.append("<br><br><b>Genome Align To:   </b>" + genomeAlignTo);
+    }
+    if (analysisInstruction != null && !analysisInstruction.equals("")) {
+      bioIntroNote.append("<br><br><b>Analysis Instructions:   </b>" + analysisInstruction);
+    }
+    
+    bioIntroNote.append("<br><br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
+
+    RequestEmailBodyFormatter bioEmailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), bioIntroNote.toString());
+    bioEmailFormatter.setIncludeMicroarrayCoreNotes(false);
+     
+    subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
+    boolean bioSend = false;
+    if (dictionaryHelper.isProductionServer(serverName)) {
+      if (analysisInstruction != null && !analysisInstruction.equals("")) {
+        bioSend = true;
+      }
+      if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
+        bioSend = true;
+      }
+    } else {
+      if (request.getAppUser() != null  &&
+          request.getAppUser().getEmail() != null && 
+          !request.getAppUser().getEmail().equals("") &&
+          request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+        bioSend = true;
+        subject = "TEST - " + subject;
+      }
+    }
+    
+    if (bioSend) {      
+      MailUtil.send(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS), 
+          null,
+          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          subject, 
+          bioEmailFormatter.format(),
+          true);
+    }
   }
-
-  
-
 }
