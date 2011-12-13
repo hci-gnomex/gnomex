@@ -2484,7 +2484,7 @@
 		}
 		
 		public function getMultiplexLanes():void {
-			if(this.isSolexaState()) {
+			if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
 				this.seqSetup1View.propagateGenomeBuild();
 			}
 			initializeRequestXML();
