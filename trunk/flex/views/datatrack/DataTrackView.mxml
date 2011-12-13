@@ -148,6 +148,14 @@
 			Alert.show(saveDataTrack.lastResult..ACTMESSAGE.@TEXT);
 		} 
 	}
+	
+	private function removeDataTrackFile():void {
+		this.dirtyDataTrack.setDirty();
+		for each(var item:Object in dataTrackFileGrid.selectedItems) {
+			dataTrackFilesToRemove.addItem(item);
+			dataTrackFiles.removeItemAt(dataTrackFiles.getItemIndex(item));
+		}
+	}
 
 
 	
@@ -162,30 +170,17 @@
 			propertyText[index].text = dataTrackProperty.@value;
 		} else if (dataTrackProperty.@codePropertyType == 'URL') {
 			propertyValueViewStack[index].selectedIndex = 0;
-			//var url:String = !dataTrackProperty.hasOwnProperty("@value") ||  dataTrackProperty.@value  == null || dataTrackProperty.@value == '' ? "http://" : dataTrackProperty.@value;
-			//propertyURL[index].htmlText =  "<a href='event:" + url + "'><u><font color='Blue'>" +  url + "</font></u></a>";
 		} else  if (dataTrackProperty.@codePropertyType == 'OPTION') {
 			propertyValueViewStack[index].selectedIndex = 2;
 			propertyCombo[index].dataProvider =  dataTrackProperty..PropertyOption;
 			for each(var theOption:XML in dataTrackProperty..PropertyOption) {
 				if (theOption.@selected == 'Y') { 
 					propertyCombo[index].selectedItem =  theOption;
-					break;   // just expecting a single option					
+					break;   			
 				}
 			}
 		} else  if (dataTrackProperty.@codePropertyType == 'MOPTION') { 
 			propertyValueViewStack[index].selectedIndex = 4; 
-			/*var allOptions:XMLListCollection = new XMLListCollection();
-			var selectedOptions:XMLListCollection = new XMLListCollection();
-			for each(var option:XML in dataTrackProperty..PropertyOption) {
-				allOptions.addItem(option.copy());
-				if (option.@selected == 'Y') { 
-					selectedOptions.addItem(option.copy());	
-				}
-			}
-			propertyComboCheck[index].dataProvider = allOptions;
-			propertyComboCheck[index].initialValues = selectedOptions;
-			*/
 		} else if (dataTrackProperty.@codePropertyType == 'CHECK') {
 			propertyValueViewStack[index].selectedIndex = 3;
 			propertyCheck[index].selected = dataTrackProperty.@value == 'Y' ? true : false;
@@ -380,7 +375,8 @@
 			possibleCollaborators);
 		
 	}
-	
+
+
 	
 ]]>
 </mx:Script>
@@ -505,23 +501,11 @@
 		<mx:VBox width="100%" height="100%" label="Files" id="vbox7" paddingTop="0">
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox9">
 				<mx:HBox horizontalGap="2" width="100%">
-					<mx:LinkButton icon="@Embed(source='../../assets/upload.png')" 
-								   disabledIcon="@Embed(source='../../assets/upload_disable.png')" 
-								   click="{/*showDataTrackUploadWindow()*/}" 
-								   styleName="linkMenuButton"  label="Upload file(s)">
-						<mx:enabled>{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}</mx:enabled>
-					</mx:LinkButton>
-					<mx:LinkButton icon="@Embed(source='../../assets/upload_large.png')" 
-								   visible="{getDataTrack.lastResult.@canWrite == 'Y' &amp;&amp; parentApplication.isFDTSupported}"
-								   includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y' &amp;&amp; parentApplication.isFDTSupported}"
-								   click="{/*showDataTrackFDTUploadWindow()*/}" 
-								   styleName="linkMenuButton"  label="Upload file(s) using FDT">
-					</mx:LinkButton>
 					<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
 								   disabledIcon="@Embed(source='../../assets/page_remove_disable.png')"
 								   enabled="{dataTrackFileGrid.selectedItem != null &amp;&amp; getDataTrack.lastResult.@canWrite == 'Y' ? true : false}"  
 								   styleName="linkMenuButton"
-								   click="{/*removeDataTrackFile()*/}"  label="Remove file(s)"/>
+								   click="{removeDataTrackFile()}"  label="Remove file(s) from data track"/>
 					<mx:Spacer width="100%"/>
 					<mx:Label text="{'(' + dataTrackFiles.length + ' files)'}"/>
 				</mx:HBox>

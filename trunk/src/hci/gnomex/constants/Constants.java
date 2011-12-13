@@ -3,6 +3,7 @@ package hci.gnomex.constants;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
 
 
 public class Constants {
@@ -59,10 +60,12 @@ public class Constants {
   
   public static final String UCSC_URL = "http://genome.ucsc.edu";
   public static final int DAYS_TO_KEEP_URL_LINKS= 7;
-  public static final String UCSC_URL_LINK_DIR_NAME = "UCSCLinks";
+  public static final String URL_LINK_DIR_NAME = "URLLinks";
   public static final String UCSC_EXECUTABLE_DIR_NAME = "UCSCExecutables";
   public static final String UCSC_WIG_TO_BIG_WIG_NAME = "wigToBigWig";
   public static final String UCSC_BED_TO_BIG_BED_NAME = "bedToBigBed";
+
+  public static final Pattern HTML_BRACKETS = Pattern.compile("<[^>]+>");
 
   public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] 
                                                                 {

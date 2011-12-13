@@ -1183,6 +1183,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   }
   
+  public String getUserUcscUrl() {
+    if (isGuest) {
+      return "";
+    } else if (this.appUser != null) {
+      return appUser.getUcscUrl();
+    } else {
+      return "";
+    }
+  }
+  
   
   public Set getAllMyGroups() {
     TreeSet labs = new TreeSet(new LabComparator());

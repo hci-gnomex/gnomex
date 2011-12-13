@@ -1,7 +1,7 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.3.5
+5.3.5 (12/12/2011)
 --------------------
 * Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment
 * Introduced new GenoPub objects (DataTrack, DataTrackFolder, Segment, etc.) and user interface, marking the first phase of merging GenoPub functionality into GNomEx.
