@@ -1,12 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.3.5 (12/12/2011)
+5.3.4 (12/12/2011)
 --------------------
 * Added dropdown for Organism to initial screen for external experiment registration.
 * Made Organism field in Sample View read only for external experiment registration.
 * Removed columns not selected in the Annotations tab for external experiments.
-* Removed links/check boxes/fields: To GAIIx, Show QC Columns, Illumina Prep, Completed field for external exps.
+* Removed links/check boxes/fields: To GAIIx, Show QC Columns, Illumina Prep, Completed field for exter nal exps.
 * Removed Sample Sequencing Run tab for external exps and made sure deleting corresponding samples does not initiate a prompt.
 * Implemented check to require completion of any required annotation fields in Sample View.
 * Removed Download link for external exps.
