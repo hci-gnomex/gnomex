@@ -73,33 +73,48 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
       con = sess.connection();      
       stmt = con.createStatement();
 
-      StringBuffer buf = new StringBuffer("select lm.idLab, isnull(l.lastName, '') + isnull(', ' + l.firstName, '') + ' Lab' as labName, 'Manager' as role, isNull(sendUploadAlert, 'N') as doUploadAlert\n");
+      StringBuffer buf = new StringBuffer("select lm.idLab, l.lastName, l.firstName, 'Manager' as role, sendUploadAlert as doUploadAlert\n");
       buf.append(" from LabManager lm\n");
       buf.append("   join Lab l\n");
       buf.append("   on lm.idLab = l.idLab\n");
       buf.append(" where idAppUser = " + appUser.getIdAppUser().intValue() + "\n");
       buf.append(" union\n");
-      buf.append(" select  lm.idLab, isnull(l.lastName, '') + isnull(', ' + l.firstName, '') + ' Lab' as labName, 'Collaborator' as role, isNull(sendUploadAlert, 'N') as doUploadAlert\n");
+      buf.append(" select  lm.idLab, l.lastName, l.firstName, 'Collaborator' as role, sendUploadAlert as doUploadAlert\n");
       buf.append(" from LabCollaborator lm\n");
       buf.append("   join Lab l\n");
       buf.append("   on lm.idLab = l.idLab\n");
       buf.append(" where idAppUser = " + appUser.getIdAppUser().intValue() + "\n");
       buf.append(" union\n");
-      buf.append(" select  lm.idLab, isnull(l.lastName, '') + isnull(', ' + l.firstName, '') + ' Lab' as labName, 'User' as role, isNull(sendUploadAlert, 'N') as doUploadAlert\n");
+      buf.append(" select  lm.idLab, l.lastName, l.firstName, 'User' as role, sendUploadAlert  as doUploadAlert\n");
       buf.append(" from LabUser lm\n");
       buf.append("   join Lab l\n");
       buf.append("   on lm.idLab = l.idLab\n");
       buf.append(" where idAppUser = " + appUser.getIdAppUser().intValue() + "\n");
-      buf.append(" order by LabName, role\n");
+      buf.append(" order by lastName, firstName, role\n");
 
       rs = stmt.executeQuery(buf.toString());
       Element notificationLabs = new Element("notificationLabs");
       while (rs.next()) {
         Element labNode = new Element("Lab");
         labNode.setAttribute("idLab", ""+rs.getInt("idLab"));
-        labNode.setAttribute("labName", rs.getString("labName"));
+        
+        String lastName = rs.getString("lastName");
+        String firstName = rs.getString("firstName");
+        String labName = lastName != null ? lastName : "";
+        if (firstName != null) {
+          if (labName.length() > 0) {
+            labName += ", ";
+          }
+          labName += firstName;
+        }
+        String doUploadAlert =  rs.getString("doUploadAlert");
+        if (doUploadAlert == null || doUploadAlert.equals("")) {
+          doUploadAlert = "N";
+        }
+        
+        labNode.setAttribute("labName", labName);
         labNode.setAttribute("role", rs.getString("role"));
-        labNode.setAttribute("doUploadAlert", rs.getString("doUploadAlert"));
+        labNode.setAttribute("doUploadAlert", doUploadAlert );
         notificationLabs.addContent(labNode);   
       }
       doc.getRootElement().addContent(notificationLabs); 
@@ -107,7 +122,6 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
       stmt.close();      
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
-      //this.xmlResult = out.outputString(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);  
