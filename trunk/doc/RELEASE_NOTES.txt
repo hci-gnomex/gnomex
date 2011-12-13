@@ -3,16 +3,6 @@
 
 5.3.5 (12/12/2011)
 --------------------
-* Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment
-* Introduced new GenoPub objects (DataTrack, DataTrackFolder, Segment, etc.) and user interface, marking the first phase of merging GenoPub functionality into GNomEx.
-* Tightened up hibernate code in SavePriceCategory in response to db lock that occurred in on production db server around 11:30 on Tuesday, Dec 6th.
-* Fixed bugs in connect code for DatasetExpirationCheckd, PendingWorkAuthd, and RegisterFiles.
-* Fixed problems with selected genome build not propagating to confirm view, printable experiment form, and confirmation email.
-* Fixed issue where actual customers were cc'd on request confirmation emails when system being tested.
-
-
-5.3.4 (11/29/2011)
---------------------
 * Added dropdown for Organism to initial screen for external experiment registration.
 * Made Organism field in Sample View read only for external experiment registration.
 * Removed columns not selected in the Annotations tab for external experiments.
@@ -22,6 +12,12 @@
 * Removed Download link for external exps.
 * Fixed null pointer problem in SequenceLane.java that caused XML reflection error for some Experiments.
 * Fix bug in GetExperimentPickList that was causing error on next gen experiments that were not Illumina requests. (Bugs item #3444572)
+* Fixed bugs causing exceptions when switching saving new Experiment to registering new Experiment
+* Introduced new GenoPub objects (DataTrack, DataTrackFolder, Segment, etc.) and user interface, marking the first phase of merging GenoPub functionality into GNomEx.
+* Tightened up hibernate code in SavePriceCategory in response to db lock that occurred in on production db server around 11:30 on Tuesday, Dec 6th.
+* Fixed bugs in connect code for DatasetExpirationCheckd, PendingWorkAuthd, and RegisterFiles.
+* Fixed problems with selected genome build not propagating to confirm view, printable experiment form, and confirmation email.
+* Fixed issue where actual customers were cc'd on request confirmation emails when system being tested.
 
 
 5.3.3.1 (11/17/2011)
