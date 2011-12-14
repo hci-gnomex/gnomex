@@ -539,7 +539,8 @@
 					browseView.refreshDownloadList();
 					browseView.refreshTrackList();
 					browseView.refreshVisibilityList();
-
+					
+					detailView.detail.refreshDownloadList();
 					
 				}
 				

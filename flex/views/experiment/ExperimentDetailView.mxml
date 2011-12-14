@@ -194,7 +194,7 @@
 				downloadExpandedFilesButtonView.visible = false;
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
-
+			this.theTab.selectedIndex = 0;
 		}
 		
 		public function initializeBarcoding():void {

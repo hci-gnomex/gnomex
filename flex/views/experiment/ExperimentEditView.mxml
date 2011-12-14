@@ -385,6 +385,7 @@
         		this.setupTheEditForm();
         	}	
 
+			this.theTab.selectedIndex = 0;
 		}
 			
 		private function leave():void {
@@ -4032,6 +4033,7 @@
 						downloadView.rowCountMessage = "";
 						downloadView.downloadTree.visible = false;
 					}
+					theTab.selectedChild = downloadView;
 				}
 			}
 			
