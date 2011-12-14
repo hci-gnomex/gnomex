@@ -3,6 +3,7 @@
 
 5.3.4.1 (12/13/2011)
 --------------------
+* Removed 'Downloads' link, fixed files refresh when selecting a new experiment, reset tab index to 0 when switching to a new experiment or from 'edit' to 'view' or vice-versa.
 * Fix PropertyDictionary references in reset password, change password, register new user.
 * Fix parameters on reset password, change password, register new user jsps.
 * Added email confirmation to bioinformatics core when a next gen sequencing experiment is finished and has a genome build align to filled in or analysis instructions.

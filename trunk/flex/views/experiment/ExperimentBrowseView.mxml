@@ -197,6 +197,7 @@
 				downloadView.rowCountMessage = "";
 				downloadView.downloadTree.visible = false;
 	   		}
+			theViews.selectedChild == downloadView;
 		}
 	}
 	
