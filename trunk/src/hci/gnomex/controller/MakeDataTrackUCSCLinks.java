@@ -8,6 +8,7 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.USeqUtilities;
 
 import java.io.File;
@@ -40,7 +41,9 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
   
   private Integer idDataTrack;
   private String baseURL;
-  private String baseDir = "c:/temp/GenoPubData/";
+  private String baseDir;
+  private String analysisBaseDir;
+  private String serverName;
 
 
   private static boolean autoConvertUSeqArchives = true;
@@ -63,6 +66,8 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
     if (pos > 0) {
       baseURL = fullPath.substring(0, pos);
     };
+    
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -71,6 +76,8 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
       
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
@@ -132,7 +139,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       if (ucscGenomeBuildName == null || ucscGenomeBuildName.length() ==0) throw new Exception ("Missing UCSC Genome Version name, update, and resubmit.");
 
       //check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.useq (will be converted if autoConvert is true))
-      UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrack.getFiles(baseDir), GNomExFrontController.getWebContextPath());
+      UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
       File[] filesToLink = link.getFilesToLink();
       if (filesToLink== null)  throw new Exception ("No files to link?!");
 

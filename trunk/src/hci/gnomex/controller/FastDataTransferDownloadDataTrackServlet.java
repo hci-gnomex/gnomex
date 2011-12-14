@@ -37,8 +37,9 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
   private String keys = "";
 
 
-  private String serverName = "";
-  private String baseDir = "c:/temp/GenoPub/";
+  private String serverName;
+  private String baseDir;
+  private String analysisBaseDir;
 
 
 
@@ -89,6 +90,9 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
 
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+        
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+        analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
 
         // Make sure the system is configured to run FDT
         String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
@@ -175,7 +179,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
           }
 
           // For each file to be downloaded for the data track
-          for (File file : dataTrack.getFiles(this.baseDir)) {
+          for (File file : dataTrack.getFiles(this.baseDir, this.analysisBaseDir)) {
 
             // Ignore file descriptors that represent directories.  We will
             // just download  actual files.

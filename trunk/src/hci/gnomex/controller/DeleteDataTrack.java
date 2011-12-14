@@ -9,6 +9,7 @@ import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -35,7 +36,8 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
   
   
   private Integer      idDataTrack = null;
-  
+  private String       serverName = null;
+  private String       baseDir = "";
  
   
   
@@ -49,12 +51,14 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idDataTrack", "idDataTrack is required.");
    }
+   serverName = request.getServerName();
 
   }
 
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrack dataTrack = null;
+    baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
@@ -86,8 +90,7 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
 
 
         // remove dataTrack files
-        // TODO: GenoPub need base directory
-        dataTrack.removeFiles("c:/temp/GenoPub/");
+        dataTrack.removeFiles(baseDir);
 
         // delete dataTrack property entries
         for(Iterator<?> i = dataTrack.getPropertyEntries().iterator(); i.hasNext();) {

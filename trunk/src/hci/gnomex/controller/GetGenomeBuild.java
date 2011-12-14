@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -23,6 +24,8 @@ public class GetGenomeBuild extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetGenomeBuild.class);
   
   private Integer idGenomeBuild;
+  private String serverName;
+  private String baseDir;
   
   public void validate() {
   }
@@ -33,6 +36,7 @@ public class GetGenomeBuild extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("idGenomeBuild", "idGenomeBuild is required");
     }
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -41,11 +45,12 @@ public class GetGenomeBuild extends GNomExCommand implements Serializable {
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 
       // TODO: GENOPUB Need to send in genome build file data path?  
-      Document doc = genomeBuild.getXML(this.getSecAdvisor(),  "c:/temp/GenoPub/");
+      Document doc = genomeBuild.getXML(this.getSecAdvisor(),  baseDir);
       this.xmlResult = doc.asXML();
       setResponsePage(this.SUCCESS_JSP);
       

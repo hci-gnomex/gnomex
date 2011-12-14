@@ -8,6 +8,7 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.USeqUtilities;
 
 import java.io.File;
@@ -40,8 +41,9 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   
   private Integer idDataTrack;
   private String baseURL;
-  private String baseDir = "c:/temp/GenoPubData/";
-
+  private String baseDir;
+  private String analysisBaseDir;
+  private String serverName;
 
 
   public void validate() {
@@ -61,6 +63,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     if (pos > 0) {
       baseURL = fullPath.substring(0, pos);
     };
+    
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -69,6 +73,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
       
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
@@ -128,7 +134,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       String ucscGenomeBuildName = gv.getUcscName();
 
       //pull all files and if needed auto convert xxx.useq to xxx.bb/.bw
-      UCSCLinkFiles link = DataTrackUtil.fetchURLLinkFiles(dataTrack.getFiles(baseDir), GNomExFrontController.getWebContextPath());
+      UCSCLinkFiles link = DataTrackUtil.fetchURLLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
       File[] filesToLink = link.getFilesToLink();
       if (filesToLink== null)  throw new Exception ("No files to link?!");
 

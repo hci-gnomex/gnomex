@@ -65,16 +65,16 @@ try {
     <h3>Change Password</h3>
 
       <div class="col1Wide"><div class="right">User name</div></div>
-      <div class="col2"><input id="username" type="text" class="text" ></div>
+      <div class="col2"><input id="username" name="userName" type="text" class="text"/></div>
 
       <div class="col1Wide"><div class="right">Old Password</div></div>
-      <div class="col2"><input type="password" class="text" name="oldPassword"></div>
+      <div class="col2"><input type="password"  name="oldPassword" class="text"/></div>
 
       <div class="col1Wide"><div class="right">New Password</div></div>
-      <div class="col2"><input type="password" class="text" name="newPassword"></div>
+      <div class="col2"><input type="password" name="newPassword" class="text" /></div>
 
       <div class="col1Wide"><div class="right">New Password (confirm)</div></div>
-      <div class="col2"><input type="password" class="text" name="newPasswordConfirm"></div>
+      <div class="col2"><input type="password"  name="newPasswordConfirm" class="text"/></div>
 
 
       <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>

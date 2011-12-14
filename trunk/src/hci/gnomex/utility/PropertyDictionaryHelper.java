@@ -26,6 +26,8 @@ public class PropertyDictionaryHelper implements Serializable {
   private static final String    PROPERTY_EXPERIMENT_WRITE_DIRECTORY          = "experiment_write_directory";
   private static final String    PROPERTY_ANALYSIS_READ_DIRECTORY             = "analysis_read_directory";
   private static final String    PROPERTY_ANALYSIS_WRITE_DIRECTORY            = "analysis_write_directory";
+  private static final String    PROPERTY_DATATRACK_READ_DIRECTORY            = "datatrack_read_directory";
+  private static final String    PROPERTY_DATATRACK_WRITE_DIRECTORY           = "datatrack_write_directory";
   private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
   private static final String    PROPERTY_FDT_DIRECTORY_GNOMEX                = "fdt_directory_gnomex";
   private static final String    PROPERTY_FDT_DIRECTORY                       = "fdt_directory";
@@ -265,6 +267,55 @@ public class PropertyDictionaryHelper implements Serializable {
 	  
 
 	  return addFileSepIfNec(property);
+  }
+  
+  public String getDataTrackReadDirectory(String serverName) {
+    // First try to get property that is qualified by server name.  
+    // Then, try with partial match. If that isn't found then get 
+    // the property without any qualification.    
+    String property = "";
+    String propertyName = PROPERTY_DATATRACK_READ_DIRECTORY + "_" + serverName;
+    property = this.getProperty(propertyName);
+    if (property == null || property.equals("")) { 
+      property = this.getPropertyPartialMatch(propertyName);
+      if (property == null || property.equals("")) { 
+        propertyName = PROPERTY_DATATRACK_READ_DIRECTORY;
+        property = this.getProperty(propertyName);        
+      }
+    }   
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
+    }
+
+    return property;
+  }
+
+  public String getDataTrackWriteDirectory(String serverName) {
+    // First try to get property that is qualified by server name.  
+    // Then, try with partial mathc. If that isn't found then get 
+    // the property without any qualification.    
+    String property = "";
+    String propertyName = PROPERTY_DATATRACK_WRITE_DIRECTORY + "_" + serverName;
+    property = this.getProperty(propertyName);
+    if (property == null || property.equals("")) { 
+      property = this.getPropertyPartialMatch(propertyName);
+      if (property == null || property.equals("")) { 
+        propertyName = PROPERTY_DATATRACK_WRITE_DIRECTORY;
+        property = this.getProperty(propertyName);        
+      }
+    }   
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
+    }
+    
+
+    return addFileSepIfNec(property);
   }
   
   public String getFlowCellDirectory(String serverName) {

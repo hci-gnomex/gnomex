@@ -5,6 +5,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +37,10 @@ public class UploadSequenceFileServlet extends HttpServlet {
   private  StringBuffer bypassedFiles = new StringBuffer();
   private File tempBulkUploadFile = null;
 
-  SecurityAdvisor secAdvisor = null;
+  private SecurityAdvisor secAdvisor = null;
 
-  String baseDir = "c:/temp/GenoPub/";
+  private String serverName;
+  private String baseDir;
   
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
@@ -57,6 +59,8 @@ public class UploadSequenceFileServlet extends HttpServlet {
     Session sess = null;
     Transaction tx = null;
     
+    serverName = req.getServerName();
+    
     Integer idGenomeBuild = null;
     GenomeBuild genomeBuild = null;
     String fileName = null;
@@ -66,6 +70,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
       tx = sess.beginTransaction();
       tx.begin();
       
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
      
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);

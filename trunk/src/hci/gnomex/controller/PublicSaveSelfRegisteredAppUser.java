@@ -135,7 +135,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
         setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
         
-        String contactEmailProperty = "from Property p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + "'";
+        String contactEmailProperty = "from PropertyDictionary p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + "'";
 
         adminEmailProperty = (PropertyDictionary) sess.createQuery(contactEmailProperty).uniqueResult();
         
