@@ -2172,19 +2172,19 @@ CREATE TABLE `Segment` (
 
 DROP TABLE IF EXISTS `DataTrack`;
 CREATE TABLE `DataTrack` (
-  `idDataTrack` int(10) unsigned NOT NULL auto_increment,
+  `idDataTrack` int(10)  NOT NULL auto_increment,
   `name` varchar(2000) NOT NULL,
   `description` varchar(10000) default NULL,
   `fileName` varchar(2000) default NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   `codeVisibility` varchar(10) NOT NULL,
-  `idAppUser` int(10) unsigned default NULL,
-  `idLab` int(10) unsigned default NULL,
+  `idAppUser` int(10)  default NULL,
+  `idLab` int(10)  default NULL,
   `summary` varchar(5000) default NULL,
   `createdBy` varchar(200) default NULL,
   `createDate` datetime default NULL,
   `isLoaded` char(1) default 'N',
-  `idInstitution` int(10) unsigned default NULL,
+  `idInstitution` int(10)  default NULL,
   `dataPath` varchar(500) default NULL,
   PRIMARY KEY  (`idDataTrack`),
   KEY `FK_DataTrack_GenomeBuild` (`idGenomeBuild`),
@@ -2206,8 +2206,8 @@ CREATE TABLE `DataTrack` (
 
 DROP TABLE IF EXISTS `DataTrackCollaborator`;
 CREATE TABLE `DataTrackCollaborator` (
-  `idDataTrack` int(10) unsigned NOT NULL,
-  `idAppUser` int(10) unsigned NOT NULL,
+  `idDataTrack` int(10)  NOT NULL,
+  `idAppUser` int(10)  NOT NULL,
   PRIMARY KEY  (`idDataTrack`,`idAppUser`),
   KEY `FK_DataTrackCollaborator_AppUser` (`idAppUser`),
   CONSTRAINT `FK_DataTrackCollaborator_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -2220,12 +2220,12 @@ CREATE TABLE `DataTrackCollaborator` (
 
 DROP TABLE IF EXISTS `DataTrackFolder`;
 CREATE TABLE `DataTrackFolder` (
-  `idDataTrackFolder` int(10) unsigned NOT NULL auto_increment,
+  `idDataTrackFolder` int(10)  NOT NULL auto_increment,
   `name` varchar(2000) NOT NULL,
   `description` varchar(10000) default NULL,
-  `idParentDataTrackFolder` int(10) unsigned default NULL,
-  `idGenomeBuild` int(10) unsigned default NULL,
-  `idLab` int(10) unsigned default NULL,
+  `idParentDataTrackFolder` int(10)  default NULL,
+  `idGenomeBuild` int(10)  default NULL,
+  `idLab` int(10)  default NULL,
   `createdBy` varchar(200) default NULL,
   `createDate` datetime default NULL,
   PRIMARY KEY  USING BTREE (`idDataTrackFolder`),
@@ -2243,8 +2243,8 @@ CREATE TABLE `DataTrackFolder` (
 
 DROP TABLE IF EXISTS `DataTrackToFolder`;
 CREATE TABLE `DataTrackToFolder` (
-  `idDataTrack` int(10) unsigned NOT NULL,
-  `idDataTrackFolder` int(10) unsigned NOT NULL,
+  `idDataTrack` int(10)  NOT NULL,
+  `idDataTrackFolder` int(10)  NOT NULL,
   PRIMARY KEY  (`idDataTrack`,`idDataTrackFolder`),
   KEY `FK_DataTrackToDataTrackFolder_DataTrackFolder` (`idDataTrackFolder`),
   CONSTRAINT `FK_DataTrackToDataTrackFolder_DataTrackFolder` FOREIGN KEY (`idDataTrackFolder`) REFERENCES `DataTrackFolder` (`idDataTrackFolder`),
@@ -2258,15 +2258,29 @@ CREATE TABLE `DataTrackToFolder` (
 
 DROP TABLE IF EXISTS `UnloadDataTrack`;
 CREATE TABLE `UnloadDataTrack` (
-  `idUnloadDataTrack` int(10) unsigned NOT NULL auto_increment,
+  `idUnloadDataTrack` int(10)  NOT NULL auto_increment,
   `typeName` varchar(2000) NOT NULL,
-  `idAppUser` int(10) unsigned default NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idAppUser` int(10)  default NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   PRIMARY KEY  (`idUnloadDataTrack`),
   KEY `FK_UnloadDataTrack_AppUser` (`idAppUser`),
   KEY `FK_UnloadDataTrack_GenomeBuild` (`idGenomeBuild`)
 ) ENGINE=InnoDB;
 
+--
+-- Table structure for table `DataTrackFile`
+--
+DROP TABLE IF EXISTS `DataTrackFile`;
+CREATE TABLE `DataTrackFile` (
+  `idDataTrackFile` int(10)  NOT NULL auto_increment,
+  `idAnalysisFile` int(10)   NULL,
+  `idDataTrack` int(10)  NULL,
+  PRIMARY KEY  (`idDataTrackFile`),
+  KEY `FK_DataTrackFile_DataTrack` (`idDataTrack`),
+  KEY `FK_DataTrackFile_AnalysisFile` (`idAnalysisFile`),
+  CONSTRAINT `FK_DataTrackFile_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`),
+  CONSTRAINT `FK_AnalysisFile_DataTrack` FOREIGN KEY (`idAnalysisFile`) REFERENCES `AnalysisFile` (`idAnalysisFile`)
+) ENGINE=InnoDB;
 
 
 

@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -23,6 +24,9 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetDataTrack.class);
   
   private Integer idDataTrack;
+  private String serverName;
+  private String baseDir;
+  private String analysisBaseDir;
   
   public void validate() {
   }
@@ -33,6 +37,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("idDataTrack", "idDataTrack is required");
     }
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -41,12 +46,15 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+
       
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
       // TODO: GENOPUB Need to send in analysis file data path?  
       if (this.getSecAdvisor().canRead(dataTrack)) {
-        Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), "c:/temp/GenoPub/");
+        Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), baseDir, analysisBaseDir);
         this.xmlResult = doc.asXML();
         setResponsePage(this.SUCCESS_JSP);
         

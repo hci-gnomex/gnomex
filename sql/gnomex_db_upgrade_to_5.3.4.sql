@@ -2,7 +2,7 @@ use gnomex;
 
 -- Remove idGenomeBuild from Analysis
 alter table gnomex.Analysis drop foreign key FK_Analysis_GenomeBuild;
-alter table gnomex.Analysis drop column idGenomeBuild ENGINE = InnoDB;
+alter table gnomex.Analysis drop column idGenomeBuild;
 
 -- Rename Property to PropertyDictionary
 rename table Property to PropertyDictionary;
@@ -106,7 +106,7 @@ alter table PropertyEntry add
 -- Rename table SampleCharacteristicEntryOption
 rename table SampleCharacteristicEntryOption to PropertyEntryOption;
 alter table PropertyEntryOption change idSampleCharacteristicEntry idPropertyEntry int(10) not null;
-alter table PropertyEntryOption change idSampleCharacteristicOption idPropertyOption int(10) not null;
+alter table PropertyEntryOption change idSampleCharacteristicOption idPropertyOption int(10) unsigned not null;
 alter table PropertyEntryOption add
    CONSTRAINT FK_PropertyEntryOption_PropertyEntry FOREIGN KEY FK_PropertyEntryOption_PropertyEntry (idPropertyEntry)
     REFERENCES gnomex.PropertyEntry (idPropertyEntry)
@@ -132,7 +132,7 @@ alter table PropertyEntryValue add
     
 -- Add columns to Organism
 alter table Organism add column  `das2Name` varchar(200) NULL;
-alter table Organism add column  `sortOrder` int(10) unsigned  NULL;
+alter table Organism add column  `sortOrder` int(10)   NULL;
 alter table Organism add column  `binomialName` varchar(200) NULL;
 alter table Organism add column  `NCBITaxID` varchar(45)  NULL;
 
@@ -156,7 +156,7 @@ alter table AppUser add column ucscUrl  varchar(250) null;
 --
 DROP TABLE IF EXISTS `GenomeBuildAlias`;
 CREATE TABLE `GenomeBuildAlias` (
-  `idGenomeBuildAlias` int(10) unsigned NOT NULL auto_increment,
+  `idGenomeBuildAlias` int(10) NOT NULL auto_increment,
   `alias` varchar(100) NOT NULL,
   `idGenomeBuild` int(10)  NOT NULL,
   PRIMARY KEY  (`idGenomeBuildAlias`),
@@ -174,8 +174,8 @@ CREATE TABLE `GenomeBuildAlias` (
 
 DROP TABLE IF EXISTS `Segment`;
 CREATE TABLE `Segment` (
-  `idSegment` int(10) unsigned NOT NULL auto_increment,
-  `length` int(10) unsigned NOT NULL,
+  `idSegment` int(10) NOT NULL auto_increment,
+  `length` int(10)  NOT NULL,
   `name` varchar(100) NOT NULL,
   `idGenomeBuild` int(10)  NOT NULL,
   `sortOrder` int(10)  NOT NULL,
@@ -191,19 +191,19 @@ CREATE TABLE `Segment` (
 
 DROP TABLE IF EXISTS `DataTrack`;
 CREATE TABLE `DataTrack` (
-  `idDataTrack` int(10) unsigned NOT NULL auto_increment,
+  `idDataTrack` int(10)  NOT NULL auto_increment,
   `name` varchar(2000) NOT NULL,
   `description` varchar(10000) default NULL,
   `fileName` varchar(2000) default NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   `codeVisibility` varchar(10) NOT NULL,
-  `idAppUser` int(10) unsigned default NULL,
-  `idLab` int(10) unsigned default NULL,
+  `idAppUser` int(10)  default NULL,
+  `idLab` int(10)  default NULL,
   `summary` varchar(5000) default NULL,
   `createdBy` varchar(200) default NULL,
   `createDate` datetime default NULL,
   `isLoaded` char(1) default 'N',
-  `idInstitution` int(10) unsigned default NULL,
+  `idInstitution` int(10)  default NULL,
   `dataPath` varchar(500) default NULL,
   PRIMARY KEY  (`idDataTrack`),
   KEY `FK_DataTrack_GenomeBuild` (`idGenomeBuild`),
@@ -225,8 +225,8 @@ CREATE TABLE `DataTrack` (
 
 DROP TABLE IF EXISTS `DataTrackCollaborator`;
 CREATE TABLE `DataTrackCollaborator` (
-  `idDataTrack` int(10) unsigned NOT NULL,
-  `idAppUser` int(10) unsigned NOT NULL,
+  `idDataTrack` int(10)  NOT NULL,
+  `idAppUser` int(10)  NOT NULL,
   PRIMARY KEY  (`idDataTrack`,`idAppUser`),
   KEY `FK_DataTrackCollaborator_AppUser` (`idAppUser`),
   CONSTRAINT `FK_DataTrackCollaborator_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -239,12 +239,12 @@ CREATE TABLE `DataTrackCollaborator` (
 
 DROP TABLE IF EXISTS `DataTrackFolder`;
 CREATE TABLE `DataTrackFolder` (
-  `idDataTrackFolder` int(10) unsigned NOT NULL auto_increment,
+  `idDataTrackFolder` int(10)  NOT NULL auto_increment,
   `name` varchar(2000) NOT NULL,
   `description` varchar(10000) default NULL,
-  `idParentDataTrackFolder` int(10) unsigned default NULL,
-  `idGenomeBuild` int(10) unsigned default NULL,
-  `idLab` int(10) unsigned default NULL,
+  `idParentDataTrackFolder` int(10)  default NULL,
+  `idGenomeBuild` int(10)  default NULL,
+  `idLab` int(10)  default NULL,
   `createdBy` varchar(200) default NULL,
   `createDate` datetime default NULL,
   PRIMARY KEY  USING BTREE (`idDataTrackFolder`),
@@ -262,8 +262,8 @@ CREATE TABLE `DataTrackFolder` (
 
 DROP TABLE IF EXISTS `DataTrackToFolder`;
 CREATE TABLE `DataTrackToFolder` (
-  `idDataTrack` int(10) unsigned NOT NULL,
-  `idDataTrackFolder` int(10) unsigned NOT NULL,
+  `idDataTrack` int(10)  NOT NULL,
+  `idDataTrackFolder` int(10)  NOT NULL,
   PRIMARY KEY  (`idDataTrack`,`idDataTrackFolder`),
   KEY `FK_DataTrackToDataTrackFolder_DataTrackFolder` (`idDataTrackFolder`),
   CONSTRAINT `FK_DataTrackToDataTrackFolder_DataTrackFolder` FOREIGN KEY (`idDataTrackFolder`) REFERENCES `DataTrackFolder` (`idDataTrackFolder`),
@@ -277,10 +277,10 @@ CREATE TABLE `DataTrackToFolder` (
 
 DROP TABLE IF EXISTS `UnloadDataTrack`;
 CREATE TABLE `UnloadDataTrack` (
-  `idUnloadDataTrack` int(10) unsigned NOT NULL auto_increment,
+  `idUnloadDataTrack` int(10)  NOT NULL auto_increment,
   `typeName` varchar(2000) NOT NULL,
-  `idAppUser` int(10) unsigned default NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idAppUser` int(10)  default NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   PRIMARY KEY  (`idUnloadDataTrack`),
   KEY `FK_UnloadDataTrack_AppUser` (`idAppUser`),
   KEY `FK_UnloadDataTrack_GenomeBuild` (`idGenomeBuild`)

@@ -8,6 +8,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,9 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
   
   private SecurityAdvisor secAdvisor;
   
+  private String serverName;
   private String baseDir;
+  private String analysisBaseDir;
   
   public void init() {
   
@@ -46,6 +49,8 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
     
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
+    
+    serverName = req.getServerName();
     
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -73,8 +78,8 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
     Session sess = null;
 
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    // TODO:  GenoPub - need directory
-    baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
+    baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+    analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
 
     // Get the download keys stored in session when download size estimated.  
     // Can't use request parameter here do to Flex FileReference url properties
@@ -156,7 +161,7 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
         String path = dataTrackFolder.getQualifiedName() + "/" + dataTrack.getName() + "/";
 
 
-        for (File file : dataTrack.getFiles(this.baseDir)) {
+        for (File file : dataTrack.getFiles(this.baseDir, this.analysisBaseDir)) {
           String zipEntryName = path + file.getName();
           archiveHelper.setArchiveEntryName(zipEntryName);
 

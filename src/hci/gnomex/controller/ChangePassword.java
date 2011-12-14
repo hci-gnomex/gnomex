@@ -135,7 +135,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         	sess.update(appUser);
         	sess.flush();	
         	
-          String contactEmailProperty = "from Property p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY + "'";
+          String contactEmailProperty = "from PropertyDictionary p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY + "'";
 
           labContactEmail = (PropertyDictionary) sess.createQuery(contactEmailProperty).uniqueResult();
         	

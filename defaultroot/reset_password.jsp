@@ -29,7 +29,7 @@ Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyDictionaryValue() != null && propUniversityUserAuth.getPropertyDictionaryValue().equals("Y")) {
+  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showCampusInfoLink = true;
   }  
 } catch (Exception e){
@@ -66,7 +66,7 @@ try {
     <h3>Reset Password</h3>
 
       <div class="col1Wide"><div class="right">User name</div></div>
-      <div class="col2"><div class="right"><input id="username" type="text" class="text"  value="${param.userName}" name="userName"></div></div>
+      <div class="col2"><div class="right"><input id="username" type="text" class="text"  name="userName"  value="${param.userName}" /></div></div>
 
 
       <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>

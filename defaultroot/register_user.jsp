@@ -55,7 +55,7 @@ Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyDictionaryValue() != null && propUniversityUserAuth.getPropertyDictionaryValue().equals("Y")) {
+  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showUserNameChoice = true;
     externalUserDisplay = "display:none;";
   }  
@@ -92,25 +92,25 @@ try {
     <h3>Create a new Account</h3>
 
       <div class="col1"><div class="right">First name</div></div>
-      <div class="col2"><input id="firstName" type="text" class="textWide" value="${param.firstName}"  name="firstName"></div>
+      <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName" value="${param.firstName}"  ></div>
 
       <div class="col1"><div class="right">Last name</div></div>
-      <div class="col2"><input type="text" class="textWide" value="${param.lastName}" name="lastName"></div>
+      <div class="col2"><input type="text" class="textWide" name="lastName" value="${param.lastName}" /></div>
 
       <div class="col1"><div class="right">Email</div></div>
-      <div class="col2"><input type="text" class="textWide"  value="${param.email}" name="email"></div>
+      <div class="col2"><input type="text" class="textWide"   name="email" value="${param.email}" /></div>
 
       <div class="col1"><div class="right">Phone</div></div>
-      <div class="col2"><input type="text" class="textWide" value="${param.phone}" name="phone"></div>
+      <div class="col2"><input type="text" class="textWide" name="phone" value="${param.phone}" /></div>
 
       <div class="col1"><div class="right">Lab</div></div>
-      <div class="col2"><input type="text" class="textWide" value="${param.lab}" name="lab"></div>
+      <div class="col2"><input type="text" class="textWide"  name="lab" value="${param.lab}" /></div>
 
       <div class="col1"><div class="right">Institute</div></div>
-      <div class="col2"><input type="text" class="textWide" value="${param.institute}" name="institute"></div>
+      <div class="col2"><input type="text" class="textWide"  name="institute" value="${param.institute}"/></div>
 
       <div class="col1"><div class="right">Department</div></div>
-      <div class="col2"><input type="text" class="textWide" value="${param.department}" name="department"></div>
+      <div class="col2"><input type="text" class="textWide"  name="department" value="${param.department}"/></div>
 
 <% if (showUserNameChoice) { %>
     <div class="left">
@@ -123,14 +123,14 @@ try {
     
 
       <div id="univUserNameArea1" style="display:none;" class="col1"><div class="right">University ID</div></div>
-      <div id="univUserNameArea2" style="display:none;" class="col2"><input type="text" class="text" value="${param.uNID}" name="uNID"></div>
+      <div id="univUserNameArea2" style="display:none;" class="col2"><input type="text" class="text" name="uNID" value="${param.uNID}" ></div>
 
       <div id="externalUserNameArea1" style="<%= externalUserDisplay%>" class="col1"><div class="right">User name</div></div>
-      <div id="externalUserNameArea2" style="<%= externalUserDisplay%>" class="col2"><input type="text" class="text" value="${param.userNameExternal}" name="userNameExternal"></div>
+      <div id="externalUserNameArea2" style="<%= externalUserDisplay%>" class="col2"><input type="text" class="text" name="userNameExternal" value="${param.userNameExternal}" ></div>
 
     
       <div id="externalPasswordArea1" style="<%= externalUserDisplay%>" class="col1"><div class="right">Password</div></div>
-      <div id="externalPasswordArea2" style="<%= externalUserDisplay%>" class="col2"><input type="password" class="text" name="passwordExternal"></div>
+      <div id="externalPasswordArea2" style="<%= externalUserDisplay%>" class="col2"><input type="password" name="passwordExternal" class="text" ></div>
     
       <div class="bottomPanel">   
           <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>

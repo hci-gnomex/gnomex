@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -23,7 +24,9 @@ public class GetEstimatedDataTrackDownloadSize extends GNomExCommand implements 
   
   private String    keysString = null;
 
+  private String    serverName;
   private String    baseDir;
+  private String    analysisBaseDir;
 
   protected final static String   SESSION_DATATRACK_KEYS = "GNomExDataTrackKeys";
 
@@ -34,11 +37,12 @@ public class GetEstimatedDataTrackDownloadSize extends GNomExCommand implements 
 
     // Get input parameters
     keysString = request.getParameter("keys");
-    baseDir         = request.getServerName();
     
     // Store download keys in session b/c Flex FileReference cannnot
     // handle long request parameter
     request.getSession().setAttribute(SESSION_DATATRACK_KEYS, keysString);
+    
+    serverName = request.getServerName();
 
   }
 
@@ -48,8 +52,9 @@ public class GetEstimatedDataTrackDownloadSize extends GNomExCommand implements 
     try {
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      // TODO:  GenoPub - need directory
-      baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
+
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
 
       long estimatedDownloadSize = 0;
       long uncompressedDownloadSize = 0;
@@ -65,7 +70,7 @@ public class GetEstimatedDataTrackDownloadSize extends GNomExCommand implements 
         Integer idDataTrack = new Integer(idTokens[0]);
 
         DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
-        for (File file : dataTrack.getFiles(this.baseDir)) {
+        for (File file : dataTrack.getFiles(this.baseDir, this.analysisBaseDir)) {
           double compressionRatio = 1;
           if (file.getName().toUpperCase().endsWith("BAR")) {
             compressionRatio = 3;

@@ -16,6 +16,7 @@ import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyOptionComparator;
 
 import java.io.BufferedReader;
@@ -58,9 +59,10 @@ public class UploadDataTrackFileServlet extends HttpServlet {
   private  StringBuffer bypassedFiles = new StringBuffer();
   private File tempBulkUploadFile = null;
 
-  SecurityAdvisor secAdvisor = null;
+  private SecurityAdvisor secAdvisor = null;
 
-  String baseDir = "c:/temp/GenoPub/";
+  private String serverName;
+  private String baseDir;
   
   //fields for bulkUploading
   private static final Pattern BULK_UPLOAD_LINE_SPLITTER = Pattern.compile("([^\\t]+)\\t([^\\t]+)\\t([^\\t]+)\\t(.+)", Pattern.DOTALL);
@@ -82,6 +84,8 @@ public class UploadDataTrackFileServlet extends HttpServlet {
     Session sess = null;
     Transaction tx = null;
     
+    serverName = req.getServerName();
+    
     Integer idDataTrack = null;
     DataTrack dataTrack = null;
     String dataTrackName = null;
@@ -95,6 +99,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       tx = sess.beginTransaction();
       tx.begin();
       
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
      
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -199,7 +204,6 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 
       // Make sure that the genometry server dir exists
-      // TODO: GenoPub - need base directory parameter
       if (!new File(baseDir).exists()) {
         boolean success = (new File(baseDir)).mkdir();
         if (!success) {

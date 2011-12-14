@@ -15,6 +15,7 @@ import hci.gnomex.utility.AppUserComparator;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyOptionComparator;
 import hci.gnomex.utility.RequestParser;
 
@@ -51,7 +52,8 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
   private String       collaboratorsXML;
   private String       filesToRemoveXML;
   private String       propertiesXML;
-  
+  private String       serverName;
+  private String       baseDir;
   
   public void validate() {
   }
@@ -82,12 +84,15 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
       propertiesXML = request.getParameter("propertiesXML");    
     }
+    
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       
       this.initializeDataTrack(sess);      
       
@@ -308,7 +313,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
     dataTrack.setIsLoaded("N");
 
     // TODO:  GenoPub - Need base directory property
-    dataTrack.setDataPath("c:/temp/GenoPub/");
+    dataTrack.setDataPath(baseDir);
 
     // Only set ownership if this is not an admin
     if (!getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {

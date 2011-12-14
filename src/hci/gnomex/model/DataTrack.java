@@ -65,8 +65,9 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	private String              isLoaded;
   private Set                 collaborators;
 	private Set                 propertyEntries;
-
-	private Map<String, Object> props;  // tag/value representation of annotation properties
+	private Set                 dataTrackFiles;
+	
+  private Map<String, Object> props;  // tag/value representation of annotation properties
 
   private Integer             folderCount;  // transient variable - initialized in DataTrackQuery
   
@@ -180,7 +181,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
     this.folderCount = folderCount;
   }
   @SuppressWarnings("unchecked")
-	public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh, String data_root) throws Exception {
+	public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh, String data_root, String analysis_data_root) throws Exception {
 		Document doc = DocumentHelper.createDocument();
 		Element root = doc.addElement("DataTrack");
 
@@ -230,6 +231,13 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 				fileNode.addAttribute("url", filePath);
 				String ucscLinkFile = appendFileXML(filePath, fileNode, null);
 				root.addAttribute("ucscLinkFile", ucscLinkFile);
+				
+				// Now list any analysis files associated with this dataTrack
+				if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
+				  for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
+				    appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), fileNode, null);
+				  }
+				}
 			}			
 		}
 
@@ -391,25 +399,16 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 				String fileName = filePath + "/" + fileList[x];
 				File f1 = new File(fileName);
 				
-				//link file?
-				if (fileList[x].endsWith(".useq") && ucscLinkFile.equals("none")) ucscLinkFile = "convert";
-				else if (fileList[x].endsWith(".bb") || fileList[x].endsWith(".bw") || fileList[x].endsWith(".bam")) ucscLinkFile = "link";
+				ucscLinkFile = formatUCSCLink(fileList[x], ucscLinkFile);
 
 				// Show the subdirectory in the name if we are not at the main folder level
-				String displayName = "";
-				if (subDirName != null) {
-					displayName = subDirName + "/" + fileList[x];
-				} else {
-					displayName = f1.getName();
-				}
+				String displayName = formatDisplayName(fileList[x], f1, subDirName);
 
 				if (f1.isDirectory()) {
 					Element fileNode = parentNode.addElement("Dir");
 					fileNode.addAttribute("name", displayName);
 					fileNode.addAttribute("url", fileName);
-					appendFileXML(fileName, fileNode,
-							subDirName != null ? subDirName + "/"
-									+ f1.getName() : f1.getName());
+					appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName());
 				} else {
 					Element fileNode = parentNode.addElement("File");
 
@@ -423,8 +422,48 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 
 				}
 			}
+		} else {
+		  // fd is a File
+		  ucscLinkFile = formatUCSCLink(fd.getName(), ucscLinkFile);
+
+      // Show the subdirectory in the name if we are not at the main folder level
+      String displayName = formatDisplayName(fd.getName(), fd, subDirName);
+
+      Element fileNode = parentNode.addElement("File");
+
+      long kb = DataTrackUtil.getKilobytes(fd.length());
+      String kilobytes = kb + " kb";
+
+      fileNode.addAttribute("name", displayName);
+      fileNode.addAttribute("url", fd.getName());
+      fileNode.addAttribute("size", kilobytes);
+      fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(fd.lastModified())));
 		}
+		
 		return ucscLinkFile;
+	}
+	
+	private static String formatUCSCLink(String fileName, String ucscLinkFile) {
+    //link file?
+	  String ucscLink = ucscLinkFile;
+    if (fileName.endsWith(".useq") && ucscLink.equals("none")) {
+      ucscLink = "convert";
+    }
+    else if (fileName.endsWith(".bb") || fileName.endsWith(".bw") || fileName.endsWith(".bam")) {
+      ucscLink = "link";
+    }
+    return ucscLink;
+	  
+	}
+	
+	private static String formatDisplayName(String fileName, File file, String subDirName) {
+    String displayName = "";
+    if (subDirName != null) {
+      displayName = subDirName + "/" + fileName;
+    } else {
+      displayName = file.getName();
+    }
+    return displayName;	  
 	}
 
 	public void removeFiles(String data_root) throws IOException {
@@ -447,7 +486,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 
 			}
 
-			// Delete the annotation directory
+			// Delete the data track directory
 			boolean success = dir.delete();	    	
 			if (!success) {
 				Logger.getLogger(DataTrack.class.getName()).log(Level.WARNING, "Unable to delete directory " + filePath);
@@ -456,7 +495,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	}
 
 
-	public List<File> getFiles(String data_root) throws IOException {
+	public List<File> getFiles(String data_root, String analysis_data_root) throws IOException {
 
 		ArrayList<File> files = new ArrayList<File>();
 
@@ -474,81 +513,54 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 
 			}
 		}
+		
+		// Now list any analysis files associated with this dataTrack
+    if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
+      for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
+        String fileName = dtFile.getAssociatedFilePath(analysis_data_root);
+        File f = new File(fileName);
+        files.add(f);
+      }
+    }
 
 		return files;
 	}
-	public boolean isBarGraphData(String data_root) throws IOException {
+	public boolean isBarGraphData(String data_root, String analysis_data_root) throws IOException {
 		boolean isExtension = false;
-		String filePath = getDirectory(data_root);
-		File dir = new File(filePath);
-
-		if (dir.exists()) {
-			// Delete the files in the directory
-			String[] childFileNames = dir.list();
-			if (childFileNames != null) {
-				for (int x = 0; x < childFileNames.length; x++) {
-					if (childFileNames[x].endsWith("bar")) {
-						isExtension = true;
-						break;
-					}
-				}
-
-			}
+		for (File childFile : getFiles(data_root, analysis_data_root)) {
+		  if (childFile.getName().endsWith("bar")) {
+		    isExtension = true;
+		    break;
+		  }
 		}
 		return isExtension;
 	}
 
-	public boolean isBamData(String data_root) throws IOException {
-		boolean isExtension = false;
-		String filePath = getDirectory(data_root);
-		File dir = new File(filePath);
+	public boolean isBamData(String data_root, String analysis_data_root) throws IOException {
+    boolean isExtension = false;
+    for (File childFile : getFiles(data_root, analysis_data_root)) {
+      if (childFile.getName().endsWith("bam")) {
+        isExtension = true;
+        break;
+      }
+    }
+    return isExtension;
 
-		if (dir.exists()) {
-			String[] childFileNames = dir.list();
-			if (childFileNames != null) {
-				for (int x = 0; x < childFileNames.length; x++) {
-					if (childFileNames[x].endsWith("bam")) {
-						isExtension = true;
-						break;
-					}
-				}
-
-			}
-		}
-		return isExtension;
 	}
 
-	public boolean isUseqGraphData(String data_root) throws IOException {
+	public boolean isUseqGraphData(String data_root, String analysis_data_root) throws IOException {
 		boolean isExtension = false;
-		String filePath = getDirectory(data_root);
-		File dir = new File(filePath);
-		if (dir.exists()) {
-			String[] childFileNames = dir.list();
-			if (childFileNames != null) {
-				for (int x = 0; x < childFileNames.length; x++) {
-					if (USeqUtilities.USEQ_ARCHIVE.matcher(childFileNames[x]).matches() ) {
-						isExtension = true;
-						break;
-					}
-				}
-			}
-		}
-		return isExtension;
+    for (File childFile : getFiles(data_root, analysis_data_root)) {
+      if (USeqUtilities.USEQ_ARCHIVE.matcher(childFile.getName()).matches() ) {
+        isExtension = true;
+        break;
+      }
+    }
+    return isExtension;
 	}
 
-	public int getFileCount(String data_root) throws IOException {
-		int fileCount = 0;
-		String filePath = getDirectory(data_root);
-		File dir = new File(filePath);
-
-		if (dir.exists()) {
-			// Delete the files in the directory
-			String[] childFileNames = dir.list();
-			if (childFileNames != null) {
-				fileCount = childFileNames.length;
-			}
-		}
-		return fileCount;
+	public int getFileCount(String data_root, String analysis_data_root) throws IOException {
+	  return getFiles(data_root, analysis_data_root).size();
 	}
 
 	public String getQualifiedFileName(String data_root) {
@@ -593,7 +605,6 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	}
 
 	public String getDirectory(String data_root) {
-	  // TODO: GenoPub merge - Get Data path from analysis file
 	  /*
 	  String dataPath = null;
 	  if (this.getDataPath() != null && !this.getDataPath().equals("")) {
@@ -694,7 +705,14 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
     this.excludeMethodFromXML("getFolderCount");
     this.excludeMethodFromXML("getCollaborators");
     this.excludeMethodFromXML("getPropertyEntries");
+    this.excludeMethodFromXML("getDataTrackFiles");
     this.excludeMethodFromXML("getExcludedMethodsMap");
 
+  }
+  public Set getDataTrackFiles() {
+    return dataTrackFiles;
+  }
+  public void setDataTrackFiles(Set dataTrackFiles) {
+    this.dataTrackFiles = dataTrackFiles;
   }
 }

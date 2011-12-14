@@ -229,8 +229,23 @@
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />
 		</set>
 	      
+		<set name="dataTrackFiles" table="DataTrackFile" lazy="true" cascade="all" >
+			<key column="idDataTrack"/>
+			<one-to-many class="hci.gnomex.model.DataTrackFile" />
+		</set>
       
     </class>
+    
+    <!--  DataTrackFile -->
+    <class name="hci.gnomex.model.DataTrackFile" table="DataTrackFile">
+        <id name="idDataTrackFile"  column="idDataTrackFile"    type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="idAnalysisFile"              column="idAnalysisFile"    type="integer"/>
+    	<many-to-one name="analysisFile"             column="idAnalysisFile"     class="hci.gnomex.model.AnalysisFile" cascade="none" insert="false" update="false" />
+        <property name="idDataTrack"                 column="idDataTrack"   type="integer"/>
+    </class>
+    
 
     <!--  DataTrackFolder -->
     <class name="hci.gnomex.model.DataTrackFolder" table="DataTrackFolder">

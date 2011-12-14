@@ -3,6 +3,7 @@ package hci.gnomex.model;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -328,6 +329,17 @@ public class Analysis extends HibernateDetailObject {
 
   public void setPrivacyExpirationDate(Date privacyExpirationDate) {
     this.privacyExpirationDate = privacyExpirationDate;
+  }
+  
+  public static String getCreateYear(Date theCreateDate) {
+    if (theCreateDate == null) {
+      return "";
+    } else {
+      String createDate  = new SimpleDateFormat("MM/dd/yyyy").format(theCreateDate);
+      String tokens[] = createDate.split("/");
+      String createYear  = tokens[2];
+      return createYear;
+    }
   }
  
 }

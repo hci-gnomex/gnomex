@@ -876,7 +876,7 @@ public class DataTrackQuery implements Serializable {
 						
 						DataTrack dt = dataTrackMap.get(idDataTrack);
 						
-						Element dtNode = dt.getXML(secAdvisor, dictionaryHelper, null).getRootElement();
+						Element dtNode = dt.getXML(secAdvisor, dictionaryHelper, null, null).getRootElement();
 						dtNode.addAttribute("idDataTrackFolder", dtFolder != null ? dtFolder.getIdDataTrackFolder().toString() : "");	
 						emphasizeMatch(dtNode);
 						
