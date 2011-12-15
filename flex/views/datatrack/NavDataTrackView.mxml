@@ -140,7 +140,7 @@
 	
 <mx:HTTPService             
 	id="getDownloadEstimatedSize" 
-	url="GetDownloadEstimatedDataTrackSize.gx"
+	url="GetEstimatedDownloadDataTrackSize.gx"
 	resultFormat="e4x"
 	showBusyCursor="true"
 	result="onGetDownloadEstimatedSize(event)"
@@ -150,6 +150,36 @@
 	<mx:request>
 	</mx:request>
 </mx:HTTPService>  
+	
+	
+<mx:HTTPService             
+	id="makeUCSCLinks" 
+	url="MakeDataTrackUCSCLinks.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onMakeUCSCLinks(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get UCSC link URLs', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+		<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
+	</mx:request>
+</mx:HTTPService> 
+
+<mx:HTTPService             
+	id="makeLinks" 
+	url="MakeDataTrackLinks.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onMakeLinks(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get link URLs', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+		<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
+	</mx:request>
+</mx:HTTPService> 
+
 
 
 <mx:Script>
@@ -281,7 +311,7 @@
 		}
 		
 		// If search text was entered, select the first tree node that matches
-		if (locateText.text != '' && locateText.text != 'enter search here...') {
+		if (locateText.text != '' && locateText.text != 'Enter search here...') {
 			selectEmphasizedTreeItem();
 			hitCount = getDataTrackList.lastResult.@hitCount;
 			this.locateStack.selectedIndex = 1;
@@ -293,7 +323,7 @@
 			// Show hit count in tooltip
 			var s:String = hitCount + " match" + (hitCount == 1 ? " found." : "es found.");
 			var globalPoint:Point  = this.locateText.contentToGlobal(new Point(this.locateText.x, this.locateText.y));
-			hitToolTip = ToolTipManager.createToolTip(s, this.locateText.x + 50, globalPoint.y + 22) as ToolTip;
+			hitToolTip = ToolTipManager.createToolTip(s, this.locateText.x + 80, globalPoint.y + 11) as ToolTip;
 			
 			// destroy tooltip in 10 seconds
 			var minuteTimer:Timer = new Timer(1000, 5);
@@ -596,7 +626,7 @@
 		// after the dictionaries are refreshed.
 		organismFilterToSelect = organismCombo.selectedItem;
 		
-		// Next time we refresh annotations, refresh the dictionary
+		// Next time we refresh dataTracks, refresh the dictionary
 		// dropdowns
 		this.refreshDictionaries = true;      			
 	}
@@ -787,7 +817,7 @@
 				}
 			}
 			
-			// Ignore all folders and annotations under genome version
+			// Ignore all folders and dataTracks under genome version
 			// if the genome version is being deleted.
 			var ancestorGenomeBuilds:Array = getAncestors(item, "GenomeBuild");
 			for each(var ancestorgv:Object in ancestorGenomeBuilds) {
@@ -801,7 +831,7 @@
 					}
 				}
 			}
-			// Ignore all genome versions, folders and annotations under organism
+			// Ignore all genome versions, folders and dataTracks under organism
 			// if the organims is being deleted.
 			var ancestorOrganisms:Array = getAncestors(item, "Organism");
 			for each(var ancestororg:Object in ancestorOrganisms) {
@@ -879,6 +909,64 @@
 			}
 		}
 	}
+	
+	
+	/************************************************************************
+	 * Make UCSC Links 
+	 *
+	 */
+	private function createUCSCLink():void {
+		if (dataTrackView.getDataTrack.lastResult.@ucscLinkFile == 'convert') {
+			Alert.show("Patience! Converting useq to bw/bb format.");
+		}
+		makeUCSCLinks.send();
+	}
+	
+	private function onMakeUCSCLinks(event:ResultEvent):void {
+		if (makeUCSCLinks.lastResult.name() == "SUCCESS") {
+			navigateToURL(new URLRequest(makeUCSCLinks.lastResult.@ucscURL1),"UCSC");
+			//work around to flex bug
+			if (makeUCSCLinks.lastResult.@ucscURL2 != ""){
+				var txt:String = "Click to load second track after first completes:<br><br><a href='"+makeUCSCLinks.lastResult.@ucscURL2+"' target='UCSC'><b><u>Load Second Track</u></b></a>";
+				var alert:Alert = Alert.show(txt);
+				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+			}
+			
+		}
+		else {
+			//this should never happen
+			Alert.show(makeUCSCLinks.lastResult.toXMLString(), "Error! Failed to convert UCSC link, contact site admin!");
+		}
+	}
+	
+	
+	/************************************************************************
+	 * Make URL Links for all files, converts useq to bw/bb
+	 *
+	 */
+	private function createURLLinks():void {
+		if (dataTrackView.getDataTrack.lastResult.@ucscLinkFile == 'convert') {
+			Alert.show("Patience! Converting useq to bw/bb format.");
+		}
+		//send to server
+		makeLinks.send();
+	}
+	
+	//response from server
+	private function onMakeLinks(event:ResultEvent):void {
+		if (makeLinks.lastResult.name() == "SUCCESS") {
+			var txt:String = makeLinks.lastResult.@urlsToLink;
+			var alert:Alert = Alert.show(txt, "URL Links:");
+			alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+			//past to clipboard, doesn't work on all browsers
+			System.setClipboard(txt);
+		}
+		else {
+			//this should never happen
+			Alert.show(makeLinks.lastResult.toXMLString(), "Error! Failed to fetch URL links, contact site admin!");
+		}
+	}
+	
 
 	/***********************************************************************
 	 * 
@@ -1264,7 +1352,7 @@
 					keep = false;
 				}
 				// Disallow operation if user does not have write
-				// permissions on annotation
+				// permissions on dataTrack
 				if (dragItem.@canWrite != "Y") {
 					Alert.show("Insufficient permissions to move data track " + dragItem.@label + ".");   
 					event.preventDefault();
@@ -1303,7 +1391,7 @@
 					keep = false;
 				}
 				// Disallow operation if user does not have write
-				// permissions on annotation grouping
+				// permissions on dataTrack grouping
 				if (dragItem.@canWrite != "Y") {
 					Alert.show("Insufficient permissions to move data track folder " + dragItem.@label + ".");
 					event.preventDefault();
@@ -1330,7 +1418,7 @@
 		event.target.hideDropFeedback(event);
 		DragManager.showFeedback(DragManager.NONE);		
 		
-		// Reassign dragged annotation or annotation grouping to
+		// Reassign dragged dataTrack or dataTrack grouping to
 		// new parent 
 		if (dropNode != null && dragParams.length > 0) {
 			promptToMoveOrCopy();
@@ -1514,7 +1602,7 @@
 		} else {
 			estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
 			uncompressedDownloadSize = getDownloadEstimatedSize.lastResult.@uncompressedSize;
-			if (parentApplication.isFDTSupported()) {
+			if (parentApplication.isFDTSupported) {
 				promptForDownloadMethod();
 			} else {
 				Alert.show( "Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
@@ -1556,7 +1644,7 @@
 		} else  if (event.detail == Alert.NO){
 			// If this is an FDT download, make the request to download the 
 			// FDT webstart application
-			navigateToURL(new URLRequest('genopub/annotationFDTDownloadFiles'), '_self');	
+			navigateToURL(new URLRequest('genopub/dataTrackFDTDownloadFiles'), '_self');	
 		} 
 	}
 	
@@ -1738,16 +1826,24 @@
 				<mx:LinkButton styleName="linkMenuButton" label="Download" 
 							   icon="@Embed(source='../../assets/download.png')" 
 							   enabled="true"
-							   click="{treeItemToSelect=null;/*promptToDownloadSelectedItems()*/}" id="downloadButton" />
+							   click="{treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
 				
 				<mx:VRule height="20" id="vrule21x" width="2" />	
 				<mx:LinkButton styleName="linkMenuButton" label="UCSC Browser" 
 							   icon="@Embed(source='../../assets/ucscFavicon.png')"
 							   disabledIcon="@Embed(source='../../assets/ucscFaviconDeselected.png')"  					        	
-							   toolTip="Create file link(s) for viewing the selected dataTrack in the UCSC Genome Browser"
-							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' /*&amp;&amp;  getDataTrack.lastResult.@ucscLinkFile != 'none'*/}"  
-							   click="{/*makeUCSCLink()*/}" 
+							   toolTip="Create file link(s) for viewing the selected data track in the UCSC Genome Browser"
+							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackView.getDataTrack.lastResult.@ucscLinkFile != 'none'}"  
+							   click="{createUCSCLink()}" 
 							   id="makeUCSCLinkButton" />
+				<mx:VRule height="20" id="vrule21y" width="2" />	
+				<mx:LinkButton styleName="linkMenuButton" label="Get URL Links" 
+							   icon="@Embed(source='../../assets/icon_link.gif')"
+							   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"  					        	
+							   toolTip="Creates URL file link(s) for accessing the selected data tracks via HTTP"
+							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackView.dataTrackFiles.length !=0}"  
+							   click="{createURLLinks()}" 
+							   id="makeURLLinksButton" />
 				
 				
 				<mx:VRule height="20" id="vrule1" width="2"/>

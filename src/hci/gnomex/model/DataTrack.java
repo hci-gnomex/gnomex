@@ -225,20 +225,27 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 
 			String filePath = getDirectory(data_root);
 			File fd = new File(filePath);
-			if (fd.exists()) {
-				Element fileNode = filesNode.addElement("Dir");
-				fileNode.addAttribute("name", this.getFileName());
-				fileNode.addAttribute("url", filePath);
-				String ucscLinkFile = appendFileXML(filePath, fileNode, null);
-				root.addAttribute("ucscLinkFile", ucscLinkFile);
-				
-				// Now list any analysis files associated with this dataTrack
-				if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
-				  for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
-				    appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), fileNode, null);
-				  }
-				}
-			}			
+			if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
+			  // We have linked analysis files
+        Element dirNode = filesNode.addElement("Dir");
+        dirNode.addAttribute("name", this.getFileName());
+        dirNode.addAttribute("url", filePath);
+
+        String ucscLinkFile = "";
+        if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
+          for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
+            ucscLinkFile = appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), dirNode, null);
+          }
+        }
+        dirNode.addAttribute("ucscLinkFile", ucscLinkFile);			  
+			} else if (fd.exists()) {
+			  // We have files in the Data Track folder
+        Element dirNode = filesNode.addElement("Dir");
+        dirNode.addAttribute("name", this.getFileName());
+        dirNode.addAttribute("url", filePath);
+        String ucscLinkFile = appendFileXML(filePath, dirNode, null);
+        dirNode.addAttribute("ucscLinkFile", ucscLinkFile);
+			}
 		}
 
 		// Show list of collaborators.  Only show for
