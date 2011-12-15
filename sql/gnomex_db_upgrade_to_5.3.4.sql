@@ -140,6 +140,7 @@ alter table Organism add column  `NCBITaxID` varchar(45)  NULL;
 alter table GenomeBuild add column  `das2Name` varchar(200) NULL;
 alter table GenomeBuild add column  `buildDate` datetime  NULL;
 alter table GenomeBuild add column  `coordVersion` varchar(50)  NULL;
+alter table GenomeBuild add column  `coordURI` varchar(2000)  NULL;
 alter table GenomeBuild add column  `coordSource` varchar(50)  NULL;
 alter table GenomeBuild add column  `coordTestRange` varchar(100)  NULL;
 alter table GenomeBuild add column  `coordAuthority` varchar(50)  NULL;
@@ -299,5 +300,5 @@ CONSTRAINT `FK_PropertyEntry_DataTrack` FOREIGN KEY `FK_PropertyEntry_DataTrack`
     
 -- Add columns to Property
 alter table Property add column forSample char(1) default 'Y';
-alter table Property add column forAnalyis char(1) default 'N';
+alter table Property add column forAnalysis char(1) default 'N';
 alter table Property add column forDataTrack char(1) default 'N';
