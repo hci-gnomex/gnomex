@@ -20,3 +20,8 @@ CREATE TABLE `DataTrackFile` (
   CONSTRAINT `FK_DataTrackFile_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`),
   CONSTRAINT `FK_AnalysisFile_DataTrack` FOREIGN KEY (`idAnalysisFile`) REFERENCES `AnalysisFile` (`idAnalysisFile`)
 ) ENGINE=InnoDB;
+
+
+update gnomex.Property set forSample = 'Y';
+update gnomex.Property set forDataTrack = 'N';
+update gnomex.Property set forAnalysis = 'N';
