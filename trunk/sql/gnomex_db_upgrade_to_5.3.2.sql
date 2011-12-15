@@ -1,3 +1,5 @@
+use gnomex;
+
 alter table gnomex.BillingItem add column completeDate datetime null;
 
 
