@@ -77,17 +77,14 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 
     Session sess = null;
 
-    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
-    analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
 
     // Get the download keys stored in session when download size estimated.  
     // Can't use request parameter here do to Flex FileReference url properties
     // size restriction.
-    String keys = (String)req.getSession().getAttribute(GetEstimatedDataTrackDownloadSize.SESSION_DATATRACK_KEYS);
+    String keys = (String)req.getSession().getAttribute(GetEstimatedDownloadDataTrackSize.SESSION_DATATRACK_KEYS);
 
     // Now empty out the session attribute
-    req.getSession().setAttribute(GetEstimatedDataTrackDownloadSize.SESSION_DATATRACK_KEYS, "");
+    req.getSession().setAttribute(GetEstimatedDownloadDataTrackSize.SESSION_DATATRACK_KEYS, "");
 
     // Get the parameter that tells us if we are handling a large download.
     ArchiveHelper archiveHelper = new ArchiveHelper();
@@ -99,8 +96,11 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
       if (keys == null || keys.equals("")) {
         throw new Exception("Cannot perform download due to empty keys parameter.");
       }
-      sess = HibernateGuestSession.currentGuestSession();
-      SecurityAdvisor secAdvisor = null;
+      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+      
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
 
 
       // Get security advisor
