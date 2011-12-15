@@ -36,6 +36,7 @@
 		import views.renderers.TextInputSeqPrepByCore;
 		import views.util.AnnotationAdvancedDataGridColumn;
 		import views.util.UploadSampleSheetView;
+		import views.util.CopySampleSheetColumnView;
 
 
 		            
@@ -52,7 +53,13 @@
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
 			uploadSampleSheetWindow.init(this);
 		}
-						
+		
+		public function copyColumn():void {
+			var copySampleSheetColumnWindow:CopySampleSheetColumnView = CopySampleSheetColumnView(PopUpManager.createPopUp(this, CopySampleSheetColumnView, true));
+			PopUpManager.centerPopUp(copySampleSheetColumnWindow);
+			copySampleSheetColumnWindow.init(this);
+		}
+		
 		public function addSample():void {
 			var emptyNode:XML = null;
 			var idOrganism:String = parentDocument.setupView.getIdOrganism();
@@ -1135,6 +1142,7 @@
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+					<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
 					<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 				</mx:HBox>
 				

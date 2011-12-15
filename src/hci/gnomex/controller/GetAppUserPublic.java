@@ -112,7 +112,7 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
           doUploadAlert = "N";
         }
         
-        labNode.setAttribute("labName", labName);
+        labNode.setAttribute("labName", labName + " Lab");
         labNode.setAttribute("role", rs.getString("role"));
         labNode.setAttribute("doUploadAlert", doUploadAlert );
         notificationLabs.addContent(labNode);   

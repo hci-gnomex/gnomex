@@ -1,3 +1,4 @@
+<%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
 <html>
 
 <head>
@@ -10,6 +11,21 @@
 String parm1 = request.getParameter("parm1");
 String parm2 = request.getParameter("parm2");
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
+
+//Set Cache-Control to no-cache.
+response.setHeader("Cache-Control", "max-age=0, must-revalidate");
+
+session.removeAttribute("j_username");
+session.removeAttribute("j_password");
+session.removeAttribute("User");
+session.removeAttribute("user");
+session.removeAttribute("username");
+session.removeAttribute("gnomexSecurityAdvisor");
+session.removeAttribute("logined"); 
+session.removeAttribute("context"); 
+
+session.invalidate();
+   
 %>
 
 <body>
@@ -17,7 +33,7 @@ String message = (String) ((request.getAttribute("message") != null)?request.get
 <div class="header-bar" >
   <div class="left"><h1>GNomEx</h1></div>
   <div class="rightMenu" >
-      <a href="login.jsp">Login</a> |    
+      <a href="gnomexFlex.jsp">Login</a> |    
       <a href="change_password.jsp">Change password</a> |    
       <a href="reset_password.jsp">Reset password</a> |    
       <a href="register_user.jsp">Create a new account</a> 
