@@ -10,6 +10,7 @@ import hci.gnomex.security.EncrypterService;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -39,7 +40,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   private String responsePageError = null;
   
   private AppUser appUser = null;
-  private PropertyDictionary labContactEmail = null;
+  private String  labContactEmail = null;
   private String regErrorMsg = null;
   
   private String launchAppURL = "";
@@ -106,8 +107,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       else if (appUser.getIsActive() != null && appUser.getIsActive().equals("N")) {
       	regErrorMsg = "Inactive user account.";
         this.addInvalidField("Inactive user account", regErrorMsg);      	
-      }
-      else {
+      } else {
         //Change password
         if(oldPassword != null && newPassword != null && newPasswordConfirm != null) {
         	//Encrypt password
@@ -125,38 +125,48 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         	}
         }
         //Reset password
-        else {        	
-        	UUID uuid = UUID.randomUUID();
-        	String myRandom = uuid.toString();
-        	String randPwd =  myRandom.substring(0, 8);
-        	String thePasswordEncrypted = EncrypterService.getInstance().encrypt(randPwd);
-			    
-        	appUser.setPasswordExternal(thePasswordEncrypted);
-        	sess.update(appUser);
-        	sess.flush();	
-        	
-          String contactEmailProperty = "from PropertyDictionary p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY + "'";
+        else {  
+          //Check that the user has an email if we are attempting a reset password
+          if (appUser.getEmail() == null || appUser.getEmail().equals("")) {
+            regErrorMsg = "Unable to reset password because the email is not filled in. Please contact GNomEx support.";
+            this.addInvalidField("Invalid email", regErrorMsg);       
+          } else {
+            UUID uuid = UUID.randomUUID();
+            String myRandom = uuid.toString();
+            String randPwd =  myRandom.substring(0, 8);
+            String thePasswordEncrypted = EncrypterService.getInstance().encrypt(randPwd);
+            
+            appUser.setPasswordExternal(thePasswordEncrypted);
+            sess.update(appUser);
+            sess.flush(); 
 
-          labContactEmail = (PropertyDictionary) sess.createQuery(contactEmailProperty).uniqueResult();
-        	
-        	sendConfirmationEmail(appUser.getEmail(), randPwd);  
+            labContactEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+            
+            sendConfirmationEmail(appUser.getEmail(), randPwd);  
+          }
+          
         }      
       }
       this.validate();
     } catch (HibernateException e) {
+      e.printStackTrace();
       log.error(e.getClass().toString() + ": " + e);
       throw new RollBackCommandException();
     } catch (NumberFormatException e) {
       log.error(e.getClass().toString() + ": " + e);
+      e.printStackTrace();
       throw new RollBackCommandException();
     } catch (NamingException e) {
       log.error(e.getClass().toString() + ": " + e);
+      e.printStackTrace();
       throw new RollBackCommandException();
     } catch (SQLException e) {
       log.error(e.getClass().toString() + ": " + e);
+      e.printStackTrace();
       throw new RollBackCommandException();
     } catch (Exception e) {
       log.error(e.getClass().toString() + ": " + e);
+      e.printStackTrace();
       throw new RollBackCommandException();    	
     }
     finally {
@@ -193,7 +203,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
     MailUtil.send(
   		email,
   		null,
-  		this.labContactEmail.getPropertyValue(),
+  		this.labContactEmail,
   		"Your GNomEx password has been reset",
   		content.toString(),
   		true
