@@ -36,6 +36,7 @@
             <department>{department.text}</department>
             <phone>{phone.text}</phone>
             <email>{email.text}</email>
+			<ucscUrl>{ucsc.text}</ucscUrl>
             <userNameExternal>{externalUserName.text}</userNameExternal>
             <passwordExternal>{externalUserPassword.text}</passwordExternal>
             <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
@@ -142,8 +143,13 @@
 					<mx:Label text="Last name"/>
 					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="170" change="dirty.setDirty()"/>
 				</mx:VBox>
+				<mx:VBox verticalGap="1"  width="100%" >
+					<mx:Label text="Ucsc Url" id="Label5"/>
+					<mx:TextInput id="ucsc" text="{parentDocument.fullUser.@ucscUrl}" width="200" change="dirty.setDirty()"/>
+				</mx:VBox>
 				<mx:CheckBox id="isActive" label="User is Active"  click="dirty.setDirty()">
-				</mx:CheckBox>
+				</mx:CheckBox>				
+
 				
 			</mx:HBox>
 			<mx:HBox verticalAlign="middle">
