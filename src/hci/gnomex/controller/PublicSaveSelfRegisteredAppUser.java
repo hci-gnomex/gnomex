@@ -7,6 +7,7 @@ import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -34,7 +35,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   
 
   private AppUser        appUserScreen;
-  private PropertyDictionary       adminEmailProperty = null;
+  private String         workAuthAdminEmail  = null;
+  private String         coreFacilityEmail = null;
   private String         requestedLab = "";
   private StringBuffer   requestURL;
   
@@ -135,9 +137,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
         setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
         
-        String contactEmailProperty = "from PropertyDictionary p where p.propertyName='" + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + "'";
-
-        adminEmailProperty = (PropertyDictionary) sess.createQuery(contactEmailProperty).uniqueResult();
+        workAuthAdminEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+        coreFacilityEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
         
         sendAccountRequestEmail(appUser);                      
         
@@ -198,12 +199,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     body.append("</td></tr></table>");
 
     
-    String adminEmail = this.adminEmailProperty.getPropertyValue();
 
     MailUtil.send(
         appUser.getEmail(),
         "",
-        adminEmail,
+        coreFacilityEmail,
         "GNomEx User Account Request Received",
         intro.toString() + body.toString(),
         true
@@ -211,13 +211,13 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     
 
     StringBuffer introForAdmin = new StringBuffer();
-    introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created by but not activated.<br><br>");
+    introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");
     
     MailUtil.send(
-        adminEmail,
+        workAuthAdminEmail,
         "",
-        adminEmail,
+        coreFacilityEmail,
         "GNomEx User Account Request for " + appUser.getFirstName() + " " + appUser.getLastName(),
         introForAdmin.toString() + body.toString(),
         true
