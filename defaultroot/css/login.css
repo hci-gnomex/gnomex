@@ -13,7 +13,10 @@ h1 {
 h3 {
   font-weight: bold;
   font-size: 11pt;
-}
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  padding-top: 0px;
+  margin-top: 0px;}
 
 a {
   color: #ffffff;
@@ -69,7 +72,7 @@ a.other {
   border: none;
   overflow: auto;
   padding: 10px;
-  width: 390px;
+  width: 405px;
   float: center;
 }
 
@@ -79,7 +82,7 @@ a.other {
   border: none;
   overflow: auto;
   padding: 10px;
-  width: 420px;
+  width: 435px;
   float: center;
 }
 
@@ -87,8 +90,8 @@ a.other {
   clear:both;
   float:left;
   width: 100px;
-  padding-top: 5px;
-  margin-top: 5px;
+  padding-top: 2px;
+  margin-top: 2px;
   padding-right: 2px;
   margin-right: 2px;
 }
@@ -97,16 +100,16 @@ a.other {
   clear:both;
   float:left;
   width: 180px;
-  padding-top: 5px;
-  margin-top: 5px;
+  padding-top: 2px;
+  margin-top: 2px;
   padding-right: 2px;
   margin-right: 2px;
 }
 
 .col2 {
   float:left;
-  padding-top: 5px;
-  margin-top: 5px;
+  padding-top: 2px;
+  margin-top: 2px;
 }
 
 .bottomPanel {
@@ -116,8 +119,10 @@ a.other {
 
 .buttonPanel {
   float: right;
-  padding-top: 15px;
-  margin-top: 10px;
+  padding-top: 7px;
+  margin-top: 7px;
+  padding-right: 2px;
+  margin-right: 2px;
 }
 
 input.submit {
@@ -168,8 +173,8 @@ div.leftInfo {
 div.leftButton {
   clear:both;
   float: left;
-  padding-top: 10px;
-  margin-top: 10px;
+  padding-top: 7px;
+  margin-top: 7px;
   border: none;
   width: 150;
 }
