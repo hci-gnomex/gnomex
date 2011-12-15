@@ -174,6 +174,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     appUser.setDepartment(appUserScreen.getDepartment());
     appUser.setEmail(appUserScreen.getEmail());
     appUser.setPhone(appUserScreen.getPhone());
+    appUser.setUcscUrl(appUserScreen.getUcscUrl());
     appUser.setIsActive(appUserScreen.getIsActive());
     appUser.setCodeUserPermissionKind(appUserScreen.getCodeUserPermissionKind());
     appUser.setuNID(appUserScreen.getuNID());
