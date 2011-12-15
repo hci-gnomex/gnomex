@@ -83,7 +83,7 @@
 	</servlet>
 	
 	<servlet>
-		<servlet-name>FastDataTransferDownloadDataTRackServlet</servlet-name>
+		<servlet-name>FastDataTransferDownloadDataTrackServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.FastDataTransferDownloadDownloadServlet
 		</servlet-class>
