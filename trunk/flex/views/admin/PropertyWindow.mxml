@@ -209,6 +209,11 @@
 			return;
 		}
 		
+		if(scName.text.toLowerCase() == "description") {
+			mx.controls.Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
+			return;
+		}
+		
 		var params:Object = new Object();
 		params.idProperty = propertyList.selectedItem.@idProperty;
 		params.name = scName.text;

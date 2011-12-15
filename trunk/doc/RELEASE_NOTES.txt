@@ -1,6 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Added check to insure that "description" cannot be used as the name for an annotation
+* Added "Copy Column" feature to sample view
+* Minor correction to GetAppUserPublic to add " Lab" to the labName string
+* Fixed problem with not being able to log in after changing password
+
 5.3.4.1 (12/13/2011)
 --------------------
 * Removed 'Downloads' link, fixed files refresh when selecting a new experiment, reset tab index to 0 when switching to a new experiment or from 'edit' to 'view' or vice-versa.

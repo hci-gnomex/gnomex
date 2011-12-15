@@ -318,17 +318,17 @@
 						'@option', 
 						'@idPropertyOption', 
 						fieldName,
-						false);       
-					newCol.itemEditor = views.renderers.ComboBox.create(
+						false); 
+					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions),
 						"@option",
 						"@idPropertyOption",
 						fieldName, 
 						null,
 						true,
-						true, 
+						true,
 						false,
-						true);
+						true).newInstance(), '');						
 					if (colExisting != null) {
 						colExisting.editable = true;
 						colExisting.editorDataField = "value"
@@ -337,7 +337,7 @@
 							'@option', 
 							'@idPropertyOption', 
 							fieldName); 
-						colExisting.itemEditor = views.renderers.ComboBox.create(
+						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions),
 							"@option",
 							"@idPropertyOption",
@@ -346,8 +346,7 @@
 							true,
 							true,
 							false,
-							true);
-						
+							true).newInstance(), '');						
 					}
 					if (colConfirmExisting != null) {
 						colConfirmExisting.editable = true;
@@ -363,11 +362,14 @@
 					// Assume text
 					newCol.editable   = true;
 					newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-					newCol.itemEditor   = views.renderers.TextInput.create(fieldName);
+					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
+					newCol.editorDataField="value";
+					
 					if (colExisting != null) {
 						colExisting.editable   = true;
 						colExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-						colExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
+						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
+						colExisting.editorDataField="value";
 					}
 					if (colConfirmExisting != null) {
 						colConfirmExisting.editable   = true;
