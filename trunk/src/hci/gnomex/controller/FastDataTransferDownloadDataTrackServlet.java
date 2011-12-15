@@ -81,7 +81,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
 
       // Read analysis file parser, which contains a list of selected analysis files,
       //from session variable stored by CacheDataTrackFileDownloadList.
-      keys = (String)req.getSession().getAttribute(GetEstimatedDataTrackDownloadSize.SESSION_DATATRACK_KEYS);
+      keys = (String)req.getSession().getAttribute(GetEstimatedDownloadDataTrackSize.SESSION_DATATRACK_KEYS);
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -215,7 +215,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
         secAdvisor.closeReadOnlyHibernateSession();
         
         // clear out session variable
-        req.getSession().setAttribute(GetEstimatedDataTrackDownloadSize.SESSION_DATATRACK_KEYS, null);
+        req.getSession().setAttribute(GetEstimatedDownloadDataTrackSize.SESSION_DATATRACK_KEYS, null);
         
 
         response.setHeader("Content-Disposition","attachment;filename=\"gnomex.jnlp\"");
