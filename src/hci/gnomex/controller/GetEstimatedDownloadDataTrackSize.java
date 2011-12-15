@@ -18,9 +18,9 @@ import org.hibernate.Session;
 
 
 
-public class GetEstimatedDataTrackDownloadSize extends GNomExCommand implements Serializable {
+public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetEstimatedDataTrackDownloadSize.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetEstimatedDownloadDataTrackSize.class);
   
   private String    keysString = null;
 
@@ -106,7 +106,7 @@ public class GetEstimatedDataTrackDownloadSize extends GNomExCommand implements 
         }
       }
       
-      this.xmlResult = "<SUCCESS size=" +  Long.valueOf(estimatedDownloadSize).toString() + " uncompressedSize=" + Long.valueOf(uncompressedDownloadSize) + "/>";
+      this.xmlResult = "<SUCCESS size=\"" +  Long.valueOf(estimatedDownloadSize).toString() + "\" uncompressedSize=\"" + Long.valueOf(uncompressedDownloadSize) + "\"" + "/>";
       this.setResponsePage(SUCCESS_JSP);
 
     } catch (Exception e) {
