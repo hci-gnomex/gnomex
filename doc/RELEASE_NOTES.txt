@@ -1,10 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.5
 --------------------
 * Added call to setDirty when annotation owner changed
 * Changed Annotation security so lab managers can update if no owner
-* Convered PendingWorkAuthd query to HQL
+* Converted PendingWorkAuthd query to HQL
+* When user self-registers, default user to isActive='Y'
 
 5.3.4.2 (12/14/2011)
 --------------------
