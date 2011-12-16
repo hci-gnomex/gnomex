@@ -27,14 +27,14 @@
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			
+			import views.admin.PropertyEvent;
+			import views.admin.PropertyWindow;
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
 			import views.renderers.MultiselectRenderer;
 			import views.renderers.URLRenderer;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.AnnotationDataGridColumn;
-			import views.admin.PropertyEvent;
-			import views.admin.PropertyWindow;
 			
 			private var dictionaryEditor:DictionaryEditor; 
 			
@@ -52,7 +52,7 @@
 				}
 				
 			}
-			
+				
 			private function propagateTreatment():void {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@treatment = this.treatmentTextInput.text;
@@ -515,7 +515,22 @@
 			}
 			
 			public function createToolTip(event:ListEvent):void{
-				sampleAnnotationGrid.toolTip = sampleAnnotationGrid.dataProvider[event.rowIndex].@description;	
+				createAnnotationList();
+				var description:String = "";
+				for each (var temp:XML in properties){
+					if(temp.@name == sampleAnnotationGrid.dataProvider[event.rowIndex].@name){
+						description = temp.@description;
+						break;
+					}
+				}
+				sampleAnnotationGrid.toolTip = description;
+				
+			}
+			private function createAnnotationList():void {
+				properties = new XMLListCollection();
+				for each(var sc:XML in parentApplication.propertyList) {
+					properties.addItem(sc.copy());
+				}
 			}
 			
 			public function deleteToolTip(obj:Object):void{
@@ -524,6 +539,8 @@
 			
 		]]>
 	</mx:Script>
+	
+	<mx:XMLListCollection id="properties"/>
 	
 	<mx:VBox width="100%" height="100%">
 		<mx:HBox verticalAlign="bottom"  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
