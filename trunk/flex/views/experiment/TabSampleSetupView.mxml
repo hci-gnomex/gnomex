@@ -481,7 +481,7 @@
 			}
 			
 			if (parentDocument.isMicroarrayState()) {
-				parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;				
+				parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;	
 				parentDocument.hybSetupView.checkForSlideProductWarning();
 			}
 			propagateSampleOrganism();
@@ -624,7 +624,7 @@
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
 				<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
-					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
+					<mx:dataProvider>{parentApplication.organismList}</mx:dataProvider>
 					<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 				</mx:ComboBox> 
 				<mx:Label text="Please specify" paddingLeft="6">
