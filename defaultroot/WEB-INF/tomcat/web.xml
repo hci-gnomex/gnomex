@@ -465,6 +465,7 @@
 			<url-pattern>/GetPricingList.gx</url-pattern>
 			<url-pattern>/GetWorkItemList.gx</url-pattern>
 			<url-pattern>/GetUsageData.gx</url-pattern>
+			<url-pattern>/LinkDataTrackFile.gx</url-pattern>
 			<url-pattern>/MovePriceCategory.gx</url-pattern>
 			<url-pattern>/OrganizeExperimentUploadFiles.gx</url-pattern>
 			<url-pattern>/ReassignBillingAccount.gx</url-pattern>

@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+				width="482" height="488" showCloseButton="true" 
+				title="Data Tracks" close="{PopUpManager.removePopUp(this)}">
+	
+
+<mx:HTTPService  
+	id="getDataTrackList" 
+	url="GetDataTrackList.gx"
+	destination="getDataTrackList"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetDataTrackList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get data track list', event)"
+	method="POST" 
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+	
+<mx:HTTPService  
+	id="linkDataTrackFile" 
+	url="LinkDataTrackFile.gx"
+	destination="linkDataTrackFile"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onLinkDataTrackFile(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to link analysis file to data track', event)"
+	method="POST" 
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+
+<mx:HTTPService  
+	id="linkDataTrackFileMultiple" 
+	url="LinkDataTrackFile.gx"
+	destination="linkDataTrackFileMultiple"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onLinkDataTrackFileMultiple(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to create data tracks and link analysis files', event)"
+	method="POST" 
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+
+<mx:HTTPService             
+	id="getDataTrack" 
+	url="GetDataTrack.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetDataTrack(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get data track', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
+	
+
+<mx:Script>
+<![CDATA[
+	import mx.collections.ArrayCollection;
+	import mx.collections.XMLListCollection;
+	import mx.controls.Alert;
+	import mx.controls.Menu;
+	import mx.controls.ToolTip;
+	import mx.core.DragSource;
+	import mx.events.CloseEvent;
+	import mx.events.DragEvent;
+	import mx.events.ListEvent;
+	import mx.events.MenuEvent;
+	import mx.managers.DragManager;
+	import mx.managers.PopUpManager;
+	import mx.managers.ToolTipManager;
+	import mx.rpc.events.ResultEvent;
+
+	[Bindable]
+	public var dataTrackCount:String = "";
+	
+	private var idLab:Object = null;
+	private var idGenomeBuild:Object = null;
+	private var idOrganism:Object = null;
+	
+	private var lastTreeItem:ListEvent;
+	public var treeItemToSelect:Object = null; 
+	private var dragParams:ArrayCollection = null;
+	private var dropNode:Object = null;
+
+	private var hitCount:int = 0;
+	private var firstHitItem:XML = null;
+	private var currentIndex:int = 0;
+	private var hitToolTip:ToolTip = null;
+
+	
+	public function refreshDataTracksForAnalysis(analysis:Object):void {
+		var genomeBuilds:XMLList = analysis.genomeBuilds.GenomeBuild;
+		
+		idLab = analysis.@idLab;
+
+		// If the analysis has one genome build, filter by it.
+		// If the analysis has multiple builds, just filter by organism 
+		//    (if it is the same for all genome builds).
+		// If the analysis doesn't specify a build, show the whole tree.
+		if (genomeBuilds.length() > 1) {
+			var organismMap:Object = new Object();
+			for each(var build:Object in genomeBuilds) {
+				organismMap[build.@idOrganism] = build.@idOrganism;
+			}
+			var organismCount:int = 0;
+			for (var key:Object in organismMap)
+			{
+				organismCount++;
+			}
+			if (organismCount == 1) {
+				var gb:Object = genomeBuilds[0];
+				idOrganism = gb.@idOrganism;
+			}
+		} else if (genomeBuilds.length() == 1) {
+			var gb1:Object = genomeBuilds[0];
+			idOrganism = gb1.@idOrganism;
+			idGenomeBuild = gb1.@idGenomeBuild;
+		} 
+		
+		setDefaultsForDropdowns();
+		
+		// Filter data tracks by analysis lab, organism, genome build
+		var params:Object = new Object();
+		params.idLab = analysis.@idLab;
+		params.idGenomeBuild = idGenomeBuild;
+		params.idOrganism = idOrganism;
+		getDataTrackList.send(params);
+	}
+	
+	private function setDefaultsForDropdowns():void {
+		// Select the lab combo to the analysis id Lab
+		if (idLab != null && idLab != '') {
+			for each(var lab:Object in labCombo.dataProvider) {
+				if (lab.@idLab == idLab) {
+					labCombo.selectedItem = lab;
+					break;
+				}
+			}
+		}
+		// Select the organism combo to the analysis organism (of genome build)
+		if (idOrganism != null && idOrganism != '') {
+			for each(var organism:Object in organismCombo.dataProvider) {
+				if (organism.@idOrganism == idOrganism) {
+					organismCombo.selectedItem = organism;
+					break;
+				}
+			}
+		}
+		callLater(setDefaultGenomeBuildDropdown);
+	}
+	
+	private function setDefaultGenomeBuildDropdown():void {
+		
+		// Select genome build combo to the analysis genome build
+		if (idGenomeBuild != null && idGenomeBuild != '') {
+			for each(var gb2:Object in organismCombo.selectedItem.genomeBuilds.GenomeBuild) {
+				if (gb2.@idGenomeBuild == idGenomeBuild) {
+					genomeBuildCombo.selectedItem = gb2;
+					break;
+				}
+			}
+		}
+	}
+	public function refreshDataTracksAndSelect(itemToSelect:XML):void {
+		treeItemToSelect = itemToSelect;
+
+		refreshDataTracks();
+	}
+	
+	public function refreshDataTracks():void {
+		var parms:Object = new Object();
+		parms.idLab = this.labCombo.visible && this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
+		parms.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@idOrganism : "";
+		parms.idGenomeBuild = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+		parms.emphasizeText = this.locateText.text == 'Enter search here... ' ? "" : this.locateText.text;;
+		
+		
+		// Set the initial filteres too
+		idLab = parms.idLab;
+		idOrganism = parms.idOrganism;
+		idGenomeBuild = parms.idGenomeBuild;
+		
+		getDataTrackList.send(parms);
+	}
+
+
+	private function onGetDataTrackList(event:ResultEvent): void {
+		if (getDataTrackList.lastResult.name() != "DataTrackList") {
+			Alert.show(getDataTrackList.lastResult..ACTMESSAGE.@TEXT);
+			browseTree.visible = false;
+			return;
+		}
+
+		if (getDataTrackList.lastResult.Organism.length() == 0) {
+			browseTree.visible = false;
+		} else {
+			browseTree.visible = true;
+		}
+		var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
+		dataTrackCount = dataTracks.length() + " data tracks.";
+		
+		
+		// If search text was entered, select the first tree node that matches
+		if (locateText.text != '' && locateText.text != 'Enter search here...') {
+			selectEmphasizedTreeItem();
+			hitCount = getDataTrackList.lastResult.@hitCount;
+			this.locateStack.selectedIndex = 1;
+			
+			this.browseTree.validateNow();
+			
+			this.nextLocationButton.visible = hitCount > 0 ? true : false;
+			
+			// Show hit count in tooltip
+			var s:String = hitCount + " match" + (hitCount == 1 ? " found." : "es found.");
+			var globalPoint:Point  = this.locateText.contentToGlobal(new Point(this.locateText.x, this.locateText.y));
+			hitToolTip = ToolTipManager.createToolTip(s, this.locateText.x + 80, globalPoint.y + 11) as ToolTip;
+			
+			// destroy tooltip in 10 seconds
+			var minuteTimer:Timer = new Timer(1000, 5);
+			minuteTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onToolTipTimerComplete);
+			minuteTimer.start();
+		} else {
+			this.nextLocationButton.visible = false;
+		}
+
+		callLater(expandAppropriateNodes);    	
+		
+	}
+	private function selectLocateText():void {
+		if (locateText.text == 'Enter search here...') {
+			locateText.selectionBeginIndex = 0;
+			locateText.selectionEndIndex = locateText.text.length;
+		} 
+	}
+	private function locateByName():void {
+		if (locateText.text != 'Enter search here...' && locateText.text != '') {
+			refreshDataTracks();
+		} 
+	}
+	
+	
+	
+	private function onToolTipTimerComplete(evt:TimerEvent):void
+	{
+		ToolTipManager.destroyToolTip(hitToolTip);
+	}
+	
+	
+	private function jumpToNextMatch():void {
+		var jump:Boolean = false;
+		currentIndex = -1;
+		for each(var o:XML in getDataTrackList.lastResult..Organism) {
+			incrementIndex(o);
+			if (jump) {
+				break;
+			}
+			jump = jumpTo(o);
+			if (jump) {
+				break;
+			}
+			for each(var gv:XML in o.GenomeBuild) {
+				incrementIndex(gv);
+				if (jump) {
+					break;
+				}
+				jump = jumpTo(gv);
+				if (jump) {
+					break;
+				}
+				for each(var ra:XML in gv.DataTrack) {
+					incrementIndex(ra);
+					jump = jumpTo(ra);
+					if (jump) {
+						break;
+					}
+				}
+				for each(var ag:XML in gv..DataTrackFolder) {
+					incrementIndex(ag);
+					if (jump) {
+						break;
+					}
+					jump = jumpTo(ag);
+					if (jump) {
+						break;
+					}
+					for each(var a:XML in ag.DataTrack) {
+						incrementIndex(a);
+						jump = jumpTo(a);
+						if (jump) {
+							break;
+						}
+					}
+				}					
+			}	
+		}
+		if (!jump) {
+			this.browseTree.selectedItem = null;
+		}
+	}
+	private function incrementIndex(item:XML):void {
+		if (isOpenItem(item)) {
+			currentIndex++;
+		}
+		
+		item.@currentIndex = currentIndex;
+	}
+	
+	private function isOpenItem(item:XML):Boolean{
+		var isOpen:Boolean = false;
+		for each(var openItem:XML in browseTree.openItems) {
+			if (item == openItem) {
+				isOpen = true;
+				break;
+			}
+			
+			if (!isOpen) {
+				for each(var openChildItem:XML in openItem.elements()) {
+					if (item == openChildItem) {
+						isOpen = true;
+						break;
+					}
+				}
+				
+			}
+		} 	
+		return isOpen;		
+	}
+	
+	private function jumpTo(item:XML):Boolean {
+		if (item.@emphasize == "Y" &&
+			this.browseTree.selectedItem != item &&
+			this.browseTree.selectedIndex < currentIndex) {
+			recurseExpandParent(item);	
+			browseTree.selectedItem = item;
+			browseTree.scrollToIndex(browseTree.selectedIndex);
+			return true;
+		} else {
+			return false;
+		}			
+	}
+
+	
+	private function selectEmphasizedTreeItem():void {
+		for each(var o:Object in getDataTrackList.lastResult.Organism) {
+			var found:Boolean = selectEmphasizedNode(o);
+			if (found) {
+				break;
+			}
+		}	
+	}
+	
+	private function selectEmphasizedNode(node:Object):Boolean {
+		if (node.@emphasize == 'Y') {
+			treeItemToSelect = node;
+			return true;
+		} else {
+			var found:Boolean = false;
+			for each(var child:Object in node.children()) {
+				found = selectEmphasizedNode(child);
+				if (found) {
+					break;
+				}
+			}
+			return found;
+		}
+	}
+	
+	
+	private function showAddDataTrackFolderWindow():void {
+		var addFolderWindow:DataTrackFolderAddWindow = DataTrackFolderAddWindow(PopUpManager.createPopUp(parentApplication.mainArea, DataTrackFolderAddWindow, true));
+		PopUpManager.centerPopUp(addFolderWindow);
+		var genomeBuild:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
+		var parent:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
+		addFolderWindow.init(genomeBuild, parent, this, idLab);
+		addFolderWindow.dataTrackFolderName.setFocus();
+	}
+	private function showAddDataTrackWindow():void {
+		var aWindow:DataTrackAddWindow = DataTrackAddWindow(PopUpManager.createPopUp(parentApplication.theBody, DataTrackAddWindow, true));
+		PopUpManager.centerPopUp(aWindow);
+		var gb:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
+		var folder:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
+		aWindow.init(gb, folder, this, idLab);
+		aWindow.dataTrackName.setFocus();
+	}
+	
+	private function expandAppropriateNodes():void {
+		var itemToSelect:XML = getItemToSelect();
+		
+		if (cbAlwaysExpandTree.selected) {
+			// If the user has check the 'Expand tree' checkbox,
+			// just expand all nodes
+			this.expandAllNodes();
+			browseTree.validateNow();
+			callLater(selectTreeItem);
+			
+		} else if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
+			// If there is a tree, expand so it and its ancestors.
+			recurseExpandParent(itemToSelect);
+			browseTree.validateNow();
+			callLater(selectTreeItem);
+		} else {
+			// If no item to select or we have selected organism or genome build, 
+			// expand out to first folder level for all organisms, genome build.
+			browseTree.expandItem(getDataTrackList.lastResult, true);
+			for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+				if (organism.@isPopulated == "Y") {
+					browseTree.expandItem(organism, true);  	
+					
+					for each(var gb:Object in organism.GenomeBuild) {
+						browseTree.expandItem(gb, true);
+					}
+				}
+			}
+			callLater(selectTreeItem);
+		}
+		
+	}		
+	public function expandAllNodes():void
+	{
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			if (organism.@isPopulated == "Y") {
+				browseTree.expandChildrenOf(organism,true);
+			}
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+	
+	
+	private function collapseAllBrowseNodes():void {
+		if (browseTree == null || browseTree.openItems == null) {
+			return;
+		}
+		
+		browseTree.openItems = [];
+		browseTree.validateNow();
+	}
+	private function collapseAllNodes():void {
+		
+		browseTree.expandItem(getDataTrackList.lastResult, false);
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			browseTree.expandItem(organism, false);
+		}
+		for each(var gb:Object in getDataTrackList.lastResult..GenomeBuild) {
+			browseTree.expandItem(gb, false);
+		}
+		for each(var folder:Object in getDataTrackList.lastResult..DataTrackFolder) {
+			browseTree.expandItem(folder, false);
+		}
+		browseTree.validateNow();
+	}
+	
+	private function collapseFolderNodes():void {
+		for each(var folder:Object in getDataTrackList.lastResult..DataTrackFolder) {
+			browseTree.expandItem(folder, false);
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+		
+	}
+	private function collapseOrganismNodes():void {
+		for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+			browseTree.expandItem(organism, false);
+		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+		
+	}
+
+	
+	public function getTreeIcon(item:Object):Class {
+		if (item.name() == "Organism") {
+			if (item.@isPopulated == "Y") {
+				return parentApplication.iconOrganism;
+			} else {
+				return parentApplication.iconOrganismFaded;
+			}
+		} else if (item.name() == "DataTrackFolder") {
+			if (item.@idLab != '') {
+				return parentApplication.iconDataTrackFolderForGroup;					
+			} else {
+				return parentApplication.iconFolder;										
+			}
+		} else if (item.name() == "GenomeBuild") {
+			if (item.children() != null && item.children().length() > 0) {
+				return parentApplication.iconGenomeBuild;				
+			} else {
+				return parentApplication.iconGenomeBuildFaded;
+			}
+		} else if (item.name() == "DataTrack") {
+			if (item.@codeVisibility == "MEM") {
+				return parentApplication.iconDataTrackMember;
+			} else if (item.@codeVisibility == "MEMCOL") {
+				return parentApplication.iconDataTrackMemberCollab;
+			} else if (item.@codeVisibility == "OWNER") {
+				return parentApplication.iconDataTrackOwner;
+			} else if (item.@codeVisibility == "INST") {
+				return parentApplication.iconDataTrackInstitution;
+			} else {
+				return parentApplication.iconDataTrackPublic;
+			}
+		} else {
+			return parentApplication.iconDataTrack;
+		}
+	}     
+
+
+	private function recurseExpandParent(item:XML):void {
+		if (item.name() != 'DataTrack') {
+			browseTree.expandItem(item, true);				
+		}
+		if (item.parent() != null) {
+			recurseExpandParent(item.parent());									
+		}
+		
+	}
+	private function selectTreeItem():void {
+		if (treeItemToSelect != null) {
+			var item:Object = getItemToSelect();
+			
+			if (item != null) {
+				browseTree.selectedItem = item;
+				browseTree.scrollToIndex(browseTree.selectedIndex);
+			} else {
+				browseTree.selectedItem = null;
+			}
+		}
+	}
+	
+	private function getItemToSelect():XML {
+		if (treeItemToSelect == null) {
+			return null;
+		} 
+		
+		if (treeItemToSelect is XMLList && treeItemToSelect.length() > 0) {
+			treeItemToSelect = treeItemToSelect[0];
+		}
+		
+		var item:XMLList = null;
+		if (treeItemToSelect.name() == "Organism") {
+			item = getDataTrackList.lastResult.Organism.(@idOrganism == treeItemToSelect.@idOrganism);
+		} else if (treeItemToSelect.name() == "GenomeBuild") {
+			item = getDataTrackList.lastResult..GenomeBuild.(@idGenomeBuild == treeItemToSelect.@idGenomeBuild);
+		} else if (treeItemToSelect.name() == "DataTrackFolder") {
+			item = getDataTrackList.lastResult..DataTrackFolder.(@idDataTrackFolder == treeItemToSelect.@idDataTrackFolder);
+		} else if (treeItemToSelect.name() == "DataTrack") {
+			item = getDataTrackList.lastResult..DataTrack.(@idDataTrack == treeItemToSelect.@idDataTrack && @idDataTrackFolder == treeItemToSelect.@idDataTrackFolder);
+		} else if (treeItemToSelect.name() == "LaunchDataTrack") {
+			item = getDataTrackList.lastResult..DataTrack.(@idDataTrack == treeItemToSelect.@idDataTrack);
+		}
+		if (item != null && item.length() > 0) {
+			return XML(item[0]);				
+		} else {
+			return null;
+		}
+		
+	}
+	
+	
+	private function getAncestor(item:XML, ancestorName:String):XML {
+		var ancestor:XML = null;
+		while( item )
+		{
+			if( item.name() == ancestorName )
+			{
+				ancestor = item;
+				break;
+			}
+			item = item.parent();
+		}
+		return ancestor;
+	}
+	
+	private function onTreeClick():void {
+		this.treeItemToSelect = this.browseTree.selectedItem;
+	}
+
+	public function setLastTreeItem(event:ListEvent):void
+	{
+		lastTreeItem = event;
+	}
+	
+	private function onDragDrop( event:DragEvent ) : void
+	{   
+		var ds:DragSource = event.dragSource;
+		
+		// determine where in the grid the drop occurs and select that node by the index; 
+		// followed by retrieving the node itself. 
+		var r:int = browseTree.calculateDropIndex(event);
+		if (r > 0) { 
+			r--;
+		}
+		browseTree.selectedIndex = r;
+		dropNode = browseTree.selectedItem as XML;
+		treeItemToSelect = dropNode;
+
+		
+		// Disallow operation if user does not have write
+		// permissions on dataTrack
+		if (dropNode.@canWrite != "Y") {
+			Alert.show("Insufficient permissions to write to data track " + dropNode.@label + ".");   
+			event.preventDefault();
+			event.target.hideDropFeedback(event);
+			DragManager.showFeedback(DragManager.NONE);		   	
+			return;
+		}
+		
+		// Disallow operation if drop node is an organism
+		if (dropNode.name() == 'Organism') {
+			event.preventDefault();
+			event.target.hideDropFeedback(event);
+			DragManager.showFeedback(DragManager.NONE);		   	
+			return;			
+		}
+		
+		
+		
+		// retrieve the data associated with the "items" format. This will be the data that
+		// the dragInitiator has copied into the DragSource.
+		dragParams = new ArrayCollection();
+		for each(var dragItem:Object in ds.dataForFormat("items") as Array) {
+			var params:Object = new Object();
+			var keep:Boolean = true;
+			if (dragItem.name() == "AnalysisFileDescriptor") {
+				params.name = "AnalysisFileDescriptor";
+				params.fileName = dragItem.@displayName;
+				params.idAnalysis = dragItem.@idAnalysis;
+				params.idAnalysisFile = dragItem.@idAnalysisFileString;
+
+				dragParams.addItem(params);
+			}
+		}
+		
+		
+		
+		event.preventDefault();
+		event.target.hideDropFeedback(event);
+		DragManager.showFeedback(DragManager.NONE);		
+		
+
+		// Associate dragged analysis file(s) with an existing
+		// data track or create new data tracks.
+		if (dropNode != null && dragParams.length > 0) {
+			promptToAssociateFiles();
+		}	
+		
+		return;       
+
+	}
+	
+	private function promptToAssociateFiles():void {
+		var dragItemCount:int = 0;
+		for each(var di:Object in dragParams) {
+			dragItemCount++;
+		}
+		// One file is dragged onto a data track that contains no files
+		if (dragItemCount == 1 && dropNode.name() == 'DataTrack') {
+			var params:Object = new Object();
+			params.idDataTrack = dropNode.@idDataTrack;
+			getDataTrack.send(params);
+		} 
+		// More that one data file cannot be dragged onto an existing data track
+		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack') {
+			Alert.show("Multiple files selected.  Please drag multiple files onto a folder so that a data track can be created for each file.",
+				"Warning");
+		}
+		// One file dragged onto a folder
+		else if (dragItemCount == 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+			Alert.show("Create Data track and link to " + dragParams[0].fileName + " under " + dropNode.@label + "?",
+				"Confirm",
+				(Alert.YES | Alert.NO),
+				this,
+				onPromptToAddAndLink);
+			
+		} 
+		// Multiple files dragged onto a folder
+		else if (dragItemCount > 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+			Alert.show("Create Data track for each of the analysis files (total of " + dragItemCount + ")" + " under  " + dropNode.@label + "?",
+				"Confirm",
+				(Alert.YES | Alert.NO),
+				this,
+				onPromptToAddAndLinkFiles);
+			
+		}
+		
+	}
+	
+	
+	
+	private function onGetDataTrack(event:ResultEvent):void {
+		if (getDataTrack.lastResult.name() == "DataTrack") {
+			var fileExists:Boolean = false;
+			var fileCount:int = 0;
+			var fileNames:String = "";
+			for each(var file:Object in getDataTrack.lastResult..File) {
+				fileCount++;
+				fileNames += file.@name + " ";
+				if (file.@name == dragParams[0].fileName) {
+					fileExists = true;
+				}
+			}
+			if (fileExists) {
+				Alert.show("File " + dragParams[0].fileName + " already exists for Data track " + dropNode.@label + ".  Overwrite file?",
+					"Confirm",
+					(Alert.YES | Alert.NO),
+					this,
+					onPromptToLink);				
+				
+			} else if (fileCount > 0) {
+				Alert.show("Unable to link " + dragParams[0].fileName + ".\n\nThe file " + fileNames + " is already linked to Data track " + dropNode.@label + "?",
+					"Warning");
+				return;
+			} else {
+				Alert.show("Associate " + dragParams[0].fileName + " with Data track " + dropNode.@label + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO),
+					this,
+					onPromptToLink);				
+			}
+			
+		} else {
+			Alert.show(getDataTrack.lastResult..ACTMESSAGE.@TEXT);
+		}		
+	}	
+
+	
+	private function onPromptToLink(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			var params:Object = new Object();
+			params.idDataTrack = dropNode.@idDataTrack;
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idLab = idLab;
+			
+			linkDataTrackFile.send(params);
+		}
+	}
+	private function onPromptToAddAndLink(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			var params:Object = new Object();
+			params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idLab = idLab;
+			
+			linkDataTrackFile.send(params);
+		}
+	}
+	private function onPromptToAddAndLinkFiles(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			for each(var dragParam:Object in dragParams) {
+				var params:Object = new Object();
+				params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
+				params.idGenomeBuild = dropNode.@idGenomeBuild;
+				params.idAnalysisFile = dragParam.idAnalysisFile;
+				params.idLab = idLab;
+				
+				linkDataTrackFileMultiple.send(params);
+				
+			}
+		}
+	}
+	
+	private function onLinkDataTrackFile(event:ResultEvent): void {
+		if (linkDataTrackFile.lastResult.name() != "SUCCESS") {
+			Alert.show(linkDataTrackFile.lastResult..ACTMESSAGE.@TEXT);
+			return;
+		}
+		this.refreshDataTracks();
+	}
+	private function onLinkDataTrackFileMultiple(event:ResultEvent): void {
+		if (linkDataTrackFileMultiple.lastResult.name() != "SUCCESS") {
+			Alert.show(linkDataTrackFileMultiple.lastResult..ACTMESSAGE.@TEXT);
+			return;
+		}
+		var dragCount:int = 0;
+		for each(var dp:Object in dragParams) {
+			dragCount++;
+		}
+		if (linkDataTrackFileMultiple.lastResult.@idAnalysisFile == dragParams[dragCount - 1].idAnalysisFile) {
+			this.refreshDataTracks();			
+		}
+	}
+
+
+	
+	public function positionWindow():void
+	{
+		var newX:Number = 0;
+		var newY:Number = 0;
+		var buffer:Number = 2;
+		newY = (parent.height - this.height)-buffer;
+		newX = (parent.width - this.width)-buffer;
+		this.move(newX,newY);
+	}
+	
+	private function doDragEnter(event:DragEvent):void
+	{
+		// Keep track of what was dragged.
+		var draggedFormat:String = event.dragSource.formats[0];
+		//draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
+		
+		// Cancel default behaviour
+		event.preventDefault();
+		// Tell the DragManager that the Tree will accept the DragDrop
+		DragManager.acceptDragDrop(Tree(event.target));
+	}
+	
+	private function doDragOver(event:DragEvent):void
+	{
+		// Show the default "drop line" in the Tree control
+		var r:int = browseTree.calculateDropIndex(event);
+		if (r > 0) { 
+			r--;
+		}
+		browseTree.selectedIndex = r;
+		
+		event.preventDefault();
+	}
+	
+	private function doDragExit(event:DragEvent):void
+	{
+		// hide the "drop line" that is shown in Tree control
+		// when dropping in a Tree
+		browseTree.hideDropFeedback(event);
+	}
+	
+	private function doDragComplete(event:DragEvent):void
+	{
+		// hide the "drop line" that is shown in Tree control
+		// when dropping in a Tree
+		browseTree.hideDropFeedback(event);
+	}	
+	
+	private function showDataTrackView():void {
+		var refreshItem:XML = new XML(
+			"<Filter " +
+			"idOrganism='" + idOrganism + "'" +
+			"idGenomeBuild='" + idGenomeBuild + "'" +
+			"idLab='" + idLab + "'" +
+			"/>");
+
+		parentApplication.showDataTrackViewForItem(treeItemToSelect, refreshItem);
+	}
+
+]]>
+</mx:Script>
+
+	<mx:VBox backgroundImage="@Embed(source='../../assets/filterBar.png')" 
+			 backgroundSize="100%" width="100%" 
+			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+		
+		<mx:HBox width="100%" 
+				 verticalAlign="middle" paddingTop="4" paddingBottom="4"
+				 id="topBar" horizontalGap="1">
+			<mx:LinkButton   label="New Data Track" 
+							 enabled="{browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
+							 styleName="linkMenuButton"   					        	
+							 toolTip="New data track" 
+							 click="{showAddDataTrackWindow()}" 
+							 id="linkbutton4"  textAlign="left" 
+							 disabledIcon="@Embed(source='../../assets/datatrack_new_disable.png')" 
+							 icon="@Embed(source='../../assets/datatrack_new.png')"/>
+			<mx:VRule height="20" id="vrule4" width="2"/>
+			<mx:LinkButton   label="New Folder" 
+							 icon="@Embed(source='../../assets/folder_new.png')" 
+							 enabled="{browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
+							 disabledIcon="@Embed(source='../../assets/folder_new_disable.png')" 
+							 styleName="linkMenuButton"   					        	
+							 toolTip="New folder" 
+							 click="{showAddDataTrackFolderWindow()}" 
+							 id="linkbutton3" textAlign="left" />
+			<mx:VRule height="20" width="2"/>
+			<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
+						   icon="@Embed(source='../../assets/refresh.png')" 
+						   click="{treeItemToSelect=null;refreshDataTracks()}" id="linkbutton8"/>
+			
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="1" paddingTop="2" verticalAlign="middle" 
+				 paddingBottom="2" id="hbox15"   
+				 paddingRight="2" paddingLeft="2">
+			
+			<mx:ComboBox labelField="@binomialName" id="organismCombo" 
+						 change="refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="130">
+				<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
+			</mx:ComboBox>
+			<mx:ComboBox dataProvider="{organismCombo.selectedItem.genomeBuilds.GenomeBuild}" 
+						 labelField="@das2Name" id="genomeBuildCombo" 
+						 change="refreshDataTracks()" styleName="menuLabelSmall" 
+						 width="170"  prompt="Genome build..."></mx:ComboBox>
+			
+			
+			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+						 prompt="Lab..." width="160"
+						 labelField="@name" change="{refreshDataTracks()}" 
+						 styleName="menuLabelSmall"></mx:ComboBox>			
+			
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:HBox width="100%" horizontalGap="0" paddingLeft="2" paddingBottom="2" verticalAlign="middle">
+		<mx:TextInput id="locateText" text="Enter search here..." width="100%"  enter="locateByName()" 
+					  click="{selectLocateText()}"
+					  change="{this.locateStack.selectedIndex = 0}" styleName="menuLabelSmall" height="20"/>
+		<mx:ViewStack id="locateStack" creationPolicy="all">
+			<mx:HBox paddingLeft="2">
+				<mx:LinkButton label="Find"   width="90" paddingLeft="1" enabled="{locateText.text != ''}" 
+							   id="findLocationButton" styleName="linkMenuButton" click="locateByName()" textAlign="left" icon="@Embed(source='../../assets/magnifier.png')"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:LinkButton label="Next match" width="90"  paddingLeft="1" visible="true" 
+							   id="nextLocationButton" styleName="linkMenuButton" 
+							   click="jumpToNextMatch()" textAlign="left" 
+							   icon="@Embed(source='../../assets/next.png')"/>
+			</mx:HBox>
+		</mx:ViewStack>
+	</mx:HBox>
+
+	
+	<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+		<mx:Tree width="100%" height="100%" 
+				 dataProvider="{getDataTrackList.lastResult}" 
+				 showRoot="false" 
+				 id="browseTree" 
+				 itemRollOver="setLastTreeItem(event)"
+				 click="onTreeClick();"
+				 doubleClickEnabled="true"
+				 doubleClick="showDataTrackView()"
+				 borderStyle="solid"
+				 labelField="@label"
+				 dragEnabled="false" 
+				 dropEnabled="true" 
+				 dragMoveEnabled="true"				 
+				 dragOver="doDragOver(event)"
+				 dragEnter="doDragEnter(event)"
+				 dragExit="doDragExit(event)"
+				 dragDrop="onDragDrop(event);" 
+				 itemRenderer="views.renderers.TreeNodeRenderer"
+				 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true">
+		</mx:Tree>
+    </mx:VBox>
+	
+	<mx:ControlBar width="100%" verticalAlign="bottom">				
+		<mx:CheckBox id="cbAlwaysExpandTree" label="Expand tree"  click="{browseTree.selectedItem=null;cbAlwaysExpandTree.selected ? expandAppropriateNodes() : this.collapseAllNodes();expandAppropriateNodes()}" styleName="menuLabelSmall" />
+		<mx:Spacer width="100%"/>
+		<mx:Label text="{dataTrackCount}" styleName="menuLabelSmall" />
+	</mx:ControlBar>
+
+</mx:TitleWindow>

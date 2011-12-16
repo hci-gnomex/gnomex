@@ -201,6 +201,7 @@
 	import mx.managers.PopUpManager;
 	import mx.managers.ToolTipManager;
 	import mx.rpc.events.ResultEvent;
+	
 	import views.experiment.DownloadProgressView;
 	
 	private const DOWNLOAD_FILES_URL:String       = "DownloadDataTrackFileServlet.gx"; 
@@ -229,8 +230,10 @@
 	
 	public var treeItemToSelect:Object = null; 
 	
-	private var organismFilterToSelect:Object = null;
+	public var refreshItem:Object = null; 
 
+	private var organismFilterToSelect:Object = null;
+	
 
 	[Bindable]
 	private var dataTrackCount:String = "";
@@ -258,7 +261,9 @@
 
 	
 	public function init():void {
-		if (dataTrackNumber != "") {
+		if (refreshItem != null) {
+			refreshDataTrackForItem();
+		} else if (dataTrackNumber != "") {
 			refreshDataTrackForLookup();
 		} else {
 			getDataTrackList.send();
@@ -308,6 +313,8 @@
 				treeItemToSelect = dt;
 			}
 			dataTrackNumber = "";
+		} else if (this.refreshItem != null) {
+			refreshItem == null;
 		}
 		
 		// If search text was entered, select the first tree node that matches
@@ -651,6 +658,14 @@
 	public function refreshDataTrackForLookup():void {
 		var params:Object = new Object();
 		params.number = dataTrackNumber;
+		getDataTrackList.send(params);
+	}
+	
+	public function refreshDataTrackForItem():void {
+		var params:Object = new Object();
+		params.idOrganism = refreshItem.@idOrganism;
+		params.idGenomeBuild = refreshItem.@idGenomeBuild;
+		params.idLab = refreshItem.@idLab;
 		getDataTrackList.send(params);
 	}
 
@@ -1527,7 +1542,7 @@
 		PopUpManager.centerPopUp(addFolderWindow);
 		var genomeBuild:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
 		var parent:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
-		addFolderWindow.init(genomeBuild, parent);
+		addFolderWindow.init(genomeBuild, parent, this, null);
 		addFolderWindow.dataTrackFolderName.setFocus();
 	}
 	
@@ -1549,7 +1564,7 @@
 		PopUpManager.centerPopUp(aWindow);
 		var gb:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
 		var folder:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
-		aWindow.init(gb, folder);
+		aWindow.init(gb, folder, this, null);
 		aWindow.dataTrackName.setFocus();
 	}
 	
