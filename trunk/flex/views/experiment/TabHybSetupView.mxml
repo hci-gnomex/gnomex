@@ -19,6 +19,10 @@
 				slideSources.refresh();
 				slideSourcesSorted = true;
 			}
+			
+			organismCombo.selectedIndex = parentDocument.sampleSetupView.sampleOrganismCombo.selectedIndex;
+
+			
 		} 
 		
 		public function unselectSlideSources():void {
@@ -286,10 +290,10 @@
 					return 0;
 				}
 			}
+		
 		}
 		
 
-      
 	]]>
 </mx:Script>
 	
@@ -312,7 +316,7 @@
 	<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="2">
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(1) Select an organism." width="250" />
-			<mx:ComboBox labelField="@display" width="250" id="organismCombo" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
+			<mx:ComboBox id="organismCombo" labelField="@display" width="250" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 				<mx:dataProvider>{parentApplication.organismList}</mx:dataProvider>
 			</mx:ComboBox>
