@@ -1,6 +1,9 @@
 package hci.gnomex.daemon;
 
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.ExperimentFile;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
@@ -13,11 +16,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -122,7 +127,7 @@ public class PendingWorkAuthd extends TimerTask {
       StringBuffer tableRows = new StringBuffer("");
       while(it.hasNext()) {
         if(!hasWorkAuthorizations) {
-          tableRows.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='250'><span class='fontClassBold'>Account Name</span></td><td width='250'><span class='fontClassBold'>Account No.</span></td></tr>");
+          tableRows.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='500'><span class='fontClassBold'>Account</span></td></tr>");
         }
         tableRows.append((String) it.next());
         hasWorkAuthorizations = true;
@@ -166,35 +171,22 @@ public class PendingWorkAuthd extends TimerTask {
     try 
     {
       myConn = sess.connection();
-      Statement stmt = myConn.createStatement();
-      ResultSet rs = null;
+  
+      StringBuffer hqlbuf = new StringBuffer("SELECT l from Lab l ");
+      hqlbuf.append(" join l.billingAccounts ba");
+      hqlbuf.append(" where ba.isApproved <> 'Y'");
+      hqlbuf.append(" order by l.lastName, l.firstName");
       
-      StringBuffer buf = new StringBuffer();
-      buf.append("select isNull(lab.lastName, '') + ISNULL(', ' + lab.firstName, '') + ' Lab' as lab,");
-      //buf.append(" accountName, ISNULL(accountNumber, '') as accountNumber");
-      buf.append(" isNull(ba.accountName, '') as accountName,");
-      buf.append(" isNull(ba.accountNumberBus, '')");
-      buf.append(" + isNull('-'+ ba.accountNumberOrg, '') + isNull('-' + ba.accountNumberFund, '')");
-      buf.append(" + ltrim(rtrim(convert(char(40), isNull('-'+ba.accountNumberActivity, ''))))");
-      buf.append(" + ltrim(rtrim(convert(char(40), isNull('-' + ba.accountNumberProject, '')))) as accountNumber");
-      buf.append(" from BillingAccount ba");
-      buf.append("   left join Lab lab");
-      buf.append("   on lab.idLab = ba.idLab");
-      buf.append(" where isApproved <> 'Y'");
-      buf.append(" order by lab, accountName, accountNumber");      
-    
-      
-      rs = stmt.executeQuery(buf.toString());
       waList = new ArrayList<String>();
-      while(rs.next()) {
-        String lab = rs.getString("lab");
-        String accountName = rs.getString("accountName");
-        String accountNumber = rs.getString("accountNumber");
-        waList.add("<tr><td width='250'><span class='fontClass'>" + lab + "</span></td><td width='250'><span class='fontClass'>" + accountName + "</span></td><td width='250'><span class='fontClass'>" + accountNumber + "</span></td></tr>");
-
-      }
-      rs.close();
-      stmt.close();   
+      
+      List results = sess.createQuery(hqlbuf.toString()).list();
+      for (Iterator i = results.iterator(); i.hasNext();) {
+        Lab thisLab = (Lab)i.next();
+        for(Iterator j = thisLab.getPendingBillingAccounts().iterator(); j.hasNext();) {
+          BillingAccount ba = (BillingAccount) j.next();
+          waList.add("<tr><td width='250'><span class='fontClass'>" + thisLab.getName() + "</span></td><td width='500'><span class='fontClass'>" + ba.getAccountNameAndNumber() + "</span></td></tr>");
+        }
+      }      
     }
 
     catch (Exception ex) {

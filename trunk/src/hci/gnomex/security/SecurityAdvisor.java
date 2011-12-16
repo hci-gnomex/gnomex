@@ -78,6 +78,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private boolean                     isGNomExUniversityUser = false;
   private boolean                     isGNomExExternalUser = false;
   private boolean                     isUniversityOnlyUser = false;
+  private boolean                     isLabManager = false;
   
   // version info
   private String                       version;
@@ -92,13 +93,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return loginDateTime;
   }
 
-  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager) throws InvalidSecurityAdvisorException {
     
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
     this.isGNomExExternalUser = isGNomExExternalUser;
     this.isUniversityOnlyUser = isUniversityOnlyUser;
     this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
+    this.isLabManager = isLabManager;
     
 
     validate();
@@ -110,6 +112,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     isGNomExUniversityUser = false;
     isGNomExExternalUser = false;
     isUniversityOnlyUser = false;
+    isLabManager = false;
     this.loginDateTime = new SimpleDateFormat("MMM-dd HH:mm").format(System.currentTimeMillis());
     setGlobalPermissions();
   }
@@ -120,6 +123,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   public boolean isUniversityOnlyUser() {
     return isUniversityOnlyUser;
+  }
+  
+  public boolean isLabManager() {
+    return isLabManager;
   }
   
   public String getIsGuest() {
@@ -160,6 +167,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     boolean isGNomExUniversityUser = false;
     boolean isGNomExExternalUser = false;
     boolean isUniversityOnlyUser = true;
+    boolean isLabManager = false;
     
     // Is this a GNomEx university user?
     StringBuffer queryBuf = new StringBuffer();
@@ -224,11 +232,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     if (appUser == null) {
       throw new InvalidSecurityAdvisorException("Cannot find AppUser " + uid);
+    } else {
+      if(appUser.getManagingLabs() != null && appUser.getManagingLabs().size() > 0) {
+        isLabManager = true;
+      }
     }
     
     
     // Instantiate SecurityAdvisor
-    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager);
     // Make sure we have a valid state.
     securityAdvisor.validate();
     // Initialize institutions (lazy loading causing invalid object
@@ -792,6 +804,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (de.getIdAppUser() != null && !this.isGuest() &&
             de.getIdAppUser().equals(this.getIdAppUser())) {
           canUpdate = true;
+        }
+        if(!canUpdate && object instanceof Property) {
+          if(de.getIdAppUser() == null && isLabManager()) {
+            canUpdate = true;
+          }
         }
       }
     }

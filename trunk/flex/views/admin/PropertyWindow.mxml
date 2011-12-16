@@ -367,7 +367,7 @@
 			 </mx:HBox>
 			 <mx:HBox width="100%" >
 			  <mx:Label text="Owner:" width="80"/>
-			  <mx:ComboBox width="100%" id="ownerCombo"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>							         			
+			  <mx:ComboBox width="100%" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>							         			
 			 </mx:HBox>
 		</mx:VBox>
 		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">

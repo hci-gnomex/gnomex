@@ -1,6 +1,11 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Added call to setDirty when annotation owner changed
+* Changed Annotation security so lab managers can update if no owner
+* Convered PendingWorkAuthd query to HQL
+
 5.3.4.2 (12/14/2011)
 --------------------
 * Removed 'Downloads' link, fixed files refresh when selecting a new experiment, reset tab index to 0 when switching to a new experiment or from 'edit' to 'view' or vice-versa.
