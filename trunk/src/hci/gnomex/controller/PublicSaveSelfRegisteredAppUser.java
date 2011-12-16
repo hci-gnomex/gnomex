@@ -1,15 +1,14 @@
 package hci.gnomex.controller;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
-import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -124,6 +123,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           }
 
         }
+        
+        // Default to active
+        appUser.setIsActive("Y");
         
         // Default to Lab permission kind
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
