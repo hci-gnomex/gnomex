@@ -922,7 +922,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (isGroupIManage(idLab)) {
         canUpdate = true;
       } 
-      // Owner of request
+      // Owner of object
       else if (isGroupIAmMemberOf(idLab) && isOwner(idAppUser)) {
         canUpdate = true;
       } 
@@ -932,8 +932,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
 
-  
-
+ 
   public boolean canDelete(DetailObject object) throws UnknownPermissionException {
     boolean canDelete = false;
     

@@ -51,7 +51,7 @@
 		import views.experiment.DownloadProgressView;
 		import views.util.DownloadHints;
 		import views.util.FileUtil;
-		
+		import views.datatrack.DistributeDataTrackWindow;
 	
 		[Bindable]
 		private var analysisTypeName:String;
@@ -370,6 +370,14 @@
 			}
 			selectAllStack.selectedIndex = 0;
 		}		
+		
+		private function showDataTracks():void {
+			theTab.selectedChild = this.filesView;
+			var dataTrackWindow:DistributeDataTrackWindow = DistributeDataTrackWindow(PopUpManager.createPopUp(parentApplication.theBody, DistributeDataTrackWindow, false));
+			dataTrackWindow.refreshDataTracksForAnalysis(parentDocument.selectedAnalysis);
+			dataTrackWindow.positionWindow();
+		}
+
 	]]>
 </mx:Script>
 
@@ -391,6 +399,15 @@
 					<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>
 				<mx:LinkButton label="Downloads" click="{theTab.selectedChild = filesView}" icon="@Embed(source='../../assets/download.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">
+				</mx:LinkButton>		
+				
+				<mx:LinkButton label="Distribute Data Tracks" 
+							   click="showDataTracks()" 
+							   icon="@Embed(source='../../assets/datatrack.png')" 
+							   textDecoration="underline" 
+							   visible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}"
+							   includeInLayout="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}"
+							   textAlign="left" fontSize="9" paddingLeft="0">    	        
 				</mx:LinkButton>				
 			</mx:HBox>
 			
@@ -536,7 +553,7 @@
 			   		    <mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAllDownloads()"  paddingTop="0" paddingBottom="0"/>
 				    </mx:HBox>			    	
 			    </mx:ViewStack>
-				<mx:DataGrid id="filesGrid" dataProvider="{analysisFiles}" width="100%" height="100%">
+				<mx:DataGrid id="filesGrid" dataProvider="{analysisFiles}" width="100%" height="100%" dragEnabled="true">
 					<mx:columns>
 			            <mx:DataGridColumn headerText=" " 
 		            		editable="true"       

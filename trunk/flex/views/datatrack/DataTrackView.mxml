@@ -86,10 +86,8 @@
 			}
 			this.dirtyDataTrack.resetDirty();
 			
-		} else if (getDataTrack.lastResult.name() == "Error") {
-			Alert.show(getDataTrack.lastResult.@message);
 		} else {
-			Alert.show("An error occurred while getting dataTrack");				
+			Alert.show(getDataTrack.lastResult..ACTMESSAGE.@TEXT);
 		}		
 	}	
 	
@@ -98,11 +96,9 @@
 			this.dirtyDataTrack.resetDirty();
 			parentDocument.treeItemToSelect = parentDocument.browseTree.selectedItem;
 			parentDocument.refreshDataTracks();			
-		} else if (saveDataTrack.lastResult.name() == "Error") {
-			Alert.show(saveDataTrack.lastResult.@message);
 		} else {
-			Alert.show("An error occurred while saving data track");				
-		}
+			Alert.show(saveDataTrack.lastResult..ACTMESSAGE.@TEXT);
+		}	
 	}
 
 	private function removeRichTextButtons():void {
@@ -376,6 +372,18 @@
 		
 	}
 
+	private function showUploadWindow(viewStackIndex:int):void {
+		var uploadWindow:DataTrackUploadWindow = DataTrackUploadWindow(PopUpManager.createPopUp(parentApplication.theBody, DataTrackUploadWindow, true));
+		PopUpManager.centerPopUp(uploadWindow);
+		uploadWindow.idDataTrack = parentDocument.browseTree.selectedItem.@idDataTrack;
+		uploadWindow.idDataTrackFolder = parentDocument.browseTree.selectedItem.@idDataTrackFolder;
+		uploadWindow.idGenomeBuild = parentDocument.browseTree.selectedItem.@idGenomeBuild;
+		uploadWindow.dataTrackName = parentDocument.browseTree.selectedItem.@label;
+		uploadWindow.uploadBrowseButton.setFocus();
+		uploadWindow.init();
+		uploadWindow.mainStack.selectedIndex = viewStackIndex;
+	}
+	
 
 	
 ]]>
@@ -501,6 +509,21 @@
 		<mx:VBox width="100%" height="100%" label="Files" id="vbox7" paddingTop="0">
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox9">
 				<mx:HBox horizontalGap="2" width="100%">
+					
+					<mx:LinkButton icon="@Embed(source='../../assets/page_new.png')" 
+								   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
+								   click="showUploadWindow(0)" 
+								   styleName="linkMenuButton"  label="Upload file(s)">
+						<mx:enabled>{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}</mx:enabled>
+					</mx:LinkButton>
+					<mx:LinkButton icon="@Embed(source='../../assets/page_new.png')" 
+								   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
+								   click="showUploadWindow(1)" 
+								   includeInLayout="{parentApplication.isFDTSupported}"
+								   visible="{parentApplication.isFDTSupported}"
+								   styleName="linkMenuButton"  label="Upload file(s) using FDT">
+						<mx:enabled>{getDataTrack.lastResult.@canWrite == 'Y'}</mx:enabled>
+					</mx:LinkButton>
 					<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
 								   disabledIcon="@Embed(source='../../assets/page_remove_disable.png')"
 								   enabled="{dataTrackFileGrid.selectedItem != null &amp;&amp; getDataTrack.lastResult.@canWrite == 'Y' ? true : false}"  

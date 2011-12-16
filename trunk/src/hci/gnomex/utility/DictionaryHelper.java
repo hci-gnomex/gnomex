@@ -555,6 +555,15 @@ public class DictionaryHelper implements Serializable {
     return propertyDictionaryHelper.getMicroarrayDirectoryForReading(serverName);
      
   }
+  
+  public String getDataTrackDirectoryForWriting(String serverName) {
+    return propertyDictionaryHelper.getDataTrackReadDirectory(serverName);
+  }
+
+  public  String getDataTrackDirectoryForReading(String serverName) {
+    return propertyDictionaryHelper.getDataTrackWriteDirectory(serverName);
+  }
+
   public String parseMainFolderName(String serverName, String fileName) {
     return propertyDictionaryHelper.parseMainFolderName(serverName, fileName);
   }

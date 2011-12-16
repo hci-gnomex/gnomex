@@ -21,7 +21,7 @@
          <name>{dataTrackFolderName.text}</name>
          <idGenomeBuild>{genomeBuild.@idGenomeBuild}</idGenomeBuild>
          <idParentDataTrackFolder>{idParentDataTrackFolder}</idParentDataTrackFolder>
-         <idUserGroup>{labCombo.selectedItem != null ? labCombo.selectedItem.@id : ''}</idUserGroup>
+         <idLab>{labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : ''}</idLab>
       </mx:request>
     </mx:HTTPService> 
     
@@ -29,9 +29,9 @@
     <mx:Script>
 	<![CDATA[
 	
+	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
-	import mx.controls.Alert;
 	
 	[Bindable]
 	public var idParentDataTrackFolder:Object = null;
@@ -39,23 +39,34 @@
 	public var parentName:Object = null;
 	[Bindable]
 	private var genomeBuild:Object = null;
+		
+	private var parentView:DisplayObject;
 
-	public function init(genomeBuild:Object, parent:Object):void {
+	public function init(genomeBuild:Object, parent:Object, parentView:DisplayObject, idLab:Object):void {
+		this.parentView = parentView;
 		this.genomeBuild = genomeBuild;
+		
+		var idLab:Object = idLab;
+		if (idLab == null) {
+			if (parent.@idLab != null && parent.@idLab != "") {
+				idLab = parent.@idLab;
+			}
+		}
+		// If the parent folder is owned by a lab,
+		// setup this folder the same way.
+		if (idLab != null) {
+			for each (var item:Object in labCombo.dataProvider) {
+				if (item.@idLab == idLab) {
+					labCombo.selectedItem = item;
+					break;
+				}
+			}
+		}	
+		
 		if (parent != null) {
 			this.idParentDataTrackFolder = parent.@idDataTrackFolder;
 			parentName = parent.@label;		
 			
-			// If the parent folder is owned by a lab,
-			// setup this folder the same way.
-			if (parent.@idLab != null && parent.@idLab != "") {
-				for each (var item:Object in labCombo.dataProvider) {
-					if (item.@idLab == parent.@idLab) {
-						labCombo.selectedItem = item;
-						break;
-					}
-				}
-			}	
 		} else {
 			parentName = genomeBuild.@das2Name;
 		}
@@ -69,7 +80,11 @@
 			   "<DataTrackFolder " +
 			     "idDataTrackFolder='" + saveDataTrackFolder.lastResult.@idDataTrackFolder + "'" +
 			    "/>");
-			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+			if (parentView is NavDataTrackView) {
+				NavDataTrackView(parentView).refreshDataTracksAndSelect(itemToSelect);
+			} else if (parentView is DistributeDataTrackWindow) {
+				DistributeDataTrackWindow(parentView).refreshDataTracksAndSelect(itemToSelect);
+			}
 		} else {
 			Alert.show(saveDataTrackFolder.lastResult..ACTMESSAGE.@TEXT);
 		}	

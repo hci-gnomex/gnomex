@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -33,6 +34,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   
   private Integer idAnalysis;
   private Integer idRequest;
+  private Integer idDataTrack;
   
   private String analysisNumber;
   private String requestNumber;
@@ -51,6 +53,9 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     if (request.getParameter("idAnalysis") != null && !request.getParameter("idAnalysis").equals("")) {
       idAnalysis = Integer.valueOf(request.getParameter("idAnalysis"));
     }
+    if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
+      idDataTrack = Integer.valueOf(request.getParameter("idDataTrack"));
+    }
     if (request.getParameter("requestNumber") != null && !request.getParameter("requestNumber").equals("")) {
       requestNumber = request.getParameter("requestNumber");
     }
@@ -58,8 +63,8 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       analysisNumber = request.getParameter("analysisNumber");
     }
     
-    if (idAnalysis == null && idRequest == null && analysisNumber == null && requestNumber == null) {
-      this.addInvalidField("missing id", "idRequest/requestNumber or idAnalysis/analysisNumber must be provided");
+    if (idAnalysis == null && idRequest == null && idDataTrack == null && analysisNumber == null && requestNumber == null) {
+      this.addInvalidField("missing id", "idRequest/requestNumber or idAnalysis/analysisNumber or idDataTrack must be provided");
     }
   }
 
@@ -115,6 +120,17 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           String baseDir = dh.getMicroarrayDirectoryForWriting(serverName);
           targetDir = baseDir + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = Request.getBaseRequestNumber(experiment.getNumber());
+        }
+      } else if (idDataTrack != null) {
+        DataTrack dataTrack = null;
+        dataTrack = (DataTrack)sess.get(DataTrack.class, idDataTrack);
+        if (!secAdvisor.canUpdate(dataTrack)) {
+          this.addInvalidField("insufficient permissions", "insufficient permissions to upload data track files");
+        }
+        if (this.isValid()) {
+          String baseDir = dh.getDataTrackDirectoryForWriting(serverName);
+          targetDir = baseDir + File.separator + dataTrack.getFileName() + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetNumber = dataTrack.getNumber();
         }
       }
       if (this.isValid()) {

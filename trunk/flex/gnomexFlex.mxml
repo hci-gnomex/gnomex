@@ -718,7 +718,7 @@
 				number = number.toUpperCase();
 				if (number.indexOf("DT") == 0) {
 					this.showDataTrackForNumber(number);				
-				} else  if (number.indexOf("A") == 0) {
+				} else if (number.indexOf("A") == 0) {
 					this.showAnalysisForNumber(number);				
 				} else {
 					showExperiment(number);
@@ -847,6 +847,24 @@
 				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
 				
+			}
+			
+			public function showDataTrackViewForItem(itemToSelect:Object, refreshItem:Object):void {
+				navDataTrackView.treeItemToSelect = itemToSelect;
+				navDataTrackView.refreshItem = refreshItem;
+				
+				// We have to make sure that the first time a lookup
+				// occurs after launch, we refresh the datatrack
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navDataTrackView.isInitialized) {
+					navDataTrackView.refreshDataTrackForItem()
+				}
+				
+				
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navDataTrackView;				
 			}
 			
 			
@@ -1964,7 +1982,7 @@
 						
 						<datatrack:NavDataTrackView id="navDataTrackView" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
 						</datatrack:NavDataTrackView>
-			
+		
 						<workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 				        </workflow:NavWorkflowView> 
 			 

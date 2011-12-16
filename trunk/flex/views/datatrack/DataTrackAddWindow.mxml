@@ -55,14 +55,12 @@
 	<![CDATA[
 	
 	import mx.collections.XMLListCollection;
-	import mx.managers.PopUpManager;
-	import mx.rpc.events.ResultEvent;
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
-	import mx.controls.Alert;
-	import views.util.MultiFileUploadDataTrack;
+	
 	import views.util.FileUploadEvent;
+	import views.util.MultiFileUploadDataTrack;
 	
 	[Bindable]
 	private var trimmedName:String = "";
@@ -78,11 +76,13 @@
 	[Bindable]
 	public var idDataTrack:Object = null;
 	private var multiFileUpload:MultiFileUploadDataTrack;
-	
+
+	private var parentView:DisplayObject = null;
 
 	private var itemToSelect:XML;
 
-	public function init(genomeBuild:Object, parent:Object):void {
+	public function init(genomeBuild:Object, parent:Object, parentView:DisplayObject, idLab:Object):void {
+		this.parentView = parentView;
 		this.genomeBuild = genomeBuild;
 		if (parent != null) {
 			this.idParentDataTrackFolder = parent.@idDataTrackFolder;
@@ -90,13 +90,20 @@
 		} else {
 			parentName = genomeBuild.@name;
 		}
+		
+		var idLab:Object = idLab;
+		if (idLab == null) {
+			if (!parentApplication.hasPermission('canWriteAnyObject') || 
+				(parent != null && parent.@idLab != null && parent.@idLab != "")) {
+				idLab = parent.@idLab;		
+			}
+		}
 		// If the parent folder belongs to a user group or this is a non-admin
 		// user, set the dataTrack
 		// visibility to 'Members' and the user group combo
 		// to the same user group.
 		// Otherwise; set the visibility to 'PUBLIC'.
-		if (!parentApplication.hasPermission('canWriteAnyObject') || 
-		    (parent != null && parent.@idLab != null && parent.@idLab != "")) {
+		if (idLab != null) {
 			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
 				if (item.@value == 'MEM') {
 					this.visibilityCombo.selectedItem = item;
@@ -104,12 +111,10 @@
 				}
 			}
 			for each (var g:Object in labCombo.dataProvider) {
-				if (parent != null ) {
-					if (g.@idLab == parent.@idLab) {
-						labCombo.selectedItem = g;
-						break;
-					}					
-				} 
+				if (g.@idLab == idLab) {
+					labCombo.selectedItem = g;
+					break;
+				}					
 			}			
 		} else {
 			for each(var v:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
@@ -120,6 +125,8 @@
 			}
 			
 		}
+
+
 		this.defaultButton = uploadBrowseButton;
 		getUploadURL.send();
 	}
@@ -180,7 +187,11 @@
 			     "idDataTrackFolder='" + saveDataTrack.lastResult.@idDataTrackFolder  + "'" +
 			     "idGenomeBuild='" + genomeBuild.@idGenomeBuild  + "'" +
 			    "/>");
-			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+			if (parentView is NavDataTrackView) {
+				NavDataTrackView(parentView).refreshDataTracksAndSelect(itemToSelect);
+			} else if (parentView is DistributeDataTrackWindow) {
+				DistributeDataTrackWindow(parentView).refreshDataTracksAndSelect(itemToSelect);
+			}
 			
 			
 		}else {

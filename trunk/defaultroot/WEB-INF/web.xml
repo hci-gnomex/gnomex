@@ -393,6 +393,7 @@
 			<url-pattern>GetPricing*.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
 			<url-pattern>GetUsageData.gx</url-pattern>
+			<url-pattern>LinkDataTrackFile.gx</url-pattern>
 			<url-pattern>MovePriceCategory.gx</url-pattern>
 			<url-pattern>MoveDataTrack.gx</url-pattern>
 			<url-pattern>MoveDataTrackFolder.gx</url-pattern>

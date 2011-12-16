@@ -2,26 +2,36 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="{'Upload files for:  ' + dataTrackName}"
 	showCloseButton="true" 
-	width="442" 
+	width="460" 
 	height="286"
 	verticalGap="0"
 	close="closeWindow()"
 	defaultButton="{uploadBrowseButton}"
 	layout="vertical" backgroundAlpha="100">
  	
-  <mx:HTTPService  
-    id="getUploadURL" 
-    url="GetDataTrackUploadURL"
-    resultFormat="e4x"
-    showBusyCursor="true" 
-    result="onGetUploadURL(event)" 
-	fault="parentApplication.onFailHttpRequest('Failed to get data track upload URL', event)"
-    method="POST"
-    useProxy="false">
-  </mx:HTTPService>
 
-    
-       
+<mx:HTTPService  
+	id="getUploadURL" 
+	url="UploadDataTrackURLServlet.gx"
+	resultFormat="e4x"
+	showBusyCursor="true" 
+	result="onGetUploadURL(event)" 
+	fault="parentApplication.onFailHttpRequest('Failed to get upload URL', event)"
+	method="POST"
+	useProxy="false">
+</mx:HTTPService>
+	
+<mx:HTTPService  
+	id="fdtUploadStart" 
+	url="FastDataTransferUploadStart.gx"
+	resultFormat="e4x"
+	showBusyCursor="true" 
+	result="onFdtUploadStart(event)" 
+	fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+	method="POST"
+	useProxy="false">
+</mx:HTTPService>
+   
     <mx:Script>
 	<![CDATA[
 	
@@ -35,6 +45,8 @@
 	public var idDataTrack:Object = null;
 	[Bindable]
 	public var idDataTrackFolder:Object = null;
+	[Bindable]
+	public var idGenomeBuild:Object = null;
 	[Bindable]
 	public var dataTrackName:Object = null;
 
@@ -50,6 +62,7 @@
            var postVariables:URLVariables = new URLVariables;
 		   postVariables.idDataTrackFolder = idDataTrackFolder;
 		   postVariables.idDataTrack = idDataTrack; 
+		   postVariables.idGenomeBuild = idGenomeBuild;
 		   multiFileUpload.setUploadURLParameters(postVariables);  
 	}
 			
@@ -89,38 +102,86 @@
 	        
 	       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
 	       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+		   multiFileUpload.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onIndividualFileUploaded);
+
         	
         } else {
         	var postVariables:URLVariables = new URLVariables;
 	        postVariables.idDataTrackFolder = idDataTrackFolder;
 	        postVariables.idDataTrack = idDataTrack;
+			postVariables.idGenomeBuild = idGenomeBuild;
 	        multiFileUpload.setUploadURLParameters(postVariables);  
         }
       
    }
    
 
-   public function onUploadFinished(event:Event):void{
-   		currentState = "FinishedState"
-   		
-   		if (multiFileUpload.getSkipCount() > 0) {
-   			Alert.show(multiFileUpload.getSkipCount() + " file(s) were skipped.\n(0 length files are not uploaded.)", "Upload Warning");
-   		}
-
-   		
-   		// Just close window when uploads complete.
-   		this.closeWindow();
-   }	
-   
-   public function onChooseFileToUpload(event:Event):void {
-   		this.uploadButton.enabled = true;
-   		this.uploadButton.setFocus();
+   	
+	//
+	// Called after all file upload have completed
+	//
+	public function onUploadFinished(event:Event):void{
+		currentState = "FinishedState";
+		
+		if (multiFileUpload.getSkipCount() > 0) {
+			Alert.show(multiFileUpload.getSkipCount() + " file(s) were skipped.\n(0 length files are not uploaded.)", "Upload Warning");
+		}
+		
+		// Select the added dataTrack
+		parentApplication.navDataTrackView.refreshDataTracks();
+		
+		// Just close window when uploads complete.
+		this.closeWindow();
+	}	
+	
+	//
+	// Called after user has selected files to upload
+	//
+	public function onChooseFileToUpload(event:Event):void {
+		this.uploadButton.enabled = true;
+		this.uploadButton.setFocus();
 		this.defaultButton = this.uploadButton;
-   }
+	}
+	
+		
+	//
+	// Called after each individual file has been updated
+	//
+	public function onIndividualFileUploaded(event:DataEvent):void {
+	}
 
+
+	
+	//
+	//  Called when user presses 'Start' button for FDT Upload
+	//
+	public function startFDTUpload():void {			
+		var params:Object = new Object();		
+		params.idDataTrack = idDataTrack;
+		
+		fdtUploadStart.send(params);
+	}
+		
+	//
+	//  Called after FDT Upload Start JNLP, returns UUID
+	//
+	private function onFdtUploadStart(event:ResultEvent):void {
+		if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+			var uuid:String = fdtUploadStart.lastResult.@uuid;
+			saveUUID.text = uuid;
+			fdtStartButton.enabled = false;
+			
+			var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+			var uv:URLVariables = new URLVariables();
+			uv.uuid = uuid;
+			url.data = uv;
+			url.method = URLRequestMethod.POST;
+			navigateToURL(url, '_self');				
+		}
+	}
+		
    
     private function closeWindow():void {
-    	parentApplication.dataTracksView.saveDataTrack();
 		PopUpManager.removePopUp(this);		
 	}
 	
@@ -128,41 +189,64 @@
     </mx:Script>
 
     <mx:XMLListCollection  id="files"  />
-
-	<mx:VBox styleName="form" label="Files" width="100%" height="100%" >
-		<mx:VBox width="100%" height="100%" verticalGap="2">
-		          <mx:HBox  width="100%" >
-		              <mx:LinkButton id="uploadBrowseButton" 
-		              	label="Choose files" 
-		              	icon="{parentApplication.iconChooseFiles}"  
-		                disabledIcon="{parentApplication.iconChooseFilesDisabled}"  
-		                toolTip="Choose files" fontWeight="bold" textDecoration="underline"/>
-		              <mx:LinkButton id="uploadDeleteButton" label="Remove" 
-		              	icon="{parentApplication.iconDelete}"  
-		                disabledIcon="{parentApplication.iconDeleteDisabled}"  
-		              	toolTip="Remove file"  textDecoration="underline" visible="false"/>
-		              <mx:LinkButton label="Clear all" toolTip="Clear all files" 
-		              	id="uploadClearButton" 
-		              	icon="{parentApplication.iconDelete}"  
-		                disabledIcon="{parentApplication.iconDeleteDisabled}"  
-		              	textDecoration="underline" visible="false"/>
-		              <mx:HBox width="100%"  horizontalAlign="right">
-		                  <mx:VRule height="20"/>
-		              </mx:HBox>
-		          </mx:HBox>
-			<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
-			</mx:DataGrid>				
-		  		<mx:Spacer  width="100%" height="10"/>		
+	<mx:ViewStack id="mainStack" width="100%" height="100%">
+		<mx:VBox styleName="form" label="Files" width="100%" height="100%" >
+			<mx:VBox width="100%" height="100%" verticalGap="2">
+				<mx:HBox  width="100%" >
+					<mx:LinkButton id="uploadBrowseButton" 
+								   label="Choose files" 
+								   icon="{parentApplication.iconChooseFiles}"  
+								   disabledIcon="{parentApplication.iconChooseFilesDisabled}"  
+								   toolTip="Choose files" fontWeight="bold" textDecoration="underline"/>
+					<mx:LinkButton id="uploadDeleteButton" label="Remove" 
+								   icon="{parentApplication.iconDelete}"  
+								   disabledIcon="{parentApplication.iconDeleteDisabled}"  
+								   toolTip="Remove file"  textDecoration="underline" visible="false"/>
+					<mx:LinkButton label="Clear all" toolTip="Clear all files" 
+								   id="uploadClearButton" 
+								   icon="{parentApplication.iconDelete}"  
+								   disabledIcon="{parentApplication.iconDeleteDisabled}"  
+								   textDecoration="underline" visible="false"/>
+					<mx:HBox width="100%"  horizontalAlign="right">
+						<mx:VRule height="20"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
+				</mx:DataGrid>				
+				<mx:Spacer  width="100%" height="10"/>		
+			</mx:VBox>
+			<mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
 		</mx:VBox>
-		<mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
-	</mx:VBox>
+	
+		<mx:VBox width="100%" styleName="form" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:TextArea styleName="instructionBox" width="100%" wordWrap="true" height="100%" id="textarea1" fontSize="12">
+				<mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer(FDT)server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened<br>         using Java Web Start (either directly or after first saving<br>         the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and<br>         upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files),<br>         refresh the Analysis to see the uploaded files.]]></mx:htmlText>
+			</mx:TextArea>							
+		</mx:VBox>
+
+	</mx:ViewStack>
+
 	
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button id="uploadButton"  
-			label="Upload" 
-			icon="{parentApplication.iconUpload}"
-			disabledIcon="{parentApplication.iconUploadDisabled}" enabled="false"/>
-		<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+		<mx:ViewStack width="100%" selectedIndex="{mainStack.selectedIndex}">
+			<mx:HBox height="100%" width="100%">
+				<mx:Spacer  width="100%" height="10"/>	
+				<mx:Button id="uploadButton"  
+						   label="Upload" 
+						   icon="{parentApplication.iconUpload}"
+						   disabledIcon="{parentApplication.iconUploadDisabled}" enabled="false"/>
+				<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+			</mx:HBox>		  			 
+
+			<mx:HBox height="100%" width="100%">
+				<mx:Spacer  width="100%" height="10"/>	
+				<mx:Label id="saveUUID" visible="false" text=""/>
+				<mx:Button id="fdtStartButton" label="Start" click="startFDTUpload()"  enabled="true" visible="true"/>	      	
+				<mx:Button label="Close" click="closeWindow()"/>
+			</mx:HBox>		  			 
+
+		</mx:ViewStack>
+
 	</mx:ControlBar>
 
   <mx:states>
