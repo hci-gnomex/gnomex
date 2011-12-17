@@ -111,7 +111,7 @@
 	}
 	
 	private function showSegmentsImportWindow():void {
-		var importWindow:SegmentsImportWindow = SegmentsImportWindow(PopUpManager.createPopUp(parentApplication.mainArea, SegmentsImportWindow, true));
+		var importWindow:SegmentsImportWindow = SegmentsImportWindow(PopUpManager.createPopUp(parentApplication.theBody, SegmentsImportWindow, true));
 		PopUpManager.centerPopUp(importWindow);
 		importWindow.idGenomeBuild = parentDocument.browseTree.selectedItem.@idGenomeBuild;
 		
@@ -126,7 +126,7 @@
 	}
 	
 	private function showSequenceUploadWindow():void {
-		var uploadWindow:SequenceFileUploadWindow = SequenceFileUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, SequenceFileUploadWindow, true));
+		var uploadWindow:SequenceFileUploadWindow = SequenceFileUploadWindow(PopUpManager.createPopUp(parentApplication.theBody, SequenceFileUploadWindow, true));
 		PopUpManager.centerPopUp(uploadWindow);
 		uploadWindow.uploadBrowseButton.setFocus();
 		uploadWindow.init(this.parentDocument.browseTree.selectedItem);
@@ -182,7 +182,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%"  horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Name:"  width="120"/>
-			<mx:TextInput id="genomeBuildName" width="100%" text="{parentDocument.browseTree.selectedItem.@genomeBuildName}" change="dirtyGenomeBuild.setDirty()" maxChars="200"/>
+			<mx:TextInput id="genomeBuildName" width="400" text="{parentDocument.browseTree.selectedItem.@genomeBuildName}" change="dirtyGenomeBuild.setDirty()" maxChars="200"/>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Build date:"   width="120"/>
@@ -194,7 +194,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%"  horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Coord URI:" width="120"/>
-			<mx:TextInput id="coordURI"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordURI}" change="dirtyGenomeBuild.setDirty()" maxChars="2000"/>
+			<mx:TextInput id="coordURI"  width="400" text="{parentDocument.browseTree.selectedItem.@coordURI}" change="dirtyGenomeBuild.setDirty()" maxChars="2000"/>
 		</mx:HBox>
 		<mx:HBox width="100%"  horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Coord version:" width="120"/>
@@ -202,15 +202,15 @@
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="Coord source:"  width="120"/>
-			<mx:TextInput id="coordSource"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordSource}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
+			<mx:TextInput id="coordSource"  width="250" text="{parentDocument.browseTree.selectedItem.@coordSource}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Coord test range:" width="120"/>
-			<mx:TextInput id="coordTestRange" width="100%" text="{parentDocument.browseTree.selectedItem.@coordTestRange}" change="dirtyGenomeBuild.setDirty()" maxChars="100"/>
+			<mx:TextInput id="coordTestRange" width="250" text="{parentDocument.browseTree.selectedItem.@coordTestRange}" change="dirtyGenomeBuild.setDirty()" maxChars="100"/>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Coord authority:" width="120"/>
-			<mx:TextInput id="coordAuthority"  width="100%" text="{parentDocument.browseTree.selectedItem.@coordAuthority}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
+			<mx:TextInput id="coordAuthority"  width="250" text="{parentDocument.browseTree.selectedItem.@coordAuthority}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
 		</mx:HBox>
 	</mx:VBox>
 	

@@ -74,7 +74,7 @@ public class UploadSequenceURLServlet extends HttpServlet {
 
       // Get the valid file extensions
       StringBuffer fileExtensions = new StringBuffer();
-      for (int x=0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+      for (int x=0; x < Constants.SEQUENCE_FILE_EXTENSIONS.length; x++) {
         if (fileExtensions.length() > 0) {
           fileExtensions.append(";");
         }
@@ -88,6 +88,7 @@ public class UploadSequenceURLServlet extends HttpServlet {
       
     } catch (Exception e) {
       System.out.println("An error has occured in UploadSequenceURLServlet - " + e.toString());
+      e.printStackTrace();
     } finally {
       if (sess != null) {
         try {

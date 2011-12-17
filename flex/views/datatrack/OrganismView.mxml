@@ -56,19 +56,19 @@
 		<mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 			<mx:HBox width="100%" >
 				<mx:Label text="Common name:"  width="120"/>
-				<mx:TextInput id="organismCommonName" width="100%" text="{parentDocument.browseTree.selectedItem.@commonName}" change="dirtyOrganism.setDirty()" maxChars="100"/>
+				<mx:TextInput id="organismCommonName" width="300" text="{parentDocument.browseTree.selectedItem.@commonName}" change="dirtyOrganism.setDirty()" maxChars="100"/>
 			</mx:HBox>
 			<mx:HBox width="100%">
 				<mx:Label text="Binomial name:" width="120"/>
-				<mx:TextInput id="organismBinomialName"  width="100%" text="{parentDocument.browseTree.selectedItem.@binomialName}" change="dirtyOrganism.setDirty()" maxChars="200"/>
+				<mx:TextInput id="organismBinomialName"  width="300" text="{parentDocument.browseTree.selectedItem.@binomialName}" change="dirtyOrganism.setDirty()" maxChars="200"/>
 			</mx:HBox>
 			<mx:HBox width="100%" >
 				<mx:Label text="DAS2 name:" width="120"/>
-				<mx:TextInput id="organismName"  width="100%" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyOrganism.setDirty()" maxChars="200"/>
+				<mx:TextInput id="organismName"  width="300" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyOrganism.setDirty()" maxChars="200"/>
 			</mx:HBox>
 			<mx:HBox width="100%" >
 				<mx:Label text="NCBI taxonomy ID:" width="120"/>
-				<mx:TextInput id="organismNCBITaxID"  width="100%" text="{parentDocument.browseTree.selectedItem.@NCBITaxID}" change="dirtyOrganism.setDirty()" maxChars="45"/>
+				<mx:TextInput id="organismNCBITaxID"  width="300" text="{parentDocument.browseTree.selectedItem.@NCBITaxID}" change="dirtyOrganism.setDirty()" maxChars="45"/>
 			</mx:HBox>
 			
 			

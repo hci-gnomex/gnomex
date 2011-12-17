@@ -2,8 +2,8 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="Copy/paste segment information"
 	showCloseButton="true" 
-	width="422" 
-	height="448"
+	width="362" 
+	height="312"
 	verticalGap="0"
 	close="closeWindow()"
 	defaultButton="{saveButton}"	
@@ -12,7 +12,7 @@
  	
 <mx:HTTPService             
   id="importSegments" 
-  url="genopub/segmentImport"
+  url="ImportSegments.gx"
   resultFormat="e4x"
   result="onImportSegments(event)"
   fault="parentApplication.onFailHttpRequest('Failed to import segment info', event)"
@@ -43,11 +43,9 @@
 			     "idGenomeBuild='" + importSegments.lastResult.@idGenomeBuild + "'" +
 			    "/>");
 			parentApplication.dataTrackView.refreshDataTracksAndSelect(itemToSelect);
-		} else if (importSegments.lastResult.name() == "Error") {
-			Alert.show(importSegments.lastResult.@message);
-		} else {
-			Alert.show("An error occurred while importing segments");				
-		}		
+		} else  {
+			Alert.show(importSegments.lastResult..ACTMESSAGE.@TEXT);
+		} 	
 	}
 
    
@@ -58,10 +56,10 @@
 	]]>
     </mx:Script>
     
-    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="0">
-		<mx:TextArea id="chromosomeInfo" width="100%" height="100%"/>
+    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="0" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:TextArea id="chromosomeInfo" width="100%" height="100%" />
 		<mx:Label text="Example format: ch1    123415" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
-		<mx:Label text="                ch2    214560" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:Label text="                ch2    214560" width="100%" textAlign="right" fontSize="9" fontStyle="italic" paddingTop="0"/>
     	
     </mx:VBox>
 
