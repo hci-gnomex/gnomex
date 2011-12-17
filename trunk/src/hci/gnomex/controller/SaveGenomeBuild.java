@@ -4,22 +4,32 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Segment;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackFolderComparator;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
+import java.io.File;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
+
 
 
 public class SaveGenomeBuild extends GNomExCommand implements Serializable {
@@ -30,7 +40,8 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
 
   private GenomeBuild                    gbScreen;
   private boolean                        isNewGenomeBuild = false;
-
+  private String                         segmentsXML;
+  private String                         sequenceFilesToRemoveXML;
   
   public void validate() {
   }
@@ -47,6 +58,15 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
     // Das2 name is required
     if (gbScreen.getDas2Name() == null || gbScreen.getDas2Name().equals("")) {
       this.addInvalidField("namer", "DAS2 Name is required");
+    }
+
+    // Get segments XML string
+    if (request.getParameter("segmentsXML") != null && !request.getParameter("segmentsXML").equals("")) {
+      segmentsXML = request.getParameter("segmentsXML");      
+    }
+    // Get sequenceFilesToRemove XML string
+    if (request.getParameter("sequenceFilesToRemoveXML") != null && !request.getParameter("sequenceFilesToRemoveXML").equals("")) {
+      sequenceFilesToRemoveXML = request.getParameter("sequenceFilesToRemoveXML");      
     }
     
     // Make sure that the DAS2 name has no spaces or special characters
@@ -86,7 +106,78 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
           initializeGenomeBuild(gb);
           
 
+          // Delete segments    
+          if (segmentsXML != null) {
+            StringReader reader = new StringReader(segmentsXML);
+            SAXReader sax = new SAXReader();
+            Document segmentsDoc = sax.read(reader);
+            for (Iterator<?> i = gb.getSegments().iterator(); i.hasNext();) {
+              Segment segment = Segment.class.cast(i.next());
+              boolean found = false;
+              for(Iterator<?> i1 = segmentsDoc.getRootElement().elementIterator(); i1.hasNext();) {
+                Element segmentNode = (Element)i1.next();
+                String idSegment = segmentNode.attributeValue("idSegment");
+                if (idSegment != null && !idSegment.equals("")) {
+                  if (segment.getIdSegment().equals(new Integer(idSegment))) {
+                    found = true;
+                    break;
+                  }
+                }                   
+              }
+              if (!found) {
+                sess.delete(segment);
+              }
+            } 
+            sess.flush();
+
+            // Add segments
+            for(Iterator<?> i = segmentsDoc.getRootElement().elementIterator(); i.hasNext();) {
+              Element segmentNode = (Element)i.next();
+
+              String idSegment = segmentNode.attributeValue("idSegment");
+              String len = segmentNode.attributeValue("length");
+              len = len.replace(",", "");
+              String sortOrder = segmentNode.attributeValue("sortOrder");
+
+              Segment s = null;
+              if (idSegment != null && !idSegment.equals("")) {
+                s = Segment.class.cast(sess.load(Segment.class, new Integer(idSegment)));
+
+                s.setName(segmentNode.attributeValue("name"));
+                s.setLength(len != null && !len.equals("") ? new Integer(len) : null);
+                s.setSortOrder(sortOrder != null && !sortOrder.equals("") ? new Integer(sortOrder) : null);
+                s.setIdGenomeBuild(gb.getIdGenomeBuild());
+
+
+              } else {
+                s = new Segment();    
+
+                s.setName(segmentNode.attributeValue("name"));
+                s.setLength(len != null && !len.equals("") ? new Integer(len) : null);
+                s.setSortOrder(sortOrder != null && !sortOrder.equals("") ? new Integer(sortOrder) : null);
+                s.setIdGenomeBuild(gb.getIdGenomeBuild());
+
+                sess.save(s);
+                sess.flush();
+              }
+            }            
+          }
           sess.flush();
+        }
+        
+        // Remove sequence files
+        if (sequenceFilesToRemoveXML != null) {
+          // Remove sequence files
+          StringReader reader = new StringReader(sequenceFilesToRemoveXML);
+          SAXReader sax = new SAXReader();
+          Document filesDoc = sax.read(reader);
+          for(Iterator<?> i = filesDoc.getRootElement().elementIterator(); i.hasNext();) {
+            Element fileNode = (Element)i.next();
+            File file = new File(fileNode.attributeValue("url"));
+            if (!file.delete()) {
+              Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete sequence file " + file.getName() + " for genome build " + gb.getDas2Name());
+            }
+          }            
         }
         
 

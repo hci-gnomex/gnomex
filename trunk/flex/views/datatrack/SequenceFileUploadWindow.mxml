@@ -11,7 +11,7 @@
  	
   <mx:HTTPService  
     id="getUploadURL" 
-    url="genopub/sequenceUploadURL"
+    url="UploadSequenceURLServlet.gx"
     resultFormat="e4x"
     showBusyCursor="true" 
     result="onGetUploadURL(event)" 
@@ -58,6 +58,8 @@
 			this.uploadBrowseButton.setFocus();
 			this.defaultButton = this.uploadBrowseButton;
 			
+		} else {
+			Alert.show(getUploadURL.lastResult..ACTMESSAGE.@TEXT);
 		}
 	}
 					
@@ -81,8 +83,10 @@
 	            fileFilters
 	            );
 	        
-	       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
-	       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+			multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+			multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+			multiFileUpload.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onIndividualFileUploaded);
+
         	
         } else {
         	var postVariables:URLVariables = new URLVariables;
@@ -104,6 +108,14 @@
    		// Just close window when uploads complete.
    		this.closeWindow();
    }	
+	
+	//
+	// Called after each individual file has been updated
+	//
+	public function onIndividualFileUploaded(event:DataEvent):void {
+	}
+	
+
    
    public function onChooseFileToUpload(event:Event):void {
    		this.uploadButton.enabled = true;
@@ -113,7 +125,7 @@
 
    
     private function closeWindow():void {
-    	parentApplication.dataTrackView.saveGenomeBuild();
+		parentApplication.navDataTrackView.refreshDataTracks();
 		PopUpManager.removePopUp(this);		
 	}
 	
