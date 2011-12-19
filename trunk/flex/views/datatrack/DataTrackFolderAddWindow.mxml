@@ -78,7 +78,8 @@
 			closeWindow();
 			var itemToSelect:XML = new XML(
 			   "<DataTrackFolder " +
-			     "idDataTrackFolder='" + saveDataTrackFolder.lastResult.@idDataTrackFolder + "'" +
+			     " idLab='" + (labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : '') + "'" +
+			     " idDataTrackFolder='" + saveDataTrackFolder.lastResult.@idDataTrackFolder + "'" +
 			    "/>");
 			if (parentView is NavDataTrackView) {
 				NavDataTrackView(parentView).refreshDataTracksAndSelect(itemToSelect);

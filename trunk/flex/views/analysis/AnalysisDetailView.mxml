@@ -370,12 +370,10 @@
 			}
 			selectAllStack.selectedIndex = 0;
 		}		
-		
+
 		private function showDataTracks():void {
 			theTab.selectedChild = this.filesView;
-			var dataTrackWindow:DistributeDataTrackWindow = DistributeDataTrackWindow(PopUpManager.createPopUp(parentApplication.theBody, DistributeDataTrackWindow, false));
-			dataTrackWindow.refreshDataTracksForAnalysis(parentDocument.selectedAnalysis);
-			dataTrackWindow.positionWindow();
+			parentApplication.showDistributeDataTrackWindow(parentDocument.selectedAnalysis);
 		}
 
 	]]>

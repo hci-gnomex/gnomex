@@ -508,6 +508,7 @@
 				selectedIdLab = browseTree.selectedItem.@idLab;
 				selectedIdAnalysisGroup = browseTree.selectedItem.parent().@idAnalysisGroup;
 				selectedAnalysisNumber = null;
+				parentApplication.removeDistributeDataTrackWindow();
 				
 			} else {												
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();

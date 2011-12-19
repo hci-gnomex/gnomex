@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 				width="482" height="488" showCloseButton="true" 
-				title="Data Tracks" close="{PopUpManager.removePopUp(this)}">
+				title="Data Tracks" close="{parentApplication.removeDistributeDataTrackWindow()}">
 	
 
 <mx:HTTPService  
@@ -170,6 +170,14 @@
 	}
 	public function refreshDataTracksAndSelect(itemToSelect:XML):void {
 		treeItemToSelect = itemToSelect;
+		
+		// We just added a folder or a data track.  If the idLab of the
+		// folder or data track is blank, clear out the lab combo; otherwise
+		// the new folder or data track won't display
+		if (itemToSelect.@idLab == '') {
+			labCombo.selectedItem = null;
+			idLab = null;
+		}
 
 		refreshDataTracks();
 	}

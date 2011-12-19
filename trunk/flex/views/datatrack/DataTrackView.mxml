@@ -509,21 +509,6 @@
 		<mx:VBox width="100%" height="100%" label="Files" id="vbox7" paddingTop="0">
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox9">
 				<mx:HBox horizontalGap="2" width="100%">
-					
-					<mx:LinkButton icon="@Embed(source='../../assets/page_new.png')" 
-								   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
-								   click="showUploadWindow(0)" 
-								   styleName="linkMenuButton"  label="Upload file(s)">
-						<mx:enabled>{getDataTrack.lastResult.@canWrite == 'Y' ? true : false}</mx:enabled>
-					</mx:LinkButton>
-					<mx:LinkButton icon="@Embed(source='../../assets/page_new.png')" 
-								   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
-								   click="showUploadWindow(1)" 
-								   includeInLayout="{parentApplication.isFDTSupported}"
-								   visible="{parentApplication.isFDTSupported}"
-								   styleName="linkMenuButton"  label="Upload file(s) using FDT">
-						<mx:enabled>{getDataTrack.lastResult.@canWrite == 'Y'}</mx:enabled>
-					</mx:LinkButton>
 					<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
 								   disabledIcon="@Embed(source='../../assets/page_remove_disable.png')"
 								   enabled="{dataTrackFileGrid.selectedItem != null &amp;&amp; getDataTrack.lastResult.@canWrite == 'Y' ? true : false}"  
@@ -539,6 +524,8 @@
 							  allowMultipleSelection="true" >
 					<mx:columns>
 						<mx:DataGridColumn  dataField="@name" headerText="Name" width="10"/>  
+						<mx:DataGridColumn  dataField="@analysisNumber" headerText="Analysis #" width="10"/>  
+						<mx:DataGridColumn  dataField="@analysisName" headerText="Analysis name" width="10"/>  
 						<mx:DataGridColumn  dataField="@lastModified" headerText="Date" width="10"/>  
 						<mx:DataGridColumn  dataField="@size"  headerText="Size" width="5" />  
 					</mx:columns>							

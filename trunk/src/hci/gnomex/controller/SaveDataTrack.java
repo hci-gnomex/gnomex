@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyEntry;
@@ -13,6 +14,7 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AppUserComparator;
 import hci.gnomex.utility.DataTrackComparator;
+import hci.gnomex.utility.DataTrackFileComparator;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -115,19 +117,39 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
           sess.flush();
         }
 
-        // Remove dataTrack files
+        // Remove dataTrack files that are stored directly in the data track folder.
+        // Unlink dataTrack files that are associated with analysis file(s).
+        HashMap<Integer, Integer> dataTrackFilesToRemove = new HashMap<Integer, Integer>();
         if (filesToRemoveXML != null && !filesToRemoveXML.equals("")) {
           StringReader reader = new StringReader(filesToRemoveXML);
           SAXReader sax = new SAXReader();
           Document filesDoc = sax.read(reader);
           for(Iterator<?> i = filesDoc.getRootElement().elementIterator(); i.hasNext();) {
             Element fileNode = (Element)i.next();
-            File file = new File(fileNode.attributeValue("url"));
-            if (!file.delete()) {
-              Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable remove dataTrack file " + file.getName() + " for dataTrack " + dataTrack.getName());
+            if (fileNode.attributeValue("idDataTrackFile").equals("")) {
+              File file = new File(fileNode.attributeValue("url"));
+              if (!file.delete()) {
+                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable remove dataTrack file " + file.getName() + " for dataTrack " + dataTrack.getName());
+              }
+            } else {
+              dataTrackFilesToRemove.put(Integer.valueOf(fileNode.attributeValue("idDataTrackFile")), Integer.valueOf(fileNode.attributeValue("idDataTrackFile")));
             }
           }       
         }
+        
+        // Delete dataTrackFile objects, unlinking from analysis file
+        if (!isNewDataTrack) {
+          TreeSet dataTrackFiles = new TreeSet<DataTrackFile>(new DataTrackFileComparator());
+          for (DataTrackFile dataTrackFile : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
+            if (dataTrackFilesToRemove.containsKey(dataTrackFile.getIdDataTrackFile())) {
+              continue;
+            }
+            dataTrackFiles.add(dataTrackFile);
+          }
+          dataTrack.setDataTrackFiles(dataTrackFiles);
+          sess.flush();
+        }
+        
 
         // Delete dataTrack properties  
         if (propertiesXML != null && !propertiesXML.equals("")) {

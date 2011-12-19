@@ -234,7 +234,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
         String ucscLinkFile = "";
         if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
           for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
-            ucscLinkFile = appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), dirNode, null);
+            ucscLinkFile = appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), dirNode, null, dtFile);
           }
         }
         dirNode.addAttribute("ucscLinkFile", ucscLinkFile);			  
@@ -243,7 +243,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
         Element dirNode = filesNode.addElement("Dir");
         dirNode.addAttribute("name", this.getFileName());
         dirNode.addAttribute("url", filePath);
-        String ucscLinkFile = appendFileXML(filePath, dirNode, null);
+        String ucscLinkFile = appendFileXML(filePath, dirNode, null, null);
         dirNode.addAttribute("ucscLinkFile", ucscLinkFile);
 			}
 		}
@@ -397,7 +397,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   
 
 	/**Returns 'none' if no files available for UCSC linking, 'convert' for files requiring conversion, or 'link' if they are ready to go.*/
-	public static String appendFileXML(String filePath, Element parentNode, String subDirName) {
+	public static String appendFileXML(String filePath, Element parentNode, String subDirName, DataTrackFile dataTrackFile) {
 		File fd = new File(filePath);
 		String ucscLinkFile = "none";
 		if (fd.isDirectory()) {
@@ -415,7 +415,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 					Element fileNode = parentNode.addElement("Dir");
 					fileNode.addAttribute("name", displayName);
 					fileNode.addAttribute("url", fileName);
-					appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName());
+					appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), null);
 				} else {
 					Element fileNode = parentNode.addElement("File");
 
@@ -426,7 +426,9 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 					fileNode.addAttribute("url", fileName);
 					fileNode.addAttribute("size", kilobytes);
 					fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(f1.lastModified())));
-
+					fileNode.addAttribute("idDataTrackFile", dataTrackFile != null ? dataTrackFile.getIdDataTrackFile().toString() : "");
+          fileNode.addAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
+          fileNode.addAttribute("analysisName", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
 				}
 			}
 		} else {
@@ -445,6 +447,10 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
       fileNode.addAttribute("url", fd.getName());
       fileNode.addAttribute("size", kilobytes);
       fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(fd.lastModified())));
+      fileNode.addAttribute("idDataTrackFile", dataTrackFile != null ? dataTrackFile.getIdDataTrackFile().toString() : "");
+      fileNode.addAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
+      fileNode.addAttribute("analysisName", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
+
 		}
 		
 		return ucscLinkFile;
