@@ -257,6 +257,8 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     prop.setMageOntologyCode(propertyScreen.getMageOntologyCode());
     prop.setMageOntologyDefinition(propertyScreen.getMageOntologyDefinition());
     prop.setIsActive(propertyScreen.getIsActive());
+    prop.setForSample(propertyScreen.getForSample());
+    prop.setForDataTrack(propertyScreen.getForDataTrack());
     prop.setIsRequired(propertyScreen.getIsRequired());
     prop.setCodePropertyType(propertyScreen.getCodePropertyType());
     prop.setIdAppUser(propertyScreen.getIdAppUser());
