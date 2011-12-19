@@ -184,6 +184,8 @@
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
 			
+			import views.datatrack.DistributeDataTrackWindow;
+			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
 			import hci.flex.renderers.RendererFactory;
@@ -204,6 +206,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.admin.PropertyEvent;
+			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.user.UserPublicView;
@@ -215,7 +218,7 @@
 			import views.util.OrganismEvent;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
-			import views.util.WorkAuthorizationWindow;			
+			import views.util.WorkAuthorizationWindow;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -567,6 +570,8 @@
 
 	        public var cy5Color:uint = 0xffccaa;
 	        public var cy5ColorBold:uint = 0xff8855;
+			
+			private var distributeDataTrackWindow:DistributeDataTrackWindow = null;
 
 	        
 	        private var currentView:Object = null;
@@ -1870,6 +1875,19 @@
 			
 		public function notBusy():void {
 			CursorManager.removeCursor(cursorID);
+		}
+			
+		public function showDistributeDataTrackWindow(analysis:Object):void {
+			if (distributeDataTrackWindow == null) {
+				distributeDataTrackWindow = DistributeDataTrackWindow(PopUpManager.createPopUp(this.theBody, DistributeDataTrackWindow, false));
+				distributeDataTrackWindow.positionWindow();
+			}
+			distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
+		}
+			
+		public function removeDistributeDataTrackWindow():void {
+			PopUpManager.removePopUp(distributeDataTrackWindow);
+			distributeDataTrackWindow = null;
 		}
 
         ]]>

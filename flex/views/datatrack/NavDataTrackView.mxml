@@ -1792,7 +1792,7 @@
 				<mx:ViewStack id="removeButtonStack" creationPolicy="all"   
 							  visible="{currentState != 'GuestState'}"
 							  includeInLayout="{currentState != 'GuestState'}">
-					<mx:HBox  horizontalGap="8" horizontalAlign="left" id="hbox5" >		           
+					<mx:HBox  horizontalGap="8" horizontalAlign="left" id="hbox5"  >		           
 						<mx:LinkButton   
 							icon="@Embed(source='../../assets/crossout.png')" 
 							label="Remove"
@@ -1801,20 +1801,20 @@
 							styleName="linkMenuButton" 
 							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism" id="linkbutton7"  paddingLeft="4"/>
 					</mx:HBox>
-					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6" >
+					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6"  >
 						<mx:LinkButton   
 							icon="@Embed(source='../../assets/crossout.png')" 
 							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
-							label="Remove" 
+							label="Remove" paddingLeft="4"
 							enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
 							styleName="linkMenuButton" 
 							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism"   id="removeOrganismButton"/>
 					</mx:HBox>
-					<mx:HBox  horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox7" >
+					<mx:HBox  horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox7"  >
 						<mx:LinkButton label="Remove" icon="@Embed(source='../../assets/crossout.png')" 
 									   disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 									   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
-									   styleName="linkMenuButton" 
+									   styleName="linkMenuButton" paddingLeft="4"
 									   click="{this.promptToRemoveSelectedItems()}" 
 									   toolTip="Delete genome version"  id="removeGenomeBuildButton"/>
 					</mx:HBox>
@@ -1825,12 +1825,12 @@
 										 enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"								  					        	
 										 styleName="linkMenuButton" 
 										 click="{this.promptToRemoveSelectedItems()}" 
-										 toolTip="Delete dataTrack grouping"  id="removeDataTrackFolderButton"/>
+										 toolTip="Delete dataTrack grouping"  id="removeDataTrackFolderButton" paddingLeft="4"/>
 					</mx:HBox>
 					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox8" >
 						<mx:LinkButton  icon="@Embed(source='../../assets/crossout.png')"  
 										disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
-										label="Remove"
+										label="Remove" paddingLeft="4"
 										enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"								  					        	
 										styleName="linkMenuButton" 
 										click="this.promptToRemoveSelectedItems()" 

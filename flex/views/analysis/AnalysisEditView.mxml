@@ -816,9 +816,7 @@
 		
 		private function showDataTracks():void {
 			theTab.selectedChild = this.filesTab;
-			var dataTrackWindow:DistributeDataTrackWindow = DistributeDataTrackWindow(PopUpManager.createPopUp(parentApplication.theBody, DistributeDataTrackWindow, false));
-			dataTrackWindow.refreshDataTracksForAnalysis(analysis);
-			dataTrackWindow.positionWindow();
+			parentApplication.showDistributeDataTrackWindow(analysis);
 		}
 
 	]]>
