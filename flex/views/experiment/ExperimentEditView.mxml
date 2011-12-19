@@ -2149,7 +2149,6 @@
 				} else {
 					hybSetupView.isCatalogRadio.selected = true;
 				}
-
 				
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 				if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
@@ -2160,6 +2159,7 @@
 				
 				hybSetupView.initializeSlideProductCombo();
 				hybSetupView.slideProductValidator.validate();
+				
 				// TODO:  Is this okay to remove????  Don't know which slide product combo
 				// we are using since it could be from external (setup view) or internal
 				// (hyb setup view) experiment submissions.
@@ -2756,6 +2756,13 @@
 
 		
 		private function saveRequest():void {
+			
+			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
+			if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
+				hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;					
+			} else {
+				lastSelectedApplication = application[0].@value;
+			}
 			
 			if (this.isMicroarrayState()) {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
@@ -3772,6 +3779,7 @@
 				hybSetupView.numberOfHybs.text = '';
 				hybSetupView.isCatalogRadio.selected = true;
 				hybSetupView.unselectSlideSources();
+
 
 				hybSetupView.organismCombo.enabled = true;
 				hybSetupView.slideProductCombo.enabled = true;
