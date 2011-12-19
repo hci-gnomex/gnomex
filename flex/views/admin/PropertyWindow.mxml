@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="898" height="498" 
+				width="928.25757" height="522.1212" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
@@ -219,6 +219,8 @@
 		params.name = scName.text;
 		params.isActive = this.isActive.selected ? "Y" : "N";
 		params.isRequired = this.isRequired.selected ? "Y" : "N";
+		params.forSample = this.sample.selected ? "Y" : "N";
+		params.forDataTrack = this.dataTrack.selected ? "Y" : "N";
 		params.mageOntologyCode = mageOntologyCode.text;
 		params.mageOntologyDefinition = mageOntologyDefinition.text; 
 		params.description = description.text; 
@@ -272,8 +274,7 @@
 		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
 			 <mx:HBox width="100%" verticalGap="0">
 			  <mx:Label text="Name:" width="80"/>
-			  <mx:TextInput text="{propertyList.selectedItem.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="100" 
-							/>
+			  <mx:TextInput text="{propertyList.selectedItem.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="100"/>
 			  <mx:HBox >
 			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
 			    <mx:selected>{propertyList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
@@ -284,6 +285,17 @@
 			 <mx:HBox width="100%" verticalGap="0">
 			 	<mx:Text text="Description:" width="80"/>
 			 	<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" id="description"  maxChars="100"/>
+				 <mx:HBox>
+					 <mx:Text text="Annotation Applies To:"/>
+					 <mx:VBox>
+					 <mx:CheckBox label="Sample" id="sample" click="setDirty()">
+						 <mx:selected>{propertyList.selectedItem.@forSample == 'Y' ? true : false}</mx:selected>
+					 </mx:CheckBox>
+					 <mx:CheckBox label="Data Track" id="dataTrack" click="setDirty()">
+						 <mx:selected>{propertyList.selectedItem.@forDataTrack == 'Y' ? true : false}</mx:selected>
+					 </mx:CheckBox>
+					 </mx:VBox>
+				 </mx:HBox>
 			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0">
 				 <mx:Text text="Only show annotation for these organisms:" width="80"/>
