@@ -1,6 +1,16 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+
+5.3.5.1(12/21/2011)
+--------------------
+* Added text box to the user detail view that allows for entry of UCSC URL.
+* When user selects organism when registering an experiment the organism selection will now propagate to the hyb setup tab.
+* Tool tips will now display when the user mouses over the Sample Annotations.  Tool tips will display the description associated with the sample annotation.
+* Added two check boxes to the Sample Annotation configuration screen that details whether the annotation is for Sample or for Data Track.
+* Fixed bug that would cause an overwrite of a current experiment code application by the last saved experiment's code application.  Occurred in ExperimentEditView.
+* Added new fields to the Organisms Window (binomial name, sort order, ncbi tax id, build date, das2name)
+
 5.3.5
 --------------------
 * Added call to setDirty when annotation owner changed
