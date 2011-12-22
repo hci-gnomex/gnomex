@@ -18,6 +18,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONTACT_EMAIL_SOFTWARE_BUGS         = "contact_email_software_bugs";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH = "contact_email_core_facility_workauth";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "contact_email_core_facility_workauth_reminder";
+  public static final String        REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "reply_email_core_facility_workauth_reminder";
   public static final String        FLOWCELL_DIRECTORY_FLAG             = "flowcell_directory_flag";
   public static final String        LAST_UPLOAD_NOTIFICATION            = "last_upload_notification";
   public static final String        QC_DIRECTORY                        = "qc_directory";
@@ -34,6 +35,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_PO_ACCOUNT                  = "billing_po_account";
   public static final String        DATASET_PRIVACY_EXPIRATION          = "dataset_privacy_expiration";
   public static final String        DATASET_PRIVACY_EXPIRATION_WARNING  = "dataset_privacy_expiration_warning";
+  public static final String        DATASET_PRIVACY_EXPIRATION_REPLY_EMAIL  = "dataset_privacy_expiration_reply_email";
   public static final String        EXPERIMENT_SUBMISSION_DEFAULT_MODE  = "experiment_submission_default_mode";
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
   public static final String        BST_LINKAGE_SUPPORTED               = "bst_linkage_supported";  

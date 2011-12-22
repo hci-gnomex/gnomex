@@ -762,6 +762,8 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
  (69, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
  (70,'contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N');
+ (71,'reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y');
+ (72,'dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y');
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)

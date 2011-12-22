@@ -170,6 +170,10 @@ public class DatasetExpirationCheckd extends TimerTask {
     
     String contactEmailSoftwareTester = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName);
     
+    String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION_REPLY_EMAIL, serverName);
+    if(replyEmail == null || replyEmail.length() == 0) {
+      replyEmail = "DoNotReply@hci.utah.edu";
+    }    
 
     
     body.append("<html><head><title>Restricted Visiblity Expiration</title><meta http-equiv='content-style-type' content='text/css'></head>");
@@ -189,7 +193,7 @@ public class DatasetExpirationCheckd extends TimerTask {
     }       
     
     body.append("</td></tr></table></body></html>");
-    MailUtil.send(mailProps, emailTo, "", "DoNotReply@hci.utah.edu", "Restricted visibility expiration", body.toString(), true);  
+    MailUtil.send(mailProps, emailTo, "", replyEmail, "Restricted visibility expiration", body.toString(), true);  
   }
   
 

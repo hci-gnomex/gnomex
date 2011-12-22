@@ -39,8 +39,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private String         requestedLab = "";
   private StringBuffer   requestURL;
   
-  private String responsePageSuccess = null;
-  private String responsePageError = null;
+  public String responsePageSuccess = null;
+  public String responsePageError = null;
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     this.requestURL = request.getRequestURL(); 
