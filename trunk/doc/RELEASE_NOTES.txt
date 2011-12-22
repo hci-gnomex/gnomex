@@ -1,6 +1,9 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)
+* Made changes to display error message in password-related jsps when RollBackCommandException thrown in ChangePassword.java and PublicSaveSelfRegisteredAppUser.java.
 
 5.3.5.1(12/21/2011)
 --------------------

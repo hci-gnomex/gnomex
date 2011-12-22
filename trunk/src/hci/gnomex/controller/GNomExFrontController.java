@@ -30,6 +30,8 @@ import javax.naming.*;
 import org.jdom.output.XMLOutputter;
 
 import hci.utility.server.JNDILocator;
+import hci.gnomex.controller.ChangePassword;
+import hci.gnomex.controller.PublicSaveSelfRegisteredAppUser;
 
 public class GNomExFrontController extends HttpServlet {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GNomExFrontController.class);
@@ -207,6 +209,7 @@ public class GNomExFrontController extends HttpServlet {
       log.debug("Forwarding " + commandClass + " to the request processor for execution");
       try {
         commandInstance = getRequestProcessor(request, response).processCommand(commandInstance);
+        //commandInstance = getRequestProcessor(request, response).processCommand(commandInstance);
       } catch (Exception e) {
         String msg = null;
         if (e.getCause() != null && e.getCause() instanceof EJBException) {
@@ -215,6 +218,23 @@ public class GNomExFrontController extends HttpServlet {
         		RollBackCommandException rbce = (RollBackCommandException) ejbe.getCausedByException();
         		msg = rbce.getMessage();
         	}
+        }
+        if (requestName.compareTo("ChangePassword") == 0) {
+          // Have to place error message here because by the time we get here the ChangePassword instance
+          // no longer retains state it was in when RollBackCommandException was thrown
+          request.setAttribute("message", "There was a database problem while changing the password.");
+          ChangePassword changePwdCommand = (ChangePassword) commandInstance;
+          forwardPage(request, response, changePwdCommand.ERROR_JSP);
+          return;
+        }
+        
+        if (requestName.compareTo("PublicSaveSelfRegisteredAppUser") == 0) {
+          // Have to place error message here because by the time we get here the PublicSaveSelfRegisteredAppUser instance
+          // no longer retains state it was in when RollBackCommandException was thrown
+          request.setAttribute("message", "There was a database problem while running the self register command.");
+          PublicSaveSelfRegisteredAppUser selfRegisterCommand = (PublicSaveSelfRegisteredAppUser) commandInstance;
+          forwardPage(request, response, selfRegisterCommand.responsePageError);
+          return;
         }
         
         if (msg != null) {

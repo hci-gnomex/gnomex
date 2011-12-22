@@ -117,6 +117,10 @@ public class PendingWorkAuthd extends TimerTask {
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       String contactList = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName); 
+      String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName);
+      if(replyEmail == null || replyEmail.length() == 0) {
+        replyEmail = "DoNotReply@hci.utah.edu";
+      }
       
       String subject = "Pending Work Authorizations";
       
@@ -155,7 +159,7 @@ public class PendingWorkAuthd extends TimerTask {
       body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
       body.append(tableRows.toString());
       body.append("</table></td></tr></table></body></html>");
-      MailUtil.send(mailProps, contactList, "", "DoNotReply@hci.utah.edu", subject, body.toString(), true);        
+      MailUtil.send(mailProps, contactList, "", replyEmail, subject, body.toString(), true);        
       app.disconnect();      
          
     } catch (Exception e) {

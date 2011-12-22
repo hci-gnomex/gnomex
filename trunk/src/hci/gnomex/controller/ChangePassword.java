@@ -30,7 +30,8 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangePassword.class);
   
   public String SUCCESS_JSP = "/getXML.jsp";
-  public String ERROR_JSP = "/message.jsp";
+  //public String ERROR_JSP = "/message.jsp";
+  public String ERROR_JSP = "/change_password.jsp";
   
   private String userName;
   private String oldPassword;
@@ -91,7 +92,6 @@ public class ChangePassword extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      //DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       // First make sure this person is registered by looking them
       // up in the user table
@@ -171,12 +171,15 @@ public class ChangePassword extends GNomExCommand implements Serializable {
     }
     finally {
       try {
+        this.validate();
         HibernateSession.closeSession();
       } catch (HibernateException e) {
         log.error(e.getClass().toString() + ": " + e);
+        this.validate();
         throw new RollBackCommandException();
       } catch (SQLException e) {
         log.error(e.getClass().toString() + ": " + e);
+        this.validate();
         throw new RollBackCommandException();
       }
     }
