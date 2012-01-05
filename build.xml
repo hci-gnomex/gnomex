@@ -482,7 +482,9 @@
 				<include name="*.jsp" />
 				<include name="*.js" />
 				<include name="assets/*.*" />
-			</fileset>		
+			</fileset>
+		    <fileset dir="${basedir}"		 	    includes="UCSCExecutables/**" />
+
 	  </war>
 		
 	  <delete  dir="${dist.dir}/orion" /> 
@@ -541,6 +543,9 @@
 			 	<exclude name="getXML.jsp"/>
 			 	<exclude name="getHTML.jsp"/>
 		 	 </fileset>
+		     <fileset dir="${basedir}">
+				<include name="UCSCExecutables/**" />
+		     </fileset>
 			 <fileset dir="${dist.dir}/tomcat">
 				<include name="*.jsp" />
 		 	 </fileset>
