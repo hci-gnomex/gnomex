@@ -5,11 +5,11 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.USeqUtilities;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,7 +30,8 @@ import javax.servlet.http.HttpSession;
 import org.dom4j.Document;
 import org.hibernate.Session;
 
-import edu.utah.seq.useq.apps.USeq2UCSCBig;
+import hci.gnomex.useq.USeqUtilities;
+import hci.gnomex.useq.USeq2UCSCBig;
 
 
 
@@ -40,6 +41,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackUCSCLinks.class);
   
   private Integer idDataTrack;
+  private String contextPath;
   private String baseURL;
   private String baseDir;
   private String analysisBaseDir;
@@ -59,13 +61,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       this.addInvalidField("idDataTrack", "idDataTrack is required");
     }
     
-    baseURL = "";
-    StringBuffer fullPath = request.getRequestURL();
-    String extraPath = request.getServletPath() + request.getPathInfo();
-    int pos = fullPath.lastIndexOf(extraPath);
-    if (pos > 0) {
-      baseURL = fullPath.substring(0, pos);
-    };
+    contextPath = request.getContextPath();
     
     serverName = request.getServerName();
   }
@@ -78,6 +74,14 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+      
+      String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
+      if (portNumber == null) {
+        portNumber = "";
+      } else {
+        portNumber = ":" + portNumber;           
+      }
+      baseURL =  "http"+  "://"  + serverName + portNumber + contextPath + "/";
       
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 

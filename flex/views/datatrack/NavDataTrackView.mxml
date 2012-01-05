@@ -931,7 +931,7 @@
 	 *
 	 */
 	private function createUCSCLink():void {
-		if (dataTrackView.getDataTrack.lastResult.@ucscLinkFile == 'convert') {
+		if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
 			Alert.show("Patience! Converting useq to bw/bb format.");
 		}
 		makeUCSCLinks.send();
@@ -973,8 +973,8 @@
 			var txt:String = makeLinks.lastResult.@urlsToLink;
 			var alert:Alert = Alert.show(txt, "URL Links:");
 			alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
-			//past to clipboard, doesn't work on all browsers
-			System.setClipboard(txt);
+			//paste to clipboard, doesn't work on all browsers
+			//System.setClipboard(txt);
 		}
 		else {
 			//this should never happen
@@ -1659,7 +1659,10 @@
 		} else  if (event.detail == Alert.NO){
 			// If this is an FDT download, make the request to download the 
 			// FDT webstart application
-			navigateToURL(new URLRequest('genopub/dataTrackFDTDownloadFiles'), '_self');	
+			var url:URLRequest = new URLRequest('FastDataTransferDownloadDataTrackServlet.gx');	
+			url.contentType = "text/xml";
+			url.method = URLRequestMethod.GET;
+			navigateToURL(url, '_self');	
 		} 
 	}
 	

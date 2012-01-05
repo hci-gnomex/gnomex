@@ -4,6 +4,7 @@ import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
@@ -1201,11 +1202,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   public String getUserUcscUrl() {
     if (isGuest) {
-      return "";
+      return Constants.UCSC_URL;
     } else if (this.appUser != null) {
-      return appUser.getUcscUrl();
+      String url = appUser.getUcscUrl() == null || appUser.getUcscUrl().equals("") ? Constants.UCSC_URL : appUser.getUcscUrl();
+      return url;
     } else {
-      return "";
+      return Constants.UCSC_URL;
     }
   }
   
