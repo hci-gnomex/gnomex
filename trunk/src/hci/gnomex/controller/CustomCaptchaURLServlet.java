@@ -66,7 +66,7 @@ public class CustomCaptchaURLServlet extends HttpServlet {
       //
       
       sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
-      String portNumber = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.HTTP_PORT);
+      String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, req.getServerName());
       if (portNumber == null) {
         portNumber = "";
       } else {
