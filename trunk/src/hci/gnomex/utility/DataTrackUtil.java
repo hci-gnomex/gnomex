@@ -6,7 +6,7 @@ import hci.gnomex.model.UCSCLinkFiles;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.utah.seq.useq.apps.USeq2UCSCBig;
+import hci.gnomex.useq.USeq2UCSCBig;
 
 import java.io.*;
 import java.nio.MappedByteBuffer;

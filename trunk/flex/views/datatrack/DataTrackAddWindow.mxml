@@ -3,8 +3,8 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="{'Add new data track to ' + parentName}"	
 	showCloseButton="true" 
-	width="484" 
-	height="220" 
+	width="458" 
+	height="230" 
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconDataTrackNew}"
 	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" >

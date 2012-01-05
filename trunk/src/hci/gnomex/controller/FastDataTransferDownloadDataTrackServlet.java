@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -51,6 +52,8 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
   throws ServletException, IOException {
 
     serverName = req.getServerName();
+    
+    String downloadDateText = "datatrack_download_" + new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis());
 
 
     // restrict commands to local host if request is not secure
@@ -192,8 +195,9 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
               continue;
             }
 
-            String path = dataTrackFolder.getQualifiedName() + "/" + dataTrack.getNumber() + "/";
-            String softLinksFileName = path + "/" + file.getName(); 
+            String path = softlinks_dir + downloadDateText + "/" + dataTrackFolder.getQualifiedName() + "/" + dataTrack.getName() + "/";
+            String softLinksFileName = path + file.getName(); 
+            
 
             // Make subdirectories of path if necessary
             File dir = new File(path);
@@ -203,10 +207,14 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                 response.setStatus(999);
                 System.out.println("Error. Unable to create " + path);
                 return;
-              }                                           
+              } else {
+                System.out.println("dir created");
+              }
             }
+    
 
             Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", file.getCanonicalPath(), softLinksFileName } );          
+            
             process.waitFor();
             process.destroy();    
           }     
@@ -234,7 +242,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
           out.println("");
           String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
           String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-          String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString();          
+          String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+"/"+downloadDateText;          
           if (fdtJarLoc == null || fdtJarLoc.equals("")) {
             fdtJarLoc = "http://monalisa.cern.ch/FDT/";
           }
