@@ -62,7 +62,7 @@ public class UploadAndBroadcastEmailURLServlet extends HttpServlet {
       //
       
       sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
-      String portNumber = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.HTTP_PORT);
+      String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, req.getServerName());
       if (portNumber == null) {
         portNumber = "";
       } else {
