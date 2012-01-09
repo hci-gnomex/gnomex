@@ -1,6 +1,9 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Added meta tags to insure login.jsp is not cached.
+
 5.3.6
 --------------------
 * Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)
