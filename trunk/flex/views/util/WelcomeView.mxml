@@ -62,7 +62,7 @@
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (you have not been assigned to any Lab groups in GNomEx)'}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 		</mx:State>
 		<mx:State name="ExternalUserState">
 		</mx:State>
@@ -99,7 +99,7 @@
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (you have not been assigned to any Lab groups in GNomEx)'}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 		</mx:State>
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>

@@ -60,6 +60,7 @@
 	import mx.rpc.events.ResultEvent;
 	
 	import views.admin.PropertyWindow;
+	import views.datatrack.FolderInfoWindow;
 
 	private function onGetDataTrack(event:ResultEvent):void {
 		if (getDataTrack.lastResult.name() == "DataTrack") {
@@ -384,15 +385,20 @@
 		uploadWindow.mainStack.selectedIndex = viewStackIndex;
 	}
 	
+	private function showFolderInfoWindow():void {
+		var infoWindow:FolderInfoWindow = FolderInfoWindow(PopUpManager.createPopUp(parentApplication.theBody, FolderInfoWindow, true));
+		PopUpManager.centerPopUp(infoWindow);
+		infoWindow.init(XML(this.getDataTrack.lastResult));
+		
+	}
 
 	
 ]]>
 </mx:Script>
 
-	<mx:TabNavigator width="100%" height="100%" tabWidth="130">
+	<mx:TabNavigator width="100%" height="100%" tabWidth="130"  styleName="panelBody">
 		
-		<mx:HBox width="100%" height="100%" styleName="panelBody" verticalGap="0" label="Details">
-			<mx:VBox width="70%" height="100%" verticalGap="4">
+		<mx:VBox width="100%" height="100%" label="Summary" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
 				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
 					<mx:Label text="Name"/>
 					<mx:TextInput width="100%" maxChars="2000" text="{getDataTrack.lastResult.@name}" id="dataTrackName" change="{dirtyDataTrack.setDirty()}"/>					    	
@@ -416,95 +422,96 @@
 										borderThicknessTop="0" height="100%" minHeight="80" />
 				</mx:VBox>
 				
-			</mx:VBox>
-			<mx:VBox width="30%" height="100%" verticalGap="0">
-				<mx:VBox id="propertyMainBox" width="100%" height="100%" verticalGap="4" paddingTop="2" >
-					<mx:Repeater  id="propertyRepeater" 
-								  dataProvider="{dataTrackProperties}">
-						<mx:HBox verticalAlign="top" width="100%"  horizontalGap="0" >
-							<mx:HBox width="126" horizontalGap="0" paddingLeft="0" paddingRight="0">
-								<mx:Text text="{propertyRepeater.currentItem.@name}" width="100%"  styleName="labelSmall"
-										 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
-								
-							</mx:HBox>
-							<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="250" >
-								<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" >
-									<mx:Repeater id="urlRepeater" dataProvider="{propertyRepeater.currentItem.PropertyEntryValue}" >
-										<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@url == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
-											<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
-												<mx:LinkButton id="urlLink" label="{urlRepeater.currentItem.@urlDisplay }"  
-															   click="{navigateToURLLink(event.target.instanceIndices)}" 
-															   paddingLeft="0" textDecoration="underline" color="#121CE8" 
-															   width="190" textAlign="left"/>
-												<mx:LinkButton label="Edit" 
-															   click="{showURLEdit(event.target.instanceIndices)}" 
-															   styleName="linkMenuButtonSmall"/>
-												<mx:Image source="{parentApplication.iconSmallDelete}"  
-														  click="{removeURL(event.currentTarget.instanceIndices)}" />						
-											</mx:HBox>
-											<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left">
-												<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
-															  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
-															  change="{dirtyDataTrack.setDirty()}"
-															  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
-															  text="{urlRepeater.currentItem.@urlAlias}"  
-															  width="100" color="#8D7B7B"/>	
-												<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@url}" 
-															  enter="{showURLLink(event.target.instanceIndices)}" 
-															  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
-															  change="{onChangeURLText(event.target.instanceIndices)}" 
-															  click="{selectURLText(event.currentTarget.instanceIndices)}" 
-															  width="100%" color="#8D7B7B"/>						
-												<mx:LinkButton label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
-											</mx:HBox>
-										</mx:ViewStack>		
-										
-									</mx:Repeater>
-									
-								</mx:VBox>
-
-								<mx:HBox >
-									<mx:TextInput id="propertyText" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
-									</mx:TextInput> 
-								</mx:HBox>
-								
-								<mx:HBox >
-									<mx:ComboBox id="propertyCombo" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" width="240" labelField="@name">
-									</mx:ComboBox>						
-								</mx:HBox>
-								
-								<mx:HBox width="100%" >
-									<mx:CheckBox id="propertyCheck"  click="{dirtyDataTrack.setDirty()}" styleName="labelSmall">
-									</mx:CheckBox>
-								</mx:HBox>
-								
-								<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
-									<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
-										<mx:CheckBox id="multiselectCheck"  styleName="labelSmall" 
-													   label="{multiselectRepeater.currentItem.@name}"  
-													   paddingLeft="0"  
-													   paddingTop="0" 
-													   click="{dirtyDataTrack.setDirty()}"
-													   paddingBottom="0"
-													   selected="{multiselectRepeater.currentItem.@selected == 'Y' ? true : false}"
-													   width="100%" textAlign="left"/>
-									</mx:Repeater>
-								</mx:VBox>
-								
-							</mx:ViewStack>
-						</mx:HBox>
-					</mx:Repeater>	
-				</mx:VBox>
-				<mx:LinkButton label="Define property ..." 
-							   visible="{getDataTrack.lastResult.@canWrite == 'Y'}"
-							   includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}"
-							   click="showPropertyConfigWindow()" 
-							   styleName="linkMenuButtonSmall"  
-							   textAlign="left" paddingLeft="0"/>					   
-				
-			</mx:VBox>
+		</mx:VBox>
 			
-		</mx:HBox>
+		
+		<mx:VBox width="100%" height="100%" label="Properties" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+			<mx:VBox id="propertyMainBox" width="100%" height="100%" verticalGap="4" paddingTop="2" >
+				<mx:Repeater  id="propertyRepeater" 
+							  dataProvider="{dataTrackProperties}">
+					<mx:HBox verticalAlign="top" width="100%"  horizontalGap="0" >
+						<mx:HBox width="126" horizontalGap="0" paddingLeft="0" paddingRight="0">
+							<mx:Text text="{propertyRepeater.currentItem.@name}" width="100%"  styleName="labelSmall"
+									 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
+							
+						</mx:HBox>
+						<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="250" >
+							<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" >
+								<mx:Repeater id="urlRepeater" dataProvider="{propertyRepeater.currentItem.PropertyEntryValue}" >
+									<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@url == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
+										<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
+											<mx:LinkButton id="urlLink" label="{urlRepeater.currentItem.@urlDisplay }"  
+														   click="{navigateToURLLink(event.target.instanceIndices)}" 
+														   paddingLeft="0" textDecoration="underline" color="#121CE8" 
+														   width="190" textAlign="left"/>
+											<mx:LinkButton label="Edit" 
+														   click="{showURLEdit(event.target.instanceIndices)}" 
+														   styleName="linkMenuButtonSmall"/>
+											<mx:Image source="{parentApplication.iconSmallDelete}"  
+													  click="{removeURL(event.currentTarget.instanceIndices)}" />						
+										</mx:HBox>
+										<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left">
+											<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
+														  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
+														  change="{dirtyDataTrack.setDirty()}"
+														  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
+														  text="{urlRepeater.currentItem.@urlAlias}"  
+														  width="100" color="#8D7B7B"/>	
+											<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@url}" 
+														  enter="{showURLLink(event.target.instanceIndices)}" 
+														  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
+														  change="{onChangeURLText(event.target.instanceIndices)}" 
+														  click="{selectURLText(event.currentTarget.instanceIndices)}" 
+														  width="100%" color="#8D7B7B"/>						
+											<mx:LinkButton label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
+										</mx:HBox>
+									</mx:ViewStack>		
+									
+								</mx:Repeater>
+								
+							</mx:VBox>
+							
+							<mx:HBox >
+								<mx:TextInput id="propertyText" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
+								</mx:TextInput> 
+							</mx:HBox>
+							
+							<mx:HBox >
+								<mx:ComboBox id="propertyCombo" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" width="240" labelField="@name">
+								</mx:ComboBox>						
+							</mx:HBox>
+							
+							<mx:HBox width="100%" >
+								<mx:CheckBox id="propertyCheck"  click="{dirtyDataTrack.setDirty()}" styleName="labelSmall">
+								</mx:CheckBox>
+							</mx:HBox>
+							
+							<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
+								<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
+									<mx:CheckBox id="multiselectCheck"  styleName="labelSmall" 
+												 label="{multiselectRepeater.currentItem.@name}"  
+												 paddingLeft="0"  
+												 paddingTop="0" 
+												 click="{dirtyDataTrack.setDirty()}"
+												 paddingBottom="0"
+												 selected="{multiselectRepeater.currentItem.@selected == 'Y' ? true : false}"
+												 width="100%" textAlign="left"/>
+								</mx:Repeater>
+							</mx:VBox>
+							
+						</mx:ViewStack>
+					</mx:HBox>
+				</mx:Repeater>	
+			</mx:VBox>
+			<mx:LinkButton label="Define property ..." 
+						   visible="{getDataTrack.lastResult.@canWrite == 'Y'}"
+						   includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}"
+						   click="showPropertyConfigWindow()" 
+						   styleName="linkMenuButtonSmall"  
+						   textAlign="left" paddingLeft="0"/>					   
+			
+		</mx:VBox>
+
 		
 		<mx:VBox width="100%" height="100%" label="Files" id="vbox7" paddingTop="0">
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox9">
@@ -619,7 +626,7 @@
 							visible="{parentDocument.currentState == 'AdminState'}"
 							includeInLayout="{parentDocument.lcurrentState == 'AdminState'}"
 							icon="@Embed(source='../../assets/folder.png')" 
-							click="{/*showDataTrackFolderInfoWindow()*/}"/>
+							click="{showFolderInfoWindow()}"/>
 			<mx:Spacer width="100%"/>
 			<util:DirtyNote id="dirtyDataTrack"  />
 			<mx:Button  label="Save" id="saveDataTrackButton" 

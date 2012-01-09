@@ -267,6 +267,13 @@ LinkButton
 }
 
 
+.customLinkBar {
+	linkButtonStyleName: "customLinkButton";
+}
+.customLinkButton {
+	maxLinkBtnWidth: 50;
+}
+
 Button {
         fillAlphas: 1, 1;
         fontWeight: normal;
