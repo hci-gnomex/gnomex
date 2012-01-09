@@ -219,6 +219,7 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
 			import views.util.WorkAuthorizationWindow;
+			import views.util.CustomLinkBar;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -1954,12 +1955,12 @@
 			      </mx:HBox>
 			      
 			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
-			 			<mx:LinkBar id="linkButtonBar" 
+			 			<util:CustomLinkBar id="linkButtonBar"  styleName="customLinkBar"
 			 				 dataProvider="{initViews}" width="100%"
 			 			            enabled="false" visible="false"   paddingBottom="2" paddingTop="2"
 			 			            verticalAlign="middle" 
 			 			            itemClick="onViewSelection()"  horizontalAlign="left" >
-			 			</mx:LinkBar>
+			 			</util:CustomLinkBar>
 			      </mx:HBox>
 	      	
 		      	
@@ -1982,7 +1983,7 @@
 						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 						</util:WelcomeView>  
 			
-					    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register Experiment'}" 
+					    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Request' : 'Register Experiment'}" 
 					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>
 	
@@ -1990,7 +1991,7 @@
 					    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>
 			            		
-				        <experiment:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
+				        <experiment:NavExperimentView id = "navExperimentView" label="Experiments" width="100%" height="100%" 
 				        	icon="@Embed('assets/flask.png')">
 				        </experiment:NavExperimentView>
 			
@@ -1998,7 +1999,7 @@
 				        	icon="@Embed('assets/map.png')">
 				        </analysis:NavAnalysisView>
 						
-						<datatrack:NavDataTrackView id="navDataTrackView" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
+						<datatrack:NavDataTrackView id="navDataTrackView"  label="Data Tracks" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
 						</datatrack:NavDataTrackView>
 		
 						<workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
@@ -2013,7 +2014,7 @@
 				        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
 				        </slide:SlideManagementView>
 				        
-				        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users &amp; Groups" width="100%" height="100%" backgroundAlpha="1.0">	
+				        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users Groups" width="100%" height="100%" backgroundAlpha="1.0">	
 				        </user:NavUsersView>
 				        
 						<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
@@ -2023,7 +2024,7 @@
 	    		
 	    	</mx:ViewStack>
            
- 
+  
         </mx:VBox>
      
 
@@ -2053,9 +2054,9 @@
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
-	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Serv."/>
+	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
 	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="{this.isInternalExperimentSubmission ? 'Submit Request' : 'Register Experiment'}"/>
-			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users/Groups"/>
+			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
@@ -2064,6 +2065,7 @@
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
+			<mx:SetProperty target="{this.linkButtonBar}" name="buttonWidth" value="60"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>

@@ -11,7 +11,6 @@
 		<mx:State name="AdminState">
 			<mx:SetProperty target="{reloadDas2ServerButton}" name="includeInLayout" value="{currentState == 'AdminState'}"/>
 			<mx:SetProperty target="{reloadDas2ServerButton}" name="visible" value="{currentState == 'AdminState'}"/>
-			<mx:SetProperty target="{reloadDas2ServerButton}" name="width" value="146"/>
 		</mx:State>
 		<mx:State name="UserState"/>
 		<mx:State name="GuestState"/>
@@ -1729,7 +1728,7 @@
 			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 
 			<mx:HBox width="100%" 
-					 verticalAlign="middle" paddingTop="4" paddingBottom="4"
+					 verticalAlign="middle" paddingTop="6" paddingBottom="6"
 					 id="topBar" horizontalGap="0">
 				<mx:LinkButton   label="New Data Track" 
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
@@ -1740,7 +1739,7 @@
 								 click="{addItem('Data Track')}" 
 								 id="linkbutton4"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/datatrack_new_disable.png')" 
-								 icon="@Embed(source='../../assets/datatrack_new.png')" paddingLeft="4" paddingRight="0"/>
+								 icon="@Embed(source='../../assets/datatrack_new.png')"/>
 				<mx:VRule height="20" id="vrule4" width="2" 							   
 						  visible="{currentState != 'GuestState'}"
 						  includeInLayout="{currentState != 'GuestState'}"/>
@@ -1753,7 +1752,7 @@
 								 styleName="linkMenuButton"   					        	
 								 toolTip="New folder" 
 								 click="{addItem('Data Track Folder')}" 
-								 id="linkbutton3" textAlign="left"  paddingLeft="4" paddingRight="0"/>
+								 id="linkbutton3" textAlign="left"  />
 				<mx:VRule height="20" id="vrule5" width="2" 
 						  visible="{currentState == 'AdminState'}"
 						  includeInLayout="{currentState == 'AdminState'}"/>
@@ -1766,7 +1765,7 @@
 								styleName="linkMenuButton"   					        	
 								toolTip="Create a new genome build" 
 								click="{addItem('Genome build')}" 
-								leading="0" id="linkbutton2" textAlign="left"  paddingLeft="4" paddingRight="0"/>
+								leading="0" id="linkbutton2" textAlign="left"/>
 				<mx:VRule height="20" id="vrule6" width="2" 
 						  visible="{currentState == 'AdminState'}"
 						  includeInLayout="{currentState == 'AdminState'}"/>
@@ -1779,7 +1778,7 @@
 								toolTip="Create a new organism"
 								styleName="linkMenuButton"   					        	
 								click="{addItem('Organism')}" 
-								labelPlacement="right" textAlign="left" id="linkbutton1"   paddingLeft="4" paddingRight="0"/>
+								labelPlacement="right" textAlign="left" id="linkbutton1"  />
 				<mx:VRule height="20" id="vrule3" width="2"  visible="{currentState != 'GuestState'}" includeInLayout="{currentState != 'GuestState'}"/>
 				<mx:LinkButton label="Duplicate" styleName="menuLabelSmall" id="duplicateButton" 
 							   disabledIcon="@Embed(source='../../assets/duplicate_disable.png')" 
@@ -1788,7 +1787,7 @@
 							   includeInLayout="{currentState != 'GuestState'}"
 							   click="{duplicateDataTrack.send()}"
 							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' }"
-							    paddingLeft="4" paddingRight="0"/>
+							  />
 				<mx:VRule height="20" id="vrule0" width="2"									   
 						  visible="{currentState != 'GuestState'}"
 						  includeInLayout="{currentState != 'GuestState'}"/>
@@ -1802,13 +1801,13 @@
 							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 							enabled="{currentState == 'AdminState'}"
 							styleName="linkMenuButton" 
-							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism" id="linkbutton7"  paddingLeft="4"/>
+							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism" id="linkbutton7"  />
 					</mx:HBox>
 					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6"  >
 						<mx:LinkButton   
 							icon="@Embed(source='../../assets/crossout.png')" 
 							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
-							label="Remove" paddingLeft="4"
+							label="Remove" 
 							enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
 							styleName="linkMenuButton" 
 							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism"   id="removeOrganismButton"/>
@@ -1844,7 +1843,7 @@
 				<mx:LinkButton styleName="linkMenuButton" label="Download" 
 							   icon="@Embed(source='../../assets/download.png')" 
 							   enabled="true"
-							   click="{treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" paddingLeft="4" paddingRight="0"/>
+							   click="{treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
 				
 				<mx:VRule height="20" id="vrule21x" width="2" />	
 				<mx:LinkButton styleName="linkMenuButton" label="UCSC Browser" 
@@ -1853,21 +1852,15 @@
 							   toolTip="Create file link(s) for viewing the selected data track in the UCSC Genome Browser"
 							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackView.getDataTrack.lastResult.@ucscLinkFile != 'none'}"  
 							   click="{createUCSCLink()}" 
-							   id="makeUCSCLinkButton"  paddingLeft="4" paddingRight="0"/>
+							   id="makeUCSCLinkButton" />
 				<mx:VRule height="20" id="vrule21y" width="2" />	
-				<mx:LinkButton styleName="linkMenuButton" label="Get URL Links" 
+				<mx:LinkButton styleName="linkMenuButton" label="URL Links" 
 							   icon="@Embed(source='../../assets/icon_link.gif')"
 							   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"  					        	
 							   toolTip="Creates URL file link(s) for accessing the selected data tracks via HTTP"
 							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackView.dataTrackFiles.length !=0}"  
 							   click="{createURLLinks()}" 
-							   id="makeURLLinksButton"  paddingLeft="4" paddingRight="0"/>
-				
-				
-				<mx:VRule height="20" id="vrule1" width="2"/>
-				<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
-							   icon="@Embed(source='../../assets/refresh.png')" 
-							   click="{treeItemToSelect=null;locateText.text='enter search here...';refreshDataTracks()}" id="linkbutton8" paddingLeft="4" paddingRight="0"/>
+							   id="makeURLLinksButton"  />
 				
 				<mx:VRule height="20" id="vrule2" width="2"
 						  visible="{currentState != 'GuestState'}"
@@ -1878,11 +1871,11 @@
 							   includeInLayout="{currentState != 'GuestState'}"
 							   icon="@Embed(source='../../assets/database_lightning.png')" 
 							   click="{/*refreshDAS2()*/}" 
-							   id="reloadDas2ServerButton" textAlign="left"  paddingLeft="4" paddingRight="0"/>
+							   id="reloadDas2ServerButton"  />
 						
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="4" paddingTop="2" verticalAlign="middle" 
-					 paddingBottom="2" id="hbox15"   
+					 paddingBottom="4" id="hbox15"   
 					 paddingRight="2" paddingLeft="2">
 				
 				<mx:Label text="Filters:" styleName="menuLabelSmall"/>
@@ -1921,6 +1914,12 @@
 								 selected="true" paddingLeft="0"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
 					
 				</mx:HBox>
+				
+				<mx:VRule height="20" id="vrule1" width="2"/>
+				
+				<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
+							   icon="@Embed(source='../../assets/refresh.png')" 
+							   click="{treeItemToSelect=null;locateText.text='enter search here...';refreshDataTracks()}" id="linkbutton8" paddingLeft="4" paddingRight="0"/>
 			
 			</mx:HBox>
 

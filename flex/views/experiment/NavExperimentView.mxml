@@ -116,16 +116,15 @@
  
 	   <mx:Script> 
         <![CDATA[
-        import mx.controls.Alert;
-        import mx.managers.DragManager;
-        import mx.core.DragSource;
-        import mx.events.DragEvent;
-        import mx.events.CloseEvent;
-        import mx.controls.Menu;
         import mx.collections.ArrayCollection;
-
-        import mx.rpc.events.ResultEvent;   
         import mx.collections.XMLListCollection;
+        import mx.controls.Alert;
+        import mx.controls.Menu;
+        import mx.core.DragSource;
+        import mx.events.CloseEvent;
+        import mx.events.DragEvent;
+        import mx.managers.DragManager;
+        import mx.rpc.events.ResultEvent;
         
         public var selectedIdRequest:Object;
         public var selectedRequestNumber:Object;
@@ -142,6 +141,8 @@
         public var selectedIdLab:String;
         
         public var selectedNode:Object;
+			
+		private var refreshCount:int = 0;
         
        [Bindable]
         private var appUsers:XMLListCollection;
@@ -260,6 +261,9 @@
         		return;
         	}
 			
+			refreshCount++;
+
+			
 			if (getProjectRequestList.lastResult.@message != "") {
 				messageLabel.text = "(" + getProjectRequestList.lastResult.@message + ")";
 			} else {
@@ -269,6 +273,16 @@
         	if (getProjectRequestList.lastResult.Lab.length() == 0) {
         		browseTree.visible = false;
         		this.treeExpansionStack.visible = false;
+				
+				// If this is the first refresh and no experiments were returned, ask if search
+				// should be broadened
+				if ((currentState == null || currentState == "") && myExperimentsCheckbox.selected && refreshCount == 1) {
+					Alert.show("No experiments found.  Do you want to broaden the list to include all experiments from your lab?", "", 					
+						Alert.YES | Alert.NO, this, onPromptToShowLabExperiments);
+				} else if ((currentState == null || currentState == "") && this.myLabsExperimentsCheckbox && refreshCount == 2) {
+					Alert.show("No experiments found.  Do you want to broaden the list to include all experiments?", "", 
+						Alert.YES | Alert.NO, this, onPromptToShowAllExperiments);
+				} 
         	} else {
         		browseTree.visible = true;
         		this.treeExpansionStack.visible = true;
@@ -286,6 +300,26 @@
         	callLater(expandAndReselectTree);    	
         	
 	    }
+			
+		private function onPromptToShowLabExperiments(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				this.myExperimentsCheckbox.selected = false;
+				this.myLabsExperimentsCheckbox.selected =  true;
+				this.publicExperimentsOtherGroupsCheckbox.selected = false;
+				this.userAllExperimentsCheckbox.selected = false;
+				this.refreshExperiments();
+			}
+		}
+			
+		private function onPromptToShowAllExperiments(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				this.myExperimentsCheckbox.selected = false;
+				this.myLabsExperimentsCheckbox.selected = false;
+				this.publicExperimentsOtherGroupsCheckbox.selected = false;
+				this.userAllExperimentsCheckbox.selected = true;
+				this.refreshExperiments();
+			}
+		}
 
 		private function expandAndReselectTree():void {
 			

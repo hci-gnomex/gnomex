@@ -774,6 +774,7 @@
 		      <include name="flex/**"/>
 		      <include name="src/**"/>
 		      <include name="lib/**"/>
+		      <include name="UCSCExecutables/**"/>
 		      <exclude name="META-INF/context.xml"/>
 		      <include name="META-INF/context_opensource.xml"/>
 		      <include name="META-INF/**"/>

@@ -42,7 +42,7 @@
 			   "<GenomeBuild " +
 			     "idGenomeBuild='" + importSegments.lastResult.@idGenomeBuild + "'" +
 			    "/>");
-			parentApplication.dataTrackView.refreshDataTracksAndSelect(itemToSelect);
+			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
 		} else  {
 			Alert.show(importSegments.lastResult..ACTMESSAGE.@TEXT);
 		} 	
