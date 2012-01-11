@@ -4,6 +4,10 @@
 --------------------
 * Added meta tags to insure login.jsp is not cached.
 
+5.3.6.1
+--------------------
+* Made change that allows user to enter the barcode in the Gnomex workflow even if it only has one sample.
+
 5.3.6
 --------------------
 * Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)
