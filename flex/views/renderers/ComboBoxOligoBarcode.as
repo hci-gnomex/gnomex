@@ -37,9 +37,9 @@ package views.renderers
 		        // Also, enable the dropdown if an oligobarcode has been assigned already.
 				if (data.@multiplexGroupNumber != "" && data.@seqPrepByCore == "Y") {
 					this.enabled = true;
-				} else if (data.@idOligoBarcode != ''){
+				} else if (data.@idOligoBarcode != '' || data.@seqPrepByCore != "N"){
 					this.enabled = true;
-				} else {
+				} else{
 					this.enabled = false;
 				}
 		    }            						 		            
