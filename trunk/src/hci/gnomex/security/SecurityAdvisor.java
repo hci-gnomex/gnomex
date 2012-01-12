@@ -118,6 +118,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     setGlobalPermissions();
   }
   
+  public boolean isAdmin() {
+    return this.hasPermission(CAN_ACCESS_ANY_OBJECT);
+  }
+  
   public boolean isGuest() {
     return isGuest;
   }
