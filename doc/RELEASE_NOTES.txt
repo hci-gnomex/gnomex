@@ -11,6 +11,7 @@
 * Added meta tags to insure login.jsp is not cached.
 * Made change that allows user to enter the barcode in the Gnomex workflow even if it only has one sample.
 * Fixed obscuring of long Group(Lab) names on analysis edit.
+* Fixed bug that threw a billing error when a user was registering an external experiment.
 
 5.3.5.1(12/21/2011)
 --------------------
