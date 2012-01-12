@@ -7,6 +7,7 @@
 5.3.6.1
 --------------------
 * Made change that allows user to enter the barcode in the Gnomex workflow even if it only has one sample.
+* Fixed obscuring of long Group(Lab) names on analysis edit.
 
 5.3.6
 --------------------
