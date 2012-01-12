@@ -206,7 +206,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
       // Get the current billing period
       billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
-      if (billingPeriod == null) {
+      if (billingPeriod == null && requestXMLString.contains("isExternal=\"N\"")) {
         throw new Exception("Cannot find current billing period to create billing items");
       }
       
