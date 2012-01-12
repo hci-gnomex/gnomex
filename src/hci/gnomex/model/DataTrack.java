@@ -576,21 +576,15 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	  return getFiles(data_root, analysis_data_root).size();
 	}
 
-	public String getQualifiedFileName(String data_root) {
-		if (this.getFileName() == null || this.getFileName().equals("")) {
-			return "";
-		}
-		
-		String filePath =  getDirectory(data_root);
-		File file = new File(filePath);
+	public String getQualifiedFileName(String data_root, String analysis_data_root) throws IOException {
+		List<File> files = getFiles(data_root, analysis_data_root);
 
-		File[] files = file.listFiles();
-
+		String filePath = getDirectory(data_root);
 		if (files != null) {
 			//one file return file
-			if (files.length == 1){
-				String[] childFileNames = file.list();
-				filePath += "/" + childFileNames[0];
+			if (files.size() == 1){
+			  File file = files.get(0);
+			  filePath = file.getAbsolutePath() + "/" + file.getName();
 			}
 			//multiple files, might contain a useq file with URL link files (xxx.bw, xxx.bb) that should be skipped or bam and it's associated bai index file
 			else {
@@ -598,20 +592,24 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 					String fileName = f.getName();
 					//bam?
 					if (fileName.endsWith("bam")) {
-						filePath += "/" + fileName;
+						filePath = f.getAbsolutePath() + "/" + fileName;
 						break;
 					}
 					//useq?
 					else if (fileName.endsWith(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) {
-						filePath += "/" + fileName;
+						filePath = f.getAbsolutePath() + "/" + fileName;
 						break;
 					}
 				}
 			}
 			//make sure it's not a ucsc big file xxx.bw, or xxx.bb
-			if (filePath.endsWith(".bb") || filePath.endsWith(".bw")) filePath = "";
+			if (filePath.endsWith(".bb") || filePath.endsWith(".bw")) {
+        
+			  filePath = "";
+			} else {
+			  //bar files should return the directory so don't do anything		
+			}
 			
-			//bar files should return the directory so don't do anything
 			
 		}
 		return filePath;
