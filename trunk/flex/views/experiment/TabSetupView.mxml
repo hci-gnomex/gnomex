@@ -271,6 +271,9 @@
         [Bindable]
         private var lab:Object = null;
 		
+		
+		private var firstClick:Boolean = true;
+		
         		
         public var idAppUser:Object = '';
 
@@ -713,6 +716,13 @@
 					radioRequestCategory[i].setStyle("fontWeight", "normal");
 				
 			}
+			
+			if(firstClick){
+				setTimeout(updateFilteredSlideProduct, 5000);
+				firstClick = false;
+			}
+			else
+				updateFilteredSlideProduct();
 		}
 		
 		private function pickSlideProduct(slideProductCombo:ComboBox):void {
@@ -738,6 +748,8 @@
 				parentDocument.filteredSlideProductList.refresh();
 			}
 			
+			updateFilteredSlideProduct();
+			
 		}
 		
 		private function showNewSimpleSlideWindow():void{
@@ -761,7 +773,37 @@
 			parentDocument.samplesView.propagateOrganism(this.getIdOrganism());
 
 			checkSetupCompleteness();
+			
+			
+			if(requestTypeGroup.selectedValue != null){
+				updateFilteredSlideProduct();
+			}
 		} 
+		
+		private function updateFilteredSlideProduct():void{
+			parentDocument.filteredSlideProductList.refresh();
+			parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
+			parentDocument.filteredSlideProductList.refresh();
+		}
+		
+		private function filterSlideProduct(item:Object):Boolean{
+			if(radioGroupAppAdmin.selectedValue != null || radioGroupApp.selectedValue != null){
+				if(item.@idSlideProduct == "" || (this.getIdOrganism() == item.@idOrganism && this.getApp() == item.applications.Application.@value)){
+					return true;
+				}
+				else
+					return false;
+			}
+			else{
+				if(item.@idSlideProduct == "" || (this.getIdOrganism() == item.@idOrganism)){
+					return true;
+				}
+				else
+					return false;
+			}
+			
+			
+		}
 		
 
 	]]>
