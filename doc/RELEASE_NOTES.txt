@@ -1,6 +1,11 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.6.1
+--------------------
+* Fixed bug that threw a billing error when a user was registering an external experiment.
+* When a user registers an external Microarray experiment the Microarray slide list dropdown will be filtered based on the Organism and Experiment Platform that the user selects.
+
 5.3.6
 --------------------
 * Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)
@@ -11,7 +16,6 @@
 * Added meta tags to insure login.jsp is not cached.
 * Made change that allows user to enter the barcode in the Gnomex workflow even if it only has one sample.
 * Fixed obscuring of long Group(Lab) names on analysis edit.
-* Fixed bug that threw a billing error when a user was registering an external experiment.
 
 5.3.5.1(12/21/2011)
 --------------------
