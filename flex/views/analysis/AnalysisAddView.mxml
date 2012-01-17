@@ -56,9 +56,6 @@
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
-		
-		[Bindable]
-		private var analysisGroupList:XMLListCollection = new XMLListCollection();
 
 		private var selectedIdAnalysisGroup:Object;
 		private var selectedIdLab:Object;
@@ -99,7 +96,6 @@
 		
 		public function refreshAnalysisGroupForDropdown():void {
 			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '') {
-				analysisGroupList = new XMLListCollection(getAnalysisGroupList.lastResult..AnalysisGroup.(@idLab == this.labCombo.selectedItem.@idLab));
 				if (selectedIdAnalysisGroup != null) {
 					for each(var ag:Object in analysisGroupList) {
 						if (ag.@idAnalysisGroup == selectedIdAnalysisGroup) {
@@ -299,6 +295,7 @@
 		
 	]]>
 </mx:Script>
+<mx:XMLListCollection id="analysisGroupList" source="{getAnalysisGroupList.lastResult..AnalysisGroup}"/>
 <mx:XMLListCollection  id="filteredGenomeBuildList"/>
 <mx:XMLListCollection id="genomeBuilds"/>
 	<mx:VBox width="100%"  verticalGap="15" horizontalGap="10">
