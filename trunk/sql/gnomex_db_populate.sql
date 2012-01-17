@@ -508,7 +508,7 @@ VALUES (4, 'NIH', 'Y', 'Y'),
 
 
 /*!40000 ALTER TABLE `GenomeBuild` DISABLE KEYS */;
-INSERT INTO `Genome` (`idGenomeBuild`, name, `das2Name`,`idOrganism`,`buildDate`,`coordURI`,`coordBuild`,`coordSource`,`coordTestRange`,`coordAuthority`,`ucscName`) VALUES 
+INSERT INTO `GenomeBuild` (`idGenomeBuild`,genomeBuildName, `das2Name`,`idOrganism`,`buildDate`,`coordURI`,`coordVersion`,`coordSource`,`coordTestRange`,`coordAuthority`,`ucscName`) VALUES 
  (400,'A_thaliana_Jan_2004','A_thaliana_Jan_2004', 400,'2004-01-01 00:00:00',NULL,NULL,NULL,NULL,NULL,NULL),
  (401,'TAIR8; A_thaliana_Mar_2008','A_thaliana_Mar_2008', 400,'2008-03-01 00:00:00',NULL,NULL,NULL,NULL,NULL,NULL),
  (501,'B_taurus_Oct_2007','B_taurus_Oct_2007',500,'2007-10-01 00:00:00',NULL,NULL,NULL,NULL,NULL,'bosTau4'),
@@ -632,7 +632,7 @@ VALUES (1,  'GAII Tag 1', 'AAT', 1, 'Y', 1),
 
   
 /*!40000 ALTER TABLE `Organism` DISABLE KEYS */;
-INSERT INTO gnomex.`Organism` (`idOrganism`,`organism`,`sortOrder`,`binomialName`,`NCBITaxID`,`idAppUser`,`name`) VALUES 
+INSERT INTO gnomex.`Organism` (`idOrganism`,`organism`,`sortOrder`,`binomialName`,`NCBITaxID`,`idAppUser`,`das2Name`) VALUES 
  (100,'Lizard',NULL,'Anolis carolinensis',NULL,NULL,'A_carolinensis'),
  (200,'A.gambiae',NULL,'Anopheles gambiae',NULL,NULL,'A_gambiae'),
  (300,'A_mellifera',NULL,'Apis mellifera','',NULL,'A_mellifera'),
@@ -762,8 +762,10 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
  (69, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
  (70,'contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N');
- (71,'reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y');
- (72,'dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y');
+ (71,'reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y'),
+ (72,'dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y'),
+ (73,'datatrack_read_directory','/home/gnomex/dataTrackData/','The file directory where data track files are stored that are not linked to an analysis file. NOTE: must end in /', 'Y'),
+ (74,'datatrack_write_directory','/home/gnomex/dataTrackData/','The file directory where analysis files are stored that are not linked to an analysis file NOTE: must end in /', 'Y');
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
@@ -831,12 +833,12 @@ VALUES ('AFFY', 'CHIP'),
   ('HISEQ', 'TSCRPTSEQ');
 
  
--- Insert entries into CharacteristicType
-INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('TEXT',        'Text');
-INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('URL',         'URL');
-INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('CHECK',       'Checkbox');
-INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('OPTION',      'Option (Single selection)');
-INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('MOPTION',     'Option (Multiple selection)');
+-- Insert entries into PropertyType
+INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('TEXT',        'Text');
+INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('URL',         'URL');
+INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('CHECK',       'Checkbox');
+INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('OPTION',      'Option (Single selection)');
+INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('MOPTION',     'Option (Multiple selection)');
  
 
 

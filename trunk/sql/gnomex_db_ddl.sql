@@ -43,10 +43,6 @@ CREATE TABLE `gnomex`.`Analysis` (
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Analysis_GenomeBuild` FOREIGN KEY `FK_Analysis_GenomeBuild` (`idGenomeBuild`)
-    REFERENCES `gnomex`.`GenomeBuild` (`idGenomeBuild`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `FK_Analysis_AppUser` FOREIGN KEY `FK_Analysis_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
@@ -1118,9 +1114,9 @@ CREATE TABLE `gnomex`.`Organism` (
   `binomialName` varchar(200) NOT NULL,
   `NCBITaxID` varchar(45)  NULL,  
   PRIMARY KEY (`idOrganism`),
-  UNIQUE KEY `Index_OrganismName` (`name`),
+  UNIQUE KEY `Index_OrganismName` (`organism`),
   UNIQUE KEY `Index_OrganismDas2Name` (`das2Name`),
-  UNIQUE KEY `Index_OrganismBinomialName` (`binomialName`)  
+  UNIQUE KEY `Index_OrganismBinomialName` (`binomialName`),  
   CONSTRAINT `FK_Organism_AppUser` FOREIGN KEY `FK_Organism_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
@@ -1469,7 +1465,7 @@ ENGINE = INNODB;
 
 -- Add table PropertyType
 DROP TABLE IF EXISTS `gnomex`.`PropertyType`;
-CREATE TABLE gnomex.CharacteristicType ( 
+CREATE TABLE gnomex.PropertyType ( 
     codePropertyType	    VARCHAR(10) NOT NULL,
     name 	                varchar(200) NOT NULL,
     isActive     	        char(1) NULL,
@@ -1539,9 +1535,9 @@ CREATE TABLE gnomex.PropertyPlatform (
 -- Add table PropertyOption
 DROP TABLE IF EXISTS `gnomex`.`PropertyOption`;
 CREATE  TABLE gnomex.PropertyOption (
-  idPropertyOption INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  idPropertyOption INT(10)  NOT NULL AUTO_INCREMENT ,
   value VARCHAR(200)  NULL,
-  idProperty int(10)  NULL,
+  idProperty int(10) not  NULL,
   sortOrder INT(10) NULL,
   isActive     	        char(1) NULL,  
   PRIMARY KEY (idPropertyOption),
@@ -1580,7 +1576,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS PropertyEntryOption;
 CREATE TABLE gnomex.PropertyEntryOption (
   idPropertyEntry INT(10)  NOT NULL,
-  idPropertyOption INT(10) unsigned  NOT NULL,
+  idPropertyOption INT(10)  NOT NULL,
   PRIMARY KEY (idPropertyEntry, idPropertyOption) ,
   CONSTRAINT FK_PropertyEntryOption_PropertyEntry FOREIGN KEY FK_PropertyEntryOption_PropertyEntry (idPropertyEntry)
     REFERENCES gnomex.PropertyEntry (idPropertyEntry)
@@ -2137,9 +2133,9 @@ ENGINE = INNODB;
 --
 DROP TABLE IF EXISTS `GenomeBuildAlias`;
 CREATE TABLE `GenomeBuildAlias` (
-  `idGenomeBuildAlias` int(10) unsigned NOT NULL auto_increment,
+  `idGenomeBuildAlias` int(10) NOT NULL auto_increment,
   `alias` varchar(100) NOT NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   PRIMARY KEY  (`idGenomeBuildAlias`),
   KEY `FK_GenomeBuildAlias_GenomeBuild` (`idGenomeBuild`),
   CONSTRAINT `FK_GenomeBuildAlias_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`)
@@ -2155,10 +2151,10 @@ CREATE TABLE `GenomeBuildAlias` (
 
 DROP TABLE IF EXISTS `Segment`;
 CREATE TABLE `Segment` (
-  `idSegment` int(10) unsigned NOT NULL auto_increment,
+  `idSegment` int(10)  NOT NULL auto_increment,
   `length` int(10) unsigned NOT NULL,
   `name` varchar(100) NOT NULL,
-  `idGenomeBuild` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
   `sortOrder` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`idSegment`),
   KEY `FK_Segment_GenomeBuild` (`idGenomeBuild`),
