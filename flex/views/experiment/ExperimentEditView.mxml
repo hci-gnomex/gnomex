@@ -101,6 +101,9 @@
     fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
     method="POST"
     useProxy="false">
+	<mx:request xmlns="">
+		<idLab>{requestEditLabCombo.selectedItem.@idLab}</idLab>
+	</mx:request>
    </mx:HTTPService>
    
   <mx:HTTPService  
@@ -3290,7 +3293,6 @@
 		        	}
 		        }
 		        
-		        projects = new XMLListCollection(lab.projects.Project);
 		        requestEditProjectCombo.selectedItem = null;
 		        for each(var p:Object in projects) {
 		        	if (p.@idProject == request.@idProject) {
@@ -4125,7 +4127,7 @@
 	<mx:XMLListCollection id="multiplexLanes" source="{getMultiplexLaneList.lastResult..MultiplexLane}"/>
  
   	<mx:XMLListCollection id="billingAccounts" />
-  	<mx:XMLListCollection id="projects" />
+  	<mx:XMLListCollection id="projects" source="{getLab.lastResult..Lab.projects.Project}" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 
