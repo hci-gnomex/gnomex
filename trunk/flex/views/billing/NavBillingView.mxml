@@ -360,7 +360,7 @@
 		public function checkDirty():void {      
 		}
 		
-		public function recalculateTotalPrice(experiment:Object):void {
+		public function recalculatePrices(experiment:Object):void {
 			for each(var bi:Object in experiment.BillingItem) {
 				var percentageDisplay:String = bi.@percentageDisplay;
 				percentageDisplay = percentageDisplay.replace("%", "");
@@ -370,8 +370,8 @@
 				unitPriceString = unitPriceString.replace(",", "");
 				var unitPrice:Number = Number(unitPriceString);
 				
-				bi.@totalPrice = unitPrice * bi.@qty * (int(percentageDisplay) / 100); 
-				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	 
+				bi.@invoicePrice = unitPrice * bi.@qty * (int(percentageDisplay) / 100); 
+				bi.@invoicePrice = currencyFormatter.format(bi.@invoicePrice);	 
 			}
 		}
 		
@@ -388,7 +388,7 @@
 					" completeDateOther=''" +
 					" qty=''" +
 					" unitPrice=''" + 
-					" totalPrice=''" +
+					" invoicePrice=''" +
 					" isDirty='Y'" +
 					" codeBillingStatus = 'PENDING'" +
 					"/>");
@@ -528,7 +528,7 @@
 					var experiment:Object = pe.source;
 					billingItems.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
 					experiment.@isDirty = "Y";  
-					recalculateTotalPrice(experiment);					
+					recalculatePrices(experiment);					
 					billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
 					
 				}
@@ -768,7 +768,7 @@
 			
 			billingItemsDisplayed = new XMLListCollection();
 			
-			var totalPrice:Number = new Number(0);
+			var invoicePrice:Number = new Number(0);
 			var request:XML = null;
 			var lab:XML = null;
 			var item:Object = null;
@@ -780,7 +780,7 @@
 	 					if (item.@requestNumber == request.@requestNumber &&
 		 					item.@idBillingAccount == request.@idBillingAccount) {
 	 						billingItemsDisplayed.addItem(item);
-		 					totalPrice = sumTotalPrice(totalPrice, item);
+							invoicePrice = sumInvoicePrice(invoicePrice, item);
  						}
  					}  
  					
@@ -793,7 +793,7 @@
 		 					if (item.@requestNumber == request.@requestNumber &&
 		 					    item.@idBillingAccount == lab.@idBillingAccount) {
 		 						billingItemsDisplayed.addItem(item);
-		 						totalPrice = sumTotalPrice(totalPrice, item);
+								invoicePrice = sumInvoicePrice(invoicePrice, item);
 	 						}
 	 					}  
 	 					
@@ -807,7 +807,7 @@
 	 					if (item.@requestNumber == request.@requestNumber &&
 	 					    item.@idBillingAccount == lab.@idBillingAccount) {
 	 						billingItemsDisplayed.addItem(item);
-		 					totalPrice = sumTotalPrice(totalPrice, item);
+							invoicePrice = sumInvoicePrice(invoicePrice, item);
  						}
  					}  
  				}
@@ -816,26 +816,26 @@
  					if (item.@requestNumber == selectedItem.@requestNumber &&
  					    item.@idBillingAccount == selectedItem.@idBillingAccount) {
 	 					billingItemsDisplayed.addItem(item);
-						totalPrice = sumTotalPrice(totalPrice, item);
+						invoicePrice = sumInvoicePrice(invoicePrice, item);
  					}
  				}
  			}  
 			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
 			this.billingItemGrid.dataProvider.refresh();
 			
-			if (totalPrice > 0) {
-				grandTotalPrice = currencyFormatter.format(totalPrice.toFixed(2).toString());			
+			if (invoicePrice > 0) {
+				grandTotalPrice = currencyFormatter.format(invoicePrice.toFixed(2).toString());			
 			} else {
 				grandTotalPrice = "";
 			}
  		}
  		
- 		private function sumTotalPrice(totalPrice:Number, billingItem:Object):Number {
- 			var price:String = billingItem.@totalPrice;
+ 		private function sumInvoicePrice(invoicePrice:Number, billingItem:Object):Number {
+ 			var price:String = billingItem.@invoicePrice;
  			price = price.replace('$', '');
  			price = price.replace(',', '');
- 			totalPrice += (price != '' ? new Number(price) : 0);
- 			return totalPrice;
+			invoicePrice += (price != '' ? new Number(price) : 0);
+ 			return invoicePrice;
  		}
         private function onDragDropBillingItemGrid(event:DragEvent) : void
 		{
@@ -1104,7 +1104,7 @@
  						}					
  					}
  					for each(var bi1:XML in request.BillingItem) {
- 						if (bi1.@qty == '' || bi1.@unitPrice == '' || bi1.@unitPrice == 0 || bi1.@totalPrice == '' || bi1.@totalPrice == 0) {
+ 						if (bi1.@qty == '' || bi1.@unitPrice == '' || bi1.@unitPrice == 0 || bi1.@invoicePrice == '' || bi1.@invoicePrice == 0) {
  							isEmptyPriceOrQty = true;
  							break;
  						}
@@ -2064,10 +2064,10 @@
 			                  </mx:Component>
 			              </mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="11" editable="false" wordWrap="false">
+        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@invoicePrice" textAlign="right" width="11" editable="false" wordWrap="false">
         				  <mx:itemRenderer>
 			                  <mx:Component>
-			                  <mx:Text text="{data.@totalPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  <mx:Text text="{data.@invoicePrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
 			                  </mx:Component>
 			              </mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>

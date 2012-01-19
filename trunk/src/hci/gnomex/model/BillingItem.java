@@ -16,7 +16,7 @@ public class BillingItem extends HibernateDetailObject {
   private String         description;
   private Integer        qty;
   private BigDecimal     unitPrice;
-  private BigDecimal     totalPrice;
+  private BigDecimal     invoicePrice;
   private BigDecimal     percentagePrice;
   private String         codeBillingChargeKind;
   private String         codeBillingStatus;
@@ -74,16 +74,16 @@ public class BillingItem extends HibernateDetailObject {
     this.unitPrice = unitPrice;
   }
   
-  public String getTotalPriceDisplay() {
-    return "$" + totalPrice;
+  public String getInvoicePriceDisplay() {
+    return "$" + invoicePrice;
   }
 
-  public BigDecimal getTotalPrice() {
-    return totalPrice;
+  public BigDecimal getInvoicePrice() {
+    return invoicePrice;
   }
   
-  public void setTotalPrice(BigDecimal totalPrice) {
-    this.totalPrice = totalPrice;
+  public void setInvoicePrice(BigDecimal invoicePrice) {
+    this.invoicePrice = invoicePrice;
   }
   
   public String getCodeBillingChargeKind() {

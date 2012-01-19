@@ -316,7 +316,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `description` VARCHAR(500) NULL,
   `qty` INT(10) NULL,
   `unitPrice` DECIMAL(6, 2) NULL,
-  `totalPrice` DECIMAL(8, 2) NULL,
+  `invoicePrice` DECIMAL(8, 2) NULL,
   `idBillingPeriod` INT(10) NULL,
   `codeBillingStatus` VARCHAR(10) NULL,
   `idPriceCategory` INT(10) NULL,

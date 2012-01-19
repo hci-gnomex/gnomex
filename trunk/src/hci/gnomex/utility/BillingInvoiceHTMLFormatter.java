@@ -165,11 +165,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         }
         this.addRightAlignCell(row, this.getHTMLString(bi.getQty()));
         this.addRightAlignCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;");
-        this.addRightAlignCell(row, bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "&nbsp;");
+        this.addRightAlignCell(row, bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "&nbsp;");
         
-        if (bi.getTotalPrice() != null) {
-          totalPriceForRequest = totalPriceForRequest.add(bi.getTotalPrice());          
-          grandTotal = grandTotal.add(bi.getTotalPrice());          
+        if (bi.getInvoicePrice() != null) {
+          totalPriceForRequest = totalPriceForRequest.add(bi.getInvoicePrice());          
+          grandTotal = grandTotal.add(bi.getInvoicePrice());          
         }
         
       }

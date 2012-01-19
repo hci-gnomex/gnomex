@@ -354,20 +354,20 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       doc.getRootElement().addContent(requestNode);          
 
 
-      BigDecimal grandTotalPrice = new BigDecimal(0);
+      BigDecimal grandInvoicePrice = new BigDecimal(0);
       for(Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem)i.next();
         Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
-        if (bi.getTotalPrice() != null) {
-          grandTotalPrice = grandTotalPrice.add(bi.getTotalPrice());
-          billingItemNode.setAttribute("totalPrice", nf.format(bi.getTotalPrice().doubleValue()));        
+        if (bi.getInvoicePrice() != null) {
+          grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
+          billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));        
         }            
         requestNode.addContent(billingItemNode);
       }
       
 
       StringBuffer buf = new StringBuffer();
-      buf.append("SELECT sum(bi.totalPrice) from BillingItem bi where bi.idBillingAccount = " + request.getIdBillingAccount());
+      buf.append("SELECT sum(bi.invoicePrice) from BillingItem bi where bi.idBillingAccount = " + request.getIdBillingAccount());
       List rows = sess.createQuery(buf.toString()).list();
       BigDecimal totalChargesToDate = new BigDecimal(0);
       if (rows.size() == 1) {
@@ -376,12 +376,12 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           totalChargesToDate = new BigDecimal(0);
         }
       }
-      totalChargesToDate = totalChargesToDate.add(grandTotalPrice);
+      totalChargesToDate = totalChargesToDate.add(grandInvoicePrice);
       
       BillingAccount billingAccount = (BillingAccount)sess.load(BillingAccount.class, request.getIdBillingAccount());
       billingAccount.setTotalChargesToDate(totalChargesToDate);
       
-      requestNode.setAttribute("totalPrice", NumberFormat.getCurrencyInstance().format(grandTotalPrice.doubleValue()));
+      requestNode.setAttribute("invoicePrice", NumberFormat.getCurrencyInstance().format(grandInvoicePrice.doubleValue()));
       requestNode.setAttribute("exceedsBillingAccountBalance", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ? "Y" : "N");
       requestNode.setAttribute("exceededDollarAmount", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ?  NumberFormat.getCurrencyInstance().format(billingAccount.getTotalDollarAmountRemaining().abs()) : "N");
 

@@ -95,7 +95,7 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
       billingItem.setUnitPrice(theUnitPrice);
       billingItem.setPercentagePrice(new BigDecimal(1));
       if (qty.intValue() > 0 && theUnitPrice != null) {
-        billingItem.setTotalPrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));          
+        billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));          
       }
       billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());

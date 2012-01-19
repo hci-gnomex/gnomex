@@ -282,9 +282,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               
    
 
-                if (bi.getTotalPrice() != null) {
-                  totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getTotalPrice());          
-                  totalPrice              = totalPrice.add(bi.getTotalPrice());          
+                if (bi.getInvoicePrice() != null) {
+                  totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getInvoicePrice());          
+                  totalPrice              = totalPrice.add(bi.getInvoicePrice());          
                 }
                 
                 firstTime = false;
@@ -321,7 +321,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             
             // Get the total price for all external PO billing items
             buf = new StringBuffer();
-            buf.append("SELECT sum(bi.totalPrice) ");
+            buf.append("SELECT sum(bi.invoicePrice) ");
             buf.append("FROM   Request req ");
             buf.append("JOIN   req.billingItems bi ");
             buf.append("JOIN   bi.lab as lab ");
