@@ -102,7 +102,7 @@ public class GetLab extends GNomExCommand implements Serializable {
       blockAppUserContent(theLab.getManagers());
       
       // Get the total charges to date on all billing accounts
-      StringBuffer buf = new StringBuffer("SELECT bi.idBillingAccount, sum(bi.totalPrice) ");
+      StringBuffer buf = new StringBuffer("SELECT bi.idBillingAccount, sum(bi.invoicePrice) ");
       buf.append(" FROM  BillingItem bi");
       buf.append(" WHERE bi.idLab = " + lab.getIdLab());
       buf.append(" GROUP BY bi.idBillingAccount ");

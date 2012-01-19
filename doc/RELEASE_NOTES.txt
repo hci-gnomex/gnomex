@@ -16,6 +16,10 @@
 * Analysis Groups tab when editing an analysis is now read only
 * Fixed issue with Analysis Group dropdowns when adding a new analysis.  Dropdown for other labs always showed Analysis Group values from first lab expanded
 * Fixed issue with Project dropdowns when editing an experiment.  Dropdown for other labs always showed project values from first lab expanded.
+* Added new InvoicePrice field to BillingItem to replace TotalPrice.  TotalPrice no longer used in code but will be reused when split by amount is implemented.
+  * After deploy (but before anyone uses code) run following query to make sure invoicePrice is correct
+    * update BillingItem set invoicePrice=totalPrice where invoicePrice != totalPrice or invoicePrice is Null
+
 
 5.3.5.1(12/21/2011)
 --------------------

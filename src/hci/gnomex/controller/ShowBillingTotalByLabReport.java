@@ -289,7 +289,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   
   private void getBillingItems(Session sess, String codeRequestCategory, Map labMap, Map map) throws Exception {
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT lab, req.codeRequestCategory, bi.totalPrice ");
+    buf.append("SELECT lab, req.codeRequestCategory, bi.invoicePrice ");
     buf.append("FROM   Request req ");
     buf.append("JOIN   req.billingItems bi ");
     buf.append("JOIN   bi.lab as lab ");
@@ -307,7 +307,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   
   private void getIlluminaBillingItems(Session sess, Map labMap, Map map) throws Exception {
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT lab, req.codeRequestCategory, bi.totalPrice ");
+    buf.append("SELECT lab, req.codeRequestCategory, bi.invoicePrice ");
     buf.append("FROM   Request req ");
     buf.append("JOIN   req.billingItems bi ");
     buf.append("JOIN   bi.lab as lab ");

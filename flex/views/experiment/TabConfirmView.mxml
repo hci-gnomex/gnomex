@@ -20,7 +20,7 @@
 			<mx:SetProperty target="{requestKindLabel}" name="width" value="160"/>
 			<mx:SetProperty target="{appLabel}" name="width" value="160"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the “Back” button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the “Submit” button.]]></mx:value>
+				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the â€œBackâ€� button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the â€œSubmitâ€� button.]]></mx:value>
 			</mx:SetProperty>
 			<mx:RemoveChild target="{billingContainer}"/>
 			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
@@ -199,12 +199,12 @@
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
 				<mx:TextArea styleName="instructionBox" width="268" wordWrap="true" id="textarea1" height="108">
-					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the “Back” button or by clicking on a tab.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the<br>     “Submit” button.]]></mx:htmlText>
+					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the â€œBackâ€� button or by clicking on a tab.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the<br>     â€œSubmitâ€� button.]]></mx:htmlText>
 				</mx:TextArea>
 			</mx:HBox>
 				<mx:VBox width="100%" verticalGap="0" id="billingContainer">
 				    <mx:HBox width="100%" id="chargesHeaderBox">
-				    <mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@totalPrice}" id="label2" textDecoration="underline" paddingTop="10"/>								    	
+				    <mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" id="label2" textDecoration="underline" paddingTop="10"/>								    	
 				    </mx:HBox>
 					<mx:VBox width="100%" id="vbox1">
 						<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"
@@ -255,10 +255,10 @@
 							   				         </mx:Component>
 							   				     </mx:itemRenderer>
 							   				</mx:DataGridColumn>
-							   				<mx:DataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="105" editable="false" >
+							   				<mx:DataGridColumn headerText="Total price" dataField="@invoicePrice" textAlign="right" width="105" editable="false" >
 							   				  <mx:itemRenderer>
 							   				         <mx:Component>
-							   				         <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         <mx:Text text="{data.@invoicePrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
 							   				         </mx:Component>
 							   				     </mx:itemRenderer> 
 							   				</mx:DataGridColumn>

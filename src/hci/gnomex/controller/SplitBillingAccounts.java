@@ -114,7 +114,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                   throw new Exception("Cannot split billing item " + bi.getDescription() + " because unit price is blank.");
                 }
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  bi.setTotalPrice(bi.getUnitPrice().multiply(bi.getPercentagePrice().multiply(new BigDecimal(bi.getQty().intValue()))));          
+                  bi.setInvoicePrice(bi.getUnitPrice().multiply(bi.getPercentagePrice().multiply(new BigDecimal(bi.getQty().intValue()))));          
                 }
                 found = true;
               }
@@ -143,7 +143,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setPercentagePrice(percentage);
                 billingItem.setNotes(bi.getNotes());
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  billingItem.setTotalPrice(bi.getUnitPrice().multiply(billingItem.getPercentagePrice().multiply(new BigDecimal(billingItem.getQty().intValue()))));          
+                  billingItem.setInvoicePrice(bi.getUnitPrice().multiply(billingItem.getPercentagePrice().multiply(new BigDecimal(billingItem.getQty().intValue()))));          
                 }
                 billingItem.setCodeBillingStatus(BillingStatus.PENDING);
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());

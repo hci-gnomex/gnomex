@@ -1005,10 +1005,10 @@
 	        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="false" textAlign="right" width="50" wordWrap="false"
 	        				  rendererIsEditor="false"
 							  itemRenderer="views.renderers.LabelPercentage" />                             
-	        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPriceDisplay" textAlign="right" width="105" editable="false" >
+	        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@invoicePriceDisplay" textAlign="right" width="105" editable="false" >
 	        				  <mx:itemRenderer>
 				                  <mx:Component>
-				                  <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  <mx:Text text="{data.@invoicePrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
 				                  </mx:Component>
 				              </mx:itemRenderer>
 							</mx:AdvancedDataGridColumn>

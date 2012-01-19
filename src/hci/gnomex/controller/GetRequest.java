@@ -394,15 +394,15 @@ public class GetRequest extends GNomExCommand implements Serializable {
               billingLabNode.setAttribute("accountName", keyTokens[1]);
               
               
-              BigDecimal labTotalPrice = new BigDecimal(0);
+              BigDecimal labInvoicePrice = new BigDecimal(0);
               for(Iterator i2 = billingItems.iterator(); i2.hasNext();) {
                 BillingItem theBillingItem = (BillingItem)i2.next();
                 theBillingItem.excludeMethodFromXML("getLabName");
                 theBillingItem.excludeMethodFromXML("getAccountName");
                 billingLabNode.addContent(theBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement());
-                labTotalPrice = labTotalPrice.add(theBillingItem.getTotalPrice() != null ? theBillingItem.getTotalPrice() : new BigDecimal(0));
+                labInvoicePrice = labInvoicePrice.add(theBillingItem.getInvoicePrice() != null ? theBillingItem.getInvoicePrice() : new BigDecimal(0));
               }
-              billingLabNode.setAttribute("totalPrice", NumberFormat.getCurrencyInstance().format(labTotalPrice.doubleValue()));
+              billingLabNode.setAttribute("invoicePrice", NumberFormat.getCurrencyInstance().format(labInvoicePrice.doubleValue()));
             }
             
           }

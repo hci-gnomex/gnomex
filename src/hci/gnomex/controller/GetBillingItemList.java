@@ -107,8 +107,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     
     NumberFormat nf = NumberFormat.getCurrencyInstance();
     boolean firstTime = true;
-    BigDecimal totalPrice = new BigDecimal("0");
-    totalPrice.setScale(2);
+    BigDecimal invoicePrice = new BigDecimal("0");
+    invoicePrice.setScale(2);
     for(Iterator i = billingItems.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
@@ -167,8 +167,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         
         doc.getRootElement().addContent(requestNode);
         
-        totalPrice = new BigDecimal(0);
-        totalPrice.setScale(2);
+        invoicePrice = new BigDecimal(0);
+        invoicePrice.setScale(2);
       }
       
       // Attach the billing item
@@ -176,14 +176,14 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       billingItemNode.setAttribute("other", "N");
       billingItemNode.setAttribute("isDirty","N");
       billingItemNode.setAttribute("currentCodeBillingStatus", billingItem.getCodeBillingStatus());
-      if (billingItem.getTotalPrice() != null) {
-        billingItemNode.setAttribute("totalPrice", nf.format(billingItem.getTotalPrice().doubleValue()));        
+      if (billingItem.getInvoicePrice() != null) {
+        billingItemNode.setAttribute("invoicePrice", nf.format(billingItem.getInvoicePrice().doubleValue()));        
       }
       requestNode.addContent(billingItemNode);
       
       // Sum the price
-      totalPrice = totalPrice.add(billingItem.getTotalPrice() != null ? billingItem.getTotalPrice() : new BigDecimal(0));
-      requestNode.setAttribute("totalPrice", nf.format(totalPrice.doubleValue()));
+      invoicePrice = invoicePrice.add(billingItem.getInvoicePrice() != null ? billingItem.getInvoicePrice() : new BigDecimal(0));
+      requestNode.setAttribute("invoicePrice", nf.format(invoicePrice.doubleValue()));
       
       
       

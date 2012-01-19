@@ -121,7 +121,7 @@ public class MicroarrayPlugin implements BillingPlugin {
       billingItem.setUnitPrice(theUnitPrice);
       billingItem.setPercentagePrice(new BigDecimal(1));      
       if (qty > 0 && theUnitPrice != null) {      
-        billingItem.setTotalPrice(theUnitPrice.multiply(new BigDecimal(qty)));
+        billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
       }
       billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());

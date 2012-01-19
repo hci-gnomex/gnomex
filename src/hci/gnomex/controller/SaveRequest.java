@@ -133,7 +133,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Integer          idScanProtocolDefault;
   private Integer          idFeatureExtractionProtocolDefault;
   
-  private String           totalPrice;
+  private String           invoicePrice;
   
   
   public void validate() {
@@ -162,10 +162,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
     
-    totalPrice = "";    
-    if (request.getParameter("totalPrice") != null && request.getParameter("totalPrice").length() > 0) {
+    invoicePrice = "";    
+    if (request.getParameter("invoicePrice") != null && request.getParameter("invoicePrice").length() > 0) {
       // If total price present it means price exceeded $500.00 so we want to send an advisory email
-      totalPrice = request.getParameter("totalPrice");
+      invoicePrice = request.getParameter("invoicePrice");
     }
     
     StringReader reader = new StringReader(requestXMLString);
@@ -762,7 +762,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         log.error(msg);
         message.append(msg + "\n");
       }
-      if (this.totalPrice.length() > 0) {
+      if (this.invoicePrice.length() > 0) {
         Lab lab = requestParser.getRequest().getLab();
         String billedAccountName = requestParser.getRequest().getBillingAccountName();
         String contactEmail = lab.getContactEmail();
@@ -777,7 +777,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         } 
         if((contactEmail != null && contactEmail.length() > 0) || ccEmail.length() > 0) {        
           try {
-            sendTotalPriceEmail(sess, contactEmail, ccEmail, billedAccountName);
+            sendInvoicePriceEmail(sess, contactEmail, ccEmail, billedAccountName);
           } catch (Exception e) {
             String msg = "Unable to send estimated charges notification for request "
                 + requestParser.getRequest().getNumber()
@@ -1559,7 +1559,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
   
-  private void sendTotalPriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException {
+  private void sendInvoicePriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
@@ -1597,7 +1597,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     emailBody.append("<br><br><table border='0' width = '400'><tr><td>Request Type:</td><td>" + requestType);
     emailBody.append("</td></tr><tr><td>Request #:</td><td>" + requestNumber);
-    emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + this.totalPrice);
+    emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + this.invoicePrice);
     emailBody.append("</td></tr><tr><td>Billing Account Name:</td><td>" + billedAccountName);
     
     emailBody.append("</td></tr></table><br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");

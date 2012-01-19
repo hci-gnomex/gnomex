@@ -86,13 +86,13 @@ public class BillingItemParser extends DetailObject implements Serializable {
         percentageDisplay = percentageDisplay.replaceAll("\\%", "");
         billingItem.setPercentagePrice(percentageDisplay != "" ? new BigDecimal(percentageDisplay).movePointLeft(2) : null);
 
-        String totalPrice = node.getAttributeValue("totalPrice");
-        if (!totalPrice.equals("")) {
-          totalPrice = totalPrice.replaceAll("\\$", "");
-          totalPrice = totalPrice.replaceAll(",", "");
-          billingItem.setTotalPrice(new BigDecimal(totalPrice));        
+        String invoicePrice = node.getAttributeValue("invoicePrice");
+        if (!invoicePrice.equals("")) {
+          invoicePrice = invoicePrice.replaceAll("\\$", "");
+          invoicePrice = invoicePrice.replaceAll(",", "");
+          billingItem.setInvoicePrice(new BigDecimal(invoicePrice));        
         } else {
-          billingItem.setTotalPrice(null);
+          billingItem.setInvoicePrice(null);
         }
         
         if (node.getAttributeValue("codeBillingStatus") != null && !node.getAttributeValue("codeBillingStatus").equals("")) {

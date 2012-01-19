@@ -239,16 +239,16 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
                 values.add(bi.getPercentageDisplay());
                 values.add(bi.getQty() != null ? bi.getQty().toString() : "");
                 values.add(bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "");
-                values.add(bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "");
+                values.add(bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "");
                
                 reportRow.setValues(values);
                 tray.addRow(reportRow);
                 
 
-                if (bi.getTotalPrice() != null) {
-                  totalPriceForRequest = totalPriceForRequest.add(bi.getTotalPrice());          
-                  totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getTotalPrice());          
-                  grandTotalPrice = grandTotalPrice.add(bi.getTotalPrice());          
+                if (bi.getInvoicePrice() != null) {
+                  totalPriceForRequest = totalPriceForRequest.add(bi.getInvoicePrice());          
+                  totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getInvoicePrice());          
+                  grandTotalPrice = grandTotalPrice.add(bi.getInvoicePrice());          
                 }
                 
                 firstTime = false;
