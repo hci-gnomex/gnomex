@@ -299,9 +299,9 @@
            	//	checkDirty();
            	//	return;
             //}           	
-           	this.selectedLab = null;
-           	this.fullLab = null;
-            detailViews.selectedChild = this.groupDetailView;
+           	//this.selectedLab = null;
+           	//this.fullLab = null;
+            //detailViews.selectedChild = this.groupDetailView;
 
             
             var addWindow:GroupAddView = GroupAddView(mx.managers.PopUpManager.createPopUp(this, GroupAddView, true));
