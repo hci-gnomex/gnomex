@@ -717,11 +717,12 @@
 				
 			}
 			
-			if(firstClick){
+			//Put a check here to make sure we are dealing with microArray request
+			if(firstClick && currentState.indexOf("Microarray") > 0){
 				setTimeout(updateFilteredSlideProduct, 5000);
 				firstClick = false;
 			}
-			else
+			else if(currentState.indexOf("Microarray") > 0)
 				updateFilteredSlideProduct();
 		}
 		
@@ -746,9 +747,8 @@
 			if (currentState.indexOf("Microarray") > 0) {
 				getSlideProductCombo().selectedIndex = 0;
 				parentDocument.filteredSlideProductList.refresh();
+				updateFilteredSlideProduct();
 			}
-			
-			updateFilteredSlideProduct();
 			
 		}
 		
@@ -775,7 +775,7 @@
 			checkSetupCompleteness();
 			
 			
-			if(requestTypeGroup.selectedValue != null){
+			if(requestTypeGroup.selectedValue != null && currentState.indexOf("MicroArray") > 0){
 				updateFilteredSlideProduct();
 			}
 		} 
