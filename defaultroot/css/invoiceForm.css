@@ -76,6 +76,15 @@ body {
       padding-right: 8;
       padding-left: 4;
   }
+  td.gridrelated {
+      font-size: 8pt;
+      font-style: italic;
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 8;
+      padding-left: 4;
+      cell
+  }
   
 
 
@@ -83,6 +92,15 @@ body {
       font-size: 9pt;
       text-align: RIGHT;
       padding-top: 4;
+      padding-bottom: 0;
+      padding-right: 8;
+      padding-left: 4;
+  }
+  td.gridrightrelated {
+      font-size: 8pt;
+      font-style: italic;
+      text-align: RIGHT;
+      padding-top: 0;
       padding-bottom: 0;
       padding-right: 8;
       padding-left: 4;

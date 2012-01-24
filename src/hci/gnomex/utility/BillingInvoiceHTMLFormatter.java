@@ -33,17 +33,19 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private Lab            lab;
   private BillingAccount billingAccount;
   private Map            billingItemMap; 
+  private Map            relatedBillingItemMap;
   private Map            requestMap; 
   private NumberFormat   currencyFormat = NumberFormat.getCurrencyInstance();
   private String         coreFacilityName;
   private String         contactNameCoreFacility;
   private String         contactPhoneCoreFacility;
   
- public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map requestMap) {
+ public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
    this.billingPeriod  = billingPeriod;
    this.lab            = lab;
    this.billingAccount = billingAccount;
    this.billingItemMap = billingItemMap;
+   this.relatedBillingItemMap = relatedBillingItemMap;
    this.requestMap     = requestMap;
    this.coreFacilityName = coreFacilityName;
    this.contactNameCoreFacility = contactNameCoreFacility;
@@ -79,15 +81,17 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");
     table.addContent(makeRow(lab.getName()));
-    table.addContent(makeRow("Account " + (billingAccount.getAccountNumber() != null && !billingAccount.getAccountNumber().equals("" ) ? billingAccount.getAccountNumber() + " " : "") + 
-                                          (billingAccount.getAccountName() != null && !billingAccount.getAccountName().equals("") ? "(" + billingAccount.getAccountName() + ")": "")));
+    table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
     table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback")); 
     
     return table;
  }
 
+ private String formatAccountNumber(String accountNumber, String accountName) {
+   return "Account " + (accountNumber != null && !accountNumber.equals("" ) ? accountNumber + " " : "") + 
+     (accountName != null && !accountName.equals("") ? "(" + accountName + ")": "");
+ }
 
-  
   public Element makeDetail() throws Exception {
     
     int columnCount = 10;
@@ -115,8 +119,8 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
-    table.setAttribute("CELLPADDING", "5");
-    table.setAttribute("CELLSPACING", "5");
+    table.setAttribute("CELLPADDING", "0");
+    table.setAttribute("CELLSPACING", "0");
 
     Element rowh = new Element("TR");
     table.addContent(rowh);
@@ -174,17 +178,58 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         
       }
 
-      
       Element rowt2 = new Element("TR");
       table.addContent(rowt2);
       this.addEmptyCell(rowt2, new Integer(columnCount - 1));
       this.addTotalCell(rowt2, totalPriceForRequest != null ? currencyFormat.format(totalPriceForRequest) : "&nbsp;");
-
+      
+      billingItems = (List)relatedBillingItemMap.get(requestNumber);
+      if (billingItems != null) {
+        Integer idBillingAccount = -1;
+        for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
+          BillingItem bi = (BillingItem)i1.next();
+          if (!idBillingAccount.equals(bi.getIdBillingAccount())) {
+            idBillingAccount = bi.getIdBillingAccount();
+            totalPriceForRequest = new BigDecimal(0);
+            Element rowRH1 = new Element("TR");
+            table.addContent(rowRH1);
+            this.addEmptyCell(rowRH1, 2);
+            this.addCell(rowRH1, bi.getLabName(), "gridrelated", 9);
+            Element rowRH2 = new Element("TR");
+            table.addContent(rowRH2);
+            this.addEmptyCell(rowRH2, 2);
+            this.addCell(rowRH2, formatAccountNumber(bi.getAccountNumberDisplay(), bi.getAccountName()), "gridrelated", 10);
+          }
+          
+          Element row = new Element("TR");
+          table.addContent(row);
+          this.addEmptyCell(row, new Integer(3));
+          this.addCell(row, this.getHTMLString(bi.getCategory() != null ? bi.getCategory() : "&nbsp;"), "gridrelated", null);
+          this.addCell(row, this.formatDate(bi.getCompleteDate(), this.DATE_OUTPUT_SLASH), "gridrelated", null);
+          this.addCell(row, this.getHTMLString(bi.getDescription() != null ? bi.getDescription() : "&nbsp;"), "gridrelated", null);
+          this.addCell(row, this.getHTMLString(bi.getNotes() != null && !bi.getNotes().equals("") ? bi.getNotes() : "&nbsp;"), "gridrelated", null);
+          if (showPercentCol) {
+            this.addCell(row, this.getHTMLString(bi.getPercentageDisplay()), "gridrightrelated", null, "RIGHT");          
+          }
+          this.addCell(row, this.getHTMLString(bi.getQty()), "gridrightrelated", null, "RIGHT");
+          this.addCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
+          this.addCell(row, bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
+          
+          if (bi.getInvoicePrice() != null) {
+            totalPriceForRequest = totalPriceForRequest.add(bi.getInvoicePrice());          
+          }
+          
+        }
+        
+        Element rowrt2 = new Element("TR");
+        table.addContent(rowrt2);
+        this.addEmptyCell(rowrt2, new Integer(columnCount - 1));
+        this.addCell(rowrt2, totalPriceForRequest != null ? currencyFormat.format(totalPriceForRequest) : "&nbsp;", "gridrightrelated", null, "RIGHT");
+      }
+      
       Element rowt1 = new Element("TR");
       table.addContent(rowt1);
       this.addEmptyCell(rowt1, new Integer(columnCount));
-      
-
     }
 
     Element rowt = new Element("TR");
@@ -272,10 +317,24 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   }
   
   private void addCell(Element row, String value) {
+      addCell(row, value, "grid", null);
+  }
+  
+  private void addCell(Element row, String value, String cssClass, Integer colSpan) {
+    addCell(row, value, cssClass, colSpan, null);
+  }
+  
+  private void addCell(Element row, String value, String cssClass, Integer colSpan, String align) {
       Element cell = new Element("TD");
-      cell.setAttribute("CLASS", "grid");      
+      cell.setAttribute("CLASS", cssClass);      
       cell.addContent(value);
       row.addContent(cell);
+      if (colSpan != null) {
+        cell.setAttribute("COLSPAN", colSpan.toString());
+      }
+      if (align != null) {
+        cell.setAttribute("ALIGN", align);
+      }
   }
   
   private void addEmptyCell(Element row, Integer colSpan) {
