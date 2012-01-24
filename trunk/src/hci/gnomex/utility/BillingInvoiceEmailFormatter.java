@@ -27,19 +27,20 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   private BillingAccount billingAccount;
   private Map            billingItemMap; 
   private Map            requestMap;
+  private Map            relatedBillingItemMap;
 
 
   private DictionaryHelper dictionaryHelper;
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public BillingInvoiceEmailFormatter(Session sess, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map requestMap) { 
+  public BillingInvoiceEmailFormatter(Session sess, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) { 
     this.billingPeriod = billingPeriod;
     this.lab = lab;
     this.billingAccount = billingAccount;
     this.billingItemMap = billingItemMap;
     this.requestMap = requestMap;
-    
+    this.relatedBillingItemMap = relatedBillingItemMap;
     
  
     this.dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -60,7 +61,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME), 
         this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
-        billingPeriod, lab, billingAccount, billingItemMap, requestMap);
+        billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     
     Element root = new Element("HTML");
     Document doc = new Document(root);

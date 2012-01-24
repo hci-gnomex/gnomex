@@ -101,13 +101,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           
           TreeMap requestMap = new TreeMap();
           TreeMap billingItemMap = new TreeMap();
-          cacheBillingItemMap(sess, idBillingPeriod, idLab, idBillingAccount, billingItemMap, requestMap);
+          TreeMap relatedBillingItemMap = new TreeMap();
+          cacheBillingItemMap(sess, idBillingPeriod, idLab, idBillingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           
           
           if (action.equals(ACTION_SHOW)) {
-            this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, billingItemMap, requestMap);
+            this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           } else if (action.equals(ACTION_EMAIL)) {
-            this.sendInvoiceEmail(sess, lab.getContactEmail(), billingPeriod, lab, billingAccount, billingItemMap, requestMap);
+            this.sendInvoiceEmail(sess, lab.getContactEmail(), billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           }
           
         } else {
@@ -153,7 +154,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   }
   
   
-  public static void cacheBillingItemMap(Session sess, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Map billingItemMap, Map requestMap)
+  public static void cacheBillingItemMap(Session sess, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
     throws Exception {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT req, bi ");
@@ -201,18 +202,53 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       }
       billingItems.add(bi);
     }    
+    
+    buf = new StringBuffer();
+    buf.append("SELECT req, bi ");
+    buf.append("FROM   Request req ");
+    buf.append("JOIN   req.billingItems bi ");
+    buf.append("WHERE  bi.idBillingAccount != " + idBillingAccount + " ");
+    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND    bi.idRequest in (");
+    Boolean first = true;
+    for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+      String requestNumber = (String)i.next();      
+      Request request = (Request)requestMap.get(requestNumber);
+      if (!first) {
+        buf.append(", ");
+      }
+      first = false;
+      buf.append(request.getIdRequest().toString());
+    }
+    buf.append(")");
+    buf.append("ORDER BY req.number, bi.idBillingAccount, bi.idBillingItem ");
+    
+    results = sess.createQuery(buf.toString()).list();
+    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Request req    =  (Request)row[0];
+      BillingItem bi =  (BillingItem)row[1];
+      
+      List billingItems = (List)relatedBillingItemMap.get(req.getNumber());
+      if (billingItems == null) {
+        billingItems = new ArrayList();
+        relatedBillingItemMap.put(req.getNumber(), billingItems);
+      }
+      billingItems.add(bi);
+    }    
   }
   
   private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
       Lab lab, BillingAccount billingAccount, 
-      Map billingItemMap, Map requestMap) throws Exception {
+      Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(dh.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME),
         dh.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         dh.getPropertyDictionary(PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         billingPeriod, 
-        lab, billingAccount, billingItemMap, requestMap);
+        lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
 
     Element root = new Element("HTML");
     Document doc = new Document(root);
@@ -295,14 +331,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   
   private void sendInvoiceEmail(Session sess, String contactEmail,
       BillingPeriod billingPeriod, Lab lab,
-      BillingAccount billingAccount, Map billingItemMap, 
+      BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap,
       Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     String coreFacilityName = dh.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME);
     
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, 
-        billingPeriod, lab, billingAccount, billingItemMap, requestMap);
+        billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
     
     String note = "&nbsp";
