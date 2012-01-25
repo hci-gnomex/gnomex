@@ -24,6 +24,7 @@
 	*The detail panel is now only shown when a group is selected or a new group is successfully created.
 *Implemented a check on the GroupAddView that makes sure when a user is creating a new group that they are not selecting a group name that has already been created.	
 * Change invoice so it shows any other accounts that have percentages in the request.
+* Do not allow entering the split screen on an entry that has already been split.
 
 5.3.5.1(12/21/2011)
 --------------------
