@@ -1560,12 +1560,15 @@
 			for each(var lab:Object in parentApplication.promptedLabList) {
 				labs.addItem(lab);
 			}
+			var alreadySplit:Boolean = false;
 			for each(var r:Object in this.billingItemsDisplayed) {
 				for each(var billingItem:Object in r.BillingItem) {
 					if (billingItem.@idRequest != requestNode.@idRequest) {
 						continue; 
 					}
-					
+					if (Number(billingItem.@percentagePrice) != 1.00) {
+						alreadySplit = true;
+					}
 					var found:Boolean = false;
 					for each(var acct:Object in billingAccountEntries) {
 						if (acct.@idBillingAccount == billingItem.@idBillingAccount) {
@@ -1600,6 +1603,11 @@
 					
 				}
 				
+			}
+			
+			if (alreadySplit) {
+				Alert.show("This account has already been split and cannot be split again.");
+				return;
 			}
 			
 			if (billingPeriods.length > 1) {
