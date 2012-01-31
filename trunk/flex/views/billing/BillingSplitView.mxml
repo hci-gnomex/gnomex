@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
-	width="776" height="240" defaultButton="{saveButton}"> 
+	width="772" height="280" defaultButton="{saveButton}"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -29,21 +29,37 @@
 
 <mx:Script>
 	<![CDATA[
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.collections.XMLListCollection;
-		import mx.rpc.events.FaultEvent;
-		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.controls.Alert;
-		import views.renderers.ComboBoxGroup;
-		import views.renderers.ComboBoxBillingAccount;
 		import hci.flex.controls.Label;
 		import hci.flex.controls.TextInput;
+		
+		import mx.collections.XMLListCollection;
+		import mx.controls.AdvancedDataGrid;
+		import mx.controls.Alert;
+		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.controls.dataGridClasses.DataGridItemRenderer;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.formatters.CurrencyFormatter;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.renderers.ComboBoxBillingAccount;
+		import views.renderers.ComboBoxGroup;
 		
 		
 		[Bindable]
 		public var idBillingPeriod:Object = null;
+		
+		[Bindable]
+		public var totalPrice:String = null;
+		
+		[Bindable]
+		public var invoicePrice:String = null;
+		
+		[Bindable]
+		public var origSplitType:String = null;
 		
 		[Bindable]
 		public var request:Object;
@@ -60,11 +76,28 @@
 		[Bindable]
 		private var isComplete:Boolean = true;
 		
-			
-		
+		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+
 		public function initializeData():void {
+			currencyFormatter.currencySymbol = "$";
+			currencyFormatter.precision = 2;
+			currencyFormatter.useThousandsSeparator;        	
 			accountsGrid.dataProvider = billingAccountEntries;
 			billingAccountEntries.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingBillingAccountChange);
+			this.totalAmountLabel.text = totalPrice;
+			this.totalInvoiceAmountLabel.text = invoicePrice;
+			if (origSplitType == "$") {
+				this.radioSplitDollar.selected = true;
+				this.radioSplitPct.selected = false;
+				splitTypeChange();
+			}
+			var tp:Number = Number(totalPrice.replace('$','').replace(',',''));
+			var ip:Number = Number(invoicePrice.replace('$','').replace(',',''));
+			if (tp != ip) {
+				this.saveButton.enabled = false;
+				this.percentageWarningLabel.visible = true;
+			}
+			
 		}
 		
 		private function onGetLab(event:ResultEvent):void {			
@@ -96,11 +129,14 @@
        			 	 	 " idLab='"  + labCombo.selectedItem.@idLab + "'" +
        			 	 	 " labName='" + labCombo.selectedItem.@name + "'" +
        			 	 	 " percentage='" + "'" +
+						 " invoicePrice='$0.00'" +
+						 " totalPrice='" + totalPrice + "'" +
        			 	 	 "/>"); 
        	 	billingAccountEntries.addItem(newNode);
        	 	labCombo.selectedItem = null;
        	 	billingAccounts = new XMLListCollection();
        	 	billingAccountCombo.selectedItem = null;
+			this.saveButton.enabled = false;
         }
         private function removeAccountEntry():void {
         	if (accountsGrid.selectedItem != null) {
@@ -112,6 +148,12 @@
  		private function save():void {
  			var params:Object = new Object();
  			params.idBillingPeriod = idBillingPeriod;
+			params.totalPrice = totalPrice;
+			if (this.radioSplitPct.selected) {
+				params.splitType = "%";
+			} else {
+				params.splitType = "$";
+			}
  			params.accountXMLString = "<SplitAccountList>";
  			params.accountXMLString += "<Request idRequest='" + request.@idRequest + "'>";
  			params.accountXMLString += billingAccountEntries.toXMLString();
@@ -129,20 +171,64 @@
  			}
 		} 
 		
-		private function calculateTotalPercentage():void {
+		private function calculateTotals():void {
+			billingAccountEntries.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingBillingAccountChange);
 			var totalPercentage:int = 0;
+			var totalInvoicePrice:Number = 0;
+			var tp:String = totalPrice.replace("$", "").replace(",","");
 			isComplete = true;
-			for each(var item:Object in billingAccountEntries) {
-				if (item.@percentage != null && item.@percentage != "") {
-					var percent:String = item.@percentage;
-					percent = percent.replace("%", "");
-					totalPercentage += int(percent);
-				} 
-				if (item.@idLab == "" || item.@idBillingAccount == "" || item.@percentage == "" || item.@percentage == "0") {
-					isComplete = false;
+			if (this.radioSplitPct.selected) {
+				for each(var item:Object in billingAccountEntries) {
+					if (item.@percentage != null && item.@percentage != "") {
+						var percent:String = item.@percentage;
+						percent = percent.replace("%", "");
+						totalPercentage += int(percent);
+						
+						var ip:Number = int(int(percent) * Number(tp)) / 100.00;
+						item.@invoicePrice = currencyFormatter.format(ip);
+						
+						totalInvoicePrice += ip;
+					} else {
+						item.@invoicePrice = "$0.00";
+					}
+					if (item.@idLab == "" || item.@idBillingAccount == "" || item.@percentage == "" || int(item.@percentage) == 0) {
+						isComplete = false;
+					}
+					if (totalPercentage == 100) {
+						this.percentageWarningLabel.visible = false;
+						this.saveButton.enabled = true;
+					} else {
+						this.percentageWarningLabel.visible = true;
+						this.saveButton.enabled = false;
+					}
+				}
+			} else {
+				totalPercentage = 100;
+				for each(var item2:Object in billingAccountEntries) {
+					item2.@percentage = "100%";
+					if (item2.@invoicePrice != null && item2.@invoicePrice != "") {
+						var dollar:String = item2.@invoicePrice;
+						dollar = dollar.replace("$", "").replace(",", "");
+						totalInvoicePrice += Number(dollar);
+					}
+					if (item2.@idLab == "" || item2.@idBillingAccount == "" || item2.@invoicePrice == "" || Number(item2.@invoicePrice) == 0) {
+						isComplete = false;
+					}
+				}
+				if (totalInvoicePrice == Number(tp)) {
+					this.percentageWarningLabel.visible = false;
+					this.saveButton.enabled = true;
+				} else {
+					this.percentageWarningLabel.visible = true;
+					this.saveButton.enabled = false;
 				}
 			}
 			this.totalPercentageLabel.text = totalPercentage + "%";
+			this.totalInvoiceAmountLabel.text = currencyFormatter.format(totalInvoicePrice);
+			if (!isComplete) {
+				this.saveButton.enabled = false;
+			}
+			billingAccountEntries.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingBillingAccountChange);
 		}
 		
 		private function underlyingBillingAccountChange(event:CollectionEvent):void {
@@ -151,13 +237,68 @@
 				// ignore refresh and resets 
 				return;
 			}			
-			this.calculateTotalPercentage();
+			this.calculateTotals();
 		}  
 
+		private function splitTypeChange():void {
+			var col:DataGridColumn;
+			var pctCol:DataGridColumn;
+			var dolCol:DataGridColumn;
+			for (var x:Number = 0; x < this.accountsGrid.columnCount; x++) {
+				col = this.accountsGrid.columns[x];
+				if (col.headerText == "%") {
+					pctCol = col;
+				}
+				if (col.headerText == "$") {
+					dolCol = col;
+				}
+			}
+			if (this.radioSplitPct.selected) {
+				dolCol.editable = false;
+				pctCol.visible = true;
+				pctCol.editable = true;
+				this.totalPercentageLabel.visible = true;
+				this.percentageWarningLabel.text = "Above percentages must be adjusted";
+				// Figure out percentages from amounts
+				billingAccountEntries.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingBillingAccountChange);
+				for each(var item2:Object in billingAccountEntries) {
+					var dollar:String = item2.@invoicePrice;
+					if (item2.@invoicePrice != null && item2.@invoicePrice != "") {
+						dollar = dollar.replace("$", "").replace(",", "");
+					} else {
+						dollar = "0";
+					}
+					var tp:String = totalPrice.replace("$","").replace(",","");
+					var rawPct:Number = Number(dollar) / Number(tp);
+					var pct:int = int(rawPct * 100);
+					item2.@percentage = pct + "%";
+				}
+				billingAccountEntries.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingBillingAccountChange);
+			} else {
+				dolCol.editable = true;
+				pctCol.visible = false;
+				pctCol.editable = false;
+				this.totalPercentageLabel.visible = false;
+				this.percentageWarningLabel.text = "Above amounts must be adjusted";
+			}
+			calculateTotals();
+		}
 	]]>
 </mx:Script>
 
 	<mx:VBox height="100%" width="100%" verticalGap="0">
+		<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0" horizontalAlign="right">
+			<mx:RadioButton label="Split By %" styleName="labelSmall" selected="true" id="radioSplitPct" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{splitTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Split By $" styleName="labelSmall" id="radioSplitDollar" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
+				<mx:click>{splitTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0" horizontalAlign="right">
+				<mx:Label text="Total Amount:"/>
+				<mx:Label id="totalAmountLabel" text=""/>
+			</mx:HBox>
+		</mx:HBox>
 		<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
 			<mx:Label text="Split with:"/>
 			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="160" labelField="@name" change="getLab.send()"></mx:ComboBox>
@@ -183,7 +324,7 @@
         			labelFunction="getLabName"
         			itemRenderer="{hci.flex.controls.Label.create('@idLab')}"/>        				
 				<mx:DataGridColumn headerText="Billing Account" 
-					width="180"  dataField="@idBillingAccount" 
+					width="140"  dataField="@idBillingAccount" 
 					editable="false"
 					dataTipFunction="getBillingAccountName"
 					showDataTips="true" 
@@ -196,16 +337,23 @@
         			rendererIsEditor="false"
 					itemRenderer="{hci.flex.controls.Label.create('@percentage')}"
 					itemEditor="{hci.flex.controls.TextInput.create('@percentage')}"/>        
+				<mx:DataGridColumn headerText="$" width="30" dataField="@invoicePrice" editable="false"
+								   editorDataField="text" 
+								   rendererIsEditor="false"
+								   itemRenderer="{hci.flex.controls.Label.create('@invoicePrice')}"
+								   itemEditor="{hci.flex.controls.TextInput.create('@invoicePrice')}"/>        
 			</mx:columns>
 		</mx:DataGrid>
 		<mx:HBox width="100%" horizontalAlign="right" verticalAlign="bottom" fontWeight="bold" color="#BF0F34">
-			<mx:Label id="percentageWarningLabel" text="Above percentages must be adjusted" visible="{totalPercentageLabel.text == '100%' ? false : true}" fontWeight="normal" color="#AA082A"/>
-			<mx:Label id="totalPercentageLabel" text="100%" color="#000000"/>
-			
+			<mx:Label id="percentageWarningLabel" text="Above percentages must be adjusted" visible="false" fontWeight="normal" color="#AA082A"/>
+			<mx:Label id="totalPercentageLabel" text="100%" color="#000000" paddingBottom="0" paddingRight="0"/>
+			<mx:HBox width="90">
+				<mx:Label id="totalInvoiceAmountLabel" text="$0.00" color="#000000"/>	
+			</mx:HBox>
 		</mx:HBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" enabled="{isComplete &amp;&amp; totalPercentageLabel.text == '100%' ? true : false}" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	

@@ -109,6 +109,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     boolean firstTime = true;
     BigDecimal invoicePrice = new BigDecimal("0");
     invoicePrice.setScale(2);
+    BigDecimal totalPrice = new BigDecimal("0");
+    totalPrice.setScale(2);
     for(Iterator i = billingItems.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
@@ -169,6 +171,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         
         invoicePrice = new BigDecimal(0);
         invoicePrice.setScale(2);
+        totalPrice = new BigDecimal(0);
+        totalPrice.setScale(2);
       }
       
       // Attach the billing item
@@ -181,9 +185,11 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       }
       requestNode.addContent(billingItemNode);
       
-      // Sum the price
+      // Sum the prices
       invoicePrice = invoicePrice.add(billingItem.getInvoicePrice() != null ? billingItem.getInvoicePrice() : new BigDecimal(0));
       requestNode.setAttribute("invoicePrice", nf.format(invoicePrice.doubleValue()));
+      totalPrice = totalPrice.add(billingItem.getTotalPrice() != null ? billingItem.getTotalPrice() : new BigDecimal(0));
+      requestNode.setAttribute("totalPrice", nf.format(totalPrice.doubleValue()));
       
       
       

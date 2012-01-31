@@ -23,6 +23,7 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
   protected List       billingAccounts = new ArrayList();
   protected Map        percentageMap = new HashMap();
   protected Request    request;
+  protected Map        invoicePriceMap = new HashMap();
   
   public BillingAccountSplitParser(Document doc) {
     this.doc = doc;
@@ -44,6 +45,8 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
         String idBillingAccountString = baNode.getAttributeValue("idBillingAccount");
         String percentageString = baNode.getAttributeValue("percentage");
         percentageString = percentageString.replaceAll("\\%", "");
+        String invoicePriceString = baNode.getAttributeValue("invoicePrice");
+        invoicePriceString = invoicePriceString.replaceAll("\\$", "").replaceAll(",", "");
         
         Integer percentage = new Integer(percentageString);
         BillingAccount billingAccount = null;
@@ -52,6 +55,9 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
         billingAccounts.add(billingAccount);
         BigDecimal percentPrice = new BigDecimal(percentage.intValue()).movePointLeft(2);
         percentageMap.put(new Integer(idBillingAccountString), percentPrice);
+        
+        BigDecimal invoicePrice = new BigDecimal(invoicePriceString);
+        invoicePriceMap.put(new Integer(idBillingAccountString), invoicePrice);
       }
     
     }
@@ -67,6 +73,10 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
   
   public BigDecimal getPercentage(Integer idBillingAccount) {
     return (BigDecimal)percentageMap.get(idBillingAccount);
+  }
+  
+  public BigDecimal getInvoicePrice(Integer idBillingAccount) {
+    return (BigDecimal)invoicePriceMap.get(idBillingAccount);
   }
 
   

@@ -50,6 +50,8 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
   private String                       accountXMLString;
   private Document                     accountDoc;
   private BillingAccountSplitParser    parser;
+  private String                       totalPriceString;
+  private String                       splitType;
   
   
   public void validate() {
@@ -62,7 +64,17 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
     }
-    
+    if (request.getParameter("totalPrice") != null && !request.getParameter("totalPrice").equals("")) {
+      totalPriceString = request.getParameter("totalPrice");
+      totalPriceString = totalPriceString.replaceAll("\\$","").replaceAll(",","");
+    } else {
+      this.addInvalidField("totalPrice", "totalPrice is required");
+    }
+    if (request.getParameter("splitType") != null && !request.getParameter("splitType").equals("")) {
+      splitType = request.getParameter("splitType");
+    } else {
+      this.addInvalidField("splitType", "splitType is required");
+    }
     
     if (request.getParameter("accountXMLString") != null && !request.getParameter("accountXMLString").equals("")) {
       accountXMLString = request.getParameter("accountXMLString");
@@ -86,6 +98,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     
     if (accountXMLString != null) {
       try {
+        BigDecimal totalPrice = new BigDecimal(totalPriceString);
         Session sess = HibernateSession.currentSession(this.getUsername());
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
@@ -93,13 +106,15 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
           for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
             BillingAccount ba = (BillingAccount)i.next();
             BigDecimal percentage = parser.getPercentage(ba.getIdBillingAccount());
+            BigDecimal invoicePrice = parser.getInvoicePrice(ba.getIdBillingAccount());
+            BigDecimal summedInvoicePrice = new BigDecimal(0);
+            BillingItem itemToAdjust = null;
             
             boolean found = false;
             // For billing account, find all matching billing items for the request and
             // change the percentage.
             for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
               BillingItem bi = (BillingItem)i1.next();
-              
               // Only update percentages for billing items for the given billing period.
               if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
                 continue;
@@ -114,8 +129,10 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                   throw new Exception("Cannot split billing item " + bi.getDescription() + " because unit price is blank.");
                 }
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  bi.setInvoicePrice(bi.getUnitPrice().multiply(bi.getPercentagePrice().multiply(new BigDecimal(bi.getQty().intValue()))));          
+                  bi.setInvoicePrice(getComputedInvoicePrice(bi, percentage, invoicePrice, totalPrice));
                 }
+                summedInvoicePrice = summedInvoicePrice.add(bi.getInvoicePrice());
+                itemToAdjust = bi;
                 found = true;
               }
               
@@ -143,17 +160,25 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setPercentagePrice(percentage);
                 billingItem.setNotes(bi.getNotes());
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  billingItem.setInvoicePrice(bi.getUnitPrice().multiply(billingItem.getPercentagePrice().multiply(new BigDecimal(billingItem.getQty().intValue()))));          
+                  billingItem.setInvoicePrice(getComputedInvoicePrice(billingItem, percentage, invoicePrice, totalPrice));
+                  summedInvoicePrice = summedInvoicePrice.add(billingItem.getInvoicePrice());
                 }
                 billingItem.setCodeBillingStatus(BillingStatus.PENDING);
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());
                 billingItem.setIdPrice(bi.getIdPrice());
                 billingItem.setIdPriceCategory(bi.getIdPriceCategory());
                 billingItem.setCategory(bi.getCategory());
+                billingItem.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(bi.getQty().intValue())));
                 
                 sess.save(billingItem);
-                
+                itemToAdjust = billingItem;
               }
+            }
+            
+            if (itemToAdjust != null && !summedInvoicePrice.equals(invoicePrice)) {
+              BigDecimal ip = itemToAdjust.getInvoicePrice();
+              ip = ip.add(invoicePrice.subtract(summedInvoicePrice));
+              itemToAdjust.setInvoicePrice(ip);
             }
           }
           
@@ -190,6 +215,17 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     return this;
   }
   
-    
-
+  private BigDecimal getComputedInvoicePrice(BillingItem bi, BigDecimal percentage, BigDecimal invoicePrice, BigDecimal totalPrice) {
+    BigDecimal newInvoicePrice = bi.getInvoicePrice();
+    Integer intPercent = percentage.intValue();
+    if (splitType.equals("%")) {
+      newInvoicePrice = bi.getUnitPrice().multiply(percentage.multiply(new BigDecimal(bi.getQty().intValue())));
+    } else if (!invoicePrice.equals(totalPrice)) {
+      double ip = (bi.getUnitPrice().doubleValue() * bi.getQty().doubleValue()) * (invoicePrice.doubleValue() / totalPrice.doubleValue());
+      long ipLong = Math.round(ip * 100.0);
+      newInvoicePrice = new BigDecimal(ipLong);
+      newInvoicePrice = newInvoicePrice.movePointLeft(2);
+    }
+    return newInvoicePrice;
+  }
 }
