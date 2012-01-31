@@ -359,22 +359,6 @@
       	}		
 		public function checkDirty():void {      
 		}
-		
-		public function recalculatePrices(experiment:Object):void {
-			for each(var bi:Object in experiment.BillingItem) {
-				var percentageDisplay:String = bi.@percentageDisplay;
-				percentageDisplay = percentageDisplay.replace("%", "");
-				
-				var unitPriceString:String = bi.@unitPrice;
-				unitPriceString = unitPriceString.replace("$", "");
-				unitPriceString = unitPriceString.replace(",", "");
-				var unitPrice:Number = Number(unitPriceString);
-				
-				bi.@invoicePrice = unitPrice * bi.@qty * (int(percentageDisplay) / 100); 
-				bi.@invoicePrice = currencyFormatter.format(bi.@invoicePrice);	 
-			}
-		}
-		
 		 
 		private function addBillingItem():void {
 			dirty.setDirty();
@@ -528,9 +512,7 @@
 					var experiment:Object = pe.source;
 					billingItems.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
 					experiment.@isDirty = "Y";  
-					recalculatePrices(experiment);					
 					billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
-					
 				}
 			}				
 		}  
@@ -1552,7 +1534,12 @@
 			if (requestNode.@status == "NEW") {
 					Alert.show("Please save the billing items before splitting into separate accounts.");
 					return;				
-			} 
+			}
+
+			if (this.dirty.isDirty()) {
+				Alert.show("Please save changes before splitting billing items.");
+				return
+			}
 			
 			var billingAccountEntries:XMLListCollection = new XMLListCollection();	
 			var billingPeriods:XMLListCollection = new XMLListCollection();
@@ -1560,15 +1547,29 @@
 			for each(var lab:Object in parentApplication.promptedLabList) {
 				labs.addItem(lab);
 			}
-			var alreadySplit:Boolean = false;
-			for each(var r:Object in this.billingItemsDisplayed) {
+			var totalPrice:Number = 0;
+			var invoicePrice:Number = 0;
+			var splitType:String = "%";
+			for each(var r:Object in this.billingItems) {
 				for each(var billingItem:Object in r.BillingItem) {
 					if (billingItem.@idRequest != requestNode.@idRequest) {
 						continue; 
 					}
-					if (Number(billingItem.@percentagePrice) != 1.00) {
-						alreadySplit = true;
+					if (billingItem.@other == "Y") {
+						continue;
 					}
+					
+					// Figure out split type for the screen
+					var biPercent:String = billingItem.@percentageDisplay;
+					var biInvoicePrice:String = billingItem.@invoicePrice;
+					var biTotalPrice:String = billingItem.@totalPrice;
+					var p:int = int(biPercent.replace("%",""));
+					var ip:Number = Number(biInvoicePrice.replace("$","").replace(",",""));
+					var tp:Number = Number(biTotalPrice.replace("$","").replace(",",""));
+					if (p == 100 && ip != tp) {
+						splitType = "$";
+					}
+					
 					var found:Boolean = false;
 					for each(var acct:Object in billingAccountEntries) {
 						if (acct.@idBillingAccount == billingItem.@idBillingAccount) {
@@ -1576,6 +1577,7 @@
 							break; 
 						} 
 					}  
+					
 					if (!found) {
 	       				var newBillingAccount:XML = new XML(
 		   				 "<BillingAccount " + 
@@ -1585,8 +1587,13 @@
 	   			 	 	 " idLab='" + billingItem.@idLab + "'" +
 	   			 	 	 " labName='" + billingItem.@labName + "'" +
 	   			 	 	 " percentage='" + billingItem.@percentageDisplay + "'" +
+						 " invoicePrice='" + r.@invoicePrice + "'" +
 	   			 	 	 "/>"); 
 	   			 	 	 billingAccountEntries.addItem(newBillingAccount);
+						 var invoicePriceString:String = r.@invoicePrice;
+						 invoicePrice = invoicePrice + Number(invoicePriceString.replace('$','').replace(',',''));
+						 var totalPriceString:String = requestNode.@totalPrice;
+						 totalPrice = Number(totalPriceString.replace('$','').replace(',',''));
 					} 
 					
 					var foundBillingPeriod:Boolean = false;
@@ -1603,11 +1610,6 @@
 					
 				}
 				
-			}
-			
-			if (alreadySplit) {
-				Alert.show("This account has already been split and cannot be split again.");
-				return;
 			}
 			
 			if (billingPeriods.length > 1) {
@@ -1633,9 +1635,12 @@
         	mx.managers.PopUpManager.centerPopUp(splitWindow); 
         	splitWindow.setFocus();
         	splitWindow.idBillingPeriod = idBillingPeriod;
+			splitWindow.totalPrice = currencyFormatter.format(totalPrice.toString());
+			splitWindow.invoicePrice = currencyFormatter.format(invoicePrice.toString());
         	splitWindow.request = requestNode;			
         	splitWindow.labs = labs;
         	splitWindow.billingAccountEntries = billingAccountEntries;
+			splitWindow.origSplitType = splitType;
         	splitWindow.initializeData();
 			
 		}
@@ -2019,7 +2024,7 @@
         				  rendererIsEditor="false"   
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
 						  itemEditor="{views.renderers.ComboBoxBillingPeriod.create(billingPeriods, '@display', '@value', '@idBillingPeriod', null, true)}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="6" wordWrap="false"
+        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="false" textAlign="right" width="6" wordWrap="false"
         				  editorDataField="text"
         				  rendererIsEditor="false"
 						  itemRenderer="views.renderers.LabelPercentage" />                              
@@ -2072,13 +2077,10 @@
 			                  </mx:Component>
 			              </mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@invoicePrice" textAlign="right" width="11" editable="false" wordWrap="false">
-        				  <mx:itemRenderer>
-			                  <mx:Component>
-			                  <mx:Text text="{data.@invoicePrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-			                  </mx:Component>
-			              </mx:itemRenderer>
-						</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@invoicePrice" textAlign="right" width="11" editable="false" wordWrap="false"
+						  editorDataField="text"
+						  rendererIsEditor="false"
+						  itemRenderer="views.renderers.LabelInvoicePrice" />
         				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="9" wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"
