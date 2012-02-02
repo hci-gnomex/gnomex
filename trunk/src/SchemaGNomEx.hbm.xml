@@ -176,7 +176,7 @@
 		<property name="description" column="description" type="string"/>
 		<property name="qty" column="qty" type="integer"/>
 		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
-		<property name="totalPrice" type="big_decimal" formula="convert(decimal(8,2), qty * unitPrice)"/>
+		<property name="totalPrice" type="big_decimal" formula="qty * unitPrice"/>
 		<property name="invoicePrice" column="invoicePrice" type="big_decimal"/>
 		<property name="percentagePrice" column="percentagePrice" type="big_decimal"/>
 		<property name="codeBillingStatus" column="codeBillingStatus" type="string"/>
