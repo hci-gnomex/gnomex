@@ -29,14 +29,15 @@
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		
+
 		import views.renderers.ComboBox;
 		import views.renderers.ComboBoxWorkflowStatus;
 		import views.renderers.GridColumnFillButton;
 		import views.renderers.LabelBarcodeSequence;
 		import views.renderers.TextInputSeqPrepByCore;
 		import views.util.AnnotationAdvancedDataGridColumn;
-		import views.util.UploadSampleSheetView;
 		import views.util.CopySampleSheetColumnView;
+		import views.util.UploadSampleSheetView;
 
 
 		            
@@ -174,7 +175,7 @@
 				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
 				" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 				" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" 	+	
-				" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
+				//" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 				"/>");
 			}
 			
@@ -301,7 +302,7 @@
 					" idOligoBarcode='" + sampleToCopy.@idOligoBarcode + "'" +		
 					" barcodeSequence='" + sampleToCopy.@barcodeSequence + "'" +		
 					" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
-					" prepInstructions='" + sampleToCopy.@prepInstructions + "'" +		
+					//" prepInstructions='" + sampleToCopy.@prepInstructions + "'" +		
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
@@ -611,6 +612,8 @@
 				}
     		}        	
     		parentDocument.enableNextButtons();
+			
+			parentDocument.hybsView.checkHybsCompleteness();
     		
 
 			callLater(postSamplesCompleteness, [isComplete]);
@@ -1109,7 +1112,15 @@
 				}
 				
 			}			
-		}					
+		}
+		
+		//Used to display a full text area for editing sample descriptions.......May use this instead of scrolling options for small fields that
+		//contain large amounts of text.  Still needs refinement
+//		public function showDescriptionPopUp(event:MouseEvent):void{
+//			descriptionWindow = PopUpManager.createPopUp(this, TextPopUp, true);
+//			descriptionPopUp = TextPopUp(descriptionWindow);
+//			descriptionPopUp.DataGridName = samplesGrid.selectedItem;
+//		}
 
 		// Used for multi-select renderer. Get all options (include inactive if edit state)
 		public function getPropertyOptions(idProperty:String):XMLList {
@@ -1193,7 +1204,7 @@
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
 
 					
-					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Description" width="140" dataField="@description" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
+					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
 					<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
 											   headerText="# Lanes to Sequence" width="72" 
@@ -1326,9 +1337,9 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
 
-					<mx:AdvancedDataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
+					<!--<mx:AdvancedDataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@treatment').newInstance(), '')}" editorDataField="value"/>
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@treatment').newInstance(), '')}" editorDataField="value"/>-->
 
                     <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
