@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Hyb View" width="100%" height="100%" enabled="false" >
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:views="views.*"  xmlns:util="views.util.*" label="Hyb View" width="100%" height="100%" enabled="false">
 <mx:Script> 
 	<![CDATA[ 
 		import hci.flex.controls.DropdownLabel;
@@ -18,7 +18,7 @@
 		public var slideDesigns:XMLListCollection = new XMLListCollection();
 		
 		private var arrayCoordinates:XMLListCollection = null;
-
+		
 		public function propagateSlideDesign(slideProductCombo:mx.controls.ComboBox):void {
 			for each (var hyb:Object in parentDocument.hybs) {
 				hyb.@idSideDesign =  slideProductCombo.selectedItem.@idSlideDesign;
