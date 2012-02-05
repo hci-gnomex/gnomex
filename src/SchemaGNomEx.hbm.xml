@@ -539,7 +539,8 @@
 		<property name="isExternal" column="isExternal" type="string"/>
 		<property name="idInstitution" column="idInstitution" type="integer"/>		
 		<property name="name" column="name" type="string"/>
-		<property name="privacyExpirationDate" column="privacyExpirationDate" type="date"/>				
+		<property name="privacyExpirationDate" column="privacyExpirationDate" type="date"/>
+		<property name="description" column="description" type="string"/>					
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />
