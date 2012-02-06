@@ -74,7 +74,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
 
       // Ignore directories here.
       if (fileNode.getAttributeValue("type") != null && fileNode.getAttributeValue("type").equals("dir")) {
-        continue;
+//        continue;
       }
       
       String fileName = fileNode.getAttributeValue("fileName");

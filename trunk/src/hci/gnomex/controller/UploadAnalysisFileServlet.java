@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -15,7 +14,6 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -133,11 +131,11 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           ParamPart paramPart = (ParamPart) part;
           String value = paramPart.getStringValue();
           if (name.equals("idAnalysis")) {
-            idAnalysis = new Integer((String)value);
+            idAnalysis = new Integer(value);
             break;
           }
           if (name.equals("analysisNumber")) {
-            analysisNumber = (String)value;
+            analysisNumber = value;
             if (body != null) {
               Element h3 = body.addElement("H3");
               h3.addCDATA("Upload analysis files for " + analysisNumber);              
@@ -162,14 +160,19 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 
-          String baseDir = dh.getAnalysisWriteDirectory(req.getServerName()) + "/" + createYear;
+          String baseDir = dh.getAnalysisWriteDirectory(req.getServerName());
+          if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+            baseDir += "/";
+          }
+          baseDir += createYear;
+          
           if (!new File(baseDir).exists()) {
             boolean success = (new File(baseDir)).mkdir();
             if (!success) {
               System.out.println("UploadAnalysisFileServlet: Unable to create base directory " + baseDir);      
             }      
           }
-          
+                    
           directoryName = baseDir + "/" + analysis.getNumber();
           if (!new File(directoryName).exists()) {
             boolean success = (new File(directoryName)).mkdir();
@@ -177,9 +180,15 @@ public class UploadAnalysisFileServlet extends HttpServlet {
               System.out.println("UploadAnalysisFileServlet: Unable to create directory " + directoryName);      
             }      
           }
-          
 
-          
+          directoryName += "/" + Constants.UPLOAD_STAGING_DIR;
+          if (!new File(directoryName).exists()) {
+            boolean success = (new File(directoryName)).mkdir();
+            if (!success) {
+              System.out.println("UploadExperimentFileServlet: Unable to create directory " + directoryName);      
+            }      
+          }
+
           while ((part = mp.readNextPart()) != null) {        
             if (part.isFile()) {
               // it's a file part
@@ -205,27 +214,25 @@ public class UploadAnalysisFileServlet extends HttpServlet {
                 xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
                 sess.save(xferLog);
        
+                
                 if (analysisNumber != null && body != null) {
                   body.addElement("BR");
                   body.addCDATA(fileName + "   -   successfully uploaded " + sizeFormatter.format(size) + " bytes.");                  
                 }
                 
                 // Save analysis file (name) in db
-                AnalysisFile analysisFile = null;
-                for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
-                  AnalysisFile af = (AnalysisFile)i.next();
-                  if (af.getFileName().equals(fileName)) {
-                    analysisFile = af;
-                    break;
-                  }
-                }
-                if (analysisFile == null) {
-                  analysisFile = new AnalysisFile();
-                  analysisFile.setIdAnalysis(analysis.getIdAnalysis());
-                  analysisFile.setFileName(fileName);
-                }
-                analysisFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
-                sess.save(analysisFile);
+                AnalysisFile af = new AnalysisFile();
+
+                af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                af.setIdAnalysis(Integer.valueOf(idAnalysis));
+                af.setAnalysis(analysis);
+                af.setFileName(new File(fileName).getName());
+                af.setBaseFilePath(baseDir + "/" + analysis.getNumber());
+                af.setFileSize(new BigDecimal(new File(fileName).length()));
+
+                af.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);
+                sess.save(af);
+                
                 
               }
               else { 

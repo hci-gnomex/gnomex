@@ -83,7 +83,7 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
           
           // Format an HTML page with the download links for this analysis
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
-          Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis, baseDir, baseURL);
+          Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis,secAdvisor, baseDir, baseURL);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           out.setOmitEncoding(true);

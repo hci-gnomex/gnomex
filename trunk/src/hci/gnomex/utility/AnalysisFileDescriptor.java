@@ -24,7 +24,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   private Date      lastModifyDate;
   private String    type;
   private String    zipEntryName;
-  private String    directoryName;
+  private String    qualifiedFilePath;
+  private String    baseFilePath;
   private List      children = new ArrayList();
   private Date      uploadDate;
   private String    comments;
@@ -48,7 +49,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
     }
-    this.zipEntryName = PropertyDictionaryHelper.parseZipEntryName(baseDir, fileName);  
+    this.zipEntryName = PropertyDictionaryHelper.parseAnalysisZipEntryName(baseDir, fileName);  
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");
@@ -182,7 +183,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
       String relativePath = fileName.substring(analysisFileDirectoryLength + 5);
       String tokens[] = relativePath.split("/", 2);
       if (tokens == null || tokens.length == 1) {
-        tokens = relativePath.split("\\\\", 2);
+        tokens = relativePath.split("/", 2);
       }
       if (tokens.length == 2) {
         analysisNumber = tokens[0];
@@ -202,15 +203,54 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   }
 
   
-  public String getDirectoryName() {
-    return directoryName;
+  public String getQualifiedFilePath() {
+    return qualifiedFilePath;
   }
 
-  
-  public void setDirectoryName(String directoryName) {
-    this.directoryName = directoryName;
+  public void setQualifiedFilePath(String qualifiedFilePath) {
+    this.qualifiedFilePath = qualifiedFilePath;
+  }
+
+  public String getFilePathName() {
+    String fullPathName = "";
+    
+    if (qualifiedFilePath != null && qualifiedFilePath!= "") {
+      fullPathName += getQualifiedFilePath() + "/"; 
+    }
+    fullPathName += getDisplayName();
+
+//    String fullPath = fullPathName.replaceAll("/", "\\\\");
+    String fullPath = fullPathName.replace("\\", "/");
+    
+//    return fullPath;
+    return fullPathName;
   }
   
+  public String getQualifiedFileName() {
+    String fullPathName = "";
+    
+    if (qualifiedFilePath != null && qualifiedFilePath!= "") {
+      fullPathName += getQualifiedFilePath() + "/"; 
+    }
+    fullPathName += getDisplayName();
+
+//    String fullPath = fullPathName.replaceAll("/", "\\\\");
+    String fullPath = fullPathName.replace("\\", "/");
+    
+//    return fullPath;
+    return fullPathName;
+  }
+  
+  public String getBaseFilePath()
+  {
+    return baseFilePath;
+  }
+
+  public void setBaseFilePath(String baseFilePath)
+  {
+    this.baseFilePath = baseFilePath;
+  }
+
   public String getLastModifyDateDisplay() {
     if (this.lastModifyDate != null) {
       return this.formatDate(this.lastModifyDate, DATE_OUTPUT_SQL);
@@ -272,4 +312,25 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public boolean isFound() {
     return this.found;
   }
+  
+  public String getViewURL() {
+    String viewURL = "";
+    // Only allow viewing on supported browser mime types
+    // TODO:  Use standard way of supported mime types instead of hardcoded list
+    if (fileName.toLowerCase().endsWith(".pdf") ||
+        fileName.toLowerCase().endsWith(".jpg") ||
+        fileName.toLowerCase().endsWith(".gif") ||
+        fileName.toLowerCase().endsWith(".rtf") ||
+        fileName.toLowerCase().endsWith(".txt") ||
+        fileName.toLowerCase().endsWith(".html") ||
+        fileName.toLowerCase().endsWith(".htm")) {
+      // Only allow viewing for files under 50 MB
+      if (this.fileSize < Math.pow(2, 20) * 50) {
+        String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
+        viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
+      }
+    }
+    return viewURL;
+  }
+  
 }

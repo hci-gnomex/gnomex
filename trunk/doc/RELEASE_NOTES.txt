@@ -25,6 +25,8 @@
 *Implemented a check on the GroupAddView that makes sure when a user is creating a new group that they are not selecting a group name that has already been created.	
 * Change invoice so it shows any other accounts that have percentages in the request.
 * Completed implementation of split by amount.
+* Changed Analysis Files set up, allowing sorting and organizing analysis files into folders.  
+* Changed Experiement File organizing so that folders are displayed properly and files are more easily moved.  
 
 5.3.5.1(12/21/2011)
 --------------------

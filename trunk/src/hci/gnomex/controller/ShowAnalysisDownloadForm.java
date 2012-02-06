@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.naming.NamingException;
@@ -90,7 +91,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 
           // Format an HTML page with links to download the files
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
-          Document doc = formatDownloadHTML(analysis, baseDir, baseURL);
+          Document doc = formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           out.setOmitEncoding(true);
@@ -146,7 +147,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
    * Format an HTML page showing download links for each of the files of this analysis
    * 
    */
-  public static Document formatDownloadHTML(Analysis analysis, String baseDir, String baseURL) {
+  public static Document formatDownloadHTML(Analysis analysis, SecurityAdvisor secAdvisor, String baseDir, String baseURL) throws UnknownPermissionException {
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
@@ -178,62 +179,195 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     img.setAttribute("src", "images/navbar.png");
     maindiv.addContent(img);
 
-    Element h = new Element("h3");
-    h.setAttribute("class", "downloadHint");
-    h.addContent("Note to Internet Explorer users: your browser is unable to download files over 4 gigabytes (IE 6 limit is 2 gigabytes). To download large files, switch to another browser like Firefox or Opera."); 
-    maindiv.addContent(h);
+    Element hintBox = new Element("h3");
+    hintBox.setAttribute("class", "downloadHint");
+    hintBox.addContent("Note to Internet Explorer users: your browser is unable to download files over 4 gigabytes (IE 6 limit is 2 gigabytes). To download large files, switch to another browser like Firefox or Opera."); 
+    maindiv.addContent(hintBox);
     
-    h = new Element("h1");
-    h.setAttribute("class", "downloadHeader");
-    h.addContent("Download Analysis Files");
-    maindiv.addContent(h);
+//    for(Iterator ie = experiments.iterator(); ie.hasNext();) {
+//      Request experiment = (Request)ie.next();
 
-    h = new Element("h2");
-    h.setAttribute("class", "downloadHeader");
-    h.addContent(analysis.getNumber() + " - " + analysis.getName());
-    maindiv.addContent(h);
+      // Make sure the user can read the experiment
+      if (!secAdvisor.canRead(analysis)) { 
+        throw new UnknownPermissionException("Insufficient permissions to show download form for analysis " + analysis.getNumber());
+      }
+      Element h = new Element("h1");
+      h.setAttribute("class", "downloadHeader");
+      h.addContent("Download Analysis Files for " + analysis.getNumber());
+      maindiv.addContent(h);
+      
+      Map analysisMap = new TreeMap();
+      Map directoryMap = new TreeMap();
+      Map fileMap = new HashMap();
+      List analysisNumbers = new ArrayList<String>();
+      
+      GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap, false);
+      addMainDownloadTable(baseURL, maindiv, "unfiled", analysisMap, directoryMap, analysis.getNumber(), analysis.getIdAnalysis());
+      
+      Element br = new Element("br");
+      maindiv.addContent(br);
+      
+      
+      // Now get the files that exist on the file server for this experiment
+      Set folders = GetAnalysisDownloadList.getAnalysisDownloadFolders(baseDir, analysis.getNumber(), analysis.getCreateYear());
+      for(Iterator i = folders.iterator(); i.hasNext();) {
+        String folder = (String)i.next();
+      
+        analysisMap = new TreeMap();
+        directoryMap = new TreeMap();
+        fileMap = new HashMap();
+        analysisNumbers = new ArrayList<String>();
+        boolean flattenSubDirs = true;
+        
+        GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(folder), analysisNumbers, analysisMap, directoryMap, flattenSubDirs);
+        addDownloadTable(baseURL, maindiv, folder, analysisMap, directoryMap, analysis.getNumber(), analysis.getIdAnalysis());
+        
+        if (i.hasNext()) {
+          br = new Element("br");
+          maindiv.addContent(br);
+        }
+      }
+      
+      br = new Element("br");
+      maindiv.addContent(br);
+      
 
+    return doc;
     
+//    h = new Element("h1");
+//    h.setAttribute("class", "downloadHeader");
+//    h.addContent("Download Analysis Files");
+//    maindiv.addContent(h);
+//
+//    h = new Element("h2");
+//    h.setAttribute("class", "downloadHeader");
+//    h.addContent(analysis.getNumber() + " - " + analysis.getName());
+//    maindiv.addContent(h);
+//
+//    
+//    Element tableNode = new Element("table");
+//    maindiv.addContent(tableNode);
+//    
+//    
+//    // Hash the know analysis files
+//    Map knownAnalysisFileMap = new HashMap();
+//    for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
+//      AnalysisFile af = (AnalysisFile)i.next();
+//      knownAnalysisFileMap.put(af.getFileName(), af);
+//    }
+//    
+//    // Now get the files that exist on the file server for this analysis
+//    Map analysisMap = new TreeMap();
+//    Map directoryMap = new TreeMap();
+//    Map fileMap = new HashMap();
+//    List analysisNumbers = new ArrayList<String>();
+//    GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap);
+//
+//    // Find the file matching the fileName passed in as a parameter
+//    AnalysisFileDescriptor analysisFd = null;
+//    List directoryKeys   = (List)analysisMap.get(analysis.getNumber());
+//    for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+//      String directoryKey = (String)i1.next();
+//      List   theFiles     = (List)directoryMap.get(directoryKey);
+//      for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
+//        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i2.next();
+//        AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getDisplayName());
+//        if (af != null) {
+//          fd.setComments(af.getComments());
+//        }
+//        
+//        
+//        Element downloadLink = new Element("A");
+//        downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysis.getIdAnalysis() + "&fileName=" + fd.getDisplayName());
+//        downloadLink.addContent(fd.getDisplayName());
+//        
+//        tableNode.addContent(makeRow(downloadLink, fd.getComments(), fd.getFileSizeText()));
+//      }
+//    }
+//    return doc;
+    
+  }
+  
+  private static void addDownloadTable(String baseURL, Element maindiv, String folder, Map analysisMap, Map directoryMap, String analysisNumber, Integer idAnalysis) {
     Element tableNode = new Element("table");
     maindiv.addContent(tableNode);
+    Element caption = new Element("caption");
+    caption.setAttribute("class", "narrow");
+    caption.addContent(folder);
+    tableNode.addContent(caption);
     
-    
-    // Hash the know analysis files
-    Map knownAnalysisFileMap = new HashMap();
-    for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
-      AnalysisFile af = (AnalysisFile)i.next();
-      knownAnalysisFileMap.put(af.getFileName(), af);
-    }
-    
-    // Now get the files that exist on the file server for this analysis
-    Map analysisMap = new TreeMap();
-    Map directoryMap = new TreeMap();
-    Map fileMap = new HashMap();
-    List analysisNumbers = new ArrayList<String>();
-    GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap);
-
-    // Find the file matching the fileName passed in as a parameter
     AnalysisFileDescriptor analysisFd = null;
-    List directoryKeys   = (List)analysisMap.get(analysis.getNumber());
-    for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
-      String directoryKey = (String)i1.next();
-      List   theFiles     = (List)directoryMap.get(directoryKey);
-      for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i2.next();
-        AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getDisplayName());
-        if (af != null) {
-          fd.setComments(af.getComments());
+    List directoryKeys   = (List)analysisMap.get(analysisNumber);
+    if (directoryKeys != null) {
+      for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+        String directoryKey = (String)i1.next();
+        String dirTokens[] = directoryKey.split("-");
+        List   theFiles     = (List)directoryMap.get(directoryKey);
+        for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
+          AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i2.next();
+          fd.setQualifiedFilePath(dirTokens[0]);
+          
+          recurseAddFileRow(baseURL, tableNode, fd, idAnalysis);
+          
         }
-        
-        
-        Element downloadLink = new Element("A");
-        downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysis.getIdAnalysis() + "&fileName=" + fd.getDisplayName());
-        downloadLink.addContent(fd.getDisplayName());
-        
-        tableNode.addContent(makeRow(downloadLink, fd.getComments(), fd.getFileSizeText()));
       }
     }
-    return doc;
+    
+  }
+  
+  private static void addMainDownloadTable(String baseURL, Element maindiv, String folder, Map analysisMap, Map directoryMap, String analysisNumber, Integer idAnalysis) {
+    Element tableNode = new Element("table");
+    maindiv.addContent(tableNode);
+    Element caption = new Element("caption");
+    caption.setAttribute("class", "narrow");
+    caption.addContent(folder);
+    tableNode.addContent(caption);
+
+
+    List directoryKeys   = (List)analysisMap.get(analysisNumber);
+    if (directoryKeys != null) {
+      for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+
+        String directoryKey = (String)i1.next();
+        String dirTokens[] = directoryKey.split("-");
+        List   theFiles     = (List)directoryMap.get(directoryKey);
+
+        // For each file in the directory
+        boolean firstFileInDir = true;
+        for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
+          AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+          fd.setQualifiedFilePath(dirTokens[0]);
+
+          if(fd.getType()!=null && fd.getType()!= "dir") {
+            String dirParm = fd.getQualifiedFilePath() != null && !fd.getQualifiedFilePath().equals("") ? "&dir=" + fd.getQualifiedFilePath() : "";
+
+            Element downloadLink = new Element("A");
+            downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + fd.getDisplayName() + dirParm);
+            downloadLink.addContent(fd.getDisplayName());
+            
+            tableNode.addContent(makeRow(downloadLink, "", fd.getFileSizeText()));
+          }
+        }
+
+      }
+    }
+  }
+  
+  private static void recurseAddFileRow(String baseURL, Element tableNode, AnalysisFileDescriptor fd, Integer idAnalysis) {
+    if (fd.getChildren() != null && fd.getChildren().size() > 0) {
+      for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+        AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
+        recurseAddFileRow(baseURL, tableNode, childFd, idAnalysis);
+      }      
+    } else {
+      String dirParm = fd.getQualifiedFilePath() != null && !fd.getQualifiedFilePath().equals("") ? "&dir=" + fd.getQualifiedFilePath() : "";
+
+      Element downloadLink = new Element("A");
+      downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + fd.getDisplayName() + dirParm);
+      downloadLink.addContent(fd.getDisplayName());
+      
+      tableNode.addContent(makeRow(downloadLink, "", fd.getFileSizeText()));
+    }
     
   }
   

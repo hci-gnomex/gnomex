@@ -90,6 +90,8 @@
 		<many-to-one name="analysis" column="idAnalysis" class="hci.gnomex.model.Analysis" cascade="none" update="false" insert="false"/>
 		<property name="idAnalysis" column="idAnalysis" type="integer"/>
 		<property name="fileName" column="fileName" type="string"/>
+		<property name="qualifiedFilePath" column="qualifiedFilePath" type="string"/>
+		<property name="baseFilePath" column="baseFilePath" type="string"/>
 		<property name="comments" column="comments" type="string"/>
 		<property name="uploadDate" column="uploadDate" type="date"/>
 		<property name="fileSize" column="fileSize" type="big_decimal"/>
@@ -189,12 +191,33 @@
 		<property name="idPrice" column="idPrice" type="integer"/>		
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
+		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
 		<property name="idLab" column="idLab" type="integer"/>
     <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="notes" column="notes" type="string"/>
   </class>	
   
+  <!-- hci.gnomex.model.Chromatogram -->
+	<class name="hci.gnomex.model.Chromatogram" table="Chromatogram">
+		<id name="idChromatogram" column="idChromatogram" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idPlateWell" column="idPlateWell" type="integer"/>
+		<many-to-one name="plateWell" column="idPlateWell" class="hci.gnomex.model.PlateWell" cascade="none" insert="false" update="false" />
+		<property name="idRequest" column="idRequest" type="integer"/>
+		<property name="fileName" column="fileName" type="string"/>
+		<property name="displayName" column="displayName" type="string"/>
+		<property name="readLength" column="readLength" type="integer"/>
+		<property name="trimmedLength" column="trimmedLength" type="integer"/>
+		<property name="q20" column="q20" type="integer"/>
+		<property name="q40" column="q40" type="integer"/>
+		<property name="aSignalStrength" column="aSignalStrength" type="integer"/>
+		<property name="cSignalStrength" column="cSignalStrength" type="integer"/>
+		<property name="gSignalStrength" column="gSignalStrength" type="integer"/>
+		<property name="tSignalStrength" column="tSignalStrength" type="integer"/>
+	</class>
+	
     <!--  DataTrack -->
     <class name="hci.gnomex.model.DataTrack" table="DataTrack">
         <id name="idDataTrack"                      column="idDataTrack"               type="integer">
@@ -401,6 +424,14 @@
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
 		</set>
     </class>
+    
+    <!-- hci.gnomex.model.InstrumentRun -->
+	<class name="hci.gnomex.model.InstrumentRun" table="InstrumentRun">
+		<id name="idInstrumentRun" column="idInstrumentRun" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="runDate" column="runDate" type="java.util.Date"/>
+    </class>
 
     <!-- hci.gnomex.model.Lab -->
 	<class name="hci.gnomex.model.Lab" table="Lab">
@@ -465,6 +496,33 @@
 		<property name="numberOfReactions" column="numberOfReactions" type="integer"/>
 	</class>
 	
+	<!-- hci.gnomex.model.Plate -->
+	<class name="hci.gnomex.model.Plate" table="Plate">
+		<id name="idPlate" column="idPlate" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idInstrumentRun" column="idInstrumentRun" type="integer"/>
+		<set name="plateWells" table="plateWells" lazy="true" cascade="none">
+			<key column="idPlate"/>
+			<one-to-many class="hci.gnomex.model.PlateWell" />
+		</set>
+	</class>
+	
+	<!-- hci.gnomex.model.PlateWell -->
+	<class name="hci.gnomex.model.PlateWell" table="PlateWell">
+		<id name="idPlateWell" column="idPlateWell" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="row" column="row" type="string"/>
+		<property name="col" column="col" type="integer"/>
+		<property name="index" column="ind" type="integer"/>
+		<property name="idPlate" column="idPlate" type="integer"/>
+		<property name="idSample" column="idSample" type="integer"/>
+		<property name="idRequest" column="idRequest" type="integer"/>
+		<many-to-one name="plate" column="idPlate" class="hci.gnomex.model.Plate" cascade="none" insert="false" update="false" />
+		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
+	</class>
+	
 	<!-- hci.gnomex.model.Project -->
 	<class name="hci.gnomex.model.Project" table="Project">
 		<id name="idProject" column="idProject" type="integer">
@@ -515,7 +573,8 @@
 		<property name="protocolNumber" column="protocolNumber" type="string"/>
 		<property name="createDate" column="createDate" type="date"/>
 		<property name="idLab" column="idLab" type="integer"/>
-		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    	<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
@@ -747,6 +806,7 @@
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="createDate" column="createDate" type="date"/>
 		<property name="status" column="status" type="string"/>
+    	<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none"/>
 		<many-to-one name="labeledSample" column="idLabeledSample" class="hci.gnomex.model.LabeledSample" cascade="none"/>
 		<many-to-one name="hybridization" column="idHybridization" class="hci.gnomex.model.Hybridization" cascade="none"/>
@@ -1311,7 +1371,8 @@
 			<generator class="assigned"/>
 		</id>
 		<property name="requestCategory" column="requestCategory" type="string"/>
-		<property name="idVendor" column="idVendor" type="integer"/>
+		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    	<property name="idVendor" column="idVendor" type="integer"/>
 		<property name="numberOfChannels" column="numberOfChannels" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="notes" column="notes" type="string"/>

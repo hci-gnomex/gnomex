@@ -34,6 +34,7 @@ public class BillingItem extends HibernateDetailObject {
   private Lab            lab;
   private String         notes;
   private Date           completeDate;
+  private Integer        idCoreFacility;
   
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -296,5 +297,15 @@ public class BillingItem extends HibernateDetailObject {
   
   public void setPriceCategory(PriceCategory priceCategory) {
     this.priceCategory = priceCategory;
+  }
+
+  public Integer getIdCoreFacility()
+  {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility)
+  {
+    this.idCoreFacility = idCoreFacility;
   }
 }

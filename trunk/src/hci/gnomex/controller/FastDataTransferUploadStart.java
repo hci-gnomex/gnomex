@@ -99,8 +99,10 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         if (this.isValid()) {
           createYear = yearFormatter.format(analysis.getCreateDate());
           String baseDir = dh.getAnalysisWriteDirectory(serverName);
-          targetDir = baseDir + createYear + File.separator + analysis.getNumber();
+          targetDir = baseDir + createYear + File.separator + analysis.getNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = analysis.getNumber();
+          
+          
         }
       } else if (idRequest != null || requestNumber != null) {
         Request experiment = null;

@@ -57,7 +57,14 @@ public class Analysis extends HibernateDetailObject {
   public void setCreateDate(Date createDate) {
     this.createDate = createDate;
   }
-
+  
+  public String getCreateYear() {
+    String createDate    = this.formatDate(this.getCreateDate());
+    String tokens[] = createDate.split("/");
+    String createYear  = tokens[2];  
+    return createYear;
+  }
+  
   public String getDescription() {
     return description;
   }
@@ -315,6 +322,25 @@ public class Analysis extends HibernateDetailObject {
     return key;
   }
 
+  public String getKey(String resultsDir) {
+    return Analysis.getKey(this.getNumber(), this.getCreateDate(), resultsDir);
+  }
+  
+  public static String getKey(String analysisNumber, java.sql.Date theCreateDate, String resultsDir) {
+    if (theCreateDate == null) {
+      return "";
+    } else {
+      String createDate    = new SimpleDateFormat("MM/dd/yyyy").format(theCreateDate);
+      String tokens[] = createDate.split("/");
+      String createMonth = tokens[0];
+      String createDay   = tokens[1];
+      String createYear  = tokens[2];
+      String sortDate = createYear + createMonth + createDay;
+      String key = createYear + "-" + sortDate + "-" + analysisNumber + "-" + resultsDir;     
+      return key;
+    }
+  }
+  
   public Integer getIdInstitution() {
     return idInstitution;
   }

@@ -301,7 +301,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
         n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
         
-        String directoryName =  baseDir + "/" + createYear + "/" + Request.getBaseRequestNumber(requestNumber) + "/" + resultDir;
+        String directoryName =  baseDir  + createYear + "/" + Request.getBaseRequestNumber(requestNumber) + "/" + resultDir;
         n.setAttribute("fileName", directoryName);
         
         boolean isSolexaRequest = false;
@@ -537,6 +537,16 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   }
   
   private static void recurseAddChildren(Element fdNode, FileDescriptor fd) throws XMLReflectException {
+    if (fd.getChildren() == null || fd.getChildren().size() == 0) {
+      if ( fd.getType() == "dir" ) {
+        fdNode.setAttribute("isEmpty", "Y");
+      }
+    } else if (fd.getChildren() == null || fd.getChildren().size() > 0) {
+      if ( fd.getType() == "dir" ) {
+        fdNode.setAttribute("isEmpty", "N");
+      }
+    }
+    
     for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
       FileDescriptor childFd = (FileDescriptor)i.next();
       
@@ -550,6 +560,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
         recurseAddChildren(childFdNode, childFd);
+      }else {
+        if ( childFd.getType() == "dir" ) {
+          childFdNode.setAttribute("isEmpty", "Y");
+        }
       }
     }
     

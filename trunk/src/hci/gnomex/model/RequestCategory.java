@@ -29,6 +29,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   codeRequestCategory;
   private String   requestCategory;
   private Integer  idVendor;
+  private Integer  idCoreFacility;
   private String   isActive;
   private Integer  numberOfChannels;
   private String   notes;
@@ -139,6 +140,16 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   }
 
   
+  public Integer getIdCoreFacility()
+  {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility)
+  {
+    this.idCoreFacility = idCoreFacility;
+  }
+
   public Integer getNumberOfChannels() {
     return numberOfChannels;
   }

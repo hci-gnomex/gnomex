@@ -230,7 +230,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         secAdvisor.closeReadOnlyHibernateSession();
         
         // clear out session variable
-        req.getSession().setAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
+        req.getSession().setAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
         
 
         response.setHeader("Content-Disposition","attachment;filename=\"gnomex.jnlp\"");
@@ -309,13 +309,5 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
   }
 
-  public static Request findRequest(Session sess, String requestNumber) {
-    Request request = null;
-    List requests = sess.createQuery("SELECT req from Request req where req.number = '" + requestNumber + "'").list();
-    if (requests.size() == 1) {
-      request = (Request)requests.get(0);
-    }
-    return request;    
-  }
 
 }
