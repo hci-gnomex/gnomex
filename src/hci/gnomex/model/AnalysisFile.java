@@ -18,6 +18,8 @@ public class AnalysisFile extends HibernateDetailObject {
   private String         comments;
   private Date           uploadDate;
   private BigDecimal     fileSize;
+  private String         qualifiedFilePath;
+  private String         baseFilePath;
   
 
   public Integer getIdAnalysis() {
@@ -47,6 +49,26 @@ public class AnalysisFile extends HibernateDetailObject {
   }
 
   
+  public String getQualifiedFilePath()
+  {
+    return qualifiedFilePath;
+  }
+
+  public void setQualifiedFilePath(String qualifiedFilePath)
+  {
+    this.qualifiedFilePath = qualifiedFilePath;
+  }
+
+  public String getBaseFilePath()
+  {
+    return baseFilePath;
+  }
+
+  public void setBaseFilePath(String baseFilePath)
+  {
+    this.baseFilePath = baseFilePath;
+  }
+
   public String getFileName() {
     return fileName;
   }
@@ -56,6 +78,30 @@ public class AnalysisFile extends HibernateDetailObject {
     this.fileName = fileName;
   }
 
+  public String getFullPathName() {
+    String fullPathName = getBaseFilePath();
+    if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
+      fullPathName += "/" + getQualifiedFilePath();  
+    }
+    fullPathName += "/" + getFileName();
+//    String fullPath = fullPathName.replaceAll("/", "\\\\");
+    String fullPath = fullPathName.replace("\\", "/");
+    
+//    return fullPath;
+    return fullPathName;
+  }
+  public String getQualifiedFileName() {
+    String fullPathName = "";
+    if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
+      fullPathName += getQualifiedFilePath() + "/";  
+    }
+    fullPathName += getFileName();
+//    String fullPath = fullPathName.replaceAll("/", "\\\\");
+//    String fullPath = fullPathName.replace("\\", "/");
+    
+//    return fullPath;
+    return fullPathName;
+  }
   
   public String getComments() {
     return comments;

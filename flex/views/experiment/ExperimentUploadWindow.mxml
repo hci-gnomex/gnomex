@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="824" 
-	xmlns:util="views.util.*"
-	height="408" creationPolicy="all"
-	showCloseButton="true"
-	close="{mx.managers.PopUpManager.removePopUp(this)}" 
-	title="{'Upload Files for Experiment ' + requestNumber}"  xmlns:controls="hci.flex.controls.*">
-
+                layout="vertical" width="824" 
+                xmlns:util="views.util.*"
+                height="408" creationPolicy="all"
+                showCloseButton="true"
+                close="{mx.managers.PopUpManager.removePopUp(this)}" 
+                title="{'Upload Files for Experiment ' + requestNumber}"  xmlns:controls="hci.flex.controls.*">
+  
   <mx:HTTPService  
     id="getExperimentUploadURL" 
     url="UploadExperimentURLServlet.gx"
     resultFormat="e4x"
     showBusyCursor="true" 
     result="onGetExperimentUploadURL(event)" 
-	fault="parentApplication.onFailHttpRequest('Failed to get experiment upload URL', event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get experiment upload URL', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
-	
-	
+  
+  
   <mx:HTTPService  
     id="fdtUploadStart" 
-	url="FastDataTransferUploadStart.gx"
-	resultFormat="e4x"
-	showBusyCursor="true" 
-	result="onFdtUploadStart(event)" 
-	fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
-	method="POST"
-	useProxy="false">
+    url="FastDataTransferUploadStart.gx"
+    resultFormat="e4x"
+    showBusyCursor="true" 
+    result="onFdtUploadStart(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+    method="POST"
+    useProxy="false">
   </mx:HTTPService>
-
-	
-
+  
+  
+  
   <mx:HTTPService  
     id="getRequest" 
     url="GetRequest.gx"
     resultFormat="e4x"
     showBusyCursor="true" 
     result="onGetRequest(event)" 
-	fault="parentApplication.onFailHttpRequest('Failed to get experiment', event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get experiment', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -50,570 +50,573 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequestDownloadList(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to get request download list', event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get request download list', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService >
   
-    <mx:HTTPService  
+  <mx:HTTPService  
     id="organizeExperimentUploadFiles" 
     url="OrganizeExperimentUploadFiles.gx"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onOrganizeExperimentUploadFiles(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to organize experiment upload files', event)"
+    fault="parentApplication.onFailHttpRequest('Failed to organize experiment upload files', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService >
-    
-    <mx:Script>
-    	<![CDATA[
-		import mx.controls.Alert;
-		import mx.core.DragSource;
-		import mx.events.CloseEvent;
-		import mx.events.DragEvent;
-		import mx.managers.DragManager;
-		import mx.managers.PopUpManager;
-		import mx.rpc.events.ResultEvent;
-		
-		import views.util.MultiFileUpload;
-		
-		[Bindable]
-		private var idRequest:Object;
-
-		[Bindable]
-		private var requestNumber:Object;
-		
-		private var multiFileUpload:MultiFileUpload;
-		
-		private var downloadDraggedItems:Array = null;
-
-		
-		public function init(idRequest:Object, requestNumber:Object):void {
-			this.idRequest = idRequest;
-			this.requestNumber = requestNumber;
-			fdtStartButton.enabled = true;
-			saveUUID.text = "";
-			
-			getExperimentUploadURL.send();
-			
-			var params:Object = new Object();
-			params.idRequest = idRequest;
-			params.includeUploadStagingDir = 'N';
-			getRequestDownloadList.send(params);
-		}
-		
-		private function refreshFiles():void {
-			filesToRemove.removeAll();
-			this.dirty.resetDirty();
-			
-			refreshUploadFiles();
-			
-			var params:Object = new Object();
-			params.idRequest = idRequest;
-			params.includeUploadStagingDir = 'N';
-			getRequestDownloadList.send(params);
-			
-		}
-		
-		private function onGetExperimentUploadURL(event:ResultEvent):void {
-			if (getExperimentUploadURL.lastResult.name() == "UploadExperimentURL") {
-				var url:String = getExperimentUploadURL.lastResult.@url;
-				initializeFileUploadControl(url);
-			}
-		}
-		
-			
-		private function onFdtUploadStart(event:ResultEvent):void {
-			if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
-				var uuid:String = fdtUploadStart.lastResult.@uuid;
-				saveUUID.text = uuid;
-				fdtStartButton.enabled = false;
-						
-				var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
-				var uv:URLVariables = new URLVariables();
-				uv.uuid = uuid;
-				url.data = uv;
-				url.method = URLRequestMethod.POST;
-				navigateToURL(url, '_self');				
-			}
-		}
-			
-						
-		public function initializeFileUploadControl(uploadServletURL:String):void{
-            
-            if (multiFileUpload == null) {
-		       var postVariables:URLVariables = new URLVariables;
-		       postVariables.idRequest = idRequest;
-		       postVariables.requestNumber = requestNumber; 
-		         
-		        multiFileUpload = new MultiFileUpload(
-		            this.uploadFilesGrid,
-		            this.uploadBrowseButton,
-		            this.uploadClearButton,
-		            this.uploadDeleteButton,
-		            this.uploadButton,
-		            this.uploadProgressBar,
-		            uploadServletURL,
-		            postVariables,
-		            0,
-		            null
-		            );
-
-		       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
-		       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
-		       
-		       this.uploadBrowseButton.enabled = true;
-		       this.uploadClearButton.enabled = true;
-		       this.uploadDeleteButton.enabled = true;
-            } 
+  
+  <mx:Script>
+    <![CDATA[
+      import mx.controls.Alert;
+      import mx.core.DragSource;
+      import mx.events.CloseEvent;
+      import mx.events.DragEvent;
+      import mx.managers.DragManager;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
+      
+      import views.util.MultiFileUpload;
+      
+      [Bindable]
+      private var idRequest:Object;
+      
+      [Bindable]
+      private var requestNumber:Object;
+      
+      private var multiFileUpload:MultiFileUpload;
+      
+      private var downloadDraggedItems:Array = null;
+      
+      
+      public function init(idRequest:Object, requestNumber:Object):void {
+        this.idRequest = idRequest;
+        this.requestNumber = requestNumber;
+        fdtStartButton.enabled = true;
+        saveUUID.text = "";
+        
+        getExperimentUploadURL.send();
+        
+        var params:Object = new Object();
+        params.idRequest = idRequest;
+        params.includeUploadStagingDir = 'N';
+        getRequestDownloadList.send(params);
+      }
+      
+      private function refreshFiles():void {
+        filesToRemove.removeAll();
+        this.dirty.resetDirty();
+        
+        refreshUploadFiles();
+        
+        var params:Object = new Object();
+        params.idRequest = idRequest;
+        params.includeUploadStagingDir = 'N';
+        getRequestDownloadList.send(params);
+        
+      }
+      
+      private function onGetExperimentUploadURL(event:ResultEvent):void {
+        if (getExperimentUploadURL.lastResult.name() == "UploadExperimentURL") {
+          var url:String = getExperimentUploadURL.lastResult.@url;
+          initializeFileUploadControl(url);
+        }
+      }
+      
+      
+      private function onFdtUploadStart(event:ResultEvent):void {
+        if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+          var uuid:String = fdtUploadStart.lastResult.@uuid;
+          saveUUID.text = uuid;
+          fdtStartButton.enabled = false;
           
-       }
-       
-       private function refreshUploadFiles():void {
-       		var params:Object = new Object();
-       		params.idRequest = idRequest;
-       		params.showUploads = "Y";
-       		getRequest.send(params);       	
-       }
-			
-       public function onUploadFinished(event:Event):void{
-       		refreshUploadFiles();
-       }
-       	
-	   private function onGetRequest(event:ResultEvent): void {
-			if (getRequest.lastResult.name() == "OpenRequestList") {
-				this.theTab.selectedIndex = 1;
-				newFolderButton.enabled = true; 
-			}
-	   }
-       
-       public function onChooseFileToUpload(event:Event):void {
-       }
-
-
-	   	private function onGetRequestDownloadList(event:ResultEvent): void {
-			if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
-	        	mx.controls.Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
-	        	return;
-	        } else {
-	        	callLater(expandDownloadTree);
-	        }  	 
-	    }
-	    
-	    private function expandDownloadTree():void {
-	    	if (downloadTree != null) {
-		    	for each(var r:Object in getRequestDownloadList.lastResult.Request) {
-		    		downloadTree.expandChildrenOf(r, true);
-	    		}
-	    	}
-	    }
-	    
-	    private function save():void {
-        	var params:Object = new Object();
-			params.idRequest = idRequest;
-			params.filesXMLString = downloadList.toXMLString();
-			if (filesToRemove.length > 0) {
-				params.filesToRemoveXMLString = filesToRemove.toXMLString();			
-			}
-			organizeExperimentUploadFiles.send(params);
-	    }
-	    
-	   	private function onOrganizeExperimentUploadFiles(event:ResultEvent): void {
-			if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
-	        	mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
-	        } else {
-	        	refreshFiles();
-	        } 	 
-	    }
-   	 	private function getFilesGridRowNumber(item:Object,col:int):String
-	    {
-	    	var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
-	       	return String(x);
-	    } 		
-
-	 	private function getDownloadName(item:Object):String {
-	 		var info:String = item.name() == "RequestDownload" && item.hasOwnProperty("@info") && item.@info != "" ? " - " + item.@info : "";
-	 		if (item.name() == "RequestDownload") {
-	 			if (item.hasOwnProperty("@itemNumber") && item.@itemNumber != '') {
-	 				var results:String = item.hasOwnProperty("@results") && item.@results != '' ? " - " + item.@results : '';
-	 				return item.@itemNumber + results + info;
-	 			} else {
-			    	return item.@results + info;
-	 			}
-	 		} else {
-	 			return item.@displayName + info;
-	 		} 
-	    }
-	    
-	    public function showAddFolderWindow():void {
-	    	if (this.downloadTree.selectedItem == null) {
-	    		 this.downloadTree.selectedIndex = 0;
-	    	}
-
-			var allow:Boolean = false;
-			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',getRequest.lastResult.Request.@codeRequestCategory);
-			if (requestCategory.@type == 'ILLUMINA') {
-				allow = true;
-			} else {
-				var parent:XML = null;
-				if (this.downloadTree.selectedItem.name() == 'FileDescriptor') {
-					parent = XML(downloadTree.selectedItem).parent();
-				} else {
-					parent = XML(downloadTree.selectedItem);
-				}				
-				if (parent.name() != 'Request') {
-					allow = true;
-				}
-			}
-			if (!allow) {
-				Alert.show("Cannot create base directories for Microaray or Sample Quality experiments.  Please organize subdirectories underneath base directories provided.");
-				return;
-			}
-	    	
-	    	var addFolderWindow:FolderAddWindow = FolderAddWindow(PopUpManager.createPopUp(DisplayObject(parentApplication.theBody), FolderAddWindow, true));
-	    	PopUpManager.centerPopUp(addFolderWindow);
-	    	addFolderWindow.uploadWindow = this;
-	    	addFolderWindow.folderName.setFocus();
-	    }
-	    
-	    public function addDownloadFolder(folderName:String):void {
-		    var parent:XML = null;
-	    	if (this.downloadTree.selectedItem.name() == 'FileDescriptor') {
-	    		parent = XML(downloadTree.selectedItem).parent();
-	    	} else {
-	    		parent = XML(downloadTree.selectedItem);
-	    	}
-	    	
-	    	var folder:XML = new XML("<RequestDownload isNew='Y' " +
-	    	                         "key='X-X-X-" + folderName + "' " +
-	    	                         "itemNumber='" + folderName + "' " +
-	    	                         "info='' />");
-		    if (parent.children().length() > 0) {
-		    	var firstChild:XML = parent.children()[0];
-				parent.insertChildBefore(firstChild, folder);	 		    	
-		    } else {
-		    	parent.appendChild(folder);
-		    }	    	                         
-			this.downloadTree.expandItem(parent, true);
-			this.downloadTree.selectedItem = null;
-			this.downloadTree.selectedItem = folder;
-			this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 	                          
-	    }
-
-		
-		private function removeExperimentFile():void {
-			if (this.filesGrid.selectedItems != null && this.filesGrid.selectedItems.length > 0) {
-				for each(var uploadFile:XML in this.filesGrid.selectedItems) {
-					this.filesToRemove.addItem(uploadFile);
-					this.uploadedFiles.removeItemAt(uploadedFiles.getItemIndex(uploadFile));
-				}
-				this.dirty.setDirty();
-			} else if (this.downloadTree.selectedItems != null && this.downloadTree.selectedItems.length > 0) {
-				for each(var downloadFile:XML in this.downloadTree.selectedItems) {
-					// Only add to remove list if this file exists
-					if (downloadFile.hasOwnProperty("@fileName")) {
-						this.filesToRemove.addItem(downloadFile);						
-					}
-					// Delete from XML hierarchy
-					this.deleteNode(downloadFile);
-				}
-				this.dirty.setDirty();
-			}
-		}
-		private function onTabChange():void {
-			if (theTab.selectedIndex == 1) {
-				if (this.uploadedFiles == null || this.uploadedFiles.length == 0) {
-					refreshUploadFiles();
-				}
-			}
-		}
-	    
-		private function onDragDropFile(event:DragEvent) : void
-		{
-
-			// For some reason, preventDefault on AdvancedDataGrid
-			// isn't enough to stop the defaut drop operation from
-			// occurring. So I added hidDropFeedback and showFeedback
-			// and that seemed to do the trick.	
-			//this.downloadTree.hideDropFeedback(event);
-			//event.preventDefault();
-			//DragManager.showFeedback(DragManager.NONE);
-		   	
-	       	// determine where in the grid the drop occurs and select that node by the index; 
-	       	// followed by retrieving the node itself. 
-	        var dropNode:XML = null;
-			var dropFolderNode:XML = null;
-			var siblingDropNode:XML = null;
-	       	var r:int = downloadTree.calculateDropIndex(event);
-	       	if (r > 0) { 
-    	   		r--;
-       		}
-       		downloadTree.selectedIndex = r;
-       		dropNode = downloadTree.selectedItem as XML;
-       		
-       		// Don't allow drag operation if nothing no drop node
-       		// found
-       		if (dropNode == null) {
-       			event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);
-		       	return;
-       		}
-       		
-       		if (dropNode.name() == "RequestDownload") {
-       			dropFolderNode = dropNode;
-       		} else if (dropNode.name() == "FileDescriptor") {
-       			dropFolderNode = dropNode.parent();
-       			siblingDropNode = dropNode;
-       		} else if (dropNode.name() == "Request") {
-	       		if (dropNode.children().length() > 0) {
-		       		dropFolderNode = dropNode.children()[0];
-	       		}
-			}
-	       	
-	       	// Don't allow drag operation if nothing no drop folder node
-       		// found
-	       	if (dropFolderNode == null) {
-       			event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);
-		       	return;
-       		}
-			
-			// get the drag format (its always items in our case
-		    // Get the dragged items
-		    var draggedItems:Array = null;		    
-		    if (event.dragInitiator.name == "downloadTree") {
-		    	// For some reason, if we are dragging within the tree, the dragged
-		    	// items has to be detected on the dragEnter event.  By the time
-		    	// with get to the dragDrop event, the event.draggedItems contains
-		    	// the drop target, not the dragged items.
-				draggedItems = this.downloadDraggedItems;	    
-		    } else {
-			    var draggedFormat:String = event.dragSource.formats[0];
-			    draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
-		    }
-			for(var i:int = 0; i < draggedItems.length; i++) {
-           		var dragItem:XML = XML(draggedItems[i]);
-	       		if (dragItem.name() == "FileDescriptor") {
-
-	       			var fileNode:XML = new XML("<FileDescriptor " +
-	       			" displayName='" +  dragItem.@displayName + "'" + 
-	       			" fileName='" +  dragItem.@fileName + "'" + 
-	       			" directoryName='" + dragItem.@directoryName + "'/>");
-	       			
-	       			if (siblingDropNode != null) {
-		       			dropFolderNode.insertChildAfter(siblingDropNode, fileNode);	       				
-	       			} else {
-	       				dropFolderNode.appendChild(fileNode);
-	       			}
-	       			downloadTree.expandItem(dropFolderNode, true);
-	       			
-	       			// We have to manually remove the file when we are
-	       			// dragging within the download tree.
-	       			if (event.dragInitiator.name == "downloadTree") {
-	       				deleteNode(dragItem);
-	       				downloadTree.selectedItem = null;
-	       			}
-	       			
-	       			this.dirty.setDirty();
-	       		} 
-           	}
-		}
-		
-		private function deleteNode(xmlToDelete:XML):Boolean {
-		    var cn:XMLList = XMLList(xmlToDelete.parent()).children();
-		    for ( var i:Number = 0 ; i < cn.length() ; i++ )
-		    {
-		      if ( cn[i] == xmlToDelete ) {
-			      delete cn[i];       
-			      return true;
-		      }
-		    }    
-		    return false;
-		}
-
-		private function doDragEnter(event:DragEvent):void
-		{
-			// Keep track of what was dragged.
-		    var draggedFormat:String = event.dragSource.formats[0];
-		    downloadDraggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
-
-		    // Cancel default behaviour
-		    event.preventDefault();
-		    // Tell the DragManager that the Tree will accent the DragDrop
-		    DragManager.acceptDragDrop(Tree(event.target));
-		    // hide the "drop line" that is shown in Tree control
-		    // when dropping in a Tree
-		    //downloadTree.showDropFeedback(event);
-		}
-		
-		private function doDragOver(event:DragEvent):void
-		{
-		    // Show the default "drop line" in the Tree control
-		    //downloadTree.showDropFeedback(event);
-		    // Cancel default behaviors
-		    
-		    
-		    var r:int = downloadTree.calculateDropIndex(event);
-	       	if (r > 0) { 
-    	   		r--;
-       		}
-       		downloadTree.selectedIndex = r;
-       		var dropNode:XML = downloadTree.selectedItem as XML;
-       		var dropFolderNode:XML = null;
-       		if (dropNode != null) {
-    	   		if (dropNode.name() == "RequestDownload") {
-	       			dropFolderNode = dropNode;
-       			} else if (dropNode.name() == "FileDescriptor") {
-       				dropFolderNode = dropNode.parent();
-	       		} else if (dropNode.name() == "Request") {
-	       			if (dropNode.children().length() > 0) {
-		       			dropFolderNode = dropNode.children()[0];
-	       			}
-	       		}
-       		}
-       		if (dropFolderNode != null) {
-	       		downloadTree.selectedItem = dropFolderNode;
-       		}
-       		
-		    event.preventDefault();
-		}
-		
-		private function doDragExit(event:DragEvent):void
-		{
-		    // hide the "drop line" that is shown in Tree control
-		    // when dropping in a Tree
-		    downloadTree.hideDropFeedback(event);
-		}
-		
-		private function doDragComplete(event:DragEvent):void
-		{
-		    // hide the "drop line" that is shown in Tree control
-		    // when dropping in a Tree
-		    downloadTree.hideDropFeedback(event);
-		}	
-		
-
-		public function showHTMLUploadForm():void {
-			var url:URLRequest = new URLRequest('uploadExperimentFile.jsp?requestNumber=' + this.requestNumber);
-			navigateToURL(url, '_blank');			
-			this.theTab.selectedIndex = 1;
-		}
-			
-		public function startFDTUpload():void {			
-			var params:Object = new Object();		
-			params.idRequest = idRequest;
-			
-			fdtUploadStart.send(params);
-		}
-
-		
-    	]]>
-    </mx:Script>	
-
-    <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.Request}"/>
-	<mx:XMLListCollection id="files"/>
-	<mx:XMLListCollection id="uploadedFiles" source="{getRequest.lastResult..RequestUpload.FileDescriptor}"/>
-	<mx:XMLListCollection id="filesToRemove"/>
-    <mx:Canvas width="100%" height="100%">
-		<mx:TextArea width="594" height="20" 
-			styleName="instructionBox" visible="{theTab.selectedIndex == 1}" text="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
-		<mx:TabNavigator id="theTab" change="onTabChange()" width="100%" paddingTop="0" height="100%" styleName="form">
-			<mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
-					<mx:VBox width="100%" height="100%">
-						<mx:HBox height="20" width="100%">						
-							<mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" enabled="false"/>
-							<mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" enabled="false"/>
-							<mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
-							<mx:HBox width="100%"  horizontalAlign="right">
-								<mx:VRule height="20"/>
-								<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
-							</mx:HBox>			          
-						</mx:HBox>
-						<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
-						</mx:DataGrid>	
-					</mx:VBox>
-					<mx:VBox width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-						<mx:TextArea styleName="instructionBox" width="100%" wordWrap="true" height="100%" id="textarea1" fontSize="12">
-							<mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer (FDT) server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened using Java Web Start (either directly or after first saving<br>         the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files), click the<br>        "Organize files" link on Experiment Detail to move the uploaded files to the appropriate folders.<br>         button.]]></mx:htmlText>
-						</mx:TextArea>							
-					</mx:VBox>
-				</mx:ViewStack>
-			</mx:VBox>
-			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
-			    <mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
-			    <mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Remove file"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
-			    <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.children().length() == 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
-			    <mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
-			    	
-			    </mx:HBox>
-
-				<mx:HDividedBox width="100%" height="100%">
-					<mx:VBox width="300" height="100%" verticalGap="0" styleName="form" >
-					    <mx:HBox width="100%"  backgroundColor="#C9BEC0" backgroundAlpha="0.22" >
-							<mx:Label text="Uploaded Files"/>
-					    </mx:HBox>
-						<mx:DataGrid id="filesGrid"  
-							dragEnabled="true"
-							showHeaders="false" 
-						    allowMultipleSelection="true"
-							width="100%" height="100%"
-							dataProvider="{uploadedFiles}" dragMoveEnabled="true" itemClick="{this.downloadTree.selectedItem = null;}">
-							<mx:columns>
-								<mx:DataGridColumn headerText="Uploaded file"  dataField="@displayName"/>
-							</mx:columns>
-						</mx:DataGrid>
-					</mx:VBox>
-					<mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
-						<mx:HBox width="100%"  backgroundColor="#C9BEC0" backgroundAlpha="0.22" >
-							<mx:Label text="Experiment Folders"/>
-					    </mx:HBox>
-						<mx:Tree id="downloadTree"
-							width="100%" height="100%"
-							iconFunction="parentApplication.getTreeIcon"
-							dataProvider="{downloadList}"
-			                borderStyle="solid" 
-						    labelFunction="{getDownloadName}"
-							dropEnabled="true"  		                
-							dragEnabled="true"
-							dragMoveEnabled="true" 
-							allowMultipleSelection="true" 
-							dragDrop="onDragDropFile(event)"
-							dragOver="doDragOver(event)"
-				            dragEnter="doDragEnter(event)"
-				            dragExit="doDragExit(event)"
-				            itemClick="{this.filesGrid.selectedItem = null;}">						
-						</mx:Tree>		
-					</mx:VBox>
-				</mx:HDividedBox>
-			</mx:VBox>
-		</mx:TabNavigator>
-    </mx:Canvas>
-	<mx:ControlBar width="100%">
-	  <mx:ViewStack id="buttonStack" width="100%" selectedIndex="{theTab.selectedIndex}">
-	      <mx:HBox width="100%">
-			 <mx:ViewStack id="buttonStack_1" width="100%" selectedIndex="{uploadFilesStack.selectedIndex}">
-				 <mx:HBox height="100%" width="100%">
-					 <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
-					 <mx:Button label="Upload files" id="uploadButton"  enabled="false" visible="true" disabledIcon="@Embed(source='../../assets/upload_disable.png')" icon="@Embed(source='../../assets/upload.png')"/>	
-				 </mx:HBox>				 
-				 <mx:HBox height="100%" width="100%">
-					 <mx:Spacer  width="100%" height="10"/>	
-					 <mx:Label id="saveUUID" text="" visible="false"/>
-					 <mx:Button id="fdtStartButton" label="Start" click="startFDTUpload();"  enabled="true" visible="true"/>	      	
-				 </mx:HBox>		  			 
-			 </mx:ViewStack>
-	      </mx:HBox>
-	      <mx:HBox width="100%">
-			 <mx:Spacer  width="100%" height="10"/>		
-			 <util:DirtyNote id="dirty"/>
-			 <mx:Button label="Save" id="saveButton"  enabled="true" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')"/>	      	
-			 <mx:Button label="Close" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" />	      	
-	      </mx:HBox>  	
-	  </mx:ViewStack>
-	</mx:ControlBar>
-	
+          var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+          var uv:URLVariables = new URLVariables();
+          uv.uuid = uuid;
+          url.data = uv;
+          url.method = URLRequestMethod.POST;
+          navigateToURL(url, '_self');				
+        }
+      }
+      
+      
+      public function initializeFileUploadControl(uploadServletURL:String):void{
+        
+        if (multiFileUpload == null) {
+          var postVariables:URLVariables = new URLVariables;
+          postVariables.idRequest = idRequest;
+          postVariables.requestNumber = requestNumber; 
+          
+          multiFileUpload = new MultiFileUpload(
+            this.uploadFilesGrid,
+            this.uploadBrowseButton,
+            this.uploadClearButton,
+            this.uploadDeleteButton,
+            this.uploadButton,
+            this.uploadProgressBar,
+            uploadServletURL,
+            postVariables,
+            0,
+            null
+          );
+          
+          multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+          multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+          
+          this.uploadBrowseButton.enabled = true;
+          this.uploadClearButton.enabled = true;
+          this.uploadDeleteButton.enabled = true;
+        } 
+        
+      }
+      
+      private function refreshUploadFiles():void {
+        var params:Object = new Object();
+        params.idRequest = idRequest;
+        params.showUploads = "Y";
+        getRequest.send(params);       	
+      }
+      
+      public function onUploadFinished(event:Event):void{
+        refreshUploadFiles();
+      }
+      
+      private function onGetRequest(event:ResultEvent): void {
+        if (getRequest.lastResult.name() == "OpenRequestList") {
+          this.theTab.selectedIndex = 1;
+          newFolderButton.enabled = true; 
+        }
+      }
+      
+      public function onChooseFileToUpload(event:Event):void {
+      }
+      
+      
+      private function onGetRequestDownloadList(event:ResultEvent): void {
+        if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
+          mx.controls.Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
+          return;
+        } else {
+          callLater(expandDownloadTree);
+        }  	 
+      }
+      
+      private function expandDownloadTree():void {
+        if (downloadTree != null) {
+          for each(var r:Object in getRequestDownloadList.lastResult.Request) {
+            downloadTree.expandChildrenOf(r, true);
+          }
+        }
+      }
+      
+      private function save():void {
+        var params:Object = new Object();
+        params.idRequest = idRequest;
+        params.filesXMLString = downloadList.toXMLString();
+        if (filesToRemove.length > 0) {
+          params.filesToRemoveXMLString = filesToRemove.toXMLString();			
+        }
+        organizeExperimentUploadFiles.send(params);
+      }
+      
+      private function onOrganizeExperimentUploadFiles(event:ResultEvent): void {
+        if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
+          mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+        } else {
+          refreshFiles();
+        } 	 
+      }
+      private function getFilesGridRowNumber(item:Object,col:int):String
+      {
+        var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
+        return String(x);
+      } 		
+      
+      private function getDownloadName(item:Object):String {
+        var info:String = item.name() == "RequestDownload" && item.hasOwnProperty("@info") && item.@info != "" ? " - " + item.@info : "";
+        if (item.name() == "RequestDownload") {
+          if (item.hasOwnProperty("@itemNumber") && item.@itemNumber != '') {
+            var results:String = item.hasOwnProperty("@results") && item.@results != '' ? " - " + item.@results : '';
+            return item.@itemNumber + results + info;
+          } else {
+            return item.@results + info;
+          }
+        } else {
+          return item.@displayName + info;
+        } 
+      }
+      
+      public function showAddFolderWindow():void {
+        if (this.downloadTree.selectedItem == null) {
+          this.downloadTree.selectedIndex = 0;
+        }
+        
+        var allow:Boolean = false;
+        var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',getRequest.lastResult.Request.@codeRequestCategory);
+        if (requestCategory.@type == 'ILLUMINA') {
+          allow = true;
+        } else {
+          var parent:XML = XML(downloadTree.selectedItem);
+          if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "Request") {
+            parent = XML(downloadTree.selectedItem).parent();
+          } 
+          
+          if (parent.name() != 'Request') {
+            allow = true;
+          }
+        }
+        if (!allow) {
+          Alert.show("Cannot create base directories for Microaray or Sample Quality experiments.  Please organize subdirectories underneath base directories provided.");
+          return;
+        }
+        
+        var addFolderWindow:FolderAddWindow = FolderAddWindow(PopUpManager.createPopUp(DisplayObject(parentApplication.theBody), FolderAddWindow, true));
+        PopUpManager.centerPopUp(addFolderWindow);
+        addFolderWindow.uploadWindow = this;
+        addFolderWindow.folderName.setFocus();
+      }
+      
+      public function addDownloadFolder(folderName:String):void {
+        
+        var parent:XML = XML(downloadTree.selectedItem);
+        if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "Request") {
+          parent = XML(downloadTree.selectedItem).parent();
+        } 
+        
+        var folder:XML = new XML("<RequestDownload isNew='Y' " +
+          "key='X-X-X-" + folderName + "' " +
+          "itemNumber='" + folderName + "' " +
+          "type='dir'" +
+          "isEmpty='Y'" +
+          "info='' />");
+        if (parent.children().length() > 0) {
+          var firstChild:XML = parent.children()[0];
+          parent.insertChildBefore(firstChild, folder);	 		    	
+        } else {
+          parent.appendChild(folder);
+        }	    	                         
+        this.downloadTree.expandItem(parent, true);
+        this.downloadTree.selectedItem = null;
+        this.downloadTree.selectedItem = folder;
+        this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 	                          
+      }
+      
+      
+      private function removeExperimentFile():void {
+        if (this.filesGrid.selectedItems != null && this.filesGrid.selectedItems.length > 0) {
+          for each(var uploadFile:XML in this.filesGrid.selectedItems) {
+            this.filesToRemove.addItem(uploadFile);
+            this.uploadedFiles.removeItemAt(uploadedFiles.getItemIndex(uploadFile));
+          }
+          this.dirty.setDirty();
+        } else if (this.downloadTree.selectedItems != null && this.downloadTree.selectedItems.length > 0) {
+          for each(var downloadFile:XML in this.downloadTree.selectedItems) {
+            // Only add to remove list if this file exists
+            if (downloadFile.hasOwnProperty("@fileName")) {
+              this.filesToRemove.addItem(downloadFile);						
+            }
+            // Delete from XML hierarchy
+            this.deleteNode(downloadFile);
+          }
+          this.dirty.setDirty();
+        }
+      }
+      private function onTabChange():void {
+        if (theTab.selectedIndex == 1) {
+          if (this.uploadedFiles == null || this.uploadedFiles.length == 0) {
+            refreshUploadFiles();
+          }
+        }
+      }
+      
+      private function onDragDropFile(event:DragEvent) : void
+      {
+        
+        // For some reason, preventDefault on AdvancedDataGrid
+        // isn't enough to stop the defaut drop operation from
+        // occurring. So I added hidDropFeedback and showFeedback
+        // and that seemed to do the trick.	
+        //this.downloadTree.hideDropFeedback(event);
+        //event.preventDefault();
+        //DragManager.showFeedback(DragManager.NONE);
+        
+        // determine where in the grid the drop occurs and select that node by the index; 
+        // followed by retrieving the node itself. 
+        var dropNode:XML = null;
+        var dropFolderNode:XML = null;
+        var siblingDropNode:XML = null;
+        var r:int = downloadTree.calculateDropIndex(event);
+        if (r > 0) { 
+          r--;
+        }
+        downloadTree.selectedIndex = r;
+        dropNode = downloadTree.selectedItem as XML;
+        
+        // Don't allow drag operation if nothing no drop node
+        // found
+        if (dropNode == null) {
+          event.preventDefault();
+          event.target.hideDropFeedback(event);
+          DragManager.showFeedback(DragManager.NONE);
+          return;
+        }
+        
+        dropFolderNode = dropNode;
+        if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
+          dropFolderNode = dropNode.parent();
+          siblingDropNode = dropNode;
+        }
+        // Don't allow drag operation if nothing no drop folder node
+        // found
+        if (dropFolderNode == null) {
+          event.preventDefault();
+          event.target.hideDropFeedback(event);
+          DragManager.showFeedback(DragManager.NONE);
+          return;
+        }
+        
+        // get the drag format (its always items in our case
+        // Get the dragged items
+        var draggedItems:Array = null;		    
+        if (event.dragInitiator.name == "downloadTree") {
+          // For some reason, if we are dragging within the tree, the dragged
+          // items has to be detected on the dragEnter event.  By the time
+          // with get to the dragDrop event, the event.draggedItems contains
+          // the drop target, not the dragged items.
+          draggedItems = this.downloadDraggedItems;	    
+        } else {
+          var draggedFormat:String = event.dragSource.formats[0];
+          draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
+        }
+        for(var i:int = 0; i < draggedItems.length; i++) {
+          var dragItem:XML = XML(draggedItems[i]);
+          if (dragItem.name() == "FileDescriptor") {
+            
+            var fileNode:XML = new XML("<FileDescriptor " +
+              " displayName='" +  dragItem.@displayName + "'" + 
+              " fileName='" +  dragItem.@fileName + "'" + 
+              " type='" + dragItem.@type + "'" +
+              " directoryName='" + dragItem.@directoryName + "'/>");
+            
+            for each ( var child:Object in dragItem.children() ) {
+              fileNode.appendChild(child);	
+            }
+            
+            // Don't allow dropping on yourself (causes a cyclical error)
+            if ( fileNode.@fileName == dropFolderNode.@fileName ){
+              return;
+            }
+            
+            if (siblingDropNode != null) {
+              dropFolderNode.insertChildAfter(siblingDropNode, fileNode);	       				
+            } else {
+              dropFolderNode.appendChild(fileNode);
+            }
+            downloadTree.expandItem(dropFolderNode, true);
+            
+            // We have to manually remove the file when we are
+            // dragging within the download tree.
+            if (event.dragInitiator.name == "downloadTree") {
+              deleteNode(dragItem);
+              downloadTree.selectedItem = null;
+            }
+            
+            this.dirty.setDirty();
+          } 
+        }
+      }
+      
+      private function deleteNode(xmlToDelete:XML):Boolean {
+        var cn:XMLList = XMLList(xmlToDelete.parent()).children();
+        for ( var i:Number = 0 ; i < cn.length() ; i++ )
+        {
+          if ( cn[i] == xmlToDelete ) {
+            delete cn[i];       
+            return true;
+          }
+        }    
+        return false;
+      }
+      
+      private function doDragEnter(event:DragEvent):void
+      {
+        // Keep track of what was dragged.
+        var draggedFormat:String = event.dragSource.formats[0];
+        downloadDraggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
+        
+        // Cancel default behaviour
+        event.preventDefault();
+        // Tell the DragManager that the Tree will accent the DragDrop
+        DragManager.acceptDragDrop(Tree(event.target));
+        // hide the "drop line" that is shown in Tree control
+        // when dropping in a Tree
+        //downloadTree.showDropFeedback(event);
+      }
+      
+      private function doDragOver(event:DragEvent):void
+      {
+        // Show the default "drop line" in the Tree control
+        //downloadTree.showDropFeedback(event);
+        // Cancel default behaviors
+        
+        var r:int = downloadTree.calculateDropIndex(event);
+        if (r > 0) { 
+          r--;
+        }
+        downloadTree.selectedIndex = r;
+        var dropNode:XML = downloadTree.selectedItem as XML;
+        
+        var dropFolderNode:XML = dropNode;
+        if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
+          dropFolderNode = dropNode.parent();
+        } else if (dropNode.name() == "Request") {
+          if (dropNode.children().length() > 0) {
+            dropFolderNode = dropNode.children()[0];
+          } else {
+            dropFolderNode = null;
+          }
+        }
+        
+        if (dropFolderNode != null) {
+          downloadTree.selectedItem = dropFolderNode;
+        }
+        
+        event.preventDefault();
+      }
+      
+      private function doDragExit(event:DragEvent):void
+      {
+        // hide the "drop line" that is shown in Tree control
+        // when dropping in a Tree
+        downloadTree.hideDropFeedback(event);
+      }
+      
+      private function doDragComplete(event:DragEvent):void
+      {
+        // hide the "drop line" that is shown in Tree control
+        // when dropping in a Tree
+        downloadTree.hideDropFeedback(event);
+      }	
+      
+      
+      public function showHTMLUploadForm():void {
+        var url:URLRequest = new URLRequest('uploadExperimentFile.jsp?requestNumber=' + this.requestNumber);
+        navigateToURL(url, '_blank');			
+        this.theTab.selectedIndex = 1;
+      }
+      
+      public function startFDTUpload():void {			
+        var params:Object = new Object();		
+        params.idRequest = idRequest;
+        
+        fdtUploadStart.send(params);
+      }
+      
+      
+    ]]>
+  </mx:Script>	
+  
+  <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.Request}"/>
+  <mx:XMLListCollection id="files"/>
+  <mx:XMLListCollection id="uploadedFiles" source="{getRequest.lastResult..RequestUpload.FileDescriptor}"/>
+  <mx:XMLListCollection id="filesToRemove"/>
+  <mx:Canvas width="100%" height="100%">
+    <mx:TextArea width="594" height="20" 
+                 styleName="instructionBox" visible="{theTab.selectedIndex == 1}" text="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
+    <mx:TabNavigator id="theTab" change="onTabChange()" width="100%" paddingTop="0" height="100%" styleName="form">
+      <mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+        <mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
+          <mx:VBox width="100%" height="100%">
+            <mx:HBox height="20" width="100%">						
+              <mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" enabled="false"/>
+              <mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" enabled="false"/>
+              <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
+              <mx:HBox width="100%"  horizontalAlign="right">
+                <mx:VRule height="20"/>
+                <mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+              </mx:HBox>			          
+            </mx:HBox>
+            <mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
+            </mx:DataGrid>	
+          </mx:VBox>
+          <mx:VBox width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+            <mx:TextArea styleName="instructionBox" width="100%" wordWrap="true" height="100%" id="textarea1" fontSize="12">
+              <mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer (FDT) server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened using Java Web Start (either directly or after first saving<br>         the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files), click the<br>        "Organize files" link on Experiment Detail to move the uploaded files to the appropriate folders.<br>         button.]]></mx:htmlText>
+            </mx:TextArea>							
+          </mx:VBox>
+        </mx:ViewStack>
+      </mx:VBox>
+      <mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+        <mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
+          <mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Remove file"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
+          <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.children().length() == 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
+          <mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
+          
+        </mx:HBox>
+        
+        <mx:HDividedBox width="100%" height="100%">
+          <mx:VBox width="300" height="100%" verticalGap="0" styleName="form" >
+            <mx:HBox width="100%"  backgroundColor="#C9BEC0" backgroundAlpha="0.22" >
+              <mx:Label text="Uploaded Files"/>
+            </mx:HBox>
+            <mx:DataGrid id="filesGrid"  
+                         dragEnabled="true"
+                         showHeaders="false" 
+                         allowMultipleSelection="true"
+                         width="100%" height="100%"
+                         dataProvider="{uploadedFiles}" dragMoveEnabled="true" itemClick="{this.downloadTree.selectedItem = null;}">
+              <mx:columns>
+                <mx:DataGridColumn headerText="Uploaded file"  dataField="@displayName"/>
+              </mx:columns>
+            </mx:DataGrid>
+          </mx:VBox>
+          <mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
+            <mx:HBox width="100%"  backgroundColor="#C9BEC0" backgroundAlpha="0.22" >
+              <mx:Label text="Experiment Folders"/>
+            </mx:HBox>
+            <mx:Tree id="downloadTree"
+                     width="100%" height="100%"
+                     iconFunction="parentApplication.getTreeIcon"
+                     dataProvider="{downloadList}"
+                     borderStyle="solid" 
+                     labelFunction="{getDownloadName}"
+                     dropEnabled="true"  		                
+                     dragEnabled="true"
+                     dragMoveEnabled="true" 
+                     allowMultipleSelection="true" 
+                     dragDrop="onDragDropFile(event)"
+                     dragOver="doDragOver(event)"
+                     dragEnter="doDragEnter(event)"
+                     dragExit="doDragExit(event)"
+                     itemClick="{this.filesGrid.selectedItem = null;}">						
+            </mx:Tree>		
+          </mx:VBox>
+        </mx:HDividedBox>
+      </mx:VBox>
+    </mx:TabNavigator>
+  </mx:Canvas>
+  <mx:ControlBar width="100%">
+    <mx:ViewStack id="buttonStack" width="100%" selectedIndex="{theTab.selectedIndex}">
+      <mx:HBox width="100%">
+        <mx:ViewStack id="buttonStack_1" width="100%" selectedIndex="{uploadFilesStack.selectedIndex}">
+          <mx:HBox height="100%" width="100%">
+            <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+            <mx:Button label="Upload files" id="uploadButton"  enabled="false" visible="true" disabledIcon="@Embed(source='../../assets/upload_disable.png')" icon="@Embed(source='../../assets/upload.png')"/>	
+          </mx:HBox>				 
+          <mx:HBox height="100%" width="100%">
+            <mx:Spacer  width="100%" height="10"/>	
+            <mx:Label id="saveUUID" text="" visible="false"/>
+            <mx:Button id="fdtStartButton" label="Start" click="startFDTUpload();"  enabled="true" visible="true"/>	      	
+          </mx:HBox>		  			 
+        </mx:ViewStack>
+      </mx:HBox>
+      <mx:HBox width="100%">
+        <mx:Spacer  width="100%" height="10"/>		
+        <util:DirtyNote id="dirty"/>
+        <mx:Button label="Save" id="saveButton"  enabled="true" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')"/>	      	
+        <mx:Button label="Close" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" />	      	
+      </mx:HBox>  	
+    </mx:ViewStack>
+  </mx:ControlBar>
+  
 </mx:TitleWindow>

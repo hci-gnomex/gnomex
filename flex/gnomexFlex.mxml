@@ -1794,7 +1794,31 @@
 						return iconFolder;			
 					}
 				} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
-						return iconFolder;
+          if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+            return iconFolderDisabled;
+          } else {
+            return iconFolder;			
+          }
+				} else if (item.name() == "AnalysisDownload") {
+					if (item.hasOwnProperty("@type") && item.@type == "dir") {
+						if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+							return iconFolderDisabled;
+						} else {
+							return iconFolder;			
+						} 
+					} else {
+						return null;			
+					} 
+				} else if (item.name() == "AnalysisFileDescriptor") {
+					if (item.hasOwnProperty("@type") && item.@type == "dir") {
+						if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+							return iconFolderDisabled;
+						} else {
+							return iconFolder;			
+						} 
+					} else {
+						return null;			
+					} ;
 				} else if (item.name() == "Request" || item.name() == "RequestNode") {
 					return this.iconFlask;
 				} else if (item.name() == "Item") {

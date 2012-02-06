@@ -136,8 +136,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
     
     
-    
-    
     if (request.getParameter("analysisFilesXMLString") != null && !request.getParameter("analysisFilesXMLString").equals("")) {
       analysisFilesXMLString = request.getParameter("analysisFilesXMLString");
       if (request.getParameter("analysisFilesToDeleteXMLString") != null && !request.getParameter("analysisFilesToDeleteXMLString").equals("")) {
@@ -451,7 +449,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
             // Only delete from db if it was already present.
             if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {              
-              sess.delete(af);
+//              Set aFiles = analysis.getFiles();
               analysis.getFiles().remove(af);
             }
 
@@ -648,9 +646,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-    String createYear = formatter.format(analysis.getCreateDate());
+//    String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = getAnalysisDirectory(baseDir, analysis) + "/" + analysisFile.getFileName();    
+    String fileName = analysisFile.getBaseFilePath() + analysisFile.getQualifiedFilePath() + analysisFile.getFileName();    
 
     // Remove references of the file in TransferLog
     String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + analysis.getIdAnalysis() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
@@ -668,21 +666,25 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-    String createYear = formatter.format(analysis.getCreateDate());
+//    String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = getAnalysisDirectory(baseDir, analysis) + "/" + analysisFile.getFileName();    
-    
+    String fileName;
+    if (!analysisFile.getQualifiedFilePath().equals("") && analysisFile.getQualifiedFilePath() != null) {
+      fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/" + analysisFile.getFileName();    
+    } else {
+      fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getFileName();    
+    }
     
     File f = new File(fileName);
     if (!f.delete()) {
-      log.error("Unable to remove " + fileName + " from file system for analysis " + analysis.getNumber());
+      log.error("Unable to remove " + analysisFile.getFileName() + " from file system for analysis " + analysis.getNumber());
     }      
     
   }
   
   public static void removeAnalysisDirectoryFromFileSystem(String baseDir, Analysis analysis) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-    String createYear = formatter.format(analysis.getCreateDate());
+//    String createYear = formatter.format(analysis.getCreateDate());
     
     String dirName = getAnalysisDirectory(baseDir, analysis);
     File f = new File(dirName);

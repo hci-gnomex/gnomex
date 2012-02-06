@@ -5,6 +5,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.FileInputStream;
@@ -35,6 +36,8 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
   private String                          baseDir = null;
   private Integer                         idAnalysis = null;
   private String                          fileName = null;
+  private String                          dir = null;
+  private String                          view = "N";
   
   
   public void init() {
@@ -47,6 +50,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     baseDir = null;
     idAnalysis = null;
     fileName = null;
+    dir = null;
     
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -78,8 +82,16 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     // Get the fileName parameter
     if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
       fileName = req.getParameter("fileName");
-    } 
+    }
     
+    // Get the dir parameter
+    if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
+      dir = req.getParameter("dir");
+    } 
+    // Get the view flag
+    if (req.getParameter("view") != null && !req.getParameter("view").equals("")) {
+      view = req.getParameter("view");
+    } 
     if (idAnalysis == null || fileName == null) {
       log.error("idAnalysis and fileName required");
       
@@ -105,10 +117,14 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
-        response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
-        response.setHeader("Cache-Control", "max-age=0, must-revalidate");
-        
+        if (view.equals("Y")) {
+          String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+          response.setContentType(mimeType);
+        } else {
+          response.setContentType("application/x-download");
+          response.setHeader("Content-Disposition", "attachment;filename=" + fileName);          
+          response.setHeader("Cache-Control", "max-age=0, must-revalidate");
+        }
         
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
@@ -135,7 +151,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
         List analysisNumbers = new ArrayList<String>();
-        GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap);
+        GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap, false);
 
 
         // Find the file matching the fileName passed in as a parameter
@@ -143,14 +159,27 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         List directoryKeys   = (List)analysisMap.get(analysis.getNumber());
         for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
           String directoryKey = (String)i1.next();
+          String dirTokens[] = directoryKey.split("-");
+          
+          String theDirectory = ""; 
+          if (dirTokens.length > 1) {
+            theDirectory = dirTokens[1];
+          } 
+          
           List   theFiles     = (List)directoryMap.get(directoryKey);
           for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
             AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
-            if (fd.getFileName().endsWith(fileName)) {
-              analysisFd = fd;
+            fd.setQualifiedFilePath(theDirectory);
+            AnalysisFileDescriptor matchingFd = recurseGetMatchingFileDescriptor(fd, fileName, theDirectory);
+            if (matchingFd != null) {
+              analysisFd = matchingFd;
               break;
             }
           }
+          if (analysisFd != null) {
+            break;
+          }
+          
         }
 
         // If we found the analysis, download it
@@ -159,11 +188,13 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           
           // Insert a transfer log entry
           TransferLog xferLog = new TransferLog();
-          xferLog.setFileName(analysisFd.getFileName().substring(baseDir.length() + 5));
+          
+          xferLog.setFileName(analysisFd.getDisplayName());
+          
           xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
           xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
           xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
-          xferLog.setPerformCompression("N");
+          xferLog.setPerformCompression("Y");
           xferLog.setIdAnalysis(analysis.getIdAnalysis());
           xferLog.setIdLab(analysis.getIdLab());
           
@@ -235,6 +266,33 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
   }    
   
   
+  private AnalysisFileDescriptor recurseGetMatchingFileDescriptor(AnalysisFileDescriptor fd, String fileName, String theDirectory) {
+    // Change all backslash to forward slash for comparison
+    String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
+    if ( dir != null ) {
+      dir = dir.replace("\\", "/");
+    }
+    theDirectory = theDirectory.replace("\\", "/");
+    
+    if (fdFileName.endsWith(fileName) &&
+        (dir == null || dir.equals(theDirectory))) {
+      return fd;
+    } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
+      for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+        AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
+        
+        childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != "" ? fd.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
+        
+        AnalysisFileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath());
+        if (matchingFd != null) {
+          return matchingFd;
+        }
+      } 
+      return null;
+    } else {
+      return null;
+    }
+  }
  
  
 }

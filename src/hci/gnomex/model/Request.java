@@ -30,6 +30,7 @@ public class Request extends HibernateDetailObject {
   private Date            createDate;
   private String          protocolNumber;
   private String          codeProtocolType;
+  private Integer         idCoreFacility;
   private Integer         idLab;
   private Lab             lab;
   private Integer         idAppUser;
@@ -104,6 +105,16 @@ public class Request extends HibernateDetailObject {
     this.createDate = createDate;
   }
   
+  public Integer getIdCoreFacility()
+  {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility)
+  {
+    this.idCoreFacility = idCoreFacility;
+  }
+
   public Integer getIdAppUser() {
     return idAppUser;
   }

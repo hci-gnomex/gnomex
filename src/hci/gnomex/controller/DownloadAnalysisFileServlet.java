@@ -41,6 +41,10 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
   private AnalysisFileDescriptorParser parser = null;
   
   private ArchiveHelper archiveHelper = new ArchiveHelper();
+
+  private String serverName = "";
+  
+
   
   public void init() {
   
@@ -48,6 +52,9 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
+    
+    serverName = req.getServerName();
+
     
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -138,7 +145,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
           // Check permissions - bypass this analysis if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(analysis)) {  
-            log.error("Insufficient permissions to read request " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            log.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           

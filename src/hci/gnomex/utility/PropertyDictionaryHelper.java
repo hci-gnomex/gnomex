@@ -237,7 +237,7 @@ public class PropertyDictionaryHelper implements Serializable {
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
       if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
+        property = property + "\\";
       }
     }
 
@@ -261,7 +261,7 @@ public class PropertyDictionaryHelper implements Serializable {
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
       if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
+        property = property + "\\";
       }
     }
 	  
@@ -444,7 +444,61 @@ public class PropertyDictionaryHelper implements Serializable {
     return zipEntryName;
   }
   
-   
+  public static String parseAnalysisZipEntryName(String baseDir, String fileName) {
+    String zipEntryName = "";
+    String baseDirLastPart = "";
+    
+    String baseDirCanonicalPath = "";
+    try {
+      baseDirCanonicalPath = new File(baseDir).getCanonicalPath();
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot instantiate file for analysis dir" + baseDir);
+    }
+    
+    // Change all file separators to forward slash
+    String theFileName = fileName.replaceAll("\\\\", "/");
+    baseDirCanonicalPath = baseDirCanonicalPath.replaceAll("\\\\", "/");
+
+    String tokens[] = baseDirCanonicalPath.split("/");
+    if (tokens == null || tokens.length == 0) {
+      throw new RuntimeException("Cannot parse directory into expected last file part " + baseDirCanonicalPath);
+    }
+    baseDirLastPart = tokens[tokens.length - 2];
+    
+    // Strip off the leading part of the path, up through the year subdirectory,
+    // to leave only the path that starts with the request number subdirectory.
+    tokens = theFileName.split(baseDirLastPart, 2);
+    if (tokens == null || tokens.length < 2) {
+      throw new RuntimeException("Cannot parse file into expected parts " + theFileName);
+    }
+    String lastFilePart = tokens[tokens.length - 1];
+    
+    // Now loop through the remaining file parts, leaving off year and
+    // concatenating everything else.
+    tokens = lastFilePart.split("/");
+    if (tokens == null || tokens.length < 2) {
+      throw new RuntimeException("Cannot parse file into expected parts for year and number " + lastFilePart);
+    }  
+    int x = 0;
+    String yearPart = "";
+    for (x = 0; x < tokens.length; x++) {
+      if (tokens[x].equals("")) {
+        continue;
+      }
+      if (yearPart.equals("")) {
+        yearPart = tokens[x];
+      } else {
+        if (zipEntryName.length() > 0) {
+          zipEntryName += "/";
+        }
+        zipEntryName += tokens[x];
+      }
+    }
+
+
+    return zipEntryName;
+  }
+  
   public String parseMainFolderName(String serverName, String fileName) {
     String mainFolderName = "";
     String baseDirLastPart = "";

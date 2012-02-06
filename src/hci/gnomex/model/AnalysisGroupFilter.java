@@ -2,6 +2,8 @@ package hci.gnomex.model;
 
 
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
@@ -15,6 +17,7 @@ public class AnalysisGroupFilter extends DetailObject {
   private String                publicProjects = "N";
   private Integer               idRequest;
   private Integer               idAnalysis;
+  private List                  idAnalyses;
   private String                labKeys;
   private String                searchText;
   private String                lastWeek = "N";
@@ -72,6 +75,7 @@ public class AnalysisGroupFilter extends DetailObject {
         (publicProjects != null && publicProjects.equals("Y")) ||
         idRequest != null ||
         idAnalysis != null ||
+        (idAnalyses != null && idAnalyses.size() > 0) ||
         (labKeys != null && !labKeys.equals("")) ||
         (searchText != null && !searchText.equals("")) ||
         (lastWeek != null && lastWeek.equals("Y")) ||
@@ -164,7 +168,19 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(" a.idAnalysis =");
       queryBuf.append(idAnalysis);
     }
-    
+    // Search by analysis IDs
+    if (idAnalyses != null && idAnalyses.size() > 0) {
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idAnalysis in (");
+      for(Iterator i = idAnalyses.iterator(); i.hasNext();) {
+        Integer idAnalysis = (Integer)i.next();
+        queryBuf.append(idAnalysis);
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }
+      queryBuf.append(")");
+    }
     // Search by text
     if (searchText != null && !searchText.equals("")) {
       this.addWhereOrAnd();
@@ -328,6 +344,16 @@ public class AnalysisGroupFilter extends DetailObject {
   }
 
   
+  public List getIdAnalyses()
+  {
+    return idAnalyses;
+  }
+
+  public void setIdAnalyses(List idAnalyses)
+  {
+    this.idAnalyses = idAnalyses;
+  }
+
   public String getLabKeys() {
     return labKeys;
   }

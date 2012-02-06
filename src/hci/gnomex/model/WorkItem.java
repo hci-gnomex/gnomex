@@ -21,6 +21,7 @@ public class WorkItem extends HibernateDetailObject {
   private SequenceLane    sequenceLane;
   private FlowCellChannel flowCellChannel;
   private String          status;
+  private Integer         idCoreFacility;
   
  
   public String getCodeStepNext() {
@@ -129,5 +130,15 @@ public class WorkItem extends HibernateDetailObject {
   
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public Integer getIdCoreFacility()
+  {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility)
+  {
+    this.idCoreFacility = idCoreFacility;
   }
 }

@@ -105,7 +105,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         
         if (this.getSecAdvisor().canUpdate(request)) {
           
-          if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+//          if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+          if (request.getIsExternal()!= null || request.getIsExternal()==null) {
             parser.parse();
             
             // Add new directories to the file system
@@ -143,7 +144,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 }
 
                 // Don't try to move if the file is in the same directory
-                String td = targetDirName.replaceAll("\\\\", "_");
+                /*String td = targetDirName.replaceAll("\\\\", "_");
                 td = td.replaceAll("/", "_");
                 td = td.replaceAll("__", "_");
                 String spath = sourceFile.getAbsolutePath().replaceAll("\\\\", "_");
@@ -152,12 +153,32 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 
                 if (spath.startsWith(td)) {
                   continue;
+                }*/
+                
+                String td = targetDir.getAbsolutePath();
+                String sd = sourceFile.getAbsolutePath();
+                sd = sd.substring(0,sd.lastIndexOf(File.separator));
+                
+                if ( td.equals(sd)) {
+                  continue;
                 }
                 
-                boolean success = sourceFile.renameTo(new File(targetDir, sourceFile.getName()));
-                if (!success) {
+                File destFile = new File(targetDir, sourceFile.getName());
+                boolean success = sourceFile.renameTo(destFile);
+                /*if (!success) {
                   // File was not successfully moved
                   throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                }*/
+                if (!success) {
+                  if ( destFile.exists() ) {
+                    if ( sourceFile.exists() ) {
+                      if ( !sourceFile.delete() ) {
+                        throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                      }
+                    }
+                  } else {
+                    throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                  }
                 }
                 
               }

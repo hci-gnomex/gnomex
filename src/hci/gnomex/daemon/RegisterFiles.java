@@ -392,7 +392,7 @@ public class RegisterFiles extends TimerTask {
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List analysisNumbers = new ArrayList<String>();
-    GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap);
+    GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey("analysis"), analysisNumbers, analysisMap, directoryMap, false);
 
     
     for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {

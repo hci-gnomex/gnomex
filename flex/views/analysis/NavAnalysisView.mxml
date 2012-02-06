@@ -678,7 +678,7 @@
 				}
 			} else {
 			    theViews.selectedChild = detailView;				
-				detailView.setupForm();
+				detailView.setupForm(this.selectedAnalysis);
 				detailView.updateUploadFormAnalysisObj();
 			}
 
@@ -1161,11 +1161,11 @@
 			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:AddChild relativeTo="{searchLabel}" position="before">
-				<mx:CheckBox label="Show all analysis" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
+				<mx:CheckBox label="Show all analyses" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
 			</mx:AddChild>
 			<mx:SetStyle target="{searchLabel}" name="paddingLeft" value="12"/>
 			<mx:AddChild relativeTo="{searchLabel}" position="before">
-				<mx:CheckBox label="Show public analysis" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="10"/>
+				<mx:CheckBox label="Show public analyses" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="10"/>
 			</mx:AddChild>
 		</mx:State>
 
