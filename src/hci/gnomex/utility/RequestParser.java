@@ -221,6 +221,15 @@ public class RequestParser implements Serializable {
       request.setIdBillingAccount(new Integer(n.getAttributeValue("idBillingAccount")));      
     }
     
+    if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals(""))
+      request.setDescription(n.getAttributeValue("description"));
+    
+    if (n.getAttributeValue("analysisInstructions") != null && !n.getAttributeValue("analysisInstructions").equals(""))
+      request.setAnalysisInstructions(n.getAttributeValue("analysisInstructions"));
+    
+    if (n.getAttributeValue("corePrepInstructions") != null && !n.getAttributeValue("corePrepInstructions").equals(""))
+      request.setCorePrepInstructions(n.getAttributeValue("corePrepInstructions"));
+    
     if (n.getAttributeValue("codeProtocolType") != null && !n.getAttributeValue("codeProtocolType").equals("")) {
       request.setCodeProtocolType(n.getAttributeValue("codeProtocolType"));
     }
@@ -737,7 +746,7 @@ public class RequestParser implements Serializable {
       sequenceLaneInfo.setIdGenomeBuildAlignTo(new Integer(n.getAttributeValue("idGenomeBuildAlignTo")));
     }
     
-    sequenceLaneInfo.setAnalysisInstructions(unEscape(n.getAttributeValue("analysisInstructions")));
+    //sequenceLaneInfo.setAnalysisInstructions(unEscape(n.getAttributeValue("analysisInstructions")));
 
     //
     // workflow fields
