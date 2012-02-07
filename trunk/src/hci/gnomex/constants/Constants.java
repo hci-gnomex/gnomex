@@ -53,6 +53,9 @@ public class Constants {
   
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");
   
+  public static final String              BILLING_SPLIT_TYPE_PERCENT_CODE = "%";
+  public static final String              BILLING_SPLIT_TYPE_AMOUNT_CODE  = "$";
+  
   // DataTrack Constants
   public static final String SEQUENCE_DIR_PREFIX    = "SEQ";
 

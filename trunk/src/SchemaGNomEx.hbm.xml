@@ -196,6 +196,7 @@
 		<property name="idLab" column="idLab" type="integer"/>
     <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="notes" column="notes" type="string"/>
+	  <property name="splitType" column="splitType" type="string"/>
   </class>	
   
   <!-- hci.gnomex.model.Chromatogram -->

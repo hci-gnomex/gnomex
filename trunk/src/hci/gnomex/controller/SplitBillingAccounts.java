@@ -122,6 +122,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
                 bi.setPercentagePrice(percentage);
+                bi.setSplitType(splitType);
                 if (bi.getQty() == null) {
                   throw new Exception("Cannot split billing item " + bi.getDescription() + " because qty is blank.");
                 }
@@ -169,6 +170,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setIdPriceCategory(bi.getIdPriceCategory());
                 billingItem.setCategory(bi.getCategory());
                 billingItem.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(bi.getQty().intValue())));
+                billingItem.setSplitType(splitType);
                 
                 sess.save(billingItem);
                 itemToAdjust = billingItem;
@@ -218,7 +220,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
   private BigDecimal getComputedInvoicePrice(BillingItem bi, BigDecimal percentage, BigDecimal invoicePrice, BigDecimal totalPrice) {
     BigDecimal newInvoicePrice = bi.getInvoicePrice();
     Integer intPercent = percentage.intValue();
-    if (splitType.equals("%")) {
+    if (splitType.equals(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE)) {
       newInvoicePrice = bi.getUnitPrice().multiply(percentage.multiply(new BigDecimal(bi.getQty().intValue())));
     } else if (!invoicePrice.equals(totalPrice)) {
       double ip = (bi.getUnitPrice().doubleValue() * bi.getQty().doubleValue()) * (invoicePrice.doubleValue() / totalPrice.doubleValue());

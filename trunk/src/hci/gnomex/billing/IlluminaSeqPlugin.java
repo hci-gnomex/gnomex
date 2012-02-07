@@ -1,5 +1,6 @@
 package hci.gnomex.billing;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
@@ -119,7 +120,8 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         billingItem.setIdLab(request.getIdLab());
         billingItem.setIdPrice(price.getIdPrice());
         billingItem.setIdPriceCategory(price.getIdPriceCategory());
-        
+        billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
+
         // Hold off on saving the notes.  Need to reserve note field
         // for complete date, etc at this time.
         //billingItem.setNotes(notes);
