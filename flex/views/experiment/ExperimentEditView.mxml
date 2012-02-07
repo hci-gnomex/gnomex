@@ -777,7 +777,7 @@
 					seqSetup1View.enabled = false;
 				    seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue = null;
 					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
-					seqSetup1View.analysisInstructions.text = '';
+					//seqSetup1View.analysisInstructions.text = '';
 				}
 			}
 					
@@ -3700,7 +3700,7 @@
 				this.seqSetup1View.propagateSeqRunType();
 				this.seqSetup1View.propagateNumberSequencingCycles();
 				this.seqSetup1View.propagateGenomeBuild();
-				this.seqSetup1View.propagateAnalysisInstructions();
+				//this.seqSetup1View.propagateAnalysisInstructions();
 
 				
 			}
@@ -3939,24 +3939,6 @@
     		}
     		return show;
     	}
-    	
-     		
-
-		public function propagateAnalysisInstructions():void {
-			for each (var sample:Object in this.samples) {
-				sample.@analysisInstructions = this.analysisInstructions.text;
-			}
-			for each (var lane:Object in this.lanes) {
-				lane.@analysisInstructions = this.analysisInstructions.text;
-			}
-		}
-			
-		public function propagatePrepInstructions():void {
-			for each (var sample:Object in this.samples) {
-				sample.@prepInstructions = this.prepInstructions.text;
-			}
-				
-		}
 			
 		protected function agreeCheckbox_clickHandler(event:MouseEvent):void {
 			this.submitButton.enabled = agreeCheckbox.selected;
@@ -4147,6 +4129,9 @@
 			
 		    <experiment:TabSetupView id="setupView">		    	
 		    </experiment:TabSetupView>
+			
+			<experiment:TabExperimentDescriptView id="experimentNoteView" enabled="false">
+			</experiment:TabExperimentDescriptView>
 
 		    <experiment:TabSeqSetupView id="seqSetupView" enabled="false">		    	
 		    </experiment:TabSeqSetupView>
@@ -4494,7 +4479,7 @@
             	<experiment:TabLanesView id="lanesView">            		
             	</experiment:TabLanesView>
             </mx:AddChild>
-			<mx:AddChild relativeTo="{lanesView}" position="after">
+			<!--<mx:AddChild relativeTo="{lanesView}" position="after">
 				<mx:VBox id="instructionsView" label="Instructions">
 					
 					<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
@@ -4506,11 +4491,10 @@
 						<mx:TextArea id="analysisInstructions" width="100%" text="{request.@analysisInstructions}" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
 					</mx:HBox>
 				</mx:VBox>
-			</mx:AddChild>
+			</mx:AddChild>-->
          </mx:State>
 		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
-			<mx:RemoveChild target="{lanesView}"/>		
-			<mx:RemoveChild target="{instructionsView}"/>		
+			<mx:RemoveChild target="{lanesView}"/>			
 		</mx:State>
         <mx:State name="BaseSubmitState">
             <mx:SetStyle target="{agreeCheckbox}" name="fontStyle" value="italic"/>
