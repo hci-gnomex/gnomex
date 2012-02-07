@@ -722,6 +722,13 @@
 	 	}
 	 	
     	private function promptForRemove():void {
+			if (pendingLanesGrid.selectedItems.length != 1) {
+				Alert.show("Please choose one (and only one) pending sequence request to remove", "Remove One Item");
+				return;
+			} else if (pendingLanesGrid.selectedItem.@laneNumber == null || pendingLanesGrid.selectedItem.@laneNumber == "") {
+				Alert.show("Please choose one (and only one) pending sequence request to remove", "Remove One Item");
+				return;
+			}
     		var warningMessage:String = "Are you sure you want to remove " + pendingLanesGrid.selectedItem.@laneNumber + " from the work list?";
 			Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForRemove);
     	}
@@ -976,6 +983,7 @@
 				click="refreshWorkList();" toolTip="Refresh worklist"/>
 	    </mx:HBox>
 		<util:DirtyNote id="dirty"/>
+		<mx:Button label="Remove" id="removeButton" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="promptForRemove()"/>
 		<mx:Button label="Save" id="saveButton" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')" click="save()"/>
 	</mx:ControlBar>	
 </mx:VBox>
