@@ -8,14 +8,14 @@
 			<mx:SetProperty target="{label11}" name="text" value="(3) Do you want the sequence data to be aligned?"/>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:SetProperty target="{label11}" name="width" value="340"/>
-			<mx:SetProperty target="{label12}" name="width" value="340"/>
+			<!--<mx:SetProperty target="{label12}" name="width" value="340"/>
 			<mx:SetProperty target="{text1}" name="width" value="340"/>
 			<mx:SetProperty target="{text1}" name="text">
 				<mx:value>(5) Provide any special analysis instructions for bionformatics.</mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{label12}" name="text">
 				<mx:value>{'(4) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}</mx:value>
-			</mx:SetProperty>
+			</mx:SetProperty>-->
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
@@ -76,22 +76,7 @@
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
-       	public function propagateAnalysisInstructions():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@analysisInstructions = this.analysisInstructions.text;
-			}
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@analysisInstructions = this.analysisInstructions.text;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-		
-		 public function propagatePrepInstructions():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@prepInstructions = this.prepInstructions.text;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
+
        	public function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.numberSequencingCyclesRadioGroup.selectedValue != null) {
@@ -370,14 +355,14 @@
 						</mx:HBox>
 				</mx:VBox> 
 			</mx:HBox>
-			<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
+			<!--<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
 				<mx:Text text="{'(3) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
 				<mx:TextArea id="prepInstructions" width="100%" focusOut="this.propagatePrepInstructions()" maxChars="2000" height="100%"/>
 			</mx:HBox>
 			<mx:HBox id="analysisInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
 				<mx:Text text="(4) Provide any special analysis instructions for bionformatics." width="314"  id="text1"/>
 				<mx:TextArea id="analysisInstructions" width="100%" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
-			</mx:HBox>
+			</mx:HBox>-->
 		
 	</mx:VBox>
 </mx:Canvas>
