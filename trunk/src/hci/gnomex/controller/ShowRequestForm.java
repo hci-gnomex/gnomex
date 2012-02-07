@@ -236,6 +236,34 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             maindiv.addContent(new Element("BR"));
             maindiv.addContent(formatter.makeRequestTable());
             
+            maindiv.addContent(new Element ("BR"));
+            
+            Element experimentNote = new Element("H5");
+            experimentNote.addContent("Experiment Description");
+            maindiv.addContent(experimentNote);
+            
+            Element description = new Element("H6");
+            description.addContent(request.getDescription());
+            maindiv.addContent(description);
+            
+            Element analysisNote = new Element("H5");
+            analysisNote.addContent("Notes for Bio Informatics Core");
+            maindiv.addContent(analysisNote);
+            
+            Element analysisInstruction = new Element("H6");
+            analysisInstruction.addContent(request.getAnalysisInstructions());
+            maindiv.addContent(analysisInstruction);
+            
+            Element sequenceNote = new Element("H5");
+            sequenceNote.addContent("Notes for Sequencing Core");
+            maindiv.addContent(sequenceNote);
+            
+            Element coreInstruction = new Element("H6");
+            coreInstruction.addContent(request.getCorePrepInstructions());
+            maindiv.addContent(coreInstruction);
+            
+            
+            
             formatter.addSampleTable(maindiv, request.getSamples());
             
             if (!request.getHybridizations().isEmpty()) {
