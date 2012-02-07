@@ -1,5 +1,6 @@
 package hci.gnomex.model;
 
+import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
@@ -34,6 +35,7 @@ public class BillingItem extends HibernateDetailObject {
   private Lab            lab;
   private String         notes;
   private Date           completeDate;
+  private String         splitType;
   private Integer        idCoreFacility;
   
   public Integer getIdBillingItem() {
@@ -183,7 +185,14 @@ public class BillingItem extends HibernateDetailObject {
   public String getCompleteDateOther() {
     return this.formatDate(this.completeDate, this.DATE_OUTPUT_SLASH); 
   }
+  
+  public String getSplitType() {
+    return splitType;
+  }
 
+  public void setSplitType(String st) {
+    splitType = st;
+  }
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getBillingAccount");
