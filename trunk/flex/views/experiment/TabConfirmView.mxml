@@ -3,7 +3,7 @@
 	label="Confirm" width="100%"  
 	height="100%"    horizontalScrollPolicy="off"
 	enabled="false"
-	show="init()"> 
+	show="init()" xmlns:util="views.util.*"> 
 	<mx:states>
 		<mx:State name="BillingExceedState" >
 			<mx:AddChild relativeTo="{chargesHeaderBox}" position="lastChild">
@@ -27,6 +27,16 @@
 			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
 			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
 			<mx:SetProperty target="{textarea1}" name="height" value="78"/>
+			<mx:SetProperty target="{expDescriptBox}" name="height" value="175"/>
+			<mx:SetProperty target="{samplesGridConfirm}" name="height" value="127"/>
+			<mx:SetProperty target="{samplesConfirmContainer}" name="height" value="188"/>
+			<mx:SetProperty target="{seqNotes}" name="height" value="47"/>
+			<mx:SetProperty target="{bioNotes}" name="height" value="47"/>
+			<mx:SetProperty target="{expDescriptArea}" name="height" value="61"/>
+			<mx:SetProperty target="{seqNotes}" name="width" value="578"/>
+			<mx:SetProperty target="{bioNotes}" name="width" value="577"/>
+			<mx:SetProperty target="{vbox3}" name="height" value="77"/>
+			<mx:SetProperty target="{vbox4}" name="height" value="74"/>
 		</mx:State>
 	</mx:states>
 	
@@ -172,7 +182,7 @@
 		
 		public function getEmptyTreeIcon(item:Object):Class {
 			return null; 
-		}  
+		} 
 	]]>
 </mx:Script>
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
@@ -267,6 +277,22 @@
 					</mx:VBox>
 					
 				</mx:VBox> 
+
+			<mx:VBox width ="100%" id="expDescriptBox">
+				<mx:Label text="Experiment Description:"/>
+				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" verticalScrollPolicy="auto"/>
+				
+				<mx:HBox width="100%">
+					<mx:VBox width="50%" id="vbox3">
+						<mx:Label text ="Sequencing Core Notes:"/>
+						<util:TextAreaWorkaround width="100%" editable="false" id="seqNotes"/>
+					</mx:VBox>
+					<mx:VBox id="vbox4" width = "100%">
+						<mx:Label text="Bioinformatics Notes:"/>
+						<util:TextAreaWorkaround width="100%" editable="false"  id="bioNotes"/>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:VBox>
 			 
 			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="2">
 				<mx:Label text="{'Samples (' + parentDocument.samples.length + ')'}" id="label1" textDecoration="underline" paddingTop="10"/>
@@ -298,12 +324,13 @@
 	                      editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
 	                      visible="false"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}" />
-
+						
+						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
+						
 		                <mx:DataGridColumn id="customBarcodeColumn" headerText="Index Tag" dataField="@barcodeSequence" editable="false" visible="false"
 							width="58">
 					    </mx:DataGridColumn>
-						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
-						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
+						<!--<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>-->
 						
 					
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
@@ -320,7 +347,14 @@
 		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>
-				</mx:DataGrid>				
+				</mx:DataGrid>
+				<!--<mx:DataGrid width="100%" id="descriptionGrid"  editable="false" dataProvider="{parentDocument.samples}" 
+							 backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off"
+							 sortableColumns="false" alpha="0.8" fontSize="9" >
+					<mx:columns>
+						<mx:DataGridColumn headerText="Experiment Description" width="200" dataField="@description"/>
+					</mx:columns>
+					</mx:DataGrid>-->
 			</mx:VBox>
 			
 			<mx:VBox width="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="4">
