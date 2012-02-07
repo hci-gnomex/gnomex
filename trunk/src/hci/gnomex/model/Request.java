@@ -56,6 +56,9 @@ public class Request extends HibernateDetailObject {
   private String          isExternal;  
   private Integer         idInstitution;
   private String          name;
+  private String          description;
+  private String          corePrepInstructions;
+  private String          analysisInstructions;
   private Date            privacyExpirationDate;
   private Set             samples = new TreeSet();
   private Set             labeledSamples = new TreeSet();
@@ -83,6 +86,18 @@ public class Request extends HibernateDetailObject {
    
   public String getCodeProtocolType() {
     return codeProtocolType;
+  }
+  
+  public String getDescription() {
+    return description;
+  }
+  
+  public String getCorePrepInstructions() {
+    return corePrepInstructions;
+  }
+  
+  public String getAnalysisInstructions() {
+    return analysisInstructions;
   }
   
   public void setCodeProtocolType(String codeProtocolType) {
@@ -127,6 +142,15 @@ public class Request extends HibernateDetailObject {
     return idLab;
   }
   
+  public void setDescription(String description){
+    this.description = description;
+  }
+  public void setCorePrepInstructions(String corePrepInstructions){
+    this.corePrepInstructions = corePrepInstructions;
+  }
+  public void setAnalysisInstructions(String analysisInstructions){
+    this.analysisInstructions = analysisInstructions;
+  }
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
