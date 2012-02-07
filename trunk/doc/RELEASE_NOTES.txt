@@ -28,6 +28,8 @@
 * Changed Analysis Files set up, allowing sorting and organizing analysis files into folders.  
 * Changed Experiement File organizing so that folders are displayed properly and files are more easily moved.  
 * Change implementation of splits so that split type is stored in billing type and calculations are done when qty/unit price is changed after split.
+* On WorkFlow screen make the HiSeq the default workflow (i.e. first tab).
+* Add remove button on WorkFlow/HiSeq/Cluster Gen view.
 
 5.3.5.1(12/21/2011)
 --------------------
