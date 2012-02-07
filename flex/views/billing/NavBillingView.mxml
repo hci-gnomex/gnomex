@@ -375,6 +375,7 @@
 					" invoicePrice=''" +
 					" isDirty='Y'" +
 					" codeBillingStatus = 'PENDING'" +
+					" splitType='%'" +
 					"/>");
 			var requestNode:Object = null;
 			if ( billingItemGrid.selectedItem == null) {
@@ -938,6 +939,7 @@
        			 	 " idLab='" + dropNode.@idLab + "'" +
        			 	 " percentagePrice='1'" +
        			 	 " percentageDisplay='100%'" +
+					 " splitType='%'" +
        			 	 " notes=''" +
        			 	 " qty=''" + 
        			 	 " isDirty='Y'" +
@@ -1566,9 +1568,7 @@
 					var p:int = int(biPercent.replace("%",""));
 					var ip:Number = Number(biInvoicePrice.replace("$","").replace(",",""));
 					var tp:Number = Number(biTotalPrice.replace("$","").replace(",",""));
-					if (p == 100 && ip != tp) {
-						splitType = "$";
-					}
+					splitType = billingItem.@splitType;
 					
 					var found:Boolean = false;
 					for each(var acct:Object in billingAccountEntries) {
