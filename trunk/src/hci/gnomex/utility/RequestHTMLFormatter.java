@@ -186,15 +186,15 @@ public class RequestHTMLFormatter {
     sampleHeader.addContent("Samples");
     parentNode.addContent(sampleHeader);
     
-    // Show global instructions
-    if (prepInstructionMap.size() == 1) {
-      String globalPrepInstructions = (String)prepInstructionMap.keySet().iterator().next();
-      if (!globalPrepInstructions.equals("")) {
-        Element prepHeader = new Element("H6");
-        prepHeader.addContent(globalPrepInstructions);
-        parentNode.addContent(prepHeader);
-      }
-    }
+//    // Show global instructions
+//    if (prepInstructionMap.size() == 1) {
+//      String globalPrepInstructions = (String)prepInstructionMap.keySet().iterator().next();
+//      if (!globalPrepInstructions.equals("")) {
+//        Element prepHeader = new Element("H6");
+//        prepHeader.addContent(globalPrepInstructions);
+//        parentNode.addContent(prepHeader);
+//      }
+//    }
 
 
     Element table = new Element("TABLE");
