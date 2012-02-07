@@ -578,13 +578,17 @@
         	if (parentDocument.isSolexaState()) {
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = isComplete;
+					parentDocument.experimentNoteView.enabled = isComplete;
 				}  
 				if (parentApplication.submitInternalExperiment()) {
 					parentDocument.seqSetupView.enabled = isComplete;
+					parentDocument.experimentNoteView.enabled = isComplete;
 				} else {
 					parentDocument.samplesView.enabled = isComplete;
+					parentDocument.experimentNoteView.enabled = isComplete;
 					if (isComplete && parentApplication.submitInternalExperiment()) {
 						parentDocument.samplesView.initializeSamplesGrid();
+						parentDocument.experimentNoteView.enabled = isComplete;
 					}
 				}
     			parentDocument.enableNextButtons();
@@ -592,13 +596,17 @@
         	} else {
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = isComplete;
+					parentDocument.experimentNoteView.enabled = isComplete;
 				}        			
 				if (parentApplication.submitInternalExperiment()) {
 					parentDocument.sampleSetupView.enabled = isComplete;
+					parentDocument.experimentNoteView.enabled = isComplete;
 				} else {
 					parentDocument.samplesView.enabled = isComplete;
+					parentDocument.experimentNoteView.enabled = isComplete;
 					if (isComplete && parentApplication.submitInternalExperiment()) {
 						parentDocument.samplesView.initializeSamplesGrid();
+						parentDocument.experimentNoteView.enabled = isComplete;
 					}
 				}
     			parentDocument.enableNextButtons();
