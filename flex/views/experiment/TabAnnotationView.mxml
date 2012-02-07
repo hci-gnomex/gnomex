@@ -7,9 +7,6 @@
 			<mx:RemoveChild target="{vbox1}"/>
 		</mx:State>
 		<mx:State name="ExternalState">
-			<mx:RemoveChild target="{vbox2}"/>
-			<mx:RemoveChild target="{textarea1}"/>
-			<mx:RemoveChild target="{vbox1}"/>
 			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
 		</mx:State>
 	</mx:states>
@@ -53,24 +50,10 @@
 				
 			}
 				
-			private function propagateTreatment():void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@treatment = this.treatmentTextInput.text;
-				}
-				if (this.treatmentTextInput.text != '') {
-					parentDocument.samplesView.treatmentColumn.visible = true;
-					if (!parentDocument.isEditState()) {
-						parentDocument.confirmView.treatmentConfirmColumn.visible = true;				
-					}
-					parentDocument.request.@treatment = 'Y';
-				} else {
-					parentDocument.samplesView.treatmentColumn.visible = false;
-					if (!parentDocument.isEditState()) {
-						parentDocument.confirmView.treatmentConfirmColumn.visible = false;				
-					}
-					parentDocument.request.@treatment = 'N';
+			private function propagateDescription():void {
+				parentDocument.request.@description = expDescription.text;
+				parentDocument.confirmView.expDescriptArea.text = expDescription.text;
 					
-				}
 			}
 			
 			public function showSampleAnnotationColumn(idProperty:String, show:Boolean):void {
@@ -524,7 +507,7 @@
 					}
 				}
 				sampleAnnotationGrid.toolTip = description;
-				
+	
 			}
 			private function createAnnotationList():void {
 				properties = new XMLListCollection();
@@ -545,7 +528,7 @@
 	<mx:VBox width="100%" height="100%">
 		<mx:HBox verticalAlign="bottom"  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
 			<mx:TextArea styleName="instructionBox" width="660" wordWrap="true" height="74" visible="true" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a<br>       subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a<br>       subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a description for the Samples.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			</mx:TextArea>
 		</mx:HBox>
 		
@@ -605,11 +588,11 @@
 			</mx:VBox>
 			<mx:VBox height="100%" verticalGap="2" width="100%" id="vbox2">
 				<mx:HBox width="100%">
-					<mx:Text  htmlText="(2) Describe in general terms how the samples differ:" width="100%"/>
+					<mx:Text  htmlText="(2) Experiment Description:" width="100%"/>
 					
 				</mx:HBox>
-				<mx:HBox height="100%" width="100%" paddingLeft="10" paddingRight="30">
-					<mx:TextArea id="treatmentTextInput" focusOut="propagateTreatment()" width="100%" height="100">
+				<mx:HBox height="50%" width="100%" paddingLeft="10" paddingRight="30">
+					<mx:TextArea id="expDescription" focusOut="propagateDescription()" text="{parentDocument.request.@description}" width="100%" height="100%">
 					</mx:TextArea>
 					
 				</mx:HBox>
