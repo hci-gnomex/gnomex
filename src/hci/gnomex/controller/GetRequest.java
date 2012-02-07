@@ -228,7 +228,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
             }
           }
-          requestNode.setAttribute("analysisInstructions", analysisInstructions);
+          //requestNode.setAttribute("analysisInstructions", analysisInstructions);
 
           
           // Show sequence lanes, organized by multiplex group or flow cell channel
