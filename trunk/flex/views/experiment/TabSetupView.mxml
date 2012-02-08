@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Experiment setup" 
+<mx:Canvas label="Experiment setup"   
 	width="100%" height="100%"
 	xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
    <mx:states>
@@ -21,7 +21,6 @@
          <mx:SetProperty target="{text2}" name="htmlText">
             <mx:value>(5) Select a project folder for organizing experiments.</mx:value>
          </mx:SetProperty>
-         <mx:SetProperty target="{text6}" name="htmlText" value="(6) Name your experiment."/>
       </mx:State>
       <mx:State name="ExternalExperimentState">
          <mx:SetProperty target="{textarea1}" name="htmlText">
@@ -35,13 +34,11 @@
          <mx:SetProperty target="{label11}" name="width" value="200"/>
          <mx:SetProperty target="{text2}" name="width" value="200"/>
          <mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
-         <mx:SetProperty target="{text6}" name="htmlText" value="Experiment name"/>
          <mx:SetProperty target="{text2}" name="htmlText" value="Project folder for organizing experiments"/>
          <mx:RemoveChild target="{label1}"/>
          <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
          <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
          <mx:SetStyle target="{label1}" name="paddingTop"/>
-         <mx:SetProperty target="{text6}" name="width" value="200"/>
          <mx:AddChild relativeTo="{vbox1}" position="lastChild">	 		 
             <mx:HBox width="100%" horizontalGap="0" id="hbox1" verticalAlign="top">
                 <mx:Text text="Experiment type" width="200" id="labelApplication"/>
@@ -84,7 +81,6 @@
           <mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
           <mx:SetProperty target="{label11}" name="text" value="Experiment Platform"/>
           <mx:SetProperty target="{text2}" name="htmlText" value="Project folder for organizing experiments"/>
-          <mx:SetProperty target="{text6}" name="htmlText" value="Experiment name"/>
           <mx:RemoveChild target="{label1}"/>
           <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
           <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
@@ -115,7 +111,6 @@
           <mx:SetProperty target="{label12}" name="width" value="160"/>
           <mx:SetProperty target="{text7}" name="width" value="160"/>
           <mx:SetProperty target="{text2}" name="width" value="160"/>
-          <mx:SetProperty target="{text6}" name="width" value="160"/>
           <mx:SetProperty target="{label11}" name="width" value="160"/>	  
 		  <mx:AddChild relativeTo="{label1}" position="before">
 			  <mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
@@ -163,7 +158,6 @@
 	  	</mx:AddChild>
 	  	<mx:SetProperty target="{label12}" name="width" value="160"/>
 	  	<mx:SetProperty target="{text2}" name="width" value="160"/>
-	  	<mx:SetProperty target="{text6}" name="width" value="160"/>
 	  	<mx:SetProperty target="{label11}" name="width" value="160"/>
 	  	<mx:SetProperty target="{labelApplication}" name="width" value="160"/>
 	  	<mx:SetProperty target="{projectCombo}" name="width" value="400"/>
@@ -578,17 +572,17 @@
         	if (parentDocument.isSolexaState()) {
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = isComplete;
-					parentDocument.experimentNoteView.enabled = isComplete;
+					parentDocument.notesView.enabled = isComplete;
 				}  
 				if (parentApplication.submitInternalExperiment()) {
 					parentDocument.seqSetupView.enabled = isComplete;
-					parentDocument.experimentNoteView.enabled = isComplete;
+					parentDocument.notesView.enabled = isComplete;
 				} else {
 					parentDocument.samplesView.enabled = isComplete;
-					parentDocument.experimentNoteView.enabled = isComplete;
+					parentDocument.notesView.enabled = isComplete;
 					if (isComplete && parentApplication.submitInternalExperiment()) {
 						parentDocument.samplesView.initializeSamplesGrid();
-						parentDocument.experimentNoteView.enabled = isComplete;
+						parentDocument.notesView.enabled = isComplete;
 					}
 				}
     			parentDocument.enableNextButtons();
@@ -596,17 +590,17 @@
         	} else {
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = isComplete;
-					parentDocument.experimentNoteView.enabled = isComplete;
+					parentDocument.notesView.enabled = isComplete;
 				}        			
 				if (parentApplication.submitInternalExperiment()) {
 					parentDocument.sampleSetupView.enabled = isComplete;
-					parentDocument.experimentNoteView.enabled = isComplete;
+					parentDocument.notesView.enabled = isComplete;
 				} else {
 					parentDocument.samplesView.enabled = isComplete;
-					parentDocument.experimentNoteView.enabled = isComplete;
+					parentDocument.notesView.enabled = isComplete;
 					if (isComplete && parentApplication.submitInternalExperiment()) {
 						parentDocument.samplesView.initializeSamplesGrid();
-						parentDocument.experimentNoteView.enabled = isComplete;
+						parentDocument.notesView.enabled = isComplete;
 					}
 				}
     			parentDocument.enableNextButtons();
@@ -935,12 +929,6 @@
 					</mx:HBox>					
 				</mx:HBox>
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="hbox6">
-				<mx:Text width="200" id="text6">
-					<mx:htmlText>(5) Name your experiment.</mx:htmlText>
-				</mx:Text>
-				<mx:TextInput id="experimentName" width="400" maxChars="200"/>
-			</mx:HBox>		
 		</mx:VBox>
 
 </mx:Canvas>

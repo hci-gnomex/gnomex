@@ -113,6 +113,12 @@
 		} 
 
         public function showHideColumns():void {
+			
+			concentrationCol.visible = parentApplication.isInternalExperimentSubmission && !parentDocument.isCapSeqState();
+			
+			wellNameCol.visible = (parentDocument.currentState == 'CapSeqState' && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
+			containerTypeCol.visible = parentDocument.currentState == 'CapSeqState' ? true : false;
+			
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
@@ -130,6 +136,8 @@
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				
 				//corePrepInstructionsConfirmColumn.visible = true;
+
+				this.sampleRowNumberCol.visible = false;
 				
 				if (!parentApplication.submitInternalExperiment()) {
 					seqLibProtocolConfirmCol.visible = false;
@@ -151,8 +159,23 @@
 				//corePrepInstructionsConfirmColumn.visible = false;
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = false;
 
 
+			} else if (parentDocument.currentState == 'CapSeqState') {
+				concentrationUnitConfirmColumn.visible = false;
+				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
+				chipTypeConfirmColumn.visible = false; 
+				samplePrepMethodConfirmCol.visible = false;
+				otherSamplePrepMethodConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = true;
+				
+				
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
@@ -165,11 +188,12 @@
 				//corePrepInstructionsConfirmColumn.visible = false;
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = false;
 
 
 			}
 			// If this is a QC request, hide the annotation columns 
-			if (parentDocument.currentState == 'QCState') {
+			if (parentDocument.currentState == 'QCState' || parentDocument.isCapSeqState() ) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -202,6 +226,8 @@
 				<mx:VBox height="100%" verticalGap="0" width="180" horizontalScrollPolicy="off">
 					<mx:Label text="Project" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}" width="200" height="100%" id="text1"/>
+					<mx:Label text="Name" textDecoration="underline" height="16"/>
+					<mx:Label id="experimentName" width="200"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" id="vbox2" width="240" horizontalScrollPolicy="off">
 					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
@@ -209,7 +235,7 @@
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
 				<mx:TextArea styleName="instructionBox" width="268" wordWrap="true" id="textarea1" height="108">
-					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the â€œBackâ€� button or by clicking on a tab.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the<br>     â€œSubmitâ€� button.]]></mx:htmlText>
+					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the Back button or by clicking on a tab.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the<br>     Submit button.]]></mx:htmlText>
 				</mx:TextArea>
 			</mx:HBox>
 				<mx:VBox width="100%" verticalGap="0" id="billingContainer">
@@ -278,17 +304,17 @@
 					
 				</mx:VBox> 
 
-			<mx:VBox width ="100%" id="expDescriptBox">
-				<mx:Label text="Experiment Description:"/>
+			<mx:VBox width ="100%" id="expDescriptBox" verticalGap="0" paddingTop="6">
+				<mx:Label text="Experiment Description" textDecoration="underline"/>
 				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" verticalScrollPolicy="auto"/>
 				
-				<mx:HBox width="100%">
-					<mx:VBox width="50%" id="vbox3">
-						<mx:Label text ="Sequencing Core Notes:"/>
+				<mx:HBox width="100%" visible="{parentDocument.requestType == 'ILLUMINA'}" includeInLayout="{parentDocument.requestType == 'ILLUMINA'}">
+					<mx:VBox width="50%" id="vbox3" verticalGap="0"   paddingTop="2">
+						<mx:Label text ="Sequencing Core Notes" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false" id="seqNotes"/>
 					</mx:VBox>
-					<mx:VBox id="vbox4" width = "100%">
-						<mx:Label text="Bioinformatics Notes:"/>
+					<mx:VBox id="vbox4" width = "100%" verticalGap="0"   paddingTop="2">
+						<mx:Label text="Bioinformatics Notes:" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false"  id="bioNotes"/>
 					</mx:VBox>
 				</mx:HBox>
@@ -300,9 +326,12 @@
 					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{parentDocument.samples.length}"
 					sortableColumns="false" alpha="0.8" fontSize="9" >
 					<mx:columns>
+						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
+						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" labelFunction="parentDocument.getWellNameByColumn"/>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
 						</mx:DataGridColumn>
-						<mx:DataGridColumn id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}" headerText="Conc." width="65" dataField="@concentration"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 	                    <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber"

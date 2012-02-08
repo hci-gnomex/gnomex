@@ -290,7 +290,13 @@
 	        	    	isComplete = true;
 	        	    }
 	        	}
-        	} else {
+        	} else if (parentDocument.isCapSeqState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
+					
+					isComplete = true;
+				}
+			} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    hasOrganism() &&
@@ -580,6 +586,31 @@
 			parentDocument.samplesView.showHideColumns();
 			this.seqLibProtocolCombo.visible = samplesAlreadyPreppedCheckbox.selected; 
 		}
+		
+		private function pickContainerType():void {
+			
+			if (this.numberOfSamples.text == '') {
+				this.containerTypeRadioGroup.selectedValue = "TUBE";
+			} else {
+				var sampleCount:int = parseInt(numberOfSamples.text);
+				
+				if (sampleCount < 32) {
+					this.containerTypeRadioGroup.selectedValue = "TUBE";
+				} else {
+					this.containerTypeRadioGroup.selectedValue = "PLATE";
+				}
+				
+			} 
+			callLater(onContainerTypeChange);
+
+			
+		}
+		
+		private function onContainerTypeChange():void {
+			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
+			parentDocument.samplesView.showHideColumns();
+			parentDocument.confirmView.showHideColumns();
+		}
 	]]>
 </mx:Script>
 
@@ -840,6 +871,20 @@
              <mx:SetProperty target="{label13}" name="text">
                   <mx:value>(5) Should sequencing libraries be constructed with barcode tags for multiplexing capability?</mx:value>
              </mx:SetProperty>
+        </mx:State>
+        <mx:State name="CapSeqState">
+             <mx:RemoveChild target="{sampleOrganismContainer}"/>
+             <mx:RemoveChild target="{samplePrepContainer}"/>
+             <mx:AddChild relativeTo="{hbox6}" position="before">
+                  <mx:HBox width="100%" horizontalGap="0">
+                       <mx:Label text="(2) The samples will be delivered in what container?" width="310"  id="label0"/>
+                       <mx:RadioButtonGroup id="containerTypeRadioGroup" selectedValue="TUBE"/>
+                       <mx:RadioButton label="Tubes" click="{callLater(onContainerTypeChange)}" value="TUBE" groupName="containerTypeRadioGroup"/>
+                       <mx:RadioButton label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
+                  </mx:HBox>
+             </mx:AddChild>
+             <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+             <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
         </mx:State>
    	
    </mx:states>

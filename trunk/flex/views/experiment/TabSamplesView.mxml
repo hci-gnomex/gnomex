@@ -50,7 +50,7 @@
 		private var	sampleSheetXML:XML;
 		
 		public function uploadSampleSheet():void {
-			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(this, UploadSampleSheetView, true));
+			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
 			uploadSampleSheetWindow.init(this);
 		}
@@ -90,11 +90,11 @@
 					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
 					" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.analysisInstructions.text : '') + "'" +				
-					" prepInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.prepInstructions.text : '') + "'" +				
+					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text : '') + "'" +				
+					" prepInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text : '') + "'" +				
 					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
-					" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
+					" treatment=''"   +				
 					"/>");
 					
 				} else {
@@ -117,14 +117,14 @@
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.analysisInstructions.text : '') + "'" +				
+					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text : '') + "'" +				
 					" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '') + "'" +				
 					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
 					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
-					" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
+					" treatment=''"  +				
 					"/>");
 					
 				}
@@ -150,9 +150,32 @@
 				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 				" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '')  + "'" +				
 				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '')  + "'" +				
-				" treatment='" + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '')  + "'" +				
+				" treatment=''"  +				
 				"/>");
 			
+			} else if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
+				emptyNode = new XML("<Sample " +
+					" idSample='" + "Sample" + getNextSampleId() + "'" +
+					" name='' description='' " +
+					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +
+					" canChangeSampleType='Y'" +
+					" canChangeSampleConcentration='N'" +
+					" canChangeSampleSource='N'" +
+					" canChangeSamplePrepMethod='N'" +
+					" canChangeNumberSequencingCycles='N'" +
+					" canChangeNumberSequencingLanes='N'" + 
+					" concentration=''" +
+					" idOligoBarcode = ''" +
+					" barcodeSequence = ''" +
+					" codeConcentrationUnit='ng/ul'" + 
+					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+					" idSamplePrepMethod=''"  +				
+					" otherSamplePrepMethod=''" + 				
+					" treatment=''" +				
+					"/>");
+				
 			} else {
 				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -175,7 +198,6 @@
 				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
 				" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 				" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" 	+	
-				//" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 				"/>");
 			}
 			
@@ -302,7 +324,6 @@
 					" idOligoBarcode='" + sampleToCopy.@idOligoBarcode + "'" +		
 					" barcodeSequence='" + sampleToCopy.@barcodeSequence + "'" +		
 					" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
-					//" prepInstructions='" + sampleToCopy.@prepInstructions + "'" +		
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
@@ -501,7 +522,13 @@
 						}
 					} 
 	        		 
-        		} else {
+        		} else if (currentState == 'CapSeqState') {
+					if (isEntered(sample, "@name") &&
+						isEntered(sample, "@idSampleType")) {
+						
+						completeCount++;
+					}
+				} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
 			        	(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&		        		
@@ -604,7 +631,9 @@
 				}
     		} else if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
-    		} else {
+    		} else if (parentDocument.isCapSeqState()) {
+				parentDocument.confirmView.enabled = isComplete;
+			} else {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
     				parentDocument.visibilityView.enabled = isComplete;
     			} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
@@ -695,6 +724,11 @@
 			parentDocument.lanes.addItem(emptyNode);
 		}
 		
+		public function propagateContainerType(containerType:String):void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@containerType = containerType;
+			}
+		}
 		public function propagateOrganism(idOrganism:String):void {
 			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
@@ -826,7 +860,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-        	//corePrepInstructionsCol.visible = false;
+            this.sampleTypeCol.visible = currentState != 'CapSeqState';
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -842,10 +876,12 @@
         	this.showQCFieldsCheckBox.visible = parentDocument.isEditState() && !isExternal;
         	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0 && !isExternal;
 			
-			if(isExternal) {
+			if(isExternal || currentState == 'CapSeqState') {
 				this.showQCFieldsCheckBox.selected = false;
 				this.showSeqPrepFieldsCheckBox.selected = false;
 			}
+			
+			wellNameCol.visible = (currentState == 'CapSeqState' && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
         	
         	if (showQCFieldsCheckBox.selected || showSeqPrepFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
@@ -921,7 +957,29 @@
 				}
 				labelColumn.visible = false;
 				
-			} else {
+			} else if (currentState == 'CapSeqState') {
+				this.showQCFieldsCheckBox.visible = false;
+				this.showSeqPrepFieldsCheckBox.visible = false;
+				
+				numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
+				idSeqRunTypeCol.visible = false; 
+				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.editable = false;
+				sampleOrganismColumn.visible = false;
+				sampleOrganismColumn.editable = false;
+				samplePrepMethodCol.visible = false;
+				this.concentrationCol.visible = false;
+				
+				this.otherOrganismCol.visible = false;
+				otherSamplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+				labelColumn.visible = false;
+
+				
+			}else {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
@@ -944,7 +1002,7 @@
 			}
 			
 			// If this is a QC request, hide the annotation columns 
-			if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
+			if (currentState != null && (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState')) {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -1135,26 +1193,27 @@
     <mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
     <mx:XMLList id="barcodeList"/>
     
-	<mx:VBox width="100%" height="100%" verticalGap="2">
-	        <mx:HBox  horizontalAlign="center" paddingLeft="4" id="vbox1" width="100%" verticalAlign="middle"> 
-  			  <mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
-			</mx:HBox>
+	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" id="topBox">
+			<mx:CheckBox id="showCCNumberCheckbox" 
+						 click="toggleShowCCNumber()"  
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
+						 label="Link to BST samples using CC Number" />
+			<mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+					<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+			</mx:TextArea>
+			
+		</mx:HBox>
 			<mx:Spacer width="8"/>
 		    <mx:HBox width="100%">
-				<mx:CheckBox id="showCCNumberCheckbox" 
-							 click="toggleShowCCNumber()"  
-							 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
-							 width="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported ? 250 : 0}" 
-							 label="Link to BST samples using CC Number" />
 				<mx:HBox id="buttonsContainer">
+					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
-					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
-					<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
 					<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
+					<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
 				</mx:HBox>
 				
 			</mx:HBox>
@@ -1184,6 +1243,7 @@
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" labelFunction="parentDocument.getWellNameByColumn"/>
 					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
 					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 											   editable="true" 
@@ -1393,11 +1453,11 @@
 	<mx:states>
 		<mx:State name="SamplesEditState" >
 			<mx:RemoveChild target="{buttonsContainer}"/>
-			<mx:RemoveChild target="{vbox1}"/>
+			<mx:RemoveChild target="{topBox}"/>
 		</mx:State>
 
 		<mx:State name="SamplesAdminState">
-			<mx:RemoveChild target="{vbox1}"/>
+			<mx:RemoveChild target="{topBox}"/>
 		</mx:State>
 
 
@@ -1439,6 +1499,12 @@
 			<mx:SetProperty target="{textarea1}" name="htmlText">
 				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
 			</mx:SetProperty>
+		</mx:State>
+		<mx:State name="CapSeqState">
+			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
+			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 		</mx:State>
 
 
