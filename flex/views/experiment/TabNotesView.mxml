@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Notes" 
+		   width="100%" height="100%"
+		   xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*">
+	
+
+<mx:Script>
+	private function propagateDescript():void{
+		parentDocument.request.@description = overallDescript.text;
+		parentDocument.annotationView.expDescription.text = overallDescript.text;
+		parentDocument.confirmView.expDescriptArea.text = overallDescript.text;
+	}
+	
+	private function propagateAnalysisInstructions():void {
+ 		for each (var sample:Object in parentDocument.samples) {
+			sample.@analysisInstructions = noteToBio.text;
+		}
+		for each (var lane:Object in parentDocument.lanes) {
+			lane.@analysisInstructions = noteToBio.text;
+		} 
+		parentDocument.request.@analysisInstructions = noteToBio.text;
+		parentDocument.confirmView.bioNotes.text = noteToBio.text;
+		parentDocument.request.@analysisInstructions = noteToBio.text;
+
+	}
+	
+	private function propagatePrepInstructions():void {
+ 		for each (var sample:Object in parentDocument.samples) {
+			sample.@prepInstructions = noteToSeq.text;
+		}
+		parentDocument.confirmView.seqNotes.text = noteToSeq.text;
+		parentDocument.request.@corePrepInstructions = noteToSeq.text;
+	}
+	private function propagateName():void {
+		parentDocument.confirmView.experimentName.text = experimentName.text;
+		parentDocument.request.@name = experimentName.text;
+	}
+</mx:Script>
+	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
+		<mx:Text>
+			<mx:htmlText>(1) Name your experiment. (optional)</mx:htmlText>
+		</mx:Text>
+		<mx:TextInput id="experimentName" focusOut="propagateName()" width="400" maxChars="200"/>
+		<mx:Spacer height="10"  visible="{parentDocument.requestType == 'ILLUMINA'  ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+		<mx:Label text="(2) Provide an experiment description. (optional)"/>
+		<util:TextAreaWorkaround id="overallDescript" text="{parentDocument.request.@description}" focusOut="propagateDescript()" width="100%" height="100%"/>
+        <mx:Spacer height="10"  visible="{parentDocument.requestType == 'ILLUMINA'  ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+		<mx:Label text="(3) Enter a note for the core facility. (optional)" visible="{parentDocument.requestType == 'ILLUMINA' ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+		<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 
+				visible="{parentDocument.requestType == 'ILLUMINA'  ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}" width ="100%" height="50%"/>
+		<mx:Spacer height="10"  visible="{parentDocument.requestType == 'ILLUMINA' ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+		<mx:Label text="(4) Enter any note for the bioinformatics core regarding analysis. (optional)"  visible="{parentDocument.requestType == 'ILLUMINA' ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
+				visible="{parentDocument.requestType == 'ILLUMINA'}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"
+				focusOut="propagateAnalysisInstructions()" width ="100%" height="50%"/>
+		
+	</mx:VBox>
+
+	
+</mx:Canvas>
