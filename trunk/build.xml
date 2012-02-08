@@ -793,10 +793,11 @@
 	    <!-- Use the opensource version of the context file -->
 		<move file="${opensource.dir}/META-INF/context_opensource.xml"  tofile="${opensource.dir}/META-INF/context.xml"/> 
 
-		<!-- We only copy the gnomex/defaultroot/docs that start with blank in the file name -->	
+		<!-- We only copy the gnomex/defaultroot/docs that start with blank or example_sample_sheet in the file name -->	
 		<copy todir="${opensource.dir}/defaultroot/doc">
 	    <fileset dir="${basedir}/defaultroot/doc">
 	      <include name="**/blank*.*"/>
+		  <include name="**/example_sample_sheet*.*"/>
 	    </fileset>
 	  </copy>
 		
