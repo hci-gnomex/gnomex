@@ -17,19 +17,25 @@
 * Fixed issue with Analysis Group dropdowns when adding a new analysis.  Dropdown for other labs always showed Analysis Group values from first lab expanded
 * Fixed issue with Project dropdowns when editing an experiment.  Dropdown for other labs always showed project values from first lab expanded.
 * Added new InvoicePrice field to BillingItem to replace TotalPrice.  TotalPrice no longer used in code but will be reused when split by amount is implemented.
-  * After deploy (but before anyone uses code) run following query to make sure invoicePrice is correct
-    * update BillingItem set invoicePrice=totalPrice where invoicePrice != totalPrice or invoicePrice is Null
+* After deploy (but before anyone uses code) run following query to make sure invoicePrice is correct
+* update BillingItem set invoicePrice=totalPrice where invoicePrice != totalPrice or invoicePrice is Null
 * Rename sql files for better sorting.
+* Show totals on Usage view for downloads, uploads, and disk space.
+* Reassign transfer logs to new lab when experiment reassigned to different lab through drag-and-drop.  Now the usage data will be associated with the correct lab.
+* Show detail when gnomex admin clicks on usage chart 'activity by week'.
 * Made it so that when a user clicks "new group" the detail panel view is not displayed.  This will prevent a user from clicking "cancel" on the add new group pop-up and then creating a group through the detail panel view.  
-	*The detail panel is now only shown when a group is selected or a new group is successfully created.
-*Implemented a check on the GroupAddView that makes sure when a user is creating a new group that they are not selecting a group name that has already been created.	
+* The detail panel is now only shown when a group is selected or a new group is successfully created.
+* Implemented a check on the GroupAddView that makes sure when a user is creating a new group that they are not selecting a group name that has already been created.	
 * Change invoice so it shows any other accounts that have percentages in the request.
 * Completed implementation of split by amount.
 * Changed Analysis Files set up, allowing sorting and organizing analysis files into folders.  
 * Changed Experiement File organizing so that folders are displayed properly and files are more easily moved.  
 * Change implementation of splits so that split type is stored in billing type and calculations are done when qty/unit price is changed after split.
+* Fixed FDT download for flow cell reports
+* Fixed zip entry path for flow cell reports on normal download (got rid of extra / in path)
 * On WorkFlow screen make the HiSeq the default workflow (i.e. first tab).
 * Add remove button on WorkFlow/HiSeq/Cluster Gen view.
+* Started introducing Capillary sequencing experiment into GNomEx submit request view.
 
 5.3.5.1(12/21/2011)
 --------------------
