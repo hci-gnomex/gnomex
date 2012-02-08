@@ -59,6 +59,8 @@ public class DictionaryHelper implements Serializable {
   private final HashMap<Integer, AppUser>             appUserMap               = new HashMap<Integer, AppUser>();
   private final HashMap<Integer, Lab>                 labMap  = new HashMap<Integer, Lab>();
   private final List<Lab>                             labList = new ArrayList<Lab>();
+  
+  private boolean managedDictionariesLoaded = false;
 
   public DictionaryHelper() {    
   }
@@ -76,19 +78,81 @@ public class DictionaryHelper implements Serializable {
     theInstance = new DictionaryHelper();
     PropertyDictionaryHelper.reload(sess);
     theInstance.loadDictionaries(sess);  
+    theInstance.loadManagedDictionaries();
     return theInstance;
     
   }
   
+  private void lazyLoadManagedDictionaries(){
+    if (!managedDictionariesLoaded) {
+      loadManagedDictionaries();
+    }
+  }
+  
   
   private void loadDictionaries(Session sess)  {
+    
+    propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
+    
+    
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT p from Property as p order by p.name");
+    List properties = sess.createQuery(queryBuf.toString()).list();
+    for (Iterator i = properties.iterator(); i.hasNext();) {
+      Property prop = (Property)i.next();
+      try {
+        Hibernate.initialize(prop.getOptions());        
+      } catch (HibernateException e) {
+        System.out.println("warning - unable to initialize options on property " + prop.getIdProperty() + " " + e.toString());
+      } 
+      propertyMap.put(prop.getIdProperty(), prop);
+      propertyList.add(prop);
+    }
+    
+    List<Organism> organisms = (List<Organism>) sess.createQuery("SELECT d from Organism d order by d.binomialName").list();
+    for (Organism d : organisms) {
+      organismMap.put(d.getIdOrganism(), d);
+      organismList.add(d);
+    }
+
+    List<GenomeBuild> genomeBuilds = (List<GenomeBuild>) sess.createQuery("SELECT d from GenomeBuild d order by d.buildDate desc, d.genomeBuildName asc").list();
+    for (GenomeBuild d : genomeBuilds) {
+      Hibernate.initialize(d.getDataTrackFolders());
+      genomeBuildMap.put(d.getIdGenomeBuild(), d);
+      genomeBuildList.add(d);
+
+      List<GenomeBuild> versions = organismToGenomeBuildMap.get(d.getIdOrganism());
+      if (versions == null) {
+        versions = new ArrayList<GenomeBuild>();
+        organismToGenomeBuildMap.put(d.getIdOrganism(), versions);
+      }
+      versions.add(d);
+    }
+
+    List<Lab> labs = (List<Lab>) sess.createQuery("SELECT d from Lab d order by d.lastName, d.firstName").list();
+    for (Lab l : labs) {
+      labMap.put(l.getIdLab(), l);
+      labList.add(l);
+    }
+
+
+    
+    queryBuf = new StringBuffer();
+    queryBuf.append("SELECT au from AppUser as au ");
+    List appUsers = sess.createQuery(queryBuf.toString()).list();
+    for (Iterator i = appUsers.iterator(); i.hasNext();) {
+      AppUser appUser = (AppUser)i.next();
+      appUserMap.put(appUser.getIdAppUser(), appUser);
+      
+    }
+
+   }
+  
+  private void loadManagedDictionaries() {
     if (!ManageDictionaries.isLoaded) {
       theInstance = null;
       throw new RuntimeException("Please run ManageDictionaries command first");
     }
-    
-    propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
-    
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
@@ -148,58 +212,7 @@ public class DictionaryHelper implements Serializable {
       slideDesignMap.put(sd.getIdSlideDesign(), sd);
     }
     
-    StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT p from Property as p order by p.name");
-    List properties = sess.createQuery(queryBuf.toString()).list();
-    for (Iterator i = properties.iterator(); i.hasNext();) {
-      Property prop = (Property)i.next();
-      try {
-        Hibernate.initialize(prop.getOptions());        
-      } catch (HibernateException e) {
-        System.out.println("warning - unable to initialize options on property " + prop.getIdProperty() + " " + e.toString());
-      } 
-      propertyMap.put(prop.getIdProperty(), prop);
-      propertyList.add(prop);
-    }
-    
-    List<Organism> organisms = (List<Organism>) sess.createQuery("SELECT d from Organism d order by d.binomialName").list();
-    for (Organism d : organisms) {
-      organismMap.put(d.getIdOrganism(), d);
-      organismList.add(d);
-    }
-
-    List<GenomeBuild> genomeBuilds = (List<GenomeBuild>) sess.createQuery("SELECT d from GenomeBuild d order by d.buildDate desc, d.genomeBuildName asc").list();
-    for (GenomeBuild d : genomeBuilds) {
-      Hibernate.initialize(d.getDataTrackFolders());
-      genomeBuildMap.put(d.getIdGenomeBuild(), d);
-      genomeBuildList.add(d);
-
-      List<GenomeBuild> versions = organismToGenomeBuildMap.get(d.getIdOrganism());
-      if (versions == null) {
-        versions = new ArrayList<GenomeBuild>();
-        organismToGenomeBuildMap.put(d.getIdOrganism(), versions);
-      }
-      versions.add(d);
-    }
-
-    List<Lab> labs = (List<Lab>) sess.createQuery("SELECT d from Lab d order by d.lastName, d.firstName").list();
-    for (Lab l : labs) {
-      labMap.put(l.getIdLab(), l);
-      labList.add(l);
-    }
-
-
-    
-    queryBuf = new StringBuffer();
-    queryBuf.append("SELECT au from AppUser as au ");
-    List appUsers = sess.createQuery(queryBuf.toString()).list();
-    for (Iterator i = appUsers.iterator(); i.hasNext();) {
-      AppUser appUser = (AppUser)i.next();
-      appUserMap.put(appUser.getIdAppUser(), appUser);
-      
-    }
-
-   }
+  }
   
   public Property getPropertyDictionary(Integer idProperty) {
     return (Property)propertyDictionaryMap.get(idProperty);
@@ -210,6 +223,7 @@ public class DictionaryHelper implements Serializable {
   }
   
   public String getSampleType(Sample sample) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (sample.getIdSampleType() != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", sample.getIdSampleType().toString());
@@ -218,6 +232,7 @@ public class DictionaryHelper implements Serializable {
   }
 
   public String getSamplePrepMethod(Sample sample) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (sample.getIdSamplePrepMethod() != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SamplePrepMethod", sample.getIdSamplePrepMethod().toString());
@@ -225,6 +240,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getOrganism(Sample sample) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (sample.getIdOrganism() != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.Organism", sample.getIdOrganism().toString());
@@ -232,6 +248,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getOrganism(Integer idOrganism) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (idOrganism != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.Organism", idOrganism.toString());
@@ -239,6 +256,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getSampleSource(Integer idSampleSource) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (idSampleSource != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SampleSource", idSampleSource.toString());
@@ -246,6 +264,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getSampleType(Integer idSampleType) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (idSampleType != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
@@ -253,6 +272,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getSequencingPlatform(String codeSequencingPlatform) {
+    lazyLoadManagedDictionaries();
     String name = "";
     name = DictionaryManager.getDisplay("hci.gnomex.model.SequencingPlatform", codeSequencingPlatform);
     return name;
@@ -268,6 +288,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getSlideSource(String code) {
+    lazyLoadManagedDictionaries();
     return DictionaryManager.getDisplay("hci.gnomex.model.SlideSource", code);
   }
   public String getSlideDesignProtocolName(Integer idSlideDesign) {
@@ -282,6 +303,7 @@ public class DictionaryHelper implements Serializable {
   }
 
   public String getChipTypeName(String codeBioanalyzerChipType) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (codeBioanalyzerChipType != null && !codeBioanalyzerChipType.equals("")) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", codeBioanalyzerChipType);
@@ -289,6 +311,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getApplication(String code) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (code != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.Application", code);
@@ -297,14 +320,17 @@ public class DictionaryHelper implements Serializable {
   }
   
   public List getRequestCategoryList() {
+    lazyLoadManagedDictionaries();
     return requestCategoryList;
   }
 
   public List getSeqRunTypeList() {
+    lazyLoadManagedDictionaries();
     return seqRunTypeList;
   }
   
   public String getRequestCategory(String code) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (code != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", code);
@@ -313,9 +339,11 @@ public class DictionaryHelper implements Serializable {
   }
   
   public RequestCategory getRequestCategoryObject(String code) {
+    lazyLoadManagedDictionaries();
     return (RequestCategory)requestCategoryMap.get(code);
   }
   public String getSeqRunType(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SeqRunType", id.toString());
@@ -323,6 +351,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getNumberSequencingCycles(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.NumberSequencingCycles", id.toString());
@@ -331,6 +360,7 @@ public class DictionaryHelper implements Serializable {
   }
   
   public String getGenomeBuild(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.GenomeBuildLite", id.toString());
@@ -338,6 +368,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getLabel(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.Label", id.toString());
@@ -345,6 +376,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getAnalysisType(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.AnalysisType", id.toString());
@@ -352,6 +384,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getAnalysisProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.AnalysisProtocol", id.toString());
@@ -359,6 +392,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getLabelingProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.LabelingProtocol", id.toString());
@@ -366,6 +400,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
   public String getHybProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.HybProtocol", id.toString());
@@ -373,6 +408,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   } 
   public String getScanProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.ScanProtocol", id.toString());
@@ -380,6 +416,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }  
   public String getFeatureExtractionProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.FeatureExtractionProtocol", id.toString());
@@ -387,6 +424,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }  
   public String getSeqLibProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SeqLibProtocol", id.toString());
@@ -394,6 +432,7 @@ public class DictionaryHelper implements Serializable {
     return name;
   }   
   public SeqLibTreatment getSeqLibTreatment(Integer id) {
+    lazyLoadManagedDictionaries();
     if (id != null) {
       SeqLibTreatment t = (SeqLibTreatment)seqLibTreatmentMap.get(id);
       return t;
@@ -401,9 +440,11 @@ public class DictionaryHelper implements Serializable {
     return null;
   }   
   public Set getSeqLibTreatments() {
+    lazyLoadManagedDictionaries();
     return DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqLibTreatment");
   }
   public String getBillingStatus(String codeBillingStatus) {
+    lazyLoadManagedDictionaries();
     String billingStatus = "";
     if (codeBillingStatus != null) {
       billingStatus = DictionaryManager.getDisplay("hci.gnomex.model.BillingStatus", codeBillingStatus);
@@ -411,6 +452,7 @@ public class DictionaryHelper implements Serializable {
     return billingStatus;
   }
   public String getBillingChargeKind(String codeBillingChargeKind) {
+    lazyLoadManagedDictionaries();
     String billingChargeKind = "";
     if (codeBillingChargeKind != null) {
       billingChargeKind = DictionaryManager.getDisplay("hci.gnomex.model.BillingChargeKind", codeBillingChargeKind);
@@ -419,6 +461,7 @@ public class DictionaryHelper implements Serializable {
   }
   
   public BillingPeriod getBillingPeriod(Integer idBillingPeriod) {
+    lazyLoadManagedDictionaries();
     BillingPeriod billingPeriod = null;
     if (idBillingPeriod != null) {
       BillingPeriod bp = (BillingPeriod)billingPeriodMap.get(idBillingPeriod);
@@ -430,6 +473,7 @@ public class DictionaryHelper implements Serializable {
   }
   
   public BillingPeriod getCurrentBillingPeriod() {
+    lazyLoadManagedDictionaries();
     BillingPeriod billingPeriod = null;
     for(Iterator i = billingPeriodMap.keySet().iterator(); i.hasNext();) {
       Integer id = (Integer)i.next();
@@ -505,10 +549,12 @@ public class DictionaryHelper implements Serializable {
   }
 
   public Map getSubmissionInstructionMap() {
+    lazyLoadManagedDictionaries();
     return submissionInstructionMap;
   }
 
   public String getBarcodeSequence(Integer idOligoBarcode) {
+    lazyLoadManagedDictionaries();
     String barcodeSequence = null;
     if (idOligoBarcode != null) {
       OligoBarcode bc = (OligoBarcode)oligoBarcodeMap.get(idOligoBarcode);
