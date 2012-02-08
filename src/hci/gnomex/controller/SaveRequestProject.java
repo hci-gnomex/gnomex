@@ -2,12 +2,15 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -74,6 +77,8 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       }
       
       if (this.isValid()) {
+        reassignLabForTransferLog(sess, project, request);
+        
         request.setIdProject(idProject);       
         request.setIdLab(project.getIdLab());
 
@@ -102,7 +107,18 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
     return this;
   }
   
-  
+  private void reassignLabForTransferLog(Session sess, Project project, Request request) {
+    if (!request.getIdLab().equals(project.getIdLab())) {
+      // If an existing request has been assigned to a different lab, change
+      // the idLab on the TransferLogs.
+      String buf = "SELECT tl from TransferLog tl where idRequest = " + request.getIdRequest();
+      List transferLogs = sess.createQuery(buf).list();
+      for (Iterator i = transferLogs.iterator(); i.hasNext();) {
+        TransferLog tl = (TransferLog)i.next();
+        tl.setIdLab(project.getIdLab());
+      }
+    }
+  }
   
 
 }
