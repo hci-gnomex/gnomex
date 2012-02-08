@@ -7,15 +7,7 @@
 			</mx:SetProperty>
 			<mx:SetProperty target="{label11}" name="text" value="(3) Do you want the sequence data to be aligned?"/>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
-			<mx:SetProperty target="{label11}" name="width" value="340"/>
-			<!--<mx:SetProperty target="{label12}" name="width" value="340"/>
-			<mx:SetProperty target="{text1}" name="width" value="340"/>
-			<mx:SetProperty target="{text1}" name="text">
-				<mx:value>(5) Provide any special analysis instructions for bionformatics.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{label12}" name="text">
-				<mx:value>{'(4) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}</mx:value>
-			</mx:SetProperty>-->
+			<mx:SetProperty target="{label11}" name="width" value="340"/>			
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
@@ -24,7 +16,6 @@
 					</mx:NumericStepper>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetStyle target="{hbox1}" name="verticalAlign" value="bottom"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
