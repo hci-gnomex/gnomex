@@ -74,17 +74,17 @@ try {
 
 
 
-<div class="header-bar" >
-  <div class="left"><h1>GNomEx</h1></div>
-  <div class="rightMenu" >
-      <a href="gnomexFlex.jsp">Login</a> | 
-      <a href="change_password.jsp">Change password</a> |    
-      <a href="reset_password.jsp">Reset password</a> |    
-      <a href="register_user.jsp">Create a new account</a> 
-  </div>
-</div>
 
 <div id="content" align="center" bgcolor="white">
+
+    <div class="header-bar" >
+      <div class="rightMenu" >
+          <a href="gnomexFlex.jsp">Login</a> | 
+          <a href="change_password.jsp">Change password</a> |    
+          <a href="reset_password.jsp">Reset password</a> |    
+          <a href="register_user.jsp">Create a new account</a> 
+      </div>
+    </div>
 
     <form name="theform" method="POST" action="PublicSaveSelfRegisteredAppUser.gx" >
 
@@ -92,25 +92,25 @@ try {
     <h3>Create a new Account</h3>
 
       <div class="col1"><div class="right">First name</div></div>
-      <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName" value="${param.firstName}"  ></div>
+      <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName"   ></div>
 
       <div class="col1"><div class="right">Last name</div></div>
-      <div class="col2"><input type="text" class="textWide" name="lastName" value="${param.lastName}" /></div>
+      <div class="col2"><input type="text" class="textWide" name="lastName"  /></div>
 
       <div class="col1"><div class="right">Email</div></div>
-      <div class="col2"><input type="text" class="textWide"   name="email" value="${param.email}" /></div>
+      <div class="col2"><input type="text" class="textWide"   name="email"  /></div>
 
       <div class="col1"><div class="right">Phone</div></div>
-      <div class="col2"><input type="text" class="textWide" name="phone" value="${param.phone}" /></div>
+      <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
 
       <div class="col1"><div class="right">Lab</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="lab" value="${param.lab}" /></div>
+      <div class="col2"><input type="text" class="textWide"  name="lab"  /></div>
 
       <div class="col1"><div class="right">Institute</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="institute" value="${param.institute}"/></div>
+      <div class="col2"><input type="text" class="textWide"  name="institute" /></div>
 
       <div class="col1"><div class="right">Department</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="department" value="${param.department}"/></div>
+      <div class="col2"><input type="text" class="textWide"  name="department" /></div>
 
 <% if (showUserNameChoice) { %>
     <div class="left">
@@ -123,10 +123,10 @@ try {
     
 
       <div id="univUserNameArea1" style="display:none;" class="col1"><div class="right">University ID</div></div>
-      <div id="univUserNameArea2" style="display:none;" class="col2"><input type="text" class="text" name="uNID" value="${param.uNID}" ></div>
+      <div id="univUserNameArea2" style="display:none;" class="col2"><input type="text" class="text" name="uNID"  ></div>
 
       <div id="externalUserNameArea1" style="<%= externalUserDisplay%>" class="col1"><div class="right">User name</div></div>
-      <div id="externalUserNameArea2" style="<%= externalUserDisplay%>" class="col2"><input type="text" class="text" name="userNameExternal" value="${param.userNameExternal}" ></div>
+      <div id="externalUserNameArea2" style="<%= externalUserDisplay%>" class="col2"><input type="text" class="text" name="userNameExternal"  ></div>
 
     
       <div id="externalPasswordArea1" style="<%= externalUserDisplay%>" class="col1"><div class="right">Password</div></div>

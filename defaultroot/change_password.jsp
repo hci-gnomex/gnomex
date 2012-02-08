@@ -47,9 +47,12 @@ try {
 
 
 
+
+<div id="content" align="center" bgcolor="white">
+
+
 <div class="header-bar" >
-  <div class="left"><h1>GNomEx</h1></div>
-  <div class="rightMenu" >
+   <div class="rightMenu" >
       <a href="gnomexFlex.jsp">Login</a> |    
       <a href="change_password.jsp">Change password</a> |    
       <a href="reset_password.jsp">Reset password</a> |    
@@ -57,7 +60,6 @@ try {
   </div>
 </div>
 
-<div id="content" align="center" bgcolor="white">
 
     <form id="theform" method="POST" action="ChangePassword.gx" >
 
@@ -81,11 +83,7 @@ try {
 
 <% if (showCampusInfoLink) { %>
 <div class="bottomPanel">
-
-  <div class="leftInfo">If you have registered using your uNID (u00000000), your</div>
-  <div class="left">password is tied to the University Campus Information </div>
-  <div class="left">System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a></div>
-  <div class="left">to change or reset your password.</div>
+If you have registered using your uNID (u00000000), your password is tied to the University Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.
 </div>
 <% }  %>
 

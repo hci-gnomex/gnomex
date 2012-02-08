@@ -30,8 +30,9 @@ session.invalidate();
 
 <body>
 
+
+<div id="content" align="center" bgcolor="white">
 <div class="header-bar" >
-  <div class="left"><h1>GNomEx</h1></div>
   <div class="rightMenu" >
       <a href="gnomexFlex.jsp">Login</a> |    
       <a href="change_password.jsp">Change password</a> |    
@@ -39,8 +40,6 @@ session.invalidate();
       <a href="register_user.jsp">Create a new account</a> 
   </div>
 </div>
-
-<div id="content" align="center" bgcolor="white">
  <div class="containerMessage">
     <h3>Your password has been changed.</h3>
  </div> 

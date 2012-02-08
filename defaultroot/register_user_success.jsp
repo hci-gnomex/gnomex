@@ -26,8 +26,10 @@ session.invalidate();
 
 <body>
 
+
+
+<div id="content" align="center" bgcolor="white">
 <div class="header-bar" >
-  <div class="left"><h1>GNomEx</h1></div>
   <div class="rightMenu" >
       <a href="gnomexFlex.jsp">Login</a>  | 
       <a href="change_password.jsp">Change password</a> |    
@@ -36,7 +38,6 @@ session.invalidate();
   </div>
 </div>
 
-<div id="content" align="center" bgcolor="white">
  <div class="containerMessage">
     <h3>Account Registered.</h3>
     Your account has been created.  Please check your email for additional information.
