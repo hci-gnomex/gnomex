@@ -16,6 +16,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,6 +70,19 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
   Calendar today = Calendar.getInstance();
   
+  public static final String SUMMARY_DAYS_SINCE_LAST_UPLOAD = "SummaryDaysSinceLastUpload";
+  public static final String SUMMARY_UPLOADS_BY_LAB = "SummaryUploadsByLab";
+  public static final String SUMMARY_DISK_SPACE_BY_LAB = "SummaryDiskSpaceByLab";
+  public static final String SUMMARY_DISK_SPACE_BY_YEAR = "SummaryDiskSpaceByYear";
+  public static final String SUMMARY_DISK_SPACE_BY_TYPE = "SummaryDiskSpaceByType";
+  public static final String SUMMARY_DOWNLOADS_BY_LAB = "SummaryDownloadsByLab";
+  public static final String SUMMARY_EXPERIMENTS_BY_LAB = "SummaryExperimentsByLab";
+  public static final String SUMMARY_ANALYSIS_BY_LAB = "SummaryAnalysisByLab";
+  public static final String SUMMARY_ACTIVITY_BY_WEEK = "SummaryActivityByWeek";
+  public static final String SUMMARY_EXPERIMENTS_BY_TYPE = "SummaryExperimentsByType";
+  public static final String SUMMARY_SEQ_EXPERIMENTS_BY_APP = "SummarySeqExperimentsByApp";
+  public static final String SUMMARY_ANALYSIS_BY_TYPE = "SummaryAnalysisByType";
+  
   public void validate() {
   }
   
@@ -93,41 +107,41 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     try {
       Document doc = new Document(new Element("UsageData"));
       
-      Element summaryDaysNode = new Element("SummaryDaysSinceLastUpload");
+      Element summaryDaysNode = new Element(SUMMARY_DAYS_SINCE_LAST_UPLOAD);
       doc.getRootElement().addContent(summaryDaysNode);
 
-      Element summaryUploadsNode = new Element("SummaryUploadsByLab");
+      Element summaryUploadsNode = new Element(SUMMARY_UPLOADS_BY_LAB);
       doc.getRootElement().addContent(summaryUploadsNode);
       
-      Element summaryDiskSpaceNode = new Element("SummaryDiskSpaceByLab");
+      Element summaryDiskSpaceNode = new Element(SUMMARY_DISK_SPACE_BY_LAB);
       doc.getRootElement().addContent(summaryDiskSpaceNode);
       
-      Element summaryDiskSpaceByYearNode = new Element("SummaryDiskSpaceByYear");
+      Element summaryDiskSpaceByYearNode = new Element(SUMMARY_DISK_SPACE_BY_YEAR);
       doc.getRootElement().addContent(summaryDiskSpaceByYearNode);
 
       
-      Element summaryDiskSpaceByTypeNode = new Element("SummaryDiskSpaceByType");
+      Element summaryDiskSpaceByTypeNode = new Element(SUMMARY_DISK_SPACE_BY_TYPE);
       doc.getRootElement().addContent(summaryDiskSpaceByTypeNode);
       
-      Element summaryDownloadsNode = new Element("SummaryDownloadsByLab");
+      Element summaryDownloadsNode = new Element(SUMMARY_DOWNLOADS_BY_LAB);
       doc.getRootElement().addContent(summaryDownloadsNode);
 
-      Element summaryExperimentsNode = new Element("SummaryExperimentsByLab");
+      Element summaryExperimentsNode = new Element(SUMMARY_EXPERIMENTS_BY_LAB);
       doc.getRootElement().addContent(summaryExperimentsNode);
 
-      Element summaryAnalysisNode = new Element("SummaryAnalysisByLab");
+      Element summaryAnalysisNode = new Element(SUMMARY_ANALYSIS_BY_LAB);
       doc.getRootElement().addContent(summaryAnalysisNode);
 
-      Element summaryWeeklyActivityNode = new Element("SummaryActivityByWeek");
+      Element summaryWeeklyActivityNode = new Element(SUMMARY_ACTIVITY_BY_WEEK);
       doc.getRootElement().addContent(summaryWeeklyActivityNode);
       
-      Element summaryExperimentsByTypeNode = new Element("SummaryExperimentsByType");
+      Element summaryExperimentsByTypeNode = new Element(SUMMARY_EXPERIMENTS_BY_TYPE);
       doc.getRootElement().addContent(summaryExperimentsByTypeNode);
       
-      Element summarySeqExperimentsByAppNode = new Element("SummarySeqExperimentsByApp");
+      Element summarySeqExperimentsByAppNode = new Element(SUMMARY_SEQ_EXPERIMENTS_BY_APP);
       doc.getRootElement().addContent(summarySeqExperimentsByAppNode);
       
-      Element summaryAnalysisByTypeNode = new Element("SummaryAnalysisByType");
+      Element summaryAnalysisByTypeNode = new Element(SUMMARY_ANALYSIS_BY_TYPE);
       doc.getRootElement().addContent(summaryAnalysisByTypeNode);     
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
@@ -198,6 +212,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           ActivityInfo ai = new ActivityInfo();
           ai.label    = dfShort.format(now.getTime());
           ai.dataTip  = "Week of " + dfDataTip.format(now.getTime());
+          ai.startDate = now.getTime();
+          
           
           weeklyActivityMap.put(Integer.valueOf(week), ai);
           
@@ -217,24 +233,33 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         int totalCount = 0;
         List summaryRows = sess.createQuery("SELECT r.idLab, count(*) from Request r group by r.idLab order by count(*) desc").list();
         addEntryIntegerNodes(summaryExperimentsNode, summaryRows, "experimentCount", true);
+        Integer totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r ").uniqueResult();
+        summaryExperimentsNode.setAttribute("experimentCount", totalExperiments.toString());
+     
         
         // Get analysis count
         rank = 0;
         totalCount = 0;
         summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
         addEntryIntegerNodes(summaryAnalysisNode, summaryRows, "analysisCount", true);
+        Integer totalAnalysisCount = (Integer)sess.createQuery("SELECT count(*) from Analysis r ").uniqueResult();
+        summaryAnalysisNode.setAttribute("analysisCount", totalAnalysisCount.toString());
         
         
         // Get upload count
         rank = 0;
         summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
         addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
+        Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(*) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
+        summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
 
         
         // Get download count
         rank = 0;
         summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'download' group by tl.idLab order by count(*) desc").list();
         addEntryIntegerNodes(summaryDownloadsNode, summaryRows, "downloadCount", true);
+        Integer totalDownloadCount = (Integer)sess.createQuery("SELECT count(*) from TransferLog tl where tl.transferType = 'download'").uniqueResult();
+        summaryDownloadsNode.setAttribute("downloadCount", totalDownloadCount.toString());
         
 
         //
@@ -249,6 +274,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         mapDiskSpace(summaryRows, diskSpaceMap);
         addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true);
 
+        BigDecimal totalExperimentDiskSpace = (BigDecimal)sess.createQuery("SELECT  sum(ef.fileSize) from Request r join r.files as ef  ").uniqueResult();
+        BigDecimal totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
+        BigDecimal totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace) : new BigDecimal(0);
+        
+        summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+        summaryDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+        summaryDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+
  
         //
         // Get disk space by year
@@ -259,6 +292,11 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  group by year(a.createDate) ").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false);
+        
+        summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace != null ? totalDiskSpace.toString() : "0");      
+        summaryDiskSpaceByYearNode.setAttribute("diskSpaceMB", totalDiskSpace != null ? totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
+        summaryDiskSpaceByYearNode.setAttribute("diskSpaceGB", totalDiskSpace != null ? totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
+
         
         //
         // Get disk space by analysis vs. experiment
@@ -277,6 +315,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
         diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
         addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
+
+        summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
         
         
         
@@ -301,7 +343,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         queryBuf.append(" order by count(*) desc ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
-        
+        summaryExperimentsByTypeNode.setAttribute("experimentCount", totalExperiments.toString());
         
         //
         // Get # of next gen seq experiments by application
@@ -317,6 +359,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         rank = 0;
         totalCount = 0;
         addEntryIntegerNodes(summarySeqExperimentsByAppNode, summaryRows, "experimentCount", false);
+        summarySeqExperimentsByAppNode.setAttribute("experimentCount", totalExperiments.toString());
 
 
         
@@ -330,6 +373,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         queryBuf.append(" order by count(*) desc ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         addEntryIntegerNodes(summaryAnalysisByTypeNode, summaryRows, "analysisCount", false);
+        summaryAnalysisByTypeNode.setAttribute("analysisCount", totalAnalysisCount.toString());
         
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
@@ -465,6 +509,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
       entryNode.setAttribute("uploadCount", Integer.valueOf(ai.uploadCount).toString());
       entryNode.setAttribute("downloadCount", Integer.valueOf(ai.downloadCount).toString());
+      entryNode.setAttribute("startDate", dfNormal.format(ai.startDate));
       
       prevLabel = ai.label;
       weekCounter++;
@@ -509,7 +554,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         break;
       }
     }
-    parentNode.setAttribute(dataField,   Integer.valueOf(total).toString());      
+    
 
   }
   
@@ -599,9 +644,6 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         break;
       }
     }
-    parentNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-    parentNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-    parentNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
     
   }
 
@@ -717,12 +759,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
   static class ActivityInfo implements Serializable {
     private String label = "";
+    private Date startDate = null;
     private String dataTip;
     private int daysSinceLastUpload = -1;
     private int uploadCount = 0;
     private int downloadCount = 0;
-    private int experimentCount = 0;;
+    private int experimentCount = 0;
     private int analysisCount = 0;
+    
     
   }
 
