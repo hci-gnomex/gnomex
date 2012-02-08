@@ -1,27 +1,27 @@
 html {
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  }
+  font-size:14px;font-weight:normal;font-family:Helvetica,"Helvetica Neue","Microsoft Sans Serif",Arial;color:#FFFFFF;}
+}
+
 
 h1 {
-  color: white;
   font-weight: normal;
-  font-size: 18pt;
+  font-size: 24pt;
   margin-top: 10px;
 }
 
 h3 {
   font-weight: bold;
   font-size: 11pt;
+  color: #696969;
   padding-bottom: 5px;
   margin-bottom: 5px;
   padding-top: 0px;
   margin-top: 0px;}
 
 a {
-  color: #ffffff;
+  color: #FFFFFF;
   padding: 10px;
-  font-size: 10pt;
+  font-size: 11pt;
   text-decoration: none;
   }
 a:active {
@@ -45,45 +45,44 @@ a.other {
 }
 
 .header-bar {
-  height: 70px;
-  width: 100%;
-  border: none;
-  overflow: hidden;
-  padding-left: 10px;
-  padding-top: 0px;
-  margin-top: 0px;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  float: center;
+  width: 913px;
+  height: 82px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   background: transparent url(../assets/navbar_wide.png) no-repeat;}
 
 
 .box {
   background-color: #ececd9;
-  border: none;
   overflow: auto;
   padding: 10px;
-  width: 310px;
+  width: 320px;
   float: center;
+  color: #696969;
+  border: 1px solid #8B8970;
 }
 
 
 .boxMedium {
   background-color: #ececd9;
-  border: none;
+  border: 1px solid #8B8970;
   overflow: auto;
   padding: 10px;
-  width: 405px;
+  width: 410px;
   float: center;
+color: #696969;
 }
 
 
 .boxWide {
-  background-color: #ececd9;
-  border: none;
+  background-color: #ececd9;  
+  border: 1px solid #8B8970;
   overflow: auto;
   padding: 10px;
   width: 435px;
   float: center;
+color: #696969;
 }
 
 .col1 {
@@ -110,34 +109,39 @@ a.other {
   float:left;
   padding-top: 2px;
   margin-top: 2px;
+  padding-right: 10px;
+  margin-right: 10px;
 }
 
 .bottomPanel {
   float: bottom;
   clear: both;
+  font-size: 11pt;
+  padding-top: 10px;
+  margin-top: 10px;
 }
 
 .buttonPanel {
   float: right;
   padding-top: 7px;
   margin-top: 7px;
-  padding-right: 2px;
-  margin-right: 2px;
+  padding-right: 20px;
 }
 
 input.submit {
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size: 10pt;
+  font-size: 11pt;
+  color: #696969;
   width: 70px;
-  height: 30px;
+  height: 34px;
+  vertical-align: middle;
 }  
 
 input.text {
     height: 23px;
     float: left;
     font-size: 10pt;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    width: 185;
+    color: #696969;
+    width: 185;  
 }
 
 
@@ -147,15 +151,14 @@ input.text.textWide {
    width: 280px;
     height: 23px;
     font-size: 10pt;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: #696969;
 }
 
 .textWide {
   float: left;
-   width: 280px;
-    height: 23px;
-    font-size: 10pt;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
+  width: 280px;
+  height: 23px;
+  font-size: 10pt;
 }
 
 
@@ -201,11 +204,12 @@ div.rightMenu {
   height: 100px;
   float: center;
   clear: left;
-  border: none;
   background-color: #ececd9;
-  padding-top: 10px;
-  margin-top: 10px;
+  padding-top: 16px;
+  margin-top: 16px;
   padding-bottom: 0px;
+  color: #696969;
+  border: 1px solid #8B8970;
 }
 
 .message {

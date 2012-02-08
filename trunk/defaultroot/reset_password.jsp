@@ -48,25 +48,27 @@ try {
 
 
 
-<div class="header-bar" >
-  <div class="left"><h1>GNomEx</h1></div>
-  <div class="rightMenu" >
-      <a href="gnomexFlex.jsp">Login</a> |    
-      <a href="change_password.jsp">Change password</a> |    
-      <a href="reset_password.jsp">Reset password</a> |    
-      <a href="register_user.jsp">Create a new account</a> 
-  </div>
-</div>
+
 
 <div id="content" align="center" bgcolor="white">
 
-    <form id="theform" method="POST" action="ChangePassword.gx" >
+  <div class="header-bar" >
+    <div class="rightMenu" >
+        <a href="gnomexFlex.jsp">Login</a> |    
+        <a href="change_password.jsp">Change password</a> |    
+        <a href="reset_password.jsp">Reset password</a> |    
+        <a href="register_user.jsp">Create a new account</a> 
+    </div>
+  </div>
 
-  <div class="boxMedium">
+  <form id="theform" method="POST" action="ChangePassword.gx" >
+
+  <div class="box">
     <h3>Reset Password</h3>
 
-      <div class="col1Wide"><div class="right">User name</div></div>
-      <div class="col2"><div class="right"><input id="username" type="text" class="text"  name="userName"  value="${param.userName}" /></div></div>
+      <div class="col1"><div class="right">User name</div></div>
+      <div class="col2"><input id="username" name="userName" type="text" class="text"/></div>
+
 
 
       <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
@@ -74,11 +76,9 @@ try {
 <% if (showCampusInfoLink) { %>
 <div class="bottomPanel">
 
-  <div class="leftInfo">If you have registered using your uNID (u00000000), your</div>
-  <div class="left">password is tied to the University Campus Information </div>
-  <div class="left">System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a></div>
-  <div class="left">to change or reset your password.</div>
+If you have registered using your uNID (u00000000), your password is tied to the Univ Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.
 </div>
+
 <% }  %>
       
   </div>
