@@ -662,7 +662,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
         canUpdate = true;
       }
-      // Univerity GNomEx users
+      // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         Request req = (Request)object;
         
