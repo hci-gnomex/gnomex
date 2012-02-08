@@ -706,12 +706,18 @@ public class DataTrackQuery implements Serializable {
 		
     // Now set the folderCount for each dataTrack
     for (Object[] row : folderCountRows) {
-      Integer idDataTrack                = (Integer) row[0];
-      Integer folderCount                = (Integer) row[1];
+      Integer idDataTrack               = (Integer) row[0];
+      Object folderCount                = row[1];
       
       DataTrack dataTrack = dataTrackMap.get(idDataTrack);
       if (dataTrack != null) {
-        dataTrack.setFolderCount(folderCount);
+        if (folderCount instanceof Long) {
+          dataTrack.setFolderCount((Long)folderCount);          
+        } else if (folderCount instanceof Integer) {
+          dataTrack.setFolderCount((Integer)folderCount);
+        } else {
+          throw new RuntimeException("Folder count not an expected data type (Long or Integer)");
+        }
       }
     }
 		
