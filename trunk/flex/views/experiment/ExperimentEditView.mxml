@@ -2861,7 +2861,7 @@
 				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;				
 			}
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
-			request.@name = experimentName.text;
+			request.@name = notesView.experimentName.text;
 
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
@@ -4419,9 +4419,6 @@
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
 				<mx:Spacer width="8"/>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
-				<mx:TextInput id="experimentName" width="100%" text="{request.@name}" change="{this.dirty.setDirty()}"  />
-			</mx:AddChild>
     		<mx:AddChild relativeTo="{hbox7}" position="lastChild" >
     			<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
     		</mx:AddChild>
@@ -4521,19 +4518,6 @@
             	<experiment:TabLanesView id="lanesView">            		
             	</experiment:TabLanesView>
             </mx:AddChild>
-			<!--<mx:AddChild relativeTo="{lanesView}" position="after">
-				<mx:VBox id="instructionsView" label="Instructions">
-					
-					<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
-						<mx:Text text="{'Sample prep instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
-						<mx:TextArea id="prepInstructions" width="100%" text="{request.@corePrepInstructions}" focusOut="this.propagatePrepInstructions()" maxChars="2000" height="100%"/>
-					</mx:HBox>
-					<mx:HBox id="analysisInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
-						<mx:Text text="Analysis instructions for bionformatics." width="314"  id="text1"/>
-						<mx:TextArea id="analysisInstructions" width="100%" text="{request.@analysisInstructions}" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
-					</mx:HBox>
-				</mx:VBox>
-			</mx:AddChild>-->
          </mx:State>
 		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
 			<mx:RemoveChild target="{lanesView}"/>			
@@ -4642,6 +4626,7 @@
             </mx:AddChild>
 			<mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
             <mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{notesView}"/>
             <mx:SetProperty target="{titleLabel}" name="text" value="Add services to existing experiment "/>
 			
         </mx:State>

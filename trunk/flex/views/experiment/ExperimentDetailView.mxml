@@ -853,12 +853,12 @@
 			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0" change="tabChangeHandler(event)">
 					<mx:VBox id="notesTab" label="Notes" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 						<mx:Label text="Experiment Name"/>
-						<mx:TextInput text="{this.selectedExperiment.@name}"/>
+						<mx:TextInput text="{this.selectedExperiment.@name}" editable="false"/>
 						<mx:Spacer height="4"/>
 						<mx:Label text="Description"/>
 						<util:TextAreaWorkaround id="overallDescript" editable="false" text="{this.selectedExperiment.@description}" width="100%" height="100%"/>
 						<mx:Spacer height="4" visible="{currentState == 'SolexaState'}"  includeInLayout="{currentState == 'SolexaState'}"/>
-						<mx:HBox width="100%" height="100%"  visible="{currentState == 'SolexaState'}"  includeInLayout="{currentState == 'SolexaState'}">
+						<mx:HBox width="100%" height="100%"  visible="{currentState == 'SolexaState' || currentState == 'ExternalSeqState'}"  includeInLayout="{currentState == 'SolexaState' || currentState == 'ExternalSeqState'}">
 		  					<mx:VBox verticalGap="0" width="100%" height="100%">
 	  							<mx:Label text="Sequencing Core Notes" />
 								<util:TextAreaWorkaround id="noteToSeq" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
