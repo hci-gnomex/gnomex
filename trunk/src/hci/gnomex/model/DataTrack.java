@@ -177,6 +177,9 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   public Integer getFolderCount() {
     return folderCount;
   }
+  public void setFolderCount(Long folderCount) {
+    this.folderCount = Integer.valueOf(folderCount.intValue());
+  }
   public void setFolderCount(Integer folderCount) {
     this.folderCount = folderCount;
   }
@@ -584,7 +587,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 			//one file return file
 			if (files.size() == 1){
 			  File file = files.get(0);
-			  filePath = file.getAbsolutePath() + "/" + file.getName();
+			  filePath = file.getAbsolutePath();
 			}
 			//multiple files, might contain a useq file with URL link files (xxx.bw, xxx.bb) that should be skipped or bam and it's associated bai index file
 			else {
@@ -592,12 +595,12 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 					String fileName = f.getName();
 					//bam?
 					if (fileName.endsWith("bam")) {
-						filePath = f.getAbsolutePath() + "/" + fileName;
+						filePath = f.getAbsolutePath();
 						break;
 					}
 					//useq?
 					else if (fileName.endsWith(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) {
-						filePath = f.getAbsolutePath() + "/" + fileName;
+						filePath = f.getAbsolutePath();
 						break;
 					}
 				}
