@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="730" height="386" 
+	layout="vertical" width="738" height="406" 
 	creationPolicy="all"
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
@@ -12,17 +12,26 @@
 		<mx:ViewStack id="vsMain" width="100%" height="100%">
 			<mx:Canvas id="intro" width="100%" height="100%">
 				<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
-					<mx:Text width="100%" height="185">
+					<mx:Text width="100%" height="74">
 						<mx:text><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
 							
   1. Create a spreadsheet containing the columns you wish to populate. You do not need to include all of the columns on the sample view grid - just those to be filled in.
-							
-  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
-
-  3. The columns are of varying data types. It is your responsibility to insure that each column of the spreadsheet is formated in accordance with the applicable field type.
 ]]></mx:text>
 					</mx:Text>
-					<mx:LinkButton textDecoration="underline"  label="(Click here for information on data type formats)" click="PopUpManager.centerPopUp(SampleSheetColumnFormats(PopUpManager.createPopUp(this, SampleSheetColumnFormats, true)))"   color="#0000FF" height="31"/>
+					<mx:HBox width="100%" horizontalAlign="center">
+    					<mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}" label="Example sample sheet for plate" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.txt')}"   color="#0000FF" height="31"/>
+					    <mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}" label="Example sample sheet for tubes" click="{downloadSampleSheetExample('example_sample_sheet_tubes.txt')}"   color="#0000FF" height="31"/>
+					    <mx:LinkButton textDecoration="underline" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}" label="Example sample sheet" click="{downloadSampleSheetExample('example_sample_sheet.txt')}"   color="#0000FF" height="31"/>
+					</mx:HBox>
+					
+					<mx:Text width="100%" height="100">
+						<mx:text><![CDATA[  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
+							
+  3. The columns are of varying data types. It is your responsibility to insure that each column of the spreadsheet is formated in accordance with the applicable field type.
+						]]></mx:text>
+					</mx:Text>
+					<mx:LinkButton textDecoration="underline"  label="(Field formats)" click="PopUpManager.centerPopUp(SampleSheetColumnFormats(PopUpManager.createPopUp(this, SampleSheetColumnFormats, true)))"   color="#0000FF" height="31"/>
+						
 					<mx:Text width="100%" height="36">
 						<mx:text><![CDATA[  4. Once you have completed the spreadsheet it must be saved as a tab delimited text file. When the file is ready, click “Select File to Upload."]]></mx:text>
 					</mx:Text>
@@ -102,13 +111,18 @@
 			private var docTypes:FileFilter;
 			private var	sampleSheetXML:XML;	
 			private var tabSamplesView:TabSamplesView;
+			
+			[Bindable]
+			private var samplesViewState:String = "";
 
 			[Bindable]
 			private var fieldList:XMLListCollection = new XMLListCollection();
 			
 			[Bindable]
 			public var sampleSheetColumnList:XMLListCollection = new XMLListCollection();
-
+			
+			private var downloadRequest:URLRequest; 
+			private var downloadFileRef:FileReference; 
 			
 			public function getSSColumnLabel(item:XML, col:DataGridColumn):String {
 				var displayText:String = "";
@@ -123,6 +137,9 @@
 			//public function init(showCCNumberField:Boolean, isSubmitExperiment:Boolean):void {
 			public function init(tabSamplesView:TabSamplesView):void {
 				this.tabSamplesView = tabSamplesView;
+				
+				// We need to know what example sample sheet link to show
+				this.samplesViewState = this.tabSamplesView.currentState;
 					
 				//add the event handler for the risk level change
 				this.addEventListener(SampleSheetColumnEvent.CHANGE, onSampleSheetColumnChange);
@@ -492,6 +509,25 @@
 				}					
 				return displayText;
 			}			
+
+
+			private function downloadSampleSheetExample(fileName:String):void {
+				try {
+					downloadRequest = new URLRequest("doc/" + fileName);
+					downloadFileRef = new FileReference();
+					downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
+					downloadFileRef.download(downloadRequest, fileName);
+					
+				} catch (error:Error) {
+					Alert.show("Unable to download example sample sheet due to error. " + error.message);
+				}
+			}
+
+			private function downloadCompleteHandler(event:Event):void
+			{
+				mx.controls.Alert.show("Example sample sheet downloaded.");
+			}
+			
 
 		]]>
 	</mx:Script>
