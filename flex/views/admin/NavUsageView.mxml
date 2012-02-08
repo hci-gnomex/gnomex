@@ -47,12 +47,23 @@
 			<endRank>{endRank}</endRank>
 		</mx:request>
 	</mx:HTTPService>
+
+	
+	<mx:NumberFormatter id="numberFormatter"/>
 	
 	<mx:Script><![CDATA[
+		import mx.charts.events.ChartItemEvent;
 		import mx.collections.ArrayCollection;
-		import mx.rpc.events.ResultEvent;
-		import mx.printing.FlexPrintJobScaleType;
+		import mx.collections.XMLListCollection;
+		import mx.managers.PopUpManager;
 		import mx.printing.FlexPrintJob;
+		import mx.printing.FlexPrintJobScaleType;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.admin.UsageDetailWindow;
+		
+		private var params:Object = null;
+
 		
 		[Bindable]
 		private var DAYS_SINCE_LAST_UPLOAD:String = 'DaysSinceLastUpload';
@@ -93,6 +104,7 @@
 				mx.controls.Alert.show("An error occurred while getting usage data.");
 			}
 		}
+
 		
 		private function changeInterval():void {
 			endRank = radiogroupInterval.selectedValue;
@@ -115,6 +127,33 @@
 				fpj.send();
 			}
 		}
+		
+		private function onActivityByWeekClick(event:ChartItemEvent):void {
+			var params:Object = new Object();
+			params.startDate = event.hitData.item.@startDate;
+			params.chartName = "SummaryActivityByWeek";
+			params.fieldName = mx.charts.series.LineSeries(event.hitData.chartItem.element).id;
+			var title:String = " for week of ";
+			if (params.fieldName == "experimentCount") {
+				title = "Experiments for ";
+			} else if (params.fieldName == "analysisCount") {
+				title = "Analysis ";
+			} else if (params.fieldName == "uploadCount") {
+				title = "Uploads ";
+			} else if (params.fieldName == "downloadCount") {
+				title = "Downloads ";
+			}
+			
+			var detailWindow:UsageDetailWindow = UsageDetailWindow(PopUpManager.createPopUp(this, UsageDetailWindow, true));
+			detailWindow.title = title + event.hitData.item.@dataTip;
+			PopUpManager.centerPopUp(detailWindow);
+			detailWindow.init(params);
+		}
+		
+
+
+
+
 	]]></mx:Script> 
 
 	<mx:HDividedBox width="100%" height="100%">
@@ -173,7 +212,11 @@
 				
 				<mx:VBox id="uploadsByLabPanel" width="100%" height="100%" styleName="form" 
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
-					<mx:Label text="Uploads" fontWeight="bold"/> 
+					<mx:HBox width="100%">
+						<mx:Label text="Uploads" fontWeight="bold"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryUploadsByLab.@uploadCount)}" fontWeight="bold"/>						
+					</mx:HBox>
 					<mx:ColumnChart  maxColumnWidth="30" name="Uploads" id="uploadsByLabChart" dataProvider="{getUsageData.lastResult.SummaryUploadsByLab.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:horizontalAxis>
 							<mx:CategoryAxis 
@@ -196,7 +239,12 @@
 				
 				<mx:VBox id="downloadsByLabPanel" width="100%" height="100%" styleName="form" 
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
-					<mx:Label text="Downloads" fontWeight="bold"/> 
+					<mx:HBox width="100%">
+						<mx:Label text="Downloads" fontWeight="bold"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDownloadsByLab.@downloadCount)}" fontWeight="bold"/>						
+					</mx:HBox>
+
 					<mx:ColumnChart  name="Downloads" id="downloadsByLabChart" 
 									 maxColumnWidth="30"
 									 dataProvider="{getUsageData.lastResult.SummaryDownloadsByLab.Entry}" showDataTips="true" width="100%" height="100%">
@@ -224,7 +272,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Experiments" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryExperimentsByLab.@experimentCount}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryExperimentsByLab.@experimentCount)}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:ColumnChart  name="Experiments" 
 									 id="experimentsByLabChart" 
@@ -255,7 +303,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Analysis" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryAnalysisByLab.@analysisCount}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryAnalysisByLab.@analysisCount)}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:ColumnChart  name="Analysis" id="analysisByLabChart" maxColumnWidth="30"
 									 dataProvider="{getUsageData.lastResult.SummaryAnalysisByLab.Entry}" showDataTips="true" width="100%" height="100%">
@@ -282,7 +330,10 @@
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:HBox width="100%">
 						<mx:Label text="Disk Space by Lab (GB)" fontWeight="bold"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByLab.@diskSpaceGB) + ' GB'} " fontWeight="bold"/>						
 					</mx:HBox>
+
 					<mx:ColumnChart  name="Disk Space" id="diskSpaceByLabChart" maxColumnWidth="30"
 									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByLab.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:horizontalAxis>
@@ -303,24 +354,30 @@
 
 				<mx:VBox id="activityByWeekPanel" width="100%" height="100%" styleName="form" 
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="0">
-					<mx:Label text="Uploads and Downloads by Week" fontWeight="bold"/> 
+					<mx:HBox width="100%" verticalAlign="bottom">
+						<mx:Label text="Uploads and Downloads by Week" fontWeight="bold" width="210"/>
+						<mx:Spacer width="20"/>
+						<mx:HBox styleName="instructionBox" verticalAlign="middle">
+							<mx:Text text="Click on chart to see details"/>
+						</mx:HBox>
+					</mx:HBox>
 					<mx:LineChart  name="Activity by Week" id="activityByWeekChart" 
 								   dataProvider="{getUsageData.lastResult.SummaryActivityByWeek.Entry}" 
 								   showDataTips="true"  dataTipFunction="showActivityByWeekDataTip"
+								   itemClick="onActivityByWeekClick(event)"
 								   width="100%" height="100%">
 						<mx:horizontalAxis>
 							<mx:CategoryAxis 
 								dataProvider="{getUsageData.lastResult.SummaryActivityByWeek.Entry}" 
-								
 								categoryField="@label" 
 								/>
 						</mx:horizontalAxis>
 						<mx:series> 
-							<mx:LineSeries 
+							<mx:LineSeries  id="uploadCount"
 								yField="@uploadCount" 
 								displayName="# of Uploads"
 								/>
-							<mx:LineSeries 
+							<mx:LineSeries  id="downloadCount" 
 								yField="@downloadCount" 
 								displayName="# of Downloads"
 								/>
@@ -328,25 +385,31 @@
 						</mx:series>
 					</mx:LineChart>
 					<mx:Legend dataProvider="{activityByWeekChart}" direction="horizontal" fontWeight="normal"/>
-					<mx:Label text="Experiments and Analysis by Week" fontWeight="bold" paddingTop="15"/>
+					<mx:HBox width="100%" verticalAlign="bottom" paddingTop="15">
+						<mx:Label text="Experiments and Analysis by Week" fontWeight="bold" width="210"/>
+						<mx:Spacer width="20"/>
+						<mx:HBox styleName="instructionBox" verticalAlign="middle">
+							<mx:Text text="Click on chart to see details"/>
+						</mx:HBox>
+					</mx:HBox>
 					<mx:LineChart  name="Activity by Week" id="activityByWeekChart1" 
 								   dataProvider="{getUsageData.lastResult.SummaryActivityByWeek.Entry}" 
-								   showDataTips="true"  dataTipFunction="showActivityByWeekDataTip"
+								   showDataTips="true"  dataTipFunction="showActivityByWeekDataTip" 
+								    itemClick="onActivityByWeekClick(event)" 
 								   width="100%" height="100%">
 						<mx:horizontalAxis>
 							<mx:CategoryAxis 
 								dataProvider="{getUsageData.lastResult.SummaryActivityByWeek.Entry}" 
-								
 								categoryField="@label" 
 								/>
 						</mx:horizontalAxis>
 						<mx:series> 
 							<mx:LineSeries 
-								yField="@experimentCount" 
+								yField="@experimentCount"  id="experimentCount"  
 								displayName="# of Experiments"
 								/>
 							<mx:LineSeries 
-								yField="@analysisCount"  
+								yField="@analysisCount"  id="analysisCount" 
 								displayName="# of Analysis"
 								/>
 						</mx:series>
@@ -365,7 +428,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Disk Space by Year (GB)" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryDiskSpaceByYear.@diskSpaceGB + ' GB'}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByYear.@diskSpaceGB) + ' GB'}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:ColumnChart  name="Disk Space" id="diskSpaceByYearChart" maxColumnWidth="30"
 									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByYear.Entry}" showDataTips="true" width="100%" height="100%">
@@ -389,7 +452,7 @@
                     <mx:HBox width="100%">
 						<mx:Label text="Disk Space by Category (GB)" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryDiskSpaceByType.@diskSpaceGB + ' GB'}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByType.@diskSpaceGB) + ' GB'}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:PieChart  name="Disk Space" id="diskSpaceByTypeChart" 
 									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByType.Entry}" showDataTips="true" width="100%" height="100%">
@@ -407,7 +470,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Experiments by Type" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryExperimentsByType.@experimentCount}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryExperimentsByType.@experimentCount)}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:PieChart  name="Experiments by Type" id="experimentsByTypeChart" 
 								  dataProvider="{getUsageData.lastResult.SummaryExperimentsByType.Entry}" showDataTips="true" width="100%" height="100%">
@@ -426,7 +489,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Seq Experiments by Application" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummarySeqExperimentsByApp.@experimentCount}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummarySeqExperimentsByApp.@experimentCount)}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart" 
 								  dataProvider="{getUsageData.lastResult.SummarySeqExperimentsByApp.Entry}" showDataTips="true" width="100%" height="100%">
@@ -444,7 +507,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Analysis by Type" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + getUsageData.lastResult.SummaryAnalysisByType.@analysisCount}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryAnalysisByType.@analysisCount)}" fontWeight="bold"/> 
 					</mx:HBox>
 					<mx:PieChart  name="Analysis by Type" id="summaryAnalysisByTypeChart" 
 								  dataProvider="{getUsageData.lastResult.SummaryAnalysisByType.Entry}" showDataTips="true" width="100%" height="100%">
