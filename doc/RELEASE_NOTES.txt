@@ -36,6 +36,12 @@
 * On WorkFlow screen make the HiSeq the default workflow (i.e. first tab).
 * Add remove button on WorkFlow/HiSeq/Cluster Gen view.
 * Started introducing Capillary sequencing experiment into GNomEx submit request view.
+* WorkFlow/HiSeq/Cluster Gen view -- dragging a whole lane would reverse order of work items.  This has been fixed.
+
+5.3.6 Deploy Notes
+--------------------
+* In Billing Item rename TotalPrice to InvoicePrice
+* In Billing Item new column splitType should be initialized to "%" if null on deploy.
 
 5.3.5.1(12/21/2011)
 --------------------

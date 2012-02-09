@@ -174,7 +174,6 @@
 	    		validateNumberOfLanes();
     			validateSequencingControl();
     			validateSeqRunType();
-    			validateOrganism();
 	    		validateNumberSequencingCycles();
     		}
     		if (isValid) {
@@ -288,33 +287,6 @@
 	       }
 
     	}    	
-    	        	
-    	private function validateOrganism():void {
-    		var theItem:Object;
-    		var item:Object;
-    		var invalidCount:int = 0;
-	       //Warn if different organism or number of seq cycles
-	       for each (theItem in dirtyChannelWorkList) {
-	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
-	       			continue;
-	       		}
-	       		for each (item in dirtyChannelWorkList) {
-	       			if (item.hasOwnProperty("@idSequencingControl")) {
-	       				continue;
-	       			}
-	       			if (theItem.@idOrganism != item.@idOrganism) {
-	       				warningMessage += "Flow cell channels contain samples from different organisms.\n\n";
-	       				isValid = false;
-	       				invalidCount++;
-	       				break;
-	       			}
-	       		}
-	       		if (invalidCount > 0) {
-	       			break;
-	       		}
-	       }
-
-    	}
     	
     	
     	private function validateNumberSequencingCycles():void {
@@ -529,11 +501,13 @@
 		       	if (dragNode.name() == "MultiplexLane") {
 		       		for each(var workItemNode:XML in dragNode.children()) {
 		       			dragWorkItem(workItemNode, row);
+						row++;
 		       		}
 		       	} else if (dragNode.name() == "Request") {
 		       		var firstMultiplexLaneNode:XML = dragNode.children()[0];
 		       		for each(var workItemNode1:XML in firstMultiplexLaneNode.children()) {
 		       			dragWorkItem(workItemNode1, row);
+						row++;
 		       		}
 		       	} else if (dragNode.name() == "WorkItem") {
 			    	
