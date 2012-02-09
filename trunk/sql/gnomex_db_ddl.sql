@@ -327,6 +327,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `notes` VARCHAR(500) NULL,
   `idLab` INT(10) NOT NULL,
   `completeDate` DATETIME NULL,
+  'splitType' CHAR(1) NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY `FK_BillingItem_PriceCategory` (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
