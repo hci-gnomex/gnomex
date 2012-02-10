@@ -37,6 +37,8 @@
 * Add remove button on WorkFlow/HiSeq/Cluster Gen view.
 * Started introducing Capillary sequencing experiment into GNomEx submit request view.
 * WorkFlow/HiSeq/Cluster Gen view -- dragging a whole lane would reverse order of work items.  This has been fixed.
+* Added experiment description boxes for users to optionally fill in when registering their experiments.
+* Updated the print request form to display any experiment notes that the user enters when creating their experiment.
 
 5.3.6 Deploy Notes
 --------------------
