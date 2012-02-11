@@ -101,6 +101,32 @@
 	</mx:HTTPService >
 	
 	<mx:HTTPService 
+		id="getGenomeIndexList" 
+		url="GetGenomeIndexList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getGenomeIndexList"
+		result="onGetGenomeIndexList(event)"
+		fault="onFailHttpRequest('Failed to get genome index list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="getAlignmentProfileList" 
+		url="GetAlignmentProfileList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getAlignmentProfileList"
+		result="onGetAlignmentProfileList(event)"
+		fault="onFailHttpRequest('Failed to get genome index list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
 		id="getOrganismList" 
 		url="GetOrganismList.gx"
 		resultFormat="e4x"
@@ -204,6 +230,8 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.admin.PropertyEvent;
+			import views.admin.GenomeIndexEvent;
+			import views.admin.AlignmentProfileEvent;			
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
@@ -554,6 +582,9 @@
 	        public var isBSTLinkageSupported:Boolean = false;
 			
 			[Bindable]
+			public var isSequenceAlignmentSupported:Boolean = false;
+			
+			[Bindable]
 			public var isFDTSupported:Boolean = false;
 			
 			[Bindable]
@@ -609,6 +640,10 @@
 			[Bindable]
 			public var propertyList:XMLListCollection;
 			[Bindable]
+			public var genomeIndexList:XMLListCollection;
+			[Bindable]
+			public var alignmentProfileList:XMLListCollection;			
+			[Bindable]
 			public var organismList:XMLListCollection;
 			[Bindable]
 			public var das2OrganismList:XMLListCollection;
@@ -648,6 +683,8 @@
 			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
 			public var DATASET_PRIVACY_EXPIRATION:String                  = "dataset_privacy_expiration";
 			public var PROPERTY_FDT_HELP_URL:String                       = "fdt_help_url";
+			public var PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED:String       = "sequence_alignment_supported";
+			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
 			 
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
@@ -1402,6 +1439,13 @@
             		this.isBSTLinkageSupported = false;
             	}
 				
+				if (this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) != null && 
+					this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) == 'Y') {
+					this.isSequenceAlignmentSupported = true;
+				} else {
+					this.isSequenceAlignmentSupported = false;
+				}
+				
 				if (this.getProperty(this.PROPERTY_FDT_SUPPORTED) != null && 
 					this.getProperty(this.PROPERTY_FDT_SUPPORTED) == 'Y') {
 					this.isFDTSupported = true;
@@ -1532,17 +1576,16 @@
 	        	showProgress(30);
 	        	enableApp();
 	        }		
-			
-			
-            
-	        
-            private function onGetProjectList(event:ResultEvent):void {
-				getPropertyList.send();
+						
+			private function onGetProjectList(event:ResultEvent):void {
+				getGenomeIndexList.send();
+				getAlignmentProfileList.send();
 				getOrganismList.send();
+				getPropertyList.send();
 				
-	       	    showProgress(10);
-	        	enableApp();
-	        }
+				showProgress(10);
+				enableApp();
+			}			
 	        
 			private function onGetPropertyList(event:ResultEvent):void {
 				propertyList = new XMLListCollection(getPropertyList.lastResult.Property);
@@ -1552,6 +1595,16 @@
 					showProgress(10);
 					enableApp();
 				}
+			}
+			
+			private function onGetGenomeIndexList(event:ResultEvent):void {
+				genomeIndexList = new XMLListCollection(getGenomeIndexList.lastResult.GenomeIndex);
+				this.dispatchEvent(new GenomeIndexEvent(GenomeIndexEvent.DATA_REFRESHED));
+			}
+			
+			private function onGetAlignmentProfileList(event:ResultEvent):void {
+				alignmentProfileList = new XMLListCollection(getAlignmentProfileList.lastResult.AlignmentProfile);
+				this.dispatchEvent(new Event(AlignmentProfileEvent.DATA_REFRESHED));
 			}
 			
 			private function onGetOrganismList(event:ResultEvent):void {

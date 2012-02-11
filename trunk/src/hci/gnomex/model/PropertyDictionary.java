@@ -49,6 +49,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SITE_TITLE                          = "site_title";
   public static final String        SITE_WELCOME_MESSAGE                = "site_welcome_message";
   public static final String        SHOW_USAGE_ON_STARTUP               = "show_usage_on_startup";
+  public static final String        SEQUENCE_ALIGNMENT_SUPPORTED        = "sequence_alignment_supported";      
+  public static final String        SEQUENCE_ALIGNMENT_SERVER_URL              = "sequence_alignment_server_url";      
   
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";

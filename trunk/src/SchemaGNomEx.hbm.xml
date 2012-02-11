@@ -1714,5 +1714,42 @@
 		<property name="visibility" column="visibility" type="string"/>
 	</class>
 	
-
+	<!-- hci.gnomex.model.AlignmentPlatform -->
+	<class name="hci.gnomex.model.AlignmentPlatform" table="AlignmentPlatform">
+		<id name="idAlignmentPlatform" column="idAlignmentPlatform" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="alignmentPlatformName" column="alignmentPlatformName" type="string"/>
+		<property name="webServiceName" column="webServiceName" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+	
+	<!-- hci.gnomex.model.GenomeIndex -->
+	<class name="hci.gnomex.model.GenomeIndex" table="GenomeIndex">
+		<id name="idGenomeIndex" column="idGenomeIndex" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="genomeIndexName" column="genomeIndexName" type="string"/>
+		<property name="webServiceName" column="webServiceName" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="idOrganism" column="idOrganism" type="integer"/>
+	</class>
+	
+	    <!-- hci.gnomex.model.AlignmentProfile -->
+	<class name="hci.gnomex.model.AlignmentProfile" table="AlignmentProfile">
+		<id name="idAlignmentProfile" column="idAlignmentProfile" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="alignmentProfileName" column="alignmentProfileName" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="parameters" column="parameters" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>		
+		<property name="idAlignmentPlatform" column="idAlignmentPlatform" type="integer"/>
+		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
+   		<set name="genomeIndexList" table="AlignmentProfileGenomeIndex" lazy="false" cascade="none">
+			<key column="idAlignmentProfile"/>
+			<many-to-many column="idGenomeIndex" class="hci.gnomex.model.GenomeIndex"/>
+		</set>
+	</class>
+	
 </hibernate-mapping>

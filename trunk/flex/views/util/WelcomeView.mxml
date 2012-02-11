@@ -11,6 +11,7 @@
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{alignmentProfileButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
@@ -26,6 +27,8 @@
 					</mx:HBox> 
 					<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
 								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
+					<mx:LinkButton id="alignmentProfileButton"  label="Configure Alignment Profiles" styleName="dashboardButton" includeInLayout="{parentApplication.isSequenceAlignmentSupported}" 
+								   click="showAlignmentProfileWindow()" visible="{parentApplication.isSequenceAlignmentSupported}" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>									
 					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
 								   click="showPropertyWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platforms" styleName="dashboardButton" 
@@ -38,6 +41,7 @@
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{alignmentProfileButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label4}"/>
@@ -61,6 +65,7 @@
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{alignmentProfileButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 		</mx:State>
@@ -114,6 +119,7 @@
 			
 			import mx.managers.PopUpManager;
 			import views.admin.PropertyWindow;
+			import views.admin.AlignmentProfileWindow;
 			import views.experiment.ExperimentEditView;
 			
 			public function checkDirty():void {
@@ -238,6 +244,10 @@
 				
 			}
 			
+			private function showAlignmentProfileWindow():void {
+				var apWindow:AlignmentProfileWindow = AlignmentProfileWindow(PopUpManager.createPopUp(parentApplication.theBody, AlignmentProfileWindow, true));
+				PopUpManager.centerPopUp(apWindow);				
+			}
 			
 			private function showExperimentPlatformWindow():void {
 				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformWindow, true));
@@ -277,6 +287,8 @@
 							   styleName="dashboardButton" id="submitExternalExperimentButton"  toolTip="Submit an experiment to the GNomEx repository and upload associated raw data files" icon="@Embed(source='../../assets/experiment_register.png')"/>
 				<mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
 				<mx:LinkButton label="Download Experiment Results" click="showExperimentDownloads()" styleName="dashboardButton"  id="button3"  toolTip="Download experiment raw data files" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:LinkButton id="alignmentProfileButton0"  label="Configure Alignment Profiles" styleName="dashboardButton" includeInLayout="{parentApplication.isSequenceAlignmentSupported}" 
+							   click="showAlignmentProfileWindow()" visible="{parentApplication.isSequenceAlignmentSupported}" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
 				<mx:LinkButton id="sampleCharacteristicButton0"  label="Configure Annotations" styleName="dashboardButton" 
 							   click="showPropertyWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 				<mx:LinkButton id="organismButton0"  label="Configure Organisms" styleName="dashboardButton" 

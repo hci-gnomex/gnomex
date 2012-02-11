@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="746" height="380" 
+				 creationComplete="{init()}"
+				 xmlns:util="views.util.*" 
+				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				title="Configure Alignment Profiles">
+	
+<mx:HTTPService  
+		id="saveAlignmentProfile" 
+		url="SaveAlignmentProfile.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAlignmentProfile(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save alignment profile', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+	
+<mx:HTTPService  
+		id="deleteAlignmentProfile" 
+		url="DeleteAlignmentProfile.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDeleteAlignmentProfile(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete alignment profile', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+		
+<mx:Script>
+	<![CDATA[
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.util.DirtyNote;
+	import views.admin.AlignmentProfileEvent;	
+	import views.admin.GenomeIndexWindow;
+		
+	private var idAlignmentProfile:Object = null;
+		
+	private function setDirty():void {
+		if (saveButton.enabled) {
+			dirty.setDirty();
+		}
+	}
+	
+	private function init():void {
+		alignmentProfiles = new XMLListCollection();
+		for each(var sc:XML in parentApplication.alignmentProfileList) {
+			alignmentProfiles.addItem(sc.copy());
+		}
+		parentApplication.removeEventListener(AlignmentProfileEvent.DATA_REFRESHED,
+			onAlignmentProfileRefreshed);		                                  
+		parentApplication.addEventListener(AlignmentProfileEvent.DATA_REFRESHED,   
+			onAlignmentProfileRefreshed);
+		
+		genomeIndexSelectionList = new XMLListCollection();
+		var blankGenomeIndex:XML = new XML("<GenomeIndex " +
+			" value=''" +
+			" display=''" +
+			" isActive='Y'" +
+			" idGenomeIndex=''" +
+			" genomeIndexName=''" +
+			" canRead='Y'" +
+			" />");
+		genomeIndexSelectionList.addItem(blankGenomeIndex);
+		
+		for each(var gindx:XML in parentApplication.genomeIndexList) {
+			genomeIndexSelectionList.addItem(gindx.copy());
+		}
+		parentApplication.removeEventListener(GenomeIndexEvent.DATA_REFRESHED,
+			onGenomeIndexListRefreshed);		                                  
+		parentApplication.addEventListener(GenomeIndexEvent.DATA_REFRESHED,   
+			onGenomeIndexListRefreshed);		
+		
+	}	
+			
+	private function onAlignmentProfileRefreshed(event:Event):void{
+		alignmentProfiles = new XMLListCollection();
+		for each(var sc:XML in parentApplication.alignmentProfileList) {
+			alignmentProfiles.addItem(sc.copy());
+		}
+		reselectAlignmentProfile();
+		dirty.resetDirty();
+	}
+		
+	private function onGenomeIndexListRefreshed(event:Event):void{
+		genomeIndexSelectionList = new XMLListCollection();
+		
+		var blankGenomeIndex:XML = new XML("<GenomeIndex " +
+			" value=''" +
+			" display=''" +
+			" isActive='Y'" +
+			" idGenomeIndex=''" +
+			" genomeIndexName=''" +
+			" canRead='Y'" +
+			" />");
+		genomeIndexSelectionList.addItem(blankGenomeIndex);
+		
+		for each(var sc:XML in parentApplication.genomeIndexList) {
+			genomeIndexSelectionList.addItem(sc.copy());
+		}
+	}			
+		
+	private function reselectAlignmentProfile():void {
+		var found:Boolean = false;
+		if (idAlignmentProfile != null) {
+			for each(var ap:Object in alignmentProfiles) {
+				if (ap.@idAlignmentProfile == idAlignmentProfile) {
+					alignmentProfileList.selectedItem = ap;
+					alignmentProfileList.scrollToIndex(alignmentProfileList.selectedIndex);
+					found = true;
+					break;
+				}
+			}
+		}
+		if (found) {
+			theViews.selectedIndex = 1;
+		} else {
+			theViews.selectedIndex = 0;
+		}
+	}
+		
+	private function onSelectAlignmentProfile():void {
+		if (alignmentProfileList.selectedItem != null) {
+			theViews.selectedIndex = 1;
+			
+			setAlignmentPlatformCombo();
+			
+			setSeqRunTypeCombo();
+
+			dirty.resetDirty();
+		}
+	}
+		
+	private function setAlignmentPlatformCombo():void {
+		this.alignmentPlatformCombo.selectedItem = null;
+		for each(var alignPlatform:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AlignmentPlatform').DictionaryEntry.(@isActive=='Y')) {
+			if (alignPlatform.@idAlignmentPlatform== alignmentProfileList.selectedItem.@idAlignmentPlatform) {
+				this.alignmentPlatformCombo.selectedItem = alignPlatform;
+				break;
+			}
+		}
+	}
+	
+	private function setSeqRunTypeCombo():void {
+		this.seqRunTypeCombo.selectedItem = null;
+		for each(var seqRunType:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive=='Y')) {
+			if (seqRunType.@idSeqRunType == alignmentProfileList.selectedItem.@idSeqRunType) {
+				this.seqRunTypeCombo.selectedItem = seqRunType;
+				break;
+			}
+		}
+	}
+		
+	private function addGenomeIndex():void {
+		if (genomeIndexCombo.selectedItem != null && genomeIndexCombo.selectedItem.@value != '') {
+			genomeIndexes.addItem(genomeIndexCombo.selectedItem);
+			setDirty();			
+		}
+	}
+	
+	private function removeGenomeIndex():void {
+		if (this.genomeIndexGrid.selectedItem != null) {
+			genomeIndexes.removeItemAt(genomeIndexes.getItemIndex(genomeIndexGrid.selectedItem));
+			setDirty();
+		}
+	}
+
+	private function addAlignmentProfile():void {
+		var newAlignmentProfile:XML = new XML("<AlignmentProfile " +
+			" idAlignmentProfile=''" +
+			" alignmentProfileName='enter name here..'" +
+			" description=''" + 
+			" parameters=''" + 
+			" isActive='Y'" +
+			" idAlignmentPlatform=''" +
+			" idSeqRunType=''" +
+			" canUpdate='Y'"  +
+			" canDelete='Y'" + 
+			" canRead='Y'" +			
+			" />");
+		alignmentProfiles.addItemAt(newAlignmentProfile, 0);
+		 
+		
+		alignmentProfileList.selectedItem = newAlignmentProfile;
+		alignmentProfileList.scrollToIndex(alignmentProfileList.selectedIndex);
+		idAlignmentProfile = "";
+		
+		this.alignmentPlatformCombo.selectedItem = null;
+		this.seqRunTypeCombo.selectedItem = null;
+		
+		setDirty();
+
+	}
+		
+	private function removeAlignmentProfile():void {
+		if (alignmentProfileList.selectedItem == null) {
+			return;
+		}
+		idAlignmentProfile = "";
+		
+		var params:Object = new Object();
+		params.idAlignmentProfile = alignmentProfileList.selectedItem.@idAlignmentProfile;
+		deleteAlignmentProfile.send(params);
+	}
+		
+	private function onDeleteAlignmentProfile(event:ResultEvent): void {
+		if (deleteAlignmentProfile.lastResult.name() == "SUCCESS") {
+			parentApplication.getAlignmentProfileList.send();
+			
+		} else {
+			mx.controls.Alert.show(deleteAlignmentProfile.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+		
+		
+	private function save():void {
+		if (alignmentProfileList.selectedItem == null) {
+			return;
+		}
+
+		
+		if(alignmentProfileName.text.length == 0) {
+			mx.controls.Alert.show("Please provide a value for the Name field.", "Name Required");
+			return;
+		}
+		
+		if(this.alignmentPlatformCombo.selectedItem == null || this.alignmentPlatformCombo.selectedItem.@value=='') {
+			mx.controls.Alert.show("Please provide a value for the Alignment Platform field.", "Alignment Platform Required");
+			return;
+		}		
+		
+		if(this.seqRunTypeCombo.selectedItem == null || this.seqRunTypeCombo.selectedItem.@value=='') {
+			mx.controls.Alert.show("Please provide a value for the Sequence Run Type field.", "Sequence Run Type Required");
+			return;
+		}		
+		
+		
+		var params:Object = new Object();
+		params.idAlignmentProfile = alignmentProfileList.selectedItem.@idAlignmentProfile;
+		params.alignmentProfileName = alignmentProfileName.text;
+		params.isActive = this.isActive.selected ? "Y" : "N";
+		params.description = description.text; 
+		params.parameters = parameters.text;
+		params.idAlignmentPlatform = this.alignmentPlatformCombo.selectedItem.@idAlignmentPlatform;		
+		params.idSeqRunType = this.seqRunTypeCombo.selectedItem.@idSeqRunType;
+		
+		params.genomeIndexListXMLString = "<genomeIndexList>" + this.genomeIndexes.toXMLString() + "</genomeIndexList>";
+		
+		saveAlignmentProfile.send(params);
+		
+	}
+		
+	private function onSaveAlignmentProfile(event:ResultEvent): void {
+		if (saveAlignmentProfile.lastResult.name() == "SUCCESS") {
+			idAlignmentProfile = saveAlignmentProfile.lastResult.@idAlignmentProfile;
+
+			parentApplication.getAlignmentProfileList.send();
+		} else {
+			mx.controls.Alert.show(saveAlignmentProfile.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+		
+	private function showAlignmentProfileWindow():void {
+		var apWindow:GenomeIndexWindow = GenomeIndexWindow(PopUpManager.createPopUp(parentApplication.theBody, GenomeIndexWindow, true));
+		PopUpManager.centerPopUp(apWindow);				
+	}
+		
+		
+	]]>
+</mx:Script>
+	
+<mx:XMLListCollection id="alignmentProfiles"/>
+<mx:XMLListCollection id="genomeIndexes" source="{alignmentProfileList.selectedItem.genomeIndexList.GenomeIndex}"/>
+<mx:XMLListCollection id="genomeIndexSelectionList"/>
+<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
+		<mx:LinkButton label="Add Alignment Profile" styleName="linkMenuButton" click="addAlignmentProfile()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
+		<mx:LinkButton label="Remove Alignment Profile" styleName="linkMenuButton" click="removeAlignmentProfile()" enabled="{alignmentProfileList.selectedItem != null &amp;&amp; alignmentProfileList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+	</mx:HBox>
+	
+<mx:HDividedBox height="100%" width="100%" >
+  <mx:VBox height="100%" width="200" styleName="panelBox">
+		<mx:List id="alignmentProfileList" width="100%" height="100%" labelField="@alignmentProfileName" dataProvider="{alignmentProfiles}" 
+				 itemClick="{onSelectAlignmentProfile()}">
+		</mx:List>
+  </mx:VBox>	
+  <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
+	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
+	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">		
+		 <mx:VBox width="100%" height="288" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4" horizontalScrollPolicy="off" verticalScrollPolicy="off">			 
+			 <mx:HBox width="100%" verticalGap="0">
+			  <mx:Label text="Name:" width="120"/>
+			  <mx:TextInput text="{alignmentProfileList.selectedItem.@alignmentProfileName}" change="{setDirty()}" width="100%" id="alignmentProfileName" maxChars="120"/>
+			  <mx:HBox >
+			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+			    <mx:selected>{alignmentProfileList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
+			   </mx:CheckBox>
+			   <mx:Spacer width="80"/>
+			  </mx:HBox>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+			 	<mx:Text text="Description:" width="120"/>
+			 	<mx:TextArea text="{alignmentProfileList.selectedItem.@description}" change="{setDirty()}" width="100%" id="description"/>
+			 </mx:HBox>
+			 <mx:HBox width="100%" >
+				 <mx:Label text="Alignment Platform:" width="120"/>
+				 <mx:ComboBox width="100%" id="alignmentPlatformCombo"
+							  labelField="@display"
+							  change="{setDirty()}"
+							  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AlignmentPlatform').DictionaryEntry.(@isActive=='Y')}">
+				 </mx:ComboBox>				 
+			 </mx:HBox>			 
+			 <mx:HBox width="100%" >
+				 <mx:Label text="Seq. Run Type:" width="120"/>
+				 <mx:ComboBox width="100%" id="seqRunTypeCombo"
+							  labelField="@display"
+							  change="{setDirty()}"
+							  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive=='Y')}">
+				 </mx:ComboBox>				 
+			 </mx:HBox>					 
+			 <mx:HBox width="100%" verticalGap="0">
+				 <mx:Text text="Genome Indexes:" width="120"/>
+				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
+				 	   <mx:HBox horizontalAlign="left" horizontalGap="6">
+				 	    <mx:ComboBox width="170" dataProvider="{genomeIndexSelectionList}" id="genomeIndexCombo" labelField="@display" >			       	
+				 	    </mx:ComboBox>
+				 	   	   <mx:Button click="addGenomeIndex()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+				 	   	   	   <mx:enabled>{alignmentProfileList.selectedItem.@canUpdate == 'Y' &amp;&amp; genomeIndexCombo.selectedItem != null &amp;&amp; genomeIndexCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				 	   	   </mx:Button>
+				 	   	   <mx:Button click="removeGenomeIndex()" icon="@Embed(source='../../assets/delete.png')" 
+									  disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+									  enabled="{alignmentProfileList.selectedItem.@canUpdate == 'Y' &amp;&amp; genomeIndexGrid.selectedItem != null}" width="25"/>			   
+						   <mx:Button label="Edit Genome Indexes"  click="showAlignmentProfileWindow();"/>
+				 	   </mx:HBox>
+				  <mx:DataGrid id="genomeIndexGrid" showHeaders="false" dataProvider="{genomeIndexes}" width="100%" height="104">
+				         <mx:columns>
+				             <mx:DataGridColumn dataField="@display" headerText="Name"/>
+				         </mx:columns>
+				  </mx:DataGrid>			   	
+				 </mx:VBox>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+				 <mx:Text text="Parameters:" width="120"/>
+				 <mx:TextInput text="{alignmentProfileList.selectedItem.@parameters}" change="{setDirty()}" width="100%" id="parameters"  maxChars="500"/>
+			 </mx:HBox>		</mx:VBox>
+		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+			<util:DirtyNote id="dirty" />
+			<mx:Button id="saveButton" label="Save"  enabled="{alignmentProfileList.selectedItem.@canUpdate == 'Y' ? true : false}"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+			
+		</mx:ControlBar>
+	</mx:VBox>
+  </mx:ViewStack>
+
+	
+</mx:HDividedBox>
+</mx:VBox>
+	
+</mx:TitleWindow>
