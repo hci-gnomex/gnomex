@@ -51,6 +51,7 @@
 		import views.experiment.ExperimentEditView;
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.URLRenderer;
+		import views.util.RunAlignmentWindow;
 		
 		public var sampleGroupingCollection:GroupingCollection = null;		
 		
@@ -739,6 +740,56 @@
 			}
 		}
 		
+		public function alignSelectedFiles():void {
+			var selectedFiles:XMLList = filesView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
+			selectedFileList = new XMLListCollection(selectedFiles);
+			
+			var checkDirectoryPath:String = "";
+			var filesStr:String = "";
+			
+			for each(var file:XML in selectedFileList) {
+				var fileName:String = file.@fileName;
+				var splitIndx:int = fileName.lastIndexOf("/");
+				var splitIndx1:int = fileName.lastIndexOf("\\");
+				if(splitIndx1 > splitIndx) {
+					splitIndx = splitIndx1;
+				}
+				if(splitIndx < 0) {
+					Alert.show("Cannot proceed because file '" + file.@displayName + "' is not physically present.");					
+					return;
+				}				
+				var fullDirectoryPath:String = fileName.substr(0, splitIndx);
+				fileName = fileName.substr(splitIndx+1, 0x7fffffff);
+				if(checkDirectoryPath.length == 0) {
+					checkDirectoryPath = fullDirectoryPath;
+					filesStr = fileName;
+				} else {
+					filesStr = filesStr + "," + fileName;
+				}			
+				if(checkDirectoryPath != fullDirectoryPath) {
+					Alert.show("All files submitted must reside within a single folder. When selecting files from multiple folders, please submit a separate job for each folder.");
+					return;
+				}
+				if(fileName.length < 3 || fileName.substr(fileName.length-3, int.MAX_VALUE) != ".gz") {
+					Alert.show("File '" + fileName + "' cannot be submitted. Please only select files with the '.gz' extension.");
+					return;
+				}
+
+			}
+
+			
+			if (selectedFileList.length == 0) {
+				mx.controls.Alert.show("Please select the file(s).");
+			} else {
+				var alignFilesWindow:RunAlignmentWindow = RunAlignmentWindow(PopUpManager.createPopUp(this, RunAlignmentWindow, true));
+				if(selectedExperiment != null && selectedExperiment.samples != null) {
+					alignFilesWindow.setOrganismDropdown(selectedExperiment.samples.Sample[0].@idOrganism);
+				}
+				alignFilesWindow.setFolderPathAndFilesStr(checkDirectoryPath, filesStr);
+				PopUpManager.centerPopUp(alignFilesWindow);
+			}
+		}
+		
 		private function onCacheFDTFileDownloadList(event:ResultEvent):void {
 			// We have cached the selected analysis files
 			// Now call the URL to start the FDT app using webstart
@@ -1062,6 +1113,11 @@
 				   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
 				   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
 				   icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button id="alignSelectedFilesButton" 
+				   click="this.alignSelectedFiles()" 
+				   icon="@Embed('../../assets/align.png')" 
+				   toolTip="Run automated alignment on selected files"
+				   label="Run Alignment"/>
 	</mx:HBox>
 	
 </mx:VBox>

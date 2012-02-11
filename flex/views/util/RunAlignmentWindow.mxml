@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" 
+				title="Run Alignments" 
+				width="536"
+				verticalScrollPolicy="off"
+				height="{305+(spContainer.height*alignmentProfileList.length)}" 
+				defaultButton="{runButton}" 
+				creationComplete="init()" 
+				titleIcon="@Embed(source='../../assets/align.png')">
+    
+    <!--mx:HTTPService 
+    id="submitWorkAuthForm" 
+    url="SubmitWorkAuthForm.gx"
+    resultFormat="e4x" 
+    showBusyCursor="true"
+    result="onSubmitWorkAuthForm(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to submit work authorization form', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService -->  
+	
+	<mx:HTTPService 
+		id="getAlignmentProfileList" 
+		url="GetAlignmentProfileList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getAlignmentProfileList"
+		result="onGetAlignmentProfileList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get genome index list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >	
+	
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.events.ItemClickEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import flash.net.NetConnection;
+		import flash.net.Responder;
+		
+		[Bindable]
+		private var alignmentProfileList:XMLListCollection = new XMLListCollection();
+		
+		[Bindable]
+		private var filteredGenomeIndexList:XMLListCollection = new XMLListCollection();
+		
+		private var folderPath:String = "";
+		private var filesStr:String = "";
+		
+		private var server:NetConnection;
+		
+		private function init():void {
+		
+		}
+		private function run():void {
+			var sz_message:String = "input=" + this.filesStr + "#";
+			//sz_message += "path=" + this.folderPath + "#";			
+			sz_message += "path=/mnt/Bio3Data03/AnalysisData/2011/A205#";			
+			if(platformCombo.selectedIndex == 0) {
+				Alert.show("Please select a Platform.");
+				return;
+			}
+			if(seqRunTypeCombo.selectedIndex <= 0) {
+				Alert.show("Please select a Seq Run Type");
+				return;
+			}
+
+			sz_message += "platform=" + platformCombo.selectedItem.@webServiceName + "#";
+			sz_message += "pipeline=Align#";
+			if(genomeIndexCombo.selectedIndex <= 0) {
+				Alert.show("Please select an Alignment Profile and Genome Index");
+				return;
+			}
+			sz_message += "genome=" + genomeIndexCombo.selectedItem.@webServiceName + "#";
+			sz_message += "organism=" + organismCombo.selectedItem.@organism + "#";
+			if(novoalignParams.text != null && novoalignParams.text.length > 0) {
+				sz_message += "parameter=" + novoalignParams.text + "#";				
+			}
+			
+			var serverURL:String = parentApplication.getProperty(parentApplication.PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL);
+			if(serverURL == null || serverURL.length == 0) {
+				Alert.show("The server_alignment_url property must be defined before a call to the server can be made.", "Error");
+				return;				
+			}
+			
+			server = new NetConnection();
+			server.connect(serverURL);
+			
+			sz_message = "input=8058X1_111013_SN141_0403_BC06N5ACXX_3_1.txt.gz,8058X1_111013_SN141_0403_BC06N5ACXX_5_2.txt.gz"+"#";
+			sz_message += "path=/mnt/hci-bio3/MicroarrayData/2011/8058R/Fastq"+"#";
+			sz_message += "platform=illumina#";
+			sz_message += "pipeline=Align#";
+			sz_message += "genome=hg19";
+			
+			server.call("run", new Responder(runResult, onFault), sz_message);
+			//Alert.show(sz_message);
+		}
+		
+		private function onFault( error:* ): void {
+			// Notify the user of the problem
+			var err:String = "Remoting error: \n";
+			for ( var d:String in error ) {
+				err += error[d] + "\n";
+			}
+			Alert.show(err, "Web Service Error");
+			server.close();
+		}		
+		
+		private function runResult( result:* ): void {
+			Alert.show("Job successfully submitted.");
+			server.close();
+		}		
+		
+		public function setOrganismDropdown(idOrganism:String): void {
+			for each(var o:Object in organismCombo.dataProvider) {
+				if (o.@idOrganism == idOrganism) {
+					organismCombo.selectedItem = o;
+				}
+			}				
+		}
+		
+		public function setFolderPathAndFilesStr(folderPath:String, filesStr:String): void {
+			this.folderPath = folderPath;
+			this.filesStr = filesStr;		
+		}
+		
+		private function alignmentProfileSelected(evt:ItemClickEvent):void {			
+			var emptyGenomeIndex:XML = new XML("<GenomeIndex " +
+				" idGenomeIndex=''" +
+				" genomeIndexName=''" +
+				" webServiceName=''" +
+				" idOrganism=''" +
+				" />");
+			filteredGenomeIndexList = new XMLListCollection();
+			filteredGenomeIndexList.addItem(emptyGenomeIndex);
+			for each(var gi:XML in alignmentProfileList[evt.index].genomeIndexList.GenomeIndex.(@idOrganism==organismCombo.selectedItem.@idOrganism)) {
+				filteredGenomeIndexList.addItem(gi.copy());
+			}
+			genomeIndexCombo.dataProvider = filteredGenomeIndexList;
+			genomeIndexCombo.dropdown.dataProvider = filteredGenomeIndexList;
+			this.genomeIndexCombo.selectedItem = null;
+			novoalignParams.text = alignmentProfileList[evt.index].@parameters;
+			
+		}	
+		
+		private function onGetAlignmentProfileList(event:ResultEvent):void {
+			alignmentProfileList = new XMLListCollection(getAlignmentProfileList.lastResult.AlignmentProfile);
+		}		
+		
+		private function onSubmitWorkAuthForm(event:ResultEvent):void {
+			/*
+        	if (submitWorkAuthForm.lastResult.name() == "SUCCESS") {
+        		Alert.show("Work authorization for account " + 
+        		"'" + this.accountName.text + "'"+
+        		 " has been submitted to " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) +
+        		 ".\n\n" + 
+        		 "After the account information is reviewed and approved, " +
+        		 "you will be notified by email that experiment " +
+        		 "requests can now be submitted against this account in GNomEx.");
+        		 PopUpManager.removePopUp(this);
+        	} else {
+        		Alert.show(submitWorkAuthForm.lastResult..ACTMESSAGE.@TEXT);
+        	}  
+			*/
+        }  
+		
+		private function getAlignmentProfilesCheck():void {
+			if(platformCombo.selectedIndex > 0 && seqRunTypeCombo.selectedIndex > 0) {
+				var params:Object = new Object();
+				params.idAlignmentPlatform = platformCombo.selectedItem.@idAlignmentPlatform;
+				params.idSeqRunType = seqRunTypeCombo.selectedItem.@idSeqRunType;
+				getAlignmentProfileList.send(params);
+			} else {
+				alignmentProfileList = new XMLListCollection();
+			}
+		}		
+	]]>
+</mx:Script>
+	
+	
+	<mx:Array id="seqType">
+		<mx:Object label="RNA Seq" data="RNASeq" />
+		<mx:Object label="Genomic/Chip Seq" data="GenChipSeq" />
+		<mx:Object label="Bis Seq" data="BisSeq" />
+	</mx:Array>
+
+	<mx:VBox height="{216+((spContainer.height-1)*alignmentProfileList.length)}" verticalScrollPolicy="off" width="100%" verticalGap="16" styleName="form" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+		<mx:RadioButtonGroup id="radiogroupSeq"/>
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label text="Platform" width="120"/>
+			<mx:ComboBox width="365" id="platformCombo"
+						 labelField="@display" 
+						 change="getAlignmentProfilesCheck();"
+						 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AlignmentPlatform').DictionaryEntry.(@isActive=='Y')}">
+			</mx:ComboBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label text="Organism" width="120"/>
+			<mx:ComboBox width="365" id="organismCombo"
+						 labelField="@display" 
+						 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive=='Y')}">
+			</mx:ComboBox>
+		</mx:HBox>
+		<mx:HBox id="spContainer" width="100%" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label text="Seq Run Type" width="120"/>
+			<mx:ComboBox width="365" id="seqRunTypeCombo"
+						 labelField="@display" 
+						 change="getAlignmentProfilesCheck();"
+						 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive=='Y')}">
+			</mx:ComboBox>
+		</mx:HBox>
+		<mx:HBox id="seqTypeContainer" width="100%" horizontalAlign="left" verticalAlign="top">		
+			<mx:Label text="Alignment Profile" width="120"/>
+			<mx:VBox id="alignmentProfileBox" width="365" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0">
+				<mx:RadioButtonGroup id="alignmentProfileGroup" itemClick="alignmentProfileSelected(event);"/>
+				<mx:Repeater id="radiogroupSeqRepeater" dataProvider="{alignmentProfileList}">
+						<mx:RadioButton id="seqTypeCat" groupName="alignmentProfileGroup" 
+										label="{radiogroupSeqRepeater.currentItem.@alignmentProfileName}" />							
+				</mx:Repeater>
+			</mx:VBox>			
+		</mx:HBox>		
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label text="Genome Index" width="120"/>
+			<mx:ComboBox width="365" id="genomeIndexCombo"
+						 labelField="@genomeIndexName" 
+						 dataProvider="{filteredGenomeIndexList}"></mx:ComboBox>
+		</mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle">
+        	<mx:Label text="Novoalign Params" width="120"/>
+        	<mx:TextInput width="100%" id="novoalignParams"></mx:TextInput>
+        </mx:HBox>
+    </mx:VBox>
+	<mx:ControlBar horizontalAlign="right" height="52">
+		<mx:Button label="Run" id="runButton" click="run()" icon="@Embed(source='../../assets/server_go.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+
+	
+</mx:TitleWindow>
