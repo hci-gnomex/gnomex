@@ -1223,6 +1223,7 @@
 				allowMultipleSelection="false" 
 				itemFocusOut="checkSamplesCompleteness()" 
 				horizontalScrollPolicy="auto" 
+				variableRowHeight="true"
 				sortableColumns="false"
 				sortExpertMode="true"  
 				dragDrop="onDragDropSample(event)"
@@ -1264,7 +1265,7 @@
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
 
 					
-					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
+					 
 
 					<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
 											   headerText="# Lanes to Sequence" width="72" 
@@ -1397,10 +1398,6 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
 
-					<!--<mx:AdvancedDataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
-					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@treatment').newInstance(), '')}" editorDataField="value"/>-->
-
                     <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"                
@@ -1436,7 +1433,7 @@
 					<mx:AdvancedDataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 	                   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
-
+					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 				</mx:columns>
 			</mx:AdvancedDataGrid>
 			<mx:HBox width="100%" horizontalAlign="right">
