@@ -96,6 +96,9 @@ public class ExperimentQueue extends HttpServlet {
       for(Object temp : nsca)
       {
         NumberSequencingCyclesAllowed cycle = (NumberSequencingCyclesAllowed)temp;
+        
+        if (cycle.getIdNumberSequencingCyclesAllowed() == 11)
+          continue;
 
         //Start for loop here  for(Dictionary Entry : numbersequencingcyclesAllowed){
         StringBuffer query1 = new StringBuffer("select seqLane.number, flowCell.lastCycleDate, " +
