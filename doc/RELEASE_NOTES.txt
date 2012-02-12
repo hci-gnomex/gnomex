@@ -6,6 +6,8 @@
 * Added database tables AlignmentPlatform, AlignmentProfile, GenomeIndex, and AlignmentProfileGenomeIndex
 * DB updates are in gnomex_db_upgrade_to_5.3.6.1
 * Fixed bug that was causing dropdowns not to refresh in the group detail view after a new user was added from the nav users view.
+* In the samples view the sample description column has been moved to the end.  This will give more space for long sample descriptions since flex automatically gives the last column the most space by default.  Also word wrap has been enabled for this column as well.
+
 
 5.3.6
 --------------------
