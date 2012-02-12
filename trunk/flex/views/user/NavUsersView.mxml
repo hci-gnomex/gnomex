@@ -19,7 +19,7 @@
     resultFormat="e4x"
     result="resultHandler(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to get user list', event)"
-    destination="getAppUserList"
+    destination="getAppUserList"  
     useProxy="false">
     <mx:request>
     </mx:request>
@@ -121,16 +121,17 @@
 
     <mx:Script>
         <![CDATA[
+          import mx.controls.Alert;
+          import mx.events.CloseEvent;
+          import mx.events.CollectionEvent;
+          import mx.events.CollectionEventKind;
           import mx.events.ItemClickEvent;
+          import mx.events.PropertyChangeEvent;
+          import mx.managers.PopUpManager;
+          import mx.rpc.events.ResultEvent;
+          
           import views.user.GroupAddView;
           import views.user.UserAddView;
-	      import mx.managers.PopUpManager;
-          import mx.rpc.events.ResultEvent; 
-		  import mx.controls.Alert;
-		  import mx.events.CloseEvent;
-		  import mx.events.CollectionEventKind;
-          import mx.events.PropertyChangeEvent;
-          import mx.events.CollectionEvent;
           import views.util.PromptXMLListCollection;
 
         
@@ -174,13 +175,14 @@
 			  }
 			  
 			  isInitialized = true;
-		  }
+		  }		
             		
 		  public function isDirty():Boolean {
 		  	return userDetailView.dirty.isDirty() ||
 		  	 	   groupDetailView.dirty.isDirty() ||
 		  	 	   groupManageView.dirty.isDirty(); 
 		  }
+			
 		  public function checkDirty():void {
 		  	//userDetailView.promptToSaveDirty();
 		  	//groupDetailView.promptToSaveDirty();
