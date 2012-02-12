@@ -45,20 +45,21 @@
 	  
 <mx:Script>
 	<![CDATA[
-		import mx.events.CollectionEvent;
-		import hci.flex.dictionary.DictionaryEditor; 
-		import mx.rpc.events.ResultEvent;
-		import mx.controls.Alert;
-		import mx.rpc.events.FaultEvent;
-		import mx.events.CloseEvent;
-		import mx.managers.PopUpManager;
-		import hci.flex.dictionary.DictionaryEvent;
+		import hci.flex.controls.CheckBox;
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
-		import hci.flex.controls.CheckBox;
-		import mx.events.DataGridEvent;
+		import hci.flex.dictionary.DictionaryEditor;
+		import hci.flex.dictionary.DictionaryEvent;
+		
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
-        import mx.events.PropertyChangeEvent;
+		import mx.events.DataGridEvent;
+		import mx.events.PropertyChangeEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
 		
 		import views.util.InstitutionWindow;
 
@@ -68,6 +69,11 @@
 		public function initializeData():void {
 			// Get the list of all users
           	parentApplication.navUsersView.getAppUserList.send();
+			
+			appUsers.refresh();
+			
+			parentApplication.promptedAppUserList.refresh();
+			
           	
 			this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 			
@@ -274,7 +280,8 @@
 			
 			if (warningMessage == "") {
 				save();
-			} else {
+			}
+			else {
 				Alert.show(warningMessage + "\n\nDo you want to proceed with save?",
 						   "Warning", 
 						   (Alert.YES | Alert.NO), 
@@ -307,6 +314,9 @@
 			} else {
 				params.idLab = '';
 			}
+			
+			checkEmailFormat();
+			
 			params.firstName =  this.groupFirstName.text;
 			params.lastName =  this.groupLastName.text;
 			params.department = this.department.text;
@@ -334,7 +344,12 @@
 
 			saveGroup.send(params);		
 			
-		} 
+		}
+		
+		private function checkEmailFormat():void{
+			var emails:String = this.contactEmail.text;
+
+		}
 		
 		private function onSaveGroup(event:ResultEvent):void {
 			if (saveGroup.lastResult.name() == "SUCCESS") {
@@ -469,6 +484,7 @@
 	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
 	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
 	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}"/>
+	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
 	
@@ -547,7 +563,7 @@
 				   <mx:VBox verticalGap="4" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
 				       <mx:Label text="Members"/>
 				   	   <mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
-					       <mx:ComboBox width="170" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
+					       <mx:ComboBox width="170" dataProvider="{appUsers}" id="memberCombo" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 				   	   	   	   <mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedIndex > 0 ? true : false}</mx:enabled>
