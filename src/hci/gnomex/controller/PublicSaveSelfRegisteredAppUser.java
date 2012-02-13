@@ -153,7 +153,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
             outMsg = "uNID '" + appUserScreen.getuNID() + "' is already being used. Please select a different uNID.";                            
           }
           this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
-          setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);    
+          setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);    
         } else {
           setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
         }
