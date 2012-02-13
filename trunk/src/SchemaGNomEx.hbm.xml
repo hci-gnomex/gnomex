@@ -43,7 +43,8 @@
 		<property name="createDate" column="createDate" type="date"/>
 		<property name="codeVisibility" column="codeVisibility" type="string"/>		
 		<property name="idInstitution" column="idInstitution" type="integer"/>
-		<property name="privacyExpirationDate" column="privacyExpirationDate" type="date"/>		
+		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    <property name="privacyExpirationDate" column="privacyExpirationDate" type="date"/>		
 		<set name="analysisGroups" table="AnalysisGroupItem" lazy="true" cascade="none">
 			<key column="idAnalysis"/>
 			<many-to-many column="idAnalysisGroup" class="hci.gnomex.model.AnalysisGroup"/>
@@ -218,7 +219,16 @@
 		<property name="gSignalStrength" column="gSignalStrength" type="integer"/>
 		<property name="tSignalStrength" column="tSignalStrength" type="integer"/>
 	</class>
+  
+  <!-- hci.gnomex.model.CoreFacility -->
+  <class name="hci.gnomex.model.CoreFacility" table="CoreFacility">
+    <id name="idCoreFacility" column="idCoreFacility" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="facilityName" column="facilityName" type="string"/>
+  </class>
 	
+  
     <!--  DataTrack -->
     <class name="hci.gnomex.model.DataTrack" table="DataTrack">
         <id name="idDataTrack"                      column="idDataTrack"               type="integer">

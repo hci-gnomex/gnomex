@@ -1,15 +1,24 @@
 package hci.gnomex.model;
 
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.dictionary.model.DictionaryEntry;
 
-import java.sql.Date;
+import java.io.Serializable;
 
 
-public class CoreFacility extends HibernateDetailObject {
+public class CoreFacility extends DictionaryEntry implements Serializable {
   
   private Integer  idCoreFacility;
   private String   facilityName;
   
+  
+  public String getDisplay() {
+    String display = this.getNonNullString(getFacilityName());
+    return display;
+  }
+
+  public String getValue() {
+    return getIdCoreFacility().toString();
+  }
   
   public Integer getIdCoreFacility()
   {

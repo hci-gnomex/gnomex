@@ -25,6 +25,7 @@ CREATE TABLE `gnomex`.`Analysis` (
   `createDate` DATETIME NULL,
   `idAppUser` INT(10) NULL,
   `idInstitution` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
   `privacyExpirationDate` DATETIME NULL,
   PRIMARY KEY (`idAnalysis`),
   CONSTRAINT `FK_Analysis_Lab` FOREIGN KEY `FK_Analysis_Lab` (`idLab`)
@@ -53,6 +54,10 @@ CREATE TABLE `gnomex`.`Analysis` (
     ON UPDATE NO ACTION,
   CONSTRAINT FK_Analysis_Institution FOREIGN KEY FK_Analysis_Institution (idInstitution)
     REFERENCES gnomex.Institution (idInstitution)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY FK_Analysis_CoreFacility (idCoreFacility)
+    REFERENCES gnomex.CoreFacility (CoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -361,6 +366,10 @@ CREATE TABLE `gnomex`.`BillingItem` (
     REFERENCES `gnomex`.`BillingPeriod` (`idBillingPeriod`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+  CONSTRAINT `FK_BillingItem_CoreFacility` FOREIGN KEY `FK_BillingItem_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -500,10 +509,6 @@ CREATE TABLE `gnomex`.`PriceCriteria` (
 ENGINE = INNODB;
 
 
-
-
-
-
 DROP TABLE IF EXISTS `gnomex`.`BioanalyzerChipType`;
 CREATE TABLE `gnomex`.`BioanalyzerChipType` (
   `codeBioanalyzerChipType` VARCHAR(10) NOT NULL,
@@ -518,6 +523,36 @@ CREATE TABLE `gnomex`.`BioanalyzerChipType` (
 )
 ENGINE = INNODB;
 
+
+DROP TABLE IF EXISTS `gnomex`.`Chromatogram`;
+CREATE TABLE `gnomex`.`Chromatogram` (
+  `idChromatogram` int(10) NOT NULL AUTO_INCREMENT,
+  `idPlateWell` int(10) NULL,
+  `idRequest` int(10) NULL,
+  `fileName` varchar(2000) NULL,
+  `displayName` varchar(200) NULL,
+  `readLength` int(10) NULL,
+  `trimmedLength` int NULL,
+  `q20` int(10) NULL,
+  `q40` int (10) NULL,
+  `aSignalStrength` int(10) NULL,
+  `cSignalStrength` int(10) NULL,
+  `gSignalStrength` int(10) NULL,
+  `tSignalStrength` int(10) NULL,
+  PRIMARY KEY (`idChromatogram`)
+  CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
+    REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_Chromatogram_Request` FOREIGN KEY `FK_Chromatogram_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
+
 DROP TABLE IF EXISTS `gnomex`.`ConcentrationUnit`;
 CREATE TABLE `gnomex`.`ConcentrationUnit` (
   `codeConcentrationUnit` VARCHAR(10) NOT NULL,
@@ -526,6 +561,14 @@ CREATE TABLE `gnomex`.`ConcentrationUnit` (
   `mageOntologyDefinition` VARCHAR(5000) NULL,
   `isActive` CHAR(1) NOT NULL,
   PRIMARY KEY (`codeConcentrationUnit`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`CoreFacility`;
+CREATE TABLE `gnomex`.`CoreFacility` (
+  `idCoreFacility` INT(10) NOT NULL AUTO_INCREMENT,
+  `facilityName` varchar(200) NULL,
+  PRIMARY KEY (`idCoreFacility`)
 )
 ENGINE = INNODB;
 
@@ -828,6 +871,15 @@ CREATE TABLE `gnomex`.`Hybridization` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`InstrumentRun`;
+CREATE TABLE `gnomex`.`InstrumentRun` (
+  `idInstrumentRun` INT(10) NOT NULL AUTO_INCREMENT,
+  `runDate` DATETIME NULL,
+  PRIMARY KEY (`idInstrumentRun`)
+)
+ENGINE = INNODB;
+
+
 DROP TABLE IF EXISTS `gnomex`.`Lab`;
 CREATE TABLE `gnomex`.`Lab` (
   `idLab` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1125,6 +1177,44 @@ CREATE TABLE `gnomex`.`Organism` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`Plate`;
+CREATE TABLE `gnomex`.`Plate` (
+  `idPlate` INT(10) NOT NULL AUTO_INCREMENT,
+  `idInstrumentRun` INT(10) NULL,
+  PRIMARY KEY (`idPlate`),
+  CONSTRAINT `FK_Plate_InstrumentRun` FOREIGN KEY `FK_Plate_InstrumentRun` (`idInstrumentRun`)
+    REFERENCES `gnomex`.`InstrumentRun` (`idInstrumentRun`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`PlateWell`;
+CREATE TABLE `gnomex`.`PlateWell` (
+  `idPlateWell` INT(10) NOT NULL AUTO_INCREMENT,
+  `row` varchar(50)  NULL,  
+  `col` int(10) NULL,
+  `ind` int(10) NULL,
+  `idPlate` INT(10) NULL,
+  `idSample` INT(10) NULL,
+  `idRequest` INT(10) NULL,
+  PRIMARY KEY (`idPlateWell`),
+  CONSTRAINT `FK_PlateWell_Plate` FOREIGN KEY `FK_PlateWell_Plate` (`idPlate`)
+    REFERENCES `gnomex`.`Plate` (`idPlate`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_PlateWell_Sample` FOREIGN KEY `FK_PlateWell_Sample` (`idSample`)
+    REFERENCES `gnomex`.`Sample` (`idSample`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_PlateWell_Request` FOREIGN KEY `FK_PlateWell_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
 DROP TABLE IF EXISTS `gnomex`.`Project`;
 CREATE TABLE `gnomex`.`Project` (
   `idProject` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1226,6 +1316,7 @@ CREATE TABLE `gnomex`.`Request` (
   `lastModifyDate` DATETIME NULL,
   `isExternal` CHAR(1) NULL,
   `idInstitution` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
   `name` VARCHAR(200) NOT NULL,
   `privacyExpirationDate` DATETIME NULL,
   PRIMARY KEY (`idRequest`),
@@ -1265,6 +1356,10 @@ CREATE TABLE `gnomex`.`Request` (
     REFERENCES `gnomex`.`Institution` (`idInstitution`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+  CONSTRAINT `FK_Request_CoreFacility` FOREIGN KEY FK_Request_CoreFacility (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -1280,6 +1375,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `type` VARCHAR(10) NULL,
   `sortOrder` INT(10) NULL,
   `idOrganism` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
   `idSamplePrepMethod` INT(10) NULL,
   `isSampleBarcodingOptional` CHAR(1) NULL,
   `isInternal` CHAR(1) NULL,
@@ -1291,6 +1387,10 @@ CREATE TABLE `gnomex`.`RequestCategory` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_RequestCategory_Organism` FOREIGN KEY `FK_RequestCategory_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_RequestCategory_CoreFacility` FOREIGN KEY `FK_RequestCategory_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2062,6 +2162,7 @@ CREATE TABLE `gnomex`.`WorkItem` (
   `createDate` DATETIME NULL,
   `idSequenceLane` INT(10) NULL,
   `idFlowCellChannel` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
   `status` VARCHAR(50) NULL,
   PRIMARY KEY (`idWorkItem`),
   CONSTRAINT `FK_WorkItem_Sample` FOREIGN KEY `FK_WorkItem_Sample` (`idSample`)
@@ -2086,6 +2187,10 @@ CREATE TABLE `gnomex`.`WorkItem` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_WorkItem_Request` FOREIGN KEY `FK_WorkItem_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+   CONSTRAINT `FK_WorkItem_CoreFacility` FOREIGN KEY `FK_WorkItem_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
