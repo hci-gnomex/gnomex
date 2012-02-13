@@ -1,5 +1,115 @@
 use gnomex;
 
+--Add new tables: Chromatogram, CorFacility, InstrumentRun, Plate, PlateWell
+
+DROP TABLE IF EXISTS `gnomex`.`Chromatogram`;
+CREATE TABLE `gnomex`.`Chromatogram` (
+  `idChromatogram` int(10) NOT NULL AUTO_INCREMENT,
+  `idPlateWell` int(10) NULL,
+  `idRequest` int(10) NULL,
+  `fileName` varchar(2000) NULL,
+  `displayName` varchar(200) NULL,
+  `readLength` int(10) NULL,
+  `trimmedLength` int NULL,
+  `q20` int(10) NULL,
+  `q40` int (10) NULL,
+  `aSignalStrength` int(10) NULL,
+  `cSignalStrength` int(10) NULL,
+  `gSignalStrength` int(10) NULL,
+  `tSignalStrength` int(10) NULL,
+  PRIMARY KEY (`idChromatogram`)
+  CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
+    REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_Chromatogram_Request` FOREIGN KEY `FK_Chromatogram_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`CoreFacility`;
+CREATE TABLE `gnomex`.`CoreFacility` (
+  `idCoreFacility` INT(10) NOT NULL AUTO_INCREMENT,
+  `facilityName` varchar(200) NULL,
+  PRIMARY KEY (`idCoreFacility`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`InstrumentRun`;
+CREATE TABLE `gnomex`.`InstrumentRun` (
+  `idInstrumentRun` INT(10) NOT NULL AUTO_INCREMENT,
+  `runDate` DATETIME NULL,
+  PRIMARY KEY (`idInstrumentRun`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`Plate`;
+CREATE TABLE `gnomex`.`Plate` (
+  `idPlate` INT(10) NOT NULL AUTO_INCREMENT,
+  `idInstrumentRun` INT(10) NULL,
+  PRIMARY KEY (`idPlate`),
+  CONSTRAINT `FK_Plate_InstrumentRun` FOREIGN KEY `FK_Plate_InstrumentRun` (`idInstrumentRun`)
+    REFERENCES `gnomex`.`InstrumentRun` (`idInstrumentRun`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`PlateWell`;
+CREATE TABLE `gnomex`.`PlateWell` (
+  `idPlateWell` INT(10) NOT NULL AUTO_INCREMENT,
+  `row` varchar(50)  NULL,  
+  `col` int(10) NULL,
+  `ind` int(10) NULL,
+  `idPlate` INT(10) NULL,
+  `idSample` INT(10) NULL,
+  `idRequest` INT(10) NULL,
+  PRIMARY KEY (`idPlateWell`),
+  CONSTRAINT `FK_PlateWell_Plate` FOREIGN KEY `FK_PlateWell_Plate` (`idPlate`)
+    REFERENCES `gnomex`.`Plate` (`idPlate`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_PlateWell_Sample` FOREIGN KEY `FK_PlateWell_Sample` (`idSample`)
+    REFERENCES `gnomex`.`Sample` (`idSample`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_PlateWell_Request` FOREIGN KEY `FK_PlateWell_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+--Add idCoreFacility to Analysis,  BillingItem, Request, RequestCategory, WorkItem
+ALTER TABLE gnomex.Analysis  ADD  CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY FK_Analysis_CoreFacility (idCoreFacility)
+REFERENCES gnomex.CoreFacility (idCoreFacility)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
+ALTER TABLE gnomex.BillingItem  ADD  CONSTRAINT FK_BillingItem_CoreFacility FOREIGN KEY FK_BillingItem_CoreFacility (idCoreFacility)
+REFERENCES gnomex.CoreFacility (idCoreFacility)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
+ALTER TABLE gnomex.Request  ADD  CONSTRAINT FK_Request_CoreFacility FOREIGN KEY FK_Request_CoreFacility (idCoreFacility)
+REFERENCES gnomex.CoreFacility (idCoreFacility)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+ALTER TABLE gnomex.RequestCategory  ADD  CONSTRAINT FK_RequestCategory_CoreFacility FOREIGN KEY FK_RequestCategory_CoreFacility (idCoreFacility)
+REFERENCES gnomex.CoreFacility (idCoreFacility)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
+ALTER TABLE gnomex.WorkItem  ADD  CONSTRAINT FK_Analysis_WorkItem FOREIGN KEY FK_Analysis_WorkItem (idCoreFacility)
+REFERENCES gnomex.CoreFacility (idCoreFacility)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+
+
 --Rename TotalPrice to InvoicePrice.
 alter table BillingItem change totalPrice invoicePrice decimal(8,2) not null;
 

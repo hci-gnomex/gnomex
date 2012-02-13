@@ -11,7 +11,8 @@
   <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />
 
-
+  <Dictionary displayName="Core Facility" className="hci.gnomex.model.CoreFacility"  editable="N">
+  </Dictionary>
 
 	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
