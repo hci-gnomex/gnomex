@@ -255,22 +255,6 @@
 				}
 			}
 			
-			private function addAnalysisGroup():void {
-				dirty.setDirty();
-				var node:XML = new XML("<AnalysisGroup " +
-					" idAnalysisGroup='" + analysisGroupCombo.selectedItem.@idAnalysisGroup + "'" +
-					" name='"            + analysisGroupCombo.selectedItem.@name + "'" +
-					"/>");
-				analysisGroups.addItem(node);
-			}
-			
-			private function removeAnalysisGroup():void {
-				dirty.setDirty();
-				if (analysisGroupGrid.selectedIndex != -1) {
-					analysisGroups.removeItemAt(analysisGroupGrid.selectedIndex);
-				}
-			}
-			
 			private function addExperimentItem(item:Object):void {
 				dirty.setDirty();
 				var node:XML;
@@ -419,10 +403,6 @@
 					organismCombo.setFocus();
 					Alert.show("Please select an organism.");
 					return;        		
-				} else if (analysisGroups.length == 0) {
-					analysisGroupCombo.setFocus();
-					Alert.show("Please choose at least one analysis group.");
-					return;
 				} 
 				
 				var params:Object = new Object();
@@ -902,7 +882,7 @@
 	</mx:VBox>
 	
 	<mx:HBox width="100%"  horizontalGap="5"  verticalAlign="top" horizontalAlign="left">
-		<mx:VBox verticalGap="4" width="100%">
+		<mx:VBox verticalGap="4" width="75%">
 			<mx:HBox horizontalGap="0" width="100%">
 				<mx:Label text="Name" width="60" fontWeight="bold">
 				</mx:Label>
@@ -914,11 +894,11 @@
 			</mx:HBox>        
 		</mx:VBox>
 		
-		<mx:VBox verticalGap="4">
+		<mx:VBox verticalGap="4" width="25%">
 			<mx:HBox horizontalAlign="left" verticalAlign="top" horizontalGap="0">
 				<mx:Label text="Group" width="81" textAlign="left" fontWeight="bold">
 				</mx:Label>
-				<mx:HBox verticalGap="0" width="200">
+				<mx:HBox verticalGap="0" width="100%" horizontalScrollPolicy="off">
 					<mx:Text text="{analysis.@labName}" />
 					<mx:LinkButton 
 						click="{Alert.show('Click on drag-n-drop hint (yellow box in left panel) for tip on how to reassign analysis to another group or move/copy analysis to another folder.')}" 
@@ -1026,19 +1006,13 @@
 		
 		<mx:Canvas label="Analysis Groups" width="100%" height="100%">
 			<mx:VBox  paddingLeft="4" paddingRight="4" paddingBottom="4" paddingTop="4" width="100%"  height="100%" verticalGap="1" >
-				<mx:HBox width="100%" paddingBottom="3" horizontalGap="2">
+				<mx:HBox width="100%" horizontalGap="8">
 					<mx:Label width="100" text="Analysis Groups"/>
-					<mx:ComboBox id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="..." width="150">						
-					</mx:ComboBox>
-					<mx:Button icon="@Embed(source='../../assets/add.png')" 
-							   disabledIcon="@Embed(source='../../assets/add_disable.png')" 
-							   width="25" click="addAnalysisGroup()">
-						<mx:enabled>{analysisGroupCombo.selectedItem != null  ? true : false}</mx:enabled>
-					</mx:Button>
-					<mx:Button icon="@Embed(source='../../assets/delete.png')" 
-							   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-							   enabled="{analysisGroupGrid.selectedItem != null}" 
-							   width="25" click="removeAnalysisGroup()"/>					
+					<mx:VBox styleName="hintBox">
+						<mx:LinkButton label="Drag-and-drop hint" 
+									   click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
+						</mx:LinkButton>
+					</mx:VBox>					    	
 				</mx:HBox>
 				
 				<mx:DataGrid id="analysisGroupGrid" width="100%" dataProvider="{analysisGroups}" showHeaders="false" height="100%">
