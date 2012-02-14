@@ -521,16 +521,18 @@
 					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}"
 					   label="HTTP Download"  
 					   click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:LinkButton  label="Downloading tips" textDecoration="underline" 
-							visible="{theTab.selectedChild == filesView}"
-							includeInLayout="{theTab.selectedChild == filesView}"
-							click="showDownloadHints()" styleName="hintLink" 
-							icon="@Embed(source='../../assets/information.png')" fontStyle="italic"/>
 			<mx:Button id="alignSelectedFilesButton" 
 					   click="this.alignSelectedFiles()" 
 					   icon="@Embed('../../assets/align.png')" 
 					   toolTip="Run automated alignment on selected files"
-					   label="Run Alignment"/>			
+					   visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported}"
+					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported}"
+					   label="Run Alignment"/>	
+			<mx:LinkButton  label="Downloading tips" textDecoration="underline" 
+							visible="{theTab.selectedChild == filesView}"
+							includeInLayout="{theTab.selectedChild == filesView}"
+							click="showDownloadHints()" styleName="hintLink" 
+							icon="@Embed(source='../../assets/information.png')" fontStyle="italic"/>		
 		</mx:HBox>
 		
 	</mx:ControlBar>

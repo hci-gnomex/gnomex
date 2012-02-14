@@ -1116,7 +1116,7 @@
 		<mx:Button id="alignSelectedFilesButton" 
 				   click="this.alignSelectedFiles()" 
 				   icon="@Embed('../../assets/align.png')" 
-				   toolTip="Run automated alignment on selected files"
+				   toolTip="Run automated alignment on selected files" visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView}"
 				   label="Run Alignment"/>
 	</mx:HBox>
 	
