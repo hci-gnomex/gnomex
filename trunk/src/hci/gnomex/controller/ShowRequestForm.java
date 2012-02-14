@@ -246,24 +246,26 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             description.addContent(request.getDescription());
             maindiv.addContent(description);
             
-            Element analysisNote = new Element("H5");
-            analysisNote.addContent("Notes for Bio Informatics Core");
-            maindiv.addContent(analysisNote);
-            
-            Element analysisInstruction = new Element("H6");
-            analysisInstruction.addContent(request.getAnalysisInstructions());
-            maindiv.addContent(analysisInstruction);
-            
-            Element sequenceNote = new Element("H5");
-            sequenceNote.addContent("Notes for Sequencing Core");
-            maindiv.addContent(sequenceNote);
-            
-            Element coreInstruction = new Element("H6");
-            coreInstruction.addContent(request.getCorePrepInstructions());
-            maindiv.addContent(coreInstruction);
             
             
-            
+            if(RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory()))
+            {
+              Element sequenceNote = new Element("H5");
+              sequenceNote.addContent("Sequencing Core Notes");
+              maindiv.addContent(sequenceNote);
+
+              Element coreInstruction = new Element("H6");
+              coreInstruction.addContent(request.getCorePrepInstructions());
+              maindiv.addContent(coreInstruction);
+
+              Element analysisNote = new Element("H5");
+              analysisNote.addContent("Bioinformatics Notes (for analysis)");
+              maindiv.addContent(analysisNote);
+
+              Element analysisInstruction = new Element("H6");
+              analysisInstruction.addContent(request.getAnalysisInstructions());
+              maindiv.addContent(analysisInstruction);
+            }
             formatter.addSampleTable(maindiv, request.getSamples());
             
             if (!request.getHybridizations().isEmpty()) {
