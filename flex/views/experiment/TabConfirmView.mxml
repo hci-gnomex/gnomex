@@ -332,7 +332,7 @@
 				<mx:Label text="{'Samples (' + parentDocument.samples.length + ')'}" id="label1" textDecoration="underline"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 
 					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{parentDocument.samples.length}"
-					sortableColumns="false" alpha="0.8" fontSize="9" >
+					sortableColumns="false" alpha="0.8" fontSize="9" variableRowHeight="true" >
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
@@ -362,7 +362,7 @@
 	                      visible="false"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}" />
 						
-						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
+						<mx:DataGridColumn headerText="Description" width="200" dataField="@description" wordWrap="true"/>
 						
 		                <mx:DataGridColumn id="customBarcodeColumn" headerText="Index Tag" dataField="@barcodeSequence" editable="false" visible="false"
 							width="58">
