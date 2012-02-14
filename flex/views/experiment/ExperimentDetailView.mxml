@@ -931,6 +931,7 @@
 						editable="false" 
 						backgroundAlpha="0" borderStyle="solid"
 						sortableColumns="false"
+						variableRowHeight="true"
 						sortExpertMode="true"
 						defaultLeafIcon="{null}" 	
 						iconFunction="getSampleTreeIcon"					 
@@ -953,8 +954,8 @@
 							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
-
-							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
+							
+							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
 							
 							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber"/>
 			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Index Tag"  width="75" visible="{true}"  
@@ -1012,7 +1013,6 @@
 							
 							<mx:AdvancedDataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 	
-<!--							<mx:AdvancedDataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>-->
 						</mx:columns>
 					</mx:AdvancedDataGrid>
 				</mx:VBox>
