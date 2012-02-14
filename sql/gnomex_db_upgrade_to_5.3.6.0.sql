@@ -1,6 +1,6 @@
 use gnomex;
 
---Add new tables: Chromatogram, CorFacility, InstrumentRun, Plate, PlateWell
+--Add new tables: Chromatogram, CoreFacility, InstrumentRun, Plate, PlateWell
 
 DROP TABLE IF EXISTS `gnomex`.`Chromatogram`;
 CREATE TABLE `gnomex`.`Chromatogram` (

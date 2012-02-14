@@ -52,6 +52,8 @@
 --------------------
 * In Billing Item rename TotalPrice to InvoicePrice
 * In Billing Item new column splitType should be initialized to "%" if null on deploy.
+* New db objects for HSC cores: Chromatogram, CoreFacility, InstrumentRun, Plate, PlateWell
+* Added idCoreFacility to Analysis, BillingItem, Request, RequestCategory, WorkItem
 
 5.3.5.1(12/21/2011)
 --------------------
