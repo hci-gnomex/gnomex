@@ -1264,7 +1264,7 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
 
-					
+					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					 
 
 					<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
@@ -1433,7 +1433,7 @@
 					<mx:AdvancedDataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 	                   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
-					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+				
 				</mx:columns>
 			</mx:AdvancedDataGrid>
 			<mx:HBox width="100%" horizontalAlign="right">
