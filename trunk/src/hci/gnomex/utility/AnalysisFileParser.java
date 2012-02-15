@@ -82,6 +82,7 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
     af.setBaseFilePath(n.getAttributeValue("baseFilePath"));
     af.setQualifiedFilePath(n.getAttributeValue("qualifiedFilePath"));
     af.setFileName(n.getAttributeValue("displayName"));
+    af.setComments(n.getAttributeValue("comments"));
     af.setIdAnalysis(Integer.valueOf(n.getAttributeValue("idAnalysis")));
     af.setFileSize(n.getAttributeValue("fileSize")!=null? new BigDecimal(Integer.valueOf(n.getAttributeValue("fileSize"))): new BigDecimal(0));
     return af;
