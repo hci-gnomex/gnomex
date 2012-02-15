@@ -94,7 +94,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
   public Element makeDetail() throws Exception {
     
-    int columnCount = 10;
+    int columnCount = 11;
     // Find out if any billing items have % other than 100%.  If
     // so, show % column.
     boolean showPercentCol = false;
@@ -137,6 +137,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Qty", "right");
     this.addHeaderCell(rowh, "Unit Price", "right");
     this.addHeaderCell(rowh, "Total Price", "right");
+    this.addHeaderCell(rowh, "Invoice Price", "right");
 
     
     for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
@@ -169,6 +170,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         }
         this.addRightAlignCell(row, this.getHTMLString(bi.getQty()));
         this.addRightAlignCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;");
+        this.addRightAlignCell(row, bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "&nbsp;");
         this.addRightAlignCell(row, bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "&nbsp;");
         
         if (bi.getInvoicePrice() != null) {
@@ -213,6 +215,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
           }
           this.addCell(row, this.getHTMLString(bi.getQty()), "gridrightrelated", null, "RIGHT");
           this.addCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
+          this.addCell(row, bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
           this.addCell(row, bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
           
           if (bi.getInvoicePrice() != null) {
