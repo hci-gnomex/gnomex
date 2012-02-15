@@ -1,14 +1,6 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-* Added code for submitting sequence alignemnts (feature not completed but is suppressed by sequence_alignment_supported='N')
-* Added properties 'sequence_alignment_supported' and 'sequence_alignment_server_url'
-* Added database tables AlignmentPlatform, AlignmentProfile, GenomeIndex, and AlignmentProfileGenomeIndex
-* DB updates are in gnomex_db_upgrade_to_5.3.6.1
-* Fixed bug that was causing dropdowns not to refresh in the group detail view after a new user was added from the nav users view.
-* In the samples view the sample description column has been moved to the end.  This will give more space for long sample descriptions since flex automatically gives the last column the most space by default.  Also word wrap has been enabled for this column as well.
-
-
 5.3.6
 --------------------
 * Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)
@@ -47,6 +39,13 @@
 * WorkFlow/HiSeq/Cluster Gen view -- dragging a whole lane would reverse order of work items.  This has been fixed.
 * Added experiment description boxes for users to optionally fill in when registering their experiments.
 * Updated the print request form to display any experiment notes that the user enters when creating their experiment.
+* Added code for submitting sequence alignemnts (feature not completed but is suppressed by sequence_alignment_supported='N')
+* Added properties 'sequence_alignment_supported' and 'sequence_alignment_server_url'
+* Added database tables AlignmentPlatform, AlignmentProfile, GenomeIndex, and AlignmentProfileGenomeIndex
+* DB updates are in gnomex_db_upgrade_to_5.3.6.1
+* Fixed bug that was causing dropdowns not to refresh in the group detail view after a new user was added from the nav users view.
+* In the samples view the sample description column has been moved to the end.  This will give more space for long sample descriptions since flex automatically gives the last column the most space by default.  Also word wrap has been enabled for this column as well.
+* Editting the name and date on the flow cell edit window now saves the changes.
 
 5.3.6 Deploy Notes
 --------------------
