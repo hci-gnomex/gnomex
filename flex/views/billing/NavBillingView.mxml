@@ -643,7 +643,7 @@
 				if (lastSelectedItem.name() == "Request") {
 					for each(var p:XML in requests) {
 						for each(var request:XML in p..Request) {
-							if (request.@requestNumber == lastSelectedItem.@requestNumber) {
+							if (request.@requestNumber == lastSelectedItem.@requestNumber && request.@labBillingName == lastSelectedItem.@labBillingName) {
 								this.requestTree.selectedItem = request;
 								this.requestTree.firstVisibleItem = request;
 								break; 
