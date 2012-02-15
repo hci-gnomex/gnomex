@@ -151,7 +151,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         aNode.setAttribute("displayName", a.getName());
         aNode.setAttribute("number", a.getNumber());
-        
+        aNode.setAttribute("isSelected", "N");
+        aNode.setAttribute("state", "unchecked");
+        aNode.setAttribute("isEmpty", "N");
         
         
         // Hash the know analysis files
@@ -235,7 +237,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("fileName", fd.getFileName() != null ? fd.getFileName() : "");
               fdNode.setAttribute("qualifiedFilePath", fd.getQualifiedFilePath() != null ? fd.getQualifiedFilePath() : "");
               fdNode.setAttribute("baseFilePath", fd.getBaseFilePath() != null ? fd.getBaseFilePath() : "");
-              fdNode.setAttribute("comments", fd.getComments() != null ? fd.getComments() : "");
+              fdNode.setAttribute("comments", fd.getComments() != null & fd.getType()!="dir" ? fd.getComments() : "");
               fdNode.setAttribute("lastModifyDate", fd.getLastModifyDate() != null ? fd.getLastModifyDate().toString() : "");
               fdNode.setAttribute("zipEntryName", fd.getZipEntryName() != null ? fd.getZipEntryName() : "");
               fdNode.setAttribute("number", fd.getAnalysisNumber() != null ? fd.getAnalysisNumber() : "");
@@ -272,7 +274,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             fd.setAnalysisNumber(a.getNumber());
             fd.setUploadDate(af.getUploadDate());
             fd.setComments(af.getComments());
-            fd.setFileSize(af.getFileSize() != null ? af.getFileSize().longValue():0);
             fd.excludeMethodFromXML("getChildren");
 
             Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
@@ -386,6 +387,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
           fdNode.setAttribute("isSelected", "N");
           fdNode.setAttribute("state", "unchecked");
+          fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
           recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap);
           
           analysisDownloadNode.addContent(fdNode);
@@ -396,7 +398,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         }
 
       } else {
-        analysisDownloadNode.setAttribute("isEmpty", "Y");
+        if (!analysisDownloadNode.getName().equals("Analysis")) {
+          analysisDownloadNode.setAttribute("isEmpty", "Y");
+        }
       }
     }
   }
@@ -423,7 +427,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       AnalysisFile af = (AnalysisFile)knownFilesMap.get(childFd.getQualifiedFileName());
       
       if (af != null) {
-        fdNode.setAttribute("comments",af.getComments()!=null?af.getComments():"");
+        fdNode.setAttribute("comments",fd.getType()!="dir"&af.getComments()!=null?af.getComments():"");
         childFd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
         childFd.setUploadDate(af.getUploadDate());
         childFd.setComments(af.getComments());

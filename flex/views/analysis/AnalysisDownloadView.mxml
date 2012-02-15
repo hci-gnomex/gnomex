@@ -47,6 +47,7 @@
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.ListEvent;
+      import mx.events.AdvancedDataGridEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
@@ -371,6 +372,11 @@
 			public function resetFilesToDelete():void{
 				filesToDelete.removeAll();
 			}
+      private function checkEdit(event:AdvancedDataGridEvent):void{
+        if ( event.itemRenderer.data.@type == "dir"){
+          event.preventDefault();
+        }
+      }
 		]]>
 	</mx:Script>
 	
@@ -429,16 +435,18 @@
 							 sortableColumns="false"
 							 borderStyle="solid" 
 							 headerWordWrap="false" 
-							 resizableColumns="true">						
+							 resizableColumns="true"
+               editable="true"
+               itemEditBeginning="checkEdit(event)">						
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{downloadList}"/>
 			</mx:dataProvider>						  
 			<mx:columns>
-				<mx:AdvancedDataGridColumn dataField="@displayName"    headerText="Folder or File" width="250"/> 
-				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
-				<mx:AdvancedDataGridColumn dataField="@comments" headerText="Comments" width="80"/>
-				<mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 
-				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay"  headerText="Modified" width="50"/> 
+				<mx:AdvancedDataGridColumn dataField="@displayName"  editable="false" headerText="Folder or File" width="250"/> 
+				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" editable="false" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
+				<mx:AdvancedDataGridColumn dataField="@comments"  editable="{this.removeFileButtonsVisible}" headerText="Comments" width="80"/>
+				<mx:AdvancedDataGridColumn dataField="@fileSizeText" editable="false" headerText="Size" width="40" textAlign="right" /> 
+				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay" editable="false" headerText="Modified" width="50"/> 
 			</mx:columns>
 		</mx:AdvancedDataGrid>
 		

@@ -80,6 +80,10 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
       }
       
       String childFileName = childFileNode.getAttributeValue("fileName");
+      if (childFileName.equals("")) {
+        newDirectoryNames.add(qualifiedDir + "/" + childFileNode.getAttributeValue("displayName"));
+        continue;
+      }
       
       if (childFileNode.getAttributeValue("type") != null && !childFileNode.getAttributeValue("type").equals("dir")) {
         fileIdMap.put(childFileName, childFileIdString);
