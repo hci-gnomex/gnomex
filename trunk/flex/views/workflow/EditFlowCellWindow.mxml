@@ -117,12 +117,12 @@
 				}
 				var params:Object = new Object();
 				params.number = selectedFC.@number;
-				params.createDate = selectedFC.@createDate;
+				params.createDate = this.dateInput.text;
 				params.notes = selectedFC.@notes;
 				params.idFlowCell = selectedFC.@idFlowCell;
 				params.idSeqRunType = selectedFC.@idSeqRunType;
 				params.idNumberSequencingCycles = selectedFC.@idNumberSequencingCycles;
-				params.barcode = selectedFC.@barcode;
+				params.barcode = this.barcodeInput.text;
 				params.codeSequencingPlatform = selectedFC.@codeSequencingPlatform;
 				params.channelsXMLString =  "<fcChannels>" + this.fcChannels.toXMLString() + "</fcChannels>";
 				
@@ -264,11 +264,13 @@
 						<mx:TextInput width="175" 
 									  id="barcodeInput"   
 									  toolTip="Enter flow cell barcode" 
-									  text = "{selectedFC.@barcode}"/>
+									  text = "{selectedFC.@barcode}"
+									  change="hasChanged=true" />
 						
 						<mx:DateField width="175" 
 									  id="dateInput" 
-									  text="{selectedFC.@createDate}" />
+									  text="{selectedFC.@createDate}"
+									  change="hasChanged=true" />
 					
 					</mx:VBox>
 				</mx:HBox>
