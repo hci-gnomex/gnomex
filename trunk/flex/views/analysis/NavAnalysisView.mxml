@@ -1018,7 +1018,7 @@
 <mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
     <mx:VBox width="100%" height="100%">
-      <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
+      <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%" id="vbox1">
           <mx:HBox id="filterBox"  horizontalGap="8" verticalAlign="middle">
 			  
 			  <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
@@ -1152,21 +1152,26 @@
 		
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{linkbutton1}" position="before">
-				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
-					<mx:LinkButton label="Select Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton"/>
+				<mx:VBox verticalGap="0" width="200" verticalAlign="middle">
+					<mx:LinkButton label="Select Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0"/>
 					<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic"/>
-				</mx:HBox>
+				</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{hbox3}"/>
 			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:AddChild relativeTo="{searchLabel}" position="before">
-				<mx:CheckBox label="Show all analyses" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
+				<mx:CheckBox label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
 			</mx:AddChild>
-			<mx:SetStyle target="{searchLabel}" name="paddingLeft" value="12"/>
 			<mx:AddChild relativeTo="{searchLabel}" position="before">
-				<mx:CheckBox label="Show public analyses" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="10"/>
+				<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="10"/>
 			</mx:AddChild>
+			<mx:SetProperty target="{vbox1}" name="height" value="48"/>
+			<mx:SetStyle target="{filterBox}" name="verticalAlign" value="top"/>
+			<mx:SetStyle target="{hbox3}" name="verticalAlign" value="top"/>
+			<mx:SetStyle target="{searchLabel}" name="paddingLeft" value="10"/>
+			<mx:SetStyle target="{linkbutton1}" name="paddingLeft" value="0"/>
+			<mx:SetProperty target="{searchTextField}" name="width" value="120"/>
 		</mx:State>
 
 		

@@ -65,6 +65,7 @@
 		[Bindable]
 		private var visibilityName:String;
 		
+		
 		[Bindable]
 		public var selectedExperiment:Object;
 		
@@ -75,7 +76,7 @@
 				this.showCy5LabelingFieldsCheckBox.visible = false;
 				this.showExtFieldsCheckBox.visible = false;
 				this.showHybFieldsCheckBox.visible = false;
-				this.showQCFieldsCheckBox.visible = false;
+				
 				
 				if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
 					parentDocument.requestFormButton.visible = false;				
@@ -135,12 +136,6 @@
 				if(hbox2 != null) {
 					hbox2.visible = false;		
 				}
-				if(showQCFieldsCheckBox != null) {
-					showQCFieldsCheckBox.visible = false;				
-				}
-				if(showSeqPrepFieldsCheckBox != null) {
-					showSeqPrepFieldsCheckBox.visible = false;
-				}
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -148,10 +143,7 @@
 					parentDocument.analysisButton.enabled = true;
 				} else {
 					parentDocument.analysisButton.enabled = false;
-				}
-				if(this.selectedExperiment.@isExternal == 'Y') {
-					parentDocument.linkButtonToHiSeqOrGAIIx.visible = false;			
-				}
+				} 
 			}
 			
 			if(this.selectedExperiment.@isExternal == 'Y') {
@@ -170,16 +162,10 @@
 					*/
 
 				}
-				showQCFieldsCheckBox.visible = false;					
-			}
-			else {
-				showQCFieldsCheckBox.visible = true;
-				showQCFieldsCheckBox.selected = true;
 			}
 			
 			
 			
-			//showQCFieldsCheckBox.selected = selectedExperiment.@isExternal == 'Y' ? false : true;
 
 			getRequestCategoryName();
 			getExperimentCategoryName();
@@ -447,18 +433,10 @@
         }
 	
         private function showHideColumns():void {
-			if(this.selectedExperiment.@isExternal == 'Y') {
-				if(this.showQCFieldsCheckBox != null) {
-					this.showQCFieldsCheckBox.selected = false;	
-				}
-				if(this.showSeqPrepFieldsCheckBox != null) {
-					this.showSeqPrepFieldsCheckBox.selected = false;
-				}				
-			}
+			descriptionCol.visible = (this.selectedExperiment[0].@hasSampleDescription=="Y");
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
 				organismCol.visible = true;
-				descriptionCol.visible = (this.selectedExperiment[0].@hasSampleDescription=="Y");
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -467,16 +445,12 @@
 				samplePrepCol.visible = false;
 				chipTypeCol.visible = false;
 				concentrationUnitCol.visible = false;
-				//prepInstructionsCol.visible = false;
-				treatmentCol.visible = false;   
 				barcodeCol.visible = false;
 				
 			} else if (currentState == 'ExternalMicroarrayState') {
 				sampleTypeCol.visible = true;
 				organismCol.visible = true;
-				//samplePrepCol.visible = true;
 				samplePrepCol.visible = false;
-				descriptionCol.visible = (this.selectedExperiment[0].@hasSampleDescription=="Y");
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -484,25 +458,10 @@
 				preppedByLabCol.visible = false;
 				chipTypeCol.visible = false;
 				concentrationUnitCol.visible = false;        		
-				//prepInstructionsCol.visible = false;
 				barcodeCol.visible = false;
 				
-			} else if (this.showQCFieldsCheckBox.selected) {
-				concentrationCol.visible = false; 
-				sampleTypeCol.visible = false;
-				organismCol.visible = false;
-				preppedByLabCol.visible = false;
-				samplePrepCol.visible = false;
-				chipTypeCol.visible = false;
-				concentrationUnitCol.visible = false;
-				//prepInstructionsCol.visible = false;
-
-				treatmentCol.visible = false;   
-				descriptionCol.visible = false;   
-        		
-        	} else {
+			} else {
   
-				treatmentCol.visible = this.selectedExperiment.@treatment == 'Y' ? true : false;   
 				descriptionCol.visible = true;   
 
 	        	if (currentState == 'SolexaState') {
@@ -513,7 +472,6 @@
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
-				   // prepInstructionsCol.visible = true;
 	        		
 	        	} else if (currentState == 'QCState') {
 					concentrationCol.visible = false; 
@@ -523,7 +481,6 @@
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
 					concentrationUnitCol.visible = true;
-				   // prepInstructionsCol.visible = false;
 	        		
 	        	} else {
 					concentrationCol.visible = true; 
@@ -533,10 +490,10 @@
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
-				   // prepInstructionsCol.visible = false;
         		}
         	} 
         	this.initializeBarcoding();
+			otherOrganismCol.visible = organismCol.visible;
         }
         
         public function showRelatedAnalysis():void {
@@ -871,14 +828,14 @@
         	     </mx:HBox>
 	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 	                <mx:Label text="Project"  width="55" fontWeight="bold"/>
-	                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
+	                <mx:Text  text="{this.selectedExperiment.@projectName}" width="130"/>
 	            </mx:HBox>
 	        	
 
 	            <mx:HBox width="100%">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                <mx:Label width="55" text="Visibility" fontWeight="bold"/>
-		                <mx:Text text="{visibilityName}" width="100%" />
+		                <mx:Text text="{visibilityName}" width="130" />
 		            </mx:HBox>
 
 	            </mx:HBox>
@@ -909,7 +866,7 @@
 						<mx:Label text="Description"/>
 						<util:TextAreaWorkaround id="overallDescript" editable="false" text="{this.selectedExperiment.@description}" width="100%" height="100%"/>
 						<mx:Spacer height="4" visible="{currentState == 'SolexaState'}"  includeInLayout="{currentState == 'SolexaState'}"/>
-						<mx:HBox width="100%" height="100%"  visible="{currentState == 'SolexaState' || currentState == 'ExternalSeqState'}"  includeInLayout="{currentState == 'SolexaState' || currentState == 'ExternalSeqState'}">
+						<mx:HBox width="100%" height="100%"  visible="{currentState == 'SolexaState'}"  includeInLayout="{currentState == 'SolexaState'}">
 		  					<mx:VBox verticalGap="0" width="100%" height="100%">
 	  							<mx:Label text="Sequencing Core Notes" />
 								<util:TextAreaWorkaround id="noteToSeq" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
@@ -921,10 +878,7 @@
 						</mx:HBox>
 					</mx:VBox>
 				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
-					<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
-						<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" id="hbox1">
-							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
-						</mx:HBox>
+					<mx:HBox width="100%" horizontalGap="2" paddingTop="4" id="hbox1">
 							
 					</mx:HBox>
 					<mx:AdvancedDataGrid width="100%" id="samplesGridConfirm"  
@@ -992,26 +946,23 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 							
 	
-							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
-							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
-			                <mx:AdvancedDataGridColumn  visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
+							<mx:AdvancedDataGridColumn visible="true" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
+							<mx:AdvancedDataGridColumn visible="true" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+							<mx:AdvancedDataGridColumn visible="true" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
-				 			<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
-							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
-							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
+				 			<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
+							<mx:AdvancedDataGridColumn visible="true" headerText="QC Status" width="90" dataField="@qualStatus"/>
 	
 			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
-			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
+			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"/>
-							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
-							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
-							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
-							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 	
 							
-							<mx:AdvancedDataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 	
 						</mx:columns>
 					</mx:AdvancedDataGrid>
@@ -1022,7 +973,7 @@
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
         			editable="false" 
-        			sortExpertMode="true" 
+        			sortExpertMode="true" horizontalScrollPolicy="auto"
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
 					fontSize="9" iconFunction="parentApplication.getTreeIcon">
@@ -1380,9 +1331,6 @@
 				</mx:VBox>					        			
 		
 		</mx:AddChild>
-		<mx:AddChild relativeTo="{hbox1}" position="lastChild">
-			<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
-		</mx:AddChild>
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
 		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
@@ -1393,15 +1341,8 @@
 		<mx:RemoveChild target="{protocolsBox}"/>
 		<mx:RemoveChild target="{headerBox}"/>
 		<mx:RemoveChild target="{hbox2}"/>
-		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
 	</mx:State>
-	<!--mx:State name="ExternalSeqState" basedOn="SolexaState"-->
 	<mx:State name="ExternalSeqState">
-		<!--mx:RemoveChild target="{protocolsBox}"/>
-		<mx:RemoveChild target="{headerBox}"/>
-		<mx:RemoveChild target="{hbox2}"/>
-		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
-		<mx:RemoveChild target="{showSeqPrepFieldsCheckBox}"/-->
 	</mx:State>
 </mx:states>
 	

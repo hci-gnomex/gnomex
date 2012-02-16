@@ -4,28 +4,25 @@
 	xmlns:util="views.util.*"
 	xmlns:experiment="views.experiment.*" >
 	<mx:VBox width="100%" verticalGap="1">
-		<mx:HBox width="100%" horizontalGap="1">
+		<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 			<mx:Image source="{detail.selectedExperiment.@icon}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" />
-			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8">
-				<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
-				<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
+			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8" width="100%">
+				<mx:HBox width="100%"  horizontalGap="0" horizontalAlign="left" verticalAlign="middle">
+						<mx:LinkButton label="Edit" fontSize="9" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton" textAlign="left" paddingLeft="0">
+							<mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+							<mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+						</mx:LinkButton>
+						<mx:LinkButton label="Printable form" fontSize="9" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+									   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
+						</mx:LinkButton>
+					    <mx:Spacer width="10"/>
+						<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
+						<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
+				</mx:HBox>
 			</mx:HBox>
 			
-		</mx:HBox>
-		
-		
-		<mx:HBox width="100%"  horizontalGap="0" horizontalAlign="left">
-				<mx:LinkButton label="Edit" fontSize="9" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton" textAlign="left" paddingLeft="0">
-					<mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-					<mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-				</mx:LinkButton>
-				<mx:LinkButton label="Printable form" fontSize="9" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
-				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
-				</mx:LinkButton>
-				<mx:LinkButton id="linkButtonToHiSeqOrGAIIx"  fontSize="9" label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline"  textAlign="left">    	        
-				</mx:LinkButton>
 		</mx:HBox>
 	
 	</mx:VBox>

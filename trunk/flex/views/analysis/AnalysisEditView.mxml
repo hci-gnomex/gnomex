@@ -869,28 +869,28 @@
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
 	
 	
-	<mx:VBox width="100%" verticalGap="2">
-		<mx:HBox horizontalGap="1">
+	<mx:HBox width="100%" verticalGap="10" verticalAlign="middle" horizontalGap="24">
+		<mx:HBox horizontalGap="1" verticalAlign="middle">
 			<mx:Image source="{parentApplication.iconAnalysis}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
 		</mx:HBox>
-		<mx:HBox width="100%" horizontalAlign="left">
+		<mx:HBox horizontalAlign="left">
 			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">    	        
 			</mx:LinkButton>
 			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" fontSize="9" textAlign="left"/>
 		</mx:HBox>
-	</mx:VBox>
+	</mx:HBox>
 	
-	<mx:HBox width="100%"  horizontalGap="5"  verticalAlign="top" horizontalAlign="left">
-		<mx:VBox verticalGap="4" width="75%">
+	<mx:HBox horizontalGap="5"  verticalAlign="top" horizontalAlign="left">
+		<mx:VBox verticalGap="4">
 			<mx:HBox horizontalGap="0" width="100%">
-				<mx:Label text="Name" width="60" fontWeight="bold">
+				<mx:Label text="Name" width="81" fontWeight="bold">
 				</mx:Label>
-				<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
+				<mx:TextInput text="{analysis.@name}" width="300" change="dirty.setDirty();" id="analysisName"/>
 			</mx:HBox>
-			<mx:Text text="{analysis.@createDate}" width="200"/>
 			<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 				<mx:Label text="Submit Date"  width="81" fontWeight="bold"/>
+				<mx:Text text="{analysis.@createDate}" width="200"/>
 			</mx:HBox>        
 		</mx:VBox>
 		
@@ -899,7 +899,7 @@
 				<mx:Label text="Group" width="81" textAlign="left" fontWeight="bold">
 				</mx:Label>
 				<mx:HBox verticalGap="0" width="100%" horizontalScrollPolicy="off">
-					<mx:Text text="{analysis.@labName}" />
+					<mx:Text text="{analysis.@labName}"  width="180"/>
 					<mx:LinkButton 
 						click="{Alert.show('Click on drag-n-drop hint (yellow box in left panel) for tip on how to reassign analysis to another group or move/copy analysis to another folder.')}" 
 						textAlign="left" textDecoration="underline" icon="@Embed(source='../../assets/information.png')" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" width="20"/>
@@ -924,7 +924,7 @@
 					<util:TextAreaWorkaround text="{analysis.@description}" width="100%" height="100%" change="dirty.setDirty()" id="description" />
 				</mx:HBox>
 				<mx:HBox horizontalGap="10" width="100%">
-					<mx:HBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" width="100%" height="100%">
+					<mx:HBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" height="100%">
 						<mx:VBox width="679" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalGap="0">
 							<mx:HBox verticalGap="0" horizontalGap="10" width="100%">
 								<mx:HBox horizontalGap="0" width="330">

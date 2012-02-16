@@ -439,7 +439,7 @@
 		<mx:HBox width="100%" horizontalAlign="left">
 			<mx:Label text="{downloadSizeMessage}" fontWeight="normal" fontStyle="normal" />
 			<mx:Spacer width="100%"/>
-			<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
+			<mx:Label text="{rowCountMessage}" />
 		</mx:HBox>
 
 	</mx:VBox>
