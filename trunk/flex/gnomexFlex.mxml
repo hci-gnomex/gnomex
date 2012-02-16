@@ -559,6 +559,8 @@
 						
 			private var isGuest:Boolean = false;
 	        
+			[Bindable]
+			public var dataTrackSupported:Boolean = false;
 	        
 	        public var isUniversityOnlyUser:Boolean = false;
 			public var isExternalUser:Boolean = false;
@@ -685,6 +687,7 @@
 			public var PROPERTY_FDT_HELP_URL:String                       = "fdt_help_url";
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED:String       = "sequence_alignment_supported";
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
+			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
 			 
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
@@ -908,39 +911,45 @@
 			}
 			
 			public function showDataTrackViewForItem(itemToSelect:Object, refreshItem:Object):void {
-				navDataTrackView.treeItemToSelect = itemToSelect;
-				navDataTrackView.refreshItem = refreshItem;
-				
-				// We have to make sure that the first time a lookup
-				// occurs after launch, we refresh the datatrack
-				// through show event (init()).  The next time
-				// through, we will make the call directly.
-				if (navDataTrackView.isInitialized) {
-					navDataTrackView.refreshDataTrackForItem()
+				if (dataTrackSupported) {
+					navDataTrackView.treeItemToSelect = itemToSelect;
+					navDataTrackView.refreshItem = refreshItem;
+					
+					// We have to make sure that the first time a lookup
+					// occurs after launch, we refresh the datatrack
+					// through show event (init()).  The next time
+					// through, we will make the call directly.
+					if (navDataTrackView.isInitialized) {
+						navDataTrackView.refreshDataTrackForItem()
+					}
+					
+					
+					this.stateStack.selectedChild = theViews;
+					theViews.visible = true;
+					theViews.selectedChild = navDataTrackView;				
+					
 				}
-				
-				
-				this.stateStack.selectedChild = theViews;
-				theViews.visible = true;
-				theViews.selectedChild = navDataTrackView;				
 			}
 			
 			
 			public function showDataTrackForNumber(dataTrackNumber:String):void {
-				navDataTrackView.dataTrackNumber = dataTrackNumber;
-				
-				
-				// We have to make sure that the first time a lookup
-				// occurs after launch, we refresh the datatrack
-				// through show event (init()).  The next time
-				// through, we will make the call directly.
-				if (navDataTrackView.isInitialized) {
-					navDataTrackView.refreshDataTrackForLookup()
+				if (dataTrackSupported) {
+					navDataTrackView.dataTrackNumber = dataTrackNumber;
+					
+					
+					// We have to make sure that the first time a lookup
+					// occurs after launch, we refresh the datatrack
+					// through show event (init()).  The next time
+					// through, we will make the call directly.
+					if (navDataTrackView.isInitialized) {
+						navDataTrackView.refreshDataTrackForLookup()
+					}
+					
+					this.stateStack.selectedChild = theViews;
+					theViews.visible = true;
+					theViews.selectedChild = navDataTrackView;
+					
 				}
-				
-				this.stateStack.selectedChild = theViews;
-				theViews.visible = true;
-				theViews.selectedChild = navDataTrackView;
 				
 			}
 			
@@ -1357,6 +1366,12 @@
 				} else {
 					currentState = "UserNonSubmitterState";
 				}
+				
+				if (!dataTrackSupported) {
+					if (theViews.contains(navDataTrackView)) {
+						theViews.removeChild(navDataTrackView);
+					}
+				}
             }
 
             private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
@@ -1493,6 +1508,14 @@
 					this.showUsage = this.hasPermission("canAccessAnyObject");
 				}
 				
+				
+				if (this.getProperty(this.PROPERTY_DATATRACK_SUPPORTED) == 'Y') {
+					dataTrackSupported = true;
+				} else {
+					dataTrackSupported = false;
+				}
+				
+
 				
 				setDefaultSubmissionState();
 
