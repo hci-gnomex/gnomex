@@ -219,9 +219,16 @@
 			}
 			
 			private function expandDownloadTree():void {
+        var maxFiles:int = 60;
+        var count:int = 0;
 				if (downloadTree != null) {
-					for each(var a:Object in getAnalysisDownloadList.lastResult.Analysis) {
-						downloadTree.expandChildrenOf(a, true);
+          downloadTree.expandItem(downloadList.getItemAt(0),true); 
+					for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+            downloadTree.expandItem(a,true);
+            count++;
+            if (count>=maxFiles){
+              break;
+            }
 					}
 				}
 			}
