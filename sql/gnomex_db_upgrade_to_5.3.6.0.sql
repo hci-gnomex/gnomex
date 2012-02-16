@@ -1,6 +1,8 @@
 use gnomex;
 
---Add new tables: Chromatogram, CoreFacility, InstrumentRun, Plate, PlateWell
+SET foreign_key_checks = 0;
+
+-- Add new tables: Chromatogram, CoreFacility, InstrumentRun, Plate, PlateWell
 
 DROP TABLE IF EXISTS `gnomex`.`Chromatogram`;
 CREATE TABLE `gnomex`.`Chromatogram` (
@@ -17,12 +19,12 @@ CREATE TABLE `gnomex`.`Chromatogram` (
   `cSignalStrength` int(10) NULL,
   `gSignalStrength` int(10) NULL,
   `tSignalStrength` int(10) NULL,
-  PRIMARY KEY (`idChromatogram`)
-  CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
+  PRIMARY KEY (`idChromatogram`),
+  CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY  (`idPlateWell`)
     REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-  CONSTRAINT `FK_Chromatogram_Request` FOREIGN KEY `FK_Chromatogram_Request` (`idRequest`)
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Chromatogram_Request` FOREIGN KEY  (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -45,18 +47,6 @@ CREATE TABLE `gnomex`.`InstrumentRun` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`Plate`;
-CREATE TABLE `gnomex`.`Plate` (
-  `idPlate` INT(10) NOT NULL AUTO_INCREMENT,
-  `idInstrumentRun` INT(10) NULL,
-  PRIMARY KEY (`idPlate`),
-  CONSTRAINT `FK_Plate_InstrumentRun` FOREIGN KEY `FK_Plate_InstrumentRun` (`idInstrumentRun`)
-    REFERENCES `gnomex`.`InstrumentRun` (`idInstrumentRun`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
 DROP TABLE IF EXISTS `gnomex`.`PlateWell`;
 CREATE TABLE `gnomex`.`PlateWell` (
   `idPlateWell` INT(10) NOT NULL AUTO_INCREMENT,
@@ -70,11 +60,11 @@ CREATE TABLE `gnomex`.`PlateWell` (
   CONSTRAINT `FK_PlateWell_Plate` FOREIGN KEY `FK_PlateWell_Plate` (`idPlate`)
     REFERENCES `gnomex`.`Plate` (`idPlate`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_PlateWell_Sample` FOREIGN KEY `FK_PlateWell_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_PlateWell_Request` FOREIGN KEY `FK_PlateWell_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
@@ -82,43 +72,64 @@ CREATE TABLE `gnomex`.`PlateWell` (
 )
 ENGINE = INNODB;
 
---Add idCoreFacility to Analysis,  BillingItem, Request, RequestCategory, WorkItem
-ALTER TABLE gnomex.Analysis  ADD  CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY FK_Analysis_CoreFacility (idCoreFacility)
+DROP TABLE IF EXISTS `gnomex`.`Plate`;
+CREATE TABLE `gnomex`.`Plate` (
+  `idPlate` INT(10) NOT NULL AUTO_INCREMENT,
+  `idInstrumentRun` INT(10) NULL,
+  PRIMARY KEY (`idPlate`),
+  CONSTRAINT `FK_Plate_InstrumentRun` FOREIGN KEY `FK_Plate_InstrumentRun` (`idInstrumentRun`)
+    REFERENCES `gnomex`.`InstrumentRun` (`idInstrumentRun`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
+
+-- Add idCoreFacility to Analysis,  BillingItem, Request, RequestCategory, WorkItem
+alter table gnomex.Analysis add idCoreFacility int(10) null;
+alter table gnomex.BillingItem add idCoreFacility int(10) null;
+alter table gnomex.Request add idCoreFacility int(10) null;
+alter table gnomex.RequestCategory add idCoreFacility int(10) null;
+alter table gnomex.WorkItem add idCoreFacility int(10) null;
+
+ALTER TABLE gnomex.Analysis  ADD  CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY  (idCoreFacility)
 REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
     
-ALTER TABLE gnomex.BillingItem  ADD  CONSTRAINT FK_BillingItem_CoreFacility FOREIGN KEY FK_BillingItem_CoreFacility (idCoreFacility)
+ALTER TABLE gnomex.BillingItem  ADD  CONSTRAINT FK_BillingItem_CoreFacility FOREIGN KEY  (idCoreFacility)
 REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
     
-ALTER TABLE gnomex.Request  ADD  CONSTRAINT FK_Request_CoreFacility FOREIGN KEY FK_Request_CoreFacility (idCoreFacility)
+ALTER TABLE gnomex.Request  ADD  CONSTRAINT FK_Request_CoreFacility FOREIGN KEY  (idCoreFacility)
 REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 
-ALTER TABLE gnomex.RequestCategory  ADD  CONSTRAINT FK_RequestCategory_CoreFacility FOREIGN KEY FK_RequestCategory_CoreFacility (idCoreFacility)
+ALTER TABLE gnomex.RequestCategory  ADD  CONSTRAINT FK_RequestCategory_CoreFacility FOREIGN KEY  (idCoreFacility)
 REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
     
-ALTER TABLE gnomex.WorkItem  ADD  CONSTRAINT FK_Analysis_WorkItem FOREIGN KEY FK_Analysis_WorkItem (idCoreFacility)
+ALTER TABLE gnomex.WorkItem  ADD  CONSTRAINT FK_Analysis_WorkItem FOREIGN KEY  (idCoreFacility)
 REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 
 
 
---Rename TotalPrice to InvoicePrice.
+-- Rename TotalPrice to InvoicePrice.
 alter table BillingItem change totalPrice invoicePrice decimal(8,2) not null;
+alter table BillingItem add totalPrice decimal(8,2) not null;
 
 -- Add splitType
 alter table BillingItem add column  `splitType` char(1) NULL;
 
 -- Initialize split type
-update BillingItem set splitType='%' where splitType is null
-
+update BillingItem set splitType='%' where splitType is null;
+update BillingItem set totalPrice=invoicePrice where invoicePrice != totalPrice or totalPrice is Null;
 
 
 -- Add properties for sequence alignments feature
@@ -201,3 +212,6 @@ CREATE TABLE `gnomex`.`AlignmentProfileGenomeIndex` (
 -- Add properties for datatrack feature
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('datatrack_supported', 'N', 'Indicates if datatrack feature is utilized in GNomEx installation', 'Y');
+
+
+SET foreign_key_checks = 1;
