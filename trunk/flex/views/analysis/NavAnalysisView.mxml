@@ -1152,7 +1152,7 @@
 		
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{linkbutton1}" position="before">
-				<mx:VBox verticalGap="0" width="200" verticalAlign="middle">
+				<mx:VBox verticalGap="0" width="200" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle">
 					<mx:LinkButton label="Select Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0"/>
 					<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic"/>
 				</mx:VBox>
