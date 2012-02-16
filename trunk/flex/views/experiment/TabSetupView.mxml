@@ -268,6 +268,9 @@
 		
 		private var firstClick:Boolean = true;
 		
+		private var request:String = "";
+		
+		private var experimentApplication = "";
         		
         public var idAppUser:Object = '';
 
@@ -712,7 +715,8 @@
 			for(var i:int = 0; i < radioRequestCategory.length; i++){
 				if(radioRequestCategory[i].value[0] == requestCategory[0].@value){
 					radioRequestCategory[i].selected = true;
-					radioRequestCategory[i].setStyle("fontWeight", "bold");				
+					radioRequestCategory[i].setStyle("fontWeight", "bold");
+					request = requestCategory[0].@value;
 				}
 				else
 					radioRequestCategory[i].setStyle("fontWeight", "normal");
@@ -744,6 +748,7 @@
 				this.parentDocument.applicationName = application.@display;
 			}
 
+			experimentApplication = application[0].@value;
 			checkSetupCompleteness();
 			
 			if (currentState.indexOf("Microarray") > 0) {
@@ -777,7 +782,7 @@
 			checkSetupCompleteness();
 			
 			
-			if(requestTypeGroup.selectedValue != null && currentState.indexOf("MicroArray") > 0){
+			if(requestTypeGroup.selectedValue != null){
 				updateFilteredSlideProduct();
 			}
 		} 
@@ -789,8 +794,18 @@
 		}
 		
 		private function filterSlideProduct(item:Object):Boolean{
-			if(radioGroupAppAdmin.selectedValue != null || radioGroupApp.selectedValue != null){
-				if(item.@idSlideProduct == "" || (this.getIdOrganism() == item.@idOrganism && this.getApp() == item.applications.Application.@value)){
+			
+			var vendor:String = "";
+			if(item.@idVendor == "2")
+				vendor = "AFFY";
+			else if(item.@idVendor == "1" && request == "AGIL1")
+				vendor = "AGIL1";
+			else if(item.@idVendor == "1" && request == "AGIL")
+				vendor = "AGIL";
+				
+			
+			if(request != "" && experimentApplication != ""){
+				if(item.@idSlideProduct == "" || (this.getIdOrganism().toString() == item.@idOrganism && request == vendor && item.applications.Application.@value == experimentApplication)){
 					return true;
 				}
 				else
