@@ -103,7 +103,7 @@
 				} 
 				this.downloadTree.visible = true;
 				setFileCount();
-				callLater(expandNodes);
+				callLater(expandNodes); 
 				this.downloadList.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 				this.downloadList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 				filesToDelete.removeAll();
@@ -111,9 +111,7 @@
 			}
 			
 			private function expandNodes():void {
-				for each (var item3:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type == "dir")) {
-					downloadTree.expandItem(item3, true);
-				}
+				downloadTree.expandItem(downloadList.getItemAt(0),true); 
 			}
 			
 			private function getSelectedFolders():void {
@@ -372,11 +370,13 @@
 			public function resetFilesToDelete():void{
 				filesToDelete.removeAll();
 			}
-      private function checkEdit(event:AdvancedDataGridEvent):void{
-        if ( event.itemRenderer.data.@type == "dir"){
-          event.preventDefault();
-        }
-      }
+			
+      		private function checkEdit(event:AdvancedDataGridEvent):void{
+        		if ( event.itemRenderer.data.@type == "dir"){
+          			event.preventDefault();
+        		}
+      		}
+			
 		]]>
 	</mx:Script>
 	
@@ -426,7 +426,7 @@
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
 							 groupItemRenderer="views.renderers.CheckBoxGroupedItem"
 							 dropEnabled="false"  
-							 displayItemsExpanded="true"
+							 displayItemsExpanded="false"
 							 iconFunction="parentApplication.getTreeIcon"
 							 dragEnabled="false" 
 							 dragMoveEnabled="false"  
