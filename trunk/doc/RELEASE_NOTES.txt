@@ -51,6 +51,7 @@
 * Added a checkbox for an analysis so all files can be selected at once.
 * File size does not display for files not on the user's file system on AnalysisDownloadView.
 * Fixed a problem with new folders not sorting on AnalysisUploadView.
+* Made improvements to look-and-feel of login web page (and register new user, reset password pages)
 
 5.3.6 Deploy Notes
 --------------------
