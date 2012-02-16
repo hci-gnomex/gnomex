@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Data Tracks" width="100%" height="100%" 
-		   xmlns:views="views.*" 
+		   xmlns:views="views.*"  
 		   xmlns:datatrack="views.datatrack.*"
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"

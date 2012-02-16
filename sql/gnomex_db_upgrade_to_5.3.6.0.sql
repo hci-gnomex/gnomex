@@ -197,3 +197,7 @@ CREATE TABLE `gnomex`.`AlignmentProfileGenomeIndex` (
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
+
+-- Add properties for datatrack feature
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
+values ('datatrack_supported', 'N', 'Indicates if datatrack feature is utilized in GNomEx installation', 'Y');
