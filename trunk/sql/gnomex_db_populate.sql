@@ -761,7 +761,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (67, 'dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
  (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
  (69, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
- (70,'contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N');
+ (70,'contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N'),
  (71,'reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y'),
  (72,'dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y'),
  (73,'datatrack_read_directory','/home/gnomex/dataTrackData/','The file directory where data track files are stored that are not linked to an analysis file. NOTE: must end in /', 'Y'),

@@ -28,40 +28,42 @@ CREATE TABLE `gnomex`.`Analysis` (
   `idCoreFacility` INT(10) NULL,
   `privacyExpirationDate` DATETIME NULL,
   PRIMARY KEY (`idAnalysis`),
-  CONSTRAINT `FK_Analysis_Lab` FOREIGN KEY `FK_Analysis_Lab` (`idLab`)
+  CONSTRAINT `FK_Analysis_Lab` FOREIGN KEY  (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Analysis_AnalysisType` FOREIGN KEY `FK_Analysis_AnalysisType` (`idAnalysisType`)
+  CONSTRAINT `FK_Analysis_AnalysisType` FOREIGN KEY  (`idAnalysisType`)
     REFERENCES `gnomex`.`AnalysisType` (`idAnalysisType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Analysis_AnalysisProtocol` FOREIGN KEY `FK_Analysis_AnalysisProtocol` (`idAnalysisProtocol`)
+  CONSTRAINT `FK_Analysis_AnalysisProtocol` FOREIGN KEY  (`idAnalysisProtocol`)
     REFERENCES `gnomex`.`AnalysisProtocol` (`idAnalysisProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Analysis_Organism` FOREIGN KEY `FK_Analysis_Organism` (`idOrganism`)
+  CONSTRAINT `FK_Analysis_Organism` FOREIGN KEY  (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Analysis_AppUser` FOREIGN KEY `FK_Analysis_AppUser` (`idAppUser`)
+  CONSTRAINT `FK_Analysis_AppUser` FOREIGN KEY  (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Analysis_Visibility` FOREIGN KEY `FK_Analysis_Visibility` (`codeVisibility`)
+  CONSTRAINT `FK_Analysis_Visibility` FOREIGN KEY  (`codeVisibility`)
     REFERENCES `gnomex`.`Visibility` (`codeVisibility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT FK_Analysis_Institution FOREIGN KEY FK_Analysis_Institution (idInstitution)
+  CONSTRAINT FK_Analysis_Institution FOREIGN KEY  (idInstitution)
     REFERENCES gnomex.Institution (idInstitution)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-  CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY FK_Analysis_CoreFacility (idCoreFacility)
-    REFERENCES gnomex.CoreFacility (CoreFacility)
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY  (idCoreFacility)
+    REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+    
 
 DROP TABLE IF EXISTS `gnomex`.`AnalysisExperimentItem`;
 CREATE TABLE `gnomex`.`AnalysisExperimentItem` (
@@ -332,41 +334,42 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `notes` VARCHAR(500) NULL,
   `idLab` INT(10) NOT NULL,
   `completeDate` DATETIME NULL,
-  'splitType' CHAR(1) NULL,
+  `splitType` CHAR(1) NULL,
+  `idCoreFacility` INT(10) NULL,
   PRIMARY KEY (`idBillingItem`),
-  CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY `FK_BillingItem_PriceCategory` (`idPriceCategory`)
+  CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_BillingChargeKind` FOREIGN KEY `FK_BillingItem_BillingChargeKind` (`codeBillingChargeKind`)
+  CONSTRAINT `FK_BillingItem_BillingChargeKind` FOREIGN KEY  (`codeBillingChargeKind`)
     REFERENCES `gnomex`.`BillingChargeKind` (`codeBillingChargeKind`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_BillingStatus` FOREIGN KEY `FK_BillingItem_BillingStatus` (`codeBillingStatus`)
+  CONSTRAINT `FK_BillingItem_BillingStatus` FOREIGN KEY  (`codeBillingStatus`)
     REFERENCES `gnomex`.`BillingStatus` (`codeBillingStatus`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_BillingAccount` FOREIGN KEY `FK_BillingItem_BillingAccount` (`idBillingAccount`)
+  CONSTRAINT `FK_BillingItem_BillingAccount` FOREIGN KEY  (`idBillingAccount`)
     REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_Price` FOREIGN KEY `FK_BillingItem_Price` (`idPrice`)
+  CONSTRAINT `FK_BillingItem_Price` FOREIGN KEY  (`idPrice`)
     REFERENCES `gnomex`.`Price` (`idPrice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_Lab` FOREIGN KEY `FK_BillingItem_Lab` (`idLab`)
+  CONSTRAINT `FK_BillingItem_Lab` FOREIGN KEY  (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_Request` FOREIGN KEY `FK_BillingItem_Request` (`idRequest`)
+  CONSTRAINT `FK_BillingItem_Request` FOREIGN KEY  (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_BillingPeriod` FOREIGN KEY `FK_BillingItem_BillingPeriod` (`idBillingPeriod`)
+  CONSTRAINT `FK_BillingItem_BillingPeriod` FOREIGN KEY  (`idBillingPeriod`)
     REFERENCES `gnomex`.`BillingPeriod` (`idBillingPeriod`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-  CONSTRAINT `FK_BillingItem_CoreFacility` FOREIGN KEY `FK_BillingItem_CoreFacility` (`idCoreFacility`)
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingItem_CoreFacility` FOREIGN KEY  (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -539,11 +542,11 @@ CREATE TABLE `gnomex`.`Chromatogram` (
   `cSignalStrength` int(10) NULL,
   `gSignalStrength` int(10) NULL,
   `tSignalStrength` int(10) NULL,
-  PRIMARY KEY (`idChromatogram`)
+  PRIMARY KEY (`idChromatogram`),
   CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
     REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_Chromatogram_Request` FOREIGN KEY `FK_Chromatogram_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
@@ -1202,11 +1205,11 @@ CREATE TABLE `gnomex`.`PlateWell` (
   CONSTRAINT `FK_PlateWell_Plate` FOREIGN KEY `FK_PlateWell_Plate` (`idPlate`)
     REFERENCES `gnomex`.`Plate` (`idPlate`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_PlateWell_Sample` FOREIGN KEY `FK_PlateWell_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_PlateWell_Request` FOREIGN KEY `FK_PlateWell_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
@@ -1355,7 +1358,7 @@ CREATE TABLE `gnomex`.`Request` (
   CONSTRAINT `FK_Request_Institution` FOREIGN KEY FK_Request_Institution (`idInstitution`)
     REFERENCES `gnomex`.`Institution` (`idInstitution`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_CoreFacility` FOREIGN KEY FK_Request_CoreFacility (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
@@ -1388,7 +1391,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   CONSTRAINT `FK_RequestCategory_Organism` FOREIGN KEY `FK_RequestCategory_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_RequestCategory_CoreFacility` FOREIGN KEY `FK_RequestCategory_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
@@ -2188,7 +2191,7 @@ CREATE TABLE `gnomex`.`WorkItem` (
   CONSTRAINT `FK_WorkItem_Request` FOREIGN KEY `FK_WorkItem_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
    CONSTRAINT `FK_WorkItem_CoreFacility` FOREIGN KEY `FK_WorkItem_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
