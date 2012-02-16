@@ -1301,7 +1301,7 @@
 	</mx:HBox>
 		<mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1a" >
 		    	<mx:HBox horizontalGap="0" id="hbox5">
-		    		<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0" styleName="labelSmall">
+		    		<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0" styleName="labelSmall" paddingLeft="2">
 		    			<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 		    		<mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"  paddingLeft="2" horizontalGap="0" styleName="labelSmall">
