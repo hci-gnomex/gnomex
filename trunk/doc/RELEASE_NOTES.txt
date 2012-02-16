@@ -17,8 +17,7 @@
 * Fixed issue with Analysis Group dropdowns when adding a new analysis.  Dropdown for other labs always showed Analysis Group values from first lab expanded
 * Fixed issue with Project dropdowns when editing an experiment.  Dropdown for other labs always showed project values from first lab expanded.
 * Added new InvoicePrice field to BillingItem to replace TotalPrice.  TotalPrice no longer used in code but will be reused when split by amount is implemented.
-* After deploy (but before anyone uses code) run following query to make sure invoicePrice is correct
-* update BillingItem set invoicePrice=totalPrice where invoicePrice != totalPrice or invoicePrice is Null
+* After deploy (but before anyone uses code) run following query to make sure invoicePrice is correct 'update BillingItem set invoicePrice=totalPrice where invoicePrice != totalPrice or invoicePrice is Null'
 * Rename sql files for better sorting.
 * Show totals on Usage view for downloads, uploads, and disk space.
 * Reassign transfer logs to new lab when experiment reassigned to different lab through drag-and-drop.  Now the usage data will be associated with the correct lab.
