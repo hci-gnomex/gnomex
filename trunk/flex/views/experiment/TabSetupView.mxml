@@ -21,6 +21,7 @@
          <mx:SetProperty target="{text2}" name="htmlText">
             <mx:value>(5) Select a project folder for organizing experiments.</mx:value>
          </mx:SetProperty>
+         <mx:SetStyle target="{label1}" name="paddingTop"/>
       </mx:State>
       <mx:State name="ExternalExperimentState">
          <mx:SetProperty target="{textarea1}" name="htmlText">
@@ -127,6 +128,7 @@
 				  </mx:TextInput>				
 			  </mx:HBox>
 		  </mx:AddChild>		  
+		  <mx:SetStyle target="{label1}" name="paddingTop"/>
       </mx:State>	   
 	  <mx:State name="AdminExternalMicroarrayState" basedOn="AdminExternalExperimentState">
 	  	<mx:AddChild relativeTo="{vbox1}" position="lastChild">
@@ -270,7 +272,7 @@
 		
 		private var request:String = "";
 		
-		private var experimentApplication = "";
+		private var experimentApplication:Object = "";
         		
         public var idAppUser:Object = '';
 
