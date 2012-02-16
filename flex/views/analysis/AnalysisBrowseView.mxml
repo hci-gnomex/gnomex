@@ -309,7 +309,7 @@
 			    </mx:HBox>
 					
 				</mx:ViewStack>				
-		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0" horizontalAlign="right" paddingLeft="2" verticalAlign="middle">
+		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0" horizontalAlign="left" paddingLeft="2" verticalAlign="middle">
 			        <mx:Label text="Analysis #"/>
 			        <mx:ComboBox dataProvider="{parentDocument.analysisNumbers}" id="analysisNumberCombo" change="toggleRequestNumberFilter();filterList()" width="80" >					    		
 			        </mx:ComboBox> 

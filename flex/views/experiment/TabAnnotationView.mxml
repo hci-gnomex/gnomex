@@ -3,8 +3,6 @@
 		   width="100%" height="100%" enabled="false">
 	<mx:states>
 		<mx:State name="EditState">
-			<mx:RemoveChild target="{textarea1}"/>
-			<mx:RemoveChild target="{vbox1}"/>
 		</mx:State>
 		<mx:State name="ExternalState">
 			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
@@ -50,11 +48,6 @@
 				
 			}
 				
-			private function propagateDescription():void {
-				parentDocument.request.@description = expDescription.text;
-				parentDocument.confirmView.expDescriptArea.text = expDescription.text;
-					
-			}
 			
 			public function showSampleAnnotationColumn(idProperty:String, show:Boolean):void {
 				if (parentDocument.samplesView.samplesGrid == null) {
@@ -526,17 +519,11 @@
 	<mx:XMLListCollection id="properties"/>
 	
 	<mx:VBox width="100%" height="100%">
-		<mx:HBox verticalAlign="bottom"  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
-			<mx:TextArea styleName="instructionBox" width="660" wordWrap="true" height="74" visible="true" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a<br>       subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a description for the Samples.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			</mx:TextArea>
-		</mx:HBox>
-		
-		<mx:HBox width="100%" height="100%" horizontalGap="24">
+		<mx:HBox width="100%" height="100%" horizontalGap="0">
 			<mx:VBox height="100%" verticalGap="1">
 				<mx:HBox>
 					<mx:Text width="300" height="100%" id="text1">
-						<mx:text>(1) Check sample characteristics:</mx:text>
+						<mx:text>(1) Check sample characteristics</mx:text>
 					</mx:Text>
 					
 				</mx:HBox>
@@ -584,20 +571,11 @@
 						</mx:LinkButton>						
 					</mx:VBox>
 				</mx:HBox>
-				
 			</mx:VBox>
-			<mx:VBox height="100%" verticalGap="2" width="100%" id="vbox2">
-				<mx:HBox width="100%">
-					<mx:Text  htmlText="(2) Experiment Description:" width="100%"/>
-					
-				</mx:HBox>
-				<mx:HBox height="50%" width="100%" paddingLeft="10" paddingRight="30">
-					<mx:TextArea id="expDescription" focusOut="propagateDescription()" text="{parentDocument.request.@description}" width="100%" height="100%">
-					</mx:TextArea>
-					
-				</mx:HBox>
-				
-			</mx:VBox>
+			<mx:Spacer width="100%"/>	
+			<mx:TextArea styleName="instructionBox" width="300" wordWrap="true" height="120" visible="true" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+			</mx:TextArea>
 			
 		</mx:HBox>
 		

@@ -1261,8 +1261,8 @@
 
   <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
    <mx:VBox styleName="panelBox"   backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%" verticalGap="0">
-	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1" >
-		<mx:HBox width="100%" id="hbox4"  horizontalGap="20" paddingLeft="0"> 
+	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1" >
+		<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0"> 
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 				<mx:RadioButtonGroup id="experimentRadioGroup"/>
 				<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted">
@@ -1282,42 +1282,41 @@
 				</mx:RadioButton>
 			</mx:HBox>
 			<mx:VRule height="20" id="vrule1"/>
-			<mx:HBox horizontalGap="2" id="hbox5">
-				<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0" styleName="labelSmall">
-					<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+				<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="2"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
-				<mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"  paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-					<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+				<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
-				<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-					<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
+			 			<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			</mx:CheckBox>		    		
+				<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
-				
 			</mx:HBox>
-			<mx:Spacer width="100%" id="spacer1"/>
-			<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline" paddingRight="0" id="linkbutton2"/>
 		</mx:HBox>
 		
 	</mx:HBox>
-		<mx:HBox horizontalGap="20" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1a" >
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
-		    		<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="2"   styleName="labelSmall">
-		    			<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		<mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1a" >
+		    	<mx:HBox horizontalGap="0" id="hbox5">
+		    		<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0" styleName="labelSmall">
+		    			<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
-		    			<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		<mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"  paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+		    			<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-					<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
-		    			<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
-					</mx:CheckBox>		    		
-		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
-		    			<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    	</mx:HBox> 
+		    	</mx:HBox>
 			<mx:VRule height="20" id="vrule1a"/>
 			<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments only"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
 				<mx:click>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 			</mx:CheckBox>
+			<mx:VRule height="20" id="vrule2"/>
+			<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline" paddingRight="0" id="linkbutton2" paddingLeft="0"/>
 	    	
 	    </mx:HBox>
 	
@@ -1332,7 +1331,7 @@
 				<mx:HBox width="100%">
 					<mx:Label id="titleLabel" styleName="titleLabel" text="Experiments"/>
 					<mx:Label id="messageLabel" styleName="labelSmall" textAlign="right" width="100%"/>
-				</mx:HBox>
+				</mx:HBox> 
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
@@ -1422,17 +1421,15 @@
 	<mx:states>
 		<mx:State name="GuestState">
 			<mx:RemoveChild target="{hbox2}"/>
-			<mx:RemoveChild target="{hbox3}"/>
-			<mx:AddChild relativeTo="{spacer1}" position="before" target="{hbox3}"/>
-			<mx:RemoveChild target="{externalExperimentsOnlyCheckbox}"/>
-			<mx:AddChild relativeTo="{spacer1}" position="before" target="{externalExperimentsOnlyCheckbox}"/>
 			<mx:RemoveChild target="{vrule1}"/>
-			<mx:RemoveChild target="{hbox1a}"/>
-			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before">
-				<mx:VRule height="20"/>
+			<mx:RemoveChild target="{hbox3}"/>
+			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before" target="{hbox3}"/>
+			<mx:RemoveChild target="{hbox1}"/>
+			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
+				<mx:VRule height="18" id="vrule0" width="0"/>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:VRule height="20"/>
+			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before">
+				<mx:VRule height="20" id="vrule3"/>
 			</mx:AddChild>
 		</mx:State>
 		
@@ -1442,17 +1439,17 @@
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
 			<mx:AddChild relativeTo="{hbox2}"  position="firstChild">
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-				<mx:CheckBox label="All experiments" paddingRight="8" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());"/>
+				<mx:CheckBox label="All experiments" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());"/>
 				<mx:VRule height="20"/>
-				<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="8"/>
+				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
 				<mx:ComboBox id="browseLabCombo" 
 					labelField="@name"
 					dataProvider="{parentApplication.promptedLabList}"
 					 change="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
 					 visible="true"  width="150">
 				</mx:ComboBox>
-				<mx:HBox  horizontalGap="0"  verticalAlign="middle">
-				<mx:Label id="userLabel" visible="true" text="Requester:" paddingBottom="0" paddingLeft="10"  styleName="labelSmall"/>
+				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">
+				<mx:Label id="userLabel" visible="true" text="Requester" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
 				<mx:ComboBox id="browseUserCombo" 
 					labelField="@displayName"
 					dataProvider="{appUsers}"
@@ -1463,18 +1460,12 @@
 					
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{linkbutton2}" position="before">
-				<mx:Spacer width="100%" id="spacer0"/>
-			</mx:AddChild>
 			<mx:RemoveChild target="{vrule1}"/>
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:VRule height="20" id="vrule3"/>
-			</mx:AddChild>
 			<mx:SetEventHandler target="{externalExperimentsOnlyCheckbox}" name="click" handler="this.allExperimentsCheckbox.selected = false;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());"/>
-			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
-			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
-			<mx:SetProperty target="{messageLabel}" name="styleName" value="labelSmall"/>
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:VRule height="20" id="vrule4"/>
+			</mx:AddChild>
 
 
 		</mx:State>

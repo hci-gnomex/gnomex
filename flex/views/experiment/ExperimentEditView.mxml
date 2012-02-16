@@ -821,6 +821,10 @@
 				}
 			}
 			
+			if (theTab.contains(notesView)) {
+				notesView.currentState = "";
+			}
+			
 		}
 		
 		private function nextTab():void {
@@ -1906,6 +1910,8 @@
 			
 			annotationView.enabled = true;
 			samplesView.enabled = true;		
+			notesView.enabled = true;
+			notesView.currentState = "EditState";
 
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
@@ -2031,7 +2037,6 @@
 				if (theTab.contains(this.billingTab)) {
 					theTab.removeChild(billingTab);
 				}
-				linkButtonToHiSeqOrGAIIx.visible = false;
 			} else {
 				if (!theTab.contains(this.billingTab)) {
 					theTab.addChild(billingTab);
@@ -4147,7 +4152,7 @@
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-		<mx:HBox id="hbox7" verticalAlign="middle" horizontalGap="1">
+		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
 		</mx:HBox>		
@@ -4268,7 +4273,7 @@
     <mx:states>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
-    			<mx:HBox width="735" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+    			<mx:HBox paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
     				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					       <mx:Text text="Experiment" width="90"  fontWeight="bold"/>
@@ -4284,28 +4289,28 @@
 		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
 		    			</mx:HBox>
     				</mx:VBox>  
-     				<mx:VBox verticalGap="2" width="100%" id="vbox3">
+     				<mx:VBox verticalGap="2" id="vbox3">
     				    
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				           <mx:Label text="Group"  width="80" fontWeight="bold"/>
+    				    <mx:HBox verticalGap="0" horizontalGap="0">
+    				           <mx:Label text="Group"  width="66" fontWeight="bold"/>
     				           <mx:ComboBox id="requestEditLabCombo"
     				           	  labelField="@name" 
     				           	  change="this.dirty.setDirty();refreshLab()" 
     				           	  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
     				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-    				           	  width="320"/>
+    				           	  width="240"/>
     				       </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
-    				        <mx:Label text="Project"  width="80" fontWeight="bold"/>
+    				        <mx:Label text="Project"  width="66" fontWeight="bold"/>
     				        <mx:ComboBox id="requestEditProjectCombo"
     				           	  labelField="@name" 
     				           	  change="this.dirty.setDirty()"
     				           	  dataProvider="{projects}" 
     				           	  enabled="true"
-    				           	  width="320"/>
+    				           	  width="240"/>
     				    </mx:HBox>
     				    <mx:HBox>
-	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="{'Completed'}" width="80"  fontWeight="bold"/>    				       
+	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="Completed" width="66"  fontWeight="bold"/>    				       
 	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="{this.request.@completedDate}"/>
     				    </mx:HBox>
 
@@ -4333,7 +4338,7 @@
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
         			editable="false"  
-        			sortExpertMode="true" 
+        			sortExpertMode="true" horizontalScrollPolicy="auto"
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
 					fontSize="9" iconFunction="parentApplication.getTreeIcon">
@@ -4399,29 +4404,26 @@
     		</mx:AddChild>
     		<mx:SetStyle target="{dirty}" name="fontSize" value="9"/>
     		<mx:SetProperty target="{dirty}" name="label" value="Changes have not been saved"/>
-    		<mx:SetProperty target="{hbox7}" name="width" value="100%"/>
+    		<mx:SetProperty target="{hbox7}" name="width"/>
     		<mx:SetStyle target="{hbox8}" name="horizontalGap" value="0"/>
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
-    		<mx:AddChild relativeTo="{navBox}" position="lastChild">
-    			<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" width="100%" paddingBottom="4">
-					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
-					</mx:LinkButton>
-    				<mx:LinkButton label="Downloads" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
-    				<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
-    				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-    							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
-    				</mx:LinkButton>
-    				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.isAdminState &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkButtonToHiSeqOrGAIIx" textAlign="left">    	        
-    				</mx:LinkButton>
-    				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
-    			</mx:HBox>
-    		</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
 				<mx:Spacer width="8"/>
 			</mx:AddChild>
-    		<mx:AddChild relativeTo="{hbox7}" position="lastChild" >
-    			<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
-    		</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
+				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" paddingBottom="4" verticalAlign="middle" paddingLeft="8">
+					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
+					</mx:LinkButton>
+					<mx:LinkButton label="Downloads" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
+					</mx:LinkButton>
+					<mx:Spacer width="10"/>
+					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:SetProperty target="{navBox}" name="width"/>
 		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>

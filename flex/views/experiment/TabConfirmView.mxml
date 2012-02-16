@@ -26,7 +26,7 @@
 			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
 			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
 			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
-			<mx:SetProperty target="{textarea1}" name="height" value="78"/>
+			<mx:SetProperty target="{textarea1}" name="height" value="88"/>
 			<mx:SetProperty target="{expDescriptBox}" name="height" value="175"/>
 			<mx:SetProperty target="{samplesGridConfirm}" name="height" value="127"/>
 			<mx:SetProperty target="{samplesConfirmContainer}" name="height" value="188"/>
@@ -44,15 +44,20 @@
 	
 <mx:Script>	
 	<![CDATA[
-		import views.util.AnnotationDataGridColumn;
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
-		import mx.collections.GroupingField;
+		
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
+		import mx.collections.GroupingField;
+		
+		import views.util.AnnotationDataGridColumn;
 		
 		[Bindable]
 		private var submitterName:String = "";
+		
+		[Bindable]
+		private var longDescriptionRowCount:int = 0;
 				
 
 		private function init():void {
@@ -61,6 +66,15 @@
 			parentDocument.getMultiplexLanes();
 			
 			submitterName = parentDocument.getSubmitterName();
+			
+			longDescriptionRowCount = 0;
+			for each (var s:Object in parentDocument.samples) {
+				if (s.@description.toString().length > 30) {
+					var count:Number = s.@description.toString().length / 30;
+					longDescriptionRowCount += Math.round(count);
+				}
+			}
+			
 			
 			if (this.parentDocument.isSolexaState()) {
 				if (this.confirmContainer.contains(this.hybsConfirmContainer)) {
@@ -111,6 +125,8 @@
 			this.showHideColumns();
 			this.confirmContainer.validateNow();
 			
+		
+			
 		} 
 
         public function showHideColumns():void {
@@ -123,7 +139,6 @@
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
-				otherOrganismCol.visible = parentApplication.submitInternalExperiment();
 				chipTypeConfirmColumn.visible = false; 
 				
 				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
@@ -202,6 +217,7 @@
 					}
 				} 
 			}
+			otherOrganismCol.visible = sampleOrganismConfirmColumn.visible;
   						 
         }
 		
@@ -212,7 +228,7 @@
 </mx:Script>
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
-			<mx:HBox width="100%" horizontalGap="4"   height="110">
+			<mx:HBox width="100%" horizontalGap="4">
 				<mx:VBox height="100%" verticalGap="0" width="120" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
@@ -233,8 +249,8 @@
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}" width="250"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
-				<mx:TextArea styleName="instructionBox" width="268" wordWrap="true" id="textarea1" height="108">
-					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the Back button or by clicking on a tab.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the<br>     Submit button.]]></mx:htmlText>
+				<mx:TextArea styleName="instructionBox" width="284" wordWrap="true" id="textarea1" height="100">
+					  <mx:htmlText><![CDATA[1.  Please confirm the information below. Click the<br>     Back button or a tab to modify the request.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the Submit<br>    button.]]></mx:htmlText>
 				</mx:TextArea>
 			</mx:HBox>
 				<mx:VBox width="100%" verticalGap="0" id="billingContainer">
@@ -245,7 +261,7 @@
 						<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"
 							editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
 							backgroundAlpha="0"  alpha="0" 
-							sortableColumns="false"   fontSize="9" borderStyle="none">
+							sortableColumns="false"   fontSize="9" borderStyle="solid">
 							<mx:rowCount>{parentDocument.createBillingItems.lastResult..BillingItem.length() - 1}</mx:rowCount>
 							<mx:columns>
 							   				<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
@@ -309,20 +325,20 @@
 				<mx:Label text="Experiment Description" textDecoration="underline" paddingTop="5"/>
 				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" 
 										  verticalScrollPolicy="auto" backgroundColor="#FFFFFF"
-										  text="{parentDocument.isAmendState() ? parentDocument.request.@description : ''}"/>
+										  text="{parentDocument.isAmendState() ? parentDocument.request.@description : ''}" borderColor="#E3E6E8"/>
 				
-				<mx:HBox width="100%" visible="{parentDocument.requestType == 'ILLUMINA'}" includeInLayout="{parentDocument.requestType == 'ILLUMINA'}" paddingTop="4">
+				<mx:HBox width="100%" visible="{currentState != 'ExternalExperimentState' &amp;&amp; parentDocument.requestType == 'ILLUMINA'}" includeInLayout="{currentState != 'ExternalExperimentState' &amp;&amp; parentDocument.requestType == 'ILLUMINA'}" paddingTop="4">
 					<mx:VBox width="50%" id="vbox3" verticalGap="0"   paddingTop="2">
 						<mx:Label text ="Sequencing Core Notes" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false" id="seqNotes" 
 												 backgroundColor="#FFFFFF"
-												 text="{parentDocument.isAmendState() ? parentDocument.request.@corePrepInstructions : ''}"/>
+												 text="{parentDocument.isAmendState() ? parentDocument.request.@corePrepInstructions : ''}" borderColor="#E3E6E8"/>
 					</mx:VBox>
 					<mx:VBox id="vbox4" width = "100%" verticalGap="0"   paddingTop="2">
 						<mx:Label text="Bioinformatics Notes:" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false"  id="bioNotes" backgroundAlpha="0.8" 
 												 backgroundColor="#FFFFFF"
-												 text="{parentDocument.isAmendState() ? parentDocument.request.@analysisInstructinos : ''}"/>
+												 text="{parentDocument.isAmendState() ? parentDocument.request.@analysisInstructinos : ''}" borderColor="#E3E6E8"/>
 					</mx:VBox>
 				</mx:HBox>
 			</mx:VBox>
@@ -331,7 +347,7 @@
 			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="4">
 				<mx:Label text="{'Samples (' + parentDocument.samples.length + ')'}" id="label1" textDecoration="underline"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 
-					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{parentDocument.samples.length}"
+					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{parentDocument.samples.length + longDescriptionRowCount}"
 					sortableColumns="false" alpha="0.8" fontSize="9" variableRowHeight="true" >
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
