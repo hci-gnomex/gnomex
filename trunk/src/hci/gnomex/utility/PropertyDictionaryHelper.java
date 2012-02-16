@@ -463,7 +463,7 @@ public class PropertyDictionaryHelper implements Serializable {
     if (tokens == null || tokens.length == 0) {
       throw new RuntimeException("Cannot parse directory into expected last file part " + baseDirCanonicalPath);
     }
-    baseDirLastPart = tokens[tokens.length - 2];
+    baseDirLastPart = tokens[tokens.length - 1];
     
     // Strip off the leading part of the path, up through the year subdirectory,
     // to leave only the path that starts with the request number subdirectory.
