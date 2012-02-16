@@ -248,7 +248,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             
             
-            if(RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory()))
+            if(RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory()) && request.getIsExternal().equals("N"))
             {
               Element sequenceNote = new Element("H5");
               sequenceNote.addContent("Sequencing Core Notes");
