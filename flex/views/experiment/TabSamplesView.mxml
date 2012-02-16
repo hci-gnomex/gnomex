@@ -128,7 +128,7 @@
 					"/>");
 					
 				}
-				
+				 
 				
 			}
 			else if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
@@ -869,42 +869,21 @@
 			this.samplePrepMethodCol.visible = !isExternal;
 			this.otherSamplePrepMethodCol.visible = !isExternal;
 			this.seqLibProtocolCol.visible = !isExternal;
+			
+			seqPrepQualBioanalyzerMethodCol.visible = !isExternal && parentDocument.isSolexaState();
+			seqPrepStatus.visible = !isExternal && parentDocument.isSolexaState();
         	
 			showCCNumberCheckbox.visible =  !isExternal;
 			showCCNumberCheckbox.width = isExternal ? 0 : 250;
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
-        	this.showQCFieldsCheckBox.visible = parentDocument.isEditState() && !isExternal;
-        	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0 && !isExternal;
 			
-			if(isExternal || currentState == 'CapSeqState') {
-				this.showQCFieldsCheckBox.selected = false;
-				this.showSeqPrepFieldsCheckBox.selected = false;
-			}
 			
 			wellNameCol.visible = (currentState == 'CapSeqState' && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
         	
-        	if (showQCFieldsCheckBox.selected || showSeqPrepFieldsCheckBox.selected) {
-        		numberSequencingLanesCol.visible = false;
-				numberSequencingCyclesCol.visible = false;
-				idSeqRunTypeCol.visible = false; 
-				concentrationUnitColumn.visible = false;
-				concentrationUnitColumn.editable = !isExternal;
-				sampleOrganismColumn.visible = false;
-				chipTypeColumn.visible = false; 
-				//samplePrepMethodCol.visible = true;
-				//otherSamplePrepMethodCol.visible = true;
-				seqLibProtocolCol.visible = false;
-				preppedByCoreCol.visible = false;
-				numberSequencingLanesCol.visible = false;
-				numberSequencingCyclesCol.visible =  false;
-				idSeqRunTypeCol.visible =  false;
-
-        	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
+			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
-				//preppedByCoreCol.visible = !isExternal;  // (RC: moved above to all cases)
-				//corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
 					numberSequencingLanesCol.editable = false;
@@ -930,8 +909,6 @@
 				sampleOrganismColumn.visible = true;
 				sampleOrganismColumn.editable = !isExternal;
 				chipTypeColumn.visible = false; 
-				//samplePrepMethodCol.visible = !isExternal;
-				//otherSamplePrepMethodCol.visible = !isExternal;
 				labelColumn.visible = false;
 				
 				
@@ -946,8 +923,6 @@
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
-				//samplePrepMethodCol.visible = true;
-				//otherSamplePrepMethodCol.visible = true;
 				
 				
 				if (parentDocument.isEditState()) {
@@ -958,8 +933,6 @@
 				labelColumn.visible = false;
 				
 			} else if (currentState == 'CapSeqState') {
-				this.showQCFieldsCheckBox.visible = false;
-				this.showSeqPrepFieldsCheckBox.visible = false;
 				
 				numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
@@ -989,8 +962,6 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				sampleOrganismColumn.editable = !isExternal;
-				//samplePrepMethodCol.visible = true;
-				//otherSamplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = !parentDocument.isEditState();
 			}
@@ -1256,10 +1227,10 @@
 					      itemRenderer="views.renderers.CheckBoxSampleLabel">
 				    </mx:AdvancedDataGridColumn>
 
-	 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" rendererIsEditor="false"
+	 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="42" dataField="@concentration" rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />          
-	                <mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
+	                <mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="true" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
@@ -1280,6 +1251,23 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn> 
+					
+					
+					<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
+											   editable="false"
+											   rendererIsEditor="false"
+											   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
+											   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+									<mx:Label text="# Seq"/> 
+									<mx:Label text="Runs"/>
+								</mx:VBox> 
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:AdvancedDataGridColumn>  
+
 					
 					<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
 											   headerText="# Lanes to Sequence" width="72" 
@@ -1303,11 +1291,11 @@
 						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
 
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="180"   dataField="@idSampleType" 
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"                 
 											   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="170" headerText="Organism"  dataField="@idOrganism" 
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
 											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
 											   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
@@ -1347,21 +1335,6 @@
  	                </mx:AdvancedDataGridColumn>  
 					
 					
-	 		 	    
-	 				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
-						editable="false"
-						rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
- 	                     <mx:headerRenderer > 
-							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								    <mx:Label text="# Seq"/> 
-								    <mx:Label text="Runs"/>
-								</mx:VBox> 
-							</mx:Component>
-						 </mx:headerRenderer>
- 	                </mx:AdvancedDataGridColumn>  
  	                        
 	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 						rendererIsEditor="false" editorDataField="value" 
@@ -1398,7 +1371,7 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
 
-                    <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
+                    <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"                
 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
@@ -1407,41 +1380,29 @@
 							itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
 
-	                <mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
+	                <mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"
+					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="true" headerText="QC Status" width="90" dataField="@qualStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
 
-	                <mx:AdvancedDataGridColumn id="seqPrepQualBioanalyzerMethodCol" visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Lib Prep Bioanal Meth" width="100" dataField="@seqPrepQualCodeBioanalyzerChipType" 
+	                <mx:AdvancedDataGridColumn id="seqPrepQualBioanalyzerMethodCol" visible="true" headerText="Seq Lib Prep Bioanal Meth" width="100" dataField="@seqPrepQualCodeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn id="SeqPrepGelFragmentSizeFromCol"  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="100" dataField="@seqPrepGelFragmentSizeFrom" rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepGelFragmentSizeFrom')}"                
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleLibFragSizeFrom(), '')}" editorDataField="value" />          
-					<mx:AdvancedDataGridColumn id="SeqPrepGelFragmentSizeToCol" headerText="Gel size (to)"  visible="{showSeqPrepFieldsCheckBox.selected}"  width="100" dataField="@seqPrepGelFragmentSizeTo"  rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepGelFragmentSizeTo')}"                
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleLibFragSizeTo(), '')}" editorDataField="value"/>          
-					<mx:AdvancedDataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
+					<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 	                   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
 				
 				</mx:columns>
 			</mx:AdvancedDataGrid>
-			<mx:HBox width="100%" horizontalAlign="right">
-				<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="true" click="showHideColumns()">
-				</mx:CheckBox>							
-				<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep"  visible="true" click="showHideColumns()">
-				</mx:CheckBox>							
-			</mx:HBox>
 
 			
 		
