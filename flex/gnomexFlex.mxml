@@ -2071,7 +2071,7 @@
 			      
 			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
 			 			<util:CustomLinkBar id="linkButtonBar"  styleName="customLinkBar"
-			 				 dataProvider="{initViews}" width="100%"
+			 				 dataProvider="{initViews}" width="100%" 
 			 			            enabled="false" visible="false"   paddingBottom="2" paddingTop="2"
 			 			            verticalAlign="middle" 
 			 			            itemClick="onViewSelection()"  horizontalAlign="left" >
@@ -2098,7 +2098,7 @@
 						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 						</util:WelcomeView>  
 			
-					    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Request' : 'Register Experiment'}" 
+					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'Submit Request'}" 
 					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>
 	
@@ -2170,7 +2170,6 @@
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
-	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="{this.isInternalExperimentSubmission ? 'Submit Request' : 'Register Experiment'}"/>
 			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
@@ -2180,7 +2179,7 @@
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
-			<mx:SetProperty target="{this.linkButtonBar}" name="buttonWidth" value="60"/>
+			<mx:SetProperty target="{this.linkButtonBar}" name="buttonWidth" value="80"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
