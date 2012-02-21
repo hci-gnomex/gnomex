@@ -859,20 +859,20 @@
 		</mx:VBox>            
         <mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" id="vbox3">
 			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0" change="tabChangeHandler(event)">
-					<mx:VBox id="notesTab" label="Notes" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
+					<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 						<mx:Label text="Experiment Name"/>
 						<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
 						<mx:Spacer height="4"/>
 						<mx:Label text="Description"/>
 						<util:TextAreaWorkaround  backgroundColor="0xffffff" id="overallDescript" editable="false" text="{this.selectedExperiment.@description}" width="100%" height="100%"/>
-						<mx:Spacer height="4" visible="{currentState == 'SolexaState'}"  includeInLayout="{currentState == 'SolexaState'}"/>
-						<mx:HBox width="100%" height="100%"  visible="{currentState == 'SolexaState'}"  includeInLayout="{currentState == 'SolexaState'}">
+						<mx:Spacer height="4" />
+						<mx:HBox width="100%" height="100%" >
 		  					<mx:VBox verticalGap="0" width="100%" height="100%">
-	  							<mx:Label text="Sequencing Core Notes" />
+	  							<mx:Label text="Notes for Core Facility" />
 								<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 							</mx:VBox>
-							<mx:VBox verticalGap="0" width="100%" height="100%">
-								<mx:Label text="Bioinformatics Notes (for analysis)"  />
+							<mx:VBox verticalGap="0" width="100%" height="100%"  visible="{currentState != 'QCState'}"  includeInLayout="{currentState != 'QCState'}">
+								<mx:Label text="Notes for Bioinformatics Group"  />
 								<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
 							</mx:VBox>
 						</mx:HBox>
