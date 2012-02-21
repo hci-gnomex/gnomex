@@ -245,27 +245,23 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             Element description = new Element("H6");
             description.addContent(request.getDescription());
             maindiv.addContent(description);
-            
-            
-            
-            if(RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory()) && request.getIsExternal().equals("N"))
-            {
-              Element sequenceNote = new Element("H5");
-              sequenceNote.addContent("Sequencing Core Notes");
-              maindiv.addContent(sequenceNote);
+          
+            Element sequenceNote = new Element("H5");
+            sequenceNote.addContent("Notes for Core facility");
+            maindiv.addContent(sequenceNote);
 
-              Element coreInstruction = new Element("H6");
-              coreInstruction.addContent(request.getCorePrepInstructions());
-              maindiv.addContent(coreInstruction);
+            Element coreInstruction = new Element("H6");
+            coreInstruction.addContent(request.getCorePrepInstructions());
+            maindiv.addContent(coreInstruction);
 
-              Element analysisNote = new Element("H5");
-              analysisNote.addContent("Bioinformatics Notes (for analysis)");
-              maindiv.addContent(analysisNote);
+            Element analysisNote = new Element("H5");
+            analysisNote.addContent("Notes for Bioinformatics Core");
+            maindiv.addContent(analysisNote);
 
-              Element analysisInstruction = new Element("H6");
-              analysisInstruction.addContent(request.getAnalysisInstructions());
-              maindiv.addContent(analysisInstruction);
-            }
+            Element analysisInstruction = new Element("H6");
+            analysisInstruction.addContent(request.getAnalysisInstructions());
+            maindiv.addContent(analysisInstruction);
+
             formatter.addSampleTable(maindiv, request.getSamples());
             
             if (!request.getHybridizations().isEmpty()) {
@@ -289,7 +285,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             
                        
-            // Append the submission instructions to the printabe form
+            // Append the submission instructions to the printable form
             // for non-guest users.
             String instructions = "";
             if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {

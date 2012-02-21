@@ -26,18 +26,7 @@
 			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
 			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
 			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
-			<mx:SetProperty target="{textarea1}" name="height" value="88"/>
-			<mx:SetProperty target="{expDescriptBox}" name="height" value="175"/>
-			<mx:SetProperty target="{samplesGridConfirm}" name="height" value="127"/>
-			<mx:SetProperty target="{samplesConfirmContainer}" name="height" value="188"/>
-			<mx:SetProperty target="{seqNotes}" name="height" value="47"/>
-			<mx:SetProperty target="{bioNotes}" name="height" value="47"/>
-			<mx:SetProperty target="{expDescriptArea}" name="height" value="61"/>
-			<mx:SetProperty target="{seqNotes}" name="width" value="578"/>
-			<mx:SetProperty target="{bioNotes}" name="width" value="577"/>
-			<mx:SetProperty target="{vbox3}" name="height" value="77"/>
-			<mx:SetProperty target="{vbox4}" name="height" value="74"/>
-			<mx:SetProperty target="{textarea1}" name="width" value="300"/>
+			
 		</mx:State>
 	</mx:states>
 	
@@ -327,15 +316,15 @@
 										  verticalScrollPolicy="auto" backgroundColor="#FFFFFF"
 										  text="{parentDocument.isAmendState() ? parentDocument.request.@description : ''}" borderColor="#E3E6E8"/>
 				
-				<mx:HBox width="100%" visible="{currentState != 'ExternalExperimentState' &amp;&amp; parentDocument.requestType == 'ILLUMINA'}" includeInLayout="{currentState != 'ExternalExperimentState' &amp;&amp; parentDocument.requestType == 'ILLUMINA'}" paddingTop="4">
+				<mx:HBox width="100%" paddingTop="4">
 					<mx:VBox width="50%" id="vbox3" verticalGap="0"   paddingTop="2">
-						<mx:Label text ="Sequencing Core Notes" textDecoration="underline"/>
+						<mx:Label text ="Note for Core Facility" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false" id="seqNotes" 
 												 backgroundColor="#FFFFFF"
 												 text="{parentDocument.isAmendState() ? parentDocument.request.@corePrepInstructions : ''}" borderColor="#E3E6E8"/>
 					</mx:VBox>
-					<mx:VBox id="vbox4" width = "100%" verticalGap="0"   paddingTop="2">
-						<mx:Label text="Bioinformatics Notes:" textDecoration="underline"/>
+					<mx:VBox id="vbox4" width = "50%" verticalGap="0"   paddingTop="2">
+						<mx:Label text="Note for Bioinformatics Group" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false"  id="bioNotes" backgroundAlpha="0.8" 
 												 backgroundColor="#FFFFFF"
 												 text="{parentDocument.isAmendState() ? parentDocument.request.@analysisInstructinos : ''}" borderColor="#E3E6E8"/>

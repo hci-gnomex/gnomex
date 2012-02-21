@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Notes" 
+<mx:Canvas label="Description" 
 		   width="100%" height="100%"
 		   xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*">
 
@@ -7,6 +7,8 @@
 		<mx:State name="EditState">
 			<mx:SetProperty target="{text1}" name="htmlText" value="Experiment name"/>
 			<mx:SetProperty target="{label1}" name="text" value="Experiment description"/>
+			<mx:SetProperty target="{label2}" name="text" value="Notes for Core Facility"/>
+			<mx:SetProperty target="{label3}" name="text" value="Notes for the Bioinformatics Group regarding analysis"/>
 		</mx:State>
 	</mx:states>
 
@@ -49,14 +51,14 @@
 		<mx:Spacer height="10" />
 		<mx:Label text="(2) Provide an experiment description. (optional)" id="label1"/>
 		<util:TextAreaWorkaround id="overallDescript" text="{parentDocument.request.@description}" focusOut="propagateDescript()" width="100%" height="100%"/>
-        <mx:Spacer height="10"  visible="{parentDocument.requestType == 'ILLUMINA'  ? true : false}" includeInLayout="{parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
-		<mx:Label text="(3) Enter a note for the core facility. (optional)" visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}" includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+        <mx:Spacer height="10" />
+		<mx:Label text="(3) Enter a note for the Core Facility. (optional)"  id="label2"/>
 		<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 
-				visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA'  ? true : false}" includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}" width ="100%" height="50%"/>
-		<mx:Spacer height="10"  visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}" includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
-		<mx:Label text="(4) Enter any note for the bioinformatics core regarding analysis. (optional)"  visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}" includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}"/>
+				width ="100%" height="50%"/>
+		<mx:Spacer height="10"  />
+		<mx:Label text="(4) Enter a note for the Bioinformatics Group regarding analysis. (optional)"  visible="{parentDocument.requestType != 'QC'}" includeInLayout="{parentDocument.requestType != 'QC'}" id="label3"/>
 		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
-				visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA'}" includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentDocument.requestType == 'ILLUMINA' ? true : false}"
+				visible="{parentDocument.requestType != 'QC'}" includeInLayout="{parentDocument.requestType != 'QC'}"
 				focusOut="propagateAnalysisInstructions()" width ="100%" height="50%"/>
 		
 	</mx:VBox>
