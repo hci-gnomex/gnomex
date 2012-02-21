@@ -345,7 +345,11 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
     //
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
-
+    
+    if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+      baseDir += "/";
+    }
+    
     List analysisNumbers = new ArrayList<String>();
     GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, key, analysisNumbers, analysisMap, directoryMap, true);
     List directoryKeys   = (List)analysisMap.get(analysisNumber);
