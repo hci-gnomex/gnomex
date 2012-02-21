@@ -768,7 +768,7 @@
 		      <include name="build.xml"/>
 		      <include name="*.sh"/>
 		      <include name="*.cmd"/>
-	  	 	  <include name="sql/**"/>
+	  	 	  <include name="sql/gnomex_db_*"/>
 	  	 	  <include name="scripts/**"/>
 	  	 	  <include name="doc/**"/>
 		      <include name="flex/**"/>
