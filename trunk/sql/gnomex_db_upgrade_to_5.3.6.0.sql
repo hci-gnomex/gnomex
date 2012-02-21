@@ -213,5 +213,14 @@ CREATE TABLE `gnomex`.`AlignmentProfileGenomeIndex` (
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('datatrack_supported', 'N', 'Indicates if datatrack feature is utilized in GNomEx installation', 'Y');
 
+-- Add columns to AnalysisFile
+Alter table AnalysisFile add column qualifiedFilePath varchar(300) null;
+Alter table AnalysisFile add column baseFilePath varchar(300) null;
+
+-- Add columns to Request
+Alter table Request add column description varchar(5000) null;
+Alter table Request add column corePrepInstructions varchar(5000) null;
+Alter table Request add column analysisInstructions varchar(5000) null;
+
 
 SET foreign_key_checks = 1;

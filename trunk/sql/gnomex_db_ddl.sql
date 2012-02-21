@@ -101,6 +101,8 @@ CREATE TABLE `gnomex`.`AnalysisFile` (
   `comments` VARCHAR(2000) NULL,
   `uploadDate` DATETIME NULL,
   `idAnalysis` INT(10) NULL,
+  `qualifiedFilePath` varchar(300) null,
+  `baseFilePath varchar(300) null,
   PRIMARY KEY (`idAnalysisFile`),
   CONSTRAINT `FK_AnalysisFile_Analysis` FOREIGN KEY `FK_AnalysisFile_Analysis` (`idAnalysis`)
     REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
@@ -1322,6 +1324,9 @@ CREATE TABLE `gnomex`.`Request` (
   `idCoreFacility` INT(10) NULL,
   `name` VARCHAR(200) NOT NULL,
   `privacyExpirationDate` DATETIME NULL,
+  `description` varchar(5000) null,
+  `corePrepInstructions` varchar(5000) null,
+  `analysisInstructions` varchar(5000) null,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
