@@ -102,6 +102,8 @@
 			if (event.result.name() == "WorkItemList") {
     	    	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
     	    	this.pendingLanesGrid.validateNow();
+				this.radiogroupSeqRunType.selection = null;
+				this.numberOfCycles.text = null;
         	} else {
         		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
         	}
@@ -164,9 +166,33 @@
     				return;
     			}    			
     		}
-    		
-    		
-	       	
+			// Prevent save if run number is not entered, but
+			// items have been draddged over to flowcell
+			if (dirtyChannelWorkList.length > 0) {
+				if (this.runNumber.text == "") {
+					this.runNumber.setFocus();
+					Alert.show("Please enter the run #");
+					return;
+				}    			
+			}
+			// Prevent save if flow cell date is not entered, but
+			// items have been draddged over to flowcell
+			if (dirtyChannelWorkList.length > 0) {
+				if (this.comboInstrument.selectedItem == null || this.comboInstrument.selectedItem.@value == "") {
+					this.comboInstrument.setFocus();
+					Alert.show("Please choose the instrument");
+					return;
+				}    			
+			}
+			// Prevent save if side is not entered, but
+			// items have been draddged over to flowcell
+			if (dirtyChannelWorkList.length > 0) {
+				if (this.radiogroupSide.selectedValue == null || this.radiogroupSide.selectedValue == "") {
+					this.radioSideA.setFocus();
+					Alert.show("Please choose the side");
+					return;
+				}    			
+			}
     		
     		warningMessage = "";
     		isValid = true;
@@ -194,9 +220,15 @@
     		params.flowCellBarcode = this.flowCellBarcode.text;
     		params.flowCellDate = this.flowCellDate.text;
     		params.workItemXMLString = dirtyChannelWorkList.toXMLString();
-    		params.codeStepNext = codeStepNext == 'SEQASSEM' ? 'SEQRUN' : 'HSEQRUN';
+    		params.codeStepNext = codeStepNext == 'SEQASSEM' ? 'SEQPIPE' : 'HSEQPIPE';
+			params.runNumber = this.runNumber.text;
+			params.numberSequencingCyclesActual = this.numberOfCycles.text;
+			params.side = this.radiogroupSide.selectedValue;
+			params.idSeqRunType = this.radiogroupSeqRunType.selectedValue;
+			if (this.comboInstrument.selectedItem != null && this.comboInstrument.selectedItem.@value != '') {
+				params.idInstrument = this.comboInstrument.selectedItem.@value;
+			}
 
-    		
     		// These are the work items still on the cluster
     		// gen work list that have a new status 
     		params.dirtyWorkItemXMLString = dirtyStatusWorkItems.toXMLString();     	
@@ -558,7 +590,8 @@
 		private function dragWorkItem(dragNode:XML, row:int):void {
        		dragNode.@sampleConcentrationpM = '';
 	    	dirtyChannelWorkList.addItemAt(dragNode, row);
-	    	
+	    	defaultFlowCellFields(dragNode);
+			
 	    	var multiplexLaneNode:XML = dragNode.parent();
 	    	var requestNode:XML = multiplexLaneNode.parent();
 	    	var x:int = 0;
@@ -590,6 +623,19 @@
 			
 			//mx.collections.IHierarchicalCollectionView(pendingLanesGrid.dataProvider).refresh();
 			
+		}
+		
+		private function defaultFlowCellFields(dragNode:XML):void {
+			if (this.numberOfCycles.text == null || this.numberOfCycles.text == "") {
+				if (dragNode.hasOwnProperty("@idNumberSequencingCycles") && dragNode.@idNumberSequencingCycles != null && dragNode.@idNumberSequencingCycles != "") {
+					this.numberOfCycles.text = this.lookupNumberSequencingCycles(dragNode, null);
+				}
+			}
+			if (this.radiogroupSeqRunType.selectedValue == null) {
+				if (dragNode.hasOwnProperty("@idSeqRunType") && dragNode.@idSeqRunType != null && dragNode.@idSeqRunType != "") {
+					this.radiogroupSeqRunType.selectedValue = dragNode.@idSeqRunType;
+				}
+			}
 		}
 		
 		private function getChannelCount():int {
@@ -719,18 +765,6 @@
 		//
 		// Need to use these label functions instead of LabelDictionary item renderer because drag image is blank otherwise.
 		//
-        private function lookupOrganism(item:Object, col:Object):String {
-        	if (item != null  && item.hasOwnProperty("@idOrganism")) {
-	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', item.@idOrganism);
-	        	if (d != null) {
-	        		return d.@display;
-	        	} else {
-	        		return ""; 
-	        	}
-        	} else {
-        		return "";
-        	}
-        }		
         private function lookupSeqRunType(item:Object, col:Object):String {
         	if (item != null  && item.hasOwnProperty("@idSeqRunType")) {
 	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
@@ -827,7 +861,6 @@
 							</mx:headerRenderer>                     
 						
 						</mx:AdvancedDataGridColumn>
-	                    <mx:AdvancedDataGridColumn  dataField="@idOrganism"   editable="false" headerText="Organism"   width="25"  labelFunction="lookupOrganism"/>
 						<mx:AdvancedDataGridColumn  dataField="@idNumberSequencingCycles"  editable="false" headerText="# Cycles"   width="32"  labelFunction="lookupNumberSequencingCycles"/>
 						<mx:AdvancedDataGridColumn headerText="Status"  width="39" dataField="@assembleStatus" 
 	                	    editorDataField="value" 
@@ -854,10 +887,27 @@
 			        <mx:HBox width="100%">
 				    	<mx:Label text="Barcode:"/>
 				    	<mx:TextInput id="flowCellBarcode" width="100%"/>
-				    	<mx:Label text="Cluster Gen Date:"/>
+						<mx:Label text="Run #"/>
+						<mx:TextInput id="runNumber" width="40" restrict="0-9"/>
+				    	<mx:Label text="Create Date:"/>
 				    	<mx:DateField id="flowCellDate" showToday="true"/>
-					 	
 				    </mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="Instrument:"/>
+						<mx:ComboBox width="100%" id="comboInstrument"
+									 labelField="@display"
+									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}">
+						</mx:ComboBox>
+						<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
+							<mx:RadioButtonGroup id="radiogroupSide"/>
+							<mx:RadioButton groupName="radiogroupSide" label="Side A" styleName="labelSmall" id="radioSideA" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" verticalGap="0" value="A">
+							</mx:RadioButton>
+							<mx:RadioButton groupName="radiogroupSide" label="Side B" styleName="labelSmall" id="radioSideB" paddingLeft="0" paddingBottom="0" paddingRight="4" paddingTop="0" horizontalGap="0" verticalGap="0" value="B">
+							</mx:RadioButton>
+						</mx:HBox>
+						<mx:Label text="# Cycles"/>
+						<mx:TextInput id="numberOfCycles" width="40" restrict="0-9"/>
+					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="2">
 						<mx:HBox horizontalAlign="left" paddingTop="0" paddingBottom="0" horizontalGap="4">
 							<mx:Button click="mergeSamples()"  label="Combine" toolTip="Combine samples from a request into one channel"/>
@@ -868,6 +918,20 @@
 								<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
 							</mx:Button>
 						</mx:HBox> 
+						<mx:Spacer width="100%"/>
+						<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
+							<mx:RadioButtonGroup id="radiogroupSeqRunType"/>
+							<mx:Repeater id="seqRunTypeRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @display != '')}">
+								<mx:RadioButton groupName="radiogroupSeqRunType" 
+												id="seqRunType"
+												label="{seqRunTypeRepeater.currentItem.@display}" 
+												styleName="labelSmall" 
+												value="{seqRunTypeRepeater.currentItem.@value}" 
+												paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" 
+												textAlign="left" horizontalGap="0" verticalGap="0">
+								</mx:RadioButton>
+							</mx:Repeater>
+						</mx:HBox>
 						 
 					</mx:HBox> 
 			<mx:AdvancedDataGrid  id="assembleLanesGrid" 
@@ -936,9 +1000,6 @@
 						  </mx:Component>
 						</mx:headerRenderer>                     
                     </mx:AdvancedDataGridColumn>                 											
-					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="35"  
-					 showDataTips="true" 
-                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
 					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="25" 
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}">

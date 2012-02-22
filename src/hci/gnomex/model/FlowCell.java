@@ -1,10 +1,13 @@
 package hci.gnomex.model;
 
+import hci.gnomex.utility.DictionaryHelper;
+
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.util.Set;
 import java.util.TreeSet;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 
 public class FlowCell extends HibernateDetailObject {
@@ -17,6 +20,10 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  idNumberSequencingCycles;
   private String   barcode;
   private String   codeSequencingPlatform;
+  private Integer  runNumber;
+  private Integer  idInstrument;
+  private String   side;
+  private Integer  numberSequencingCyclesActual;
   private Set      flowCellChannels = new TreeSet();
   
   public Integer getIdFlowCell() {
@@ -103,11 +110,65 @@ public class FlowCell extends HibernateDetailObject {
     this.codeSequencingPlatform = codeSequencingPlatform;
   }
   
+  public Integer getRunNumber() {
+    return runNumber;
+  }
+  public void setRunNumber(Integer rn) {
+    runNumber = rn;
+  }
+  
+  public Integer getIdInstrument() {
+    return idInstrument;
+  }
+  public void setIdInstrument(Integer id) {
+    idInstrument = id;
+  }
+  
+  public String getSide() {
+    return side;
+  }
+  public void setSide(String s) {
+    side = s;
+  }
+  
+  public Integer getNumberSequencingCyclesActual() {
+    return numberSequencingCyclesActual;
+  }
+  public void setNumberSequencingCyclesActual(Integer num) {
+    numberSequencingCyclesActual = num;
+  }
+
   public String getCreateYear() {
     String createDate    = this.formatDate(this.getCreateDate());
     String tokens[] = createDate.split("/");
     String createYear  = tokens[2];
     return createYear;
+  }
+  
+  public String getRunFolderName(DictionaryHelper dh) {
+    String runFolder = "";
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
+    if (this.getCreateDate() != null) {
+      runFolder += dateFormat.format(this.getCreateDate());
+    }
+    runFolder += "_";
+    if (this.getIdInstrument() != null) {
+      runFolder += dh.getInstrument(this.getIdInstrument());
+    }
+    runFolder += "_";
+    if (this.getRunNumber() != null ) {
+      Integer runNumberPlus = this.getRunNumber() + 10000;
+      runFolder += runNumberPlus.toString().substring(1,5);
+    }
+    runFolder += "_";
+    if (this.getSide() != null) {
+      runFolder += this.getSide();
+    }
+    if (this.getBarcode() != null) {
+      runFolder += this.getBarcode();
+    }
+    
+    return runFolder;
   }
     
 }

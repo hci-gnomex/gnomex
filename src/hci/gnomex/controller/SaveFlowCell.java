@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.FlowCellChannel;
@@ -7,6 +8,7 @@ import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FlowCellChannelParser;
 import hci.gnomex.utility.HibernateSession;
 
@@ -44,11 +46,16 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
 	private boolean						isNewFlowCell = false;
 	private String						serverName;
 	private String						launchAppURL;
-
+	private String            lastCycleDateStr;
+	
 	public void validate() {}
 
   public void loadCommand(HttpServletRequest request, HttpSession session)
   {
+    if (request.getParameter("lastCycleDate") != null && !request.getParameter("lastCycleDate").equals("")) {
+      lastCycleDateStr = request.getParameter("lastCycleDate");
+    }
+
     fc = new FlowCell();
     HashMap errors = this.loadDetailObject(request, fc);
     this.addInvalidFields(errors);
@@ -77,6 +84,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
       if (this.getSecurityAdvisor().canUpdate(fc)) {
         channelParser.parse(sess);
@@ -120,13 +128,24 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         }
 
         //
+        // Build the run folder name for the channels.
+        //
+        String runFolder = flowCell.getRunFolderName(dh);
+        java.sql.Date lastCycleDate = null;
+        if (lastCycleDateStr != null) {
+          lastCycleDate = this.parseDate(lastCycleDateStr);
+        }
+
+        //
         // Save channels
         //
         for (Iterator i = channelParser.getChannelMap().keySet().iterator(); i.hasNext();) {
           String idFlowCellChannelString = (String) i.next();
           FlowCellChannel fcc = 
             (FlowCellChannel) channelParser.getChannelMap().get(idFlowCellChannelString);
-
+          fcc.setFileName(runFolder);
+          fcc.setLastCycleDate(lastCycleDate);
+          
           boolean exists = false;
           for(Iterator i1 = flowCell.getFlowCellChannels().iterator(); i1.hasNext();) {
             FlowCellChannel existingChannel = (FlowCellChannel)i1.next();
@@ -176,6 +195,10 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     flowCell.setIdNumberSequencingCycles(fc.getIdNumberSequencingCycles());
     flowCell.setBarcode(fc.getBarcode());
     flowCell.setCodeSequencingPlatform(fc.getCodeSequencingPlatform());
+    flowCell.setRunNumber(fc.getRunNumber());
+    flowCell.setIdInstrument(fc.getIdInstrument());
+    flowCell.setNumberSequencingCyclesActual(fc.getNumberSequencingCyclesActual());
+    flowCell.setSide(fc.getSide());
   }
 
   private class ChannelComparator implements Comparator, Serializable {
