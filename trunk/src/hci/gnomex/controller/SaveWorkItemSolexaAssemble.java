@@ -44,6 +44,12 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   private String                       codeStepNext;
   private String                       flowCellBarcode;
   private String                       flowCellDateStr;
+  private String                       flowCellRunNumberStr;
+  private String                       flowCellNumCyclesStr;
+  private String                       flowCellSide;
+  private String                       flowCellIdSeqRunTypeStr;
+  private String                       flowCellIdInstrumentStr;
+  private String                       lastCycleDateStr;
   private String                       workItemXMLString = null;
   private Document                     workItemDoc;
   private String                       dirtyWorkItemXMLString = null;
@@ -72,6 +78,26 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     
     if (request.getParameter("flowCellDate") != null && !request.getParameter("flowCellDate").equals("")) {
       flowCellDateStr = request.getParameter("flowCellDate");
+    }
+    
+    if (request.getParameter("runNumber") != null && !request.getParameter("runNumber").equals("")) {
+      flowCellRunNumberStr = request.getParameter("runNumber");
+    }
+    
+    if (request.getParameter("numberSequencingCyclesActual") != null && !request.getParameter("numberSequencingCyclesActual").equals("")) {
+      flowCellNumCyclesStr = request.getParameter("numberSequencingCyclesActual");
+    }
+    
+    if (request.getParameter("side") != null && !request.getParameter("side").equals("")) {
+      flowCellSide = request.getParameter("side");
+    }
+    
+    if (request.getParameter("idSeqRunType") != null && !request.getParameter("idSeqRunType").equals("")) {
+      flowCellIdSeqRunTypeStr = request.getParameter("idSeqRunType");
+    }
+    
+    if (request.getParameter("idInstrument") != null && !request.getParameter("idInstrument").equals("")) {
+      flowCellIdInstrumentStr = request.getParameter("idInstrument");
     }
     
     if (request.getParameter("workItemXMLString") != null && !request.getParameter("workItemXMLString").equals("")) {
@@ -151,7 +177,24 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               flowCellDate = new java.sql.Date(System.currentTimeMillis());
             }
             flowCell.setCreateDate(flowCellDate);
-            
+
+            if (flowCellRunNumberStr != null && !flowCellRunNumberStr.equals("")) {
+              flowCell.setRunNumber(new Integer(flowCellRunNumberStr));
+            }
+            if (flowCellNumCyclesStr != null && !flowCellNumCyclesStr.equals("")) {
+              flowCell.setNumberSequencingCyclesActual(new Integer(flowCellNumCyclesStr));
+            }
+            if (flowCellSide != null){
+              flowCell.setSide(flowCellSide);
+            }
+            if (flowCellIdSeqRunTypeStr != null && !flowCellIdSeqRunTypeStr.equals("")) {
+              flowCell.setIdSeqRunType(new Integer(flowCellIdSeqRunTypeStr));
+            }
+            if (flowCellIdInstrumentStr != null && !flowCellIdInstrumentStr.equals("")) {
+              flowCell.setIdInstrument(new Integer(flowCellIdInstrumentStr));
+            }
+
+            String runFolder = flowCell.getRunFolderName(dh);
             TreeSet channels = new TreeSet(new FlowCellChannelComparator());
             int laneNumber = 1;
             HashMap requestNumbers = new HashMap();
@@ -168,6 +211,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               sess.save(channel);
               sess.flush();
 
+              channel.setFileName(runFolder);
               channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
               channel.setIsControl(parser.getIsControl(channelNumber));
               
@@ -178,8 +222,10 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
                 if (content.getSequenceLane() != null) {
                   SequenceLane lane = content.getSequenceLane();
 
-                  lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());                
-                  flowCell.setIdSeqRunType(lane.getIdSeqRunType());
+                  lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());
+                  if (flowCell.getIdSeqRunType() == null) {
+                    flowCell.setIdSeqRunType(lane.getIdSeqRunType());
+                  }
                   
                   Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
                   if (idNumberSequencingCycles == null ||
@@ -221,6 +267,9 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             }
             flowCell.setIdNumberSequencingCycles(idNumberSequencingCycles);
             flowCell.setFlowCellChannels(channels);
+            if (flowCell.getNumberSequencingCyclesActual() == null) {
+              flowCell.setNumberSequencingCyclesActual(maxCycles);
+            }
             
             String notes = "";
             for(Iterator i = requestNumbers.keySet().iterator(); i.hasNext();) {

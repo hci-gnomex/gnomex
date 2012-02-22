@@ -1,6 +1,15 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.7
+--------------------
+* Added Instrument, Run Number, Side, # Cycles, Paired vs. Single read to Cluster Gen tab.
+* Added Instrument, Run Number, Side, # Cycles, Paired vs. Single read, Cluster Gen Date and Seq Run Complete Date  to Cluster Gen tab.
+* Removed Organism from the Cluster Gen grids.
+* Changed work flow so that creating a flow cell channel now puts it directly to Data Pipeline.
+* Changed name of Cluster Gen in workflow to Seq Run Setup
+* Changed name of Seq Run in workflow to Seq Run(temp).  Seq Run(temp) will remain until all items in it have been cleared to data pipeline.  It will then be removed in a future release.
+
 5.3.6
 --------------------
 * Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)

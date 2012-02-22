@@ -1402,6 +1402,9 @@ VALUES ('OWNER', 'Owner'),
   ('INST', 'Institution'),
   ('PUBLIC', 'Public');
   
+
+INSERT INTO `gnomex`.`Instrument`(`idInstrument`, `instrument`, `isActive`)
+VALUES (1, 'SN141', 'Y');
   
 
 

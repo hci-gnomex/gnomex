@@ -485,6 +485,14 @@ public class DictionaryHelper implements Serializable {
     }
     return billingPeriod;
   }
+  public String getInstrument(Integer id) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (id != null) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.Instrument", id.toString());
+    }
+    return name;
+  }
   
 
   public List<Organism> getOrganisms() {

@@ -164,6 +164,7 @@
 	<Dictionary displayName="Visibility" className="hci.gnomex.model.Visibility" editable="N" />
 	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" editable="N"/>
 	<Dictionary displayName="Platform Definitions for Automated Alignment Runs" className="hci.gnomex.model.AlignmentPlatform" />
+  <Dictionary displayName="Instrument" className="hci.gnomex.model.Instrument" />
 
 </Dictionaries>
 	

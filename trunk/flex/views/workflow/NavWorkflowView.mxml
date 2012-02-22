@@ -197,9 +197,9 @@
 			   
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/chart_line.png')"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowSolexaAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowSolexaAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
 			   
-			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="{parentApplication.iconSolexa}"/> 	           
+			   <workflow:WorkflowSolexaRunView label="Seq Run(temp)" id="workflowSolexaRunView" icon="{parentApplication.iconSolexa}"/> 	           
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowSolexaPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
 			    
@@ -212,9 +212,9 @@
 			   
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView" icon="@Embed('../../assets/chart_line.png')"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowHiSeqAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
 			   
-			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowHiSeqRunView" icon="{parentApplication.iconHiSeq}"/> 	           
+			   <workflow:WorkflowSolexaRunView label="Seq Run(temp)" id="workflowHiSeqRunView" icon="{parentApplication.iconHiSeq}"/> 	           
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
 			    

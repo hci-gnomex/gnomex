@@ -54,6 +54,13 @@
 			private var addWindow:AddSamplesWindow;
 			private var dblClickEditMode:Boolean;
 			
+			// Shadowing fields that affect the file name so we can prompt if any change
+			private var origGenDate:String;
+			private var origInstrument:int;
+			private var origRunNumber:String;
+			private var origSide:String;
+			private var origBarCode:String;
+			
 			
 			private function init():void  {
 				selectedIdFlowCell = selectedFC.@idFlowCell;
@@ -71,7 +78,24 @@
 			
 			private function onGetFlowCell(event:ResultEvent): void {
 				if (event.result.name() == "FlowCell") {
-					
+					for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry) {
+						if (item.@value == selectedFC.@idInstrument) {
+							this.comboInstrument.selectedItem = item;
+							break;
+						}
+					}
+					if (selectedFC.@side == "A") {
+						this.radioSideA.selected = true;
+					} else if (selectedFC.@side == "B") {
+						this.radioSideB.selected = true;
+					}
+					radiogroupSeqRunType.selectedValue = selectedFC.@idSeqRunType;
+
+					origGenDate = selectedFC.@createDate;
+					origInstrument = selectedFC.@idInstrument;
+					origRunNumber = selectedFC.@runNumber;
+					origSide = selectedFC.@side;
+					origBarCode = selectedFC.@barcode;
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell");
 				} 
@@ -115,22 +139,50 @@
 					PopUpManager.removePopUp(this);
 					return;
 				}
+				
+				if (this.origBarCode != this.barcodeInput.text
+						|| this.origGenDate != this.dateInput.text
+						|| this.origInstrument != this.comboInstrument.selectedItem.@value
+						|| this.origRunNumber != this.runNumberInput.text
+						|| this.origSide != this.radiogroupSide.selectedValue) {
+					promptForWarning();
+				} else {
+					saveAfterPrompt();
+				}
+			}
+			
+			private function saveAfterPrompt():void {
 				var params:Object = new Object();
 				params.number = selectedFC.@number;
 				params.createDate = this.dateInput.text;
 				params.notes = selectedFC.@notes;
 				params.idFlowCell = selectedFC.@idFlowCell;
-				params.idSeqRunType = selectedFC.@idSeqRunType;
 				params.idNumberSequencingCycles = selectedFC.@idNumberSequencingCycles;
 				params.barcode = this.barcodeInput.text;
 				params.codeSequencingPlatform = selectedFC.@codeSequencingPlatform;
+				params.runNumber = this.runNumberInput.text;
+				params.idInstrument = this.comboInstrument.selectedItem.@value;
+				params.side = this.radiogroupSide.selectedValue;
+				params.numberSequencingCyclesActual = this.numberOfCycles.text;
+				params.idSeqRunType = this.radiogroupSeqRunType.selectedValue;
 				params.channelsXMLString =  "<fcChannels>" + this.fcChannels.toXMLString() + "</fcChannels>";
+				params.lastCycleDate = this.lastCycleDateInput.text;
 				
 				saveFlowCell.send(params);
 				
 				PopUpManager.removePopUp(this);
 			}
 			
+			private function promptForWarning():void {
+				Alert.show("You have changed the Bar Code, Run #, Cluster Gen Date, Instrument or Side which will cause the Folder Name to change.  Do you wish to continue with this save?" , "Warning", (Alert.YES | Alert.NO), null, onPromptForWarning);
+			}
+			
+			private function onPromptForWarning(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					saveAfterPrompt();
+				}
+			}
+
 			private function onSaveFlowCell(event:ResultEvent): void {
 				if (saveFlowCell.lastResult.name() == "SUCCESS") {
 					parentView.dispatchEvent(new Event("changed"));
@@ -244,34 +296,81 @@
 		<mx:HDividedBox height="100%" width="100%" >
 			<mx:VBox height="100%" width="200" styleName="panelBox">
 				<mx:HBox width="100%" id="InfoBox">
-					<mx:HBox>
-						<mx:VBox horizontalAlign="left" 
-								 verticalAlign="middle" 
-								 verticalGap="2" 
-								 width="107" height="55">
-							<mx:Label text="Barcode:"/>
-							<mx:Label text="Cluster Gen Date:"/>
-						</mx:VBox>
-					</mx:HBox>
 					<mx:VBox horizontalAlign="left" 
 							 verticalAlign="middle" 
-							 verticalGap="2" 
+							 verticalGap="4" 
 							 height="53" 
 							 id="Input" 
 							 horizontalScrollPolicy="off" 
 							 verticalScrollPolicy="off">
 						
-						<mx:TextInput width="175" 
-									  id="barcodeInput"   
-									  toolTip="Enter flow cell barcode" 
-									  text = "{selectedFC.@barcode}"
-									  change="hasChanged=true" />
-						
-						<mx:DateField width="175" 
-									  id="dateInput" 
-									  text="{selectedFC.@createDate}"
-									  change="hasChanged=true" />
-					
+						<mx:HBox width="100%">
+							<mx:Label text="Barcode:"/>
+							<mx:TextInput id="barcodeInput"   
+										  toolTip="Enter flow cell barcode" 
+										  text = "{selectedFC.@barcode}"
+										  change="hasChanged=true" />
+							
+							<mx:Label text="Run #"/>
+							<mx:TextInput id="runNumberInput"
+										  text = "{selectedFC.@runNumber}"
+										  width="40" 
+										  restrict="0-9"
+										  change="hasChanged=true" />
+							
+							<mx:Label text="Cluster Gen Date:"/>
+							<mx:DateField id="dateInput" 
+										  text="{selectedFC.@createDate}"
+										  change="hasChanged=true" />
+							
+							<mx:Label text="Seq Run Complete Date:"/>
+							<mx:DateField id="lastCycleDateInput" 
+										  text="{fcChannels.length > 0 ? fcChannels.getItemAt(0).@lastCycleDate : null}"
+										  enabled="{fcChannels.length > 0}"
+										  change="hasChanged=true" />
+						</mx:HBox>
+
+						<mx:HBox width="100%">
+							<mx:Label text="Instrument:"/>
+							<mx:ComboBox width="150" id="comboInstrument"
+										 labelField="@display"
+										 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}"
+										 change="hasChanged=true">
+							</mx:ComboBox>
+							
+							<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
+								<mx:RadioButtonGroup id="radiogroupSide"/>
+								<mx:RadioButton groupName="radiogroupSide" label="Side A" styleName="labelSmall" id="radioSideA" 
+												paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" 
+												horizontalGap="0" verticalGap="0" value="A"
+												click="hasChanged=true">
+								</mx:RadioButton>
+								<mx:RadioButton groupName="radiogroupSide" label="Side B" styleName="labelSmall" id="radioSideB" 
+												paddingLeft="0" paddingBottom="0" paddingRight="4" paddingTop="0" horizontalGap="0" 
+												verticalGap="0" value="B"
+												click="hasChanged=true">
+								</mx:RadioButton>
+							</mx:HBox>
+							
+							<mx:Label text="# Cycles"/>
+							<mx:TextInput id="numberOfCycles" width="40" restrict="0-9" text="{selectedFC.@numberSequencingCyclesActual}" change="hasChanged=true"/>
+
+							<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
+								<mx:RadioButtonGroup id="radiogroupSeqRunType"/>
+								<mx:Repeater id="seqRunTypeRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @display != '')}">
+									<mx:RadioButton groupName="radiogroupSeqRunType" 
+													id="seqRunType"
+													label="{seqRunTypeRepeater.currentItem.@display}" 
+													styleName="labelSmall" 
+													value="{seqRunTypeRepeater.currentItem.@value}" 
+													paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" 
+													textAlign="left" horizontalGap="0" verticalGap="0"
+													click="hasChanged=true">
+									</mx:RadioButton>
+								</mx:Repeater>
+							</mx:HBox>
+						</mx:HBox>
+
 					</mx:VBox>
 				</mx:HBox>
 				<mx:VDividedBox width="100%" height="100%" 
