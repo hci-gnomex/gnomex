@@ -177,7 +177,12 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
- 	                <mx:DataGridColumn headerText="Actual # Cycles"  width="14" dataField="@numberSequencingCyclesActual" editable="false">			                
+ 	                <mx:DataGridColumn headerText="Actual # Cycles"  width="14" dataField="@numberSequencingCyclesActual" editable="true">			                
+						<mx:itemEditor>
+							<mx:Component>
+								<mx:TextInput restrict="0-9" maxChars="3" /> 
+							</mx:Component>
+						</mx:itemEditor> 
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -188,7 +193,7 @@
 						</mx:headerRenderer> 
 					</mx:DataGridColumn>					
  	               
- 	                <mx:DataGridColumn headerText="Folder name" width="40" dataField="@fileName" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value"/>			                
+ 	                <mx:DataGridColumn headerText="Folder name" width="40" dataField="@fileName" editable="false" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value"/>			                
 					<mx:DataGridColumn headerText="Read 1 Clusters Pass Filters (M)"  width="20" dataField="@read1ClustersPassedFilterM" editable="true">			                
 						<mx:headerRenderer > 
 							<mx:Component>

@@ -147,28 +147,47 @@ public class FlowCell extends HibernateDetailObject {
   
   public String getRunFolderName(DictionaryHelper dh) {
     String runFolder = "";
+    // If any piece of the folder is null we return the folder name as
+    // null in order to flag that it should not be updated.  This is
+    // really an interim issue for legacy data before we were building
+    // the folder name automatically.
+    Boolean pieceNull = false;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
     if (this.getCreateDate() != null) {
       runFolder += dateFormat.format(this.getCreateDate());
+    } else {
+      pieceNull = true;
     }
     runFolder += "_";
     if (this.getIdInstrument() != null) {
       runFolder += dh.getInstrument(this.getIdInstrument());
+    } else {
+      pieceNull = true;
     }
     runFolder += "_";
-    if (this.getRunNumber() != null ) {
+    if (this.getRunNumber() != null) {
       Integer runNumberPlus = this.getRunNumber() + 10000;
       runFolder += runNumberPlus.toString().substring(1,5);
+    } else {
+      pieceNull = true;
     }
     runFolder += "_";
-    if (this.getSide() != null) {
+    if (this.getSide() != null && this.getSide().length() > 0) {
       runFolder += this.getSide();
+    } else {
+      pieceNull = true;
     }
-    if (this.getBarcode() != null) {
+    if (this.getBarcode() != null && this.getBarcode().length() > 0) {
       runFolder += this.getBarcode();
+    } else {
+      pieceNull = true;
     }
     
-    return runFolder;
+    if (pieceNull) {
+      return null;
+    } else {
+      return runFolder;
+    }
   }
     
 }

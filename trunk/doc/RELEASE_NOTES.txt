@@ -9,6 +9,9 @@
 * Changed work flow so that creating a flow cell channel now puts it directly to Data Pipeline.
 * Changed name of Cluster Gen in workflow to Seq Run Setup
 * Changed name of Seq Run in workflow to Seq Run(temp).  Seq Run(temp) will remain until all items in it have been cleared to data pipeline.  It will then be removed in a future release.
+* Flow Cell Edit does not update the run folder if any of the pieces used to build it are null.  Pieces are Cluster Gen Date, instrument, run number, side and bar code.
+* Folder can no longer be editted in the data pipeline grid. 
+* Actual # Cycles is now editable in the Data Pipeline
 
 5.3.6
 --------------------

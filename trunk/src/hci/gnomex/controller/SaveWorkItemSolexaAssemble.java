@@ -211,7 +211,10 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               sess.save(channel);
               sess.flush();
 
-              channel.setFileName(runFolder);
+              // run folder should never be null, but just in case.
+              if (runFolder != null) {
+                channel.setFileName(runFolder);
+              }
               channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
               channel.setIsControl(parser.getIsControl(channelNumber));
               
