@@ -14,9 +14,6 @@ CREATE TABLE `gnomex`.`Instrument` (
 )
 ENGINE = INNODB;
 
-INSERT INTO `gnomex`.`Instrument`(`idInstrument`, `instrument`, `isActive`)
-VALUES (1, 'SN141', 'Y');
-
 -- 
 -- New Columns for FlowCell
 --
