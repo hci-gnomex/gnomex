@@ -1403,10 +1403,6 @@ VALUES ('OWNER', 'Owner'),
   ('PUBLIC', 'Public');
   
 
-INSERT INTO `gnomex`.`Instrument`(`idInstrument`, `instrument`, `isActive`)
-VALUES (1, 'SN141', 'Y');
-  
-
 
 
 -- Re-enable foreign key checks
