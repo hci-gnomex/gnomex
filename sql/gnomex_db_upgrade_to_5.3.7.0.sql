@@ -18,6 +18,11 @@ ENGINE = INNODB;
 -- New Columns for FlowCell
 --
 alter table FlowCell add column runNumber int(10) NULL;
-alter table FlowCell add idInstrument int(10) NULL;
-alter table FlowCell add side char(1) NULL;
-alter table FlowCell add numberSequencingCyclesActual int(10) NULL;
+alter table FlowCell add column idInstrument int(10) NULL;
+alter table FlowCell add column side char(1) NULL;
+alter table FlowCell add column numberSequencingCyclesActual int(10) NULL;
+
+--
+-- New column for FlowCellChannel
+--
+alter table FlowCellChannel add column q30Percent DECIMAL(4,3) NULL;

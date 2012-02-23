@@ -1290,28 +1290,6 @@
 							    </mx:Component>
 							   </mx:headerRenderer>
 						    </mx:AdvancedDataGridColumn>
-				            <mx:AdvancedDataGridColumn  width="90" headerText="Read 1 Clusters PF (M)"  editable="false" dataField="@read1ClustersPassedFilterM"> 						             						             
-							   <mx:headerRenderer > 
-							    <mx:Component>
-							    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-								        <mx:Label text="Read 1 Clusters"/>
-								        <mx:Label text="PF (M)"/>
-					    			</mx:VBox>
-							    </mx:Component>
-							   </mx:headerRenderer>
-						    </mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn  width="90" headerText="Read 2 Clusters PF (M)"  editable="false" dataField="@read2ClustersPassedFilterM"> 						             						             
-								<mx:headerRenderer > 
-									<mx:Component>
-										<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-											<mx:Label text="Read 2 Clusters"/>
-											<mx:Label text="PF (M)"/>
-										</mx:VBox>
-									</mx:Component>
-								</mx:headerRenderer>
-							</mx:AdvancedDataGridColumn>
-				            <mx:AdvancedDataGridColumn  width="90" headerText="Q30 (Gb)"  editable="false" dataField="@q30Gb"/> 						             						             
-				            <mx:AdvancedDataGridColumn  width="90"  headerText="File name"  editable="false" dataField="@fileName"/> 						             						             
 							<mx:AdvancedDataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
 							   <mx:headerRenderer > 
 							    <mx:Component>

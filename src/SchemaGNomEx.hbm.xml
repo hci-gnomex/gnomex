@@ -391,8 +391,7 @@
    	    <property name="isControl" column="isControl" type="string"/>		
         <property name="phiXErrorRate" column="phiXErrorRate" type="big_decimal"/>
         <property name="read1ClustersPassedFilterM" column="read1ClustersPassedFilterM" type="integer"/>
-        <property name="read2ClustersPassedFilterM" column="read2ClustersPassedFilterM" type="integer"/>
-        <property name="q30Gb" column="q30Gb" type="big_decimal"/>
+        <property name="q30Percent" column="q30Percent" type="big_decimal"/>
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->

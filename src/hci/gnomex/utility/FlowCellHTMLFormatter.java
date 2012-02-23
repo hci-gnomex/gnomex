@@ -108,11 +108,9 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Sequence Sample #"    );
     this.addHeaderCell(rowh, "Barcode Tag"    );
     this.addHeaderCell(rowh, "Seq Run Type");
-    this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (actual)");
-    this.addHeaderCell(rowh, "Read 1 Clusters PF (M)"    );
-    this.addHeaderCell(rowh, "Read 2 Clusters PF (M)"    );
-    this.addHeaderCell(rowh, "Q30 (Gb)"    );
+    this.addHeaderCell(rowh, "Clusters PF (M)"    );
+    this.addHeaderCell(rowh, "Q30 (%)"    );
 
     Session sess = HibernateGuestSession.currentGuestSession();
     
@@ -162,11 +160,9 @@ public class FlowCellHTMLFormatter  extends DetailObject {
           this.addCell(row, lane.getSample().getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(lane.getSample().getIdOligoBarcode()) : "&nbsp;");
 
           this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-          this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
           this.addCell(row, channel.getNumberSequencingCyclesActual() != null && !channel.getNumberSequencingCyclesActual().equals("") ? channel.getNumberSequencingCyclesActual().toString() : "&nbsp;");
           this.addCell(row, channel.getRead1ClustersPassedFilterM() != null && !channel.getRead1ClustersPassedFilterM().equals("") ? channel.getRead1ClustersPassedFilterM().toString() : "&nbsp;");
-          this.addCell(row, channel.getRead2ClustersPassedFilterM() != null && !channel.getRead2ClustersPassedFilterM().equals("") ? channel.getRead2ClustersPassedFilterM().toString() : "&nbsp;");
-          this.addCell(row, channel.getQ30Gb() != null && !channel.getQ30Gb().equals("") ? channel.getQ30Gb().toString() : "&nbsp;");
+          this.addCell(row, channel.getQ30Percent() != null && !channel.getQ30Percent().equals("") ? channel.getQ30PercentForDisplay() : "&nbsp;");
           firstLaneInChannel = false;
         }
           
@@ -198,7 +194,6 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Sequence Sample #"    );
     this.addHeaderCell(rowh, "Barcode Tag"    );
     this.addHeaderCell(rowh, "Seq Run Type");
-    this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (requested)");
 
     
@@ -248,7 +243,6 @@ public class FlowCellHTMLFormatter  extends DetailObject {
 
           
           this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-          this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
           this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
           firstLaneInChannel = false;
         }

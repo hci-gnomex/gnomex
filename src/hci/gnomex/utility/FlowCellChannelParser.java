@@ -276,20 +276,12 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     } else {
       channel.setRead1ClustersPassedFilterM(null);
     }
-    if (n.getAttributeValue("read2ClustersPassedFilterM") != null
-        && !n.getAttributeValue("read2ClustersPassedFilterM").equals("")){
+    if (n.getAttributeValue("q30PercentForDisplay") != null
+        && !n.getAttributeValue("q30PercentForDisplay").equals("")){
       
-      channel.setRead2ClustersPassedFilterM(new Integer(
-          n.getAttributeValue("read2ClustersPassedFilterM")));
+      channel.setQ30Percent(new BigDecimal(n.getAttributeValue("q30PercentForDisplay")).movePointLeft(2));
     } else {
-      channel.setRead2ClustersPassedFilterM(null);
-    }
-    if (n.getAttributeValue("q30Gb") != null
-        && !n.getAttributeValue("q30Gb").equals("")){
-      
-      channel.setQ30Gb(new BigDecimal(n.getAttributeValue("q30Gb")));
-    } else {
-      channel.setQ30Gb(null);
+      channel.setQ30Percent(null);
     }
   }
 
