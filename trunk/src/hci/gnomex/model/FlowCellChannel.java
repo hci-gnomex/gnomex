@@ -33,8 +33,7 @@ public class FlowCellChannel extends HibernateDetailObject {
   private String            isControl;
   private BigDecimal        phiXErrorRate;
   private Integer           read1ClustersPassedFilterM;
-  private Integer           read2ClustersPassedFilterM;
-  private BigDecimal        q30Gb;
+  private BigDecimal        q30Percent;
   
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
@@ -278,20 +277,20 @@ public class FlowCellChannel extends HibernateDetailObject {
     this.read1ClustersPassedFilterM = read1ClustersPassedFilterM;
   }
 
-  public Integer getRead2ClustersPassedFilterM() {
-    return read2ClustersPassedFilterM;
+  public BigDecimal getQ30Percent() {
+    return q30Percent;
+  }
+  
+  public String getQ30PercentForDisplay() {
+    if (q30Percent != null) {
+      return q30Percent.movePointRight(2).toString();
+    } else {
+      return "";
+    }
   }
 
-  public void setRead2ClustersPassedFilterM(Integer read2ClustersPassedFilterM) {
-    this.read2ClustersPassedFilterM = read2ClustersPassedFilterM;
-  }
-
-  public BigDecimal getQ30Gb() {
-    return q30Gb;
-  }
-
-  public void setQ30Gb(BigDecimal q30Gb) {
-    this.q30Gb = q30Gb;
+  public void setQ30Percent(BigDecimal q30Percent) {
+    this.q30Percent = q30Percent;
   }
 
   

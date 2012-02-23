@@ -741,6 +741,7 @@ CREATE TABLE `gnomex`.`FlowCellChannel` (
   `read1ClustersPassedFilterM` INT(10) NULL,
   `read2ClustersPassedFilterM` INT(10) NULL,
   `q30Gb` DECIMAL(4,1) NULL,
+  'q30Percent' DECIMAL(4,3) NULL,
   PRIMARY KEY (`idFlowCellChannel`),
   CONSTRAINT `FK_FlowCellChannel_FlowCell` FOREIGN KEY `FK_FlowCellChannel_FlowCell` (`idFlowCell`)
     REFERENCES `gnomex`.`FlowCell` (`idFlowCell`)

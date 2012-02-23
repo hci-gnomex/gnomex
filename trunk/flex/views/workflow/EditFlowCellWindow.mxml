@@ -123,8 +123,7 @@
 					" isControl=''" +
 					" phiXErrorRate=''"  +
 					" read1ClustersPassedFilterM=''" +
-					" read2ClustersPassedFilterM=''"  +
-					" q30Gb=''" + 
+					" q30Percent=''" + 
 					" />");
 				
 				this.fcChannels.addItem(newChannel);
@@ -468,6 +467,11 @@
 															headerText="# Cycles"  
 															sortable="false"
 															showDataTips="true">
+															<mx:itemEditor>
+																<mx:Component>
+																	<mx:TextInput restrict="0-9" maxChars="3" /> 
+																</mx:Component>
+															</mx:itemEditor> 
 								    		               <mx:headerRenderer> 
 									    		               <mx:Component>
 										    		               	<mx:VBox verticalGap="0"   
@@ -482,39 +486,24 @@
 							    		</mx:DataGridColumn>
 							    		
 										<mx:DataGridColumn id = "onePass" 
-														   headerText="Read 1 Clusters Pass Filters (M)"  
+														   headerText="Clusters Pass Filters (M)"  
 														   width="100" 
 														   dataField="@read1ClustersPassedFilterM" 
 														   editable="true" 
 														   sortable="false"
 														   showDataTips="true">      
+														<mx:itemEditor>
+															<mx:Component>
+																<mx:TextInput restrict="0-9" /> 
+															</mx:Component>
+														</mx:itemEditor> 
 										    			<mx:headerRenderer> 
 										    				<mx:Component>
 										    					<mx:VBox verticalGap="0"   
 																		 horizontalScrollPolicy="off"  
 																		 horizontalAlign="center" 
 																		 verticalAlign="middle">
-										    						<mx:Label text="Read 1 Clusters"/>
-										    						<mx:Label text="PF (M)"/>
-										    					</mx:VBox>
-										    				</mx:Component>
-										    			</mx:headerRenderer> 
-							    		</mx:DataGridColumn>					
-							    		
-										<mx:DataGridColumn id = "twoPass" 
-														   headerText="Read 2 Clusters Pass Filters (M)"  
-														   width="100" 
-														   dataField="@read2ClustersPassedFilterM" 
-														   editable="true" 
-														   sortable="false"
-														   showDataTips="true">			                
-										    			<mx:headerRenderer> 
-										    				<mx:Component>
-										    					<mx:VBox verticalGap="0"   
-																		 horizontalScrollPolicy="off"  
-																		 horizontalAlign="center" 
-																		 verticalAlign="middle">
-										    						<mx:Label text="Read 2 Clusters"/>
+										    						<mx:Label text="Clusters"/>
 										    						<mx:Label text="PF (M)"/>
 										    					</mx:VBox>
 										    				</mx:Component>
@@ -522,20 +511,25 @@
 							    		</mx:DataGridColumn>					
 							    		
 										<mx:DataGridColumn id = "q30" 
-														   headerText="Q30 (Gb)" 
+														   headerText="Q30 (%)" 
 														   width="65" 
-														   dataField="@q30Gb" 
+														   dataField="@q30PercentForDisplay" 
 														   editable="true"  
 														   sortable="false"
 														   showDataTips="true" 
 														   textAlign="center">
+															<mx:itemEditor>
+																<mx:Component>
+																	<mx:TextInput restrict="0-9." /> 
+																</mx:Component>
+															</mx:itemEditor> 
 															<mx:headerRenderer> 
 																<mx:Component>
 																	<mx:VBox verticalGap="0"   
 																			 horizontalScrollPolicy="off"  
 																			 horizontalAlign="center" 
 																			 verticalAlign="middle">
-																		<mx:Label text="Q30 (Gb)"/>
+																		<mx:Label text="Q30 (%)"/>
 																	</mx:VBox>
 																</mx:Component>
 															</mx:headerRenderer>
