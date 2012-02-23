@@ -129,6 +129,9 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
 
         //
         // Build the run folder name for the channels.
+        // Note this will be null if any of the parts for building
+        // are not filled in.  That is a flag to NOT update the
+        // folder name.
         //
         String runFolder = flowCell.getRunFolderName(dh);
         java.sql.Date lastCycleDate = null;
@@ -143,7 +146,9 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
           String idFlowCellChannelString = (String) i.next();
           FlowCellChannel fcc = 
             (FlowCellChannel) channelParser.getChannelMap().get(idFlowCellChannelString);
-          fcc.setFileName(runFolder);
+          if (runFolder != null) {
+            fcc.setFileName(runFolder);
+          }
           fcc.setLastCycleDate(lastCycleDate);
           
           boolean exists = false;
