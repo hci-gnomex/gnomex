@@ -243,7 +243,7 @@ public class DictionaryHelper implements Serializable {
     lazyLoadManagedDictionaries();
     String name = "";
     if (sample.getIdOrganism() != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.Organism", sample.getIdOrganism().toString());
+      name = DictionaryManager.getDisplay("hci.gnomex.model.OrganismLite", sample.getIdOrganism().toString());
     }
     return name;
   }
@@ -251,7 +251,7 @@ public class DictionaryHelper implements Serializable {
     lazyLoadManagedDictionaries();
     String name = "";
     if (idOrganism != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.Organism", idOrganism.toString());
+      name = DictionaryManager.getDisplay("hci.gnomex.model.OrganismLite", idOrganism.toString());
     }
     return name;
   }
