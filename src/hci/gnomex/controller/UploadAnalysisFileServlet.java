@@ -156,7 +156,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
       }
       
       if (analysis != null) {
-        if (secAdvisor.canUpdate(analysis)) {
+        if (secAdvisor.canUploadData(analysis)) {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 

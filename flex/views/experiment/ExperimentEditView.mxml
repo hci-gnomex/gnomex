@@ -4411,7 +4411,7 @@
 				<mx:Spacer width="8"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" paddingBottom="4" verticalAlign="middle" paddingLeft="8">
+				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" verticalAlign="middle" paddingLeft="4">
 					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
 					<mx:LinkButton label="Downloads" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
@@ -4420,7 +4420,7 @@
 								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
 					</mx:LinkButton>
 					<mx:Spacer width="10"/>
-					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
+					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}"  fontSize="9"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:SetProperty target="{navBox}" name="width"/>

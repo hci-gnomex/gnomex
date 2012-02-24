@@ -826,10 +826,6 @@
         	           <mx:Label text="Group"  width="55" fontWeight="bold"/>
         	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
         	     </mx:HBox>
-	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-	                <mx:Label text="Project"  width="55" fontWeight="bold"/>
-	                <mx:Text  text="{this.selectedExperiment.@projectName}" width="130"/>
-	            </mx:HBox>
 	        	
 
 	            <mx:HBox width="100%">
@@ -1037,7 +1033,7 @@
 				</mx:VBox>
     			</mx:Canvas>
 				
-				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUpdate == 'Y'}" >
+				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUploadData == 'Y'}" >
 				</experiment:ExperimentDownloadView>
 						   
 			</mx:TabNavigator>

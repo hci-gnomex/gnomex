@@ -250,9 +250,9 @@ public class RequestParser implements Serializable {
       this.seqLibTreatmentMap.put(sltNode.getAttributeValue("value"), null);        
     }
     
-    for (Iterator i1 = n.getChild("collaborators").getChildren("AppUser").iterator(); i1.hasNext();) {
+    for (Iterator i1 = n.getChild("collaborators").getChildren("ExperimentCollaborator").iterator(); i1.hasNext();) {
       Element collaboratorNode = (Element)i1.next();
-      this.collaboratorMap.put(collaboratorNode.getAttributeValue("idAppUser"), null);        
+      this.collaboratorMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUploadData"));        
     }
     
     // Figure out if the user intended to save sample treatments

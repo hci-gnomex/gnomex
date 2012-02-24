@@ -26,3 +26,9 @@ alter table FlowCell add column numberSequencingCyclesActual int(10) NULL;
 -- New column for FlowCellChannel
 --
 alter table FlowCellChannel add column q30Percent DECIMAL(4,3) NULL;
+
+--
+-- New canUploadData column for RequestCollaborator, AnalysisCollaborator
+--
+alter table RequestCollaborator add column canUploadData char(1) null;
+alter table AnalysisCollaborator add column canUploadData char(1) null;

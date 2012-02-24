@@ -6,6 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
@@ -596,23 +597,39 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
         
         
+        sess.save(requestParser.getRequest());
+        sess.flush();
         
-        // Set collaborators
+        // Delete any collaborators that were removed
+        for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
+          ExperimentCollaborator ec = (ExperimentCollaborator)i1.next();
+          if (!requestParser.getCollaboratorMap().containsKey(ec.getIdAppUser())) {
+            sess.delete(ec);
+          }
+        }
+        
+        // Add/update collaborators
         Set collaborators = new TreeSet();
         for(Iterator i = requestParser.getCollaboratorMap().keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
           Integer idAppUser = Integer.parseInt(key);
+          String canUploadData = (String)requestParser.getCollaboratorMap().get(key);
           
           // TODO (performance):  Would be better if app user was cached.
-          AppUser collaborator = (AppUser)sess.load(AppUser.class, idAppUser);
-          collaborators.add(collaborator);
+          ExperimentCollaborator collaborator = (ExperimentCollaborator)sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
+          
+          // If the collaborator doesn't exist, create it.
+          if (collaborator == null) {
+            collaborator = new ExperimentCollaborator();
+            collaborator.setIdAppUser(idAppUser);
+            collaborator.setIdRequest(requestParser.getRequest().getIdRequest());
+            collaborator.setCanUploadData(canUploadData);
+            sess.save(collaborator);
+          } else {
+            // If the collaborator does exist, just update the upload permission flag.
+            collaborator.setCanUploadData(canUploadData);
+          }
         }
-        this.requestParser.getRequest().setCollaborators(collaborators);
-               
-        
-        
-        
-        sess.save(requestParser.getRequest());
         sess.flush();
         
         // Bump up the revision number on the request if services have been added

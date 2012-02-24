@@ -152,6 +152,7 @@ DROP TABLE IF EXISTS `gnomex`.`AnalysisCollaborator`;
 CREATE TABLE `gnomex`.`AnalysisCollaborator` (
   `idAnalysis` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
+  `canUploadData` char(1) null,
   PRIMARY KEY (`idAnalysis`, `idAppUser`),
   CONSTRAINT `FK_AnalysisCollaborator_AppUser` FOREIGN KEY `FK_AnalysisCollaborator_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -1445,6 +1446,7 @@ DROP TABLE IF EXISTS `gnomex`.`RequestCollaborator`;
 CREATE TABLE `gnomex`.`RequestCollaborator` (
   `idRequest` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
+  `canUploadData` char(1) null,
   PRIMARY KEY (`idRequest`, `idAppUser`),
   CONSTRAINT `FK_RequestCollaborator_AppUser` FOREIGN KEY `FK_RequestCollaborator_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)

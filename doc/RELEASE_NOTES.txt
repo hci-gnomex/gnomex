@@ -16,6 +16,14 @@
 * Read 2 cluster removed from all spots shown (Flow Cell edit, Data pipeline, Flow Cell Report)  Also removed from backend.
 * Read 1 cluster renamed to Cluster.
 * Q30GB replaced by Q30Percent in system.  This includes Pipeline, flow cell edit and flow cell report.
+* Account for null fileSize when calculating total disk space for usage data
+* Fixed bug that was causing (null) in flow cell notes instead of organism name
+* Fixed bug that caused 'is control' not to be automatically checked when control dragged to flow cell changed on Seq Run Prep window.
+* Change Flow Cell Edit window to use content numbers so that grid column shows sequencing control name rather than blank
+
+5.3.7 Deploy notes
+---------------------
+Added canUploadData column to RequestCollaborator, AnalysisCollaborator
 
 5.3.6
 --------------------
