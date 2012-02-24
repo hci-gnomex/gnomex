@@ -123,8 +123,8 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         this.addLeftCell(row, channel.getNumber().toString());
         this.addCell(row, channel.getIsControl() != null && channel.getIsControl().equals("Y") ? "Y" : "&nbsp;");
 
-        this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
         this.addCell(row, "&nbsp;");
+        this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");

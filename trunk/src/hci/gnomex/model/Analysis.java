@@ -36,6 +36,7 @@ public class Analysis extends HibernateDetailObject {
 
   // permission field
   private boolean     canUpdateVisibility;
+  private boolean     canUploadData;
   
   
   
@@ -198,6 +199,16 @@ public class Analysis extends HibernateDetailObject {
     canUpdateVisibility = canDo;
   }
   
+  public String getCanUploadData() {
+    if (this.canUploadData) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+  public void canUploadData(boolean canDo) {
+    canUploadData = canDo;
+  }
   
 
   public void registerMethodsToExcludeFromXML() {

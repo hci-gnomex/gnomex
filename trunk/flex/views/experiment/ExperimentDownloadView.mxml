@@ -411,7 +411,7 @@
 						   toolTip="Delete all files" 
 						   click="promptToRemoveAllFiles()"/>
 		</mx:HBox>
-
+		<mx:Spacer height="6" includeInLayout="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}" visible="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}"/>
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
                  groupItemRenderer="views.renderers.CheckBoxGroupedItem"
 				 dropEnabled="false"  
@@ -419,7 +419,7 @@
 				 iconFunction="parentApplication.getTreeIcon"
 				 dragEnabled="false" 
 				 dragMoveEnabled="false"  
-				 showHeaders="true"  
+				 showHeaders="true"   
 				 sortExpertMode="true" 
 				 sortableColumns="false"
 				 borderStyle="solid" 

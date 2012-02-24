@@ -267,16 +267,16 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         // Get total file size for experiments by lab
         TreeMap diskSpaceMap = new TreeMap();
-        summaryRows = sess.createQuery("SELECT r.idLab, sum(ef.fileSize) from Request r join r.files as ef  group by r.idLab").list();
+        summaryRows = sess.createQuery("SELECT r.idLab, sum(ef.fileSize) from Request r join r.files as ef  where ef.fileSize is not NULL group by r.idLab").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         // Add in total file size for analysis by lab
-        summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  group by a.idLab").list();
+        summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by a.idLab").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true);
 
-        BigDecimal totalExperimentDiskSpace = (BigDecimal)sess.createQuery("SELECT  sum(ef.fileSize) from Request r join r.files as ef  ").uniqueResult();
-        BigDecimal totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
-        BigDecimal totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace) : new BigDecimal(0);
+        BigDecimal totalExperimentDiskSpace = (BigDecimal)sess.createQuery("SELECT  sum(ef.fileSize) from Request r join r.files as ef where ef.fileSize is not NULL ").uniqueResult();
+        BigDecimal totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
+        BigDecimal totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace != null ? totalAnalysisDiskSpace : new BigDecimal(0)) : new BigDecimal(0);
         
         summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
         summaryDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
@@ -287,9 +287,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get disk space by year
         //
         diskSpaceMap = new TreeMap();
-        summaryRows = sess.createQuery("SELECT year(r.createDate), sum(ef.fileSize) from Request r join r.files as ef  group by year(r.createDate) ").list();
+        summaryRows = sess.createQuery("SELECT year(r.createDate), sum(ef.fileSize) from Request r join r.files as ef  where ef.fileSize is not NULL group by year(r.createDate) ").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
-        summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  group by year(a.createDate) ").list();
+        summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by year(a.createDate) ").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false);
         
@@ -306,13 +306,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         queryBuf.append(" from Request r, RequestCategory rc ");
         queryBuf.append(" join r.files as ef ");
         queryBuf.append(" where r.codeRequestCategory = rc.codeRequestCategory ");
+        queryBuf.append(" and ef.fileSize is not NULL ");
         queryBuf.append(" group by rc.requestCategory");
         queryBuf.append(" order by rc.requestCategory ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         mapDiskSpace(summaryRows, diskSpaceMap);
 
         // Now add the analysis disk space
-        BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af ").uniqueResult();
+        BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
         diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
         addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
 

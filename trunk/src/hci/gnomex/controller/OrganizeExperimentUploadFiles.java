@@ -102,8 +102,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
         baseDir += "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
 
-
-        if (this.getSecAdvisor().canUpdate(request)) {
+        if (this.getSecAdvisor().canUploadData(request)) {
 
           parser.parse();
 

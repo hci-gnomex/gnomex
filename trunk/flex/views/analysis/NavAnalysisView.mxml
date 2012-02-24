@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	label="Analysis" width="100%" height="100%" 
 	xmlns:views="views.*" 
-	xmlns:analysis="views.analysis.*"
+	xmlns:analysis="views.analysis.*" 
 	xmlns:util="views.util.*"
 	creationPolicy="all" show="init()"
 	defaultButton="{lookupButton}"
@@ -228,7 +228,7 @@
 				// then check to 'show public analysis' incase
 				// analysis is not from the user's lab.
 				if (this.currentState == "" || this.currentState == null) {
-					this.publicProjectsCheckbox.selected = true;
+					this.userAllAnalysisRadio.selected = true;
 				}
 				parms.analysisNumber = this.selectedAnalysisNumber;
 				this.getAnalysis.send(parms);

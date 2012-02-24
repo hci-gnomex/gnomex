@@ -155,7 +155,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
       }
       
       if (request != null) {
-        if (secAdvisor.canUpdate(request)) {
+        if (secAdvisor.canUploadData(request)) {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(request.getCreateDate());
 

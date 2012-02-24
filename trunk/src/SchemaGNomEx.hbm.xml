@@ -59,7 +59,7 @@
 		</set>
 		<set name="collaborators" table="AnalysisCollaborator" lazy="true" cascade="none">
 			<key column="idAnalysis"/>
-			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+			<one-to-many class="hci.gnomex.model.AnalysisCollaborator"/>
 		</set>
 		
 		<set name="genomeBuilds" table="AnalysisGenomeBuild" lazy="false" cascade="none">
@@ -68,6 +68,16 @@
 		</set>
 		
 	</class>
+	
+	<!-- hci.gnomex.model.AnalysisCollaborator -->
+	<class name="hci.gnomex.model.AnalysisCollaborator" table="AnalysisCollaborator">
+	    <composite-id>
+			  <key-property name="idAnalysis" column="idAnalysis" type="integer"/>
+		  	<key-property name="idAppUser" column="idAppUser" type="integer"/>
+	   	</composite-id>
+		<property name="canUploadData" column="canUploadData" type="string"/>
+   </class>	
+	
 	
 	<!-- hci.gnomex.model.AnalysisExperimentItem -->
 	<class name="hci.gnomex.model.AnalysisExperimentItem" table="AnalysisExperimentItem">
@@ -650,7 +660,7 @@
 		</set>
 		<set name="collaborators" table="RequestCollaborator" lazy="true" cascade="none">
 			<key column="idRequest"/>
-			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+			<one-to-many class="hci.gnomex.model.ExperimentCollaborator"/>
 		</set>
 		<set name="files" table="ExperimentFile" lazy="false" cascade="all" order-by="fileName">
 			<key column="idRequest"/>
@@ -658,6 +668,16 @@
 		</set>
 		
 	</class>
+	
+	<!-- hci.gnomex.model.ExperimentCollaborator -->
+	<class name="hci.gnomex.model.ExperimentCollaborator" table="RequestCollaborator">
+	    <composite-id>
+			  <key-property name="idRequest" column="idRequest" type="integer"/>
+		  	<key-property name="idAppUser" column="idAppUser" type="integer"/>
+	   	</composite-id>
+		<property name="canUploadData" column="canUploadData" type="string"/>
+    </class>	
+	
 	
 	<!-- hci.gnomex.model.Sample -->
 	<class name="hci.gnomex.model.Sample" table="Sample">

@@ -32,6 +32,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ExperimentDesign;
@@ -114,31 +115,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       
       if (isValid())  {
         
-        // If user can write analysis, show collaborators, 
-        // but cull out everything but collaborator name
+        // If user can write analysis, show collaborators.
         if (this.getSecAdvisor().canUpdate(a)) {
           Hibernate.initialize(a.getCollaborators());
-          for (Iterator i = a.getCollaborators().iterator(); i.hasNext();) {
-            AppUser collab = (AppUser)i.next();
-            collab.excludeMethodFromXML("getDepartment");
-            collab.excludeMethodFromXML("getCodeUserPermissionKind");
-            collab.excludeMethodFromXML("getEmail");
-            collab.excludeMethodFromXML("getuNID");
-            collab.excludeMethodFromXML("getUserNameExternal");
-            collab.excludeMethodFromXML("getInstitute");
-            collab.excludeMethodFromXML("getIsActive");
-            collab.excludeMethodFromXML("getJobTitle");
-            collab.excludeMethodFromXML("getPhone");
-            collab.excludeMethodFromXML("getIsAdminPermissionLevel");
-            collab.excludeMethodFromXML("getIsLabPermissionLevel");
-            collab.excludeMethodFromXML("getPasswordExternalEntered");
-            collab.excludeMethodFromXML("getPasswordExternal");
-            collab.excludeMethodFromXML("getIsExternalUser");
-            collab.excludeMethodFromXML("getLabs");
-            collab.excludeMethodFromXML("getCollaboratingLabs");
-            collab.excludeMethodFromXML("getManagingLabs");
-          }
-          
         } else {
           a.excludeMethodFromXML("getCollaborators");
         }
@@ -184,7 +163,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
 
             // Show files uploads that are in the staging area.
             // Only show these files if user has write permissions.
-            if (showUploads.equals("Y") && this.getSecAdvisor().canUpdate(a)) {
+            if (showUploads.equals("Y") && this.getSecAdvisor().canUploadData(a)) {
               Element analysisUploadNode = new Element("AnalysisUpload");
               filesNode.addContent(analysisUploadNode);
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);

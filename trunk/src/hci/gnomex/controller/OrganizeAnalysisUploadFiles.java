@@ -102,7 +102,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
         baseDir += analysis.getCreateYear() ;
 
-        if (this.getSecAdvisor().canUpdate(analysis)) {
+        if (this.getSecAdvisor().canUploadData(analysis)) {
           parser.parse();
 
           // Add new directories to the file system

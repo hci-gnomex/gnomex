@@ -6,12 +6,14 @@ import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.DictionaryEntryUserOwned;
+import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
@@ -288,7 +290,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // First, check to see if the user is a specified as a collaborator
         // on this request.
         for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
-          AppUser collaborator = (AppUser)i.next();
+          ExperimentCollaborator collaborator = (ExperimentCollaborator)i.next();
           if (isLoggedInUser(collaborator.getIdAppUser())) {
             canRead = true;
             break;
@@ -352,10 +354,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         Analysis a = (Analysis)object;
 
-        // First check to see if user is listed as a collabor on this specific
+        // First check to see if user is listed as a collaborator on this specific
         // analysis
         for (Iterator i = a.getCollaborators().iterator(); i.hasNext();) {
-          AppUser collaborator = (AppUser)i.next();
+          AnalysisCollaborator collaborator = (AnalysisCollaborator)i.next();
           if (this.isLoggedInUser(collaborator.getIdAppUser())) {
             canRead = true;
             break;
@@ -936,6 +938,28 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return canUpdate;
   }
   
+  public boolean canUploadData(DetailObject object) throws UnknownPermissionException {
+    boolean canUpload = false;
+    
+    //
+    // Request
+    //
+    if (object instanceof Request) {
+      
+      Request req = (Request)object;
+      canUpload = canUpdate(req) || isCollaboratorUploader(req);
+    }
+    //
+    // Analysis
+    //
+    else if (object instanceof Analysis) {
+      Analysis analysis = (Analysis)object;
+      canUpload = canUpdate(analysis) || isCollaboratorUploader(analysis);
+    }   
+    return canUpload;
+  }
+
+  
 
  
   public boolean canDelete(DetailObject object) throws UnknownPermissionException {
@@ -1060,10 +1084,45 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (object instanceof Request) {
       Request req = (Request)object;
       req.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
+      req.canUploadData(this.canUploadData(req));
     } else if (object instanceof Analysis) {
       Analysis a = (Analysis)object;
       a.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
+      a.canUploadData(this.canUploadData(a));
     } 
+  }
+  
+  private boolean isCollaboratorUploader(Request req) {
+    // First, check to see if the user is a specified as a collaborator
+    // on this request.
+    boolean canUpload = false;
+    for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
+      ExperimentCollaborator collaborator = (ExperimentCollaborator)i.next();
+      if (isLoggedInUser(collaborator.getIdAppUser())) {
+        if (collaborator.getCanUploadData() != null && collaborator.getCanUploadData().equals("Y")) {
+          canUpload = true;
+        }
+        break;
+      }
+    }  
+    return canUpload;
+  }
+  
+  
+  private boolean isCollaboratorUploader(Analysis analysis) {
+    // First, check to see if the user is a specified as a collaborator
+    // on this request.
+    boolean canUpload = false;
+    for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
+      AnalysisCollaborator collaborator = (AnalysisCollaborator)i.next();
+      if (isLoggedInUser(collaborator.getIdAppUser())) {
+        if (collaborator.getCanUploadData() != null && collaborator.getCanUploadData().equals("Y")) {
+          canUpload = true;
+        }
+        break;
+      }
+    }  
+    return canUpload;
   }
   
   public void scrub(DetailObject object) throws UnknownPermissionException {

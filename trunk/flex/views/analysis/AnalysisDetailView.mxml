@@ -498,7 +498,7 @@
 				</mx:ViewStack>
 			</mx:VBox>
 			
-			<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{analysis.@canUpdate == 'Y'}" />
+			<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{analysis.@canUploadData == 'Y'}" />
 			
 		</mx:TabNavigator>
 		

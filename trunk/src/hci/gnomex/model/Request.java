@@ -75,6 +75,7 @@ public class Request extends HibernateDetailObject {
   
   // permission field
   private boolean     canUpdateVisibility;
+  private boolean     canUploadData;
   
   public String getCodeApplication() {
     return codeApplication;
@@ -431,6 +432,17 @@ public class Request extends HibernateDetailObject {
   }
   public void canUpdateVisibility(boolean canDo) {
     canUpdateVisibility = canDo;
+  }
+  
+  public String getCanUploadData() {
+    if (this.canUploadData) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+  public void canUploadData(boolean canDo) {
+    canUploadData = canDo;
   }
   
   

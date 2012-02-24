@@ -93,7 +93,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
             throw new RuntimeException("Cannot find analysis " + analysisNumber);
           }
         }
-        if (!secAdvisor.canUpdate(analysis)) {
+        if (!secAdvisor.canUploadData(analysis)) {
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload analysis files");
         }
         if (this.isValid()) {
@@ -114,7 +114,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
             throw new RuntimeException("Cannot find experiment " + requestNumber);
           }
         }
-        if (!secAdvisor.canUpdate(experiment)) {
+        if (!secAdvisor.canUploadData(experiment)) {
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload experiment files");
         }
         if (this.isValid()) {
@@ -126,7 +126,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       } else if (idDataTrack != null) {
         DataTrack dataTrack = null;
         dataTrack = (DataTrack)sess.get(DataTrack.class, idDataTrack);
-        if (!secAdvisor.canUpdate(dataTrack)) {
+        if (!secAdvisor.canUploadData(dataTrack)) {
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload data track files");
         }
         if (this.isValid()) {
