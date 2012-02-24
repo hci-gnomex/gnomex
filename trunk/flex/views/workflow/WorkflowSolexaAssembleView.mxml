@@ -551,7 +551,7 @@
 		       	} else if (dragNode.name() == "DictionaryEntry") {
 		       		dragNode.@sampleConcentrationpM = '';
 		       		var newItem:Object = dragNode.copy();
-		       		dragNode.@isControl = 'true';
+					newItem.@isControl = 'true';
 			    	dirtyChannelWorkList.addItemAt(newItem, row); 
 		       	}
 	       } 
