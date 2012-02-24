@@ -68,7 +68,7 @@
 			navigateToURL(url, '_blank');			
 		}
 		public function prepareToEdit():void {
-			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(this, EditFlowCellWindow, true));
+			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, EditFlowCellWindow, true));
 			this.addWindow.selectedFC = this.flowCellsGrid.selectedItem;
 			this.addWindow.parentView = this;
 			mx.managers.PopUpManager.centerPopUp(this.addWindow);
