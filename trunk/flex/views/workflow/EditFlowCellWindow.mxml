@@ -303,7 +303,7 @@
 							 horizontalScrollPolicy="off" 
 							 verticalScrollPolicy="off">
 						
-						<mx:HBox width="100%">
+						<mx:HBox width="100%" verticalAlign="middle">
 							<mx:Label text="Barcode:"/>
 							<mx:TextInput id="barcodeInput"   
 										  toolTip="Enter flow cell barcode" 
@@ -329,7 +329,7 @@
 										  change="hasChanged=true" />
 						</mx:HBox>
 
-						<mx:HBox width="100%">
+						<mx:HBox width="100%" verticalAlign="middle">
 							<mx:Label text="Instrument:"/>
 							<mx:ComboBox width="150" id="comboInstrument"
 										 labelField="@display"
@@ -435,19 +435,8 @@
 							    		
 										<mx:DataGridColumn  id = "samples"  
 															headerText="Samples"
-															editable="false" 
+															editable="false" dataField="@contentNumbers"
 															sortable="false">
-															<mx:itemRenderer>
-																<mx:Component>
-																	<mx:HorizontalList dataProvider="{data.sequenceLanes.SequenceLane}" 
-																			 labelField="@number" 
-																			 selectable="false" 
-																			 horizontalScrollPolicy="off"
-																			 alternatingItemColors="[#FFFFFF, #FFFFFF]" 
-																			 borderStyle="none"
-																			 alpha="0.0"/>
-																</mx:Component>
-															</mx:itemRenderer>
 															<mx:headerRenderer> 
 																<mx:Component>
 																	<mx:VBox verticalGap="0"   
@@ -461,29 +450,6 @@
 															</mx:headerRenderer>
 										</mx:DataGridColumn>
 											    		
-										<mx:DataGridColumn  id = "numberSeq" 
-															dataField="@numberSequencingCyclesActual" 
-															width="60" 
-															headerText="# Cycles"  
-															sortable="false"
-															showDataTips="true">
-															<mx:itemEditor>
-																<mx:Component>
-																	<mx:TextInput restrict="0-9" maxChars="3" /> 
-																</mx:Component>
-															</mx:itemEditor> 
-								    		               <mx:headerRenderer> 
-									    		               <mx:Component>
-										    		               	<mx:VBox verticalGap="0"   
-																			 horizontalScrollPolicy="off"  
-																			 horizontalAlign="center" 
-																			 verticalAlign="middle">
-										    		               	    <mx:Label text="# Cycles"/>
-										    		               	    <mx:Label text="(actual)"/>
-										    		               	</mx:VBox>
-									    		               </mx:Component>
-								    		               </mx:headerRenderer>
-							    		</mx:DataGridColumn>
 							    		
 										<mx:DataGridColumn id = "onePass" 
 														   headerText="Clusters Pass Filters (M)"  
@@ -536,7 +502,7 @@
 										</mx:DataGridColumn>
 										
 										<mx:DataGridColumn dataField="@fileName" 
-														   width="150" 
+														   width="180" 
 														   headerText="Folder name" 
 														   textAlign="center"
 														   editable="false">
