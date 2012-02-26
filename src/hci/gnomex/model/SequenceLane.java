@@ -439,7 +439,11 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }
   public String getQ30Percent() {
-    return this.getFlowCellChannel().getQ30PercentForDisplay();
+    if (flowCellChannel != null && this.getFlowCellChannel().getQ30Percent() != null) {
+      return this.getFlowCellChannel().getQ30PercentForDisplay();
+    } else {
+      return "";
+    }
   }
   public String getCanChangeSeqRunType() {
     if (this.getFlowCellChannel() != null) {
