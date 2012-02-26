@@ -240,6 +240,7 @@ public class RegisterFiles extends TimerTask {
           
           // If we don't find the file on the file system, delete it from the db.
           if (fd == null) {
+            System.out.println("WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
             sess.delete(ef);
           } else {
             // Mark that the file system file has been found
@@ -302,10 +303,12 @@ public class RegisterFiles extends TimerTask {
       TreeSet newAnalysisFiles = new TreeSet(new AnalysisFileComparator());
       for (Iterator i2 = analysis.getFiles().iterator(); i2.hasNext();) {
         AnalysisFile af= (AnalysisFile)i2.next();
-        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(af.getFileName());
+        String qualifiedFileName = analysis.getNumber() + "/" + af.getQualifiedFilePath() + "/" + af.getFileName();
+        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(qualifiedFileName);
         
         // If we don't find the file on the file system, delete it from the db.
         if (fd == null) {
+          System.out.println("WARNING - analysis file " + af.getFileName() + " not found for " + af.getAnalysis().getNumber());
           sess.delete(af);
         } else {
           // Mark that the file system file has been found
@@ -326,8 +329,11 @@ public class RegisterFiles extends TimerTask {
         if (!fd.isFound()) {
           AnalysisFile af = new AnalysisFile();
           af.setIdAnalysis(analysis.getIdAnalysis());
-          af.setFileName(fileName);
+          af.setFileName(fd.getDisplayName());
+          af.setQualifiedFilePath(fd.getQualifiedFilePath());
+          af.setBaseFilePath(af.getBaseFilePath());
           af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
+          af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar + analysis.getNumber());
           newAnalysisFiles.add(af);
         }
       }
@@ -386,14 +392,25 @@ public class RegisterFiles extends TimerTask {
     
   }
   
+  public static void recurseHashFiles(AnalysisFileDescriptor fd, Map fileMap) throws XMLReflectException {
+    if (new File(fd.getFileName()).isDirectory()) {
+      for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+        AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
+        recurseHashFiles(childFd, fileMap);
+      }
+    } else {
+      fileMap.put(fd.getZipEntryName(), fd);
+    }
+  }
+
+  
   private HashMap hashFiles(Analysis analysis) throws Exception {
     HashMap fileMap = new HashMap();
     
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List analysisNumbers = new ArrayList<String>();
-    GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey("analysis"), analysisNumbers, analysisMap, directoryMap, false);
-
+    GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap, false);
     
     for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {
       String analysisNumber = (String)i.next();
@@ -406,13 +423,11 @@ public class RegisterFiles extends TimerTask {
         
         String directoryKey = (String)i1.next();
         List   theFiles     = (List)directoryMap.get(directoryKey);
-        
-        // For each file in the directory
-        boolean firstFileInDir = true;
-        for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-          AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
-          fd.setIdAnalysis(analysis.getIdAnalysis());
-          fileMap.put(fd.getDisplayName(), fd);
+
+        // Hash all of the files for this experiment
+        for (Iterator i3 = theFiles.iterator(); i3.hasNext();) {
+          AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i3.next();
+          recurseHashFiles(fd, fileMap);
         }
       }
     }
