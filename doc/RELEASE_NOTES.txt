@@ -22,6 +22,8 @@
 * Change Flow Cell Edit window to use content numbers so that grid column shows sequencing control name rather than blank
 * Allow analysis and experiment collaborators to upload data if collaborator flagged with 'upload data' permission.
 * Put debug messages in RegisterFiles to figure out why B2B AnalysisFile objects are getting deleted.
+* Fixed bug in RegisterFiles that was causing all analysis files to be deleted - see analysis.getKey()
+* Fixed RegisterFiles so that it recurses analysis file structure when registering analysis files.
 
 5.3.7 Deploy notes
 ---------------------
