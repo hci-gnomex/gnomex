@@ -237,7 +237,7 @@ public class PropertyDictionaryHelper implements Serializable {
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
       if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "\\";
+        property = property + "/";
       }
     }
 
@@ -261,7 +261,7 @@ public class PropertyDictionaryHelper implements Serializable {
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
       if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "\\";
+        property = property + "/";
       }
     }
 	  
