@@ -1,6 +1,10 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.3.8
+--------------------
+
+
 5.3.7
 --------------------
 * Added Instrument, Run Number, Side, # Cycles, Paired vs. Single read to Cluster Gen tab.
