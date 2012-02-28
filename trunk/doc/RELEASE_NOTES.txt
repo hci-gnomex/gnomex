@@ -3,7 +3,10 @@
 
 5.3.8
 --------------------
-
+* Changed alignment submission interface to allow selection of any file.
+* Changed alignment submission interface to allow files from multiple folders.
+* Made alignment submission button visible only to administrators.
+* Added format check on uploaded sample sheets.
 
 5.3.7
 --------------------
