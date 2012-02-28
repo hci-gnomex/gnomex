@@ -23,7 +23,6 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  runNumber;
   private Integer  idInstrument;
   private String   side;
-  private Integer  numberSequencingCyclesActual;
   private Set      flowCellChannels = new TreeSet();
   
   public Integer getIdFlowCell() {
@@ -129,13 +128,6 @@ public class FlowCell extends HibernateDetailObject {
   }
   public void setSide(String s) {
     side = s;
-  }
-  
-  public Integer getNumberSequencingCyclesActual() {
-    return numberSequencingCyclesActual;
-  }
-  public void setNumberSequencingCyclesActual(Integer num) {
-    numberSequencingCyclesActual = num;
   }
 
   public String getCreateYear() {

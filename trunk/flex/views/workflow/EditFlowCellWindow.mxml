@@ -271,7 +271,7 @@
 			}
 			
 			protected function channelEditWindow():void {
-				this.addWindow = AddSamplesWindow(mx.managers.PopUpManager.createPopUp(this, AddSamplesWindow, true));
+				this.addWindow = AddSamplesWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, AddSamplesWindow, true));
 				this.addWindow.selectedFC = this.selectedFC;
 				this.addWindow.selectedChannel = flowCellChannelGrid.selectedItem;
 				this.addWindow.channelXML = new XML(flowCellChannelGrid.selectedItem.toXMLString());
@@ -352,7 +352,7 @@
 							</mx:HBox>
 							
 							<mx:Label text="# Cycles"/>
-							<mx:TextInput id="numberOfCycles" width="40" restrict="0-9" text="{selectedFC.@numberSequencingCyclesActual}" change="hasChanged=true"/>
+							<mx:TextInput id="numberOfCycles" width="40" restrict="0-9" text="{fcChannels.length > 0 ? fcChannels.getItemAt(0).@numberSequencingCyclesActual : null}" change="hasChanged=true"/>
 
 							<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
 								<mx:RadioButtonGroup id="radiogroupSeqRunType"/>

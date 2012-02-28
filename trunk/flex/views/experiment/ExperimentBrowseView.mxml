@@ -394,7 +394,7 @@
 			 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
 			 parentDocument.selectedProject.@idAppUser = parentApplication.getIdAppUser();
 			 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
-			 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
+			 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, ProjectDetailWindow, true));
 			 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 			 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
 			 

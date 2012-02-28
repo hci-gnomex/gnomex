@@ -181,9 +181,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             if (flowCellRunNumberStr != null && !flowCellRunNumberStr.equals("")) {
               flowCell.setRunNumber(new Integer(flowCellRunNumberStr));
             }
-            if (flowCellNumCyclesStr != null && !flowCellNumCyclesStr.equals("")) {
-              flowCell.setNumberSequencingCyclesActual(new Integer(flowCellNumCyclesStr));
-            }
             if (flowCellSide != null){
               flowCell.setSide(flowCellSide);
             }
@@ -194,6 +191,10 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               flowCell.setIdInstrument(new Integer(flowCellIdInstrumentStr));
             }
 
+            Integer flowCellNumCycles = null;
+            if (flowCellNumCyclesStr != null && !flowCellNumCyclesStr.equals("")) {
+              flowCellNumCycles = new Integer(flowCellNumCyclesStr);
+            }
             String runFolder = flowCell.getRunFolderName(dh);
             TreeSet channels = new TreeSet(new FlowCellChannelComparator());
             int laneNumber = 1;
@@ -217,6 +218,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               }
               channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
               channel.setIsControl(parser.getIsControl(channelNumber));
+              channel.setNumberSequencingCyclesActual(flowCellNumCycles);
               
               List channelContents = parser.getChannelContents(channelNumber);
               for (Iterator i1 = channelContents.iterator(); i1.hasNext();) {
@@ -270,9 +272,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             }
             flowCell.setIdNumberSequencingCycles(idNumberSequencingCycles);
             flowCell.setFlowCellChannels(channels);
-            if (flowCell.getNumberSequencingCyclesActual() == null) {
-              flowCell.setNumberSequencingCyclesActual(maxCycles);
-            }
             
             String notes = "";
             for(Iterator i = requestNumbers.keySet().iterator(); i.hasNext();) {
