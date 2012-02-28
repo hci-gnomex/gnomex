@@ -47,6 +47,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
 	private String						serverName;
 	private String						launchAppURL;
 	private String            lastCycleDateStr;
+	private String            numberSequencingCyclesActualStr;
 	
 	public void validate() {}
 
@@ -54,6 +55,9 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
   {
     if (request.getParameter("lastCycleDate") != null && !request.getParameter("lastCycleDate").equals("")) {
       lastCycleDateStr = request.getParameter("lastCycleDate");
+    }
+    if (request.getParameter("numberSequencingCyclesActual") != null && !request.getParameter("numberSequencingCyclesActual").equals("")) {
+      numberSequencingCyclesActualStr = request.getParameter("numberSequencingCyclesActual");
     }
 
     fc = new FlowCell();
@@ -138,7 +142,11 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         if (lastCycleDateStr != null) {
           lastCycleDate = this.parseDate(lastCycleDateStr);
         }
-
+        Integer numberSequencingCyclesActual = null;
+        if (numberSequencingCyclesActualStr != null && numberSequencingCyclesActualStr.length() > 0) {
+          numberSequencingCyclesActual = new Integer(numberSequencingCyclesActualStr);
+        }
+        
         //
         // Save channels
         //
@@ -150,6 +158,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
             fcc.setFileName(runFolder);
           }
           fcc.setLastCycleDate(lastCycleDate);
+          fcc.setNumberSequencingCyclesActual(numberSequencingCyclesActual);
           
           boolean exists = false;
           for(Iterator i1 = flowCell.getFlowCellChannels().iterator(); i1.hasNext();) {
@@ -202,7 +211,6 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     flowCell.setCodeSequencingPlatform(fc.getCodeSequencingPlatform());
     flowCell.setRunNumber(fc.getRunNumber());
     flowCell.setIdInstrument(fc.getIdInstrument());
-    flowCell.setNumberSequencingCyclesActual(fc.getNumberSequencingCyclesActual());
     flowCell.setSide(fc.getSide());
   }
 
