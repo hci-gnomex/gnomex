@@ -2480,7 +2480,6 @@ ENGINE = INNODB;
 alter table FlowCell add column runNumber int(10) NULL;
 alter table FlowCell add idInstrument int(10) NULL;
 alter table FlowCell add side char(1) NULL;
-alter table FlowCell add numberSequencingCyclesActual int(10) NULL;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
