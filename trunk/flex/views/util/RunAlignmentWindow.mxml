@@ -9,17 +9,6 @@
 				creationComplete="init()" 
 				titleIcon="@Embed(source='../../assets/align.png')">
     
-    <!--mx:HTTPService 
-    id="submitWorkAuthForm" 
-    url="SubmitWorkAuthForm.gx"
-    resultFormat="e4x" 
-    showBusyCursor="true"
-    result="onSubmitWorkAuthForm(event)"
-    fault="parentApplication.onFailHttpRequest('Unable to submit work authorization form', event)"
-    method="POST"
-    useProxy="false">
-    </mx:HTTPService -->  
-	
 	<mx:HTTPService 
 		id="getAlignmentProfileList" 
 		url="GetAlignmentProfileList.gx"
@@ -32,7 +21,6 @@
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService >	
-	
 
 <mx:Script>
 	<![CDATA[
@@ -44,8 +32,8 @@
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import flash.net.NetConnection;
-		import flash.net.Responder;
-		
+		import flash.net.Responder;		
+				
 		[Bindable]
 		private var alignmentProfileList:XMLListCollection = new XMLListCollection();
 		
@@ -60,10 +48,11 @@
 		private function init():void {
 		
 		}
+		
 		private function run():void {
 			var sz_message:String = "input=" + this.filesStr + "#";
-			//sz_message += "path=" + this.folderPath + "#";			
-			sz_message += "path=/mnt/Bio3Data03/AnalysisData/2011/A205#";			
+			sz_message += "path=" + this.folderPath + "#";			
+			//sz_message += "path=/mnt/Bio3Data03/AnalysisData/2011/A205#";			
 			if(platformCombo.selectedIndex == 0) {
 				Alert.show("Please select a Platform.");
 				return;
@@ -74,7 +63,7 @@
 			}
 
 			sz_message += "platform=" + platformCombo.selectedItem.@webServiceName + "#";
-			sz_message += "pipeline=Align#";
+			sz_message += "pipeline=Alignment#";
 			if(genomeIndexCombo.selectedIndex <= 0) {
 				Alert.show("Please select an Alignment Profile and Genome Index");
 				return;
@@ -93,16 +82,21 @@
 			
 			server = new NetConnection();
 			server.connect(serverURL);
-			
+			/*
 			sz_message = "input=8058X1_111013_SN141_0403_BC06N5ACXX_3_1.txt.gz,8058X1_111013_SN141_0403_BC06N5ACXX_5_2.txt.gz"+"#";
 			sz_message += "path=/mnt/hci-bio3/MicroarrayData/2011/8058R/Fastq"+"#";
 			sz_message += "platform=illumina#";
-			sz_message += "pipeline=Align#";
+			sz_message += "pipeline=Alignment#";
 			sz_message += "genome=hg19";
-			
-			server.call("run", new Responder(runResult, onFault), sz_message);
 			//Alert.show(sz_message);
+			*/
+
+			server.call("run", new Responder(runResult, onFault), sz_message);
 		}
+		
+		private function platformResult( result:* ): void {
+			Alert.show(result);
+		}		
 		
 		private function onFault( error:* ): void {
 			// Notify the user of the problem
@@ -153,24 +147,7 @@
 		
 		private function onGetAlignmentProfileList(event:ResultEvent):void {
 			alignmentProfileList = new XMLListCollection(getAlignmentProfileList.lastResult.AlignmentProfile);
-		}		
-		
-		private function onSubmitWorkAuthForm(event:ResultEvent):void {
-			/*
-        	if (submitWorkAuthForm.lastResult.name() == "SUCCESS") {
-        		Alert.show("Work authorization for account " + 
-        		"'" + this.accountName.text + "'"+
-        		 " has been submitted to " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) +
-        		 ".\n\n" + 
-        		 "After the account information is reviewed and approved, " +
-        		 "you will be notified by email that experiment " +
-        		 "requests can now be submitted against this account in GNomEx.");
-        		 PopUpManager.removePopUp(this);
-        	} else {
-        		Alert.show(submitWorkAuthForm.lastResult..ACTMESSAGE.@TEXT);
-        	}  
-			*/
-        }  
+		}		 
 		
 		private function getAlignmentProfilesCheck():void {
 			if(platformCombo.selectedIndex > 0 && seqRunTypeCombo.selectedIndex > 0) {
@@ -181,7 +158,11 @@
 			} else {
 				alignmentProfileList = new XMLListCollection();
 			}
-		}		
+		}
+		
+		//private function checkAlignmentProfileSelection():void {
+		//	trace("1");		
+		//}
 	]]>
 </mx:Script>
 	
@@ -239,6 +220,7 @@
         </mx:HBox>
     </mx:VBox>
 	<mx:ControlBar horizontalAlign="right" height="52">
+		<!--mx:Button label="Button" click="checkAlignmentProfileSelection();"/-->
 		<mx:Button label="Run" id="runButton" click="run()" icon="@Embed(source='../../assets/server_go.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>

@@ -701,37 +701,31 @@
 			var selectedFiles:XMLList = filesView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
 			selectedFileList = new XMLListCollection(selectedFiles);
 			
-			var checkDirectoryPath:String = "";
+			var folderPath:String = "";
 			var filesStr:String = "";
 			
 			for each(var file:XML in selectedFileList) {
 				var fileName:String = file.@fileName;
-				var splitIndx:int = fileName.lastIndexOf("/");
-				var splitIndx1:int = fileName.lastIndexOf("\\");
-				if(splitIndx1 > splitIndx) {
-					splitIndx = splitIndx1;
+				var number:String = file.@number;
+				
+				if(number == null || number.length == 0) {
+					Alert.show("Error: Number parameter undefined in selectedFileList entry.");					
+					return;						
 				}
+				
+				var splitIndx:int = fileName.indexOf(number) + number.length;					
 				if(splitIndx < 0) {
 					Alert.show("Cannot proceed because file '" + file.@displayName + "' is not physically present.");					
 					return;
-				}				
-				var fullDirectoryPath:String = fileName.substr(0, splitIndx);
-				fileName = fileName.substr(splitIndx+1, 0x7fffffff);
-				if(checkDirectoryPath.length == 0) {
-					checkDirectoryPath = fullDirectoryPath;
+				}
+				var currentFolderPath:String = fileName.substr(0, splitIndx);
+				fileName = fileName.substr(splitIndx, 0x7fffffff);
+				if(folderPath.length == 0) {
+					folderPath = currentFolderPath;
 					filesStr = fileName;
 				} else {
 					filesStr = filesStr + "," + fileName;
 				}			
-				if(checkDirectoryPath != fullDirectoryPath) {
-					Alert.show("All files submitted must reside within a single folder. When selecting files from multiple folders, please submit a separate job for each folder.");
-					return;
-				}
-				if(fileName.length < 3 || fileName.substr(fileName.length-3, int.MAX_VALUE) != ".gz") {
-					Alert.show("File '" + fileName + "' cannot be submitted. Please only select files with the '.gz' extension.");
-					return;
-				}
-
 			}
 
 			
@@ -742,7 +736,7 @@
 				if(selectedExperiment != null && selectedExperiment.samples != null) {
 					alignFilesWindow.setOrganismDropdown(selectedExperiment.samples.Sample[0].@idOrganism);
 				}
-				alignFilesWindow.setFolderPathAndFilesStr(checkDirectoryPath, filesStr);
+				alignFilesWindow.setFolderPathAndFilesStr(folderPath, filesStr);
 				PopUpManager.centerPopUp(alignFilesWindow);
 			}
 		}
@@ -1063,7 +1057,8 @@
 		<mx:Button id="alignSelectedFilesButton" 
 				   click="this.alignSelectedFiles()" 
 				   icon="@Embed('../../assets/align.png')" 
-				   toolTip="Run automated alignment on selected files" visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView}"
+				   toolTip="Run automated alignment on selected files" 
+				   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
 				   label="Run Alignment"/>
 	</mx:HBox>
 	
