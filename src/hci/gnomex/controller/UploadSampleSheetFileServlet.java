@@ -215,6 +215,14 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
     } catch (ServletException e) {
       e.printStackTrace();
       throw new ServletException(e.getMessage());
+    } catch (org.jdom.IllegalDataException e) {
+      e.printStackTrace();
+      PrintWriter responseOut = res.getWriter();
+      res.setHeader("Cache-Control", "cache, must-revalidate, proxy-revalidate, s-maxage=0, max-age=0");
+      res.setHeader("Pragma", "public");
+      res.setDateHeader("Expires", 0);
+      res.setContentType("application/xml");
+      responseOut.println("<ERROR message=\"Illegal data\"/>");        
     } catch (Exception e) {
       res.setStatus(ERROR_UPLOAD_MISC);
       e.printStackTrace();
