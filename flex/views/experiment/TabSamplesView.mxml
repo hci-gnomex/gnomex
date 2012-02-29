@@ -29,7 +29,6 @@
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		
-
 		import views.renderers.ComboBox;
 		import views.renderers.ComboBoxWorkflowStatus;
 		import views.renderers.GridColumnFillButton;
@@ -78,6 +77,7 @@
    					" canChangeNumberSequencingLanes='Y'" +  
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
+					" label=''" +
 					" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +				
 					" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 					" numberSequencingLanes='1'" +
@@ -109,6 +109,7 @@
    					" canChangeNumberSequencingCycles='Y'" + 
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration=''" +
+					" label=''" +
 					" idOligoBarcode = ''" +
 					" barcodeSequence = ''" +
 					" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
@@ -1155,9 +1156,24 @@
 		public function getPropertyOptions(idProperty:String):XMLList {
 			return parentApplication.getPropertyOptions(idProperty, parentDocument.isEditState());
 		}
-		
-
         
+		public function changeLabelCheckBoxStyles(cy3CheckBox:CheckBox, cy5CheckBox:CheckBox, label:String):void {
+			cy3CheckBox.setStyle("fontWeight", label == "cy3"   ? "bold" : "normal");
+			cy3CheckBox.setStyle("color", label == "cy3"  ? "green" : "grey");
+			if (label == "cy3") {
+				cy3CheckBox.setStyle("fillAlphas", [1.0, 0.7, 0.7, 0.7]);
+			} else {
+				cy3CheckBox.setStyle("fillAlphas", [.4, 0.2, 0.2, 0.2]);       			       			
+			}
+			cy5CheckBox.setStyle("fontWeight", label == "cy5" ? "bold" : "normal");               
+			cy5CheckBox.setStyle("color", label == "cy5" ? "red" : "grey");
+			if (label == "cy5") {
+				cy5CheckBox.setStyle("fillAlphas", [1.0, 0.7, 0.7, 0.7]);
+			} else {
+				cy5CheckBox.setStyle("fillAlphas", [.4, 0.2, 0.2, 0.2]);       			       			
+			}
+
+		}
 	]]>
 </mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1223,8 +1239,49 @@
 											   itemEditor="views.renderers.TextInputSampleName"      />    
 
  
-	               <mx:AdvancedDataGridColumn id="labelColumn" dataField="@label" width="92" headerText="Label" rendererIsEditor="true" 
-					      itemRenderer="views.renderers.CheckBoxSampleLabel">
+	               <mx:AdvancedDataGridColumn id="labelColumn" dataField="@label" width="90" headerText="Label" editable="false">
+					   <mx:itemRenderer>
+						   <mx:Component>
+							   <mx:HBox paddingLeft="4" horizontalGap="0" horizontalScrollPolicy="off">
+									   <mx:CheckBox id="cy3CheckBox"  label="cy3"  
+										 change="onChange(event)"
+										 fillColors="[0x23b12d, 0x23b12d, 0x23b12d, 0x23b12d]"
+										 color="green" 
+										 borderColor="green"
+										 fillAlphas="[1.0, 0.15, 0.15, 0.15]">
+										   <mx:Script>
+											   <![CDATA[
+												   private function onChange(evt:Event):void {
+													   data.@label = cy3CheckBox.selected ? "cy3" : "";
+													   cy5CheckBox.selected = false;
+													   parentDocument.changeLabelCheckBoxStyles(cy3CheckBox, cy5CheckBox, data.@label);
+													   parentDocument.checkSamplesCompleteness();
+												   }
+											   ]]>
+										   </mx:Script>
+										</mx:CheckBox>
+								   <mx:CheckBox id="cy5CheckBox"  label="cy5"  change="onChangeCy5(event)"
+												fillColors="[0xda2020, 0xda2020, 0xda2020, 0xda2020]" 
+												color="0xFF0000"
+												borderColor="0xFF0000" 
+												fillAlphas="[1.0, 0.15, 0.15, 0.15]}]"												
+												>
+									   <mx:Script>
+										   <![CDATA[
+											   private function onChangeCy5(evt:Event):void {
+												   data.@label = cy5CheckBox.selected ? "cy5" : "";
+												   parentDocument.changeLabelCheckBoxStyles(cy3CheckBox, cy5CheckBox, data.@label);
+												   cy3CheckBox.selected = false;
+												   parentDocument.checkSamplesCompleteness();
+											   }
+										   ]]>
+									   </mx:Script>
+								   </mx:CheckBox>
+							   </mx:HBox>
+						   </mx:Component>
+					   </mx:itemRenderer>
+					   
+
 				    </mx:AdvancedDataGridColumn>
 
 	 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="42" dataField="@concentration" rendererIsEditor="false"
