@@ -1,14 +1,20 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.3.8
+5.3.8 (3/5/2012)
 --------------------
+* Fix bug that was causing label check box (cy3, cy5) for microarray to never check.  Introduced simplified version of item renderer.
 * Changed alignment submission interface to allow selection of any file.
 * Changed alignment submission interface to allow files from multiple folders.
 * Made alignment submission button visible only to administrators.
 * Added format check on uploaded sample sheets.
+* Fix null pointer (collaborators xml) for SaveAnalysis that was called from http client Java app in tomato pipeline.
+* Sort index tag group numerically rather than alphabetically on printable request form as well as seq runs tab on Experiment detail.
+* Don't consider unique seq tags when organizing multiplex groups for sequence lanes.  Honor index tag group assigned when experiment was submitted.
+* Fix FDT GUI so that user is prevented from closing app (and thus cancelling transfer) before transfer is complete.
+* Fix so numberSequencingCyclesActual in FlowCell is deprecated and only the one in Flow Cell channel is used.  Note that the "Seq Prep" workflow step and Edit Flow Cell code now set numberSequencingCyclesActual in all of the channels associated with the flow cell being created/edited.
 
-5.3.7
+5.3.7 (2/26/2012)
 --------------------
 * Added Instrument, Run Number, Side, # Cycles, Paired vs. Single read to Cluster Gen tab.
 * Added Instrument, Run Number, Side, # Cycles, Paired vs. Single read, Cluster Gen Date and Seq Run Complete Date  to Cluster Gen tab.
@@ -36,7 +42,7 @@
 ---------------------
 Added canUploadData column to RequestCollaborator, AnalysisCollaborator
 
-5.3.6
+5.3.6 (2/16/2012)
 --------------------
 * Made DoNotReply address configurable (reply_email_core_facility_workauth_reminder and dataset_privacy_expiration_reply_email)
 * Made changes to display error message in password-related jsps when RollBackCommandException thrown in ChangePassword.java and PublicSaveSelfRegisteredAppUser.java.
