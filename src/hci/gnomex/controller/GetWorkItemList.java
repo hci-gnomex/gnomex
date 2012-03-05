@@ -572,7 +572,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
 
 
-          // Cluster gen work items are organized in a hiearchical fashion
+          // Cluster gen work items are organized in a hierarchical fashion
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
             String clusterGenKey = requestNumber + "-" + codeRequestCategory;
@@ -603,7 +603,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
         }
         
-        // Organize cluster gen workitems
+        // Organize cluster gen workitems.  Under experiment number,
+        // we organize sequence lanes under multiplex group number.
         if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
           for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
@@ -618,23 +619,19 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
             doc.getRootElement().addContent(requestNode);
             
-            HashMap seqTags = new HashMap();
             Element multiplexLaneNode = null;
             int multiplexLaneIdx = 1;
             String prevMultiplexGroupNumber = "%%%%%";
             for (Iterator i1 = theWorkItemNodes.iterator(); i1.hasNext();) {
               Element n = (Element)i1.next();
-              String barcodeSequence = n.getAttributeValue("barcodeSequence");
               String multiplexGroupNumber = n.getAttributeValue("multiplexGroupNumber");
-              if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
+              if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber)) {
                 multiplexLaneNode = new Element("MultiplexLane");
                 multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
                 requestNode.addContent(multiplexLaneNode);
-                seqTags.clear();
               }
               
               multiplexLaneNode.addContent(n);
-              seqTags.put(barcodeSequence, null);
               prevMultiplexGroupNumber = multiplexGroupNumber;
             }
           }

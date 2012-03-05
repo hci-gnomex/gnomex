@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,8 +17,10 @@ import java.util.TreeSet;
 import org.jdom.Element;
 
 import hci.framework.model.DetailObject;
+import hci.framework.model.FieldFormatter;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.utility.MultiplexLaneComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.hibernate3utils.HibernateDetailObject;
 
@@ -502,7 +505,12 @@ public class SequenceLane extends HibernateDetailObject {
         }
       } else {
         Element multiplexLaneNode = new Element("MultiplexLane");
-        multiplexLaneNode.setAttribute("number", key);
+        // The multiplex group identifier will be either the flow cell number and channel number
+        // if the lane has been sequenced or the mutiplex group number.  This identifier is
+        // in the third token of the key, separated by a dash.  
+        String[] tokens = key.split("-");
+        String mutiplexGroupID = tokens[2];
+        multiplexLaneNode.setAttribute("number", mutiplexGroupID);
         parentNode.addContent(multiplexLaneNode);
         
         for(Iterator i2 = theLanes.iterator(); i2.hasNext();) {
@@ -529,23 +537,25 @@ public class SequenceLane extends HibernateDetailObject {
   
   }
   public static SortedMap getMultiplexLaneMap(Collection sequenceLanes, Date requestCreateDate) {
-    TreeMap laneMap = new TreeMap();
+    TreeMap laneMap = new TreeMap(new MultiplexLaneComparator());
     for(Iterator i = sequenceLanes.iterator(); i.hasNext();) {
       SequenceLane lane = (SequenceLane)i.next();
 
       String key = "";
+      String displayKey = "";
       if (lane.getIdFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell() != null &&  lane.getFlowCellChannel().getFlowCell().getNumber() != null) {
-        key = "0-" + lane.getFlowCellChannel().getFlowCell().getNumber() + "-" + lane.getFlowCellChannel().getNumber();
+        displayKey = lane.getFlowCellChannel().getFlowCell().getNumber() + "_" + lane.getFlowCellChannel().getNumber();
+        key = "0-" + Integer.valueOf(0) + "-" + displayKey;
       } else if (lane.getSample().getMultiplexGroupNumber() != null) {
         // Only consider the multiplex group of the sample if the lane was
         // created on the same date that the request was submitted.
         // When lanes are added at a later date, we will just group
         // according to the sequence tags.
-        key =  lane.getIdSeqRunType()  + "-" + lane.getIdNumberSequencingCycles() + " " + lane.getSample().getMultiplexGroupNumber().toString() + " ";   
+        displayKey =  lane.getSample().getMultiplexGroupNumber().toString();   
         if (lane.getCreateDate() == null || requestCreateDate == null || lane.getCreateDate().equals(requestCreateDate)) {
-          key =  "1-" + key;                
+          key =  "1-" + lane.getSample().getMultiplexGroupNumber() + "-" + lane.getSample().getMultiplexGroupNumber().toString();             
         } else {
-          key =  "2-" + key;                
+          key =  "2-" + lane.getSample().getMultiplexGroupNumber() + "-" + new SimpleDateFormat("yyyy-MM-dd").format(lane.getCreateDate()) + " " + lane.getSample().getMultiplexGroupNumber().toString();         
         }
       }
 
@@ -556,99 +566,7 @@ public class SequenceLane extends HibernateDetailObject {
       }
       theLanes.add(lane);    
     }
-
-    TreeMap multiplexLaneMap = new TreeMap();
-    int idx = 1;
-    for (Iterator i = laneMap.keySet().iterator(); i.hasNext();) {
-      String key = (String)i.next();
-      List theLanes = (List)laneMap.get(key);
-      
-      List laneGroups = SequenceLane.getMultiplexLaneGroups(theLanes);
-      
-      for(Iterator i1 = laneGroups.iterator(); i1.hasNext();) {
-        Set lanesInGroup = (Set)i1.next();
-        if (key.equals("")) {
-          Collection laneList = (Collection)multiplexLaneMap.get(key);
-          if (laneList == null) {
-            laneList = lanesInGroup;
-            multiplexLaneMap.put(key, laneList);
-          } 
-          for (Iterator i2 = lanesInGroup.iterator(); i2.hasNext();) {
-            SequenceLane l = (SequenceLane)i2.next();
-            laneList.add(l);
-          }
-          
-          
-        } else {
-          String multiplexLaneID = "";
-          if (key.startsWith("0-")) {
-            multiplexLaneID = key.substring(2);
-          } else {
-            multiplexLaneID = Integer.valueOf(idx++).toString();
-          }
-          multiplexLaneMap.put(multiplexLaneID, lanesInGroup);
-          
-        }
-      }
-    }
-    return multiplexLaneMap;
     
+    return laneMap;
   }
-  
-  private static List getMultiplexLaneGroups(List seqLanes) {
-    List laneGroups = new ArrayList();
-
-    // First create a hash map key=barcode sequence, value=list of lanes holding this sequence
-    HashMap seqTagMap = new HashMap();
-    for(Iterator i = seqLanes.iterator(); i.hasNext();) {
-      SequenceLane theLane = (SequenceLane)i.next();
-      String tag = theLane.getSample().getBarcodeSequence();
-      if (tag == null && theLane.getSample().getMultiplexGroupNumber() != null) {
-        tag = theLane.getSample().getIdSample().toString();
-      } else if (tag == null && theLane.getSample().getMultiplexGroupNumber() == null) {
-        tag = "";
-      }
-      List theLanes = (List)seqTagMap.get(tag);
-      if (theLanes == null) {
-        theLanes = new ArrayList();
-        seqTagMap.put(tag, theLanes);
-      }
-      theLanes.add(theLane);
-    }
-    
-    int maxTagCount = 0;
-    // To determine the number of lanes, we find the highest number
-    // of sequence lanes with the same sequence tag (or no tag).  
-    // For example, if there are 3 unique seq tag AAA, GGG, TTT
-    // and there are 3 lanes with AAA, 3 lanes with GGG, and 4 lanes
-    // with TTT, there are a total of 4 multiplexed lanes.  In the
-    // case where there are no sequence tags, the qty will equal
-    // the total number of lanes.
-    for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
-      String tag = (String)i.next();
-      List theLanes = (List)seqTagMap.get(tag);
-      
-      if (theLanes.size() > maxTagCount) {
-        maxTagCount = theLanes.size();
-      }
-    }
-
-    
-    for (int x = 0; x < maxTagCount; x++) {
-      Set laneGroup = new TreeSet(new SequenceLaneNumberComparator());
-      for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
-        String tag = (String)i.next();
-        List theLanes = (List)seqTagMap.get(tag);
-        
-        if (x < theLanes.size()) {
-          SequenceLane l = (SequenceLane)theLanes.get(x);
-          laneGroup.add(l);
-        }
-      }
-      laneGroups.add(laneGroup);
-      
-    }
-    return laneGroups;
-  }
-    
-}
+}  

@@ -179,7 +179,7 @@ public class RequestHTMLFormatter {
         showMultiplexGroup = true;
         break;
       }
-    }
+    }    
     
     // Show 'samples' header
     Element sampleHeader = new Element("H5");
@@ -762,7 +762,9 @@ public class RequestHTMLFormatter {
     for(Iterator i = multiplexLaneMap.keySet().iterator(); i.hasNext();) { 
       String key = (String)i.next();
       Collection theLanes = (Collection)multiplexLaneMap.get(key);
+
       
+
       // Print a row for each sequence lane in multiplex lane
       boolean firstLaneInMultiplex = true;
       for(Iterator i1 = theLanes.iterator(); i1.hasNext();) {
@@ -771,6 +773,14 @@ public class RequestHTMLFormatter {
         Element row = new Element("TR");
         table.addContent(row);
 
+        String mutiplexGroupID = "";
+        if (!key.equals("")) {
+          // The multiplex group identifier will be either the flow cell number and channel number
+          // if the lane has been sequenced or the mutiplex group number.  This identifier is
+          // in the third token of the key, separated by a dash.  
+          String[] tokens = key.split("-");
+          mutiplexGroupID = tokens[2];
+        }
 
 
         // If this is the last lane in the multiplex lane, show a bottom border
@@ -778,10 +788,10 @@ public class RequestHTMLFormatter {
           this.addLeftCell(row, Integer.valueOf(nonMulitplexedLaneCount++).toString());
           this.addCell(row, lane.getNumber());
         } else if (i1.hasNext()) {
-          this.addBlankCell(row, firstLaneInMultiplex ? key : "&nbsp;");            
+          this.addBlankCell(row, firstLaneInMultiplex ? mutiplexGroupID : "&nbsp;");            
           this.addLeftCell(row, lane.getNumber());
         } else {
-          this.addBottomBlankCell(row, firstLaneInMultiplex ? key : "&nbsp;");
+          this.addBottomBlankCell(row, firstLaneInMultiplex ? mutiplexGroupID : "&nbsp;");
           this.addLeftCell(row, lane.getNumber());
         }
 
