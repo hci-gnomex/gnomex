@@ -330,8 +330,6 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 			  if (property.getForDataTrack() == null || !property.getForDataTrack().equals("Y")) {
 			    continue;
 			  }
-			  
-				Element propNode = propertiesNode.addElement("PropertyEntry");
 
 				PropertyEntry ap = null;
 				for(Iterator i = getPropertyEntries().iterator(); i.hasNext();) {
@@ -341,6 +339,13 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 						break;
 					}
 				}
+        
+				// Skip property if it has no data and is not active.
+				if (ap == null && property.getIsActive().equals("N")) {
+				  continue;
+				}
+				
+        Element propNode = propertiesNode.addElement("PropertyEntry");
 
 				propNode.addAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");  
 				propNode.addAttribute("name", property.getName());
