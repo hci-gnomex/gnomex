@@ -318,9 +318,6 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       if (property.getForAnalysis() == null || !property.getForAnalysis().equals("Y")) {
         continue;
       }
-      
-      Element propNode = new Element("PropertyEntry");
-      propertiesNode.addContent(propNode);
 
       PropertyEntry ap = null;
       for(Iterator i = analysis.getPropertyEntries().iterator(); i.hasNext();) {
@@ -330,6 +327,14 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           break;
         }
       }
+
+      // If no data and property is inactive, don't show it.
+      if (ap == null && property.getIsActive().equals("N")) {
+        continue;
+      }
+      
+      Element propNode = new Element("PropertyEntry");
+      propertiesNode.addContent(propNode);
 
       propNode.setAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");  
       propNode.setAttribute("name", property.getName());
