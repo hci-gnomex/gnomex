@@ -233,6 +233,13 @@
 			return;
 		}
 		
+		if ((!this.showSampleAnnotations.selected  || !this.sample.selected)
+			&& (!this.showAnalysisAnnotations.selected || !this.analysis.selected)
+			&& (!this.showDataTrackAnnotations.selected || !this.dataTrack.selected)) {
+			this.showSampleAnnotations.selected = true;
+			this.showAnalysisAnnotations.selected = true;
+			this.showDataTrackAnnotations.selected = true;
+		}
 		var params:Object = new Object();
 		params.idProperty = propertyList.selectedItem.@idProperty;
 		params.name = scName.text;
