@@ -1,5 +1,17 @@
 ﻿GNomEx Release Notes
 ---------------------
+5.3.9
+--------------------
+* Analysis now has annotations.
+* Analysis annotations are searched on full text search.
+* When changing to the non-edit view, the dirty flag for analysis is now reset.
+* An error used to occur when trying to rename an option in the Property edit screen.  This has been fixed.
+* The object which a property applies to is now required before saving the property.
+* When a new property is added, the edit screen for the new property now appears automatically.
+* The list of properties shown in the property edit screen can now be filtered by object.
+* When a new property is added the object the property applies to is defaulted to the current filter(s).
+* In Advance Search, when a Experiment Only or Analysis Only warning was given scrollbars would appear.  This has been fixed.
+* The user now has the ability to shrink or expand the Advanced Search window in Result View to allow viewing of the underlying screen.
 
 5.3.8 (3/5/2012)
 --------------------

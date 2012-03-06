@@ -30,11 +30,12 @@
 		
 <mx:Script>
 	<![CDATA[
-	import mx.managers.PopUpManager;
-	import mx.rpc.events.ResultEvent;
-	
-	import views.util.DirtyNote;
-	import views.admin.PropertyEvent;
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.admin.PropertyEvent;
+		import views.util.DirtyNote;
 		
 	private var idProperty:Object = null;
 		
@@ -49,6 +50,9 @@
 		for each(var sc:XML in parentApplication.propertyList) {
 			properties.addItem(sc.copy());
 		}
+		this.showAnalysisAnnotations.selected = true;
+		this.showDataTrackAnnotations.selected = true;
+		this.showSampleAnnotations.selected = true;
 		parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
 			onPropertyRefreshed);		                                  
 		parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
@@ -59,7 +63,12 @@
 	private function onPropertyRefreshed(event:Event):void{
 		properties = new XMLListCollection();
 		for each(var sc:XML in parentApplication.propertyList) {
-			properties.addItem(sc.copy());
+			if ((this.showSampleAnnotations.selected && sc.@forSample == "Y")
+				|| (this.showDataTrackAnnotations.selected && sc.@forDataTrack == "Y")
+				|| (this.showAnalysisAnnotations.selected && sc.@forAnalysis == "Y")) {
+				
+				properties.addItem(sc.copy());
+			}
 		}
 		reselectCharacteristic();
 		dirty.resetDirty();
@@ -169,6 +178,9 @@
 			" description=''" + 
 			" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
 			" codePropertyType='TEXT'" +
+			" forAnalysis='" + (this.showAnalysisAnnotations.selected ? "Y" : "N") + "'" +
+			" forDataTrack='" + (this.showDataTrackAnnotations.selected ? "Y" : "N") + "'" +
+			" forSample='" + (this.showSampleAnnotations.selected ? "Y" : "N") + "'" +
 			" />");
 		properties.addItemAt(newCharacteristic, 0);
 		 
@@ -181,6 +193,7 @@
 		
 		setDirty();
 
+		this.onSelectProperty()
 	}
 		
 	private function removeProperty():void {
@@ -214,6 +227,12 @@
 			return;
 		}
 		
+		if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
+			mx.controls.Alert.show("Please choose object the annotation applies to.");
+			this.sample.setFocus();
+			return;
+		}
+		
 		var params:Object = new Object();
 		params.idProperty = propertyList.selectedItem.@idProperty;
 		params.name = scName.text;
@@ -221,6 +240,7 @@
 		params.isRequired = this.isRequired.selected ? "Y" : "N";
 		params.forSample = this.sample.selected ? "Y" : "N";
 		params.forDataTrack = this.dataTrack.selected ? "Y" : "N";
+		params.forAnalysis = this.analysis.selected ? "Y" : "N";
 		params.mageOntologyCode = mageOntologyCode.text;
 		params.mageOntologyDefinition = mageOntologyDefinition.text; 
 		params.description = description.text; 
@@ -260,6 +280,10 @@
 	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
 		<mx:LinkButton label="Add annotation" styleName="linkMenuButton" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
 		<mx:LinkButton label="Remove annotation" styleName="linkMenuButton" click="removeProperty()" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+		<mx:Label text="Show Annotations For:" />
+		<mx:CheckBox label="Sample" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="true"/>
+		<mx:CheckBox label="DataTrack" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="true"/>
+		<mx:CheckBox label="Analysis" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="true"/>
 	</mx:HBox>
 	
 <mx:HDividedBox height="100%" width="100%" >
@@ -285,17 +309,20 @@
 			 <mx:HBox width="100%" verticalGap="0">
 			 	<mx:Text text="Description:" width="80"/>
 			 	<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" id="description"  maxChars="100"/>
-				 <mx:HBox>
+				 <mx:VBox borderStyle="solid" paddingLeft="2">
 					 <mx:Text text="Annotation Applies To:"/>
-					 <mx:VBox>
-					 <mx:CheckBox label="Sample" id="sample" click="setDirty()">
-						 <mx:selected>{propertyList.selectedItem.@forSample == 'Y' ? true : false}</mx:selected>
-					 </mx:CheckBox>
-					 <mx:CheckBox label="Data Track" id="dataTrack" click="setDirty()">
-						 <mx:selected>{propertyList.selectedItem.@forDataTrack == 'Y' ? true : false}</mx:selected>
-					 </mx:CheckBox>
-					 </mx:VBox>
-				 </mx:HBox>
+					 <mx:HBox>
+						 <mx:CheckBox label="Sample" id="sample" click="setDirty()">
+							 <mx:selected>{propertyList.selectedItem.@forSample == 'Y' ? true : false}</mx:selected>
+						 </mx:CheckBox>
+						 <mx:CheckBox label="Data Track" id="dataTrack" click="setDirty()">
+							 <mx:selected>{propertyList.selectedItem.@forDataTrack == 'Y' ? true : false}</mx:selected>
+						 </mx:CheckBox>
+						 <mx:CheckBox label="Analysis" id="analysis" click="setDirty()">
+							 <mx:selected>{propertyList.selectedItem.@forAnalysis == 'Y' ? true : false}</mx:selected>
+						 </mx:CheckBox>
+					 </mx:HBox>
+				 </mx:VBox>
 			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0">
 				 <mx:Text text="Only show annotation for these organisms:" width="80"/>

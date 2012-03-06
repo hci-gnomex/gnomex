@@ -1667,6 +1667,7 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
   `valueString` VARCHAR(200) NULL,
   `otherLabel` VARCHAR(100) NULL,
   idDataTrack INT(10) NULL,
+  idAnalysis INT(10) NULL,
   PRIMARY KEY (`idPropertyEntry`),
   CONSTRAINT `FK_PropertyEntry_Sample` FOREIGN KEY `FK_PropertyEntry_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
@@ -1674,6 +1675,10 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_PropertyEntry_DataTrack` FOREIGN KEY `FK_PropertyEntry_DataTrack` (`idDataTrack`)
     REFERENCES `gnomex`.`DataTrack` (`idDataTrack`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_PropertyEntry_Analysis` FOREIGN KEY `FK_PropertyEntry_Analysis` (`idAnalysis`)
+    REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_PropertyEntry_Property` FOREIGN KEY `FK_PropertyEntry_Property` (`idProperty`)

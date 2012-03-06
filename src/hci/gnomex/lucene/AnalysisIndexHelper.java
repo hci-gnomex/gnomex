@@ -37,6 +37,7 @@ public class AnalysisIndexHelper extends IndexHelper {
   public static final String       COLLABORATORS = "analysisCollaborators";
   public static final String       LAB_NAME = "labName";
   public static final String       CODE_VISIBILITY = "codeVisibility";
+  public static final String       ANALYSIS_ANNOTATIONS = "analysisAnnotations";
   public static final String       TEXT = "text";
 
   
