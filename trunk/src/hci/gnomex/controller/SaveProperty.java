@@ -65,7 +65,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       isNewProperty = true;
     }
     
-    if (!propertyScreen.getForAnalysis().equals("Y") && !propertyScreen.getForAnalysis().equals("Y") && !propertyScreen.getForAnalysis().equals("Y")) {
+    if (!propertyScreen.getForAnalysis().equals("Y") && !propertyScreen.getForDataTrack().equals("Y") && !propertyScreen.getForSample().equals("Y")) {
       this.addInvalidField("AnnotationAppliesTo", "Please choose the object the annotation applies to");
     }
 
