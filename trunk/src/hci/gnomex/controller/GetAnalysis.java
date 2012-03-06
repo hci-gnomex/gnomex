@@ -40,6 +40,11 @@ import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
 import hci.gnomex.model.Project;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
 
 
@@ -251,6 +256,10 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           }
         }
 
+        // Add properties
+        Element pNode = getProperties(dh, a);
+        aNode.addContent(pNode);
+
         doc.getRootElement().addContent(aNode);
         
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -293,6 +302,86 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  /**
+   *  Adds custom properties to the xml document.
+   *
+   *@param  aNode     root element of document to append properties to
+   *@param  dh        Dictionary helper to find properties
+   *@param  analysis  Analysis object with property values.
+   */
+  private Element getProperties(DictionaryHelper dh, Analysis analysis) {
+    Element propertiesNode = new Element("AnalysisProperties");
+    for (Property property : dh.getPropertyList()) {
+
+      if (property.getForAnalysis() == null || !property.getForAnalysis().equals("Y")) {
+        continue;
+      }
+      
+      Element propNode = new Element("PropertyEntry");
+      propertiesNode.addContent(propNode);
+
+      PropertyEntry ap = null;
+      for(Iterator i = analysis.getPropertyEntries().iterator(); i.hasNext();) {
+        PropertyEntry propertyEntry = (PropertyEntry)i.next();
+        if (propertyEntry.getIdProperty().equals(property.getIdProperty())) {
+          ap = propertyEntry;
+          break;
+        }
+      }
+
+      propNode.setAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");  
+      propNode.setAttribute("name", property.getName());
+      propNode.setAttribute("value", ap != null && ap.getValue() != null ? ap.getValue() : "");
+      propNode.setAttribute("codePropertyType", property.getCodePropertyType());
+      propNode.setAttribute("idProperty", property.getIdProperty().toString());
+
+      if (ap != null && ap.getValues() != null && ap.getValues().size() > 0) {
+        for (Iterator i1 = ap.getValues().iterator(); i1.hasNext();) {
+          PropertyEntryValue av = (PropertyEntryValue)i1.next();
+          Element valueNode = new Element("PropertyEntryValue");
+          propNode.addContent(valueNode);
+          valueNode.setAttribute("idPropertyEntryValue", av.getIdPropertyEntryValue().toString());
+          valueNode.setAttribute("value", av.getValue() != null ? av.getValue() : "");
+          valueNode.setAttribute("url", av.getUrl() != null ? av.getUrl() : "");
+          valueNode.setAttribute("urlDisplay", av.getUrlDisplay() != null ? av.getUrlDisplay() : "");
+          valueNode.setAttribute("urlAlias", av.getUrlAlias() != null ? av.getUrlAlias() : "");
+        }
+      }
+      if (property.getCodePropertyType().equals(PropertyType.URL)) {
+        // Add an empty value for URL
+        Element emptyNode = new Element("PropertyEntryValue");
+        propNode.addContent(emptyNode);
+        emptyNode.setAttribute("idPropertyEntryValue", "");
+        emptyNode.setAttribute("url", "Enter URL here...");
+        emptyNode.setAttribute("urlAlias", "Enter alias here...");
+        emptyNode.setAttribute("urlDisplay", "");
+        emptyNode.setAttribute("value", "");
+      }
+
+      if (property.getOptions() != null && property.getOptions().size() > 0) {
+        for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
+          PropertyOption option = (PropertyOption)i1.next();
+          Element optionNode = new Element("PropertyOption");
+          propNode.addContent(optionNode);
+          optionNode.setAttribute("idPropertyOption", option.getIdPropertyOption().toString());
+          optionNode.setAttribute("name", option.getOption());
+          boolean isSelected = false;
+          if (ap != null && ap.getOptions() != null) {
+            for (Iterator i2 = ap.getOptions().iterator(); i2.hasNext();) {
+              PropertyOption optionSelected = (PropertyOption)i2.next();
+              if (optionSelected.getIdPropertyOption().equals(option.getIdPropertyOption())) {
+                isSelected = true;
+                break;
+              }
+            }
+          }
+          optionNode.setAttribute("selected", isSelected ? "Y" : "N");
+        }
+      }
+    }      
+    return propertiesNode;
   }
   
   /**

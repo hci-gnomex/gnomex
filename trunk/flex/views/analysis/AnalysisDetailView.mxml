@@ -3,7 +3,7 @@
 		 xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
 		 height="100%"  paddingTop="6"
 		 xmlns:views="views.*" 
-		 xmlns:util="views.util.*" xmlns:analysis="views.analysis.*">
+		 xmlns:util="views.util.*" xmlns:analysis="views.analysis.*" xmlns:analysis1="analysis.*">
 	 
 	
 	<mx:HTTPService  
@@ -94,6 +94,7 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
+				
 				
 			}
 			
@@ -352,6 +353,7 @@
 	</mx:Script>
 	
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
+	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}"/>
 	
 	<mx:HBox width="100%" verticalGap="20" verticalAlign="middle" horizontalGap="20">
 		<mx:HBox horizontalGap="1">
@@ -444,6 +446,8 @@
 				<mx:Text text="{analysis.@description}" width="100%"/>
 			</mx:HBox>
 			
+			<analysis:TabProperties id="analysisProperties" label="Annotations" editable="false" properties="{properties}">
+			</analysis:TabProperties>
 			<mx:VBox  label="Experiments" verticalGap="0" width="100%" height="100%" id="vbox1">
 				<mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0" paddingBottom="0"/>
 				<mx:ViewStack width="100%" height="100%" id="experimentItemStack">

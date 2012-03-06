@@ -62,6 +62,7 @@ public class BuildSearchIndex extends DetailObject {
   private Map codeExperimentDesignMap;
   private Map protocolMap;
   private Map analysisFileCommentsMap;
+  private Map analysisAnnotationMap;
   
   
   
@@ -226,6 +227,8 @@ public class BuildSearchIndex extends DetailObject {
     // Get collaborators of analysis
     getAnalysisCollaborators(sess);
 
+    // Analysis properties
+    getAnalysisAnnotations(sess);
     
     //
     // Write Analysis Lucene Index.
@@ -765,6 +768,35 @@ public class BuildSearchIndex extends DetailObject {
   }
 
   
+  private void getAnalysisAnnotations(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT a.idAnalysis, ");
+    buf.append("       p.name, ");
+    buf.append("       pe,  ");
+    buf.append("       pe.otherLabel  ");
+    buf.append("FROM   Analysis a, PropertyEntry as pe, Property p ");
+    buf.append("WHERE  pe.value is not NULL ");
+    buf.append("AND    a.idAnalysis = pe.idAnalysis ");
+    buf.append("AND    pe.idProperty = p.idProperty ");
+    buf.append("ORDER BY a.idAnalysis ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    analysisAnnotationMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idAnalysis = (Integer)row[0];
+      
+      List rows = (List)analysisAnnotationMap.get(idAnalysis);
+      if (rows == null) {
+        rows = new ArrayList();
+        analysisAnnotationMap.put(idAnalysis, rows);
+      }
+      rows.add(row);
+    }   
+  }
+
+  
   private void getProtocolData(Session sess) throws Exception {
     protocolMap = new HashMap();
 
@@ -1294,6 +1326,47 @@ public class BuildSearchIndex extends DetailObject {
     Integer idAppUser             = (Integer)row[21];
     Integer idInstitution         = (Integer)row[22];
     
+    
+
+    //
+    // Obtain annotations on analysis
+    //
+    StringBuffer analysisAnnotations = new StringBuffer();
+    if (idAnalysis != null) {
+      List analysisAnnotationRows = (List)analysisAnnotationMap.get(idAnalysis);
+      if (analysisAnnotationRows != null) {
+        for(Iterator i1 = analysisAnnotationRows.iterator(); i1.hasNext();) {
+          Object[] analysisRow = (Object[])i1.next();
+          String analysisCharactersticName = (String)analysisRow[1];
+          PropertyEntry entry = (PropertyEntry)analysisRow[2];
+          String otherLabel = (String)analysisRow[3];
+          analysisAnnotations.append(analysisCharactersticName != null && !analysisCharactersticName.trim().equals("") ? analysisCharactersticName + " " : "");
+          if (entry != null) {
+            if (entry.getOptions() != null && entry.getOptions().size() > 0) {
+              for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
+                PropertyOption option = (PropertyOption)i2.next();
+                analysisAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
+              }
+              
+            } else if (entry.getValues() != null && entry.getValues().size() > 0) {
+              for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
+                PropertyEntryValue entryValue = (PropertyEntryValue)i2.next();
+                analysisAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
+              }
+              
+            } else {
+              analysisAnnotations.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
+              
+            }
+            
+          }
+          analysisAnnotations.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+        }          
+      }
+      
+    }
+
+    
     // Obtain collaborators of analysis
     StringBuffer collaborators = new StringBuffer();
     if (idAnalysis != null) {
@@ -1346,6 +1419,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_ANNOTATIONS, analysisAnnotations.toString());        
 
     
     
@@ -1359,6 +1433,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append(agDesc);
     buf.append(" ");
     buf.append(analysisFileComments != null ? analysisFileComments.toString() : "");
+    buf.append(" ");
+    buf.append(analysisAnnotations.toString());
     buf.append(" ");
     indexedFieldMap.put(AnalysisIndexHelper.TEXT, buf.toString());
     

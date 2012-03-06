@@ -66,6 +66,11 @@
 			<key column="idAnalysis"/>
 			<many-to-many column="idGenomeBuild" class="hci.gnomex.model.GenomeBuild"/>
 		</set>
+		    
+    <set name="propertyEntries" table="PropertyEntry" lazy="true" cascade="delete">
+      <key column="idAnalysis"/>
+      <one-to-many class="hci.gnomex.model.PropertyEntry" />
+    </set>
 		
 	</class>
 	
@@ -748,6 +753,7 @@
 		<property name="idProperty" column="idProperty" type="integer"/>
 		<property name="idSample" column="idSample" type="integer"/>
 		<property name="idDataTrack" column="idDataTrack" type="integer"/>
+    <property name="idAnalysis" column="idAnalysis" type="integer"/>
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
 		<many-to-one name="property" column="idProperty" class="hci.gnomex.model.Property" cascade="none" insert="false" update="false" />
@@ -1454,7 +1460,7 @@
 		<property name="forAnalysis" column="forAnalysis" type="string"/>
 		<property name="forDataTrack" column="forDataTrack" type="string"/>
 
-		<set name="options" table="PropertyOption" lazy="false" cascade="delete" order-by="sortOrder">
+		<set name="options" table="PropertyOption" lazy="false" cascade="delete" order-by="sortOrder" inverse="true">
 			<key column="idProperty"/>
 			<one-to-many class="hci.gnomex.model.PropertyOption" />
 		</set>	

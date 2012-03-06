@@ -13,6 +13,7 @@ public class PropertyEntry extends HibernateDetailObject {
   private Integer            idProperty;
   private Integer            idSample;
   private Integer            idDataTrack;
+  private Integer            idAnalysis;
   private String             value;
   private String             otherLabel;
   private Set                options;
@@ -99,5 +100,13 @@ public class PropertyEntry extends HibernateDetailObject {
 
   public void setIdDataTrack(Integer idDataTrack) {
     this.idDataTrack = idDataTrack;
+  }
+  
+  public Integer getIdAnalysis() {
+    return idAnalysis;
+  }
+  
+  public void setIdAnalysis(Integer id) {
+    idAnalysis = id;
   }
 }

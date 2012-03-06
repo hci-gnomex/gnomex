@@ -32,6 +32,7 @@ public class Analysis extends HibernateDetailObject {
   private Set       files = new TreeSet();
   private Set       collaborators = new TreeSet();
   private Set<GenomeBuild>   genomeBuilds = new TreeSet<GenomeBuild>();
+  private Set                 propertyEntries;
 
 
   // permission field
@@ -214,6 +215,7 @@ public class Analysis extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getAppUser");
+    this.excludeMethodFromXML("getPropertyEntries");
   }
 
 
@@ -393,5 +395,12 @@ public class Analysis extends HibernateDetailObject {
       return createYear;
     }
   }
- 
+
+  public Set getPropertyEntries() {
+    return propertyEntries;
+  }
+  public void setPropertyEntries(Set propertyEntries) {
+    this.propertyEntries = propertyEntries;
+  }
+
 }

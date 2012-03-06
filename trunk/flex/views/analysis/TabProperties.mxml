@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Properties" enabled="true" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.managers.PopUpManager;
+
+			import views.admin.PropertyWindow;
+
+			[Bindable]
+			public var properties:XMLListCollection;
+			
+			[Bindable]
+			public var editable:Boolean;
+			
+			private function setDirty():void {
+				if (parentDocument.hasOwnProperty("dirty")) {
+					parentDocument.dirty.setDirty();
+				}
+			}
+			
+			private function onCreatePropertyLabel(property:XML, index:int):void {
+				if (property.@codePropertyType == 'TEXT') {
+					propertyValueViewStack[index].selectedIndex = 1;
+					propertyText[index].text = property.@value;
+				} else if (property.@codePropertyType == 'URL') {
+					propertyValueViewStack[index].selectedIndex = 0;
+				} else  if (property.@codePropertyType == 'OPTION') {
+					propertyValueViewStack[index].selectedIndex = 2;
+					propertyCombo[index].dataProvider =  property..PropertyOption;
+					for each(var theOption:XML in property..PropertyOption) {
+						if (theOption.@selected == 'Y') { 
+							propertyCombo[index].selectedItem =  theOption;
+							break;   			
+						}
+					}
+				} else  if (property.@codePropertyType == 'MOPTION') { 
+					propertyValueViewStack[index].selectedIndex = 4; 
+				} else if (property.@codePropertyType == 'CHECK') {
+					propertyValueViewStack[index].selectedIndex = 3;
+					propertyCheck[index].selected = property.@value == 'Y' ? true : false;
+				}
+			}
+			
+			public function initializePropertiesFromComponents():void {
+				for (var i:int = 0; i < properties.length; i++) {
+					var property:XML = XML(properties.getItemAt(i));
+					if (propertyValueViewStack[i].selectedIndex == 0) {
+						// url
+						property.@value = "";
+						var urlIdx:int = 0;
+						for each (var propertyValue:XML in  property..PropertyValue) {
+							var url:String = this.urlText[i][urlIdx].text;
+							var alias:String = this.aliasText[i][urlIdx].text;
+							
+							if (url == 'Enter URL here...' || url == '') {
+								continue;
+							}
+							
+							var pv:String = url;
+							if (alias != null && alias != 'Enter alias here...') {
+								pv += ',' + alias;
+							}
+							propertyValue.@value = pv;
+							urlIdx++;
+						}
+						
+					} else if (propertyValueViewStack[i].selectedIndex == 1) {
+						// text
+						property.@value = propertyText[i].text;
+					} else if (propertyValueViewStack[i].selectedIndex == 2) {
+						// combo
+						property.@value = "";
+						for each (var option:XML in  property..PropertyOption) {
+							if (propertyCombo[i].selectedItem != null &&
+								option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
+								option.@selected = 'Y';
+							} else {
+								option.@selected = 'N';
+							}
+						}
+					} else if (propertyValueViewStack[i].selectedIndex == 3) {
+						// check
+						property.@value = propertyCheck[i].selected ? 'Y' : 'N';
+					} else if (propertyValueViewStack[i].selectedIndex == 4) {
+						// multi-select
+						property.@value = "";		
+						var idx:int = 0;
+						for each (var opt:XML in  property..PropertyOption) {
+							if (multiselectCheck[i][idx].selected) {
+								opt.@selected = 'Y';
+								if (property.@value != '') {
+									property.@value += ",";
+								}
+								property.@value += opt.@name;
+							} else {
+								opt.@selected = 'N';
+							}
+							idx++;
+						}
+					}
+				}
+			}
+			
+			private function onPropertyURLClick(event:TextEvent):void {
+				var url:URLRequest = new URLRequest(event.target.text);
+				navigateToURL( url, '_blank' );
+			}
+			
+			private function removeProperty(property:XML):void {
+				this.initializePropertiesFromComponents();
+				properties.removeItemAt(properties.getItemIndex(property));
+			}
+			
+			
+			private function selectURLText(indices:Array):void {
+				if (urlText[indices[0]][indices[1]].text == 'Enter URL here...') {
+					urlText[indices[0]][indices[1]].selectionBeginIndex = 0;
+					urlText[indices[0]][indices[1]].selectionEndIndex = urlText[indices[0]][indices[1]].text.length;
+				} 
+			}
+			
+			private function selectAliasText(indices:Array):void {
+				if (aliasText[indices[0]][indices[1]].text == 'Enter alias here...') {
+					aliasText[indices[0]][indices[1]].selectionBeginIndex = 0;
+					aliasText[indices[0]][indices[1]].selectionEndIndex = aliasText[indices[0]][indices[1]].text.length;
+				} 
+			}
+			
+			private function onChangeURLText(indices:Array):void {
+				var newText:String = urlText[indices[0]][indices[1]].text;
+				var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+				values.getItemAt(indices[1]).@value = newText;
+				setDirty();
+			}
+			
+			private function showURLLink(indices:Array):void {
+				if (urlText[indices[0]][indices[1]].text == 'Enter URL here...') {
+					return;
+				}
+				var isNew:Boolean = false;
+				if ( urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
+					isNew = true;
+				}
+				
+				var newUrlText:String = urlText[indices[0]][indices[1]].text;
+				var newUrlAlias:String = aliasText[indices[0]][indices[1]].text;
+				var newUrlDisplay:String = "";
+				if (newUrlAlias != 'Enter alias here...' && newUrlAlias != '') {
+					newUrlDisplay = newUrlAlias;
+				} else {
+					newUrlDisplay = newUrlText;
+				}
+				
+				var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+				values.getItemAt(indices[1]).@urlDisplay = newUrlDisplay;
+				values.getItemAt(indices[1]).@url = newUrlText;
+				values.getItemAt(indices[1]).@urlAlias= newUrlAlias;		
+				
+				urlLink[indices[0]][indices[1]].label = newUrlDisplay;
+				
+				urlStack[indices[0]][indices[1]].selectedIndex = 0;
+				
+				if (isNew) {
+					addURL(indices);
+				}
+				
+				
+			}
+			
+			private function navigateToURLLink(indices:Array):void {
+				if (urlLink[indices[0]][indices[1]].label == 'Enter URL here...') {
+					return;
+				}
+				var urlString:String = urlLink[indices[0]][indices[1]].label;
+				if (urlString.indexOf("http") < 0) {
+					urlString = "http://" + urlString;
+				}
+				var url:URLRequest = new URLRequest(urlString);
+				navigateToURL( url, '_blank' );
+			}
+			
+			private function showURLEdit(indices:Array):void {
+				urlStack[indices[0]][indices[1]].selectedIndex = 1;
+			}
+			
+			private function tabToURLText(indices:Array):void {
+				urlText[indices[0]][indices[1]].setFocus();
+			}
+			
+			
+			private function removeURL(indices:Array):void {
+				var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+				
+				var property:XML = XML(XMLListCollection(propertyRepeater.dataProvider).getItemAt(indices[0]));
+				delete property.PropertyEntryValue[indices[1]];
+				
+				values.removeItemAt(indices[1]);
+				
+				this.initializePropertiesFromComponents();
+				
+				propertyMainBox.removeAllChildren();
+				propertyRepeater.initializeRepeater(propertyMainBox, true);
+				
+			}
+			
+			private function addURL(indices:Array):void {
+				var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+				
+				var property:XML = XML(XMLListCollection(propertyRepeater.dataProvider).getItemAt(indices[0]));
+				property.appendChild(new XMLList("<PropertyEntryValue idPropertyEntryValue='' urlAlias='Enter alias here...' url='Enter URL here...'/>"));
+				values = new XMLListCollection(property.PropertyEntryValue);
+				
+				this.initializePropertiesFromComponents();
+				propertyMainBox.removeAllChildren();
+				propertyRepeater.initializeRepeater(propertyMainBox, true);
+			}
+			
+			private function showPropertyConfigWindow():void {
+				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" label="Properties" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+		<mx:VBox id="propertyMainBox" width="100%" height="100%" verticalGap="4" paddingTop="2" >
+			<mx:Repeater  id="propertyRepeater" 
+						  dataProvider="{properties}">
+				<mx:HBox verticalAlign="top" width="100%"  horizontalGap="0" >
+					<mx:HBox width="126" horizontalGap="0" paddingLeft="0" paddingRight="0">
+						<mx:Text text="{propertyRepeater.currentItem.@name}" width="100%"  styleName="labelSmall"
+								 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
+						
+					</mx:HBox>
+					<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="250" >
+						<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" >
+							<mx:Repeater id="urlRepeater" dataProvider="{propertyRepeater.currentItem.PropertyEntryValue}" >
+								<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@url == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
+									<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
+										<mx:LinkButton id="urlLink" label="{urlRepeater.currentItem.@urlDisplay }"  
+													   click="{navigateToURLLink(event.target.instanceIndices)}" 
+													   paddingLeft="0" textDecoration="underline" color="#121CE8" 
+													   width="190" textAlign="left"/>
+										<mx:LinkButton label="Edit" 
+													   click="{showURLEdit(event.target.instanceIndices)}" 
+													   styleName="linkMenuButtonSmall"/>
+										<mx:Image source="{parentApplication.iconSmallDelete}"  
+												  click="{removeURL(event.currentTarget.instanceIndices)}" />						
+									</mx:HBox>
+									<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left">
+										<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
+													  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
+													  change="{setDirty()}"
+													  editable="{editable}"
+													  text="{urlRepeater.currentItem.@urlAlias}"  
+													  width="100" color="#8D7B7B"/>	
+										<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@url}" 
+													  enter="{showURLLink(event.target.instanceIndices)}" 
+													  editable="{editable}"
+													  change="{onChangeURLText(event.target.instanceIndices)}" 
+													  click="{selectURLText(event.currentTarget.instanceIndices)}" 
+													  width="100%" color="#8D7B7B"/>						
+										<mx:LinkButton label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
+									</mx:HBox>
+								</mx:ViewStack>		
+								
+							</mx:Repeater>
+							
+						</mx:VBox>
+						
+						<mx:HBox >
+							<mx:TextInput id="propertyText" change="{setDirty()}" editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
+							</mx:TextInput> 
+						</mx:HBox>
+						
+						<mx:HBox >
+							<mx:ComboBox id="propertyCombo" change="{setDirty()}" enabled="{editable}" styleName="labelSmall" width="240" labelField="@name">
+							</mx:ComboBox>						
+						</mx:HBox>
+						
+						<mx:HBox width="100%" >
+							<mx:CheckBox id="propertyCheck" click="{setDirty()}" enabled="{editable}" styleName="labelSmall">
+							</mx:CheckBox>
+						</mx:HBox>
+						
+						<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
+							<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
+								<mx:CheckBox id="multiselectCheck"  styleName="labelSmall" 
+											 label="{multiselectRepeater.currentItem.@name}"  
+											 paddingLeft="0"  
+											 paddingTop="0" 
+											 click="{setDirty()}"
+											 enabled="{editable}"
+											 paddingBottom="0"
+											 selected="{multiselectRepeater.currentItem.@selected == 'Y' ? true : false}"
+											 width="100%" textAlign="left"/>
+							</mx:Repeater>
+						</mx:VBox>
+						
+					</mx:ViewStack>
+				</mx:HBox>
+			</mx:Repeater>	
+		</mx:VBox>
+		<mx:LinkButton label="Define property ..." 
+					   visible="{editable}"
+					   includeInLayout="{editable}"
+					   click="showPropertyConfigWindow()" 
+					   styleName="linkMenuButtonSmall"  
+					   textAlign="left" paddingLeft="0"/>					   
+		
+	</mx:VBox>
+</mx:Canvas>

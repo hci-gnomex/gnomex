@@ -443,9 +443,12 @@
 				
 				// Collaborators
 				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
-				
+
+				// Annotations
+				analysisProperties.initializePropertiesFromComponents();
+				params.propertiesXML = "<analysisProperties>" + properties.toXMLString() + "</analysisProperties>";
+
 				saveAnalysis.send(params);			
-				
 			}   	
 			
 			private function onSaveAnalysis(event:ResultEvent):void {
@@ -869,7 +872,8 @@
 	<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
 	<mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AnalysisCollaborator}"/>
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
-	
+	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}"/>
+
 	
 	<mx:HBox width="100%" verticalGap="10" verticalAlign="middle" horizontalGap="24">
 		<mx:HBox horizontalGap="1" verticalAlign="middle">
@@ -1005,7 +1009,10 @@
 			</mx:VBox>
 			
 		</mx:HDividedBox>
-		
+
+		<analysis:TabProperties id="analysisProperties" label="Annotations" editable="true" properties="{properties}">
+		</analysis:TabProperties>
+
 		<mx:Canvas label="Analysis Groups" width="100%" height="100%">
 			<mx:VBox  paddingLeft="4" paddingRight="4" paddingBottom="4" paddingTop="4" width="100%"  height="100%" verticalGap="1" >
 				<mx:HBox width="100%" horizontalGap="8">

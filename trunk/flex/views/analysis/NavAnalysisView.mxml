@@ -628,7 +628,7 @@
         		return;
         	}
         	
-
+			editView.dirty.resetDirty();
         	
 		    if (this.showDownloads) {
 		    	theViews.visible = true;

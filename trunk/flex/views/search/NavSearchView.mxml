@@ -8,7 +8,7 @@
 	close="{PopUpManager.removePopUp(this)}"
 	title="Search Experiments, Analyses, and Protocols"  defaultButton="{searchButton}"
 	creationPolicy="all" show="init()" 
-	width="986" height="428" icon="@Embed('../../assets/magnifier.png')">
+	width="986" height="450" icon="@Embed('../../assets/magnifier.png')">
 
     <mx:HTTPService 
     id="getSlideProductList" 
@@ -32,7 +32,13 @@
 		import mx.managers.CursorManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-    	
+		
+		[Embed(source='../../assets/application_side_contract.png')]
+		private const shrinkIcon:Class;
+		[Embed(source='../../assets/application_side_expand.png')]
+		private const restoreIcon:Class;
+		
+
     	[Bindable] 
     	private var experimentHitLabel:String = "Experiments";
     	[Bindable] 
@@ -114,7 +120,26 @@
         	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber);
         }
         
-                
+        private function shrinkRestoreWindow():void {
+			if (this.restoreButton.label == "Restore Window") {
+				restoreWindow();
+			} else {
+				shrinkWindow();
+			}
+		}
+		
+		private function restoreWindow():void {
+			this.windowRestore.play();	
+			this.restoreButton.label = "Shrink Window";
+			this.restoreButton.setStyle("icon", this.shrinkIcon);
+		}
+		
+		private function shrinkWindow():void {
+			this.windowShrink.play();
+			this.restoreButton.label = "Restore Window";
+			this.restoreButton.setStyle("icon", this.restoreIcon);
+		}
+		
         private function onExperimentNodeSelected():void  {
         	if (resultsTree.selectedItem.name() == "RequestNode") {
 	        	parentApplication.showExperiment(resultsTree.selectedItem.@requestNumber);    		
@@ -196,7 +221,7 @@
 		private function toggleResultTreeView():void {
 			if (showTree.selected) {
 				this.searchResultsViewStack.selectedChild = this.searchResultsTreeView;
-				buttonStack.selectedChild = resultTreeButtonView;
+				buttonStack.selectedChild = resultButtonView;
 
 				if (searchList.length > 0) { 
 					this.resultsTreeViewStack.selectedIndex = 0;				
@@ -226,6 +251,7 @@
  		public function onViewSwitch():void {
 
 			if (searchViews.selectedChild == searchView ) {
+				restoreWindow();
 				buttonStack.selectedChild = searchButtonView;
 				buttonStack.visible = true;
 				buttonStack.selectedChild = searchButtonView;
@@ -240,7 +266,8 @@
 
     ]]>
     </mx:Script>
-   
+	<mx:Resize widthTo="200" id="windowShrink" target="{this}" />
+	<mx:Resize widthTo="986" id="windowRestore" target="{this}" />
     
     <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
     <mx:XMLListCollection id="searchProtocolList" source="{searchView.searchGNomEx.lastResult.ProtocolList.Protocol}"/>
@@ -438,10 +465,8 @@
 				        	</mx:Button>
 	                    </mx:HBox>
 	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">
+							<mx:LinkButton label="Shrink Window" fontSize="10" click="shrinkRestoreWindow()" id="restoreButton" icon="{this.shrinkIcon}" textDecoration="underline"/>
 	                    </mx:HBox>
-	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeButtonView" horizontalGap="20">
-	                    </mx:HBox>
-	
                 	</mx:ViewStack>
 					
 				</mx:ControlBar>

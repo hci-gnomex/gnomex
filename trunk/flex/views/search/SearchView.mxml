@@ -366,19 +366,20 @@
                	 width="300" change="scopeSearch()">
                </mx:ComboBox>
             </mx:HBox>
-    	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
-    	    <mx:HBox width="100%" id="hbox1">
-    	         <mx:HBox horizontalGap="0">
-		        	<mx:RadioButtonGroup id="radiogroup1"/>
-		        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
-		        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
-    	         </mx:HBox>
-	        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
-	        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
-	        		</mx:CheckBox>
-	        	</mx:HBox>
-    	    </mx:HBox>
-         </mx:VBox>
+			<mx:Label text="* Experiments only will be searched" id="warningLabel" visible="false" fontWeight="bold" color="#730A1E"/>    	
+			<mx:VBox width="100%" height="100%" verticalAlign="bottom">
+	    	    <mx:HBox width="100%" id="hbox1">
+	    	         <mx:HBox horizontalGap="0">
+			        	<mx:RadioButtonGroup id="radiogroup1"/>
+			        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
+			        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
+	    	         </mx:HBox>
+		        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
+		        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
+		        		</mx:CheckBox>
+		        	</mx:HBox>
+	    	    </mx:HBox>
+	         </mx:VBox>
             
         </mx:VBox>
 	    <mx:VBox verticalGap="0" height="100%" width="100%">
@@ -425,9 +426,8 @@
 		<mx:SetProperty target="{analysisProtocolCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label1}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label2}" name="enabled" value="false"/>
-		<mx:AddChild relativeTo="{hbox1}" position="before">
-			<mx:Label text="* Experiments only will be searched" fontWeight="bold" color="#730A1E"/>
-		</mx:AddChild>
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
 	</mx:State>
 	<mx:State name="AnalysisOnlySearchState">	
 		<mx:SetProperty target="{requestCategoryCombo}" name="enabled" value="false"/>
@@ -446,9 +446,8 @@
 		<mx:SetProperty target="{experimentFactorGrid}" name="editable" value="false"/>
 		<mx:SetProperty target="{experimentDesignGrid}" name="enabled" value="false"/>
 		<mx:SetProperty target="{experimentFactorGrid}" name="enabled" value="false"/>
-		<mx:AddChild relativeTo="{hbox1}" position="before">
-			<mx:Label text="* Analysis only will be searched" fontWeight="bold" color="#730A1E"/>
-		</mx:AddChild>
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
 	</mx:State>
 </mx:states> 
        

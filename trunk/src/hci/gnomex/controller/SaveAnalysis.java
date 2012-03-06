@@ -13,6 +13,9 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
@@ -25,6 +28,7 @@ import hci.gnomex.utility.AnalysisLaneParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.PropertyOptionComparator;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.File;
@@ -46,6 +50,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.Element;
 
 
 
@@ -103,6 +108,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                labName;
   private String                analysisType;
   private AnalysisGroup         existingAnalysisGroup;
+  
+  private String                propertiesXML;
   
   private String                serverName;
   
@@ -220,6 +227,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     if (request.getParameter("newAnalysisGroupDescription") != null && !request.getParameter("newAnalysisGroupDescription").equals("")) {
       newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
     }    
+    
+    if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
+      propertiesXML = request.getParameter("propertiesXML");    
+    }
     
     serverName = request.getServerName();
     
@@ -518,6 +529,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         sess.flush();
           
+        //
+        // Save properties
+        //
+        this.saveAnalysisProperties(sess, analysis);
+        
         String filePathInfo = "";
         if (isBatchMode) {
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisWriteDirectory(serverName);
@@ -725,6 +741,136 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         TransferLog tl = (TransferLog)i.next();
         tl.setIdLab(analysis.getIdLab());
       }
+  }
+  
+  private void saveAnalysisProperties(Session sess, Analysis analysis) throws org.jdom.JDOMException {
+    // Delete analysis properties  
+    if (propertiesXML != null && !propertiesXML.equals("")) {
+      StringReader reader = new StringReader(propertiesXML);
+      SAXBuilder sax = new SAXBuilder();
+      Document propsDoc = sax.build(reader);
+      for(Iterator<?> i = analysis.getPropertyEntries().iterator(); i.hasNext();) {
+        PropertyEntry pe = PropertyEntry.class.cast(i.next());
+        boolean found = false;
+        for(Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
+          Element propNode = (Element)i1.next();
+          String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
+          if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
+            if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
+              found = true;
+              break;
+            }
+          }                   
+        }
+        if (!found) {
+          // delete dataTrack property values
+          for(Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+            PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
+            sess.delete(av);
+          }  
+          sess.flush();
+          // delete dataTrack property
+          sess.delete(pe);
+        }
+      } 
+      sess.flush();
+      // Add dataTrack properties
+      for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+        Element node = (Element)i.next();
+        //Adding dataTracks
+        String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
+
+        PropertyEntry pe = null;
+        if (idPropertyEntry == null || idPropertyEntry.equals("")) {
+          pe = new PropertyEntry();
+          pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
+        } else {
+          pe  = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry))); 
+        }
+        pe.setValue(node.getAttributeValue("value"));
+        pe.setIdAnalysis(analysis.getIdAnalysis());
+
+        if (idPropertyEntry == null || idPropertyEntry.equals("")) {
+          sess.save(pe);
+          sess.flush();
+        }
+
+        // Remove PropertyEntryValues
+        if (pe.getValues() != null) {
+          for(Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+            PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
+            boolean found = false;
+            for(Iterator<?> i2 = node.getChildren().iterator(); i2.hasNext();) {
+              Element n = (Element)i2.next();
+              if (n.getName().equals("PropertyEntryValue")) {
+                String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
+                if (idPropertyEntryValue != null && !idPropertyEntryValue.equals("")) {
+                  if (av.getIdPropertyEntryValue().equals(new Integer(idPropertyEntryValue))) {
+                    found = true;
+                    break;
+                  }
+                }                   
+              }
+            }
+            if (!found) {
+              sess.delete(av);
+            }
+          }
+          sess.flush();
+        }
+
+        // Add and update PropertyEntryValues
+        for(Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
+          Element n = (Element)i1.next();
+          if (n.getName().equals("PropertyEntryValue")) {
+            String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
+            String value = n.getAttributeValue("value");
+            PropertyEntryValue av = null;
+            // Ignore 'blank' url value
+            if (value == null || value.equals("") || value.equals("Enter URL here...")) {
+              continue;
+            }
+            if (idPropertyEntryValue == null || idPropertyEntryValue.equals("")) {
+              av = new PropertyEntryValue();
+              av.setIdPropertyEntry(pe.getIdPropertyEntry());
+            } else {
+              av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class, Integer.valueOf(idPropertyEntryValue)));              
+            }
+            av.setValue(n.getAttributeValue("value"));
+
+            if (idPropertyEntryValue == null || idPropertyEntryValue.equals("")) {
+              sess.save(av);
+            }
+          }
+        }
+        sess.flush();
+
+
+        String optionValue = "";
+        TreeSet<PropertyOption> options = new TreeSet<PropertyOption>(new PropertyOptionComparator());
+        for(Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
+          Element n = (Element)i1.next();
+          if (n.getName().equals("PropertyOption")) {
+            Integer idPropertyOption = Integer.parseInt(n.getAttributeValue("idPropertyOption"));
+            String selected = n.getAttributeValue("selected");
+            if (selected != null && selected.equals("Y")) {
+              PropertyOption option = PropertyOption.class.cast(sess.load(PropertyOption.class, idPropertyOption));
+              options.add(option);
+              if (optionValue.length() > 0) {
+                optionValue += ",";
+              }
+              optionValue += option.getOption();
+            }
+          }
+        }
+        pe.setOptions(options);
+        if (options.size() > 0) {
+          pe.setValue(optionValue);
+        }
+        sess.flush();
+      }
+    }
+
   }
   
   private class AnalysisGroupComparator implements Comparator, Serializable {
