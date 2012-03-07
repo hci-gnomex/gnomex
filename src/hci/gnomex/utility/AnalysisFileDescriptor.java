@@ -31,6 +31,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   private String    comments;
   private Integer   idAnalysis;
   private String    idAnalysisFileString;
+  private Integer   idLab;
   
   private boolean   found = false;
   
@@ -313,6 +314,14 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     return this.found;
   }
   
+  public Integer getIdLab() {
+    return idLab;
+  }
+
+  public void setIdLab(Integer idLab) {
+    this.idLab = idLab;
+  }
+
   public String getViewURL() {
     String viewURL = "";
     // Only allow viewing on supported browser mime types

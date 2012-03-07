@@ -106,7 +106,6 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
-
 			
 			import mx.controls.Alert;
 			import mx.controls.listClasses.ListBase;
@@ -121,12 +120,14 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ExperimentDetailView;
 			import views.experiment.ExperimentDetailWindow;
 			import views.protocol.ProtocolsView;
 			import views.util.FileUtil;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
+
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -405,6 +406,25 @@
 					Alert.show("Please select an organism.");
 					return;        		
 				} 
+				
+				
+				if (filesView.getFilesToDelete().length > 0) {
+					if (analysis.DataTrackList.@count > 0) {
+						var linkedDataTrackCount:int = 0;
+						for each(var fileToDelete:Object in filesView.getFilesToDelete()) {
+							for each( var dt:Object in analysis.DataTrackList.DataTrack) {
+								if (dt.@idAnalysisFile == fileToDelete.@idAnalysisFileString) {
+									linkedDataTrackCount++;
+								}
+							}
+						}
+						if (linkedDataTrackCount > 0) {
+							Alert.show("Please remove or unlink associated data tracks first.");
+							return;
+						}
+					}
+				}
+				
 				
 				var params:Object = new Object();
 				
@@ -861,6 +881,12 @@
 				navigateToURL(url, '_self');	
 			}
 			
+			
+			private function showDataTracks():void {
+				theTab.selectedChild = this.filesView;
+				parentApplication.showDistributeDataTrackWindow(analysis);
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -883,6 +909,15 @@
 		<mx:HBox horizontalAlign="left">
 			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">    	        
 			</mx:LinkButton>
+			<mx:LinkButton label="Distribute Data Tracks" 
+						   click="showDataTracks()" 
+						   icon="@Embed(source='../../assets/datatrack.png')" 
+						   textDecoration="underline" 
+						   visible="{analysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
+						   includeInLayout="{analysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
+						   textAlign="left" fontSize="9" paddingLeft="0">    	        
+			</mx:LinkButton>				
+
 			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" fontSize="9" textAlign="left"/>
 		</mx:HBox>
 	</mx:HBox>
@@ -1125,6 +1160,23 @@
 				</mx:VBox>	
 			</mx:HDividedBox>
 		</mx:Canvas>
+		
+		<mx:HBox width="100%" horizontalGap="0" label="Data Tracks"  >
+			<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
+				<mx:Repeater id="dataTrackRepeater" dataProvider="{analysis.DataTrackList.DataTrack}">
+					<mx:HBox horizontalGap="6" width="100%">
+						<mx:LinkButton label="{dataTrackRepeater.currentItem.@label}" 
+									   paddingTop="0" paddingBottom="2" 
+									   textDecoration="underline"
+									   icon="{dataTrackRepeater.currentItem.@codeVisibility == 'PUBLIC' ? parentApplication.iconDataTrackPublic : dataTrackRepeater.currentItem.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : dataTrackRepeater.currentItem.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackMember}"
+									   click="{parentApplication.showDataTrackForNumber(event.currentTarget.getRepeaterItem().@number)}" >
+						</mx:LinkButton>
+						<mx:Text width="100%" text="{dataTrackRepeater.currentItem.@fileName}"/>
+					</mx:HBox>
+				</mx:Repeater>
+			</mx:VBox>
+		</mx:HBox>
+
 		
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		

@@ -428,7 +428,7 @@
 							 dropEnabled="false"  
 							 displayItemsExpanded="false"
 							 iconFunction="parentApplication.getTreeIcon"
-							 dragEnabled="false" 
+							 dragEnabled="true"  
 							 dragMoveEnabled="false"  
 							 showHeaders="true"  
 							 sortExpertMode="true" 

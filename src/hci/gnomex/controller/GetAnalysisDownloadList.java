@@ -150,6 +150,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         a.excludeMethodFromXML("getGenomeBuilds");
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         aNode.setAttribute("displayName", a.getName());
+        aNode.setAttribute("idLab", a.getIdLab().toString());
         aNode.setAttribute("number", a.getNumber());
         aNode.setAttribute("isSelected", "N");
         aNode.setAttribute("state", "unchecked");
@@ -242,6 +243,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("zipEntryName", fd.getZipEntryName() != null ? fd.getZipEntryName() : "");
               fdNode.setAttribute("number", fd.getAnalysisNumber() != null ? fd.getAnalysisNumber() : "");
               fdNode.setAttribute("idAnalysisFileString", fd.getIdAnalysisFileString());
+              fdNode.setAttribute("idLab", a.getIdLab() != null ? a.getIdLab().toString() : "");
               fdNode.setAttribute("isSelected", "N");
               fdNode.setAttribute("state", "unchecked");
               fdNode.setAttribute("viewURL", fd.getViewURL());
@@ -274,6 +276,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             fd.setAnalysisNumber(a.getNumber());
             fd.setUploadDate(af.getUploadDate());
             fd.setComments(af.getComments());
+            fd.setIdLab(a.getIdLab());
             fd.excludeMethodFromXML("getChildren");
 
             Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
@@ -427,6 +430,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFd.setIdAnalysis(fd.getIdAnalysis());
       childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != "" ? fd.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
       childFd.setBaseFilePath(fd.getBaseFilePath());
+      childFd.setIdLab(fd.getIdLab());
       
       AnalysisFile af = (AnalysisFile)knownFilesMap.get(childFd.getQualifiedFileName());
       

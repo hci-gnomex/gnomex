@@ -142,11 +142,16 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
           TreeSet dataTrackFiles = new TreeSet<DataTrackFile>(new DataTrackFileComparator());
           for (DataTrackFile dataTrackFile : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
             if (dataTrackFilesToRemove.containsKey(dataTrackFile.getIdDataTrackFile())) {
-              continue;
             }
             dataTrackFiles.add(dataTrackFile);
           }
           dataTrack.setDataTrackFiles(dataTrackFiles);
+          sess.flush();
+          for (Iterator<Integer> i1 = dataTrackFilesToRemove.keySet().iterator(); i1.hasNext();) {
+            Integer idDataTrackFile = (Integer)i1.next();
+            DataTrackFile dtf = (DataTrackFile)sess.load(DataTrackFile.class, idDataTrackFile);
+            sess.delete(dtf);
+          }
           sess.flush();
         }
         

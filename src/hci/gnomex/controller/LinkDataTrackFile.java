@@ -73,7 +73,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
    }
    if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
      idLab = new Integer(request.getParameter("idLab"));
-   } else {
+   } else if (isNewDataTrack) {
      this.addInvalidField("idLab", "idLab is required.");
    }
    serverName = request.getServerName();

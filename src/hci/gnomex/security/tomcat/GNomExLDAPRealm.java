@@ -275,12 +275,6 @@ public class GNomExLDAPRealm extends RealmBase {
 
     String cn = null;
     try {
-      for(java.util.Iterator i = env1.keySet().iterator(); i.hasNext();) {
-        Object key = i.next();
-        Object value = env1.get(key);
-        System.out.println("key=" + key + " value=" + value);
-      }
-      System.out.println("searching for user name = " + username);
 
       attr.put(new BasicAttribute("sAMAccountName", username));
 

@@ -154,6 +154,9 @@ package views.renderers
 
 		private function setCheckState (checkBox:CheckBox, value:Object, state:String):void
 		{
+			if (checkBox == null) {
+				return;
+			}
 			if (state == STATE_CHECKED)
 			{
 				checkBox.selected = true;
@@ -176,6 +179,10 @@ package views.renderers
 			}
 			
 			setCheckState (myCheckBox, value, value.@state);
+			
+			if (super.listData == null || AdvancedDataGridListData(super.listData).item == null) {
+				return;
+			}
 			if(AdvancedDataGridListData(super.listData).item.@type == 'dimension')
 			{
 			    setStyle("fontStyle", 'italic');
