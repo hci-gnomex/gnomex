@@ -767,7 +767,8 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (73,'datatrack_read_directory','/home/gnomex/dataTrackData/','The file directory where data track files are stored that are not linked to an analysis file. NOTE: must end in /', 'Y'),
  (74,'datatrack_write_directory','/home/gnomex/dataTrackData/','The file directory where analysis files are stored that are not linked to an analysis file NOTE: must end in /', 'Y'),
  (75,'sequence_alignment_server_url','','Location of web service for submitting files for sequence alignment.', 'N'),
- (76,'sequence_alignment_supported','N','True if sequence alignment feature supported.', 'N');
+ (76,'sequence_alignment_supported','N','True if sequence alignment feature supported.', 'N'),
+ (77,'lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y');
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
