@@ -35,6 +35,8 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
@@ -57,6 +59,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   private String  showUploads = "N";
   private String  serverName;
   private String  baseDir;
+  private String  baseDirDataTrack;
 
   
   public void validate() {
@@ -88,6 +91,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       baseDir = dh.getAnalysisReadDirectory(serverName);
+      baseDirDataTrack = dh.getDataTrackDirectoryForReading(serverName);
       
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {
@@ -255,6 +259,11 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             GetAnalysisDownloadList.recurseAddChildren(fdNode, fd,fileMap, knownAnalysisFileMap);
           }
         }
+        
+        // Get the DataTracks that are linked to this Analysis via its files
+        if (a.getFiles().size() > 0) {
+          appendDataTrackNodes(sess, a, aNode);
+        }
 
         // Add properties
         Element pNode = getProperties(dh, a);
@@ -302,6 +311,44 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void appendDataTrackNodes(Session sess, Analysis a, Element aNode) throws UnknownPermissionException {
+   
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT dt, af FROM DataTrack dt ");
+    queryBuf.append("JOIN dt.dataTrackFiles dtf ");
+    queryBuf.append("JOIN dtf.analysisFile af ");
+    queryBuf.append("WHERE dtf.idAnalysisFile IN (");
+    for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
+      AnalysisFile af = (AnalysisFile)i.next();
+      queryBuf.append(af.getIdAnalysisFile());
+      if (i.hasNext()) {
+        queryBuf.append(",");
+      }
+    }
+    queryBuf.append(")");
+    Element dtParentNode = new Element("DataTrackList");
+    aNode.addContent(dtParentNode);
+    List dataTracks = (List)sess.createQuery(queryBuf.toString()).list();
+    dtParentNode.setAttribute("count", Integer.valueOf(dataTracks.size()).toString());
+
+    for (Iterator i = dataTracks.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      DataTrack dt         = (DataTrack)row[0];
+      AnalysisFile afFile = (AnalysisFile)row[1];
+      
+      Element dtNode = new Element("DataTrack");
+      dtParentNode.addContent(dtNode);
+      dtNode.setAttribute("idDataTrack", dt.getIdDataTrack().toString());
+      dtNode.setAttribute("number", dt.getNumber());
+      dtNode.setAttribute("name", this.getSecAdvisor().canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)");
+      dtNode.setAttribute("createdBy", dt.getCreatedBy() != null ? dt.getCreatedBy() : "");
+      dtNode.setAttribute("idAnalysisFile", afFile.getIdAnalysisFile().toString());
+      dtNode.setAttribute("label", dt.getNumber() + " " + dt.getName());
+      dtNode.setAttribute("fileName", afFile.getQualifiedFileName() != null ? afFile.getQualifiedFileName() : "");
+      dtNode.setAttribute("codeVisibility", dt.getCodeVisibility() != null ? dt.getCodeVisibility() : "");
+    }
   }
   
   /**
