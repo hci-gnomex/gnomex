@@ -403,7 +403,8 @@ public class GNomExLDAPRealm extends RealmBase {
 
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
     Context initCtx = new InitialContext();
-    DataSource ds = (DataSource)initCtx.lookup("java:openejb/Resource/jdbc/gnomex");
+    //DataSource ds = (DataSource)initCtx.lookup("java:openejb/Resource/jdbc/gnomex");
+    DataSource ds = (DataSource)initCtx.lookup("jdbc/gnomex");
     
     return ds.getConnection();
   }

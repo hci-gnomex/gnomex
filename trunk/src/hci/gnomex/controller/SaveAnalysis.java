@@ -2,13 +2,13 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AnalysisType;
-import hci.gnomex.model.AppUser;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
@@ -298,6 +298,14 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           genomeBuildParser.parse(sess);          
         }
         
+        // Make sure that there are not any data track files linked to analysis files
+        if (analysisFileParser != null) {
+          String message = validateAnalysisFilesToRemove(sess, analysis, analysisFileParser);
+          if (message != null && !message.equals("")) {
+            throw new RollBackCommandException(message);
+          }
+        }
+        
               
         if (isNewAnalysis) {
           sess.save(analysis);
@@ -561,6 +569,50 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  public static String validateAnalysisFilesToRemove(Session sess, Analysis a, AnalysisFileParser analysisFileParser) throws UnknownPermissionException {
+      String message = null;
+      
+      // If there are no analysis files to delete, this validation check can be bypassed.
+      if (analysisFileParser != null) {
+        if (analysisFileParser.getAnalysisFileToDeleteMap().size() == 0) {
+          return message;
+        }
+      } else {
+        if (a.getFiles().size() == 0) {
+          return message;
+        }
+      }
+      StringBuffer queryBuf = new StringBuffer();
+      queryBuf.append("SELECT COUNT(*) FROM DataTrack dt ");
+      queryBuf.append("JOIN dt.dataTrackFiles dtf ");
+      queryBuf.append("WHERE dtf.idAnalysisFile IN (");
+      if (analysisFileParser != null) {
+        for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
+          String idAnalysisFile = (String)i.next();
+          queryBuf.append(idAnalysisFile);
+          if (i.hasNext()) {
+            queryBuf.append(",");
+          }
+        } 
+        queryBuf.append(")");
+      } else {
+        for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          queryBuf.append(af.getIdAnalysisFile());
+          if (i.hasNext()) {
+            queryBuf.append(",");
+          }
+        }
+        queryBuf.append(")");
+      }
+      Integer count = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
+      if (count != null && count > 0) {
+        message = "Cannot remove analysis file.  Please remove or unlink releated data tracks first.";
+      }
+      return message;
+      
   }
   
   
