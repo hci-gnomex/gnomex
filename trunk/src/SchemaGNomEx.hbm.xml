@@ -279,7 +279,7 @@
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />
 		</set>
 	      
-		<set name="dataTrackFiles" table="DataTrackFile" lazy="true" cascade="all" >
+		<set name="dataTrackFiles" table="DataTrackFile" lazy="true" cascade="delete" >
 			<key column="idDataTrack"/>
 			<one-to-many class="hci.gnomex.model.DataTrackFile" />
 		</set>

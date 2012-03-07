@@ -13,7 +13,8 @@
 * In Advance Search, when a Experiment Only or Analysis Only warning was given scrollbars would appear.  This has been fixed.
 * The user now has the ability to shrink or expand the Advanced Search window in Result View to allow viewing of the underlying screen.
 * Properties are excluded from the Annotation view in Data Track if they have no data and are marked inactive.
-* Properties are excluded from the Annotatino view in Experiment edit if they have no data and are marked inactive.
+* Properties are excluded from the Annotation view in Experiment edit if they have no data and are marked inactive.
+* Continued bug fixes/refinements for Data Track feature, focusing on linking analysis files to data tracks.
 
 5.3.8 (3/5/2012)
 --------------------

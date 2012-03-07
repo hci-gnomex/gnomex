@@ -2001,6 +2001,13 @@
 			distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
 		}
 			
+		public function refreshDistributeDataTrackWindow(analysis:Object):void {
+			if (distributeDataTrackWindow != null) {
+				distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
+			}
+		}
+			
+			
 		public function removeDistributeDataTrackWindow():void {
 			PopUpManager.removePopUp(distributeDataTrackWindow);
 			distributeDataTrackWindow = null;

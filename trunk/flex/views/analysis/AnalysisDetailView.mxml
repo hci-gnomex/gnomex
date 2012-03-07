@@ -42,6 +42,8 @@
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
 			
+			import views.datatrack.DistributeDataTrackWindow;
+
 			[Bindable]
 			public var rowCountMessage:String = new String();
 			[Bindable]
@@ -348,6 +350,11 @@
 				refreshDownloadList();
 			} 
 			
+			private function showDataTracks():void {
+				theTab.selectedChild = this.filesView;
+				parentApplication.showDistributeDataTrackWindow(parentDocument.selectedAnalysis);
+			}
+
 			
 		]]>
 	</mx:Script>
@@ -368,6 +375,14 @@
 					<mx:height>{analysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 					<mx:visible>{analysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>
+				<mx:LinkButton label="Distribute Data Tracks" 
+							   click="showDataTracks()" 
+							   icon="@Embed(source='../../assets/datatrack.png')" 
+							   textDecoration="underline" 
+							   visible="{parentDocument.selectedAnalysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
+							   includeInLayout="{parentDocument.selectedAnalysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
+							   textAlign="left" fontSize="9" paddingLeft="0">    	        
+				</mx:LinkButton>				
 				
 			</mx:HBox>
 			
@@ -496,6 +511,22 @@
 				</mx:ViewStack>
 			</mx:VBox>
 			
+			<mx:HBox width="100%" horizontalGap="0" label="Data Tracks"  >
+				<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
+					<mx:Repeater id="dataTrackRepeater" dataProvider="{analysis.DataTrackList.DataTrack}">
+						<mx:HBox horizontalGap="6" width="100%">
+							<mx:LinkButton label="{dataTrackRepeater.currentItem.@label}" 
+										   paddingTop="0" paddingBottom="2" 
+										   textDecoration="underline"
+										   icon="{dataTrackRepeater.currentItem.@codeVisibility == 'PUBLIC' ? parentApplication.iconDataTrackPublic : dataTrackRepeater.currentItem.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : dataTrackRepeater.currentItem.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackMember}"
+										   click="{parentApplication.showDataTrackForNumber(event.currentTarget.getRepeaterItem().@number)}" >
+							</mx:LinkButton>
+							<mx:Text width="100%" text="{dataTrackRepeater.currentItem.@fileName}"/>
+						</mx:HBox>
+					</mx:Repeater>
+				</mx:VBox>
+			</mx:HBox>
+
 			<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{analysis.@canUploadData == 'Y'}" />
 			
 		</mx:TabNavigator>

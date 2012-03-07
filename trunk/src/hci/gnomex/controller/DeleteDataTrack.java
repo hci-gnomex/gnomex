@@ -92,7 +92,7 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
         // remove dataTrack files
         dataTrack.removeFiles(baseDir);
 
-        // delete dataTrack property entries
+        // delete dataTrack property entry values
         for(Iterator<?> i = dataTrack.getPropertyEntries().iterator(); i.hasNext();) {
           PropertyEntry ap = PropertyEntry.class.cast(i.next());
           for(Iterator<?> i1 = ap.getValues().iterator(); i1.hasNext();) {
@@ -108,7 +108,7 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
           sess.delete(ap);
         }
         sess.flush();
-
+        sess.refresh(dataTrack);
 
 
         // delete database object

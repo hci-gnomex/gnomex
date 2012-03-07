@@ -508,7 +508,6 @@
 				selectedIdLab = browseTree.selectedItem.@idLab;
 				selectedIdAnalysisGroup = browseTree.selectedItem.parent().@idAnalysisGroup;
 				selectedAnalysisNumber = null;
-				parentApplication.removeDistributeDataTrackWindow();
 				
 			} else {												
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
@@ -682,6 +681,8 @@
 				detailView.updateUploadFormAnalysisObj();
 			}
 
+			parentApplication.refreshDistributeDataTrackWindow(this.selectedAnalysis);
+
 			if (selectedAnalysis.@canDelete == "Y") {
 				this.deleteButton.enabled = true;
 			} else {
@@ -844,6 +845,11 @@
 
 
 		public function promptToDelete():void {
+			if (selectedAnalysis.DataTrackList.@count > 0) {
+				Alert.show("Please remove or unlink associated data tracks first.");
+				return;
+			}
+			
 			if (selectedAnalysis != null) {
 				Alert.show("Delete analysis " + selectedAnalysis.@name + "?", 
 							null, 

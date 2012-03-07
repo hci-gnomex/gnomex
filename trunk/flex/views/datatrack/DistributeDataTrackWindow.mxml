@@ -103,7 +103,7 @@
 		// If the analysis has one genome build, filter by it.
 		// If the analysis has multiple builds, just filter by organism 
 		//    (if it is the same for all genome builds).
-		// If the analysis doesn't specify a build, show the whole tree.
+		// If the analysis doesn't specify a build, just filter by organism.
 		if (genomeBuilds.length() > 1) {
 			var organismMap:Object = new Object();
 			for each(var build:Object in genomeBuilds) {
@@ -122,7 +122,9 @@
 			var gb1:Object = genomeBuilds[0];
 			idOrganism = gb1.@idOrganism;
 			idGenomeBuild = gb1.@idGenomeBuild;
-		} 
+		} else {
+			idOrganism = analysis.@idOrganism;
+		}
 		
 		setDefaultsForDropdowns();
 		
@@ -633,7 +635,7 @@
 		// retrieve the data associated with the "items" format. This will be the data that
 		// the dragInitiator has copied into the DragSource.
 		dragParams = new ArrayCollection();
-		for each(var dragItem:Object in ds.dataForFormat("items") as Array) {
+		for each(var dragItem:Object in ds.dataForFormat("treeDataGridItems") as Array) {
 			var params:Object = new Object();
 			var keep:Boolean = true;
 			if (dragItem.name() == "AnalysisFileDescriptor") {
@@ -641,6 +643,7 @@
 				params.fileName = dragItem.@displayName;
 				params.idAnalysis = dragItem.@idAnalysis;
 				params.idAnalysisFile = dragItem.@idAnalysisFileString;
+				params.idLab = dragItem.@idLab;
 
 				dragParams.addItem(params);
 			}
@@ -745,7 +748,7 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			params.idGenomeBuild = dropNode.@idGenomeBuild;
 			params.idAnalysisFile = dragParams[0].idAnalysisFile;
-			params.idLab = idLab;
+			
 			
 			linkDataTrackFile.send(params);
 		}
@@ -756,7 +759,7 @@
 			params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
 			params.idGenomeBuild = dropNode.@idGenomeBuild;
 			params.idAnalysisFile = dragParams[0].idAnalysisFile;
-			params.idLab = idLab;
+			params.idLab = dragParams[0].idLab;
 			
 			linkDataTrackFile.send(params);
 		}

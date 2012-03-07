@@ -62,6 +62,14 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
     
       if (this.getSecAdvisor().canDelete(analysis)) {
         
+        // Make sure that there are not any data track files linked to analysis files
+        if (analysis.getFiles().size() > 0) {
+          String message = SaveAnalysis.validateAnalysisFilesToRemove(sess, analysis, null);
+          if (message != null && !message.equals("")) {
+            throw new RollBackCommandException(message);
+          }
+        }
+        
         // Remove files from file system
         for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
