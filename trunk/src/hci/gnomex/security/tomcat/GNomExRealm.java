@@ -36,6 +36,8 @@ public class GNomExRealm extends RealmBase {
   private String username;
   private String password;
   
+  private String datasource_lookup_name;
+  
   @Override
   public Principal authenticate(String username, byte[] credentials) {
     return this.authenticate(username, credentials);
@@ -150,9 +152,17 @@ public class GNomExRealm extends RealmBase {
   
 
 
+  public String getDatasource_lookup_name() {
+    return datasource_lookup_name;
+  }
+
+  public void setDatasource_lookup_name(String datasource_lookup_name) {
+    this.datasource_lookup_name = datasource_lookup_name;
+  }
+
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
     Context initCtx = new InitialContext();
-    DataSource ds = (DataSource)initCtx.lookup("java:openejb/Resource/jdbc/gnomexGuest");
+    DataSource ds = (DataSource)initCtx.lookup(datasource_lookup_name);
     
     return ds.getConnection();
   }
