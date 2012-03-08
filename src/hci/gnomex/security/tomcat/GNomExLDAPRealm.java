@@ -48,6 +48,8 @@ public class GNomExLDAPRealm extends RealmBase {
   private String alt_ldap_user_name;
   private String alt_ldap_password;
   
+  private String datasource_lookup_name;
+  
   private Hashtable env1 = new Hashtable();
   private DirContext ctx;
   private Attributes attr;
@@ -192,6 +194,15 @@ public class GNomExLDAPRealm extends RealmBase {
 
   public void setAlt_ldap_auth_meth(String alt_ldap_auth_meth) {
     this.alt_ldap_auth_meth = alt_ldap_auth_meth;
+  }
+
+
+  public String getDatasource_lookup_name() {
+    return datasource_lookup_name;
+  }
+
+  public void setDatasource_lookup_name(String datasource_lookup_name) {
+    this.datasource_lookup_name = datasource_lookup_name;
   }
 
   private boolean isAuthenticated() {
@@ -403,8 +414,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
     Context initCtx = new InitialContext();
-    //DataSource ds = (DataSource)initCtx.lookup("java:openejb/Resource/jdbc/gnomex");
-    DataSource ds = (DataSource)initCtx.lookup("jdbc/gnomex");
+    DataSource ds = (DataSource)initCtx.lookup(datasource_lookup_name);
     
     return ds.getConnection();
   }
