@@ -26,4 +26,4 @@ do
 CLASSPATH="$CLASSPATH:$JAR"
 done
 export CLASSPATH
-java hci.gnomex.lucene.BuildSearchIndex $*
+java -Xms256m -Xmx512m hci.gnomex.lucene.BuildSearchIndex $*

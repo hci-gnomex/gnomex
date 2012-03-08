@@ -7,6 +7,8 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.lucene.AnalysisFilter;
 import hci.gnomex.lucene.AnalysisIndexHelper;
+import hci.gnomex.lucene.DataTrackFilter;
+import hci.gnomex.lucene.DataTrackIndexHelper;
 import hci.gnomex.lucene.ExperimentFilter;
 import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
@@ -56,8 +58,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private boolean isAnalysisOnlySearch = false;
   
   private ExperimentFilter experimentFilter = null;
-  private ProtocolFilter       protocolFilter = null;
-  private AnalysisFilter       analysisFilter = null;
+  private ProtocolFilter   protocolFilter = null;
+  private AnalysisFilter   analysisFilter = null;
+  private DataTrackFilter  dataTrackFilter = null;
   
   private String listKind = "SearchList";
   
@@ -79,11 +82,19 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private Map labToAnalysisGroupMap = null;
   private Map analysisGroupToAnalysisMap = null;
   
+  private Map labDataTrackMap = null;
+  private Map dataTrackFolderMap = null;
+  private Map dataTrackMap = null;
+  private Map labToDataTrackFolderMap = null;
+  private Map dataTrackFolderToDataTrackMap = null;
+  
   private ArrayList rankedRequestNodes = null;
 
   private ArrayList rankedProtocolNodes = null;
   
   private ArrayList rankedAnalysisNodes = null;
+  
+  private ArrayList rankedDataTrackNodes = null;
   
   public void validate() {
   }
@@ -117,6 +128,10 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     analysisFilter = new AnalysisFilter();
     errors = this.loadDetailObject(request, analysisFilter);
+    this.addInvalidFields(errors);    
+    
+    dataTrackFilter = new DataTrackFilter();
+    errors = this.loadDetailObject(request, dataTrackFilter);
     this.addInvalidFields(errors);    
     
     List experimentDesignCodes = new ArrayList();
@@ -225,6 +240,48 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           
         }
         
+        //
+        // Data Tracks
+        //
+        IndexReader dataTrackIndexReader = IndexReader.open(ph.getQualifiedProperty(PropertyDictionary.LUCENE_DATATRACK_INDEX_DIRECTORY, serverName));      
+        Searcher dataTrackSearcher = new IndexSearcher(dataTrackIndexReader);
+        
+        //  Build a Query object
+        String dataTrackSearchText = dataTrackFilter.getSearchText().toString();
+        
+        // Build a Query to represent the security filter
+        String dataTrackSecuritySearchText = this.buildDataTrackSecuritySearch();
+
+        if (dataTrackSearchText != null && dataTrackSearchText.trim().length() > 0) {
+          log.debug("Lucene data track search: " + dataTrackSearchText);
+          QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+          myQueryParser.setAllowLeadingWildcard(true);
+          Query query = myQueryParser.parse(dataTrackSearchText);          
+          
+          // Build security filter        
+          QueryWrapperFilter filter = this.buildSecurityQueryFilter(dataTrackSecuritySearchText);
+
+          // Search for the query
+          Hits hits = null;
+          if (filter == null) {
+             hits = dataTrackSearcher.search(query);
+          } else {
+             hits = dataTrackSearcher.search(query, filter);
+          }  
+          
+          processDataTrackHits(hits, dataTrackSearchText);
+          
+        } else {
+          if (dataTrackSecuritySearchText != null) {
+            QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+            myQueryParser.setAllowLeadingWildcard(true);
+            Query query = myQueryParser.parse(dataTrackSecuritySearchText);          
+            Hits hits = dataTrackSearcher.search(query);
+            processDataTrackHits(hits, dataTrackSecuritySearchText);
+          } else {
+            this.buildDataTrackGroupMap(dataTrackIndexReader);
+          }
+        }
       }
       
       
@@ -350,6 +407,17 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     this.buildAnalysisGroupMap(hits);
     
   }
+  
+  private void processDataTrackHits(Hits hits, String searchText) throws Exception {
+    
+    // Show hits
+    showDataTrackHits(hits, searchText);
+    
+    // Map search results
+    this.buildDataTrackMap(hits);
+    
+  }
+  
   private void buildProjectRequestMap(Hits hits, DictionaryHelper dh) throws Exception{
     
     labMap        = new HashMap();
@@ -439,6 +507,38 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     for (int i = 0; i < indexReader.numDocs(); i++) {
       org.apache.lucene.document.Document doc = indexReader.document(i);
       mapProtocolDocument(doc, -1, -1);      
+    }
+  }
+  
+  private void buildDataTrackMap(Hits hits) throws Exception{
+    
+    labDataTrackMap = new HashMap();
+    dataTrackFolderMap = new HashMap();
+    dataTrackMap = new HashMap();
+    labToDataTrackFolderMap = new TreeMap();
+    dataTrackFolderToDataTrackMap = new TreeMap();
+    rankedDataTrackNodes = new ArrayList();
+    
+    for (int i = 0; i < hits.length(); i++) {
+      org.apache.lucene.document.Document doc = hits.doc(i);
+      float score = hits.score(i);
+      mapDataTrackDocument(doc, i, score);
+      
+    }
+  }
+  
+  private void buildDataTrackGroupMap(IndexReader indexReader) throws Exception{
+    
+    labDataTrackMap = new HashMap();
+    dataTrackFolderMap = new HashMap();
+    dataTrackMap = new HashMap();
+    labToDataTrackFolderMap = new TreeMap();
+    dataTrackFolderToDataTrackMap = new TreeMap();
+    rankedDataTrackNodes = new ArrayList();
+    
+    for (int i = 0; i < indexReader.numDocs(); i++) {
+      org.apache.lucene.document.Document doc = indexReader.document(i);
+      mapDataTrackDocument(doc, -1, -1);      
     }
   }
   
@@ -653,6 +753,86 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
 
   }
+ 
+ private void mapDataTrackDocument(org.apache.lucene.document.Document doc, int rank, float score) {
+    
+    Integer idDataTrackFolder = doc.get(DataTrackIndexHelper.ID_DATATRACKFOLDER) == null ? -1 : new Integer(doc.get(DataTrackIndexHelper.ID_DATATRACKFOLDER));
+    Integer idLab        = doc.get(DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER) == null ? -1 : new Integer(doc.get(DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER));
+    Integer idDataTrack  = doc.get(DataTrackIndexHelper.ID_DATATRACK).equals("unknown") ? null : new Integer(doc.get(DataTrackIndexHelper.ID_DATATRACK));
+    
+    Element labNode = (Element)labDataTrackMap.get(idLab);
+    if (labNode == null) {
+      Element node = new Element("Lab");
+      node.setAttribute("idLab", idLab.toString());
+      node.setAttribute("labName", doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER) == null ? "unknown" : doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER));
+      node.setAttribute("label", doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER) == null ? "unknown" : doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER));
+      labDataTrackMap.put(idLab, node);
+    }
+
+    Element dataTrackFolderNode = (Element)dataTrackFolderMap.get(idDataTrackFolder);
+    if (dataTrackFolderNode == null) {
+      Element node = new Element("DataTrackFolder");
+      node.setAttribute("idDataTrackFolder", idDataTrackFolder.toString());
+      node.setAttribute("name", doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) != null ? doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) : "");
+      node.setAttribute("label", doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) != null ? doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) : "");
+      node.setAttribute("description", doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_DESCRIPTION) != null ? doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_DESCRIPTION) : "");
+      node.setAttribute("codeVisibility", doc.get(DataTrackIndexHelper.CODE_VISIBILITY) != null ? doc.get(DataTrackIndexHelper.CODE_VISIBILITY) : "");
+      if (idDataTrack == null || idDataTrack.intValue() == 0) {
+        if (rank >= 0) {
+          node.setAttribute("searchRank", new Integer(rank + 1).toString());
+          node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+        }
+        if (score >= 0) {
+          node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");                    
+        }
+      }
+      dataTrackFolderMap.put(idDataTrackFolder, node);
+    }
+    
+    if (idDataTrack != null) {
+      
+      
+      Element dataTrackNode = (Element)dataTrackMap.get(idDataTrack);
+      if (dataTrackNode == null) {
+        Element node = new Element("DataTrackNode");
+        Element node1 = new Element("DataTrack");
+        buildDataTrackNode(node, idDataTrack, doc, score, rank);
+        buildDataTrackNode(node1, idDataTrack, doc, score, rank);
+        
+        dataTrackMap.put(idDataTrackFolder + "-" + idDataTrack, node);
+        rankedDataTrackNodes.add(node1);
+      }        
+    } else {
+      Element node = new Element("DataTrack");
+      buildEmptyDataTrackNode(node, idDataTrackFolder, doc, score, rank);
+      rankedDataTrackNodes.add(node);
+    }
+    
+    
+    String labName     = doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER);
+    String dataTrackFolderName = doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME);
+    String dataTrackCreateDate = doc.get(DataTrackIndexHelper.CREATE_DATE);
+    String labKey = labName + "---" + idLab;
+    Map dataTrackFolderIdMap = (Map)labToDataTrackFolderMap.get(labKey);
+    if (dataTrackFolderIdMap == null) {
+      dataTrackFolderIdMap = new TreeMap();
+      labToDataTrackFolderMap.put(labKey, dataTrackFolderIdMap);
+    }
+    String dataTrackFolderKey = dataTrackFolderName + "---" + idDataTrackFolder;
+    dataTrackFolderIdMap.put(dataTrackFolderKey, idDataTrackFolder);        
+    
+    if (idDataTrack != null) {
+
+
+      Map idDataTrackMap = (Map)dataTrackFolderToDataTrackMap.get(idDataTrackFolder);
+      if (idDataTrackMap == null) {
+        idDataTrackMap = new TreeMap();
+        dataTrackFolderToDataTrackMap.put(idDataTrackFolder, idDataTrackMap);
+      }
+      idDataTrackMap.put(idDataTrackFolder + "-" + dataTrackCreateDate + "-" + idDataTrack, idDataTrack);        
+    }
+
+  }
   
   private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeApplication, Document doc, float score, int rank, DictionaryHelper dh) {
     RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
@@ -747,6 +927,47 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   }
   
+  private void buildDataTrackNode(Element node, Integer idDataTrack, Document doc, float score, int rank) {
+    node.setAttribute("idDataTrack", idDataTrack.toString());
+    node.setAttribute("dataTrackFolderName", doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME));
+    node.setAttribute("label", doc.get(DataTrackIndexHelper.DATATRACK_NAME));
+    node.setAttribute("createDate", doc.get(DataTrackIndexHelper.CREATE_DATE) != null ? doc.get(DataTrackIndexHelper.CREATE_DATE) : "");
+    node.setAttribute("codeVisibility",  doc.get(DataTrackIndexHelper.CODE_VISIBILITY) != null ? doc.get(DataTrackIndexHelper.CODE_VISIBILITY) : "");
+    node.setAttribute("public",  doc.get(DataTrackIndexHelper.CODE_VISIBILITY) != null && doc.get(DataTrackIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Public" : "");
+    node.setAttribute("publicNote", doc.get(DataTrackIndexHelper.PUBLIC_NOTE) != null ? doc.get(DataTrackIndexHelper.PUBLIC_NOTE) : "");
+    node.setAttribute("name", doc.get(DataTrackIndexHelper.DATATRACK_NAME) != null ?  doc.get(DataTrackIndexHelper.DATATRACK_NAME) : "");
+    node.setAttribute("ownerFirstName", doc.get(DataTrackIndexHelper.OWNER_FIRST_NAME) != null ? doc.get(DataTrackIndexHelper.OWNER_FIRST_NAME) : "");
+    node.setAttribute("ownerLastName", doc.get(DataTrackIndexHelper.OWNER_LAST_NAME) != null ? doc.get(DataTrackIndexHelper.OWNER_LAST_NAME) : "");
+    node.setAttribute("labName", doc.get(DataTrackIndexHelper.LAB_NAME) != null ? doc.get(DataTrackIndexHelper.LAB_NAME) : "" );
+    node.setAttribute("description", doc.get(DataTrackIndexHelper.DESCRIPTION) != null ? doc.get(DataTrackIndexHelper.DESCRIPTION) : "" );
+    node.setAttribute("fileName", doc.get(DataTrackIndexHelper.FILE_NAME) != null ? doc.get(DataTrackIndexHelper.FILE_NAME) : "" );
+    node.setAttribute("summary", doc.get(DataTrackIndexHelper.SUMMARY) != null ? doc.get(DataTrackIndexHelper.SUMMARY) : "" );
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
+
+  }
+
+  private void buildEmptyDataTrackNode(Element node,  Integer idDataTrackFolder, Document doc, float score, int rank) {
+    node.setAttribute("idDataTrack", "-1");
+    node.setAttribute("idDataTrackFolder", idDataTrackFolder.toString());
+    node.setAttribute("dataTrackFolderName", doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME));
+    node.setAttribute("labName", doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER) != null ? doc.get(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER) : "" );
+    node.setAttribute("label",  doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) != null ? doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) : "");
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
+
+  }
+  
   private org.jdom.Document buildXMLDocument() {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
     doc.getRootElement().setAttribute("search", searchDisplayText);
@@ -757,6 +978,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
     if (!isExperimentOnlySearch && !isAnalysisOnlySearch) {
       buildProtocolList(doc.getRootElement());      
+      buildDataTrackFolderList(doc.getRootElement());
+      buildDataTrackList(doc.getRootElement());
     }
     if (!isExperimentOnlySearch) {
       buildAnalysisGroupList(doc.getRootElement());
@@ -878,7 +1101,50 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
     }
 
+  }
+
+  private void buildDataTrackFolderList(Element root) {
+    Element parent = new Element("DataTrackFolderList");
+    root.addContent(parent);
     
+    // For each lab
+    for(Iterator i = labToDataTrackFolderMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      
+      String []tokens = key.split("---");
+      Integer idLab = new Integer(tokens[1]);
+      
+      Element labNode = (Element)labDataTrackMap.get(idLab);
+      Map dataTrackFolderIdMap = (Map)labToDataTrackFolderMap.get(key);
+      
+      parent.addContent(labNode);
+      
+      // For each data track folder in lab
+      for(Iterator i1 = dataTrackFolderIdMap.keySet().iterator(); i1.hasNext();) {
+        String dtfKey = (String)i1.next();
+
+        
+        Integer idDataTrackFolder = (Integer)dataTrackFolderIdMap.get(dtfKey);
+
+        Element dtfNode = (Element)dataTrackFolderMap.get(idDataTrackFolder);
+        Map idDataTrackMap = (Map)dataTrackFolderToDataTrackMap.get(idDataTrackFolder);
+        
+        labNode.addContent(dtfNode);
+        
+        
+        // For each data track in data track folder
+        if (idDataTrackMap != null) {
+          for(Iterator i2 = idDataTrackMap.keySet().iterator(); i2.hasNext();) {
+            
+            String dtkey = (String)i2.next();
+            Integer idDataTrack = (Integer)idDataTrackMap.get(dtkey);
+            Element dtNode = (Element)dataTrackMap.get(idDataTrackFolder + "-" + idDataTrack);
+            dtfNode.addContent(dtNode);
+          }
+        }
+      }
+    }
+
   }
 
   private void buildRequestList(Element root) {
@@ -898,7 +1164,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     Element parent = new Element("ProtocolList");
     root.addContent(parent);
     
-    // For each request node
+    // For each protocol node
     for(Iterator i = rankedProtocolNodes.iterator(); i.hasNext();) {
       Element protocolNode = (Element)i.next();
       parent.addContent(protocolNode);
@@ -909,8 +1175,20 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     Element parent = new Element("AnalysisList");
     root.addContent(parent);
     
-    // For each request node
+    // For each analysis node
     for(Iterator i = rankedAnalysisNodes.iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      parent.addContent(node);
+    }
+    
+  }
+  
+  private void buildDataTrackList(Element root) {
+    Element parent = new Element("DataTrackList");
+    root.addContent(parent);
+    
+    // For each data track node
+    for(Iterator i = rankedDataTrackNodes.iterator(); i.hasNext();) {
       Element node = (Element)i.next();
       parent.addContent(node);
     }
@@ -964,6 +1242,34 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, 
                                                                     AnalysisIndexHelper.ID_ANALYSIS + ":unknown" );
+
+    
+    if (addedFilter) {
+      log.debug("Security filter: " + searchText.toString());
+      return searchText.toString();           
+    } else {
+      return null;
+    }
+  }
+  
+  private String buildDataTrackSecuritySearch() throws Exception {
+    boolean scopeToGroup = true;
+    if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
+      scopeToGroup = false;
+    }
+    
+   
+    StringBuffer searchText = new StringBuffer();
+    
+    boolean addedFilter = this.getSecAdvisor().buildLuceneSecurityFilter(searchText, 
+                                                                    DataTrackIndexHelper.ID_LAB,
+                                                                    DataTrackIndexHelper.ID_INSTITUTION,
+                                                                    DataTrackIndexHelper.COLLABORATORS,
+                                                                    DataTrackIndexHelper.ID_APPUSER,
+                                                                    DataTrackIndexHelper.CODE_VISIBILITY,
+                                                                    scopeToGroup,
+                                                                    DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, 
+                                                                    DataTrackIndexHelper.ID_DATATRACK + ":unknown" );
 
     
     if (addedFilter) {
@@ -1041,6 +1347,35 @@ public class SearchIndex extends GNomExCommand implements Serializable {
               // "contents" field) was stored verbatim and can be
               // retrieved.
               System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) + " " + doc.get(AnalysisIndexHelper.ANALYSIS_NAME));
+          }
+      }
+      System.out.println();      
+    }
+
+  }
+  
+  private void showDataTrackHits(Hits hits, String searchText) throws Exception {
+
+    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+      // Examine the Hits object to see if there were any matches
+      int hitCount = hits.length();
+      if (hitCount == 0) {
+          System.out.println(
+              "No matches were found for \"" + searchText + "\"");
+      }
+      else {
+          System.out.println("Hits for \"" + searchText + "\""  + ":");
+
+          // Iterate over the Documents in the Hits object
+          for (int i = 0; i < hitCount; i++) {
+              org.apache.lucene.document.Document doc = hits.doc(i);
+              float score = hits.score(i);
+
+              // Print the value that we stored in the "title" field. Note
+              // that this Field was not indexed, but (unlike the
+              // "contents" field) was stored verbatim and can be
+              // retrieved.
+              System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME) + " " + doc.get(DataTrackIndexHelper.DATATRACK_NAME));
           }
       }
       System.out.println();      

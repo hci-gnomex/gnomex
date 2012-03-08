@@ -63,7 +63,9 @@ public class BuildSearchIndex extends DetailObject {
   private Map protocolMap;
   private Map analysisFileCommentsMap;
   private Map analysisAnnotationMap;
-  
+  private Map datatrackMap;
+  private Map datatrackCollaboratorMap;
+  private Map datatrackAnnotationMap;
   
   
 
@@ -96,6 +98,9 @@ public class BuildSearchIndex extends DetailObject {
       
       System.out.println(new Date() + " building lucene analysis index...");
       app.buildAnalysisIndex();
+      
+      System.out.println(new Date() + " building lucene datatrack index...");
+      app.buildDataTrackIndex();
       
       System.out.println(new Date() + " disconnecting...");
       System.out.println();
@@ -248,6 +253,37 @@ public class BuildSearchIndex extends DetailObject {
     }
     analysisIndexWriter.optimize();
     analysisIndexWriter.close();
+  }
+  
+  private void buildDataTrackIndex() throws Exception{
+
+    IndexWriter datatrackIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_DATATRACK_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+
+    // Get data track data
+    getDataTrackData(sess);
+    
+    // Get collaborators of data track
+    getDataTrackCollaborators(sess);
+
+    // DataTrack properties
+    getDataTrackAnnotations(sess);
+    
+    //
+    // Write Data Track Lucene Index.
+    // (A document for each protocol)
+    //
+    for( Iterator i = datatrackMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      Object[] keyTokens = key.split(KEY_DELIM);
+      Integer idDataTrackFolder = new Integer((String)keyTokens[0]);
+      Integer idDataTrack = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
+      Object[] row = (Object[])datatrackMap.get(key);
+      
+      Document doc = buildDataTrackDocument(idDataTrackFolder, idDataTrack, row);
+      datatrackIndexWriter.addDocument(doc);
+    }
+    datatrackIndexWriter.optimize();
+    datatrackIndexWriter.close();
   }
   
   
@@ -620,6 +656,51 @@ public class BuildSearchIndex extends DetailObject {
     
   }
   
+  private void getDataTrackData(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT dtf.idDataTrackFolder, ");
+    buf.append("       dt.idDataTrack, ");
+    buf.append("       dtf.name, ");
+    buf.append("       dtf.description, ");
+    buf.append("       '', ");
+    buf.append("       dtf.idLab, ");
+    buf.append("       dtfLab.lastName, ");
+    buf.append("       dtfLab.firstName, ");
+    buf.append("       owner.firstName, ");
+    buf.append("       owner.lastName, ");
+    buf.append("       lab.lastName,  ");
+    buf.append("       lab.firstName,  ");
+    buf.append("       dt.name, ");
+    buf.append("       dt.description, ");
+    buf.append("       dt.fileName, ");
+    buf.append("       dt.summary, ");
+    buf.append("       dt.idLab,  ");
+    buf.append("       dt.createDate, ");
+    buf.append("       dt.codeVisibility, ");
+    buf.append("       dt.idAppUser,  ");
+    buf.append("       dt.idInstitution ");
+    
+    buf.append("FROM        DataTrackFolder as dtf ");
+    buf.append("LEFT JOIN   dtf.lab as dtfLab ");
+    buf.append("LEFT JOIN   dtf.dataTracks as dt ");
+    buf.append("LEFT JOIN   dt.lab as lab ");
+    buf.append("LEFT JOIN   dt.appUser as owner ");
+
+    buf.append("ORDER BY dtf.name, dt.name ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    datatrackMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idDataTrackFolder = (Integer)row[0];
+      Integer idDataTrack = (Integer)row[1];
+      String key = idDataTrackFolder + KEY_DELIM + (idDataTrack != null ? idDataTrack.toString() : "");
+      
+      datatrackMap.put(key, row);
+    }
+  }
+  
   
   private void getProjectAnnotations(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
@@ -791,6 +872,58 @@ public class BuildSearchIndex extends DetailObject {
       if (rows == null) {
         rows = new ArrayList();
         analysisAnnotationMap.put(idAnalysis, rows);
+      }
+      rows.add(row);
+    }   
+  }
+  
+  private void getDataTrackCollaborators(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT dt.idDataTrack, ");
+    buf.append("       collab.idAppUser ");
+    buf.append("FROM   DataTrack dt ");
+    buf.append("JOIN   dt.collaborators as collab ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    datatrackCollaboratorMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idDataTrack = (Integer)row[0];
+      
+      List rows = (List)datatrackCollaboratorMap.get(idDataTrack);
+      if (rows == null) {
+        rows = new ArrayList();
+        datatrackCollaboratorMap.put(idDataTrack, rows);
+      }
+      rows.add(row);
+    }   
+  }
+
+  
+  private void getDataTrackAnnotations(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT dt.idDataTrack, ");
+    buf.append("       p.name, ");
+    buf.append("       pe,  ");
+    buf.append("       pe.otherLabel  ");
+    buf.append("FROM   DataTrack dt, PropertyEntry as pe, Property p ");
+    buf.append("WHERE  pe.value is not NULL ");
+    buf.append("AND    dt.idDataTrack = pe.idDataTrack ");
+    buf.append("AND    pe.idProperty = p.idProperty ");
+    buf.append("ORDER BY dt.idDataTrack ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    datatrackAnnotationMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idDataTrack = (Integer)row[0];
+      
+      List rows = (List)datatrackAnnotationMap.get(idDataTrack);
+      if (rows == null) {
+        rows = new ArrayList();
+        datatrackAnnotationMap.put(idDataTrack, rows);
       }
       rows.add(row);
     }   
@@ -1439,6 +1572,141 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.TEXT, buf.toString());
     
     AnalysisIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
+    
+    return doc;
+  }
+
+  private Document buildDataTrackDocument(Integer idDataTrackFolder, Integer idDataTrack, Object[] row) {
+    
+    Document doc = new Document();
+
+        
+    String dtfName                = (String)row[2];
+    String dtfDesc                = (String)row[3];
+    Integer dtfIdLab              = (Integer)row[5];
+    String dtfLabLastName         = (String)row[6];
+    String dtfLabFirstName        = (String)row[7];
+    String ownerFirstName         = (String)row[8];
+    String ownerLastName          = (String)row[9];
+    String labLastName            = (String)row[10];
+    String labFirstName           = (String)row[11];
+    String name                   = (String)row[12];
+    String desc                   = (String)row[13];
+    String fileName               = (String)row[14];
+    String summary                = (String)row[15];
+    Integer idLab                 = (Integer)row[16];
+    java.sql.Date createDate      = (java.sql.Date)row[17];
+    String codeVisibility         = (String)row[18];
+    String publicNote             = ""; 
+    Integer idAppUser             = (Integer)row[19];
+    Integer idInstitution         = (Integer)row[20];
+    
+
+
+    //
+    // Obtain annotations on data track
+    //
+    StringBuffer dataTrackAnnotations = new StringBuffer();
+    if (idDataTrack != null) {
+      List dataTrackAnnotationRows = (List)datatrackAnnotationMap.get(idDataTrack);
+      if (dataTrackAnnotationRows != null) {
+        for(Iterator i1 = dataTrackAnnotationRows.iterator(); i1.hasNext();) {
+          Object[] dataTrackRow = (Object[])i1.next();
+          String dataTrackCharactersticName = (String)dataTrackRow[1];
+          PropertyEntry entry = (PropertyEntry)dataTrackRow[2];
+          String otherLabel = (String)dataTrackRow[3];
+          dataTrackAnnotations.append(dataTrackCharactersticName != null && !dataTrackCharactersticName.trim().equals("") ? dataTrackCharactersticName + " " : "");
+          if (entry != null) {
+            if (entry.getOptions() != null && entry.getOptions().size() > 0) {
+              for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
+                PropertyOption option = (PropertyOption)i2.next();
+                dataTrackAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
+              }
+              
+            } else if (entry.getValues() != null && entry.getValues().size() > 0) {
+              for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
+                PropertyEntryValue entryValue = (PropertyEntryValue)i2.next();
+                dataTrackAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
+              }
+              
+            } else {
+              dataTrackAnnotations.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
+              
+            }
+            
+          }
+          dataTrackAnnotations.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+        }          
+      }
+      
+    }
+
+    
+    // Obtain collaborators of data track
+    StringBuffer collaborators = new StringBuffer();
+    if (idDataTrack != null) {
+      List dataTrackCollaboratorRows = (List)datatrackCollaboratorMap.get(idDataTrack);
+      if (dataTrackCollaboratorRows != null) {
+        for(Iterator i1 = dataTrackCollaboratorRows.iterator(); i1.hasNext();) {
+          Object[] collabRow = (Object[])i1.next();
+          collaborators.append(collabRow[1] != null  ? " COLLAB-" + ((Integer)collabRow[1]).toString() + "-COLLAB " : "");
+        }          
+      }
+    }
+        
+   
+    
+    String dtfLabName = Lab.formatLabName(dtfLabLastName, dtfLabFirstName);
+    String labName   = Lab.formatLabName(labLastName, labFirstName);
+
+    if (codeVisibility != null && codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
+        publicNote = "(Public) ";
+    }
+
+    
+    Map nonIndexedFieldMap = new HashMap();
+    nonIndexedFieldMap.put(DataTrackIndexHelper.ID_DATATRACKFOLDER, idDataTrackFolder.toString());
+    nonIndexedFieldMap.put(DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, dtfIdLab == null ? "" : dtfIdLab.toString());
+    nonIndexedFieldMap.put(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER, dtfLabName == null ? "" : dtfLabName);
+    nonIndexedFieldMap.put(DataTrackIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
+    nonIndexedFieldMap.put(DataTrackIndexHelper.OWNER_LAST_NAME, ownerLastName);
+    nonIndexedFieldMap.put(DataTrackIndexHelper.CREATE_DATE, createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_SQL) : null);
+    nonIndexedFieldMap.put(DataTrackIndexHelper.PUBLIC_NOTE, publicNote);
+    
+
+    Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(DataTrackIndexHelper.ID_DATATRACK, idDataTrack != null ? idDataTrack.toString() : "unknown");
+    indexedFieldMap.put(DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, dtfIdLab);
+    indexedFieldMap.put(DataTrackIndexHelper.DATATRACK_FOLDER_NAME, dtfName);
+    indexedFieldMap.put(DataTrackIndexHelper.DATATRACK_FOLDER_DESCRIPTION, dtfDesc);
+    indexedFieldMap.put(DataTrackIndexHelper.DATATRACK_NAME, name);
+    indexedFieldMap.put(DataTrackIndexHelper.DESCRIPTION, desc);
+    indexedFieldMap.put(DataTrackIndexHelper.FILE_NAME, fileName);
+    indexedFieldMap.put(DataTrackIndexHelper.SUMMARY, summary);
+    indexedFieldMap.put(DataTrackIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    indexedFieldMap.put(DataTrackIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
+    indexedFieldMap.put(DataTrackIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
+    indexedFieldMap.put(DataTrackIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
+    indexedFieldMap.put(DataTrackIndexHelper.LAB_NAME, labName != null ? labName : "");
+    indexedFieldMap.put(DataTrackIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    indexedFieldMap.put(DataTrackIndexHelper.DATA_TRACK_ANNOTATIONS, dataTrackAnnotations.toString());        
+
+    
+    
+    StringBuffer buf = new StringBuffer();
+    buf.append(name);
+    buf.append(" ");
+    buf.append(desc);
+    buf.append(" ");
+    buf.append(dtfName);
+    buf.append(" ");
+    buf.append(dtfDesc);
+    buf.append(" ");
+    buf.append(dataTrackAnnotations.toString());
+    buf.append(" ");
+    indexedFieldMap.put(DataTrackIndexHelper.TEXT, buf.toString());
+    
+    DataTrackIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
     return doc;
   }
