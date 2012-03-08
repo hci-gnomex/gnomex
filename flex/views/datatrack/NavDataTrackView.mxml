@@ -179,7 +179,31 @@
 	</mx:request>
 </mx:HTTPService> 
 
+<mx:HTTPService             
+	id="refreshDAS2Server" 
+	url="genome/refresh"
+	resultFormat="e4x"
+	showBusyCursor="false"
+	result="onRefreshDAS2Server(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to refresh annotations on DAS/2 Server', event)"
+	method="GET"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
 
+<mx:HTTPService             
+	id="verifyDAS2Refresh" 
+	url="VerifyDas2Refresh.gx"
+	resultFormat="e4x"
+	showBusyCursor="true" 
+	result="onVerifyDAS2Refresh(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to verify genome versions for DAS/2 Server reload', event)"
+	method="GET"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
 
 <mx:Script>
 <![CDATA[
@@ -202,6 +226,7 @@
 	import mx.rpc.events.ResultEvent;
 	
 	import views.experiment.DownloadProgressView;
+	import views.datatrack.RefreshDAS2ProgressWindow;
 	
 	private const DOWNLOAD_FILES_URL:String       = "DownloadDataTrackFileServlet.gx"; 
 	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-datatracks";  
@@ -235,7 +260,9 @@
 	
 
 	[Bindable]
-	private var dataTrackCount:String = "";
+	private var dataTrackCountLabel:String = "";
+	[Bindable]
+	private var allowExpandAll:Boolean = true;
 	
 	private var hitCount:int = 0;
 	private var firstHitItem:XML = null;
@@ -249,6 +276,8 @@
 	
 	private var dragParams:ArrayCollection = null;
 	private var dropNode:Object = null;
+	
+	private var refreshDAS2ProgressWindow:RefreshDAS2ProgressWindow;
 	
 
 	
@@ -301,7 +330,8 @@
 			browseTree.visible = true;
 		}
 		var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
-		dataTrackCount = dataTracks.length() + " data tracks.";
+		dataTrackCountLabel = dataTracks.length() + " data tracks.";
+		allowExpandAll = dataTracks.length() < 200;
 		
 		// If we are looking up a data track by number, get the tree item to select
 		if (this.dataTrackNumber != "") {
@@ -372,15 +402,14 @@
 	private function expandAppropriateNodes():void {
 		var itemToSelect:XML = getItemToSelect();
 		
-		if (cbAlwaysExpandTree.selected) {
+		if (allowExpandAll && cbAlwaysExpandTree.selected) {
 			// If the user has check the 'Expand tree' checkbox,
 			// just expand all nodes
 			this.expandAllNodes();
 			browseTree.validateNow();
-			callLater(selectTreeItem);
-			
+			callLater(selectTreeItem);			
 		} else if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
-			// If there is a tree, expand so it and its ancestors.
+			// If there is a tree item selected, expand so it and its ancestors.
 			recurseExpandParent(itemToSelect);
 			browseTree.validateNow();
 			callLater(selectTreeItem);
@@ -430,7 +459,9 @@
 		if (treeItemToSelect == null) {
 			return null;
 		} 
-		
+		if (treeItemToSelect is XMLList && treeItemToSelect.length() == 0) {
+			return null;	
+		}
 		if (treeItemToSelect is XMLList && treeItemToSelect.length() > 0) {
 			treeItemToSelect = treeItemToSelect[0];
 		}
@@ -1717,10 +1748,86 @@
 		}
 		
 	}  
+	private function filterGenomeBuild(item:Object):Boolean {
+		if (item.@value == "") {
+			return true;
+		}
+		if (item.@isActive == 'N') {
+			return false;
+		}
+		
+		if (item.@das2Name == "") {
+			return false;
+		}
+		var doesMatch:Boolean = false;
+		if (this.organismCombo.selectedItem != null && 
+			this.organismCombo.selectedItem.@idOrganism != null  &&
+			this.organismCombo.selectedItem.@idOrganism != "") {
+			if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@idOrganism.toString()) {
+				doesMatch = true;
+			}
+		}
+		return doesMatch;
+	}	
+	
+	private function expandTree():void {
+		browseTree.selectedItem=null;
+		if (cbAlwaysExpandTree.selected) {
+			expandAppropriateNodes();
+		}	else {
+			this.collapseAllNodes();
+			expandAppropriateNodes();  
+		}
+	}
 
+	/************************************************************************
+	 * Refresh DAS2 Server
+	 *
+	 */
+	private function refreshDAS2():void {
+		verifyDAS2Refresh.send();		
+	}
+	
+	private function onVerifyDAS2Refresh(event:ResultEvent):void {
+		if (verifyDAS2Refresh.lastResult.name() == "SUCCESS") {
+			Alert.show(verifyDAS2Refresh.lastResult.@message, 
+				"Ready to Refresh DAS/2", 
+				(Alert.YES | Alert.NO), 
+				this,
+				onPromptVerifyDAS2Refresh);
+		} else {
+			Alert.show(verifyDAS2Refresh.lastResult.@message, 
+				"Warning", 
+				(Alert.YES | Alert.NO), 
+				this,
+				onPromptVerifyDAS2Refresh);
+		}
+	}
+	
+	private function onPromptVerifyDAS2Refresh(event:CloseEvent):void {
+		if (event.detail == Alert.YES || event.detail == Alert.OK) {
+			this.startDAS2Refresh();
+		}
+	}
+	
+	private function startDAS2Refresh():void {
+		refreshDAS2ProgressWindow = RefreshDAS2ProgressWindow(PopUpManager.createPopUp(parentApplication.theBody, RefreshDAS2ProgressWindow, false));
+		PopUpManager.centerPopUp(refreshDAS2ProgressWindow);
+		
+		var das2URL:String = parentApplication.getProperty(parentApplication.PROPERTY_DAS2_URL);
+		Security.allowDomain(das2URL + "/refresh");
+		refreshDAS2Server.url = das2URL + "/refresh";			
+		refreshDAS2Server.send();
+	}
+	private function onRefreshDAS2Server(event:ResultEvent):void {
+		refreshDAS2ProgressWindow.currentState = "FinishedState";
+	}
+	
 
 ]]>
 </mx:Script>
+	
+<mx:XMLListCollection id="filteredGenomeBuildList" filterFunction="filterGenomeBuild" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"/>
 	
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox backgroundImage="@Embed(source='../../assets/filterBar.png')" 
@@ -1870,7 +1977,7 @@
 							   visible="{currentState != 'GuestState'}"
 							   includeInLayout="{currentState != 'GuestState'}"
 							   icon="@Embed(source='../../assets/database_lightning.png')" 
-							   click="{/*refreshDAS2()*/}" 
+							   click="{refreshDAS2()}" 
 							   id="reloadDas2ServerButton"  />
 						
 			</mx:HBox>
@@ -1879,10 +1986,10 @@
 					 paddingRight="2" paddingLeft="2">
 				
 				<mx:Label text="Filters:" styleName="menuLabelSmall"/>
-				<mx:ComboBox labelField="@binomialName" id="organismCombo" change="refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170">
+				<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170">
 					<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
 				</mx:ComboBox>
-				<mx:ComboBox dataProvider="{organismCombo.selectedItem.genomeBuilds.GenomeBuild}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
+				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
 				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
 							 visible="{currentState == 'AdminState'}"
 							 includeInLayout="{currentState == 'AdminState'}"
@@ -1971,9 +2078,12 @@
 				
 			</mx:VBox>
 			<mx:ControlBar width="100%" verticalAlign="bottom">				
-				<mx:CheckBox id="cbAlwaysExpandTree" label="Expand tree"  click="{browseTree.selectedItem=null;cbAlwaysExpandTree.selected ? expandAppropriateNodes() : this.collapseAllNodes();expandAppropriateNodes()}" styleName="menuLabelSmall" />
+				<mx:CheckBox id="cbAlwaysExpandTree" label="Expand"  					
+					click="expandTree()" 
+					enabled="{this.allowExpandAll}"
+					styleName="menuLabelSmall" />
 				<mx:Spacer width="100%"/>
-				<mx:Label text="{dataTrackCount}" styleName="menuLabelSmall" />
+				<mx:Label text="{dataTrackCountLabel}" styleName="menuLabelSmall" />
 			</mx:ControlBar>
 		</mx:VBox>
 		
