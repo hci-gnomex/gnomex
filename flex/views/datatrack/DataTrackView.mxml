@@ -118,7 +118,7 @@
 		if (params.codeVisibility == 'INST') {
 			params.idInstitute = this.instituteCombo.selectedItem != null ? this.instituteCombo.selectedItem.@idInstitute : "";
 		}
-		params.idLab                  = this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLiab : "";
+		params.idLab                  = this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
 		if (parentDocument.currentState == "AdminState") {
 			params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser: "";
 		} else {
