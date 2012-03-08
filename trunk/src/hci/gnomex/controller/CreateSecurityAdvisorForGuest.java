@@ -137,14 +137,6 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
       log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisorForGuest " + ex);
       throw new RollBackCommandException();
     }
-    finally {
-      try {
-        HibernateSession.closeSession();
-      }
-      catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
-      }
-    }
     
     if (isValid()) {
       if (launchAction != null && !launchAction.equals("")) {
