@@ -257,8 +257,9 @@
         <property name="codeVisibility"              column="codeVisibility"             type="string"/>
         <property name="idGenomeBuild"               column="idGenomeBuild"              type="integer"/>
         <property name="idAppUser"                   column="idAppUser"                  type="integer"/>
+        <many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
         <property name="idLab"                       column="idLab"                      type="integer"/>
-    	<many-to-one name="lab"                      column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+    	  <many-to-one name="lab"                      column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
         <property name="idInstitution"               column="idInstitution"              type="integer"/>
         <property name="createdBy"                   column="createdBy"                  type="string"/>
         <property name="createDate"                  column="createDate"                 type="java.sql.Date"/>
@@ -308,6 +309,7 @@
     	<many-to-one name="parentFolder"             column="idParentDataTrackFolder" class="hci.gnomex.model.DataTrackFolder" cascade="none" insert="false" update="false" />
         <property name="idGenomeBuild"               column="idGenomeBuild"              type="integer"/>
         <property name="idLab"                       column="idLab"                      type="integer"/>
+        <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
         <property name="createdBy"                   column="createdBy"                  type="string"/>
         <property name="createDate"                  column="createDate"                 type="java.sql.Date"/>
         

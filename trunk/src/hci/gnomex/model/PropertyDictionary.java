@@ -26,6 +26,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        LUCENE_EXPERIMENT_INDEX_DIRECTORY   = "lucene_experiment_index_directory";
   public static final String        LUCENE_PROTOCOL_INDEX_DIRECTORY     = "lucene_protocol_index_directory";
   public static final String        LUCENE_ANALYSIS_INDEX_DIRECTORY     = "lucene_analysis_index_directory";
+  public static final String        LUCENE_DATATRACK_INDEX_DIRECTORY    = "lucene_datatrack_index_directory";
   public static final String        BILLING_CORE_FACILITY_BUSINESS_UNIT = "billing_core_facility_business_unit"; 
   public static final String        BILLING_CORE_FACILITY_ACCOUNT       = "billing_core_facility_account";
   public static final String        BILLING_CORE_FACILITY_PO_ACCOUNT    = "billing_core_facility_po_account";

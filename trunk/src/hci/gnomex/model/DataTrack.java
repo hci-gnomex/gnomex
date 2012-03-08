@@ -66,6 +66,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   private Set                 collaborators;
 	private Set                 propertyEntries;
 	private Set                 dataTrackFiles;
+	private AppUser             appUser;
 	
   private Map<String, Object> props;  // tag/value representation of annotation properties
 
@@ -183,6 +184,13 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   public void setFolderCount(Integer folderCount) {
     this.folderCount = folderCount;
   }
+  public AppUser getAppUser() {
+    return appUser;
+  }
+  public void setAppUser(AppUser u) {
+    appUser = u;
+  }
+  
   @SuppressWarnings("unchecked")
 	public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh, String data_root, String analysis_data_root) throws Exception {
 		Document doc = DocumentHelper.createDocument();

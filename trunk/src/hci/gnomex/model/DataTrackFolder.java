@@ -30,6 +30,7 @@ public class DataTrackFolder extends DetailObject implements Serializable {
   private Integer            idGenomeBuild;
   private String             createdBy;
   private Date               createDate;
+  private Lab                lab;
 
 
   public Integer getIdDataTrackFolder() {
@@ -100,7 +101,13 @@ public class DataTrackFolder extends DetailObject implements Serializable {
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   } 
-
+  public Lab getLab() {
+    return lab;
+  }
+  public void setLab(Lab l) {
+    this.lab = l;
+  }
+  
   /*
    * Get the type name (no genome version in path)
    */

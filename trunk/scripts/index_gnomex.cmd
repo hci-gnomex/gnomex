@@ -15,4 +15,4 @@ for %%i in (%ORION_HOME%\lib\mysql-connector-*.jar) do call append_classpath.cmd
 
 set PATH=%JAVA_HOME%\bin;%PATH%
 
-java -classpath %CP% hci.gnomex.lucene.BuildSearchIndex %*
+java -Xms256m -Xmx512m -classpath %CP% hci.gnomex.lucene.BuildSearchIndex %*
