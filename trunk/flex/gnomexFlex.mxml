@@ -229,9 +229,9 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.admin.PropertyEvent;
+			import views.admin.AlignmentProfileEvent;
 			import views.admin.GenomeIndexEvent;
-			import views.admin.AlignmentProfileEvent;			
+			import views.admin.PropertyEvent;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
@@ -688,8 +688,8 @@
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED:String       = "sequence_alignment_supported";
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
 			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
-			 
-			
+			public var PROPERTY_DAS2_URL:String                           = "das2_url";
+
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
 			
@@ -1142,7 +1142,15 @@
             		return false;
             	}
             }
-			
+			public function launchDataTrackDetail():Boolean { 
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "DataTrackDetail" &&
+					Application.application.parameters.dataTrackNumber != null ) {
+					return true;
+				} else {
+					return false;
+				}
+			}			
 			public function launchBillingAccountDetail():Boolean {
 				if (Application.application.parameters.launchWindow != null &&
 					Application.application.parameters.launchWindow == "BillingAccountDetail" &&
@@ -1186,6 +1194,13 @@
             		return "";
             	}
             }
+			public function getLaunchDataTrackNumber():String {
+				if (Application.application.parameters.dataTrackNumber != null) {
+					return Application.application.parameters.dataTrackNumber;
+				} else {
+					return "";
+				}
+			}
             
 			public function getLaunchIdLab():String {
 				if (Application.application.parameters.idLab != null) {
@@ -1707,7 +1722,9 @@
 	        		this.showExperiment(getLaunchRequestNumber());
 	        	} else if (launchAnalysisDetail()) {
    					this.showAnalysisForNumber(getLaunchAnalysisNumber());
-	        	} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
+	        	} else if (launchDataTrackDetail()) {
+					this.showDataTrackForNumber(getLaunchDataTrackNumber());
+				} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
    					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
 					this.showWorkAuthWindow();

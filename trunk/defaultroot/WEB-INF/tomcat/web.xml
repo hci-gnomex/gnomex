@@ -484,6 +484,8 @@
 			<url-pattern>/UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAndBroadcastEmailServlet</url-pattern>			
 			<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
+			<url-pattern>/VerifyDas2Refresh.gx</url-pattern>	
+			
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>
