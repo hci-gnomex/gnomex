@@ -1,3 +1,4 @@
+use gnomex;
 
 -- Add column idAnalysis to PropertyEntry
 alter table PropertyEntry add column idAnalysis int(10) null;
@@ -10,3 +11,14 @@ CONSTRAINT `FK_PropertyEntry_Analysis` FOREIGN KEY `FK_PropertyEntry_Analysis` (
 -- Populate new property in anticipation of Data Track being in search
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y');
+
+CREATE TABLE `UnloadDataTrack` (
+  `idUnloadDataTrack` int(10)  NOT NULL auto_increment,
+  `typeName` varchar(2000) NOT NULL,
+  `idAppUser` int(10)  default NULL,
+  `idGenomeBuild` int(10)  NOT NULL,
+  PRIMARY KEY  (`idUnloadDataTrack`),
+  KEY `FK_UnloadDataTrack_AppUser` (`idAppUser`),
+  KEY `FK_UnloadDataTrack_GenomeBuild` (`idGenomeBuild`)
+) ENGINE=InnoDB;
+
