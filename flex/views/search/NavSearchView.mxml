@@ -57,13 +57,14 @@
         [Bindable] 
 		public var filteredSlideProductList:XMLListCollection;
 		
-		private var isInitialized:Boolean = false;
+		public var isInitialized:Boolean = false;
 
         
 		public function checkDirty():void {
 		}
 		
 		public function init():void {
+			this.searchView.scopeSearch();
 			this.searchView.checkSecurity();
 			
 			if (!isInitialized) {
@@ -84,6 +85,7 @@
 				performSimpleSearch(simpleSearchText);
 			}
 			isInitialized = true;
+			this.searchView.scopeSearch();
 		}
 		
         private function onGetSlideProductList(event:ResultEvent):void {

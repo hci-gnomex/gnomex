@@ -239,8 +239,14 @@
 			scopeSearch();
 		}
                 
-        private function scopeSearch():void {
+        public function scopeSearch():void {
         
+			// disable everything till initialized.
+			if (!parentDocument.isInitialized) {
+				this.currentState = "PreInitialization";
+				return;
+			}
+			
         	var hasExperimentDesignCodes:Boolean = false;
         	for each (var entry:Object in parentApplication.getExperimentDesignList.lastResult.ExperimentDesign) {
         		if (entry.@isSelected == "true") {
@@ -448,6 +454,33 @@
 		<mx:SetProperty target="{experimentFactorGrid}" name="enabled" value="false"/>
 		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
 		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
+	</mx:State>
+	<mx:State name="PreInitialization">	
+		<mx:SetProperty target="{requestCategoryCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{sampleTypeCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
+		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
+		<mx:SetProperty target="{applicationCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{microarrayCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{labCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label4}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label5}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label8}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label9}" name="enabled" value="false"/>
+		<mx:SetProperty target="{experimentDesignGrid}" name="editable" value="false"/>
+		<mx:SetProperty target="{experimentFactorGrid}" name="editable" value="false"/>
+		<mx:SetProperty target="{experimentDesignGrid}" name="enabled" value="false"/>
+		<mx:SetProperty target="{experimentFactorGrid}" name="enabled" value="false"/>
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{analysisTypeCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{analysisProtocolCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label1}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label2}" name="enabled" value="false"/>
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Initializing.  Please Wait."/>
 	</mx:State>
 </mx:states> 
        
