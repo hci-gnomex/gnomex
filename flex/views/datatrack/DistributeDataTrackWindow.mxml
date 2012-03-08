@@ -93,6 +93,9 @@
 	private var firstHitItem:XML = null;
 	private var currentIndex:int = 0;
 	private var hitToolTip:ToolTip = null;
+	
+	[Bindable]
+	private var allowExpandAll:Boolean = false;
 
 	
 	public function refreshDataTracksForAnalysis(analysis:Object):void {
@@ -215,6 +218,7 @@
 		}
 		var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
 		dataTrackCount = dataTracks.length() + " data tracks.";
+		allowExpandAll = dataTracks.length() < 200;
 		
 		
 		// If search text was entered, select the first tree node that matches
@@ -403,7 +407,7 @@
 	private function expandAppropriateNodes():void {
 		var itemToSelect:XML = getItemToSelect();
 		
-		if (cbAlwaysExpandTree.selected) {
+		if (allowExpandAll && cbAlwaysExpandTree.selected) {
 			// If the user has check the 'Expand tree' checkbox,
 			// just expand all nodes
 			this.expandAllNodes();
@@ -959,7 +963,9 @@
     </mx:VBox>
 	
 	<mx:ControlBar width="100%" verticalAlign="bottom">				
-		<mx:CheckBox id="cbAlwaysExpandTree" label="Expand tree"  click="{browseTree.selectedItem=null;cbAlwaysExpandTree.selected ? expandAppropriateNodes() : this.collapseAllNodes();expandAppropriateNodes()}" styleName="menuLabelSmall" />
+		<mx:CheckBox id="cbAlwaysExpandTree" label="Expand"  
+			enabled="{this.allowExpandAll}"
+			click="{browseTree.selectedItem=null;cbAlwaysExpandTree.selected ? expandAppropriateNodes() : this.collapseAllNodes();expandAppropriateNodes()}" styleName="menuLabelSmall" />
 		<mx:Spacer width="100%"/>
 		<mx:Label text="{dataTrackCount}" styleName="menuLabelSmall" />
 	</mx:ControlBar>
