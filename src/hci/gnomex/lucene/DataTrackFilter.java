@@ -15,10 +15,11 @@ public class DataTrackFilter extends DetailObject {
   private String                text4;
   private String                matchAnyTerm = "N";
   private String                matchAllTerms = "Y";
+  private Integer               idLab;
   
-  
-  
-  
+  // Display fields
+  private String                lab;
+
   private StringBuffer          searchText;
   private StringBuffer          displayText;
   private boolean              firstTime = true;
@@ -122,7 +123,18 @@ public class DataTrackFilter extends DetailObject {
 
       searchText.append(")");
     }
-   
+
+    //
+    // Search by lab
+    //
+    if (idLab != null){
+      this.addLogicalOperator();
+      searchText.append(" " + DataTrackIndexHelper.ID_LAB + ":");
+      searchText.append(idLab);
+      
+      displayText.append(" lab = " + lab);
+    } 
+
   }
 
     
@@ -226,7 +238,18 @@ public class DataTrackFilter extends DetailObject {
   }
 
 
-
+  public Integer getIdLab() {
+    return idLab;
+  }
+  public void setIdLab(Integer id) {
+    idLab = id;
+  }
   
+  public String getLab() {
+    return lab;
+  }
+  public void setLab(String l) {
+    lab = l;
+  }
   
 }
