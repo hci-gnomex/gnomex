@@ -61,7 +61,7 @@
 		if (updateDataTrackFolder.lastResult.name() == "SUCCESS") {
 			this.dirtyDataTrackFolder.resetDirty();
 			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
-			parentDocument.refreshAnnotations();			
+			parentDocument.refreshDataTracks();			
 		} else if (updateDataTrackFolder.lastResult.name() == "Error") {
 			Alert.show(updateDataTrackFolder.lastResult.@message);
 		} else {
