@@ -96,6 +96,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private ArrayList rankedDataTrackNodes = null;
   
+  private boolean protocolSearchEmpty = true;
+  private boolean dataTrackSearchEmpty = true;
+  
   public void validate() {
   }
   
@@ -226,6 +229,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String protocolSearchText = protocolFilter.getSearchText().toString();
         
         if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
+          protocolSearchEmpty = false;
           log.debug("Lucene protocol search: " + protocolSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
@@ -234,9 +238,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           // Search for the query
           Hits protocolHits = protocolSearcher.search(query);
           processProtocolHits(protocolHits, protocolSearchText);
-          
-        } else {
-          buildProtocolMap(protocolIndexReader);
           
         }
         
@@ -253,6 +254,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String dataTrackSecuritySearchText = this.buildDataTrackSecuritySearch();
 
         if (dataTrackSearchText != null && dataTrackSearchText.trim().length() > 0) {
+          dataTrackSearchEmpty = false;
           log.debug("Lucene data track search: " + dataTrackSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
@@ -271,16 +273,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           
           processDataTrackHits(hits, dataTrackSearchText);
           
-        } else {
-          if (dataTrackSecuritySearchText != null) {
-            QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
-            myQueryParser.setAllowLeadingWildcard(true);
-            Query query = myQueryParser.parse(dataTrackSecuritySearchText);          
-            Hits hits = dataTrackSearcher.search(query);
-            processDataTrackHits(hits, dataTrackSecuritySearchText);
-          } else {
-            this.buildDataTrackGroupMap(dataTrackIndexReader);
-          }
         }
       }
       
@@ -977,9 +969,13 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       buildRequestList(doc.getRootElement());      
     }
     if (!isExperimentOnlySearch && !isAnalysisOnlySearch) {
-      buildProtocolList(doc.getRootElement());      
-      buildDataTrackFolderList(doc.getRootElement());
-      buildDataTrackList(doc.getRootElement());
+      if (!protocolSearchEmpty) {
+        buildProtocolList(doc.getRootElement());
+      }
+      if (!dataTrackSearchEmpty) {
+        buildDataTrackFolderList(doc.getRootElement());
+        buildDataTrackList(doc.getRootElement());
+      }
     }
     if (!isExperimentOnlySearch) {
       buildAnalysisGroupList(doc.getRootElement());
