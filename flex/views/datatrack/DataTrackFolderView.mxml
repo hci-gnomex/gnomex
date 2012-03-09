@@ -51,7 +51,7 @@
 		params.idDataTrackFolder      = parentDocument.browseTree.selectedItem.@idDataTrackFolder;
 		params.name                   = this.folderName.text;
 		params.description            = parentDocument.cleanRichTextHTML(this.descriptionRichText.htmlText);
-		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@id : "";
+		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		
 		updateDataTrackFolder.send(params);
 	}
