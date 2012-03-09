@@ -1025,22 +1025,22 @@
 
     <mx:VBox width="100%" height="100%">
       <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%" id="vbox1">
-          <mx:HBox id="filterBox"  horizontalGap="8" verticalAlign="middle">
+          <mx:HBox id="filterBox"  horizontalGap="6" verticalAlign="middle">
 			  
 			  <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 				  <mx:RadioButtonGroup id="analysisRadioGroup"/>
 				  <mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
 					  <mx:click>this.refreshAnalysis()</mx:click>
 				  </mx:RadioButton>
-				  <mx:RadioButton label="My lab's" id="myLabsAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				  <mx:RadioButton label="My lab" id="myLabsAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					  <mx:toolTip><![CDATA[Analysis of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
 					  <mx:click>this.refreshAnalysis()</mx:click>
 				  </mx:RadioButton>
-				  <mx:RadioButton label="Other labs' public analysis" id="publicAnalysisOtherGroupsRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
-					  <mx:toolTip>Other lab's analyses that are available to public</mx:toolTip>
+				  <mx:RadioButton label="Other labs" id="publicAnalysisOtherGroupsRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+					  <mx:toolTip>Other labs' analyses that are visible to public</mx:toolTip>
 					  <mx:click>this.refreshAnalysis()</mx:click>
 				  </mx:RadioButton>
-				  <mx:RadioButton label="All analysis" id="userAllAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+				  <mx:RadioButton label="All" id="userAllAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
 					  <mx:toolTip>All analysis I have access to</mx:toolTip>
 					  <mx:click>this.refreshAnalysis()</mx:click>
 				  </mx:RadioButton>
