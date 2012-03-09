@@ -1,4 +1,5 @@
 use gnomex;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- Update AppUser
 update gnomex.AppUser au join genopub.User u on au.idAppUser = u.idAppUserGNomEx set au.ucscUrl = u.ucscUrl;
@@ -21,9 +22,6 @@ update gnomex.Organism o join genopub.OrganismView ov on ov.idOrganismGNomEx = o
      o.NCBITaxID = ov.NCBITaxID;
 
 
--- Change the DataTrack number (fileName) from 'Axxxx' to 'DTxxxx'
-update gnomex.DataTrack set fileName = 'DT' + convert(varchar(10), idDataTrack);
-GO
 
 -- Add genome versions that are not already in gnomex
 INSERT INTO gnomex.GenomeBuild
@@ -108,8 +106,8 @@ INSERT INTO gnomex.PropertyOption
     from genopub.PropertyOptionView
 GO
 
-update from genopub.PropertyOptionView   
-  join gnomex.PropertyOption p1  on name = p1.value and p1.idProperty = idPropertyGNomEx
+update  genopub.PropertyOptionView   pv
+  join gnomex.PropertyOption p1  on pv.name = p1.value and p1.idProperty = pv.idPropertyGNomEx
   set idPropertyOptionGnomEx = p1.idPropertyOption;
 
   
@@ -131,8 +129,8 @@ INSERT INTO gnomex.Segment
 insert into gnomex.Visibility (codeVisibility, visibility) values('MEMCOL', 'Members and Collaborators');
 
 -- Populate  DataTrack
-LOCK TABLES `gnomex.DataTrack` WRITE;
-/*!40000 ALTER TABLE `gnomex.DataTrack` DISABLE KEYS */;
+LOCK TABLES gnomex.DataTrack WRITE;
+/*!40000 ALTER TABLE gnomex.DataTrack DISABLE KEYS */;
 INSERT INTO gnomex.DataTrack
            (idDataTrack
            ,name
@@ -166,16 +164,18 @@ SELECT a.idAnnotation
     left join genopub.GenomeVersionView gv on gv.idGenomeVersion = a.idGenomeVersion
     left join genopub.User u on a.idUser = u.idUser
     left join genopub.UserGroup ug on ug.idUserGroup = a.idUserGroup
-    left join genopub.Institute i on i.idInstitute = a.idInstitute
-GO
-/*!40000 ALTER TABLE `gnomex.DataTrack` ENABLE KEYS */;
+    left join genopub.Institute i on i.idInstitute = a.idInstitute;
+/*!40000 ALTER TABLE gnomex.DataTrack ENABLE KEYS */;
 UNLOCK TABLES;
 
 
+-- Change the DataTrack number (fileName) from 'Axxxx' to 'DTxxxx'
+update gnomex.DataTrack set fileName = concat('DT', idDataTrack);
+
 
 -- Populate DataTrackFolder
-LOCK TABLES `gnomex.DataTrack` WRITE;
-/*!40000 ALTER TABLE `gnomex.DataTrackFolder` DISABLE KEYS */;
+LOCK TABLES gnomex.DataTrack WRITE;
+/*!40000 ALTER TABLE gnomex.DataTrackFolder DISABLE KEYS */;
 INSERT INTO gnomex.DataTrackFolder
            (idDataTrackFolder
            ,name
@@ -196,8 +196,7 @@ INSERT INTO gnomex.DataTrackFolder
            from genopub.AnnotationGrouping ag
             left join genopub.UserGroup ug on ag.idUserGroup = ug.idUserGroup
             left join genopub.GenomeVersionView gv on gv.idGenomeVersion = ag.idGenomeVersion;
-GO
-/*!40000 ALTER TABLE `gnomex.DataTrackFolder` ENABLE KEYS */;
+/*!40000 ALTER TABLE gnomex.DataTrackFolder ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -210,8 +209,8 @@ select idAnnotation, idAnnotationGrouping from genopub.AnnotationToAnnotationGro
 
 
 -- Populate DataTrackCollaborator
-insert into gnomex.DataTrackCollaborator (idDataTrack, idAppUser)
-select idAnnotation, idAppUserGNomEx
+insert into gnomex.DataTrackCollaborator (idDataTrack, idAppUser, canUploadData)
+select idAnnotation, idAppUserGNomEx, canUploadData
 from genopub.AnnotationCollaborator ac
 left join genopub.User u on u.idUser = ac.idUser;
 
@@ -230,7 +229,7 @@ INSERT INTO gnomex.PropertyEntry
             idAnnotation
     from genopub.AnnotationPropertyView;
     
-update from genopub.AnnotationPropertyView p 
+update  genopub.AnnotationPropertyView p 
   join  gnomex.PropertyEntry p1 on p.value = p1.valueString and p1.idProperty = p.idPropertyGNomEx and p1.idDataTrack = p.idAnnotation
   set idPropertyEntryGnomEx = p1.idPropertyEntry;
 
@@ -244,8 +243,8 @@ INSERT INTO gnomex.PropertyEntryOption
            idPropertyOptionGNomEx
      from genopub.AnnotationPropertyOption pe
      join genopub.AnnotationPropertyView pv on pv.idAnnotationProperty = pe.idAnnotationProperty
-     join genopub.PropertyOptionView po on pe.idPropertyOption = po.idPropertyOption
-GO
+     join genopub.PropertyOptionView po on pe.idPropertyOption = po.idPropertyOption;
+
 
 -- Migrate AnnotationPropertyValue to PropertyEntryValue
 INSERT INTO gnomex.PropertyEntryValue
@@ -254,9 +253,12 @@ INSERT INTO gnomex.PropertyEntryValue
      select idPropertyEntryGNomEx,
            v.value
      from genopub.AnnotationPropertyValue v
-     join genopub.AnnotationPropertyView pv on pv.idAnnotationProperty = v.idAnnotationProperty
-GO
+     join genopub.AnnotationPropertyView pv on pv.idAnnotationProperty = v.idAnnotationProperty;
 
 
 -- Need to set dataPath on GenomeBuild
 
+
+
+
+SET FOREIGN_KEY_CHECKS = 1;
