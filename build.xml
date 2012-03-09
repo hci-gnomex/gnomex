@@ -692,6 +692,28 @@
 		<delete  dir="${tomcat.dir}/webapps/${app.name}" />
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- distribute to genoviz                          -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="distribute-to-genoviz" depends="init, jar, realmjar">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Distributing jars to genoviz project                 +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<!-- Copy gnomex.jar, gnomex_real.jar to genoviz/ext -->				
+		<copy todir="${genoviz.dir}/ext" file="${dist.dir}/gnomex.jar"/>
+		<copy todir="${genoviz.dir}/ext" file="${dist.dir}/gnomex_realm.jar"/>
+		
+		<!-- Copy SchemaGNomEx.hbm.xml to genoviz/das2server/resources -->
+		<copy todir="${genoviz.dir}/das2_server/resources" file="${src.dir}/SchemaGNomEx.hbm.xml"/>
+		
+	</target>
 
 
 	<!-- ============================================== -->
