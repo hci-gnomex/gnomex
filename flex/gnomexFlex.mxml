@@ -1143,9 +1143,7 @@
             	}
             }
 			public function launchDataTrackDetail():Boolean { 
-				if (Application.application.parameters.launchWindow != null &&
-					Application.application.parameters.launchWindow == "DataTrackDetail" &&
-					Application.application.parameters.dataTrackNumber != null ) {
+				if (Application.application.parameters.dataTrackNumber != null ) {
 					return true;
 				} else {
 					return false;
@@ -2068,10 +2066,10 @@
 							<mx:Image source="assets/hciLogo_hOnly.png"/>
 							<mx:Label text="{'GNomEx ' + siteTitle}" id="appLabel" styleName="appTitle"/>
 						</mx:HBox>
-					        <mx:HBox  horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="100%">
+					        <mx:HBox  horizontalGap="2" paddingLeft="20" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="100%">
 				              
-							  <mx:Text text="Lookup by Experiment or Analysis #" id="requestNumberLabel" visible="false"  styleName="navLabel"/>
-				              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
+							  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"/>
+				              <mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
 				              <mx:Button id="lookupButton"  
 				              	fontFamily="Arial"  height="18" width="30"
 				               	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
@@ -2187,6 +2185,10 @@
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
+	 	    <mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFFFF"/>
+	 	    <mx:SetStyle target="{requestNumber}" name="backgroundAlpha" value="1.0"/>
+	 	    <mx:SetProperty target="{requestNumber}" name="height" value="20"/>
+	 	    <mx:SetProperty target="{searchText}" name="height" value="20"/>
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
 	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="0"/>
@@ -2203,13 +2205,16 @@
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
-			<mx:SetProperty target="{this.linkButtonBar}" name="buttonWidth" value="80"/>
+			<mx:SetProperty target="{this.linkButtonBar}" name="buttonWidth" value="70"/>
+			
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/> 
 	 		<mx:RemoveChild target="{navUsersView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
+	 		<mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFCFC"/>
+	 		<mx:SetStyle target="{requestNumber}" name="backgroundAlpha" value="1.0"/>
 	 	</mx:State>
 	 	<mx:State name="ManagerState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>

@@ -11,6 +11,13 @@
 		<mx:State name="AdminState">
 			<mx:SetProperty target="{reloadDas2ServerButton}" name="includeInLayout" value="{currentState == 'AdminState'}"/>
 			<mx:SetProperty target="{reloadDas2ServerButton}" name="visible" value="{currentState == 'AdminState'}"/>
+			<mx:SetStyle target="{reloadDas2ServerButton}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{linkbutton4}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{linkbutton3}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{duplicateButton}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{downloadButton}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{makeUCSCLinkButton}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{makeURLLinksButton}" name="paddingRight" value="1"/>
 		</mx:State>
 		<mx:State name="UserState"/>
 		<mx:State name="GuestState"/>
