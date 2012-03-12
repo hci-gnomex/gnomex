@@ -1330,6 +1330,8 @@ CREATE TABLE `gnomex`.`Request` (
   `corePrepInstructions` varchar(5000) null,
   `analysisInstructions` varchar(5000) null,
   `captureLibDesignId` varchar(200) null,
+  `avgInsertSizeFrom` INT(10) null;
+  `avgInsertSizeTo` INT(10) null
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
