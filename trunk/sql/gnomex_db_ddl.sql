@@ -1329,6 +1329,7 @@ CREATE TABLE `gnomex`.`Request` (
   `description` varchar(5000) null,
   `corePrepInstructions` varchar(5000) null,
   `analysisInstructions` varchar(5000) null,
+  `captureLibDesignId` varchar(200) null,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
