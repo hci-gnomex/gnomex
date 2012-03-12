@@ -12,6 +12,10 @@ CONSTRAINT `FK_PropertyEntry_Analysis` FOREIGN KEY `FK_PropertyEntry_Analysis` (
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y');
 
+-- Add average insert size range columns to Request Table
+alter table Request add column avgInsertSizeFrom int(10) NULL;
+alter table Request add column avgInsertSizeTo int(10) NULL;
+
 CREATE TABLE `UnloadDataTrack` (
   `idUnloadDataTrack` int(10)  NOT NULL auto_increment,
   `typeName` varchar(2000) NOT NULL,
