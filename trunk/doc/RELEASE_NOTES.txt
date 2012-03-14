@@ -1,7 +1,14 @@
 ﻿GNomEx Release Notes
 ---------------------
-5.3.9
+
+5.4
 --------------------
+
+
+
+5.3.9 (3/12/2012)
+--------------------
+* The Data Tracks feature is now available in GNomEx.  All GenoPub data tracks have been migrated over. The Data Tracks view allows genome data track files to be annotated and distributed for the purpose of genome browsing in a visualization app like IGB.
 * Analysis now has annotations.
 * Analysis annotations are searched on full text search.
 * When changing to the non-edit view, the dirty flag for analysis is now reset.
@@ -15,6 +22,7 @@
 * Properties are excluded from the Annotation view in Data Track if they have no data and are marked inactive.
 * Properties are excluded from the Annotation view in Experiment edit if they have no data and are marked inactive.
 * Continued bug fixes/refinements for Data Track feature, focusing on linking analysis files to data tracks.
+* Fixed scroll bug in Submit Request (and Add Services) for cy3/cy5 label buttons.
 
 5.3.8 (3/5/2012)
 --------------------
