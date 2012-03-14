@@ -1143,7 +1143,7 @@
             	}
             }
 			public function launchDataTrackDetail():Boolean { 
-				if (Application.application.parameters.dataTrackNumber != null ) {
+				if (Application.application.parameters.dataTrackNumber != null && Application.application.parameters.dataTrackNumber != 'null') {
 					return true;
 				} else {
 					return false;
