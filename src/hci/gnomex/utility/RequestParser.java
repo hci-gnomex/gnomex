@@ -224,6 +224,9 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals(""))
       request.setDescription(n.getAttributeValue("description"));
     
+    if (n.getAttributeValue("captureLibDesignId") != null && !n.getAttributeValue("captureLibDesignId").equals(""))
+      request.setCaptureLibDesignId(n.getAttributeValue("captureLibDesignId"));
+    
     if (n.getAttributeValue("analysisInstructions") != null && !n.getAttributeValue("analysisInstructions").equals(""))
       request.setAnalysisInstructions(n.getAttributeValue("analysisInstructions"));
     
@@ -232,6 +235,12 @@ public class RequestParser implements Serializable {
     
     if (n.getAttributeValue("codeProtocolType") != null && !n.getAttributeValue("codeProtocolType").equals("")) {
       request.setCodeProtocolType(n.getAttributeValue("codeProtocolType"));
+    }
+    if (n.getAttributeValue("avgInsertSizeFrom") != null && !n.getAttributeValue("avgInsertSizeFrom").equals("")) {
+      request.setAvgInsertSizeFrom(Integer.parseInt((n.getAttributeValue("avgInsertSizeFrom"))));
+    }
+    if (n.getAttributeValue("avgInsertSizeTo") != null && !n.getAttributeValue("avgInsertSizeTo").equals("")) {
+      request.setAvgInsertSizeTo(Integer.parseInt((n.getAttributeValue("avgInsertSizeTo"))));
     }
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
