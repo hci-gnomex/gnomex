@@ -50,7 +50,7 @@
 <mx:XMLListCollection id="dataTrackFilesToRemove"/> 
 <mx:XMLListCollection id="collaborators" source="{getDataTrack.lastResult.Collaborators.AppUser}"/>
 <mx:XMLListCollection id="possibleCollaborators" source="{getDataTrack.lastResult.PossibleCollaborators.AppUser}"/>
-<mx:XMLListCollection id="possibleInstitutes" source="{getDataTrack.lastResult.PossibleInstitutes.Institute}"/>
+<mx:XMLListCollection id="possibleInstitutions" source="{getDataTrack.lastResult.PossibleInstitutions.Institution}"/>
 <mx:XMLListCollection id="dataTrackProperties" source="{getDataTrack.lastResult..PropertyEntry}"/>
 	
 <mx:Script>	
@@ -66,16 +66,19 @@
 		if (getDataTrack.lastResult.name() == "DataTrack") {
 			if (this.parentDocument.currentState == "AdminState") {
 				this.dataTrackOwnerStack.selectedIndex = 0;
+				this.dataTrackLabStack.selectedIndex = 0;
 			} else if (this.parentDocument.currentState == "UserState") {
 				this.dataTrackOwnerStack.selectedIndex = 1;
+				this.dataTrackLabStack.selectedIndex = getDataTrack.lastResult.@canWrite == 'Y' ? 0 : 1;
 			}
 			this.visibilityRadioGroup.selectedValue = getDataTrack.lastResult.@codeVisibility;
-			for each(var institute:Object in possibleInstitutes) {
-				if (institute.@idInstitute == getDataTrack.lastResult.@idInstitute.toString()) {
+			for each(var institute:Object in possibleInstitutions) {
+				if (institute.@idInstitution == getDataTrack.lastResult.@idInstitution.toString()) {
 					instituteCombo.selectedItem = institute;
 					break;
 				}
 			} 
+			labCombo.selectedItem = null;
 			for each(var l:XML in parentApplication.promptedLabList) {
 				if (l.@idLab == getDataTrack.lastResult.@idLab.toString()) {
 					labCombo.selectedItem = l;
@@ -116,8 +119,8 @@
 		params.summary                = this.dataTrackSummary.text;
 		params.codeVisibility         = this.visibilityRadioGroup.selectedValue != null ? visibilityRadioGroup.selectedValue : "";
 		if (params.codeVisibility == 'INST') {
-			params.idInstitute = this.instituteCombo.selectedItem != null ? this.instituteCombo.selectedItem.@idInstitute : "";
-		}
+			params.idInstitution = this.instituteCombo.selectedItem != null ? this.instituteCombo.selectedItem.@idInstitution : "";
+		} 
 		params.idLab                  = this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
 		if (parentDocument.currentState == "AdminState") {
 			params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser: "";
@@ -562,8 +565,8 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
-						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutes.length > 0}" label="Institution  (all groups that are part of institution)"/>
-						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutes}" id="instituteCombo" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
+						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 0}" label="Institution  (all groups that are part of institution)"/>
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
 						</mx:ComboBox>					
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
@@ -605,13 +608,20 @@
 			<mx:VBox verticalGap="4" width="100%">
 				<mx:HBox horizontalGap="4" id="userGroupBox" paddingTop="15" verticalAlign="middle" width="100%">
 					<mx:Label text="Lab" />
-					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="{dirtyDataTrack.setDirty()}"></mx:ComboBox>
+					<mx:ViewStack id="dataTrackLabStack"  width="200">
+						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
+							<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="{dirtyDataTrack.setDirty()}"></mx:ComboBox>
+						</mx:HBox>
+						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
+							<mx:Label width="200" text="{getDataTrack.lastResult.@securityGroup}"/>							         			
+						</mx:HBox>
+					</mx:ViewStack>
 					<mx:Label text="Owner"  id="label2" paddingLeft="5"/>
 					<mx:ViewStack id="dataTrackOwnerStack"  width="200">
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
 							<mx:ComboBox width="200" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" change="{dirtyDataTrack.setDirty()}"></mx:ComboBox>							         			
 						</mx:HBox>
-						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
+						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
 							<mx:Label width="200" text="{getDataTrack.lastResult.@owner}"/>							         			
 						</mx:HBox>
 					</mx:ViewStack>
