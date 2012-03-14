@@ -1239,12 +1239,31 @@
 											   itemEditor="views.renderers.TextInputSampleName"      />    
 
  
-	               <mx:AdvancedDataGridColumn id="labelColumn" dataField="@label" width="90" headerText="Label" editable="false">
+	               <mx:AdvancedDataGridColumn id="labelColumn" dataField="@label"  
+											  width="90" headerText="Label" editable="false">
 					   <mx:itemRenderer>
 						   <mx:Component>
 							   <mx:HBox paddingLeft="4" horizontalGap="0" horizontalScrollPolicy="off">
+								   <mx:Script>
+									   <![CDATA[
+										   override public function set data(value:Object):void     {      
+											   super.data = value;        
+											   if (value["@label"] == "cy3")       {         
+												   cy3CheckBox.selected = true;      
+												   cy5CheckBox.selected = false;
+											   } else if (value["@label"] == "cy5")       {         
+												   cy3CheckBox.selected = false;      
+												   cy5CheckBox.selected = true;
+											   } else {
+												   cy3CheckBox.selected = false;      
+												   cy5CheckBox.selected = false;
+											   }       
+											   validateDisplayList();    
+										   } 
+									   ]]>
+								   </mx:Script>
 									   <mx:CheckBox id="cy3CheckBox"  label="cy3"  
-										 change="onChange(event)"
+										 change="onChange(event)"  selectedField="@isSelectedCy3"
 										 fillColors="[0x23b12d, 0x23b12d, 0x23b12d, 0x23b12d]"
 										 color="green" 
 										 borderColor="green"
@@ -1253,7 +1272,10 @@
 											   <![CDATA[
 												   private function onChange(evt:Event):void {
 													   data.@label = cy3CheckBox.selected ? "cy3" : "";
+													   data.@isSelectedCy3 = true;
+													   data.@isSelectedCy5 = false;
 													   cy5CheckBox.selected = false;
+
 													   parentDocument.changeLabelCheckBoxStyles(cy3CheckBox, cy5CheckBox, data.@label);
 													   parentDocument.checkSamplesCompleteness();
 												   }
@@ -1262,7 +1284,7 @@
 										</mx:CheckBox>
 								   <mx:CheckBox id="cy5CheckBox"  label="cy5"  change="onChangeCy5(event)"
 												fillColors="[0xda2020, 0xda2020, 0xda2020, 0xda2020]" 
-												color="0xFF0000"
+												color="0xFF0000" selectedField="@isSelectedCy5"
 												borderColor="0xFF0000" 
 												fillAlphas="[1.0, 0.15, 0.15, 0.15]}]"												
 												>
@@ -1270,7 +1292,10 @@
 										   <![CDATA[
 											   private function onChangeCy5(evt:Event):void {
 												   data.@label = cy5CheckBox.selected ? "cy5" : "";
+												   data.@isSelectedCy5 = "true";
+												   data.@isSelectedCy3 = "false";
 												   parentDocument.changeLabelCheckBoxStyles(cy3CheckBox, cy5CheckBox, data.@label);
+
 												   cy3CheckBox.selected = false;
 												   parentDocument.checkSamplesCompleteness();
 											   }
