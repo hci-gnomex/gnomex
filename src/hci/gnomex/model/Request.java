@@ -47,6 +47,7 @@ public class Request extends HibernateDetailObject {
   private Integer         idSampleTypeDefault;
   private Integer         idOrganismSampleDefault;
   private Integer         idSamplePrepMethodDefault;
+  private String          captureLibDesignId;
   private String          codeBioanalyzerChipType;
   private String          notes;
   private Date            completedDate;
@@ -60,6 +61,8 @@ public class Request extends HibernateDetailObject {
   private String          corePrepInstructions;
   private String          analysisInstructions;
   private Date            privacyExpirationDate;
+  private Integer         avgInsertSizeFrom;
+  private Integer         avgInsertSizeTo;
   private Set             samples = new TreeSet();
   private Set             labeledSamples = new TreeSet();
   private Set             hybridizations = new TreeSet();
@@ -141,6 +144,30 @@ public class Request extends HibernateDetailObject {
   
   public Integer getIdLab() {
     return idLab;
+  }
+  
+  public String getCaptureLibDesignId() {
+    return captureLibDesignId;
+  }
+
+  public void setCaptureLibDesignId(String captureLibDesignId) {
+    this.captureLibDesignId = captureLibDesignId;
+  }
+  
+  public void setAvgInsertSizeFrom(int size){
+    this.avgInsertSizeFrom = size;
+  }
+  
+  public void setAvgInsertSizeTo(int size){
+    this.avgInsertSizeTo = size;
+  }
+  
+  public int getAvgInsertSizeFrom(){
+    return this.avgInsertSizeFrom;
+  }
+  
+  public int getAvgInsertSizeTo(){
+    return this.avgInsertSizeTo;
   }
   
   public void setDescription(String description){
