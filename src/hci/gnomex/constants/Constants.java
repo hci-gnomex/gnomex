@@ -33,6 +33,7 @@ public class Constants {
   public static final String              LOGGING_PROPERTIES              = "gnomex_logging.properties";
   
   public static final String              WINDOW_TRACK_REQUESTS           = "ExperimentDetail";
+  public static final String              WINDOW_TRACK_ANALYSES           = "AnalysisDetail";
   public static final String              WINDOW_FETCH_RESULTS            = "ExperimentDownload";
   public static final String              WINDOW_BILLING_ACCOUNT_DETAIL   = "BillingAccountDetail";
 

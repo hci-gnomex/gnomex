@@ -29,27 +29,59 @@ public class BatchDataSource extends DetailObject {
   private Configuration   configuration;
   private Session         sess;
   private SessionFactory  sessionFactory;
+  private String          specifiedOrionPath = "";
+  private String          specifiedSchemaPath = "";
+  
+  public BatchDataSource() {
+    specifiedOrionPath = "";
+    specifiedSchemaPath = "";
+  }
+  
+  public BatchDataSource(String orionPath, String schemaPath) {
+    specifiedOrionPath = orionPath;
+    specifiedSchemaPath = schemaPath;
+  }
   
   public Session connect() throws Exception {
-    File file = new File("../../conf/openejb.xml");
+    String filePath = "../../";
+    if(specifiedOrionPath.length() > 0) {
+      filePath = specifiedOrionPath;
+    }
+    filePath = filePath + "conf/openejb.xml";
+    File file = new File(filePath);
 
     if (file.exists()) {
       return connectTomcat(file);
     } else {
-      file = new File("../../config/data-sources.xml"); 
+      filePath = "../../";
+      if(specifiedOrionPath.length() > 0) {
+        filePath = specifiedOrionPath;
+      }
+      filePath = filePath + "config/data-sources.xml";
+      file = new File(filePath);
       return connectOrion(file);	
     }
   }
 
   public Session connectTomcat(File dataSourcesFile) throws Exception {
     this.registerTomcatDataSources(dataSourcesFile);
-    configuration = new Configuration().addFile("WEB-INF/classes/SchemaGNomEx.hbm.xml");
+    String filePath = "WEB-INF/classes/";
+    if(specifiedOrionPath.length() > 0) {
+      filePath = specifiedSchemaPath;
+    }    
+    filePath = filePath + "SchemaGNomEx.hbm.xml";
+    configuration = new Configuration().addFile(filePath);
     return connectImpl();
   }
   
   public Session connectOrion(File dataSourcesFile) throws Exception {
     this.registerDataSources(dataSourcesFile);
-    configuration = new Configuration().addFile("SchemaGNomEx.hbm.xml");
+    String filePath = "";
+    if(specifiedOrionPath.length() > 0) {
+      filePath = specifiedSchemaPath;
+    }    
+    filePath = filePath + "SchemaGNomEx.hbm.xml";
+    configuration = new Configuration().addFile(filePath);
     return connectImpl();
   }
   

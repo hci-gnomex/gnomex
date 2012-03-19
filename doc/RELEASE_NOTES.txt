@@ -3,7 +3,9 @@
 
 5.4
 --------------------
-
+* Added UsageReportd.java and related script files to create weekly usage report for CvDC
+* Modified BatchDataSource.java and BatchMailer.java to add an optional constructor that defines path to orion and location of hibernate mapping file
+* Modified MailUtil -- added send_bcc command to provide for sending messages with bcc field populated.
 
 
 5.3.9 (3/12/2012)
