@@ -15,12 +15,28 @@ import org.xml.sax.SAXException;
 
 public class BatchMailer  {
   
+  private String          specifiedOrionPath = "";
+  
+  public BatchMailer() {
+    specifiedOrionPath = "";
+  }
+  
+  public BatchMailer(String orionPath) {
+    specifiedOrionPath = orionPath;
+  }
   
   public Properties getMailProperties() throws Exception {
     // Set up mail properties
     boolean foundHost = false;
     Properties mailProps = new Properties();
-    File serverFile = new File("../../config/server.xml");
+    
+    String filePath = "../../";
+    if(specifiedOrionPath.length() > 0) {
+      filePath = specifiedOrionPath;
+    }
+    filePath = filePath + "config/server.xml";
+    File serverFile = new File(filePath);
+    
     if(serverFile.exists()) {
       try {
         SAXBuilder builder = new SAXBuilder();

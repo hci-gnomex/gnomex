@@ -39,9 +39,26 @@ public class MailUtil
 
         
       Session session = GNomExFrontController.getMailSession();
-      send(session, to, cc, from, subject, body, formatHtml);        
+      send(session, to, cc, "", from, subject, body, formatHtml);        
 
     }
+    
+    public static void send_bcc( String to,
+              String cc,
+              String from,
+              String subject,
+              String body,
+              boolean formatHtml )
+      throws NamingException,
+      AddressException,
+      MessagingException {
+      
+      
+      Session session = GNomExFrontController.getMailSession();
+      send(session, to, cc, "", from, subject, body, formatHtml);        
+
+    }
+    
     
     public static void send(Properties props,
                             String to,
@@ -55,13 +72,30 @@ public class MailUtil
     MessagingException {
 
       Session session = javax.mail.Session.getDefaultInstance(props, null);
-      send(session, to, cc, from, subject, body, formatHtml);
+      send(session, to, cc, "", from, subject, body, formatHtml);
 
+    }
+    
+    public static void send_bcc(Properties props,
+              String to,
+              String cc,
+              String bcc,
+              String from,
+              String subject,
+              String body,
+              boolean formatHtml )
+      throws NamingException,
+      AddressException,
+      MessagingException {
+      
+      Session session = javax.mail.Session.getDefaultInstance(props, null);
+      send(session, to, cc, bcc, from, subject, body, formatHtml);
     }
     
     public static void send(Session session,
         String to,
         String cc,
+        String bcc,
         String from,
         String subject,
         String body,
@@ -99,8 +133,13 @@ public class MailUtil
 
       msg.setFrom( new InternetAddress( from ) );
       msg.setRecipients( javax.mail.Message.RecipientType.TO, InternetAddress.parse( to, false ) );
+      
       if(cc != null){
         msg.setRecipients( javax.mail.Message.RecipientType.CC, InternetAddress.parse( cc, false ) );
+      }
+      
+      if(bcc != null){
+        msg.setRecipients( javax.mail.Message.RecipientType.BCC, InternetAddress.parse( bcc, false ) );
       }
       msg.setSubject( subject );
 
