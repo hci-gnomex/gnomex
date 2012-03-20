@@ -15,19 +15,18 @@ public class ProtocolFilter extends DetailObject {
   private String                text4;
   private String                matchAnyTerm = "N";
   private String                matchAllTerms = "Y";
-  
+  private String                searchListText = "";
+
   
   
   
   private StringBuffer          searchText;
-  private StringBuffer          displayText;
   private boolean              firstTime = true;
   
   
   public StringBuffer getSearchText() {
     firstTime   = true;
     searchText  = new StringBuffer();
-    displayText = new StringBuffer();
     
     addCriteria();
     
@@ -36,11 +35,17 @@ public class ProtocolFilter extends DetailObject {
   }
   
   public String toString() {
-    return displayText.toString();
+    return searchText.toString();
   }
   
   
   private void addCriteria() {
+
+    // Add text from search list
+    if (!searchListText.equals("")) {
+      searchText.append(searchListText);
+      firstTime = false;
+    }
 
     // Search by text (quick search 
     if (text != null && !text.trim().equals("")){
@@ -50,8 +55,6 @@ public class ProtocolFilter extends DetailObject {
       searchText.append(" " + ProtocolIndexHelper.TEXT + ":(");
       searchText.append("*" + text + "*");
       searchText.append(") ");
-      
-      displayText.append(" Any text = " + text);
     } 
     
     if ((text1 != null && !text1.equals("")) ||
@@ -68,8 +71,6 @@ public class ProtocolFilter extends DetailObject {
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" Any text = " + text1);
       }
       
       // Search by text2
@@ -84,8 +85,6 @@ public class ProtocolFilter extends DetailObject {
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append("*" + text2 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" Any text = " + text2);
       } 
       
       //    Search by text3
@@ -100,8 +99,6 @@ public class ProtocolFilter extends DetailObject {
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append("*" + text3 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" Any text = " + text3);
       } 
       
       //    Search by text4
@@ -116,8 +113,6 @@ public class ProtocolFilter extends DetailObject {
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append("*" + text4 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" Any text = " + text4);
       } 
 
       searchText.append(")");
@@ -131,10 +126,8 @@ public class ProtocolFilter extends DetailObject {
     if (!firstTime) {
       if (matchAnyTerm != null && matchAnyTerm.equals("Y")) {
         searchText.append(" OR ");
-        displayText.append("   OR   ");
       } else {
         searchText.append(" AND ");
-        displayText.append("   AND   ");
       }
       
     }
@@ -223,6 +216,15 @@ public class ProtocolFilter extends DetailObject {
   
   public void setText(String text) {
     this.text = text;
+  }
+
+
+  public String getSearchListText() {
+    return searchListText;
+  }
+  
+  public void setSearchListText(String txt) {
+    searchListText = txt;
   }
 
 

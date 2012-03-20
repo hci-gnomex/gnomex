@@ -20,7 +20,7 @@
 			private var _listData:DataGridListData;
 			
 			[Bindable]
-			public var allOptions:XMLList;
+			public var dictionaryMap:Array;
 			
 			[Bindable]
 			public var title:String;
@@ -28,14 +28,16 @@
 			[Bindable]
 			public var txt:String;
 			
+			public var keyFieldName:String;
+			
 			public var isEditable:Boolean = true;			
 			
 			public var isRequired:Boolean = false;
 			
 			private var pop:MultiselectPopupCommon;
 			
-			public static function create(title:String, allOptions:XMLList, isEditable:Boolean=true, isRequired:Boolean=false):IFactory {
-				return RendererFactory.create(MultiselectRendererCommon, {title:title, allOptions:allOptions, isEditable:isEditable});
+			public static function create(title:String, dictionaryMap:Array, keyFieldName:String, isEditable:Boolean=true, isRequired:Boolean=false):IFactory {
+				return RendererFactory.create(MultiselectRendererVariableDictionary, {title:title, dictionaryMap:dictionaryMap, keyFieldName:keyFieldName, isEditable:isEditable});
 			}		
 			override public function set data(value:Object):void {
 				super.data = value;
@@ -47,12 +49,23 @@
 				if (data == null || _listData == null || !data.hasOwnProperty(_listData.dataField) || _listData.dataField == null || _listData.dataField == '') {
 					return;
 				}
-	
+				
+				if (!data.hasOwnProperty(keyFieldName) || keyFieldName == null || keyFieldName == '') {
+					return;
+				}
+				
+				var allOptions:XMLList = dictionaryMap[data[keyFieldName]];
+				
+				if (allOptions == null) {
+					txt = data[_listData.dataField];
+					return;
+				}
+				
 				var values:Array = new Array();
 				values = data[_listData.dataField].split(",");
 				var idx:Object = null;
 				
-					
+				
 				var option:XML = null;
 				for each(option in allOptions) {
 					var theOption:XML = option.copy();
@@ -95,6 +108,17 @@
 				if (_listData == null || _listData.dataField == null || !(data is XML)) {
 					return;
 				}
+				
+				if (!data.hasOwnProperty(keyFieldName) || keyFieldName == null || keyFieldName == '') {
+					return;
+				}
+				
+				var allOptions:XMLList = dictionaryMap[data[keyFieldName]];
+				
+				if (allOptions == null) {
+					return;
+				}
+				
 				pop= MultiselectPopupCommon(PopUpManager.createPopUp(parentApplication.theBody, MultiselectPopupCommon,true));
 				pop.initializeData(title, this.data[_listData.dataField], allOptions);
 				pop.opener=this;
@@ -146,7 +170,7 @@
 					g.endFill();
 				}
 			}
-
+			
 			
 		]]>
 	</mx:Script>

@@ -13,14 +13,17 @@ import hci.gnomex.lucene.ExperimentFilter;
 import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
 import hci.gnomex.lucene.ProtocolIndexHelper;
+import hci.gnomex.lucene.SearchListParser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.RequestParser;
 
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +48,8 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Searcher;
 import org.hibernate.Session;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 public class SearchIndex extends GNomExCommand implements Serializable {
@@ -56,6 +61,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   private boolean isExperimentOnlySearch = false;
   private boolean isAnalysisOnlySearch = false;
+  private boolean isProtocolOnlySearch = false;
+  private boolean isDataTrackOnlySearch = false;
   
   private ExperimentFilter experimentFilter = null;
   private ProtocolFilter   protocolFilter = null;
@@ -64,8 +71,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private String listKind = "SearchList";
   
-  private String searchDisplayText = "";
-
   private String serverName = "";
 
   private Map labMap        = null;
@@ -117,9 +122,15 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (request.getParameter("isAnalysisOnlySearch") != null && request.getParameter("isAnalysisOnlySearch").equals("Y")) {
       isAnalysisOnlySearch = true;
     }    
+    if (request.getParameter("isProtocolOnlySearch") != null && request.getParameter("isProtocolOnlySearch").equals("Y")) {
+      isProtocolOnlySearch = true;
+    }    
+    if (request.getParameter("isDataTrackOnlySearch") != null && request.getParameter("isDataTrackOnlySearch").equals("Y")) {
+      isDataTrackOnlySearch = true;
+    }    
    
     serverName = request.getServerName();
-    
+
     
     experimentFilter = new ExperimentFilter();
     HashMap errors = this.loadDetailObject(request, experimentFilter);
@@ -137,26 +148,25 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     errors = this.loadDetailObject(request, dataTrackFilter);
     this.addInvalidFields(errors);    
     
-    List experimentDesignCodes = new ArrayList();
-    if (request.getParameter("experimentDesignConcatCodes") != null && !request.getParameter("experimentDesignConcatCodes").equals("")) {
-      String[] codes = request.getParameter("experimentDesignConcatCodes").split(":");
-      for (int i = 0; i < codes.length; i++) {
-        String code = codes[i];
-        experimentDesignCodes.add(code);
+    if (request.getParameter("searchList") != null && !request.getParameter("searchList").equals("")) {
+      String searchXMLString = request.getParameter("searchList");
+      searchXMLString = searchXMLString.replaceAll("&", "&amp;");
+      searchXMLString = "<SearchList>" + searchXMLString + "</SearchList>";
+      StringReader reader = new StringReader(searchXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        org.jdom.Document searchDoc = sax.build(reader);
+        SearchListParser searchListParser = new SearchListParser(searchDoc, experimentFilter.getMatchAnyTerm());
+        searchListParser.Parse();
+        experimentFilter.setSearchListText(searchListParser.getSearchText());
+        analysisFilter.setSearchListText(searchListParser.getSearchText());
+        protocolFilter.setSearchListText(searchListParser.getSearchText());
+        dataTrackFilter.setSearchListText(searchListParser.getSearchText());
+      } catch (Exception je ) {
+        log.error( "Cannot parse searchXMLString", je );
+        this.addInvalidField( "searchXMLString", "Invalid search xml");
       }
-      experimentFilter.setExperimentDesignCodes(experimentDesignCodes);
     }
-    
-    List experimentFactorCodes = new ArrayList();
-    if (request.getParameter("experimentFactorConcatCodes") != null && !request.getParameter("experimentFactorConcatCodes").equals("")) {
-      String[] codes = request.getParameter("experimentFactorConcatCodes").split(":");
-      for (int i = 0; i < codes.length; i++) {
-        String code = codes[i];
-        experimentFactorCodes.add(code);
-      }
-      experimentFilter.setExperimentFactorCodes(experimentFactorCodes);
-    }
-    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -168,7 +178,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
 
       
-      if (!isAnalysisOnlySearch) {
+      if (!isAnalysisOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
         //
         // Experiments
         //
@@ -178,7 +188,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         Searcher searcher = new IndexSearcher(indexReader);
 
         String searchText = experimentFilter.getSearchText().toString();
-        searchDisplayText = experimentFilter.toString();
         
         // Build a Query to represent the security filter
         String securitySearchText = this.buildSecuritySearch();
@@ -218,7 +227,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
       
       
-      if (!isExperimentOnlySearch && !isAnalysisOnlySearch) {
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch) {
         //
         // Protocols
         //
@@ -240,7 +249,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           processProtocolHits(protocolHits, protocolSearchText);
           
         }
-        
+      }
+
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch) {
         //
         // Data Tracks
         //
@@ -277,7 +288,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
       
       
-      if (!isExperimentOnlySearch) {
+      if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
         //
         // Analysis
         //
@@ -286,10 +297,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         
         //  Build a Query object
         String analysisSearchText = analysisFilter.getSearchText().toString();
-        
-        if (isAnalysisOnlySearch) {
-          searchDisplayText = analysisFilter.toString();          
-        }
         
         
         // Build a Query to represent the security filter
@@ -962,22 +969,23 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private org.jdom.Document buildXMLDocument() {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
-    doc.getRootElement().setAttribute("search", searchDisplayText);
     
-    if (!isAnalysisOnlySearch) {
+    if (!isAnalysisOnlySearch && !isDataTrackOnlySearch && !isProtocolOnlySearch) {
       buildProjectRequestList(doc.getRootElement());
       buildRequestList(doc.getRootElement());      
     }
-    if (!isExperimentOnlySearch && !isAnalysisOnlySearch) {
+    if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch) {
       if (!protocolSearchEmpty) {
         buildProtocolList(doc.getRootElement());
       }
+    }
+    if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch) {
       if (!dataTrackSearchEmpty) {
         buildDataTrackFolderList(doc.getRootElement());
         buildDataTrackList(doc.getRootElement());
       }
     }
-    if (!isExperimentOnlySearch) {
+    if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
       buildAnalysisGroupList(doc.getRootElement());
       buildAnalysisList(doc.getRootElement());      
     }
