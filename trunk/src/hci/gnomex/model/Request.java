@@ -154,19 +154,19 @@ public class Request extends HibernateDetailObject {
     this.captureLibDesignId = captureLibDesignId;
   }
   
-  public void setAvgInsertSizeFrom(int size){
+  public void setAvgInsertSizeFrom(Integer size){
     this.avgInsertSizeFrom = size;
   }
   
-  public void setAvgInsertSizeTo(int size){
+  public void setAvgInsertSizeTo(Integer size){
     this.avgInsertSizeTo = size;
   }
   
-  public int getAvgInsertSizeFrom(){
+  public Integer getAvgInsertSizeFrom(){
     return this.avgInsertSizeFrom;
   }
   
-  public int getAvgInsertSizeTo(){
+  public Integer getAvgInsertSizeTo(){
     return this.avgInsertSizeTo;
   }
   
