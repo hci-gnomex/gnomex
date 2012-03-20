@@ -15,8 +15,6 @@ public class AnalysisFilter extends DetailObject {
   
   // Criteria
   private Integer               idLab; 
-  private Integer               idAnalysisType;
-  private Integer               idAnalysisProtocol;
   private Integer               idOrganism;
   private String                text;
   private String                text1;
@@ -27,7 +25,8 @@ public class AnalysisFilter extends DetailObject {
   private String                matchAllTerms = "Y";
   private String                searchPublicProjects;
   private String                showCategory = "Y";
-  
+  private String                searchListText = "";
+
   // Display fields
   private String                lab;
   private String                analysisType; 
@@ -35,15 +34,13 @@ public class AnalysisFilter extends DetailObject {
   private String                organism; 
   
   private StringBuffer          searchText;
-  private StringBuffer          displayText;
-  private boolean              firstTime = true;
+  private boolean               firstTime = true;
   
 
   
   public StringBuffer getSearchText() {
     firstTime = true;
     searchText = new StringBuffer();
-    displayText = new StringBuffer();
     
     addCriteria();
     
@@ -52,12 +49,18 @@ public class AnalysisFilter extends DetailObject {
   }
   
   public String toString() {
-    return displayText.toString();
+    return searchText.toString();
   }
 
   
   
   private void addCriteria() {
+
+    // Add text from search list
+    if (!searchListText.equals("")) {
+      searchText.append(searchListText);
+      firstTime = false;
+    }
 
     //
     // Search by text (quick search
@@ -69,8 +72,6 @@ public class AnalysisFilter extends DetailObject {
       searchText.append(" " + AnalysisIndexHelper.TEXT + ":(");
       searchText.append("*" + text + "*");
       searchText.append(") ");
-
-      displayText.append(" any text field = " + text);
     } 
     
     //
@@ -91,8 +92,6 @@ public class AnalysisFilter extends DetailObject {
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
         searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text1);
       }
       
       // Search by text2
@@ -107,8 +106,6 @@ public class AnalysisFilter extends DetailObject {
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
         searchText.append("*" + text2 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text2);
       } 
       
       //    Search by text3
@@ -123,8 +120,6 @@ public class AnalysisFilter extends DetailObject {
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
         searchText.append("*" + text3 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text3);
       } 
       
       //    Search by text4
@@ -139,8 +134,6 @@ public class AnalysisFilter extends DetailObject {
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
         searchText.append("*" + text4 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text4);
       } 
 
       searchText.append(")");
@@ -153,8 +146,6 @@ public class AnalysisFilter extends DetailObject {
       this.addLogicalOperator();
       searchText.append(" " + AnalysisIndexHelper.ID_ORGANISM + ":");
       searchText.append(idOrganism);
-
-      displayText.append(" organism  = " + organism);
     } 
 
     //
@@ -164,33 +155,7 @@ public class AnalysisFilter extends DetailObject {
       this.addLogicalOperator();
       searchText.append(" " + AnalysisIndexHelper.ID_LAB + ":");
       searchText.append(idLab);
-      
-      displayText.append(" lab = " + lab);
     } 
-    
-    //
-    //  Search by idAnalysisType
-    //
-    if (idAnalysisType != null){
-      this.addLogicalOperator();
-      searchText.append(" " + AnalysisIndexHelper.ID_ANALYSIS_TYPE + ":");
-      searchText.append(idAnalysisType);
-
-      displayText.append(" analysis type  = " + analysisType);
-    } 
-
-    
-    //
-    //  Search by idAnalysisProtocol
-    //
-    if (idAnalysisProtocol != null){
-      this.addLogicalOperator();
-      searchText.append(" " + AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL + ":");
-      searchText.append(idAnalysisProtocol);
-
-      displayText.append(" analysis protocol = " + analysisProtocol);
-    } 
-    
   }
 
   
@@ -200,10 +165,8 @@ public class AnalysisFilter extends DetailObject {
     if (!firstTime) {
       if (matchAnyTerm != null && matchAnyTerm.equals("Y")) {
         searchText.append(" OR ");
-        displayText.append("  OR  ");
       } else {
         searchText.append(" AND ");
-        displayText.append("  AND  ");
       }
       
     }
@@ -359,26 +322,6 @@ public class AnalysisFilter extends DetailObject {
   }
 
   
-  public Integer getIdAnalysisType() {
-    return idAnalysisType;
-  }
-
-  
-  public void setIdAnalysisType(Integer idAnalysisType) {
-    this.idAnalysisType = idAnalysisType;
-  }
-
-  
-  public Integer getIdAnalysisProtocol() {
-    return idAnalysisProtocol;
-  }
-
-  
-  public void setIdAnalysisProtocol(Integer idAnalysisProtocol) {
-    this.idAnalysisProtocol = idAnalysisProtocol;
-  }
-
-  
   public String getAnalysisType() {
     return analysisType;
   }
@@ -396,6 +339,15 @@ public class AnalysisFilter extends DetailObject {
   
   public void setAnalysisProtocol(String analysisProtocol) {
     this.analysisProtocol = analysisProtocol;
+  }
+
+
+  public String getSearchListText() {
+    return searchListText;
+  }
+  
+  public void setSearchListText(String txt) {
+    searchListText = txt;
   }
 
 

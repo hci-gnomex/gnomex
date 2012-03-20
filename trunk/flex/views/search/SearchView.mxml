@@ -14,58 +14,44 @@
 	fault="parentApplication.onFailHttpRequest('Failed to search index', event)"
     method="POST"
     useProxy="false">
-    <mx:request>
-            <listKind>SearchList</listKind>
-            <matchAnyTerm>{matchAnyTermRadio.selected == true ? "Y" : "N"}</matchAnyTerm>
-            <matchAllTerms>{matchAllTermsRadio.selected == true ? "Y" : "N"}</matchAllTerms>
-            <text1>{text1.text}</text1>
-            <text2>{text2.text}</text2>
-            <text3>{text3.text}</text3>
-            <text4>{text4.text}</text4>
-            <idLab>{labCombo.selectedItem.@idLab}</idLab>
-            <idOrganism>{organismCombo.selectedItem.@value}</idOrganism>
-            <idSampleType>{sampleTypeCombo.selectedItem.@value}</idSampleType>
-            <codeRequestCategory>{requestCategoryCombo.selectedItem.@value}</codeRequestCategory>
-            <searchOrganismOnSlideProduct>{searchOrganismOnSlideProductCheck.selected == true ? "Y" : "N" }</searchOrganismOnSlideProduct>
-            <searchOrganismOnSample>{searchOrganismOnSampleCheck.selected == true ? "Y" : "N" }</searchOrganismOnSample>
-            <codeApplication>{applicationCombo.selectedItem.@value}</codeApplication>
-            <idSlideProduct>{microarrayCombo.selectedItem.@idSlideProduct}</idSlideProduct>
-            <idAnalysisType>{analysisTypeCombo.selectedItem.@value}</idAnalysisType>
-            <idAnalysisProtocol>{analysisProtocolCombo.selectedItem.@value}</idAnalysisProtocol>
-            <experimentDesignConcatCodes>{experimentDesignCodes}</experimentDesignConcatCodes>
-            <experimentFactorConcatCodes>{experimentFactorCodes}</experimentFactorConcatCodes>
-            <lab>{labCombo.selectedItem.@name}</lab>
-            <organism>{organismCombo.selectedItem.@organism}</organism>
-            <slideProduct>{microarrayCombo.selectedItem.@name}</slideProduct>
-            <application>{applicationCombo.selectedItem.@display}</application>
-            <requestCategory>{requestCategoryCombo.selectedItem.@display}</requestCategory>
-            <sampleType>{sampleTypeCombo.selectedItem.@display}</sampleType>
-            <analysisType>{analysisTypeCombo.selectedItem.@display}</analysisType>
-            <analysisProtocol>{analysisProtocolCombo.selectedItem.@display}</analysisProtocol>
-            <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
-            <showCategory>N</showCategory>
-            <isExperimentOnlySearch>{currentState == "ExperimentOnlySearchState" ? "Y" : "N"}</isExperimentOnlySearch>
-            <isAnalysisOnlySearch>{currentState == "AnalysisOnlySearchState" ? "Y" : "N"}</isAnalysisOnlySearch>
-    </mx:request>
     </mx:HTTPService >
+	
+	<mx:HTTPService  
+		id="getSearchMetaInformation" 
+		url="GetSearchMetaInformation.gx"
+		destination="getSearchMetaInformation"
+		resultFormat="e4x"
+		result="onGetSearchMetaInformation(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get search meta information', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
     
     <mx:Script> 
         <![CDATA[
-        import mx.events.ListEvent;
-        import mx.rpc.events.FaultEvent;           
-        import mx.rpc.events.ResultEvent;   
-        import mx.controls.Alert;
-        import mx.events.CollectionEvent;
-		import hci.flex.controls.CheckBox;
-        
-        [Bindable]
-        private var experimentDesignCodes:String = new String();
-        [Bindable]
-        private var experimentFactorCodes:String = new String();
+			import hci.flex.controls.CheckBox;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.renderers.MultiselectRendererVariableDictionary;
         
         [Bindable]
         private var myXMLString:String = "";
         
+		[Bindable]
+		private var dictionaryMap:Array = new Array();
+			
+		[Bindable]
+		public var searchCriteriaDisplay:String = "";
+
+		private var firstTime:Boolean = true;
+		
        public function checkSecurity():void {
        	if (parentApplication.hasPermission("canAccessAnyObject") ||
        	    parentApplication.currentState == "GuestState") {
@@ -77,28 +63,22 @@
 
 
        public function initializeData():void {
-       	parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
+       	//parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
        	parentDocument.filteredSlideProductList.refresh();
-       	microarrayCombo.dataProvider = parentDocument.filteredSlideProductList;
        	
-       	applicationCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application');
        	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.OrganismLite');
-       	requestCategoryCombo.dataProvider        = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategory');
-       	sampleTypeCombo.dataProvider             = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType');
-       	analysisTypeCombo.dataProvider           = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
-       	analysisProtocolCombo.dataProvider       = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');
 
-		parentApplication.experimentDesignList.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingExperimentDesignChange);
-		parentApplication.experimentFactorList.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingExperimentFactorChange);			
-       
+		this.getSearchMetaInformation.send();
        }
-		private function underlyingExperimentDesignChange(event:CollectionEvent):void {
-			scopeSearch();
+			
+		private function onGetSearchMetaInformation(event:ResultEvent):void {
+			var dm:XMLListCollection = new XMLListCollection(event.result.DictionaryMap.Dictionary);
+			this.dictionaryMap = new Array();
+			for (var x:Number = 0; x < dm.length; x++) {
+				dictionaryMap[dm[x].@fieldName] = new XMLList(dm[x].DictionaryEntry);
+			}
 		}
-		private function underlyingExperimentFactorChange(event:CollectionEvent):void {
-			scopeSearch();
-		}
-       
+			/*
         private function filterSlideProduct(item:Object):Boolean {
         	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
         		return true;
@@ -146,43 +126,163 @@
         	}
         	
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
-        }  
+        }  */
         public function callSearchIndex():void {
-			var codeDesignList:XMLList = parentApplication.getExperimentDesignList.lastResult.ExperimentDesign;     			
-			experimentDesignCodes = new String(); 
-        	for(var i:Number = 0; i < codeDesignList.length(); i++) {
-        		if (codeDesignList[i].@isSelected != null && codeDesignList[i].@isSelected.toString() == "true") {
-            		experimentDesignCodes = experimentDesignCodes + codeDesignList[i].@codeExperimentDesign + ":";
-          		}
-            } 
-            
-            var codeFactorList:XMLList = parentApplication.getExperimentFactorList.lastResult.ExperimentFactor;     			
-			experimentFactorCodes = new String(); 
-        	for(var i1:Number = 0; i1 < codeFactorList.length(); i1++) {
-        		if (codeFactorList[i1].@isSelected != null && codeFactorList[i1].@isSelected.toString() == "true") {
-            		experimentFactorCodes = experimentFactorCodes + codeFactorList[i1].@codeExperimentFactor + ":";
-          		}
-            } 
+			var params:Object = new Object();
+			params.listKind = "SearchList";
+			params.matchAnyTerm = matchAnyTermRadio.selected == true ? "Y" : "N";
+			params.matchAllTerms = matchAllTermsRadio.selected == true ? "Y" : "N";
+			params.searchPublicProjects = includePublicProjectsCheckBox.selected == true ? "Y" : "N";
+			params.text1 = text1.text;
+			params.text2 = text2.text;
+			params.text3 = text3.text;
+			params.text4 = text4.text;
+			params.idLab = labCombo.selectedItem.@idLab;
+			params.lab = labCombo.selectedItem.@name;
+			params.idOrganism = organismCombo.selectedItem.@value;
+			params.organism = organismCombo.selectedItem.@organism;
+			params.searchOrganismOnSlideProduct = searchOrganismOnSlideProductCheck.selected == true ? "Y" : "N";
+			params.searchOrganismOnSample = searchOrganismOnSampleCheck.selected == true ? "Y" : "N";
+			params.showCategory = "N";
+			params.isExperimentOnlySearch = this.ExperimentsRadioButton.selected ? "Y" : "N"
+			params.isAnalysisOnlySearch = this.AnalysesRadioButton.selected ? "Y" : "N";
+			params.isProtocolOnlySearch = this.ProtocolsRadioButton.selected ? "Y" : "N";
+			params.isDataTrackOnlySearch = this.DataTracksRadioButton.selected ? "Y" : "N";
+
+			if (this.ExperimentsRadioButton.selected) {
+				params.searchList = this.experimentSearchList;
+			} else if (this.AnalysesRadioButton.selected) {
+				params.searchList = this.analysisSearchList;
+			} else if (this.ProtocolsRadioButton.selected) {
+				params.searchList = this.protocolSearchList;
+			} else if (this.DataTracksRadioButton.selected) {
+				params.searchList = this.dataTrackSearchList;
+			}
+
+			buildSearchCriteriaDisplay();
             
             //var codeFactorList:XMLList = parentApplication.getExperimentFactorList.lastResult.ExperimentFactor;    
             //myXMLString = codeFactorList.toXMLString();
             //trace(myXMLString.length);
             //trace(myXMLString);
-        	searchGNomEx.send(); 
+        	searchGNomEx.send(params); 
         }
-        
+			
         private function onSearchIndex(event:ResultEvent): void {        	
         	parentDocument.searchViews.selectedChild = parentDocument.searchResultsView;
         	parentDocument.onViewSwitch();
         	parentDocument.setResultsCount();
         	
         	this.parentDocument.simpleSearchText = null;
+			
         	
         	// Expansion takes forever... comment out for now.
         	//callLater(parentDocument.expandAllNodes);
         }
         
+			
+		private function buildSearchCriteriaDisplay():void {
+			this.searchCriteriaDisplay = "";
+			firstTime = true;
+			if (text1.text != "") {
+				addLogicalOperator();
+				this.searchCriteriaDisplay += "any text field = " + text1.text;
+			}
+			if (text2.text != "") {
+				addLogicalOperator();
+				this.searchCriteriaDisplay += "any text field = " + text2.text;
+			}
+			if (text3.text != "") {
+				addLogicalOperator();
+				this.searchCriteriaDisplay += "any text field = " + text3.text;
+			}
+			if (text4.text != "") {
+				addLogicalOperator();
+				this.searchCriteriaDisplay += "any text field = " + text4.text;
+			}
+			if (organismCombo.selectedItem.@value != "" && (AllObjectsRadioButton.selected || ExperimentsRadioButton.selected || AnalysesRadioButton.selected)) {
+				addLogicalOperator();
+				if (searchOrganismOnSlideProductCheck.selected && !searchOrganismOnSampleCheck.selected && ExperimentsRadioButton.selected) {
+					this.searchCriteriaDisplay += "organism of microarray slide = ";
+				} else if (!searchOrganismOnSlideProductCheck.selected && searchOrganismOnSampleCheck.selected && ExperimentsRadioButton.selected) {
+					this.searchCriteriaDisplay += "organism of sample = ";
+				} else {
+					this.searchCriteriaDisplay += "organism = ";
+				}
+				this.searchCriteriaDisplay += organismCombo.selectedItem.@display;
+			}
+			if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != "" && (AllObjectsRadioButton.selected || ExperimentsRadioButton.selected
+						|| AnalysesRadioButton.selected || DataTracksRadioButton.selected)) {
+				addLogicalOperator();
+				this.searchCriteriaDisplay += "project lab = " + labCombo.selectedItem.@name;
+			}
+			
+			if (ExperimentsRadioButton.selected) {
+				buildSearchListDisplay(this.experimentSearchList);
+			} else if (AnalysesRadioButton.selected) {
+				buildSearchListDisplay(this.analysisSearchList);
+			} else if (this.ProtocolsRadioButton.selected) {
+				buildSearchListDisplay(this.protocolSearchList);
+			} else if (this.DataTracksRadioButton.selected) {
+				buildSearchListDisplay(this.dataTrackSearchList);
+			}
+		}
+			
+		private function buildSearchListDisplay(searchList:XMLListCollection):void {
+			for each (var searchRow:XML in searchList) {
+				if (searchRow.@value != "") {
+					addLogicalOperator();
+					this.searchCriteriaDisplay += searchRow.@displayName;
+					if (searchRow.@isOptionChoice == 'N') {
+						this.searchCriteriaDisplay += " = " + searchRow.@value;
+					} else {
+						this.searchCriteriaDisplay += " contains at least one of ("
+						var allOptions:XMLList = dictionaryMap[searchRow.@displayName];
+						var values:Array = new Array();
+						var v:String = searchRow.@value;
+						values = v.split(",");
+						var idx:Object = null;
+						
+						
+						var option:XML = null;
+						var firstOption:Boolean = true;
+						for each(option in allOptions) {
+							var theOption:XML = option.copy();
+							var isSelected:Boolean = false;
+							if (values != null) {
+								for (idx in values) {
+									if (values[idx] != null && theOption.@value == values[idx]) {
+										isSelected = true;
+										break;
+									}
+								}
+							}
+							if (isSelected) {
+								if (!firstOption) {
+									this.searchCriteriaDisplay += ",";
+								}
+								firstOption = false;
+								this.searchCriteriaDisplay += option.@display;
+							}
+						}
+						this.searchCriteriaDisplay += ")";
+					}
+				}
+			}
+		}
 
+		private function addLogicalOperator():void {
+			if (firstTime) {
+				firstTime = false;
+			} else {
+				if (this.matchAllTermsRadio.selected) {
+					this.searchCriteriaDisplay += " AND ";
+				} else {
+					this.searchCriteriaDisplay += " OR ";
+				}
+			}
+		}
+			
 		public function clearForm():void {
 			this.text1.text = "";
 			this.text2.text = "";
@@ -190,52 +290,22 @@
 			this.text4.text = "";
 			this.labCombo.selectedIndex = 0;
 			this.organismCombo.selectedIndex = 0;
-			this.applicationCombo.selectedIndex = 0;
-			this.microarrayCombo.selectedIndex = 0;
-			this.requestCategoryCombo.selectedIndex = 0;
-			this.sampleTypeCombo.selectedIndex = 0;
-			this.analysisProtocolCombo.selectedIndex = 0;
-			this.analysisTypeCombo.selectedIndex = 0;
-			this.searchOrganismOnSampleCheck.selected = false;
-			this.searchOrganismOnSlideProductCheck.selected = false;
 			
-			parentDocument.filteredSlideProductList.refresh();
+			for each (var i1:Object in this.experimentSearchList) {
+				i1.@value = "";
+			}
+			for each (var i2:Object in this.analysisSearchList) {
+				i2.@value = "";
+			}
+			for each (var i3:Object in this.protocolSearchList) {
+				i3.@value = "";
+			}
+			for each (var i4:Object in this.dataTrackSearchList) {
+				i4.@value = "";
+			}
 			
-			for each (var item:Object in parentApplication.experimentDesignList) {
-				item.@isSelected = "false";
-			}
-			this.experimentDesignGrid.invalidateDisplayList();
-			this.experimentDesignGrid.invalidateList();
+			this.AllObjectsRadioButton.selected = true;
 			
-			for each (var item1:Object in parentApplication.experimentFactorList) {
-				item1.@isSelected = "false";
-			}
-			this.experimentFactorGrid.invalidateDisplayList();
-			this.experimentFactorGrid.invalidateList();
-			
-			scopeSearch();
-		}
-		
-		private function toggleExperimentDesignCheck(event:ListEvent):void {
-			if (event.columnIndex == 0) {
-   				return;
-   			}
-			if (experimentDesignGrid.selectedItem.@isSelected == "true") {
-				experimentDesignGrid.selectedItem.@isSelected = "false";
-			} else {
-				experimentDesignGrid.selectedItem.@isSelected = "true";
-			}
-			scopeSearch();
-		}
-		private function toggleExperimentFactorCheck(event:ListEvent):void {
-			if (event.columnIndex == 0) {
-   				return;
-   			}
-			if (experimentFactorGrid.selectedItem.@isSelected == "true") {
-				experimentFactorGrid.selectedItem.@isSelected = "false";
-			} else {
-				experimentFactorGrid.selectedItem.@isSelected = "true";
-			}
 			scopeSearch();
 		}
                 
@@ -246,239 +316,174 @@
 				this.currentState = "PreInitialization";
 				return;
 			}
-			
-        	var hasExperimentDesignCodes:Boolean = false;
-        	for each (var entry:Object in parentApplication.getExperimentDesignList.lastResult.ExperimentDesign) {
-        		if (entry.@isSelected == "true") {
-        			hasExperimentDesignCodes = true;
-        			break;
-        		}
-        	}
 
-        	var hasExperimentFactorCodes:Boolean = false;
-			for each (var ef:Object in parentApplication.getExperimentFactorList.lastResult.ExperimentFactor) {
-        		if (ef.@isSelected == "true") {
-        			hasExperimentFactorCodes = true;
-        			break;
-        		}
-        	}
-
-
-        	if ((this.requestCategoryCombo.selectedItem != null && this.requestCategoryCombo.selectedItem.@value != "") ||
-        		(this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != "") ||
-        		(this.searchOrganismOnSampleCheck.selected) ||
-        		(this.searchOrganismOnSlideProductCheck.selected) ||
-        		(this.applicationCombo.selectedItem != null && this.applicationCombo.selectedItem.@value != "") ||
-        		(this.microarrayCombo.selectedItem != null && this.microarrayCombo.selectedItem.@idSlideProduct != "") ||
-        		(hasExperimentFactorCodes) ||
-        		(hasExperimentDesignCodes)) {
-    	    	currentState = "ExperimentOnlySearchState";       					        			
-        	} else if ((this.analysisProtocolCombo.selectedItem != null && this.analysisProtocolCombo.selectedItem.@value != "") ||
-        		      (this.analysisTypeCombo.selectedItem != null && this.analysisTypeCombo.selectedItem.@value != "")) {
-    	    	currentState = "AnalysisOnlySearchState";       					        			
-        	} else {
-        		currentState = "";
-        	}
+			if (this.ExperimentsRadioButton.selected) {
+				currentState = "ExperimentOnlySearchState";
+			} else if (this.AnalysesRadioButton.selected) {
+				currentState = "AnalysisOnlySearchState";
+			} else if (this.ProtocolsRadioButton.selected) {
+				currentState = "ProtocolOnlySearchState";
+			} else if (this.DataTracksRadioButton.selected) {
+				currentState = "DataTrackOnlySearchState";
+			} else {
+				currentState = "";
+			}
         }
-           
-
+			
+		private function searchTypeChange():void {
+			if (this.ExperimentsRadioButton.selected) {
+				this.searchGrid.dataProvider = experimentSearchList;
+			} else if (this.AnalysesRadioButton.selected) {
+				this.searchGrid.dataProvider = analysisSearchList;
+			} else if (this.ProtocolsRadioButton.selected) {
+				this.searchGrid.dataProvider = protocolSearchList;
+			} else if (this.DataTracksRadioButton.selected) {
+				this.searchGrid.dataProvider = dataTrackSearchList;
+			} else {
+				this.searchGrid.dataProvider = new XMLListCollection();
+			}
+			scopeSearch();
+		}
         ]]>
     </mx:Script>
     
-   
-<mx:HDividedBox width="100%" height="100%">
-    
-        <mx:VBox height="100%" verticalGap="6" paddingRight="4">
-            <mx:HBox width="100%">
-              <mx:VBox width="100%" verticalGap="8">
-                <mx:HBox>
-                	<mx:Label text="Keywords:" textAlign="left" width="190"/>
-                	<mx:TextInput id="text1" width="80">
-                    </mx:TextInput>
-                    <mx:TextInput id="text2" width="80">
-                    </mx:TextInput>
-                    <mx:TextInput id="text3" width="80">
-                    </mx:TextInput>
-                    <mx:TextInput id="text4" width="80">
-                    </mx:TextInput>
+	<mx:XMLListCollection id="experimentSearchList" source="{this.getSearchMetaInformation.lastResult.ExperimentSearchList.Field}"/>
+	<mx:XMLListCollection id="analysisSearchList" source="{this.getSearchMetaInformation.lastResult.AnalysisSearchList.Field}"/>
+	<mx:XMLListCollection id="dataTrackSearchList" source="{this.getSearchMetaInformation.lastResult.DataTrackSearchList.Field}"/>
+	<mx:XMLListCollection id="protocolSearchList" source="{this.getSearchMetaInformation.lastResult.ProtocolSearchList.Field}"/>
 
-                </mx:HBox>
-              	
-              </mx:VBox>
-            </mx:HBox>
-            <mx:HBox>
-              <mx:Label text="Group:" textAlign="left" width="190" id="label3"/>
-              <mx:ComboBox id="labCombo"  
-              	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
-               width="200"
-               change="parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
-              	</mx:ComboBox>
-              	
-            </mx:HBox>
-            <mx:HBox paddingBottom="0" width="100%" id="hbox2">
-             	<mx:Label text="Organism:" textAlign="left" width="190" id="label7"/>
-            	<mx:VBox verticalGap="0">
-               		<mx:ComboBox 
-               			id="organismCombo"  labelField="@display"  
-               		width="200" 
-               		change="parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
-               		</mx:ComboBox>
-               		<mx:HBox>
-                  		<mx:CheckBox id="searchOrganismOnSlideProductCheck" label="Microarray"  selected="false" click="scopeSearch()"/>
-                  		<mx:CheckBox id="searchOrganismOnSampleCheck" label="Sample"  selected="false" click="scopeSearch()"/>
-               		</mx:HBox>
-            	</mx:VBox>
-            </mx:HBox>
-            <mx:HRule width="100%"/>
-            <mx:HBox id="hbox3">
-             <mx:Label text="Experiment Category:" textAlign="left" width="190" id="label4"/>
-             <mx:ComboBox id="requestCategoryCombo"  labelField="@display" 
-             	 width="200">
-              <mx:change>parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()</mx:change>
-             </mx:ComboBox>
-            </mx:HBox>
-            <mx:HBox>
-               <mx:Label text="Experiment Sample Type:" textAlign="left" width="190" id="label5"/>
-               <mx:ComboBox id="sampleTypeCombo"  
-                labelField="@display"
-               	 width="200" change="scopeSearch()">
-               </mx:ComboBox>
-            </mx:HBox>
-            <mx:HBox>
-             <mx:Label text="Experiment Application:" textAlign="left" width="190" id="label8"/>
-             <mx:ComboBox id="applicationCombo"  labelField="@display" 
-             	 width="200" change="parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
-             </mx:ComboBox>
-            </mx:HBox>
-            <mx:HBox width="100%">
-             <mx:Label text="Experiment Microarray:" textAlign="left" width="190" id="label9"/>
-             <mx:ComboBox id="microarrayCombo"  
-             	labelField="@name" 
-             	 width="340" change="scopeSearch()">
-             </mx:ComboBox>
-            </mx:HBox>
-    	    <mx:HRule width="100%"/>
-            <mx:HBox id="hbox4">
-               <mx:Label text="Analysis Type:" textAlign="left" width="190" id="label1"/>
-               <mx:ComboBox id="analysisTypeCombo"  
-                labelField="@display"
-               	 width="300" change="scopeSearch()">
-               </mx:ComboBox>
-            </mx:HBox>
-            <mx:HBox>
-               <mx:Label text="Analysis Protocol:" textAlign="left" width="190" id="label2"/>
-               <mx:ComboBox id="analysisProtocolCombo"  
-                labelField="@display"
-               	 width="300" change="scopeSearch()">
-               </mx:ComboBox>
-            </mx:HBox>
-			<mx:Label text="* Experiments only will be searched" id="warningLabel" visible="false" fontWeight="bold" color="#730A1E"/>    	
-			<mx:VBox width="100%" height="100%" verticalAlign="bottom">
-	    	    <mx:HBox width="100%" id="hbox1">
-	    	         <mx:HBox horizontalGap="0">
-			        	<mx:RadioButtonGroup id="radiogroup1"/>
-			        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
-			        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
-	    	         </mx:HBox>
-		        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
-		        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
-		        		</mx:CheckBox>
-		        	</mx:HBox>
-	    	    </mx:HBox>
-	         </mx:VBox>
-            
-        </mx:VBox>
-	    <mx:VBox verticalGap="0" height="100%" width="100%">
-			<mx:Text text="Project:"/>
-			<mx:HBox height="100%"  paddingLeft="4" width="100%">
-				<mx:DataGrid  width="100%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentDesignGrid" alternatingItemColors="[#F7F7F7, #FFFFFF]">
-					<mx:itemClick>toggleExperimentDesignCheck(event)</mx:itemClick>
-					<mx:columns>
-						<mx:DataGridColumn headerText=" " 
-										   width="18" 
-										   editable="true"                        	
-										   dataField="@isSelected"  
-										   editorDataField="selected"
-										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('true', 'false', '@isSelected', true)}">
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Experiment Design" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
-					</mx:columns>
-				</mx:DataGrid>
-				<mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentFactorGrid" itemClick="toggleExperimentFactorCheck(event)">
-					<mx:columns>
-						<mx:DataGridColumn headerText=" " 
-										   width="18" 
-										   editable="true"                        	
-										   dataField="@isSelected" 
-										   editorDataField="selected" 
-										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('true', 'false', '@isSelected', true)}">
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Experimental Factors"  editable="false" dataField="@experimentFactor"/>
-					</mx:columns>
-				</mx:DataGrid>
+<mx:HBox width="100%">
+	<mx:Label text="Keywords:" textAlign="left"/>
+	<mx:TextInput id="text1" width="80">
+	</mx:TextInput>
+	<mx:TextInput id="text2" width="80">
+	</mx:TextInput>
+	<mx:TextInput id="text3" width="80">
+	</mx:TextInput>
+	<mx:TextInput id="text4" width="80">
+	</mx:TextInput>
+	<mx:HBox>
+		<mx:Label text="Group:" textAlign="left" id="label3"/>
+		<mx:ComboBox id="labCombo"  
+					 labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
+					 width="200"
+					 >
+		</mx:ComboBox>
+		
+	</mx:HBox>
+	<mx:HBox paddingBottom="0" width="100%" id="hbox2">
+		<mx:Label text="Organism:" textAlign="left" id="label7"/>
+		<mx:VBox verticalGap="0">
+			<mx:ComboBox 
+				id="organismCombo"  labelField="@display"  
+				width="200" 
+				>
+			</mx:ComboBox>
+			<mx:HBox>
+				<mx:CheckBox id="searchOrganismOnSlideProductCheck" label="Microarray"  selected="false" click="scopeSearch()" enabled="false"/>
+				<mx:CheckBox id="searchOrganismOnSampleCheck" label="Sample"  selected="false" click="scopeSearch()" enabled="false"/>
 			</mx:HBox>
-			
 		</mx:VBox>
-
-
-						
-						
-
-</mx:HDividedBox>
+	</mx:HBox>
+</mx:HBox>
+<mx:HRule width="100%"/>
+<mx:VBox height="100%" width="100%" verticalGap="6" paddingRight="4">
+	<mx:VBox width="100%" height="300">
+		<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
+			<mx:Label text="Search " />
+			<mx:RadioButton label="All Objects" selected="true" id="AllObjectsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Experiments" selected="false" id="ExperimentsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Analyses" selected="false" id="AnalysesRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Protocols" selected="false" id="ProtocolsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Data Tracks" selected="false" id="DataTracksRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+		</mx:HBox>
+		<mx:DataGrid id="searchGrid"  horizontalScrollPolicy="auto"
+					 dataProvider="{new XMLListCollection()}" editable="true"
+					 width="100%" height="100%">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Field" id="fieldName" dataField="@displayName" editable="false" width="200" >
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Values"   id="values"
+								   itemRenderer="{views.renderers.MultiselectRendererVariableDictionary.create('Values', dictionaryMap, '@displayName')}" 
+								   dataField="@value" />  
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
+	<mx:Label text="* Experiments only will be searched" id="warningLabel" visible="false" fontWeight="bold" color="#730A1E"/>    	
+	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
+	    <mx:HBox width="100%" id="hbox1">
+	         <mx:HBox horizontalGap="0">
+	        	<mx:RadioButtonGroup id="radiogroup1"/>
+	        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
+	        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
+	         </mx:HBox>
+        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
+        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
+        		</mx:CheckBox>
+        	</mx:HBox>
+	    </mx:HBox>
+     </mx:VBox>
+    
+</mx:VBox>
 
 <mx:states>
 	<mx:State name="ExperimentOnlySearchState">	
-		<mx:SetProperty target="{analysisTypeCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{analysisProtocolCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label1}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label2}" name="enabled" value="false"/>
 		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
 		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
+		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="true"/>
+		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="true"/>
 	</mx:State>
 	<mx:State name="AnalysisOnlySearchState">	
-		<mx:SetProperty target="{requestCategoryCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{sampleTypeCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{applicationCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{microarrayCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
+	</mx:State>
+	<mx:State name="ProtocolOnlySearchState">	
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
+		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
+		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label4}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label5}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label8}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label9}" name="enabled" value="false"/>
-		<mx:SetProperty target="{experimentDesignGrid}" name="editable" value="false"/>
-		<mx:SetProperty target="{experimentFactorGrid}" name="editable" value="false"/>
-		<mx:SetProperty target="{experimentDesignGrid}" name="enabled" value="false"/>
-		<mx:SetProperty target="{experimentFactorGrid}" name="enabled" value="false"/>
+		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{labCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
+	</mx:State>
+	<mx:State name="DataTrackOnlySearchState">	
+		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
+		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
+		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
+		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
+		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
 		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
 	</mx:State>
 	<mx:State name="PreInitialization">	
-		<mx:SetProperty target="{requestCategoryCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{sampleTypeCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{applicationCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{microarrayCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{labCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label4}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label5}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label8}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label9}" name="enabled" value="false"/>
-		<mx:SetProperty target="{experimentDesignGrid}" name="editable" value="false"/>
-		<mx:SetProperty target="{experimentFactorGrid}" name="editable" value="false"/>
-		<mx:SetProperty target="{experimentDesignGrid}" name="enabled" value="false"/>
-		<mx:SetProperty target="{experimentFactorGrid}" name="enabled" value="false"/>
 		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{analysisTypeCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{analysisProtocolCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label1}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label2}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.ExperimentsRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.AnalysesRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.ProtocolsRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.DataTracksRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.AllObjectsRadioButton}" name="enabled" value="false"/>
 		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
 		<mx:SetProperty target="{warningLabel}" name="text" value="* Initializing.  Please Wait."/>
 	</mx:State>

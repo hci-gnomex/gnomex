@@ -100,7 +100,8 @@
 		
 		public function performSimpleSearch(searchText:String): void {
 			var params:Object = new Object();
-			params.text1 = searchText;        	
+			params.text1 = searchText;
+			this.searchView.text1.text = searchText;
         	this.searchView.searchGNomEx.send(params);
         }
 
@@ -324,7 +325,7 @@
                 </mx:HBox>
                 <mx:HBox width="100%" horizontalAlign="right" id="resultTopButtonView" horizontalGap="20" verticalAlign="middle">
 					<mx:CheckBox id="showTree"  label="Tree view" change="toggleResultTreeView()"/>
-				    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
+				    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchCriteriaDisplay}" ></mx:Label>
 		        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
                 </mx:HBox>
                 <mx:HBox width="100%" horizontalAlign="right" id="resultTreeTopButtonView" >

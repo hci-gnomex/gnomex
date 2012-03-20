@@ -58,7 +58,7 @@
 						optionsString += option.@value;
 					}
 				}
-				(opener as MultiselectRendererCommon).updateDP(optionsString);
+				(opener as MultiselectRendererCommonInterface).updateDP(optionsString);
 				cancel();
 			}
 			

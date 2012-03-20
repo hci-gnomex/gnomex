@@ -15,10 +15,6 @@ public class ExperimentFilter extends DetailObject {
   
   // Criteria
   private Integer               idLab;
-  private String                codeRequestCategory;
-  private String                codeApplication;
-  private Integer               idSlideProduct;
-  private Integer               idSampleType;
   private Integer               idOrganism;
   private String                text;
   private String                text1;
@@ -27,12 +23,11 @@ public class ExperimentFilter extends DetailObject {
   private String                text4;
   private String                matchAnyTerm = "N";
   private String                matchAllTerms = "Y";
-  private List                  experimentDesignCodes;
-  private List                  experimentFactorCodes;
   private String                searchOrganismOnSlideProduct = "N";
   private String                searchOrganismOnSample = "N";
   private String                searchPublicProjects;
   private String                showCategory = "Y";
+  private String                searchListText = "";
   
   // Display fields
   private String                lab;
@@ -44,15 +39,13 @@ public class ExperimentFilter extends DetailObject {
   private String                organism; 
   
   private StringBuffer          searchText;
-  private StringBuffer          displayText;
-  private boolean              firstTime = true;
+  private boolean               firstTime = true;
   
 
   
   public StringBuffer getSearchText() {
     firstTime = true;
     searchText = new StringBuffer();
-    displayText = new StringBuffer();
     
     addCriteria();
     
@@ -61,13 +54,19 @@ public class ExperimentFilter extends DetailObject {
   }
   
   public String toString() {
-    return displayText.toString();
+    return searchText.toString();
   }
 
   
   
   private void addCriteria() {
 
+    // Add text from search list
+    if (!searchListText.equals("")) {
+      searchText.append(searchListText);
+      firstTime = false;
+    }
+    
     //
     // Search by text (quick search
     //
@@ -78,8 +77,6 @@ public class ExperimentFilter extends DetailObject {
       searchText.append(" " + ExperimentIndexHelper.TEXT + ":(");
       searchText.append("*" + text + "*");
       searchText.append(") ");
-
-      displayText.append(" any text field = " + text);
     } 
     
     //
@@ -100,8 +97,6 @@ public class ExperimentFilter extends DetailObject {
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text1);
       }
       
       // Search by text2
@@ -116,8 +111,6 @@ public class ExperimentFilter extends DetailObject {
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append("*" + text2 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text2);
       } 
       
       //    Search by text3
@@ -132,8 +125,6 @@ public class ExperimentFilter extends DetailObject {
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append("*" + text3 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text3);
       } 
       
       //    Search by text4
@@ -148,8 +139,6 @@ public class ExperimentFilter extends DetailObject {
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append("*" + text4 + "*");
         textCriteriaAdded = true;
-        
-        displayText.append(" any text field = " + text4);
       } 
 
       searchText.append(")");
@@ -171,51 +160,19 @@ public class ExperimentFilter extends DetailObject {
        searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
        searchText.append(idOrganism);
        searchText.append(")");
-
-       displayText.append(" organism  = " + organism);
       } // Search on organism of microarray
       else if (searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) {
          this.addLogicalOperator();
          searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT + ":");
          searchText.append(idOrganism);
-
-         displayText.append(" organism of microarray slide = " + organism);
       } // Search on organism of sample
       else if (searchOrganismOnSample.equalsIgnoreCase("Y")) {
         this.addLogicalOperator();
         searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
         searchText.append(idOrganism);
-        
-        displayText.append(" organism of sample = " + organism);
       }
     }
     
-    
-    //
-    //  Search by RequestCategory
-    //
-    if (codeRequestCategory != null && !codeRequestCategory.equals("")){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.CODE_REQUEST_CATEGORY + ":");
-      searchText.append(codeRequestCategory);
-      searchText.append("'");
-      
-      displayText.append(" request category = " + requestCategory);
-    }
-
-
-    //
-    //  Search by  Application
-    //
-    if (codeApplication != null && !codeApplication.equals("")){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.CODE_APPLICATION + ":");
-      searchText.append(codeApplication);
-      searchText.append("'");
-      
-      displayText.append(" experiment category = " + application);
-    } 
-
     //
     // Search by lab
     //
@@ -223,76 +180,8 @@ public class ExperimentFilter extends DetailObject {
       this.addLogicalOperator();
       searchText.append(" " + ExperimentIndexHelper.ID_LAB_PROJECT + ":");
       searchText.append(idLab);
-      
-      displayText.append(" project lab = " + lab);
     } 
 
-    
-    //
-    //  Search by idSlideProduct
-    //
-    if (idSlideProduct != null){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.ID_SLIDE_PRODUCT + ":");
-      searchText.append(idSlideProduct);
-      
-      displayText.append(" microarray slide used = " + slideProduct);
-    }
-
-    //
-    // Search by sampleType
-    //
-    if (idSampleType != null){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.ID_SAMPLE_TYPES + ":");
-      searchText.append(idSampleType);
-
-      displayText.append(" sample type = " + sampleType);
-    } 
-    
-    
-    
-    //
-    // Search by project experiment design codes
-    //    
-    if (experimentDesignCodes != null && experimentDesignCodes.size() > 0) {
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS + ":(");
-      displayText.append(" project experiment designs at least one of (");
-     
-      for(Iterator i = experimentDesignCodes.iterator(); i.hasNext();) {
-        String code = (String)i.next();
-        searchText.append(code);
-        displayText.append(code);
-        if (i.hasNext()) {
-          searchText.append(" ");
-          displayText.append(" ");
-        }        
-      }
-      searchText.append(")");
-      displayText.append(")");
-    }
-    
-    //
-    // Search by project experiment factor codes
-    //
-    if (experimentFactorCodes != null && experimentFactorCodes.size() > 0) {
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS + ":(");
-      displayText.append(" project experiment factors at least one of (");
-     
-      for(Iterator i = experimentFactorCodes.iterator(); i.hasNext();) {
-        String code = (String)i.next();
-        searchText.append(code);
-        displayText.append(code);
-        if (i.hasNext()) {
-          searchText.append(" ");
-          displayText.append(" ");
-        }        
-      }
-      searchText.append(")");
-      displayText.append(")");
-    }
   }
 
   
@@ -302,10 +191,8 @@ public class ExperimentFilter extends DetailObject {
     if (!firstTime) {
       if (matchAnyTerm != null && matchAnyTerm.equals("Y")) {
         searchText.append(" OR ");
-        displayText.append("  OR  ");
       } else {
         searchText.append(" AND ");
-        displayText.append("  AND  ");
       }
       
     }
@@ -329,61 +216,6 @@ public class ExperimentFilter extends DetailObject {
 
 
 
-  
-  public String getCodeApplication() {
-    return codeApplication;
-  }
-
-  
-  public void setCodeApplication(String codeApplication) {
-    this.codeApplication = codeApplication;
-  }
-
-  
-  public String getCodeRequestCategory() {
-    return codeRequestCategory;
-  }
-
-  
-  public void setCodeRequestCategory(String codeRequestCategory) {
-    this.codeRequestCategory = codeRequestCategory;
-  }
-
-  
-  public Integer getIdSlideProduct() {
-    return idSlideProduct;
-  }
-
-  
-  public void setIdSlideProduct(Integer idSlideProduct) {
-    this.idSlideProduct = idSlideProduct;
-  }
-
-  
-  
-  public List getExperimentDesignCodes() {
-    return experimentDesignCodes;
-  }
-
-  
-  public void setExperimentDesignCodes(List experimentDesignCodes) {
-    this.experimentDesignCodes = experimentDesignCodes;
-  }
-
-  
-  public List getExperimentFactorCodes() {
-    return experimentFactorCodes;
-  }
-
-  
-  public void setExperimentFactorCodes(List experimentFactorCodes) {
-    this.experimentFactorCodes = experimentFactorCodes;
-  }
-
-  
-
-
-  
   public Integer getIdOrganism() {
     return idOrganism;
   }
@@ -588,17 +420,13 @@ public class ExperimentFilter extends DetailObject {
   }
 
   
-  public Integer getIdSampleType() {
-    return idSampleType;
+  public String getSearchListText() {
+    return searchListText;
   }
-
   
-  public void setIdSampleType(Integer idSampleType) {
-    this.idSampleType = idSampleType;
+  public void setSearchListText(String txt) {
+    searchListText = txt;
   }
-
-
-
   
   
 }
