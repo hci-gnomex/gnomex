@@ -26,6 +26,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
+import org.jdom.Element;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -1269,12 +1270,19 @@ public class BuildSearchIndex extends DetailObject {
     // Obtain sample annotations on samples of request
     //
     StringBuffer sampleAnnotations = new StringBuffer();
+    HashMap<String, StringBuffer> sampleAnnotationsByProperty = new HashMap<String, StringBuffer>();
     if (idRequest != null) {
       List sampleAnnotationRows = (List)sampleAnnotationMap.get(idRequest);
       if (sampleAnnotationRows != null) {
         for(Iterator i1 = sampleAnnotationRows.iterator(); i1.hasNext();) {
           Object[] row = (Object[])i1.next();
           String sampleCharactersticName = (String)row[1];
+          String luceneSampleCharacteristicName = sampleCharactersticName.replaceAll("[^A-Za-z0-9]", "");
+
+          StringBuffer propertyString = sampleAnnotationsByProperty.get(luceneSampleCharacteristicName);
+          if (propertyString == null) {
+            propertyString = new StringBuffer();
+          }
           PropertyEntry entry = (PropertyEntry)row[2];
           String otherLabel = (String)row[3];
           sampleAnnotations.append(sampleCharactersticName != null && !sampleCharactersticName.trim().equals("") ? sampleCharactersticName + " " : "");
@@ -1283,21 +1291,25 @@ public class BuildSearchIndex extends DetailObject {
               for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
                 PropertyOption option = (PropertyOption)i2.next();
                 sampleAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
+                propertyString.append(option.getValue() != null && !option.getValue().trim().equals("") ? option.getValue() + " " : "");
               }
               
             } else if (entry.getValues() != null && entry.getValues().size() > 0) {
               for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
                 PropertyEntryValue entryValue = (PropertyEntryValue)i2.next();
                 sampleAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
+                propertyString.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
               }
               
             } else {
               sampleAnnotations.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
-              
+              propertyString.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");              
             }
             
           }
           sampleAnnotations.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+          propertyString.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+          sampleAnnotationsByProperty.put(luceneSampleCharacteristicName, propertyString);
         }          
       }
       
@@ -1399,7 +1411,12 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_ANNOTATIONS, projectAnnotations.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, codeExperimentDesigns.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS, codeExperimentFactors.toString());
-    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_ANNOTATIONS, sampleAnnotations.toString());        
+    // Output the annotation properties.
+    for(Iterator i = sampleAnnotationsByProperty.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      StringBuffer values = (StringBuffer)sampleAnnotationsByProperty.get(key);
+      indexedFieldMap.put(key, values.toString());
+    }
     indexedFieldMap.put(ExperimentIndexHelper.TEXT, text.toString());
     
     ExperimentIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
@@ -1465,12 +1482,19 @@ public class BuildSearchIndex extends DetailObject {
     // Obtain annotations on analysis
     //
     StringBuffer analysisAnnotations = new StringBuffer();
+    HashMap<String, StringBuffer> annotationsByProperty = new HashMap<String, StringBuffer>();
     if (idAnalysis != null) {
       List analysisAnnotationRows = (List)analysisAnnotationMap.get(idAnalysis);
       if (analysisAnnotationRows != null) {
         for(Iterator i1 = analysisAnnotationRows.iterator(); i1.hasNext();) {
           Object[] analysisRow = (Object[])i1.next();
           String analysisCharactersticName = (String)analysisRow[1];
+          String luceneSampleCharacteristicName = analysisCharactersticName.replaceAll("[^A-Za-z0-9]", "");
+
+          StringBuffer propertyString = annotationsByProperty.get(luceneSampleCharacteristicName);
+          if (propertyString == null) {
+            propertyString = new StringBuffer();
+          }
           PropertyEntry entry = (PropertyEntry)analysisRow[2];
           String otherLabel = (String)analysisRow[3];
           analysisAnnotations.append(analysisCharactersticName != null && !analysisCharactersticName.trim().equals("") ? analysisCharactersticName + " " : "");
@@ -1479,21 +1503,27 @@ public class BuildSearchIndex extends DetailObject {
               for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
                 PropertyOption option = (PropertyOption)i2.next();
                 analysisAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
+                propertyString.append(option.getValue() != null && !option.getValue().trim().equals("") ? option.getValue() + " " : "");
               }
               
             } else if (entry.getValues() != null && entry.getValues().size() > 0) {
               for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
                 PropertyEntryValue entryValue = (PropertyEntryValue)i2.next();
                 analysisAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
+                propertyString.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
               }
               
             } else {
               analysisAnnotations.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
+              propertyString.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
               
             }
             
           }
           analysisAnnotations.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+          propertyString.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+
+          annotationsByProperty.put(luceneSampleCharacteristicName, propertyString);
         }          
       }
       
@@ -1552,7 +1582,12 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
-    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_ANNOTATIONS, analysisAnnotations.toString());        
+    // Output the annotation properties.
+    for(Iterator i = annotationsByProperty.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      StringBuffer values = (StringBuffer)annotationsByProperty.get(key);
+      indexedFieldMap.put(key, values.toString());
+    }
 
     
     
@@ -1607,12 +1642,19 @@ public class BuildSearchIndex extends DetailObject {
     // Obtain annotations on data track
     //
     StringBuffer dataTrackAnnotations = new StringBuffer();
+    HashMap<String, StringBuffer> annotationsByProperty = new HashMap<String, StringBuffer>();
     if (idDataTrack != null) {
       List dataTrackAnnotationRows = (List)datatrackAnnotationMap.get(idDataTrack);
       if (dataTrackAnnotationRows != null) {
         for(Iterator i1 = dataTrackAnnotationRows.iterator(); i1.hasNext();) {
           Object[] dataTrackRow = (Object[])i1.next();
           String dataTrackCharactersticName = (String)dataTrackRow[1];
+          String luceneCharacteristicName = dataTrackCharactersticName.replaceAll("[^A-Za-z0-9]", "");
+
+          StringBuffer propertyString = annotationsByProperty.get(luceneCharacteristicName);
+          if (propertyString == null) {
+            propertyString = new StringBuffer();
+          }
           PropertyEntry entry = (PropertyEntry)dataTrackRow[2];
           String otherLabel = (String)dataTrackRow[3];
           dataTrackAnnotations.append(dataTrackCharactersticName != null && !dataTrackCharactersticName.trim().equals("") ? dataTrackCharactersticName + " " : "");
@@ -1621,21 +1663,27 @@ public class BuildSearchIndex extends DetailObject {
               for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
                 PropertyOption option = (PropertyOption)i2.next();
                 dataTrackAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
+                propertyString.append(option.getValue() != null && !option.getValue().trim().equals("") ? option.getValue() + " " : "");
               }
               
             } else if (entry.getValues() != null && entry.getValues().size() > 0) {
               for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
                 PropertyEntryValue entryValue = (PropertyEntryValue)i2.next();
                 dataTrackAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
+                propertyString.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
               }
               
             } else {
               dataTrackAnnotations.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
+              propertyString.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
               
             }
             
           }
           dataTrackAnnotations.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+          propertyString.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
+          
+          annotationsByProperty.put(luceneCharacteristicName, propertyString);
         }          
       }
       
@@ -1689,7 +1737,12 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(DataTrackIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(DataTrackIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(DataTrackIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
-    indexedFieldMap.put(DataTrackIndexHelper.DATA_TRACK_ANNOTATIONS, dataTrackAnnotations.toString());        
+    // Output the annotation properties.
+    for(Iterator i = annotationsByProperty.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      StringBuffer values = (StringBuffer)annotationsByProperty.get(key);
+      indexedFieldMap.put(key, values.toString());
+    }
 
     
     

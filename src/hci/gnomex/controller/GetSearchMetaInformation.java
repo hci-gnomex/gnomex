@@ -8,6 +8,10 @@ import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.lucene.AnalysisIndexHelper;
 import hci.gnomex.lucene.ExperimentIndexHelper;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.SlideProductFilter;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -49,6 +53,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       // Experiment fields
       addEntry(sess, "Experiment Design", ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, "SELECT ed from ExperimentDesign as ed ", experimentSearchList);
@@ -58,11 +63,39 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       addEntry(sess, "Experiment Application", ExperimentIndexHelper.CODE_APPLICATION, DictionaryManager.getDictionaryEntries("hci.gnomex.model.Application"), experimentSearchList);
       SlideProductFilter filter = new SlideProductFilter();
       addEntry(sess, "Experiment Microarray", ExperimentIndexHelper.ID_SLIDE_PRODUCT, filter.getSlideProductList(sess, this.getSecAdvisor()), experimentSearchList);
+      // Add experiment properties
+      for (Property property : dh.getPropertyList()) {
+
+        if (property.getForSample() == null || !property.getForSample().equals("Y") || property.getIsActive().equals("N")) {
+          continue;
+        }
+        
+        addEntry(sess, property, experimentSearchList);
+      }
       
       // Analysis Fields
       addEntry(sess, "Analysis Type", AnalysisIndexHelper.ID_ANALYSIS_TYPE, DictionaryManager.getDictionaryEntries("hci.gnomex.model.AnalysisType"), analysisSearchList);
       addEntry(sess, "Analysis Protocol", AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, DictionaryManager.getDictionaryEntries("hci.gnomex.model.AnalysisProtocol"), analysisSearchList);
-      
+      // Add analysis properties
+      for (Property property : dh.getPropertyList()) {
+
+        if (property.getForAnalysis() == null || !property.getForAnalysis().equals("Y") || property.getIsActive().equals("N")) {
+          continue;
+        }
+        
+        addEntry(sess, property, analysisSearchList);
+      }
+
+      // Add data track properties
+      for (Property property : dh.getPropertyList()) {
+
+        if (property.getForDataTrack() == null || !property.getForDataTrack().equals("Y") || property.getIsActive().equals("N")) {
+          continue;
+        }
+        
+        addEntry(sess, property, dataTrackSearchList);
+      }
+
       Document xmlDoc = this.buildXMLDocument();
       
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -95,26 +128,43 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     return this;
   }
   
+  private void addEntry(Session sess, Property property, List<SearchListEntry>searchList) {
+    String displayName = property.getName();
+    String searchName = property.getName().replaceAll("[^A-Za-z0-9]", "");
+
+    if (property.getOptions() != null && property.getOptions().size() > 0) {
+      addEntry(sess, displayName, searchName, property.getOptions(), searchList);
+    } else {
+      addEntry(sess, displayName, searchName, null, searchList, "N");
+    }
+  }
+  
   private void addEntry(Session sess, String displayName, String searchName, String query, List<SearchListEntry> searchList) throws HibernateException {
     List entries = (List)sess.createQuery(query).list();
     addEntry(sess, displayName, searchName, entries, searchList);
   }
   
   private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList) {
+    addEntry(sess, displayName, searchName, entries, searchList, "Y");
+  }
+  
+  private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList, String isOptionChoice) {
     SearchListEntry entry = new SearchListEntry();
     entry.DisplayName = displayName;
     entry.SearchName = searchName;
-    entry.IsOptionChoice = "Y";
+    entry.IsOptionChoice = isOptionChoice;
     searchList.add(entry);
     
-    List<DictionaryEntry> designList = new ArrayList<DictionaryEntry>();
-    for(Iterator i = entries.iterator(); i.hasNext();) {
-      DictionaryEntry e = (DictionaryEntry)i.next();
-      if (!e.getDisplay().equals("")) {
-        designList.add(e);
+    if (entries != null) {
+      List<DictionaryEntry> designList = new ArrayList<DictionaryEntry>();
+      for(Iterator i = entries.iterator(); i.hasNext();) {
+        DictionaryEntry e = (DictionaryEntry)i.next();
+        if (!e.getDisplay().equals("")) {
+          designList.add(e);
+        }
       }
+      dictionaryMap.put(displayName, designList);
     }
-    dictionaryMap.put(displayName, designList);
   }
   
   private Document buildXMLDocument() {
