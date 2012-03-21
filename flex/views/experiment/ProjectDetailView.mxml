@@ -127,7 +127,7 @@
 		public function promptToDeleteProject():void {
 			Alert.show("Delete project " + parentApplication.navExperimentView.selectedProject.@name + "?", 
 						null, 
-						(Alert.YES | Alert.NO), this, 
+						(Alert.YES | Alert.NO), parentApplication.theBody, 
 						onPromptToDeleteProject);
 			
 		}
