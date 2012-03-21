@@ -1,7 +1,32 @@
 use GNomEx;
 
+select au.idAppUser, au.lastName, au.firstName, u.idUser, u.lastName, u.firstName from  AppUser au join GenoPubMigrate..gpUser u on au.idAppUser = u.idAppUserGNomEx 
+select l.lastName, l.firstName, ug.name from Lab l join GenoPubMigrate..gpUserGroup ug on ug.idLabGNomEx = l.idLab;
+select gv.name, gb.das2Name, gb.genomeBuildName from GenoPubMigrate..GenomeVersionView gv join gnomex..GenomeBuild gb on gb.idGenomeBuild = gv.idGenomeBuildGNomEx
+
+
+-- Create views that used to be in GenoPubMigrate
+select idProperty, name, isActive, codePropertyType, idUser, sortOrder, idPropertyGNomEx
+into GNomEx.dbo.gpProperty
+from GenopubMigrate..gpProperty;
+GO
+
+create view [dbo].[AnnotationPropertyView] as
+SELECT     ap.idAnnotationProperty, ap.name, ap.value, ap.idProperty, ap.idAnnotation, p.idPropertyGNomEx, ap.idPropertyEntryGNomEx
+FROM         GNomEx.dbo.AnnotationProperty AS ap LEFT  JOIN
+                      GNomEx.dbo.gpProperty AS p ON p.idProperty = ap.idProperty;               
+GO
+
+select idPropertyOption, name, isActive, idProperty, sortOrder, idPropertyOptionGNomEx
+into GNomEx.dbo.gpPropertyOption
+from GenopubMigrate..gpPropertyOption;
+GO;
+
+
+
+
 -- Update AppUser
-update AppUser set ucscUrl = u.ucscUrl from AppUser au join GenoPubMigrate..gpUser u on au.idAppUser = u.idAppUserGNomEx;
+update AppUser set ucscUrl = u.ucscUrl from AppUser au join GenoPubMigrate..gpUser u on au.idAppUser = u.idAppUserGNomEx where au.ucscURL is null or au.ucscURL = '';
 
 -- Update GenomeBuild
 update GenomeBuild 
@@ -20,7 +45,7 @@ update Organism
 set  sortOrder = ov.sortOrder,
      binomialName = ov.binomialName,
      NCBITaxID = ov.NCBITaxID
-from Organism o join genopub.OrganismView ov on ov.idOrganismGNomEx = o.idOrganism;
+from Organism o join GenoPubMigrate..OrganismView ov on ov.idOrganismGNomEx = o.idOrganism;
 
 -- Add genome versions that are not already in gnomex
 INSERT INTO [GNomEx].[dbo].[GenomeBuild]
@@ -158,12 +183,13 @@ SELECT a.idAnnotation
       ,a.isLoaded
       ,i.idInstitutionGNomEx
       ,a.dataPath
-  FROM [GenoPubMigrate].[dbo].[gpAnnotation]   a
+  FROM Annotation   a
     left join GenoPubMigrate.dbo.GenomeVersionView gv on gv.idGenomeVersion = a.idGenomeVersion
     left join GenoPubMigrate.dbo.gpUser u on a.idUser = u.idUser
     left join GenoPubMigrate.dbo.gpUserGroup ug on ug.idUserGroup = a.idUserGroup
     left join GenoPubMigrate.dbo.gpInstitute i on i.idInstitute = a.idInstitute
 GO
+SET IDENTITY_INSERT GNomEx.dbo.DataTrack OFF;
 
 
 
@@ -187,7 +213,7 @@ INSERT INTO [GNomEx].[dbo].[DataTrackFolder]
                ug.idLabGNomEx,
                createdBy,
                createDate
-           from GenoPubMigrate.dbo.gpAnnotationGrouping ag
+           from AnnotationGrouping ag
             left join GenoPubMigrate.dbo.gpUserGroup ug on ag.idUserGroup = ug.idUserGroup
             left join GenoPubMigrate.dbo.GenomeVersionView gv on gv.idGenomeVersion = ag.idGenomeVersion;
 GO
@@ -197,13 +223,13 @@ SET IDENTITY_INSERT GNomEx.dbo.DataTrackFolder OFF;
 
 -- Migrate AnnotationToAnnotationGrouping to DataTrackToDataTrackFolder
 insert into GNomEx.dbo.DataTrackToFolder (idDataTrack, idDataTrackFolder)
-select idAnnotation, idAnnotationGrouping from GenoPubMigrate.dbo.gpAnnotationToAnnotationGrouping;
+select idAnnotation, idAnnotationGrouping from AnnotationToAnnotationGrouping;
 
 
 -- Populate DataTrackCollaborator
 insert into GNomEx.dbo.DataTrackCollaborator (idDataTrack, idAppUser)
 select idAnnotation, idAppUserGNomEx
-from GenoPubMigrate.dbo.gpAnnotationCollaborator ac
+from AnnotationCollaborator ac
 left join GenoPubMigrate.dbo.gpUser u on u.idUser = ac.idUser;
 
 
@@ -219,10 +245,10 @@ INSERT INTO [GNomEx].[dbo].[PropertyEntry]
             null,
             idPropertyGNomEx,
             idAnnotation
-    from GenoPubMigrate.dbo.AnnotationPropertyView;
+    from AnnotationPropertyView;
     
-update GenoPubMigrate..AnnotationPropertyView set idPropertyEntryGnomEx = p1.idPropertyEntry
-from GenoPubMigrate..AnnotationPropertyView p 
+update AnnotationPropertyView set idPropertyEntryGnomEx = p1.idPropertyEntry
+from AnnotationPropertyView p 
   join  GNomEx..PropertyEntry p1 on p.value = p1.valueString and p1.idProperty = p.idPropertyGNomEx and p1.idDataTrack = p.idAnnotation
     
             
@@ -232,8 +258,8 @@ INSERT INTO [GNomEx].[dbo].[PropertyEntryOption]
            ,[idPropertyOption])
      select idPropertyEntryGNomEx,
            idPropertyOptionGNomEx
-     from GenoPubMigrate..gpAnnotationPropertyOption pe
-     join GenoPubMigrate..AnnotationPropertyView pv on pv.idAnnotationProperty = pe.idAnnotationProperty
+     from AnnotationPropertyOption pe
+     join AnnotationPropertyView pv on pv.idAnnotationProperty = pe.idAnnotationProperty
      join GenoPubMigrate..PropertyOptionView po on pe.idPropertyOption = po.idPropertyOption
 GO
 
@@ -243,8 +269,8 @@ INSERT INTO [GNomEx].[dbo].[PropertyEntryValue]
            ,[value])
      select idPropertyEntryGNomEx,
            v.value
-     from GenoPubMigrate..gpAnnotationPropertyValue v
-     join GenoPubMigrate..AnnotationPropertyView pv on pv.idAnnotationProperty = v.idAnnotationProperty
+     from AnnotationPropertyValue v
+     join AnnotationPropertyView pv on pv.idAnnotationProperty = v.idAnnotationProperty
 GO
 
 
@@ -253,3 +279,9 @@ update GNomEx.dbo.DataTrack set fileName = 'DT' + convert(varchar(10), idDataTra
 GO
 
 -- Need to set dataPath on GenomeBuild
+
+
+-- Set the new seed value for data track and data track folder
+DBCC CHECKIDENT('DataTrackFolder', RESEED, 5999);
+DBCC CHECKIDENT('DataTrackFolder', RESEED, 7999);
+
