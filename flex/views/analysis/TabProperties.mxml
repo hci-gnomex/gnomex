@@ -219,6 +219,10 @@
 			private function showPropertyConfigWindow():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
 				PopUpManager.centerPopUp(configWindow);
+				configWindow.showSampleAnnotations.selected = false;
+				configWindow.showAnalysisAnnotations.selected = true;
+				configWindow.showDataTrackAnnotations.selected = false;
+				configWindow.onPropertyRefreshed(null);
 				
 			}
 		]]>
@@ -302,7 +306,7 @@
 				</mx:HBox>
 			</mx:Repeater>	
 		</mx:VBox>
-		<mx:LinkButton label="Define property ..." 
+		<mx:LinkButton label="Configure annotations ..." 
 					   visible="{editable}"
 					   includeInLayout="{editable}"
 					   click="showPropertyConfigWindow()" 

@@ -461,7 +461,7 @@
 				<mx:Text text="{analysis.@description}" width="100%"/>
 			</mx:HBox>
 			
-			<analysis:TabProperties id="analysisProperties" label="Annotations" editable="false" properties="{properties}">
+			<analysis:TabProperties id="analysisProperties" label="Annotations" editable="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" properties="{properties}">
 			</analysis:TabProperties>
 			<mx:VBox  label="Experiments" verticalGap="0" width="100%" height="100%" id="vbox1">
 				<mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0" paddingBottom="0"/>
