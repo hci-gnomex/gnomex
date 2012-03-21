@@ -205,7 +205,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
               }
               fd.setQualifiedFilePath(directoryName);
               fd.setBaseFilePath(GetAnalysisDownloadList.getAnalysisDirectory(baseDir,a));
+              fd.setIdLab(a.getIdLab());
 
+              
               fdNode.setAttribute("idAnalysis", a.getIdAnalysis()!=null?a.getIdAnalysis().toString():"");
               fdNode.setAttribute("key", directoryName != "" ? a.getKey(directoryName) : a.getKey());
               fdNode.setAttribute("type", fd.getType() != null ? fd.getType() : "");

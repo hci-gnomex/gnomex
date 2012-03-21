@@ -227,6 +227,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               }
               fd.setQualifiedFilePath(directoryName);
               fd.setBaseFilePath(getAnalysisDirectory(baseDir,a));
+              fd.setIdLab(a.getIdLab());
               
               fdNode.setAttribute("idAnalysis", a.getIdAnalysis()!=null?a.getIdAnalysis().toString():"");
               fdNode.setAttribute("key", directoryName != "" ? a.getKey(directoryName) : a.getKey());
@@ -378,6 +379,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           
           AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getQualifiedFileName());
           
+          
           if (af != null) {
             fd.setUploadDate(af.getUploadDate());
             fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
@@ -389,6 +391,8 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fd.setQualifiedFilePath(directoryName);
           fd.setBaseFilePath(baseDir + createYear + "/" + analysisNumber);
           fd.setIdAnalysis(analysisNode.getAttributeValue("idAnalysis") != null ? Integer.valueOf(analysisNode.getAttributeValue("idAnalysis")) : null);
+          String idLab = analysisNode.getAttributeValue("idLab");
+          fd.setIdLab(idLab == null || idLab.equals("") ? null : Integer.valueOf(idLab));
           fd.excludeMethodFromXML("getChildren");
           
           Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();

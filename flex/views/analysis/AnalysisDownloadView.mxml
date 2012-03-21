@@ -432,6 +432,7 @@
 							 dragMoveEnabled="false"  
 							 showHeaders="true"  
 							 sortExpertMode="true" 
+							 allowMultipleSelection="true"
 							 sortableColumns="false"
 							 borderStyle="solid" 
 							 headerWordWrap="false" 

@@ -2,18 +2,22 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.hibernate.Session;
 
 
@@ -84,4 +88,5 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     
     return this;
   }
+
 }

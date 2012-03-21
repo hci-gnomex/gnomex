@@ -416,57 +416,78 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	public static String appendFileXML(String filePath, Element parentNode, String subDirName, DataTrackFile dataTrackFile) {
 		File fd = new File(filePath);
 		String ucscLinkFile = "none";
-		if (fd.isDirectory()) {
-			String[] fileList = fd.list();
-			for (int x = 0; x < fileList.length; x++) {
-				String fileName = filePath + "/" + fileList[x];
-				File f1 = new File(fileName);
-				
-				ucscLinkFile = formatUCSCLink(fileList[x], ucscLinkFile);
-
-				// Show the subdirectory in the name if we are not at the main folder level
-				String displayName = formatDisplayName(fileList[x], f1, subDirName);
-
-				if (f1.isDirectory()) {
-					Element fileNode = parentNode.addElement("Dir");
-					fileNode.addAttribute("name", displayName);
-					fileNode.addAttribute("url", fileName);
-					appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), null);
-				} else {
-					Element fileNode = parentNode.addElement("File");
-
-					long kb = DataTrackUtil.getKilobytes(f1.length());
-					String kilobytes = kb + " kb";
-
-					fileNode.addAttribute("name", displayName);
-					fileNode.addAttribute("url", fileName);
-					fileNode.addAttribute("size", kilobytes);
-					fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(f1.lastModified())));
-					fileNode.addAttribute("idDataTrackFile", dataTrackFile != null ? dataTrackFile.getIdDataTrackFile().toString() : "");
-          fileNode.addAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
-          fileNode.addAttribute("analysisName", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
-				}
-			}
-		} else {
-		  // fd is a File
-		  ucscLinkFile = formatUCSCLink(fd.getName(), ucscLinkFile);
-
-      // Show the subdirectory in the name if we are not at the main folder level
+		
+		if (fd.exists()) {
+		  if (fd.isDirectory()) {
+  			String[] fileList = fd.list();
+  			for (int x = 0; x < fileList.length; x++) {
+  				String fileName = filePath + "/" + fileList[x];
+  				File f1 = new File(fileName);
+  				
+  				ucscLinkFile = formatUCSCLink(fileList[x], ucscLinkFile);
+  
+  				// Show the subdirectory in the name if we are not at the main folder level
+  				String displayName = formatDisplayName(fileList[x], f1, subDirName);
+  
+  				if (f1.isDirectory()) {
+  					Element fileNode = parentNode.addElement("Dir");
+  					fileNode.addAttribute("name", displayName);
+  					fileNode.addAttribute("url", fileName);
+  					appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), null);
+  				} else {
+  					Element fileNode = parentNode.addElement("File");
+  
+  					long kb = DataTrackUtil.getKilobytes(f1.length());
+  					String kilobytes = kb + " kb";
+  
+  					fileNode.addAttribute("name", displayName);
+  					fileNode.addAttribute("url", fileName);
+  					fileNode.addAttribute("size", kilobytes);
+  					fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(f1.lastModified())));
+  					fileNode.addAttribute("idDataTrackFile", dataTrackFile != null ? dataTrackFile.getIdDataTrackFile().toString() : "");
+  	        fileNode.addAttribute("idAnalysis", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getIdAnalysis().toString() : "");
+            fileNode.addAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
+            fileNode.addAttribute("analysisLabel", dataTrackFile != null ?  dataTrackFile.getAnalysisFile().getAnalysis().getNumber() + " " + dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
+  				}
+  			}
+  		} else {
+  		  // fd is a File
+  		  ucscLinkFile = formatUCSCLink(fd.getName(), ucscLinkFile);
+  
+        // Show the subdirectory in the name if we are not at the main folder level
+        String displayName = formatDisplayName(fd.getName(), fd, subDirName);
+  
+        Element fileNode = parentNode.addElement("File");
+  
+        long kb = DataTrackUtil.getKilobytes(fd.length());
+        String kilobytes = kb + " kb";
+  
+        fileNode.addAttribute("name", displayName);
+        fileNode.addAttribute("url", fd.getName());
+        fileNode.addAttribute("size", kilobytes);
+        fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(fd.lastModified())));
+        fileNode.addAttribute("idDataTrackFile", dataTrackFile != null ? dataTrackFile.getIdDataTrackFile().toString() : "");
+        fileNode.addAttribute("idAnalysis", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getIdAnalysis().toString() : "");
+        fileNode.addAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
+        fileNode.addAttribute("analysisLabel", dataTrackFile != null ?  dataTrackFile.getAnalysisFile().getAnalysis().getNumber() + " " + dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
+  
+  		}
+		}else {
+      // If we can't find the analysis file, just show the entry with ? for file size and last modify date
       String displayName = formatDisplayName(fd.getName(), fd, subDirName);
 
       Element fileNode = parentNode.addElement("File");
-
-      long kb = DataTrackUtil.getKilobytes(fd.length());
-      String kilobytes = kb + " kb";
+      ucscLinkFile = "none";
 
       fileNode.addAttribute("name", displayName);
       fileNode.addAttribute("url", fd.getName());
-      fileNode.addAttribute("size", kilobytes);
-      fileNode.addAttribute("lastModified", new FieldFormatter().formatDate(new java.sql.Date(fd.lastModified())));
+      fileNode.addAttribute("size", "?");
+      fileNode.addAttribute("lastModified", "?");
       fileNode.addAttribute("idDataTrackFile", dataTrackFile != null ? dataTrackFile.getIdDataTrackFile().toString() : "");
+      fileNode.addAttribute("idAnalysis", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getIdAnalysis().toString() : "");
       fileNode.addAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
-      fileNode.addAttribute("analysisName", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
-
+      fileNode.addAttribute("analysisLabel", dataTrackFile != null ?  dataTrackFile.getAnalysisFile().getAnalysis().getNumber() + " " + dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
+		  
 		}
 		
 		return ucscLinkFile;

@@ -268,8 +268,6 @@
 
 	[Bindable]
 	private var dataTrackCountLabel:String = "";
-	[Bindable]
-	private var allowExpandAll:Boolean = true;
 	
 	private var hitCount:int = 0;
 	private var firstHitItem:XML = null;
@@ -338,7 +336,6 @@
 		}
 		var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
 		dataTrackCountLabel = dataTracks.length() + " data tracks.";
-		allowExpandAll = dataTracks.length() < 200;
 		
 		// If we are looking up a data track by number, get the tree item to select
 		if (this.dataTrackNumber != "") {
@@ -409,13 +406,7 @@
 	private function expandAppropriateNodes():void {
 		var itemToSelect:XML = getItemToSelect();
 		
-		if (allowExpandAll && cbAlwaysExpandTree.selected) {
-			// If the user has check the 'Expand tree' checkbox,
-			// just expand all nodes
-			this.expandAllNodes();
-			browseTree.validateNow();
-			callLater(selectTreeItem);			
-		} else if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
+		if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
 			// If there is a tree item selected, expand so it and its ancestors.
 			recurseExpandParent(itemToSelect);
 			browseTree.validateNow();
@@ -613,6 +604,19 @@
 		browseTree.validateNow();
 	}
 	
+	
+	private function expandeSelectedNode():void {
+		browseTree.expandChildrenOf(browseTree.selectedItem, true);
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+	
+	private function collapseSelectedNode():void {
+		browseTree.expandChildrenOf(browseTree.selectedItem, false);
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+
 
 	public function getTreeIcon(item:Object):Class {
 		if (item.name() == "Organism") {
@@ -1779,12 +1783,8 @@
 	
 	private function expandTree():void {
 		browseTree.selectedItem=null;
-		if (cbAlwaysExpandTree.selected) {
-			expandAppropriateNodes();
-		}	else {
-			this.collapseAllNodes();
-			expandAppropriateNodes();  
-		}
+		this.collapseAllNodes();
+		expandAppropriateNodes();  
 	}
 
 	/************************************************************************
@@ -1964,7 +1964,7 @@
 							   icon="@Embed(source='../../assets/ucscFavicon.png')"
 							   disabledIcon="@Embed(source='../../assets/ucscFaviconDeselected.png')"  					        	
 							   toolTip="Create file link(s) for viewing the selected data track in the UCSC Genome Browser"
-							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackView.getDataTrack.lastResult.@ucscLinkFile != 'none'}"  
+							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackView.dataTrackFiles.length !=0 &amp;&amp;  dataTrackView.getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
 							   click="{createUCSCLink()}" 
 							   id="makeUCSCLinkButton" />
 				<mx:VRule height="20" id="vrule21y" width="2" />	
@@ -2085,10 +2085,8 @@
 				
 			</mx:VBox>
 			<mx:ControlBar width="100%" verticalAlign="bottom">				
-				<mx:CheckBox id="cbAlwaysExpandTree" label="Expand"  					
-					click="expandTree()" 
-					enabled="{this.allowExpandAll}"
-					styleName="menuLabelSmall" />
+				<mx:LinkButton label="Expand" styleName="linkMenuButtonSmall" click="expandeSelectedNode()"/>
+				<mx:LinkButton label="Collapse" styleName="linkMenuButtonSmall" click="collapseSelectedNode()"/>
 				<mx:Spacer width="100%"/>
 				<mx:Label text="{dataTrackCountLabel}" styleName="menuLabelSmall" />
 			</mx:ControlBar>

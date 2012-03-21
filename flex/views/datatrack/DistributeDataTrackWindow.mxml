@@ -59,6 +59,45 @@
 	</mx:request>
 </mx:HTTPService> 
 	
+<mx:HTTPService             
+	id="deleteDataTrackFolder" 
+	url="DeleteDataTrackFolder.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onDeleteDataTrackFolder(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to remove dataTrack folder', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+	
+<mx:HTTPService             
+	id="deleteDataTrack" 
+	url="DeleteDataTrack.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onDeleteDataTrack(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to remove dataTrack', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
+
+<mx:HTTPService             
+	id="unlinkDataTrack" 
+	url="UnlinkDataTrack.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onUnlinkDataTrack(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to unlink dataTrack', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
+
 
 <mx:Script>
 <![CDATA[
@@ -94,8 +133,9 @@
 	private var currentIndex:int = 0;
 	private var hitToolTip:ToolTip = null;
 	
-	[Bindable]
-	private var allowExpandAll:Boolean = false;
+	private var itemToRemove:Object = null;
+	private var itemsToRemove:Array = new Array();
+
 
 	
 	public function refreshDataTracksForAnalysis(analysis:Object):void {
@@ -131,24 +171,14 @@
 		
 		setDefaultsForDropdowns();
 		
-		// Filter data tracks by analysis lab, organism, genome build
+		// Filter data tracks by analysis organism, genome build
 		var params:Object = new Object();
-		params.idLab = analysis.@idLab;
 		params.idGenomeBuild = idGenomeBuild;
 		params.idOrganism = idOrganism;
 		getDataTrackList.send(params);
 	}
 	
 	private function setDefaultsForDropdowns():void {
-		// Select the lab combo to the analysis id Lab
-		if (idLab != null && idLab != '') {
-			for each(var lab:Object in labCombo.dataProvider) {
-				if (lab.@idLab == idLab) {
-					labCombo.selectedItem = lab;
-					break;
-				}
-			}
-		}
 		// Select the organism combo to the analysis organism (of genome build)
 		if (idOrganism != null && idOrganism != '') {
 			for each(var organism:Object in organismCombo.dataProvider) {
@@ -158,6 +188,12 @@
 				}
 			}
 		}
+		
+		// Just set the lab combo back to blank.  We don't want to filter
+		// when we first bring up the distribute data tracks window or
+		// refresh it when a different analysis is selected.
+		labCombo.selectedItem = null;
+		
 		callLater(setDefaultGenomeBuildDropdown);
 	}
 	
@@ -196,9 +232,15 @@
 		
 		
 		// Set the initial filteres too
-		idLab = parms.idLab;
 		idOrganism = parms.idOrganism;
 		idGenomeBuild = parms.idGenomeBuild;
+		
+		// We want the default lab for new data track folders and data tracks
+		// to change to the dropdown lab if it is non-blank, even if the
+		// analysis file comes from a different lab.
+		if (parms.idLab != '') {
+			idLab = parms.idLab;
+		}
 		
 		getDataTrackList.send(parms);
 	}
@@ -218,7 +260,6 @@
 		}
 		var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
 		dataTrackCount = dataTracks.length() + " data tracks.";
-		allowExpandAll = dataTracks.length() < 200;
 		
 		
 		// If search text was entered, select the first tree node that matches
@@ -388,18 +429,20 @@
 	
 	
 	private function showAddDataTrackFolderWindow():void {
-		var addFolderWindow:DataTrackFolderAddWindow = DataTrackFolderAddWindow(PopUpManager.createPopUp(parentApplication.mainArea, DataTrackFolderAddWindow, true));
-		PopUpManager.centerPopUp(addFolderWindow);
 		var genomeBuild:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
 		var parent:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
+
+		var addFolderWindow:DataTrackFolderAddWindow = DataTrackFolderAddWindow(PopUpManager.createPopUp(parentApplication.mainArea, DataTrackFolderAddWindow, true));
+		PopUpManager.centerPopUp(addFolderWindow);
 		addFolderWindow.init(genomeBuild, parent, this, idLab);
 		addFolderWindow.dataTrackFolderName.setFocus();
 	}
 	private function showAddDataTrackWindow():void {
-		var aWindow:DataTrackAddWindow = DataTrackAddWindow(PopUpManager.createPopUp(parentApplication.theBody, DataTrackAddWindow, true));
-		PopUpManager.centerPopUp(aWindow);
 		var gb:Object = getAncestor(XML(browseTree.selectedItem), "GenomeBuild");
 		var folder:Object = getAncestor(XML(browseTree.selectedItem), "DataTrackFolder");
+
+		var aWindow:DataTrackAddWindow = DataTrackAddWindow(PopUpManager.createPopUp(parentApplication.theBody, DataTrackAddWindow, true));
+		PopUpManager.centerPopUp(aWindow);
 		aWindow.init(gb, folder, this, idLab);
 		aWindow.dataTrackName.setFocus();
 	}
@@ -407,14 +450,7 @@
 	private function expandAppropriateNodes():void {
 		var itemToSelect:XML = getItemToSelect();
 		
-		if (allowExpandAll && cbAlwaysExpandTree.selected) {
-			// If the user has check the 'Expand tree' checkbox,
-			// just expand all nodes
-			this.expandAllNodes();
-			browseTree.validateNow();
-			callLater(selectTreeItem);
-			
-		} else if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
+		if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
 			// If there is a tree, expand so it and its ancestors.
 			recurseExpandParent(itemToSelect);
 			browseTree.validateNow();
@@ -443,6 +479,18 @@
 				browseTree.expandChildrenOf(organism,true);
 			}
 		}
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+
+	private function expandeSelectedNode():void {
+		browseTree.expandChildrenOf(browseTree.selectedItem, true);
+		browseTree.validateNow();
+		treeContainer.validateNow();
+	}
+	
+	private function collapseSelectedNode():void {
+		browseTree.expandChildrenOf(browseTree.selectedItem, false);
 		browseTree.validateNow();
 		treeContainer.validateNow();
 	}
@@ -549,8 +597,11 @@
 	}
 	
 	private function getItemToSelect():XML {
+		// Just select the first genome build if we don't have anything to select.
+		// This will allow the 'add folder' and 'add data track' to be enabled.
 		if (treeItemToSelect == null) {
-			return null;
+			treeItemToSelect = getDataTrackList.lastResult..GenomeBuild[0];
+			return treeItemToSelect as XML; 
 		} 
 		
 		if (treeItemToSelect is XMLList && treeItemToSelect.length() > 0) {
@@ -572,7 +623,9 @@
 		if (item != null && item.length() > 0) {
 			return XML(item[0]);				
 		} else {
-			return null;
+			// If we can't locate the item to select, just select the first genome build.
+			treeItemToSelect = getDataTrackList.lastResult..GenomeBuild[0];
+			return treeItemToSelect as XML; 
 		}
 		
 	}
@@ -600,6 +653,254 @@
 	{
 		lastTreeItem = event;
 	}
+	
+	
+	
+	
+	private function promptToRemoveSelectedItems():void {
+		itemsToRemove = new Array();
+		for each(var item:Object in browseTree.selectedItems) {
+			var keep:Boolean = true;
+			var ancestorFolders:Array = getAncestors(item, "DataTrackFolder");
+			
+			// Since we are deleting the folder and its contents, ignore
+			// any contents of a folder if the folder is being deleted.
+			for each(var ancestor:Object in ancestorFolders) {
+				for each(var candidateToDelete:Object in browseTree.selectedItems) {
+					if (candidateToDelete.name() == "DataTrackFolder") {
+						if (ancestor.@idDataTrackFolder == candidateToDelete.@idDataTrackFolder) {
+							keep = false;
+							break;  	
+						}
+						
+					}
+				}
+			}
+			
+			// Ignore all folders and dataTracks under genome version
+			// if the genome version is being deleted.
+			var ancestorGenomeBuilds:Array = getAncestors(item, "GenomeBuild");
+			for each(var ancestorgv:Object in ancestorGenomeBuilds) {
+				for each(var candidate:Object in browseTree.selectedItems) {
+					if (candidate.name() == "GenomeBuild") {
+						if (ancestorgv.@idGenomeBuild == candidate.@idGenomeBuild) {
+							keep = false;
+							break;  	
+						}
+						
+					}
+				}
+			}
+			// Ignore all genome versions, folders and dataTracks under organism
+			// if the organims is being deleted.
+			var ancestorOrganisms:Array = getAncestors(item, "Organism");
+			for each(var ancestororg:Object in ancestorOrganisms) {
+				for each(var cand:Object in browseTree.selectedItems) {
+					if (cand.name() == "Organism") {
+						if (ancestororg.@idOrganism == cand.@idOrganism) {
+							keep = false;
+							break;  	
+						}
+						
+					}
+				}
+			}
+			
+			if (keep) {
+				itemsToRemove.push(item);
+			}
+		}
+		removeSelectedItems();
+	}
+	
+	
+	private function removeSelectedItems():void {
+		if (itemsToRemove.length == 0) {
+			return;
+		}
+		itemToRemove = itemsToRemove.shift();
+		if (itemToRemove.name() == "DataTrackFolder") {
+			this.promptToRemoveDataTrackFolder();
+		} else if (itemToRemove.name() == "DataTrack") {
+			this.promptToRemoveDataTrack();
+		}
+		
+	}
+	
+	private function getAncestors(item:Object, ancestorName:String):Array {
+		var ancestors:Array = new Array();
+		var firstTime:Boolean = true;
+		while( item != null)
+		{
+			if (firstTime) {
+				firstTime = false;
+			} else if( item.name() == ancestorName ) {
+				ancestors.push(item);
+			}
+			item = item.parent();
+		}
+		return ancestors;
+	}
+	
+
+	private function promptToRemoveDataTrackFolder():void {
+		if (itemToRemove.children() != null && itemToRemove.children().length() > 0) {
+			Alert.show("Removing folder '" + itemToRemove.@label + "'" +
+				" will also remove all descendent folders and dataTracks.\n\n" +
+				"Are you sure you want to delete the folder and all of its contents?\n",
+				"Warning", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToRemoveDataTrackFolder);      			
+		} else {
+			Alert.show("Remove dataTrack folder '" + itemToRemove.@label + "'?",
+				"Confirm", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToRemoveDataTrackFolder);     
+		}
+	}
+	
+	private function onPromptToRemoveDataTrackFolder(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			
+			removeDataTrackFolder();
+		}
+	}
+	
+	private function removeDataTrackFolder():void {
+		// After the delete operation has finished,
+		// select either the next sibling, or if no more children,
+		// the parent node.
+		if (itemToRemove.childIndex() == 0) {
+			this.treeItemToSelect = itemToRemove.parent();
+		} else {
+			var idx:int = browseTree.selectedItem.childIndex() - 1;
+			this.treeItemToSelect = itemToRemove.parent().children()[idx];
+		}
+		
+		
+		// Delete the dataTrack grouping
+		var params:Object = new Object();
+		params.idDataTrackFolder = itemToRemove.@idDataTrackFolder;
+		deleteDataTrackFolder.send(params);
+	}
+	
+	private function onDeleteDataTrackFolder(event:ResultEvent):void {
+		if (deleteDataTrackFolder.lastResult.name() == "SUCCESS") {
+			
+			if (itemsToRemove.length == 0) {
+				refreshDataTracks();			
+			}
+		} else {
+			Alert.show(deleteDataTrackFolder.lastResult..ACTMESSAGE.@TEXT);
+		}
+		removeSelectedItems();
+	}
+       
+	private function promptToRemoveDataTrack():void {
+		var message:String = "";
+		// If the dataTrack is referenced under multiple dataTrack
+		// groupings, just unlink it.  If the dataTrack is refererenced
+		// under only one dataTrack grouping, delete the dataTrack.
+		if (itemToRemove.@folderCount > 1) {
+			message = "Remove reference to dataTrack '" + itemToRemove.@name + 
+				"' under '" + itemToRemove.parent().@label + "'?";
+		} else {
+			message = "Delete dataTrack '" + itemToRemove.@label + "'?"	
+		}
+		Alert.show(message,
+			"Confirm", 
+			(Alert.YES | Alert.NO), this, 
+			onPromptToRemoveDataTrack);     
+	}
+	
+	private function onPromptToRemoveDataTrack(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			removeDataTrack();
+		}
+	}
+	
+	private function removeDataTrack():void {
+		// After the delete operation has finished,
+		// select either the next sibling, or if no more children,
+		// the parent node.
+		if (itemToRemove.childIndex() == 0) {
+			this.treeItemToSelect = itemToRemove.parent();
+		} else {
+			var idx:int = itemToRemove.childIndex() - 1;
+			this.treeItemToSelect = itemToRemove.parent().children()[idx];
+		}        		
+		
+		// If the dataTrack is referenced under multiple dataTrack
+		// groupings, just unlink it.  If the dataTrack is refererenced
+		// under only one dataTrack grouping, delete the dataTrack.
+		if (itemToRemove.@folderCount > 1) {
+			// Unlink dataTrack
+			var params:Object = new Object();
+			params.idDataTrack = itemToRemove.@idDataTrack;
+			params.idGenomeBuild = itemToRemove.@idGenomeBuild;
+			if (itemToRemove.parent().name() == "DataTrackFolder") {
+				params.idDataTrackFolder = itemToRemove.parent().@idDataTrackFolder;
+			}
+			unlinkDataTrack.send(params);
+		} else {
+			// Delete dataTrack
+			var params1:Object = new Object();
+			params1.idDataTrack = itemToRemove.@idDataTrack;
+			deleteDataTrack.send(params1);
+		}
+	}
+	
+	
+	private function onDeleteDataTrack(event:ResultEvent):void {
+		if (deleteDataTrack.lastResult.name() == "SUCCESS") {
+			
+			if (itemsToRemove.length== 0) {
+				refreshDataTracks();			
+			}
+		} else {
+			Alert.show(deleteDataTrack.lastResult..ACTMESSAGE.@TEXT);
+		}
+		removeSelectedItems();
+	}
+
+	private function onUnlinkDataTrack(event:ResultEvent):void {
+		if (unlinkDataTrack.lastResult.name() == "SUCCESS") {
+			
+			// Check if there are other references to this dataTrack
+			if (itemsToRemove.length == 0) {
+				if (unlinkDataTrack.lastResult.@numberRemainingDataTrackFolders > 0) {
+					Alert.show("DataTrack '" + unlinkDataTrack.lastResult.@name +
+						"' is referenced under folders \n" + unlinkDataTrack.lastResult.@remainingDataTrackFolders + 
+						".\n" +
+						"Do you want to remove all references to this dataTrack?",
+						"Confirm", 
+						Alert.YES | Alert.NO,
+						this,
+						onPromptToRemoveDataTrackReferences);
+				}
+			}
+			
+			if (itemsToRemove.length == 0) {
+				refreshDataTracks();				  		
+			}
+		} else {
+			Alert.show(unlinkDataTrack.lastResult..ACTMESSAGE.@TEXT);
+		}
+		removeSelectedItems();
+	}
+	
+	private function onPromptToRemoveDataTrackReferences(event:CloseEvent):void {
+		if (event.detail == Alert.YES) {
+			// Delete dataTrack (and all references)
+			var params:Object = new Object();
+			params.idDataTrack = unlinkDataTrack.lastResult.@idDataTrack;
+			deleteDataTrack.send(params);
+		}
+	}
+	
+	
+	
+	
 	
 	private function onDragDrop( event:DragEvent ) : void
 	{   
@@ -893,6 +1194,14 @@
 							 click="{showAddDataTrackFolderWindow()}" 
 							 id="linkbutton3" textAlign="left" />
 			<mx:VRule height="20" width="2"/>
+			<mx:LinkButton   
+				icon="@Embed(source='../../assets/crossout.png')" 
+				label="Remove"
+				disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
+				enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+				styleName="linkMenuButton" 
+				click="{this.promptToRemoveSelectedItems()}"  />
+			<mx:VRule height="20" width="2"/>
 			<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
 						   icon="@Embed(source='../../assets/refresh.png')" 
 						   click="{treeItemToSelect=null;refreshDataTracks()}" id="linkbutton8"/>
@@ -913,7 +1222,7 @@
 			
 			
 			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
-						 prompt="Lab..." width="160"
+						 prompt="Filter by Lab..." width="160"
 						 labelField="@name" change="{refreshDataTracks()}" 
 						 styleName="menuLabelSmall"></mx:ComboBox>			
 			
@@ -963,9 +1272,8 @@
     </mx:VBox>
 	
 	<mx:ControlBar width="100%" verticalAlign="bottom">				
-		<mx:CheckBox id="cbAlwaysExpandTree" label="Expand"  
-			enabled="{this.allowExpandAll}"
-			click="{browseTree.selectedItem=null;cbAlwaysExpandTree.selected ? expandAppropriateNodes() : this.collapseAllNodes();expandAppropriateNodes()}" styleName="menuLabelSmall" />
+		<mx:LinkButton label="Expand" styleName="linkMenuButtonSmall" click="expandeSelectedNode()"/>
+		<mx:LinkButton label="Collapse" styleName="linkMenuButtonSmall" click="collapseSelectedNode()"/>
 		<mx:Spacer width="100%"/>
 		<mx:Label text="{dataTrackCount}" styleName="menuLabelSmall" />
 	</mx:ControlBar>

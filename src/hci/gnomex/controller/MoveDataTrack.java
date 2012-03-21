@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.HibernateSession;
 
@@ -78,6 +79,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       dataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);
+
       
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 
@@ -89,6 +91,8 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
       }
 
       if (this.isValid()) {
+        // Force the data track to be re-loaded on das2 server refresh
+        dataTrack.setIsLoaded("N");
       
         // Get the dataTrack grouping this dataTrack should be moved to.
         DataTrackFolder folderNew = null;
@@ -135,6 +139,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
             newDataTracks.add(a);
           }
           newDataTracks.add(dataTrack);
+          dataTrack.setIsLoaded("N");
           folderNew.setDataTracks(newDataTracks);
           sess.flush();
     
@@ -143,17 +148,17 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
           // If this is a move instead of a copy,
           // get the dataTrack folder this dataTrack should be removed from.
           if (isMove.equals("Y")) {
-            DataTrackFolder dataTrackGroupingOld = null;
+            DataTrackFolder dataTrackFolderOld = null;
             if (idDataTrackFolderOld == null) {
               // If this is a root dataTrack, find the default root dataTrack
               // grouping for the genome build.
-              dataTrackGroupingOld = genomeBuild.getRootDataTrackFolder();
-              if (dataTrackGroupingOld == null) {
+              dataTrackFolderOld = genomeBuild.getRootDataTrackFolder();
+              if (dataTrackFolderOld == null) {
                 throw new Exception("Cannot find root dataTrack grouping for " + genomeBuild.getGenomeBuildName());
               }
             } else {
               // Otherwise, find the dataTrack folder passed in as a request parameter.
-              dataTrackGroupingOld = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolderOld));
+              dataTrackFolderOld = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolderOld));
             }
     
             //
@@ -161,15 +166,42 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
             // by adding back the dataTracks to the dataTrack folder, 
             // excluding the dataTrack that has moved
             Set<DataTrack> dataTracksToKeep = new TreeSet<DataTrack>(new DataTrackComparator());
-            for(Iterator<?> i1 = dataTrackGroupingOld.getDataTracks().iterator(); i1.hasNext();) {
+            for(Iterator<?> i1 = dataTrackFolderOld.getDataTracks().iterator(); i1.hasNext();) {
               DataTrack a = DataTrack.class.cast(i1.next());
+              
               if (a.getIdDataTrack().equals(dataTrack.getIdDataTrack())) {
+                //
+                // Unload the data track from its old folder for next das2 refresh
+                //
+                String path = dataTrackFolderOld.getQualifiedTypeName();
+                if (path.length() > 0) {
+                  path += "/";
+                }
+                String typeName = path + dataTrack.getName();
+
+                UnloadDataTrack unload = new UnloadDataTrack();
+                unload.setTypeName(typeName);
+                unload.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+                unload.setIdGenomeBuild(dataTrack.getIdGenomeBuild());
+
+                sess.save(unload);
+                
                 continue;
               }
+              // All of the existing data tracks under the old folder remain...
               dataTracksToKeep.add(a);
             }
-            dataTrackGroupingOld.setDataTracks(dataTracksToKeep);
+            dataTrackFolderOld.setDataTracks(dataTracksToKeep);
             sess.flush();
+            
+            // Unload data track that moved
+            // insert dataTrack reload entry which will cause
+            // das/2 type to be unloaded on next 'das2 reload' request
+            // Note:  If dataTrack is under more than one folder, there
+            // can be multiple das/2 types for one dataTrack.
+            for(DataTrackFolder folder : (Set<DataTrackFolder>)dataTrack.getFolders()) {
+              
+            }
     
           }          
           Element root = new Element("SUCCESS");
