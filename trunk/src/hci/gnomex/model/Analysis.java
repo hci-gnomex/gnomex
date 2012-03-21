@@ -303,7 +303,8 @@ public class Analysis extends HibernateDetailObject {
 
   public String getOwnerName() {
     if (appUser != null) {
-      return appUser.getFirstName() + " " + appUser.getLastName();
+      return (appUser.getFirstName() != null ? appUser.getFirstName() : "") + " " + 
+              (appUser.getLastName() != null ? appUser.getLastName() : "");
     } else {
       return "";
     }

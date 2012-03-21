@@ -364,6 +364,10 @@
 	private function showPropertyConfigWindow():void {
 		var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
 		PopUpManager.centerPopUp(configWindow);
+		configWindow.showSampleAnnotations.selected = false;
+		configWindow.showAnalysisAnnotations.selected = false;
+		configWindow.showDataTrackAnnotations.selected = true;
+		configWindow.onPropertyRefreshed(null);
 		
 	}
 	
@@ -428,7 +432,7 @@
 		</mx:VBox>
 			
 		
-		<mx:VBox width="100%" height="100%" label="Properties" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+		<mx:VBox width="100%" height="100%" label="Annotations" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
 			<mx:VBox id="propertyMainBox" width="100%" height="100%" verticalGap="4" paddingTop="2" >
 				<mx:Repeater  id="propertyRepeater" 
 							  dataProvider="{dataTrackProperties}">
@@ -506,7 +510,7 @@
 					</mx:HBox>
 				</mx:Repeater>	
 			</mx:VBox>
-			<mx:LinkButton label="Define property ..." 
+			<mx:LinkButton label="Configure annotations ..." 
 						   visible="{getDataTrack.lastResult.@canWrite == 'Y'}"
 						   includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}"
 						   click="showPropertyConfigWindow()" 
@@ -529,15 +533,14 @@
 				</mx:HBox>
 				<mx:DataGrid  id="dataTrackFileGrid"
 							  dataProvider="{dataTrackFiles}"
-							  showHeaders="true"
+							  showHeaders="true" editable="false"
 							  width="100%"  height="100%"						    		 
 							  allowMultipleSelection="true" >
 					<mx:columns>
-						<mx:DataGridColumn  dataField="@name" headerText="Name" width="10"/>  
-						<mx:DataGridColumn  dataField="@analysisNumber" headerText="Analysis #" width="10"/>  
-						<mx:DataGridColumn  dataField="@analysisName" headerText="Analysis name" width="10"/>  
+						<mx:DataGridColumn  dataField="@name" headerText="Name" width="100"/>  
 						<mx:DataGridColumn  dataField="@lastModified" headerText="Date" width="10"/>  
-						<mx:DataGridColumn  dataField="@size"  headerText="Size" width="5" />  
+						<mx:DataGridColumn  dataField="@size"  headerText="Size" width="10" />  
+						<mx:DataGridColumn  dataField="@analysisLabel" editable="false" headerText="Analysis" width="100" itemRenderer="views.renderers.LinkButtonAnalysis"/>  
 					</mx:columns>							
 				</mx:DataGrid>
 			</mx:VBox>

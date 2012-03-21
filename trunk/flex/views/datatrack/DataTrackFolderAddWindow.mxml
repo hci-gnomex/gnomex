@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	title="{'Add new folder to ' + parentName}"
+	title="{'Add new data track folder to ' + parentName}"
 	showCloseButton="true" 
 	width="452" 
 	height="140"
@@ -46,17 +46,17 @@
 		this.parentView = parentView;
 		this.genomeBuild = genomeBuild;
 		
-		var idLab:Object = idLab;
-		if (idLab == null) {
+		var idLabDefault:Object = idLab;
+		if (idLabDefault == null || idLabDefault == "") {
 			if (parent != null && parent.hasOwnProperty("@idLab") && parent.@idLab != null && parent.@idLab != "") {
-				idLab = parent.@idLab;
+				idLabDefault = parent.@idLab;
 			}
 		}
 		// If the parent folder is owned by a lab,
 		// setup this folder the same way.
-		if (idLab != null) {
+		if (idLabDefault != null) {
 			for each (var item:Object in labCombo.dataProvider) {
-				if (item.@idLab == idLab) {
+				if (item.@idLab == idLabDefault) {
 					labCombo.selectedItem = item;
 					break;
 				}

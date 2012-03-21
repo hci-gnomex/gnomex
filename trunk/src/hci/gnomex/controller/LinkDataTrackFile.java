@@ -8,6 +8,7 @@ import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -98,6 +99,12 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         dataTrack.setIdLab(idLab);
         dataTrack.setIdGenomeBuild(idGenomeBuild);
         dataTrack.setDataPath(baseDir);
+        dataTrack.setCreatedBy(this.getUsername());
+        dataTrack.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+          dataTrack.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+        }
+        dataTrack.setIsLoaded("N");
         
         sess.save(dataTrack);
         dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());

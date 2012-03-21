@@ -5,10 +5,12 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -73,6 +75,12 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
       sess = HibernateSession.currentSession(this.getUsername());
       dataTrackFolder = (DataTrackFolder)sess.load(DataTrackFolder.class, idDataTrackFolder);
       
+      // Get all descendant data tracks of the data track folder to move
+      ArrayList movedChildren = new ArrayList<DataTrack>();
+      recurseAddChildren(dataTrackFolder, movedChildren);
+      DataTrackFolder parentFolderOld = dataTrackFolder.getParentFolder();
+      
+      
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 
       // Make sure the user can write this dataTrack folder
@@ -83,6 +91,37 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
       }
 
       if (this.isValid()) {
+        // Reset the load flag on all of the children so that next das2 refresh
+        // refreshes the path to the data track
+        // Add unload datatrack rows for older parent folder so that this old
+        // path for data tracks is removed
+        for (Iterator i = movedChildren.iterator(); i.hasNext();) {
+          DataTrack dt = (DataTrack)i.next();
+          dt.setIsLoaded("N");
+          
+          if (isMove.equals("Y")) {
+            
+
+            for (Iterator i1 = dt.getFolders().iterator(); i1.hasNext();) {
+              DataTrackFolder parentFolder = (DataTrackFolder)i1.next(); 
+              String path = parentFolder.getQualifiedTypeName();
+              if (path.length() > 0) {
+                path += "/";
+              }
+              String typeName = path + dt.getName();
+
+              UnloadDataTrack unload = new UnloadDataTrack();
+              unload.setTypeName(typeName);
+              unload.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+              unload.setIdGenomeBuild(dt.getIdGenomeBuild());
+
+              sess.save(unload);
+            }
+          }
+          
+        }
+        sess.flush();
+        
       
         // Get the dataTrack grouping this dataTrack grouping should be moved to.
         DataTrackFolder parentDataTrackFolder = null;
@@ -106,6 +145,7 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
         // clone the dataTrack grouping, leaving the existing one as-is.
         if (isMove.equals("Y")) {
           dataTrackFolder = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
+
         } else {
           DataTrackFolder folder = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
           dataTrackFolder = new DataTrackFolder();
@@ -166,5 +206,16 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void recurseAddChildren(DataTrackFolder folder, ArrayList children) {
+    for (Iterator i = folder.getDataTracks().iterator(); i.hasNext();) {
+      DataTrack dt = (DataTrack)i.next();
+      children.add(dt);
+    }
+    for (Iterator i = folder.getFolders().iterator(); i.hasNext();) {
+      DataTrackFolder childFolder = (DataTrackFolder)i.next();
+      recurseAddChildren(childFolder, children);
+    }
   }
 }
