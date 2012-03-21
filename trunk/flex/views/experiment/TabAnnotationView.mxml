@@ -118,6 +118,11 @@
 			private function editPropertyDictionary():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
 				PopUpManager.centerPopUp(configWindow);
+				configWindow.showSampleAnnotations.selected = true;
+				configWindow.showAnalysisAnnotations.selected = false;
+				configWindow.showDataTrackAnnotations.selected = false;
+				configWindow.onPropertyRefreshed(null);
+
 				
 				parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
 					onPropertyRefreshed);		                                  
@@ -567,7 +572,7 @@
 							</mx:columns>
 						</mx:DataGrid>
 						
-						<mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
+						<mx:LinkButton label="Configure annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
 						</mx:LinkButton>						
 					</mx:VBox>
 				</mx:HBox>
