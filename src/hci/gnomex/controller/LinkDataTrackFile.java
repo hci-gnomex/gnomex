@@ -3,17 +3,24 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AppUserComparator;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.PropertyOptionComparator;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,6 +49,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
   private Integer idAnalysisFile = null;
   private Integer idLab = null;
   private boolean isNewDataTrack = false;
+  private Integer idDataTrackToDuplicate = null;
   
   private String serverName = null;
   private String baseDir = null;
@@ -59,6 +67,9 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
    if (idDataTrack == null) {
      isNewDataTrack = true;
    }
+   if (request.getParameter("idDataTrackToDuplicate") != null && !request.getParameter("idDataTrackToDuplicate").equals("")) {
+     idDataTrackToDuplicate = new Integer(request.getParameter("idDataTrackToDuplicate"));
+   } 
    if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
      idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
    } else {
@@ -92,18 +103,27 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       
       analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
       
+      DataTrack sourceDT = null;
+      if (idDataTrackToDuplicate != null) {
+        sourceDT = (DataTrack)sess.load(DataTrack.class, idDataTrackToDuplicate);
+      }
+      
       if (isNewDataTrack) {
         dataTrack = new DataTrack();
-        dataTrack.setName(analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName());
-        dataTrack.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
-        dataTrack.setIdLab(idLab);
-        dataTrack.setIdGenomeBuild(idGenomeBuild);
+        if (idDataTrackToDuplicate != null) {
+          cloneDataTrack(sourceDT, dataTrack, analysisFile, sess);          
+        } else {
+          dataTrack.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+          dataTrack.setName(analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName());
+          dataTrack.setIdLab(idLab);
+          dataTrack.setIdGenomeBuild(idGenomeBuild);
+          if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+            dataTrack.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+          }
+        }
         dataTrack.setDataPath(baseDir);
         dataTrack.setCreatedBy(this.getUsername());
         dataTrack.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-          dataTrack.setIdAppUser(this.getSecAdvisor().getIdAppUser());
-        }
         dataTrack.setIsLoaded("N");
         
         sess.save(dataTrack);
@@ -188,5 +208,89 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void cloneDataTrack(DataTrack sourceDT, DataTrack dataTrack, AnalysisFile analysisFile, Session sess) {
+    dataTrack.setCodeVisibility(sourceDT.getCodeVisibility());
+    dataTrack.setName(sourceDT.getName() + "_" + analysisFile.getFileName());
+    dataTrack.setDescription(sourceDT.getDescription());
+    dataTrack.setSummary(sourceDT.getSummary());
+    dataTrack.setIdInstitution(sourceDT.getIdInstitution());
+    dataTrack.setIdLab(sourceDT.getIdLab());
+    dataTrack.setIdGenomeBuild(sourceDT.getIdGenomeBuild());
+    dataTrack.setIdAppUser(sourceDT.getIdAppUser());
+
+    
+    //
+    // Clone the data track property entries
+    //
+    Set<PropertyEntry> clonedPESet = new HashSet<PropertyEntry>(); 
+
+    //for each PropertyEntry in the source data track
+    for(Iterator<?> i = sourceDT.getPropertyEntries().iterator(); i.hasNext();) {
+
+      //get the PropertyEntry
+      PropertyEntry sourcePE = (PropertyEntry)i.next();
+
+      //make clone and copy over params from source
+      PropertyEntry clonedPE = new PropertyEntry();
+      clonedPE.setIdProperty( sourcePE.getIdProperty());
+      clonedPE.setValue( sourcePE.getValue());
+      clonedPE.setIdDataTrack(dataTrack.getIdDataTrack());
+
+      //save it and flush it to assign the DB id
+      sess.save(clonedPE);
+      sess.flush();
+
+      //add to set
+      clonedPESet.add(clonedPE);
+
+      Set<PropertyEntryValue> clonedPEVSet = new HashSet<PropertyEntryValue>();
+
+      //for each PropertyEntryValue in the sourcePE
+      for (Iterator iX = sourcePE.getValues().iterator(); iX.hasNext();) {
+
+        PropertyEntryValue sourcePEV = (PropertyEntryValue)iX.next();
+
+        //make clone and copy over params from source
+        PropertyEntryValue clonedPEV = new PropertyEntryValue();
+        clonedPEV.setIdPropertyEntry(clonedPE.getIdPropertyEntry());
+        clonedPEV.setValue(sourcePEV.getValue());
+
+        //save it to DB
+        sess.save(clonedPEV);
+
+        //add to set
+        clonedPEVSet.add(clonedPEV);
+      }
+
+      //add set to AP
+      clonedPE.setValues(clonedPEVSet);
+
+      TreeSet<PropertyOption> clonedOptions = new TreeSet<PropertyOption>(new PropertyOptionComparator());
+
+      //for each PropertyOption in the sourcePE
+      for (Iterator<?> iY = sourcePE.getOptions().iterator(); iY.hasNext();) {
+        PropertyOption sourceOption = (PropertyOption)iY.next();
+        clonedOptions.add(sourceOption);    
+      }
+
+      //add set to AP
+      clonedPE.setOptions(clonedOptions);
+    }
+
+    //add Set of AnnotationPropery to cloned Annotation
+    dataTrack.setPropertyEntries(clonedPESet);
+
+    
+    //
+    // Clone the collaborators
+    //
+    TreeSet<AppUser> collaborators = new TreeSet<AppUser>(new AppUserComparator());
+    Iterator<?> cIt = sourceDT.getCollaborators().iterator();
+    while (cIt.hasNext()) {
+      collaborators.add((AppUser)cIt.next());
+      dataTrack.setCollaborators(collaborators);      
+    }
   }
 }
