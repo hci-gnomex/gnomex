@@ -921,7 +921,7 @@
 			                   	    	<mx:Label text="Index Tag"/>
 			                   	    </mx:VBox>
 			                   	  </mx:Component>
-			                   </mx:headerRenderer>
+			                   </mx:headerRenderer> 
 			                </mx:AdvancedDataGridColumn>
 			                <mx:AdvancedDataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
@@ -936,9 +936,9 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 							
 	
-							<mx:AdvancedDataGridColumn visible="true" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
-							<mx:AdvancedDataGridColumn visible="true" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-							<mx:AdvancedDataGridColumn visible="true" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+							<mx:AdvancedDataGridColumn visible="{currentState != 'ExternalSeqState' &amp;&amp; currentState != 'ExternalMicroarrayState'}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
+							<mx:AdvancedDataGridColumn visible="{currentState != 'ExternalSeqState' &amp;&amp; currentState != 'ExternalMicroarrayState'}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+							<mx:AdvancedDataGridColumn visible="{currentState != 'ExternalSeqState' &amp;&amp; currentState != 'ExternalMicroarrayState'}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
 			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 				 			<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>

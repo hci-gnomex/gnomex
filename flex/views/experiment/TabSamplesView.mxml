@@ -41,6 +41,11 @@
 
 		            
 		public var sampleGroupingCollection:GroupingCollection = null;
+		
+		[Bindable]
+		private var isExternal:Boolean = false;
+		[Bindable]
+		private var isEditState:Boolean = false;
 
 		private var uploadFR:FileReference;
 		private var uploadSampleSheetURL:String;
@@ -433,7 +438,8 @@
 			        		
 		        			completeCount++;
 		        		}
-		        	} else if (!parentDocument.isEditState() &&
+		        	} else if (parentApplication.submitInternalExperiment() && 
+						 !parentDocument.isEditState() &&
 		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState" || 
 		        		 parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
 	        			if (isEntered(sample, "@name") &&
@@ -856,8 +862,10 @@
 
 		
         public function showHideColumns():void {
-			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
-        	buttonsContainer.visible = !parentDocument.isAmendState();
+			isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
+			isEditState = parentDocument.isEditState();
+			
+			buttonsContainer.visible = !parentDocument.isAmendState();
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
@@ -871,8 +879,8 @@
 			this.otherSamplePrepMethodCol.visible = !isExternal;
 			this.seqLibProtocolCol.visible = !isExternal;
 			
-			seqPrepQualBioanalyzerMethodCol.visible = !isExternal && parentDocument.isSolexaState();
-			seqPrepStatus.visible = !isExternal && parentDocument.isSolexaState();
+			seqPrepQualBioanalyzerMethodCol.visible = isEditState && !isExternal && parentDocument.isSolexaState();
+			seqPrepStatus.visible = isEditState && !isExternal && parentDocument.isSolexaState();
         	
 			showCCNumberCheckbox.visible =  !isExternal;
 			showCCNumberCheckbox.width = isExternal ? 0 : 250;
@@ -924,7 +932,8 @@
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
-				
+				this.otherOrganismCol.visible = false;
+
 				
 				if (parentDocument.isEditState()) {
 					chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
@@ -1462,16 +1471,16 @@
 							itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
 
-	                <mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
+	                <mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="true" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="true" headerText="QC Status" width="90" dataField="@qualStatus"
+					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
 
