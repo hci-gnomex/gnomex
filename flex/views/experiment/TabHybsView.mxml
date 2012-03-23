@@ -103,6 +103,9 @@
 			if (parentDocument == null) {
 				return slideDesign;
 			}
+			if (slideProductCombo == null) {
+				return slideDesign;
+			}
 			
 			if (slideProductCombo.selectedItem != null) {
 				parentDocument.selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
