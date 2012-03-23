@@ -982,15 +982,19 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
 		} 
-		// More that one data file cannot be dragged onto an existing data track
+		// If more than one file is dragged onto a data track, duplicate the data track to create a 
+		// new one for each dragged file.
 		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack') {
-			Alert.show("Multiple files selected.  Please drag multiple files onto a folder so that a data track can be created for each file.",
-				"Warning");
+			Alert.show("Create Data track for each of the analysis files (total of " + dragItemCount + ")" + ", duplicating the annotations/info for data track  " + dropNode.@label + "?",
+				"Confirm Duplication",
+				(Alert.YES | Alert.NO),
+				this,
+				onPromptToDupAndLinkFiles);
 		}
 		// One file dragged onto a folder
 		else if (dragItemCount == 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create Data track and link to " + dragParams[0].fileName + " under " + dropNode.@label + "?",
-				"Confirm",
+				"Confirm Link",
 				(Alert.YES | Alert.NO),
 				this,
 				onPromptToAddAndLink);
@@ -999,7 +1003,7 @@
 		// Multiple files dragged onto a folder
 		else if (dragItemCount > 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create Data track for each of the analysis files (total of " + dragItemCount + ")" + " under  " + dropNode.@label + "?",
-				"Confirm",
+				"Confirm Add",
 				(Alert.YES | Alert.NO),
 				this,
 				onPromptToAddAndLinkFiles);
@@ -1030,7 +1034,7 @@
 					onPromptToLink);				
 				
 			} else if (fileCount > 0) {
-				Alert.show("Unable to link " + dragParams[0].fileName + ".\n\nThe file " + fileNames + " is already linked to Data track " + dropNode.@label + "?",
+				Alert.show("Unable to link " + dragParams[0].fileName + ".\n\nThe file " + fileNames + " is already linked to Data track " + dropNode.@label + ".",
 					"Warning");
 				return;
 			} else {
@@ -1076,13 +1080,30 @@
 				params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
 				params.idGenomeBuild = dropNode.@idGenomeBuild;
 				params.idAnalysisFile = dragParam.idAnalysisFile;
-				params.idLab = idLab;
+				params.idLab = dragParam.idLab;
 				
 				linkDataTrackFileMultiple.send(params);
 				
 			}
 		}
 	}
+	
+	private function onPromptToDupAndLinkFiles(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			for each(var dragParam:Object in dragParams) {
+				var params:Object = new Object();
+				params.idDataTrackFolder = dropNode.@idDataTrackFolder;
+				params.idDataTrackToDuplicate = dropNode.@idDataTrack;
+				params.idGenomeBuild = dropNode.@idGenomeBuild;
+				params.idAnalysisFile = dragParam.idAnalysisFile;
+				params.idLab = dragParam.idLab;
+				
+				linkDataTrackFileMultiple.send(params);
+				
+			}
+		}
+	}
+
 	
 	private function onLinkDataTrackFile(event:ResultEvent): void {
 		if (linkDataTrackFile.lastResult.name() != "SUCCESS") {
@@ -1160,7 +1181,7 @@
 			"<Filter " +
 			"idOrganism='" + idOrganism + "'" +
 			"idGenomeBuild='" + idGenomeBuild + "'" +
-			"idLab='" + idLab + "'" +
+			"idLab='" + (labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "") + "'" +
 			"/>");
 
 		parentApplication.showDataTrackViewForItem(treeItemToSelect, refreshItem);
