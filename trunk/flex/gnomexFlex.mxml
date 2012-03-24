@@ -2016,9 +2016,10 @@
 			distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
 		}
 			
-		public function refreshDistributeDataTrackWindow(analysis:Object):void {
+		public function closeDistributeDataTrackWindow(analysis:Object):void {
 			if (distributeDataTrackWindow != null) {
-				distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
+				PopUpManager.removePopUp(distributeDataTrackWindow);
+				distributeDataTrackWindow = null;
 			}
 		}
 			

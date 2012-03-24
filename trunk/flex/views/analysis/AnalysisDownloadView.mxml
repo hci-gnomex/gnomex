@@ -43,11 +43,11 @@
 			import hci.flex.controls.CheckBox;
 			
 			import mx.controls.Alert;
+			import mx.events.AdvancedDataGridEvent;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.ListEvent;
-      import mx.events.AdvancedDataGridEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
@@ -361,6 +361,19 @@
 				}
 				
 				return files;
+			}
+			
+			public function hasUnregisteredFiles():Boolean {
+				var hasUnregisteredFile:Boolean = false;
+				for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+					if (a.@type != "dir") {
+						if (a.@idAnalysisFileString.toString().indexOf("AnalysisFile") == 0) {
+							hasUnregisteredFile = true;
+							break;
+						}
+					}
+				}
+				return hasUnregisteredFile;
 			}
 			
 			public function getFilesToDelete():XMLListCollection{

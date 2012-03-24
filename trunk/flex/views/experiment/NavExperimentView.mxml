@@ -227,7 +227,9 @@
 		}
 		
 		public function checkSecurity():void {
-			this.browseView.checkSecurity();
+			if (this.browseView != null) {
+				this.browseView.checkSecurity();
+			}
 			if (parentApplication.hasPermission("canAccessAnyObject")) {
 				currentState = "AdminState";
 			} else if (parentApplication.currentState == "GuestState") {

@@ -585,13 +585,20 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         }
       }
       StringBuffer queryBuf = new StringBuffer();
+      int inCount = 0;
       queryBuf.append("SELECT COUNT(*) FROM DataTrack dt ");
       queryBuf.append("JOIN dt.dataTrackFiles dtf ");
       queryBuf.append("WHERE dtf.idAnalysisFile IN (");
       if (analysisFileParser != null) {
         for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
           String idAnalysisFile = (String)i.next();
+          // Analysis files that are on the file system but not yet saved should
+          // be ignored.
+          if (idAnalysisFile.startsWith("AnalysisFile")) {
+            continue;
+          }
           queryBuf.append(idAnalysisFile);
+          inCount++;
           if (i.hasNext()) {
             queryBuf.append(",");
           }
@@ -601,15 +608,19 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
           queryBuf.append(af.getIdAnalysisFile());
+          inCount++;
           if (i.hasNext()) {
             queryBuf.append(",");
           }
         }
         queryBuf.append(")");
       }
-      Integer count = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
-      if (count != null && count > 0) {
-        message = "Cannot remove analysis file.  Please remove or unlink releated data tracks first.";
+      // Only perform query if we have at least one idAnalysisFile in the "in" clause
+      if (inCount > 0) {
+        Integer count = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
+        if (count != null && count > 0) {
+          message = "Cannot remove analysis file.  Please remove or unlink releated data tracks first.";
+        }
       }
       return message;
       

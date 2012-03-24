@@ -682,7 +682,7 @@
 				detailView.updateUploadFormAnalysisObj();
 			}
 
-			parentApplication.refreshDistributeDataTrackWindow(this.selectedAnalysis);
+			parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
 
 			if (selectedAnalysis.@canDelete == "Y") {
 				this.deleteButton.enabled = true;
