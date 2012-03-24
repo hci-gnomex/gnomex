@@ -234,7 +234,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("type", fd.getType() != null ? fd.getType() : "");
               fdNode.setAttribute("displayName", fd.getDisplayName() != null ? fd.getDisplayName() : "");
               fdNode.setAttribute("fileSize", String.valueOf(fd.getFileSize()));
-              fdNode.setAttribute("fileSizeText", String.valueOf(fd.getFileSize()) + " b");
+              fdNode.setAttribute("fileSizeText", fd.getFileSizeText());
               fdNode.setAttribute("childFileSize", String.valueOf(fd.getFileSize()));
               fdNode.setAttribute("fileName", fd.getFileName() != null ? fd.getFileName() : "");
               fdNode.setAttribute("qualifiedFilePath", fd.getQualifiedFilePath() != null ? fd.getQualifiedFilePath() : "");
