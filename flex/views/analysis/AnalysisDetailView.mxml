@@ -8,8 +8,8 @@
 	
 	<mx:HTTPService  
 		id="cacheFDTFileDownloadList" 
-		url="CacheAnalysisFileDownloadList.gx"
-		destination="cacheAnalysisFileDownloadList"
+		url="CacheAnalysisDownloadList.gx"
+		destination="cacheAnalysisDownloadList"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onCacheFDTFileDownloadList(event)"
@@ -21,6 +21,16 @@
 		</mx:request>
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="saveAnalysisFiles" 
+		url="SaveAnalysisFiles.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysisFiles(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis files', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>	
 	
 	<mx:Script>
 		<![CDATA[
@@ -38,11 +48,10 @@
 			
 			import views.analysis.AnalysisEditView;
 			import views.analysis.DownloadProgressView;
+			import views.datatrack.DistributeDataTrackWindow;
 			import views.util.DownloadHints;
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
-			
-			import views.datatrack.DistributeDataTrackWindow;
 
 			[Bindable]
 			public var rowCountMessage:String = new String();
@@ -351,6 +360,34 @@
 			} 
 			
 			private function showDataTracks():void {
+				// We need to make sure that all of the analysis files on the file
+				// system and db objects; otherwise we cannot link the analysis file
+				// to the data track.
+				if (filesView.hasUnregisteredFiles()) {
+					var params:Object = new Object();
+					params.idAnalysis = analysis.@idAnalysis;
+					params.analysisFilesXMLString = filesView.getAnalysisFiles().length > 0 ? filesView.getAnalysisFiles().toXMLString() : "<analysis>" + filesView.getAnalysisFiles().toXMLString() + "</analysis>";
+					
+					saveAnalysisFiles.send(params);					
+				} else {
+					showDataTracksImpl();
+				}
+			}
+			
+			private function onSaveAnalysisFiles(event:ResultEvent):void {
+				// Now we need to refresh the download list of analysis files
+				// so that the drag-and-drop has the refreshed list (with ids
+				// for the saved analysis files).
+				if (saveAnalysisFiles.lastResult.name() == "SUCCESS") {
+					this.refreshDownloadView(null);
+					showDataTracksImpl();
+				} else {
+					Alert.show(saveAnalysisFiles.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+
+			
+			private function showDataTracksImpl():void {
 				theTab.selectedChild = this.filesView;
 				parentApplication.showDistributeDataTrackWindow(parentDocument.selectedAnalysis);
 			}

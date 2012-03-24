@@ -46,6 +46,20 @@
 	</mx:request>
 </mx:HTTPService>
 
+<mx:HTTPService  
+	id="linkDupDataTrackFileMultiple" 
+	url="LinkDataTrackFile.gx"
+	destination="linkDupDataTrackFileMultiple"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onLinkDupDataTrackFileMultiple(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to duplicate data tracks and link analysis files', event)"
+	method="POST" 
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+
 <mx:HTTPService             
 	id="getDataTrack" 
 	url="GetDataTrack.gx"
@@ -1075,32 +1089,32 @@
 	}
 	private function onPromptToAddAndLinkFiles(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
-			for each(var dragParam:Object in dragParams) {
-				var params:Object = new Object();
-				params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
-				params.idGenomeBuild = dropNode.@idGenomeBuild;
-				params.idAnalysisFile = dragParam.idAnalysisFile;
-				params.idLab = dragParam.idLab;
-				
-				linkDataTrackFileMultiple.send(params);
-				
-			}
+			// we need to link each analysis file in a synchronized fashion.
+			// link the first file, then in the result hander, link the 
+			// next one until no more drag params exist.
+			var params:Object = new Object();
+			params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idLab = dragParams[0].idLab;
+			
+			linkDataTrackFileMultiple.send(params);
 		}
 	}
 	
 	private function onPromptToDupAndLinkFiles(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
-			for each(var dragParam:Object in dragParams) {
-				var params:Object = new Object();
-				params.idDataTrackFolder = dropNode.@idDataTrackFolder;
-				params.idDataTrackToDuplicate = dropNode.@idDataTrack;
-				params.idGenomeBuild = dropNode.@idGenomeBuild;
-				params.idAnalysisFile = dragParam.idAnalysisFile;
-				params.idLab = dragParam.idLab;
-				
-				linkDataTrackFileMultiple.send(params);
-				
-			}
+			// we need to link each analysis file in a synchronized fashion.
+			// dup/link the first file, then in the result hander, dup/link the 
+			// next one until no more drag params exist.
+			var params:Object = new Object();
+			params.idDataTrackFolder = dropNode.@idDataTrackFolder;
+			params.idDataTrackToDuplicate = dropNode.@idDataTrack;
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idLab = dragParams[0].idLab;
+			
+			linkDupDataTrackFileMultiple.send(params);
 		}
 	}
 
@@ -1117,15 +1131,53 @@
 			Alert.show(linkDataTrackFileMultiple.lastResult..ACTMESSAGE.@TEXT);
 			return;
 		}
-		var dragCount:int = 0;
-		for each(var dp:Object in dragParams) {
-			dragCount++;
-		}
-		if (linkDataTrackFileMultiple.lastResult.@idAnalysisFile == dragParams[dragCount - 1].idAnalysisFile) {
+		
+		// We have processed a analysis file link.   Remove it from drag params
+		// and proceed with the next link.
+		dragParams.removeItemAt(0);
+		
+		// If we have more analysis files to link, grab the next one and proceed.
+		if (dragParams.length > 0) {
+			var params:Object = new Object();
+			params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idLab = dragParams[0].idLab;
+			
+			linkDataTrackFileMultiple.send(params);
+		} else {
+			// We are done linking files -- refresh the data tracks.
 			this.refreshDataTracks();			
+			
 		}
 	}
 
+	private function onLinkDupDataTrackFileMultiple(event:ResultEvent): void {
+		if (linkDupDataTrackFileMultiple.lastResult.name() != "SUCCESS") {
+			Alert.show(linkDupDataTrackFileMultiple.lastResult..ACTMESSAGE.@TEXT);
+			return;
+		}
+		
+		// We have processed a analysis file link.   Remove it from drag params
+		// and proceed with the next link.
+		dragParams.removeItemAt(0);
+		
+		// If we have more analysis files to link, grab the next one and proceed.
+		if (dragParams.length > 0) {
+			var params:Object = new Object();
+			params.idDataTrackFolder = dropNode.@idDataTrackFolder;
+			params.idDataTrackToDuplicate = dropNode.@idDataTrack;
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idLab = dragParams[0].idLab;
+			
+			linkDupDataTrackFileMultiple.send(params);
+		} else {
+			// We are done linking files -- refresh the data tracks.
+			this.refreshDataTracks();			
+			
+		}
+	}
 
 	
 	public function positionWindow():void
