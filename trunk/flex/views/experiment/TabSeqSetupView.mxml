@@ -12,15 +12,19 @@
 	</mx:states>
 <mx:Script>
 	<![CDATA[
-		import mx.controls.Spacer;
+		import hci.flex.controls.CheckBox;
+		
 		import mx.collections.XMLListCollection;
 		import mx.controls.RadioButton;
+		import mx.controls.Spacer;
 		import mx.events.ListEvent;
+		
 		import views.renderers.CheckBoxIsSelectedChipType;
-		import hci.flex.controls.CheckBox;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
+		private var isValidRange:Boolean = false;
+		private var designComplete:Boolean = false;
 		
 
 
@@ -110,10 +114,10 @@
 
       	public function checkSeqAppSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
-        	if (parentDocument.isEditState()) {
+        	if (parentDocument.isEditState() && (isValidRange || designComplete)) {
         		isComplete = true;
         	} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
-	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
+	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '' && (isValidRange || designComplete)) {
 	        		isComplete = true;
 	        	 }
         	} 
@@ -153,6 +157,18 @@
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
 				if (application != null && application is XMLList) {
 					this.parentDocument.applicationName = application[0].@display;
+					if(application[0].@display.indexOf("SureSelect") > 0){ //If it is sure select we need to show the library capture id input box
+						libraryDesign.visible = true;
+					}
+					else{
+						libraryDesign.visible = false;
+					}
+					if(application[0].@display.indexOf("Mononucleosome") != -1 || application[0].@display.indexOf("Genomic") != -1){
+						insertRanges.visible = true;
+					}
+					else{
+						insertRanges.visible = false;
+					}
 				} else if (application != null && application is XML) {
 					this.parentDocument.applicationName = application.@display;
 				}
@@ -206,7 +222,38 @@
 
 			
 			this.checkSeqAppSetupCompleteness();
-		}			
+		}
+		
+		private function propagateDesign():void{
+			designComplete = false;
+			isValidRange = false;
+			
+			if(designID.text != "" || designID.text != null){
+				parentDocument.request.@captureLibDesignId = designID.text;
+				designComplete = true;
+			}
+			
+			checkSeqAppSetupCompleteness();
+		}
+		
+		private function propagateInsertRange():void{
+			
+			var pattern:RegExp = /[a-z]/i;
+			designComplete = false;
+			isValidRange = false;
+			
+			if(minInsertRange.text == "" || maxInsertRange.text == "" || pattern.test(minInsertRange.text) || pattern.test(maxInsertRange.text))
+				isValidRange = false;
+			else if((parseInt(minInsertRange.text) < 60 || parseInt(minInsertRange.text) > 100) || (parseInt(maxInsertRange.text) > 100 || parseInt(maxInsertRange.text) < 60))
+				isValidRange = false;
+			else
+			{
+				parentDocument.request.@avgInsertSizeFrom = minInsertRange.text;
+				parentDocument.request.@avgInsertSizeTo = maxInsertRange.text;
+				isValidRange = true;
+			}	
+			checkSeqAppSetupCompleteness();
+		}
 			
 	]]>
 </mx:Script>
@@ -223,6 +270,17 @@
 		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox">
 		       </mx:VBox>
 		   </mx:HBox>
+			<mx:HBox id="libraryDesign" visible="false">
+				<mx:Label text="Capture Library Design ID" id="designIDLabel" width="200"/>
+				<mx:TextInput id="designID" focusOut="propagateDesign()"/>
+			</mx:HBox>
+			<mx:HBox id="insertRanges" visible="false">
+				<mx:Label text="Insert Range" id="insertRangeLabel" width="200"/>
+				<mx:TextInput id="minInsertRange" width="50" focusOut="propagateInsertRange()"/>
+				<mx:Text text=" to "/>
+				<mx:TextInput id="maxInsertRange" width="50" focusOut="propagateInsertRange()"/>
+				<mx:Text text="Insert sizes range from 60bp to 100bp" fontStyle="italic"/>
+			</mx:HBox>
 		   	 
 		   <mx:HBox width="100%" horizontalGap="0" height="100%" visible="false">
 		       <mx:Text text="Identify all conditions/instructions that apply to these samples." width="200" id="labelSeqLibTreatment"/>
