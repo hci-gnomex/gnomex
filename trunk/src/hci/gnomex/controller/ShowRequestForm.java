@@ -261,6 +261,17 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             Element analysisInstruction = new Element("H6");
             analysisInstruction.addContent(request.getAnalysisInstructions());
             maindiv.addContent(analysisInstruction);
+            
+            if(request.getAvgInsertSizeFrom() != null && !request.getAvgInsertSizeFrom().equals(""))
+            {
+              Element avgInsertSize = new Element("H5");
+              avgInsertSize.addContent("Average Insert Size");
+              maindiv.addContent(avgInsertSize);
+
+              Element avgInsertSizeFromTo = new Element("H6");
+              avgInsertSizeFromTo.addContent(request.getAvgInsertSizeFrom() + "bp to " + request.getAvgInsertSizeTo() + "bp");
+              maindiv.addContent(avgInsertSizeFromTo);
+            }
 
             formatter.addSampleTable(maindiv, request.getSamples());
             
