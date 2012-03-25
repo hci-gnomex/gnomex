@@ -1,6 +1,5 @@
 use gnomex;
 
-SET foreign_key_checks = 0;
 --
 -- New column for FlowCellChannel
 --
