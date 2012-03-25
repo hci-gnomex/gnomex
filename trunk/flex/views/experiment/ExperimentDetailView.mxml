@@ -87,6 +87,31 @@
 		public function setupForm(selectedExperiment:Object):void {
 			this.selectedExperiment = selectedExperiment;
 			
+			if(selectedExperiment.@captureLibDesignId != ""){
+				captureLibLabel.visible = true;
+				captureLibDesign.visible = true;
+				captureLibDesign.text = selectedExperiment.@captureLibDesignId;
+			}
+			else{
+				captureLibLabel.visible = false;
+				captureLibDesign.visible = false;
+			}
+			
+			if(selectedExperiment.@avgInsertSizeFrom != ""){
+				minInsertRange.visible = true;
+				maxInsertRange.visible = true;
+				insertRangeTo.visible = true;
+				insertRangeLabel.visible = true;
+				minInsertRange.text = selectedExperiment.@avgInsertSizeFrom;
+				maxInsertRange.text = selectedExperiment.@avgInsertSizeTo;
+			}
+			else{
+				minInsertRange.visible = false;
+				maxInsertRange.visible = false;
+				insertRangeTo.visible = false;
+				insertRangeLabel.visible = false;
+			}
+				
 			if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
 				if (!theTab.contains(this.billingTab)) {
 					theTab.addChild(billingTab);
@@ -850,8 +875,18 @@
         <mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" id="vbox3">
 			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0" change="tabChangeHandler(event)">
 					<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
-						<mx:Label text="Experiment Name"/>
-						<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
+						<mx:HBox>
+							<mx:Label text="Experiment Name"/>
+							<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
+							<mx:Spacer width="5"/>
+							<mx:Label text="Capture Library Design Id" id="captureLibLabel" visible="false"/>
+							<mx:TextInput id="captureLibDesign" visible="false" editable="false" backgroundColor="0xffffff"/>
+							
+							<mx:Label text="Insert Range" id="insertRangeLabel" width="94" visible="false"/>
+							<mx:TextInput id="minInsertRange" width="50" visible="false" editable="false" backgroundColor="0xffffff"/>
+							<mx:Text text=" to " visible="false" id="insertRangeTo"/>
+							<mx:TextInput id="maxInsertRange" width="50" visible="false" editable="false" backgroundColor="0xffffff"/>
+						</mx:HBox> 
 						<mx:Spacer height="4"/>
 						<mx:Label text="Description"/>
 						<util:TextAreaWorkaround  backgroundColor="0xffffff" id="overallDescript" editable="false" text="{this.selectedExperiment.@description}" width="100%" height="100%"/>
