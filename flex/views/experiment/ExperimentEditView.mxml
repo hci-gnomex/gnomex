@@ -4332,8 +4332,7 @@
 					       	  dataProvider="{billingAccounts}" 
 					       	  change="{this.dirty.setDirty();}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
-					       	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"
-/>
+					       	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"/>
 					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
