@@ -13,6 +13,7 @@
 	</mx:states>
 
 <mx:Script>
+	
 	private function propagateDescript():void{
 		parentDocument.request.@description = overallDescript.text;
 		parentDocument.confirmView.expDescriptArea.text = overallDescript.text;
@@ -42,12 +43,25 @@
 		parentDocument.confirmView.experimentName.text = experimentName.text;
 		parentDocument.request.@name = experimentName.text;
 	}
+
+
 </mx:Script>
 	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
-		<mx:Text id="text1">
-			<mx:htmlText>(1) Name your experiment. (optional)</mx:htmlText>
-		</mx:Text>
-		<mx:TextInput id="experimentName" focusOut="propagateName()" text="{parentDocument.request.@name}"  width="400" maxChars="200"/>
+		<mx:HBox>
+			<mx:Text id="text1">
+				<mx:htmlText>(1) Name your experiment. (optional)</mx:htmlText>
+			</mx:Text>
+			<mx:TextInput id="experimentName" focusOut="propagateName()" text="{parentDocument.request.@name}"  width="301" maxChars="200"/>
+			<mx:Spacer width="10"/>
+			<mx:Label id="captureLibLabel" text="Capture Library Design ID" visible="{parentDocument.request.@captureLibDesignId != '' &amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}"/>
+			<mx:TextInput id="captureLibDesign" text="{parentDocument.request.@captureLibDesignId}" visible="{parentDocument.request.@captureLibDesignId != '' &amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}" width="171"/>
+			
+			<mx:Label text="Insert Range" id="insertRangeLabel" width="84" visible="{parentDocument.request.@avgInsertSizeFrom != '' &amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}"/>
+			<mx:TextInput id="minInsertRange" width="50" text="{parentDocument.request.@avgInsertSizeFrom}" visible="{parentDocument.request.@avgInsertSizeFrom != ''&amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}"/>
+			<mx:Text text=" to " visible="{parentDocument.request.@avgInsertSizeFrom != ''&amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}"/>
+			<mx:TextInput id="maxInsertRange" width="50" text="{parentDocument.request.@avgInsertSizeTo}" visible="{parentDocument.request.@avgInsertSizeFrom != '' &amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}"/>
+			<mx:Text text="Insert sizes range from 60bp to 100bp" fontStyle="italic" visible="{parentDocument.request.@avgInsertSizeFrom != '' &amp;&amp; currentState.indexOf('EditState') != -1 ? true : false}"/>
+		</mx:HBox>	
 		<mx:Spacer height="10" />
 		<mx:Label text="(2) Provide an experiment description. (optional)" id="label1"/>
 		<util:TextAreaWorkaround id="overallDescript" text="{parentDocument.request.@description}" focusOut="propagateDescript()" width="100%" height="100%"/>
