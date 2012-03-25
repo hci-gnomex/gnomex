@@ -107,7 +107,7 @@
 				return slideDesign;
 			}
 			
-			if (slideProductCombo.selectedItem != null) {
+			if (slideProductCombo.selectedItem != null && slideProductCombo.selectedItem != "") {
 				parentDocument.selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
 				slideDesigns = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == parentDocument.selectedIdSlideProduct));
 				
