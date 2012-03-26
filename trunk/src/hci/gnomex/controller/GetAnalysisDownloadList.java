@@ -445,7 +445,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         childFd.setComments(af.getComments());
         childFd.setIdAnalysis(af.getIdAnalysis());
       } else {
-        childFd.setIdAnalysisFileString("AnalysisFile-" + fd.getDisplayName());
+        childFd.setIdAnalysisFileString("AnalysisFile-" + childFd.getDisplayName());
         childFd.setIdAnalysis(fd.getIdAnalysis());
       }
       
