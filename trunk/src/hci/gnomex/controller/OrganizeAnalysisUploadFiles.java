@@ -11,7 +11,9 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -244,6 +246,20 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
                 // Delete the file from the file system
                 if (new File(fileName).exists() ) {
+                  File deleteFile = new File(fileName);
+                  
+                  if (deleteFile.isDirectory()) {
+                    List childrenFiles =  Arrays.asList(deleteFile.listFiles());
+                    for (Iterator i2 = childrenFiles.iterator(); i2.hasNext();) {
+                      File childFile = (File) i2.next();
+                      boolean successDel = childFile.delete();
+                      if (!successDel) { 
+                        // File was not successfully deleted
+                        throw new Exception("Unable to delete file " + childFile.getName());
+                      }
+                    }
+                  }
+                  
                   boolean success = new File(fileName).delete();
                   if (!success) { 
                     // File was not successfully deleted
