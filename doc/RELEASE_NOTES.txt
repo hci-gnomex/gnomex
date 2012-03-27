@@ -7,6 +7,8 @@
 * Modified BatchDataSource.java and BatchMailer.java to add an optional constructor that defines path to orion and location of hibernate mapping file
 * Modified MailUtil -- added send_bcc command to provide for sending messages with bcc field populated.
 * Added AverageInsertSize and CaptureLibDesign field functionality when submitting an experiment.
+* Now allow searching of Annotations by property name in advanced search.
+* Only allow alphanumeric characters and space in Lab name in Create New Account
 
 
 5.3.9 (3/12/2012)
