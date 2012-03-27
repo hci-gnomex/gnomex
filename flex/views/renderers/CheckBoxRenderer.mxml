@@ -15,6 +15,7 @@
 			import mx.core.IFactory;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
+			
 			import views.util.DirtyNote;
 			
 			private var _listData:DataGridListData;
@@ -22,10 +23,13 @@
 			[Bindable]
 			public var txt:String;
 			
+			[Bindable]
+			public var allowMultipleChoice:Boolean;
+			
 			public var dirty:DirtyNote
 			
-			public static function create(dirty:DirtyNote=null):IFactory {
-				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty});
+			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true):IFactory {
+				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice});
 			}		
 			
 			override public function set data(value:Object):void {
@@ -53,16 +57,28 @@
 			
 			public function updateDP():void{
 				if (_listData != null) {
+					if (this._listData.owner is DataGrid) {
+						var dg:DataGrid=this._listData.owner as DataGrid;
+						dg.dataProvider.itemUpdated(data);
+						if (!this.allowMultipleChoice) {
+							for(var i:int = 0; i < dg.dataProvider.length; i++) {
+								var x:XML = dg.dataProvider[i];
+								x[_listData.dataField] = "N";
+							}
+						}
+					} else if (this._listData.owner is AdvancedDataGrid) {
+						var adg:AdvancedDataGrid=this._listData.owner as AdvancedDataGrid;
+						adg.dataProvider.itemUpdated(data);						
+						if (!this.allowMultipleChoice) {
+							for(var j:int = 0; j < adg.dataProvider.length; j++) {
+								var ax:XML = adg.dataProvider[j];
+								ax[_listData.dataField] = "N";
+							}
+						}
+					}
 					this.data[_listData.dataField] = this.selected ? "Y" : "N";
 					if (dirty != null) {
 						this.dirty.setDirty();
-					}
-					if (this._listData is DataGrid) {
-						var dg:DataGrid=this._listData.owner as DataGrid;
-						dg.dataProvider.itemUpdated(data);
-					} else if (this._listData is AdvancedDataGrid) {
-						var adg:AdvancedDataGrid=this._listData.owner as AdvancedDataGrid;
-						adg.dataProvider.itemUpdated(data);						
 					}
 				}
 			}

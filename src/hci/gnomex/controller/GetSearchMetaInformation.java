@@ -134,8 +134,13 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
 
     if (property.getOptions() != null && property.getOptions().size() > 0) {
       addEntry(sess, displayName, searchName, property.getOptions(), searchList);
+    } else if (property.getCodePropertyType() != null && property.getCodePropertyType().equals(PropertyType.CHECKBOX)) {
+      ArrayList<CheckBoxDictionaryEntry> cbEntries = new ArrayList<CheckBoxDictionaryEntry>();
+      cbEntries.add(new CheckBoxDictionaryEntry(true));
+      cbEntries.add(new CheckBoxDictionaryEntry(false));
+      addEntry(sess, displayName, searchName, cbEntries, searchList, "Y", "N");
     } else {
-      addEntry(sess, displayName, searchName, null, searchList, "N");
+      addEntry(sess, displayName, searchName, null, searchList, "N", "N");
     }
   }
   
@@ -145,14 +150,15 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
   }
   
   private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList) {
-    addEntry(sess, displayName, searchName, entries, searchList, "Y");
+    addEntry(sess, displayName, searchName, entries, searchList, "Y", "Y");
   }
   
-  private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList, String isOptionChoice) {
+  private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList, String isOptionChoice, String allowMultipleChoice) {
     SearchListEntry entry = new SearchListEntry();
     entry.DisplayName = displayName;
     entry.SearchName = searchName;
     entry.IsOptionChoice = isOptionChoice;
+    entry.AllowMultipleChoice = allowMultipleChoice;
     searchList.add(entry);
     
     if (entries != null) {
@@ -188,6 +194,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       fieldNode.setAttribute("displayName", entry.DisplayName);
       fieldNode.setAttribute("searchName", entry.SearchName);
       fieldNode.setAttribute("isOptionChoice", entry.IsOptionChoice);
+      fieldNode.setAttribute("allowMultipleChoice", entry.AllowMultipleChoice);
       fieldNode.setAttribute("value", "");
       parent.addContent(fieldNode);
     }
@@ -215,5 +222,24 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     public String DisplayName;
     public String SearchName;
     public String IsOptionChoice;
+    public String AllowMultipleChoice;
+  }
+  
+  private class CheckBoxDictionaryEntry extends DictionaryEntry implements Serializable {
+    private Boolean isYes;
+    
+    public CheckBoxDictionaryEntry(Boolean isYes) {
+      this.isYes = isYes;
+    }
+    
+    public String getValue() {
+      if (isYes) return "Y";
+      else return "N";
+    }
+    
+    public String getDisplay() {
+      if (isYes) return "Yes";
+      else return "No";
+    }
   }
 }

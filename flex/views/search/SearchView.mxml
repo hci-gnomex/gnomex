@@ -304,9 +304,12 @@
 				i4.@value = "";
 			}
 			
+			this.ExperimentsRadioButton.selected = false;
+			this.AnalysesRadioButton.selected = false;
+			this.ProtocolsRadioButton.selected = false;
+			this.DataTracksRadioButton.selected = false;
 			this.AllObjectsRadioButton.selected = true;
-			
-			scopeSearch();
+			searchTypeChange();
 		}
                 
         public function scopeSearch():void {
@@ -414,7 +417,7 @@
 				<mx:DataGridColumn headerText="Field" id="fieldName" dataField="@displayName" editable="false" width="200" >
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Values"   id="values"
-								   itemRenderer="{views.renderers.MultiselectRendererVariableDictionary.create('Values', dictionaryMap, '@displayName')}" 
+								   itemRenderer="{views.renderers.MultiselectRendererVariableDictionary.create('Values', dictionaryMap, '@displayName', '@allowMultipleChoice')}" 
 								   dataField="@value" />  
 			</mx:columns>
 		</mx:DataGrid>

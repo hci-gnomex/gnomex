@@ -8,21 +8,27 @@
 	<mx:Script>
 		
 		<![CDATA[
+			import hci.flex.controls.CheckBox;
 			
 			import mx.collections.XMLListCollection;
 			import mx.events.ListEvent;
 			import mx.managers.FocusManager;
 			import mx.managers.PopUpManager;
+			
 			import views.renderers.CheckBoxRenderer;
 			
 			
 			[Bindable]
 			public var options:XMLListCollection;
 
+			[Bindable]
+			public var allowMultipleChoice:Boolean;
+			
 			public var opener:Object;
 			
-			public function initializeData(title:String, value:String, allOptions:XMLList):void {
+			public function initializeData(title:String, value:String, allOptions:XMLList, allowMultipleChoice:Boolean = true):void {
 				this.title = title;
+				this.allowMultipleChoice = allowMultipleChoice;
 				
 				var values:Array = new Array();
 				values = value.split(",");
@@ -81,17 +87,27 @@
 				if (event.columnIndex == 0) {
 					return;
 				}
-
+				
+				var newSelected:String = "N";
 				if (checkboxGrid.selectedItem.@isSelected == "Y") {
-					checkboxGrid.selectedItem.@isSelected = "N";
+					newSelected = "N";
 				} else {
-					checkboxGrid.selectedItem.@isSelected = "Y";
+					
+					newSelected = "Y";
 				}
+
+				if (!this.allowMultipleChoice) {
+					for each(var o:Object in options) {
+						o.@isSelected = 'N';
+					}
+				}
+				
+				checkboxGrid.selectedItem.@isSelected = newSelected;
 			}
 			
 			private function selectAll(objects:XMLListCollection, viewStack:ViewStack):void {
 				for each(var o:Object in objects) {
-					if (o.@isActive == 'Y') {
+					if (!o.hasOwnProperty('@isActive') || o.@isActive == 'Y') {
 						o.@isSelected = 'Y';
 					}
 				}
@@ -110,7 +126,7 @@
 	
 	<mx:ViewStack id="selectAllStack" width="80" paddingBottom="0" paddingTop="0">
 		<mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
-			<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll(options, selectAllStack)"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
+			<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll(options, selectAllStack)"  paddingTop="0" paddingRight="0" paddingBottom="0" visible="{this.allowMultipleChoice}"/>
 		</mx:HBox>
 		<mx:HBox width="100%" paddingBottom="0" paddingTop="0">
 			<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll(options, selectAllStack)"  paddingTop="0" paddingBottom="0"/>
@@ -125,11 +141,12 @@
 				 itemClick="toggleCheck(event)" height="100%">
 		<mx:columns>
 			<mx:DataGridColumn headerText=" "  
+							   id="checkBoxColumn"
 							   width="25" 
-							   editable="true"                        	
+							   editable="false"                        	
 							   dataField="@isSelected" 
 							   editorDataField="selected"
-							   itemRenderer="views.renderers.CheckBoxRenderer">			 
+							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, this.allowMultipleChoice)}">			 
 			</mx:DataGridColumn>
 			<mx:DataGridColumn headerText="Option"  dataField="@display" >
 			</mx:DataGridColumn>
