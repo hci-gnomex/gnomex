@@ -37,6 +37,13 @@
       document.getElementById("externalPasswordArea2").style.display = "block";
     }
   }
+  
+  function checkAlphaNumeric(e)
+  {
+     var KeyID = e.keyCode;
+     if(KeyID<32||(KeyID>=33 && KeyID<=47 )||(KeyID>=58 && KeyID<=64 )||(KeyID>=91 && KeyID<=96)||( KeyID>122))
+        return false;
+  }
 </script>
 
 	
@@ -103,8 +110,8 @@ try {
       <div class="col1"><div class="right">Phone</div></div>
       <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
 
-      <div class="col1"><div class="right">Lab</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="lab"  /></div>
+      <div class="col1"><div class="right">Lab Group</div></div>
+      <div class="col2"><input type="text" class="textWide"  name="lab" onkeypress="return checkAlphaNumeric(event)"  /></div>
 
       <div class="col1"><div class="right">Institute</div></div>
       <div class="col2"><input type="text" class="textWide"  name="institute" /></div>
