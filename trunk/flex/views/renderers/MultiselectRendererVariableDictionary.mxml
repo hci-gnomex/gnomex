@@ -30,14 +30,16 @@
 			
 			public var keyFieldName:String;
 			
+			public var allowMultipleChoiceFieldName:String;
+			
 			public var isEditable:Boolean = true;			
 			
 			public var isRequired:Boolean = false;
 			
 			private var pop:MultiselectPopupCommon;
 			
-			public static function create(title:String, dictionaryMap:Array, keyFieldName:String, isEditable:Boolean=true, isRequired:Boolean=false):IFactory {
-				return RendererFactory.create(MultiselectRendererVariableDictionary, {title:title, dictionaryMap:dictionaryMap, keyFieldName:keyFieldName, isEditable:isEditable});
+			public static function create(title:String, dictionaryMap:Array, keyFieldName:String, allowMultipleChoiceFieldName:String = '', isEditable:Boolean=true, isRequired:Boolean=false):IFactory {
+				return RendererFactory.create(MultiselectRendererVariableDictionary, {title:title, dictionaryMap:dictionaryMap, keyFieldName:keyFieldName, allowMultipleChoiceFieldName:allowMultipleChoiceFieldName, isEditable:isEditable});
 			}		
 			override public function set data(value:Object):void {
 				super.data = value;
@@ -119,8 +121,13 @@
 					return;
 				}
 				
-				pop= MultiselectPopupCommon(PopUpManager.createPopUp(parentApplication.theBody, MultiselectPopupCommon,true));
-				pop.initializeData(title, this.data[_listData.dataField], allOptions);
+				var allowMultipleChoice:Boolean = true;
+				if (allowMultipleChoiceFieldName != null && allowMultipleChoiceFieldName != '' && data.hasOwnProperty(allowMultipleChoiceFieldName)) {
+					allowMultipleChoice = data[allowMultipleChoiceFieldName] == 'Y' ? true : false;
+				}
+				
+				pop= MultiselectPopupCommon(PopUpManager.createPopUp(parentApplication.theBody, MultiselectPopupCommon, true));
+				pop.initializeData(title, this.data[_listData.dataField], allOptions, allowMultipleChoice);
 				pop.opener=this;
 			}
 			
