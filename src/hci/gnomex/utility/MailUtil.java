@@ -104,56 +104,58 @@ public class MailUtil
     AddressException,
     MessagingException {
 
-      if (session.getProperty("mail.smtp.auth") != null && session.getProperty("mail.smtp.auth").equals("true")) {
-        // Fetch user and password
-        PasswordAuthentication auth=
-          new PasswordAuthentication(
-              session.getProperty("mail.smtp.user"),
-              session.getProperty("mail.smtp.password"));
-
-
-
-        // Build URL for the session's password cache
-        URLName url=
-          new URLName(
-              session.getProperty("mail.transport.protocol"),
-              session.getProperty("mail.smtp.host"),
-              -1,
-              null,
-              session.getProperty("mail.smtp.user"),
-              null);
-        // Fill password cache
-        session.setPasswordAuthentication(url,auth);
-
+      if (session != null) {
+        if (session.getProperty("mail.smtp.auth") != null && session.getProperty("mail.smtp.auth").equals("true")) {
+          // Fetch user and password
+          PasswordAuthentication auth=
+            new PasswordAuthentication(
+                session.getProperty("mail.smtp.user"),
+                session.getProperty("mail.smtp.password"));
+  
+  
+  
+          // Build URL for the session's password cache
+          URLName url=
+            new URLName(
+                session.getProperty("mail.transport.protocol"),
+                session.getProperty("mail.smtp.host"),
+                -1,
+                null,
+                session.getProperty("mail.smtp.user"),
+                null);
+          // Fill password cache
+          session.setPasswordAuthentication(url,auth);
+  
+        }
+  
+  
+        javax.mail.Message msg = new MimeMessage( session );
+  
+  
+        msg.setFrom( new InternetAddress( from ) );
+        msg.setRecipients( javax.mail.Message.RecipientType.TO, InternetAddress.parse( to, false ) );
+        
+        if(cc != null){
+          msg.setRecipients( javax.mail.Message.RecipientType.CC, InternetAddress.parse( cc, false ) );
+        }
+        
+        if(bcc != null){
+          msg.setRecipients( javax.mail.Message.RecipientType.BCC, InternetAddress.parse( bcc, false ) );
+        }
+        msg.setSubject( subject );
+  
+        String format = "text/plain";
+        if(formatHtml){
+          format = "text/html";
+        }
+  
+  
+        msg.setDataHandler( new DataHandler( body, format ) );
+        msg.setHeader( "X-Mailer", "JavaMailer" );
+        msg.setSentDate( new Date(  ) );
+  
+        Transport.send( msg );
       }
-
-
-      javax.mail.Message msg = new MimeMessage( session );
-
-
-      msg.setFrom( new InternetAddress( from ) );
-      msg.setRecipients( javax.mail.Message.RecipientType.TO, InternetAddress.parse( to, false ) );
-      
-      if(cc != null){
-        msg.setRecipients( javax.mail.Message.RecipientType.CC, InternetAddress.parse( cc, false ) );
-      }
-      
-      if(bcc != null){
-        msg.setRecipients( javax.mail.Message.RecipientType.BCC, InternetAddress.parse( bcc, false ) );
-      }
-      msg.setSubject( subject );
-
-      String format = "text/plain";
-      if(formatHtml){
-        format = "text/html";
-      }
-
-
-      msg.setDataHandler( new DataHandler( body, format ) );
-      msg.setHeader( "X-Mailer", "JavaMailer" );
-      msg.setSentDate( new Date(  ) );
-
-      Transport.send( msg );
     }    
     
 }
