@@ -15,6 +15,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -50,9 +52,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     requestedLab = request.getParameter("lab");
     
-    if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) &&
-        (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) &&
-        (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) &&
+    if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) ||
+        (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) ||
+        (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) ||
         (requestedLab == null || requestedLab.equals(""))) {
       this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
     }
@@ -72,6 +74,17 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     if (request.getParameter("responsePageError") != null && !request.getParameter("responsePageError").equals("")) {
       responsePageError = request.getParameter("responsePageError");
+    }
+    
+    if (appUserScreen.getEmail() != null && !appUserScreen.getEmail().equals("")) {
+      try {
+        InternetAddress addresses[] = InternetAddress.parse(appUserScreen.getEmail(), true);
+        if (addresses.length > 1) {
+          this.addInvalidField("email", "Email address cannot contain spaces");
+        }
+      } catch(AddressException ex) {
+        this.addInvalidField("email", "Invalid Email Address -- " + ex.toString());
+      }
     }
     this.validate();
   }
