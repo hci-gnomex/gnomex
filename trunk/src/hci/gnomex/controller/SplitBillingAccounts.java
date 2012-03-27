@@ -164,7 +164,10 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                   billingItem.setInvoicePrice(getComputedInvoicePrice(billingItem, percentage, invoicePrice, totalPrice));
                   summedInvoicePrice = summedInvoicePrice.add(billingItem.getInvoicePrice());
                 }
-                billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+                billingItem.setCodeBillingStatus(bi.getCodeBillingStatus());
+                if (bi.getCompleteDate() != null) {
+                  billingItem.setCompleteDate(bi.getCompleteDate());
+                }
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());
                 billingItem.setIdPrice(bi.getIdPrice());
                 billingItem.setIdPriceCategory(bi.getIdPriceCategory());
