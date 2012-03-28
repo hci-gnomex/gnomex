@@ -92,7 +92,15 @@ public class PlateWell extends HibernateDetailObject {
   {
     this.sample = sample;
   }
-
+  
+  public String getSampleName()
+  {
+    if (this.sample!=null) {
+      return this.sample.getName();
+    }
+    return "";
+  }
+  
   public Integer getIdRequest()
   {
     return idRequest;
@@ -103,6 +111,9 @@ public class PlateWell extends HibernateDetailObject {
     this.idRequest = idRequest;
   }
   
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getPlate");
+  }
   
     
 }

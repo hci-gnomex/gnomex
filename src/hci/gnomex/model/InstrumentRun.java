@@ -2,14 +2,14 @@ package hci.gnomex.model;
 
 import hci.hibernate3utils.HibernateDetailObject;
 
-import java.sql.Date;
+import java.util.Date;
 
 
 public class InstrumentRun extends HibernateDetailObject {
   
   private Integer  idInstrumentRun;
   private Date     runDate;
-  
+  private String   status;
   
   public Integer getIdInstrumentRun()
   {
@@ -29,6 +29,16 @@ public class InstrumentRun extends HibernateDetailObject {
   public void setRunDate(Date runDate)
   {
     this.runDate = runDate;
+  }
+
+  public String getStatus()
+  {
+    return status;
+  }
+
+  public void setStatus(String status)
+  {
+    this.status = status;
   }
   
     

@@ -11,6 +11,8 @@ public class Plate extends HibernateDetailObject {
   private Integer  idPlate;
   private Integer  idInstrumentRun;
   private Set      plateWells = new TreeSet();
+  private String   status;
+  private Integer  quadrant;
   
   
   public Integer getIdPlate()
@@ -41,6 +43,26 @@ public class Plate extends HibernateDetailObject {
   public void setPlateWells(Set plateWells)
   {
     this.plateWells = plateWells;
+  }
+
+  public String getStatus()
+  {
+    return status;
+  }
+
+  public void setStatus(String status)
+  {
+    this.status = status;
+  }
+
+  public Integer getQuadrant()
+  {
+    return quadrant;
+  }
+
+  public void setQuadrant(Integer quadrant)
+  {
+    this.quadrant = quadrant;
   }
 
   
