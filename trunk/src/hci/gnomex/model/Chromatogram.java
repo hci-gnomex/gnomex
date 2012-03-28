@@ -2,25 +2,23 @@ package hci.gnomex.model;
 
 import hci.hibernate3utils.HibernateDetailObject;
 
-import java.sql.Date;
-
 
 public class Chromatogram extends HibernateDetailObject {
   
-  private Integer  idChromatogram;
-  private Integer  idPlateWell;
+  private Integer    idChromatogram;
+  private Integer    idPlateWell;
   private PlateWell  plateWell;
-  private Integer  idRequest;
-  private String  fileName;
-  private String  displayName;
-  private Integer  readLength;
-  private Integer  trimmedLength;
-  private Integer  q20;
-  private Integer  q40;
-  private Integer  aSignalStrength;
-  private Integer  cSignalStrength;
-  private Integer  gSignalStrength;
-  private Integer  tSignalStrength;
+  private Integer    idRequest;
+  private String     fileName;
+  private String     displayName;
+  private Integer    readLength;
+  private Integer    trimmedLength;
+  private Integer    q20;
+  private Integer    q40;
+  private Integer    aSignalStrength;
+  private Integer    cSignalStrength;
+  private Integer    gSignalStrength;
+  private Integer    tSignalStrength;
   
   
   
