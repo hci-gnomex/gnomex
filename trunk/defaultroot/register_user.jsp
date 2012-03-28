@@ -26,11 +26,14 @@
       document.getElementById("externalUserNameArea2").style.display  = "none";
       document.getElementById("externalPasswordArea1").style.display = "none";
       document.getElementById("externalPasswordArea2").style.display = "none";
+      document.getElementById("userNameExternal").value = "";
+      document.getElementById("passwordExternal").value = "";
     }
     else
     {
       document.getElementById("univUserNameArea1").style.display = "none";
       document.getElementById("univUserNameArea2").style.display = "none";
+      document.getElementById("uNID").value = "";
       document.getElementById("externalUserNameArea1").style.display  = "block";
       document.getElementById("externalUserNameArea2").style.display  = "block";
       document.getElementById("externalPasswordArea1").style.display = "block";

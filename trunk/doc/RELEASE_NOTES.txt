@@ -11,7 +11,7 @@
 * Only allow alphanumeric characters and space in Lab name in Create New Account
 * Add validation on email address in Create New Account
 * When splitting account any new items created will get the same Billing Status and Complete date as the items they were copied from.
-
+* Fix issue on new user register where if they entered external user name and then switched to UNID it remembered the external user name and still required a password.
 
 5.3.9 (3/12/2012)
 --------------------
