@@ -467,7 +467,6 @@
 				this.otherSamplePrepMethodCol.visible = false;
 				concentrationCol.visible = false; 
 				preppedByLabCol.visible = false;
-				samplePrepCol.visible = false;
 				chipTypeCol.visible = false;
 				concentrationUnitCol.visible = false;
 				barcodeCol.visible = false;
@@ -475,7 +474,6 @@
 			} else if (currentState == 'ExternalMicroarrayState') {
 				sampleTypeCol.visible = true;
 				organismCol.visible = true;
-				samplePrepCol.visible = false;
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -494,7 +492,7 @@
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
 					preppedByLabCol.visible = true;
-					samplePrepCol.visible = true;
+					otherSamplePrepMethodCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
 	        		
@@ -503,7 +501,7 @@
 					sampleTypeCol.visible = false;
 					organismCol.visible = false;
 					preppedByLabCol.visible = false;
-					samplePrepCol.visible = true;
+					otherSamplePrepMethodCol.visible = true;
 					chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
 					concentrationUnitCol.visible = true;
 	        		
@@ -512,7 +510,7 @@
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
 					preppedByLabCol.visible = false;
-					samplePrepCol.visible = true;
+					otherSamplePrepMethodCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
         		}
@@ -964,9 +962,7 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
 							<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="100" dataField="@otherOrganism"/>
 				            <mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-				            <mx:AdvancedDataGridColumn id="samplePrepCol" headerText="Nucl. acid extraction meth."   visible="{true}" width="100" 
-	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
-							<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
+							<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
 			                <mx:AdvancedDataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 							

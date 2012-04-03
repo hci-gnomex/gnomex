@@ -46,7 +46,6 @@ public class Request extends HibernateDetailObject {
   private SlideProduct    slideProduct;
   private Integer         idSampleTypeDefault;
   private Integer         idOrganismSampleDefault;
-  private Integer         idSamplePrepMethodDefault;
   private String          captureLibDesignId;
   private String          codeBioanalyzerChipType;
   private String          notes;
@@ -241,16 +240,6 @@ public class Request extends HibernateDetailObject {
   
   public void setSamples(Set samples) {
     this.samples = samples;
-  }
-
-  
-  public Integer getIdSamplePrepMethodDefault() {
-    return idSamplePrepMethodDefault;
-  }
-
-  
-  public void setIdSamplePrepMethodDefault(Integer idSamplePrepMethodDefault) {
-    this.idSamplePrepMethodDefault = idSamplePrepMethodDefault;
   }
 
   

@@ -207,9 +207,6 @@ public class RequestParser implements Serializable {
     } else {
       request.setIdOrganismSampleDefault(null);
     }
-    if (n.getAttributeValue("idSamplePrepMethodDefault") != null && !n.getAttributeValue("idSamplePrepMethodDefault").equals("")) {
-      request.setIdSamplePrepMethodDefault(new Integer(n.getAttributeValue("idSamplePrepMethodDefault")));      
-    }
     
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
@@ -312,11 +309,6 @@ public class RequestParser implements Serializable {
       sample.setIdSampleType(new Integer(n.getAttributeValue("idSampleType")));
     } else {
       sample.setIdSampleType(null);
-    }
-    if (n.getAttributeValue("idSamplePrepMethod") != null && !n.getAttributeValue("idSamplePrepMethod").equals("")) {
-      sample.setIdSamplePrepMethod(new Integer(n.getAttributeValue("idSamplePrepMethod")));
-    } else {
-      sample.setIdSamplePrepMethod(null);
     }
     if (n.getAttributeValue("otherSamplePrepMethod") != null && !n.getAttributeValue("otherSamplePrepMethod").equals("")) {
       sample.setOtherSamplePrepMethod(n.getAttributeValue("otherSamplePrepMethod"));

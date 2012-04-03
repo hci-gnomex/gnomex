@@ -37,7 +37,6 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   type;
   private Integer  sortOrder;
   private Integer  idOrganism;
-  private Integer  idSamplePrepMethod;
   private String   isSampleBarcodingOptional;
   private String   isInternal;
   private String   isExternal;
@@ -214,14 +213,6 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setIdOrganism(Integer idOrganism) {
     this.idOrganism = idOrganism;
-  }
-
-  public Integer getIdSamplePrepMethod() {
-    return idSamplePrepMethod;
-  }
-
-  public void setIdSamplePrepMethod(Integer idSamplePrepMethod) {
-    this.idSamplePrepMethod = idSamplePrepMethod;
   }
 
   public String getIsSampleBarcodingOptional() {

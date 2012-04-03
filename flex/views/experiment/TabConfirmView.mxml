@@ -122,8 +122,8 @@
 			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission && !parentDocument.isCapSeqState();
 			
-			wellNameCol.visible = (parentDocument.currentState == 'CapSeqState' && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
-			containerTypeCol.visible = parentDocument.currentState == 'CapSeqState' ? true : false;
+			wellNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
+			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
@@ -131,7 +131,6 @@
 				chipTypeConfirmColumn.visible = false; 
 				
 				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
-				samplePrepMethodConfirmCol.visible = parentApplication.submitInternalExperiment();
 				otherSamplePrepMethodConfirmCol.visible = parentApplication.submitInternalExperiment();
 				
 				this.numberOfSequencingCyclesCol.visible = parentApplication.submitInternalExperiment();
@@ -157,7 +156,6 @@
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = true; 
-				samplePrepMethodConfirmCol.visible = true;
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
@@ -167,12 +165,11 @@
 				this.sampleRowNumberCol.visible = false;
 
 
-			} else if (parentDocument.currentState == 'CapSeqState') {
+			} else if (parentDocument.isCapSeqState()) {
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
-				samplePrepMethodConfirmCol.visible = false;
 				otherSamplePrepMethodConfirmCol.visible = false;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
@@ -186,7 +183,6 @@
 				sampleOrganismConfirmColumn.visible = true;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
-				samplePrepMethodConfirmCol.visible = true;
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
@@ -378,9 +374,7 @@
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Seq Lib Protocol" id="seqLibProtocolConfirmCol" width="160" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
-			            <mx:DataGridColumn headerText="Nucl. acid extraction method" id="samplePrepMethodConfirmCol" width="160" 
-	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
-						<mx:DataGridColumn id="otherSamplePrepMethodConfirmCol" headerText="Other nucl. acid extraction method" width="200" dataField="@otherSamplePrepMethod"/>
+						<mx:DataGridColumn id="otherSamplePrepMethodConfirmCol" headerText="Nucl. acid extraction method" width="200" dataField="@otherSamplePrepMethod"/>
 			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 

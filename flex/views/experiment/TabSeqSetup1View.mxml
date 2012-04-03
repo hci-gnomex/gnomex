@@ -300,7 +300,6 @@
         	} else {
         		this.numberSequencingCyclesBox.styleName = "requiredBox";
         	}
-			parentDocument.samplePrepMethodList.refresh();
 			if (!parentDocument.isAmendState()) {
 				parentDocument.samplesView.initializeSamplesGrid();
 			}

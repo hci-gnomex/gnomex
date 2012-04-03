@@ -473,11 +473,7 @@ public class RequestHTMLFormatter {
   private String getSamplePrepMethod(Sample sample) {
    
     String spm = null;
-    if (dictionaryHelper.getSamplePrepMethod(sample).equals("Other")) {
-      spm = sample.getOtherSamplePrepMethod();
-    } else {
-      spm = dictionaryHelper.getSamplePrepMethod(sample); 
-    }
+    spm = sample.getOtherSamplePrepMethod();
     return spm != null && !spm.trim().equals("") ? spm : "&nbsp;";
   }
 
@@ -487,7 +483,7 @@ public class RequestHTMLFormatter {
     if (dictionaryHelper.getOrganism(sample).equals("Other")) {
       org = sample.getOtherOrganism();
     } else {
-      org = dictionaryHelper.getSamplePrepMethod(sample); 
+      org = dictionaryHelper.getOrganism(sample); 
     }
     return org != null && !org.trim().equals("") ? org : "&nbsp;";
   }

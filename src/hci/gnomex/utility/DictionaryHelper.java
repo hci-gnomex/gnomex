@@ -13,7 +13,6 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
-import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
@@ -227,15 +226,6 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (sample.getIdSampleType() != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", sample.getIdSampleType().toString());
-    }
-    return name;
-  }
-
-  public String getSamplePrepMethod(Sample sample) {
-    lazyLoadManagedDictionaries();
-    String name = "";
-    if (sample.getIdSamplePrepMethod() != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.SamplePrepMethod", sample.getIdSamplePrepMethod().toString());
     }
     return name;
   }

@@ -618,7 +618,6 @@
     	<many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
 		<property name="idOrganismSampleDefault" column="idOrganismSampleDefault" type="integer"/>
-		<property name="idSamplePrepMethodDefault" column="idSamplePrepMethodDefault" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
 		<property name="notes" column="notes" type="string"/>
 		<property name="completedDate" column="completedDate" type="date"/>
@@ -702,7 +701,6 @@
 		<property name="idOrganism" column="idOrganism" type="integer"/>
 		<property name="otherOrganism" column="otherOrganism" type="string"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
-		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="otherSamplePrepMethod" column="otherSamplePrepMethod" type="string"/>
 		<property name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
@@ -1426,7 +1424,6 @@
 		<property name="type" column="type" type="string"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="idOrganism" column="idOrganism" type="integer"/>
-		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="isSampleBarcodingOptional" column="isSampleBarcodingOptional" type="string"/>
 		<property name="isInternal" column="isInternal" type="string"/>
 		<property name="isExternal" column="isExternal" type="string"/>
@@ -1549,40 +1546,6 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
-	
-	<!-- hci.gnomex.model.SamplePrepMethod -->
-	<class name="hci.gnomex.model.SamplePrepMethod" table="SamplePrepMethod">
-		<id name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer">
-			<generator class="native"/>
-		</id>
-		<property name="samplePrepMethod" column="samplePrepMethod" type="string"/>
-		<property name="isActive" column="isActive" type="string"/>
-	</class>
-	
-	<!-- hci.gnomex.model.SamplePrepMethodSampleType -->
-	<class name="hci.gnomex.model.SamplePrepMethodSampleType" table="SamplePrepMethodSampleType">
-		<id name="idSamplePrepMethodSampleType" column="idSamplePrepMethodSampleType" type="integer">
-			<generator class="native"/>
-		</id>
-		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
-		<property name="idSampleType" column="idSampleType" type="integer"/>
-		<property name="isDefaultForSampleType" column="isDefaultForSampleType" type="string"/>
-		<property name="isActive" column="isActive" type="string"/>
-		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
-		<many-to-one name="sampleType"  column="idSampleType" class="hci.gnomex.model.SampleType" cascade="none" insert="false" update="false" />
-	</class>
-
-	<!-- hci.gnomex.model.SamplePrepMethodRequestCategory -->
-	<class name="hci.gnomex.model.SamplePrepMethodRequestCategory" table="SamplePrepMethodRequestCategory">
-		<id name="idSamplePrepMethodRequestCategory" column="idSamplePrepMethodRequestCategory" type="integer">
-			<generator class="native"/>
-		</id>
-		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
-		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
-		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
-		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
-	</class>
-	
 	<!-- hci.gnomex.model.SeqLibProtocol -->
 	<class name="hci.gnomex.model.SeqLibProtocol" table="SeqLibProtocol">
 		<id name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer">

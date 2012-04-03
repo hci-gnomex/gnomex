@@ -18,6 +18,7 @@
 * Add validation on email address in Create New Account
 * When splitting account any new items created will get the same Billing Status and Complete date as the items they were copied from.
 * Fix issue on new user register where if they entered external user name and then switched to UNID it remembered the external user name and still required a password.
+* Removed sample prep method dropdowns (nucleic acid extraction method).  Still have text box available but it is optional.
 
 
 5.3.9 (3/12/2012)

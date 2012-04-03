@@ -5,7 +5,6 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.SamplePrepMethodRequestCategory;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -72,11 +71,7 @@ public class DeleteExperimentPlatform extends GNomExCommand implements Serializa
           RequestCategoryApplication x = (RequestCategoryApplication)i.next();
           sess.delete(x);
         }
-        for (Iterator i = sess.createQuery("SELECT x from SamplePrepMethodRequestCategory x where x.codeRequestCategory = '" + codeRequestCategory + "'").list().iterator(); i.hasNext();) {
-          SamplePrepMethodRequestCategory x = (SamplePrepMethodRequestCategory)i.next();
-          sess.delete(x);
-        }
-        
+
         //
         // Delete sampleCharacteristic
         //

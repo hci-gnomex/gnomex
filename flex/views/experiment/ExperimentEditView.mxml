@@ -268,8 +268,6 @@
 		private var existingLanes:XMLList = null;
 		
 		[Bindable]
-		public var samplePrepMethodList:XMLListCollection;
-		[Bindable]
 		public var seqLibProtocolList:XMLListCollection;
 		[Bindable]
 		public var sampleSourceList:XMLListCollection;
@@ -408,11 +406,8 @@
 		}
 				
 		private function initializeData():void {
-			samplePrepMethodList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod'));
         	var dictionarySorter:Sort = new Sort();
     	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
-	        samplePrepMethodList.sort = dictionarySorter;
-	        samplePrepMethodList.refresh();
 			
 
 	        seqLibProtocolList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol'));
@@ -484,9 +479,6 @@
 	        this.filteredProjectList.refresh();
 						
 
-			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
-			samplePrepMethodList.refresh();
-
 			seqLibProtocolList.filterFunction = filterSeqLibProtocol;
 			seqLibProtocolList.refresh();
 			
@@ -539,7 +531,7 @@
 		}
 			
 		public function isCapSeqState():Boolean {
-			if (currentState == 'CapSeqState') {
+			if (currentState == 'CapSeqState' || currentState == 'CapSeqAmendState') {
 				return true;
 			} else {
 				return false;
@@ -776,7 +768,6 @@
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = '';
 				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
-				sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				sampleSetupView.enabled = false;
 				if (theTab.contains(annotationView)) {
@@ -1043,24 +1034,18 @@
 					
 			}
 			if (parentApplication.submitInternalExperiment()) {
-				this.sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
 				this.sampleSetupView.numberOfSamplesValidator.validate();
 				this.sampleSetupView.sampleTypeValidator.validate();
-				this.sampleSetupView.samplePrepMethodValidator.validate();
 			}
 
 			
 			
 			filteredSampleTypeList.refresh();
-			samplePrepMethodList.refresh();
 			seqLibProtocolList.refresh();
 			
 			if (parentApplication.submitInternalExperiment()) {
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
 				callLater(pickDefaultOrganism);
-				
-				sampleSetupView.samplePrepMethodCombo.selectedIndex = 0;
-				callLater(pickDefaultSamplePrepMethod);
 			}
 			 
 			
@@ -1102,25 +1087,6 @@
 			}
 
 
-		}
-			
-		private function pickDefaultSamplePrepMethod():void {
-			
-			// If the request category specified a default sample prep method,
-			// use it.
-			var requestCategory:Object = getRequestCategory();
-			if (requestCategory.@idSamplePrepMethod != '') {
-				var spm:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod',requestCategory.@idSamplePrepMethod);
-				if (spm is XMLList) {
-					sampleSetupView.samplePrepMethodCombo.selectedItem = spm[0];
-					return;
-				} else {
-					sampleSetupView.samplePrepMethodCombo.selectedItem = spm;
-					return;
-				}
-			} else {
-				sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
-			}		
 		}
 		
 		public function getSamplesGridRowNumber(item:Object,col:int):String
@@ -1315,11 +1281,6 @@
 		
 
 		
-		public function addSamplePrepMethodFilter():void {
-			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
-			samplePrepMethodList.refresh();
-		}
-		
 		private function getAmendRequestType():String {
 			var codeRequestCategory:String = getAmendRequestCategory();
 			if (codeRequestCategory != '') {
@@ -1381,46 +1342,6 @@
         	}
         	return requestCategory;			
 		}
-		
-		private function filterSamplePrepMethod(item:Object):Boolean {
-        	if (item.@value == "") {
-        		return true;
-        	}
-        	if (isEditState()) {
-        		return true;
-        	}
-        	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
-        	
-        	var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory.toString();
-
-        	var doesMatchRequestCategory:Boolean = false;
-        	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
-    	   	for each (var xref1:Object in theSamplePrepMethods) {
-    	   		if (xref1.@codeRequestCategory.toString() == codeRequestCategory) {
-	   				doesMatchRequestCategory = true;
-    	   		    break;
-    	   		}
-    	   	}
-        	
-        	var doesMatchSampleType:Boolean = true;
-        	if (sampleSetupView.sampleTypeCombo.selectedItem != null && 
-        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != null  &&
-        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != "") {
-        	   	doesMatchSampleType = false;
-        	   	var applicableSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
-        	   	for each (var xref:Object in applicableSamplePrepMethods) {
-        	   		if (xref.@idSampleType.toString() == sampleSetupView.sampleTypeCombo.selectedItem.@value.toString()) {
-    	   				doesMatchSampleType = true;
-	    	   		    break;
-        	   		}
-        	   	}
-        	} 
-        	
-        	return doesMatchRequestCategory && doesMatchSampleType;
-        }  
         
         private function filterSampleType(item:Object):Boolean {
         	if (item.@value == "") {
@@ -1435,8 +1356,8 @@
         	
         	var doesMatchRequestCategory:Boolean = false;
         	var requestCategory:Object = this.getRequestCategory();
-        	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
-    	   	for each (var xref1:Object in theSamplePrepMethods) {
+        	var theRequestCategories:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
+    	   	for each (var xref1:Object in theRequestCategories) {
     	   		if (xref1.@codeRequestCategory.toString() == requestCategory.@codeRequestCategory.toString()) {
 	   				doesMatchRequestCategory = true;
     	   		    break;
@@ -1770,7 +1691,6 @@
 				sample.@canChangeSampleType='Y';
 				sample.@canChangeSampleConcentration='Y';
 				sample.@canChangeSampleSource='Y';
-				sample.@canChangeSamplePrepMethod='Y';
    				sample.@canChangeNumberSequencingLanes='Y';
    				sample.@canChangeNumberSequencingLanes='Y'; 
    				sample.@canChangeNumberSequencingCycles='Y';
@@ -2158,7 +2078,6 @@
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
 				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
-				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
 				
 				if (currentState == 'QCState') {
 					for each(var chipType:Object in sampleSetupView.bioanalyzerChipTypeGrid.dataProvider) {
@@ -2678,10 +2597,9 @@
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
-				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
 				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 				
-				if (currentState != 'QCState' && currentState != 'CapSeqState') {
+				if (currentState != 'QCState' && !isCapSeqState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3394,6 +3312,9 @@
 				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_MICROARRAY) {
 					this.currentState = "MicroarrayAmendState"; 
 					setAmendTitle();
+				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_CAP_SEQ) {
+					this.currentState = "CapSeqAmendState";
+					setAmendTitle();
 				}
 			}
 		}
@@ -3533,7 +3454,8 @@
 			if (currentState == "AmendState" ||
 			    currentState == "MicroarrayAmendState" ||
 			    currentState == "SolexaBaseAmendState" ||
-			    currentState == "SolexaLaneAmendState") {
+			    currentState == "SolexaLaneAmendState" ||
+				currentState == "CapSeqAmendState") {
 				return true;    	
 			} else {
 				return false;
@@ -3579,7 +3501,10 @@
     			if (theTab.contains(this.annotationView)) {
         			annotationView.enabled = isComplete;
        			}        			
-    		}
+    		} else {
+				// capillary sequencing
+				sampleSetupView.enabled = isComplete;
+			}
     		
     		enableNextButtons();
     		
@@ -3644,6 +3569,8 @@
 				this.titleLabel.text = "Adding Microarray services to Sample Quality Experiment ";	
 			} else if (this.currentState == "SolexaLaneAmendState") {
 				this.titleLabel.text = "Adding Illumina sample sequencing runs to Experiment ";			
+			} else if (this.currentState == "CapSeqAmendState") {
+				this.titleLabel.text = "Adding Capillary Sequencing services to Experiment ";
 			}
 			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
 				this.titleLabel.text += this.browseTree.selectedItem.@requestNumber;
@@ -3672,8 +3599,9 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				
-			this.annotationView.checkSecurity();		
-
+			if (!this.isCapSeqState()) {
+				this.annotationView.checkSecurity();		
+			}
 			if (this.isSolexaAmendState()) {
 				if (this.currentState != "SolexaLaneAmendState") {
 					this.sampleSetupView.currentState = "SolexaAmendState";
@@ -3682,6 +3610,9 @@
 			} else if (this.isMicroarayAmendState()) {				
 				this.sampleSetupView.currentState = "MicroarrayAmendState";
 				this.hybSetupView.currentState = "SetupState";
+			} else if (this.isCapSeqState()) {
+				this.sampleSetupView.currentState = "CapSeqState";
+				this.samplesView.currentState = "CapSeqState";
 			}
 			
 			
@@ -3743,11 +3674,10 @@
 				
 			}
 			
-			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
+			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
 				// We are converting a QC request to a microarray or illumina
 				// sequencing request.
 				this.filteredSampleTypeList.refresh();
-				this.samplePrepMethodList.refresh();
 			
 				// Set the default sample type on the request based on the first sample listed
 				var idSampleTypeDefault:String = request.samples.Sample[0].@idSampleType.toString();
@@ -3755,16 +3685,14 @@
 			} 
 			
 			// Default the samples and sample setup for QC->SEQ 
-			if (currentState == "SolexaBaseAmendState") {
+			if (currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
    			   // Initialize @seqPrepByCore to 'Y'
 				for each(var s:Object in request.samples.Sample) {
 					s.@seqPrepByCore = "Y";
 				}
 
-				// Default the sample type and nucleic acid extraction
-				// dropdowns on sample setup
+				// Default the sample type on sample setup
 				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
-				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
 				
 				// Reset the organism on the sample if it was previously selected
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
@@ -3787,7 +3715,6 @@
 				// Default the sample type and nucleic acid extraction
 				// dropdowns on sample setup
 				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
-				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
 
 				// Reset the organism on the sample if it was previously selected
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
@@ -4465,6 +4392,15 @@
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
 		<mx:State name="CapSeqState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="CapSeqAmendState" basedOn="AmendState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>

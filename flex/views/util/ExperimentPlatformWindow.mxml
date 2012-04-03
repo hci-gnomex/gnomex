@@ -127,7 +127,6 @@
 				params.isSampleBarcodingOptional = this.barcodingRadioGroup.selectedValue;
 				
 				params.sampleTypesXMLString = "<sampleTypes>" + this.sampleTypes.toXMLString() + "</sampleTypes>";
-				params.samplePrepMethodsXMLString = "<samplePrepMethods>" + this.samplePrepMethods.toXMLString() + "</samplePrepMethods>";
 				params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
 				params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
 				
@@ -308,7 +307,6 @@
 					" isSelected='N'" +
 					" idSampleType='" + 'SampleType' + "'" +
 					" display='" + 'enter sample type here...' + "'" +
-					" idSamplePrepMethods=''" +
 					" codeApplications=''" +
 					" isActive='Y'" +
 					" />");
@@ -345,46 +343,6 @@
 				}
 			}
 			
-			private function addSamplePrepMethod():void {
-				var newNode:XML = new XML("<SamplePrepMethod " +
-					" isSelected='N'" +
-					" idSamplePrepMethod='" + 'SamplePrepMethod' + "'" +
-					" display='" + 'enter method name here...' + "'" +
-					" isActive='Y'" +
-					" />");
-				this.samplePrepMethods.addItemAt(newNode, 0);
-				this.samplePrepMethodGrid.selectedItem = newNode;
-				this.samplePrepMethodGrid.scrollToIndex(0);
-				this.dirty.setDirty();
-				
-			}
-			
-			
-			
-			private function removeSamplePrepMethod():void {
-				if (samplePrepMethodGrid.selectedItem == null) {
-					return;
-				}
-				Alert.show("Are you sure you want to remove nucleic acid extraction method " + samplePrepMethodGrid.selectedItem.@display + "?",
-					"Confirm",
-					(Alert.YES | Alert.NO), this, 
-					onPromptToRemoveSamplePrepMethod,						
-					parentApplication.iconWarning);
-				
-			}
-			
-			private function onPromptToRemoveSamplePrepMethod(event:CloseEvent):void {
-				if (event.detail == Alert.YES) {
-					removeSamplePrepMethodImpl();
-				}
-			}
-			
-			private function removeSamplePrepMethodImpl():void {
-				if (this.samplePrepMethodGrid.selectedItem != null) {
-					this.samplePrepMethods.removeItemAt(samplePrepMethods.getItemIndex(samplePrepMethodGrid.selectedItem));
-					this.dirty.setDirty();
-				}
-			}
 			private function addNumberSequencingCycles():void {
 				var newNode:XML = new XML("<NumberSequencingCycles " +
 					" isSelected='N'" +
@@ -529,7 +487,6 @@
 	
 	<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
 	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
-	<mx:XMLListCollection id="samplePrepMethods" source="{requestCategory.samplePrepMethods.SamplePrepMethod}"/>
 	<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
 	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
 	
@@ -724,53 +681,6 @@
 										<mx:DataGridColumn headerText="Experiment Types"  
 														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
 														   dataField="@codeApplications" >
-										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Nucl. acid extraction Methods"  
-														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Nucl. acid extraction methods', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value != ''))}" 
-														   dataField="@idSamplePrepMethods" >
-										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Active"  
-														   width="45"  editable="false"                      	
-														   dataField="@isActive" 
-														   editorDataField="selected"
-														   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
-										</mx:DataGridColumn>
-									</mx:columns>
-								</mx:DataGrid>
-							</mx:VBox>
-						</mx:VBox>
-						
-						<mx:VBox width="100%" height="100%"  paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4" label="Nucl. acid extr. methods" verticalGap="12">
-							<mx:VBox width="100%" height="100%" verticalGap="0">
-								<mx:HBox verticalAlign="middle">
-									<mx:ViewStack id="selectAllStack" width="80" paddingBottom="0" paddingTop="0">
-										<mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
-											<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll(samplePrepMethods, selectAllStack)"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
-										</mx:HBox>
-										<mx:HBox width="100%" paddingBottom="0" paddingTop="0">
-											<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll(samplePrepMethods, selectAllStack)"  paddingTop="0" paddingBottom="0"/>
-										</mx:HBox>			    	
-									</mx:ViewStack>
-									<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" click="{addSamplePrepMethod()}"/>
-									<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; samplePrepMethodGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="{removeSamplePrepMethod()}"/>
-								</mx:HBox>
-								<mx:DataGrid id="samplePrepMethodGrid" 
-											 dataProvider="{samplePrepMethods}"
-											 editable="true"
-											 width="100%" height="100%" itemEditBegin="dirty.setDirty()">
-									<mx:columns>
-										<mx:DataGridColumn headerText=" "  
-														   width="20" 
-														   editable="false"                        	
-														   dataField="@isSelected" 
-														   editorDataField="selected"
-														   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
-										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Nucl. acid extraction Method" 
-														   editable="true" 
-														   itemRenderer="views.renderers.LabelActive"
-														   rendererIsEditor="false"
-														   dataField="@display" >
 										</mx:DataGridColumn>
 										<mx:DataGridColumn headerText="Active"  
 														   width="45"  editable="false"                      	
