@@ -1713,7 +1713,7 @@ DROP TABLE IF EXISTS PropertyEntryValue;
 CREATE TABLE gnomex.PropertyEntryValue (
   idPropertyEntryValue INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
   value VARCHAR(200) NULL,
-  idPropertyEntry INT(10)  NOT NULL,
+  idPropertyEntry INT(10)   NULL,
   PRIMARY KEY (idPropertyEntryValue),
   CONSTRAINT FK_PropertyEntryValue_PropertyEntry FOREIGN KEY FK_PropertyEntryValue_PropertyEntry (idPropertyEntry)
     REFERENCES gnomex.PropertyEntry (idPropertyEntry)
