@@ -7,7 +7,6 @@
 		<mx:State name="EditState">
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:SetProperty name="enabled" value="true"/>
-			<mx:SetProperty target="{seqLibTreatmentBox}" name="styleName"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
@@ -91,19 +90,6 @@
 		}
 		
 		public function checkSecurity():void {
-			if (this.currentState == "EditState") {
-				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					this.seqLibTreatmentGrid.enabled = true;	
-					this.seqLibCheckboxCol.editable = true;
-				} else {
-					this.seqLibTreatmentGrid.enabled = false;
-					this.seqLibCheckboxCol.editable = false;
-				}				
-			} else {
-				this.seqLibTreatmentGrid.enabled = true;
-				this.seqLibCheckboxCol.editable = true;
-
-			}
 		}
 		
 		private function onSeqAppRadioClick(event:Object):void {
@@ -117,8 +103,29 @@
         	if (parentDocument.isEditState() && (isValidRange || designComplete)) {
         		isComplete = true;
         	} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
-	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '' && (isValidRange || designComplete)) {
-	        		isComplete = true;
+	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
+					
+				 	if (insertRanges.visible) {
+						// If the avg insert size range is visible, it is a required
+						// field, so make sure it has been filled in and passed
+						// the range validation.
+						if (isValidRange)	{
+							isComplete = true;
+						} 
+					} else if (libraryDesign.visible) {
+					
+						// If the capture design lib id is visible, it is required, so
+						// make sure it has been filled in.
+						if (designComplete) {
+							isComplete = true;
+						}
+					} else {
+				
+						// If neither insert ranges or design lib id is visible, we have
+						// passed all of the required field checks already.
+						isComplete = true;
+						
+					}
 	        	 }
         	} 
 
@@ -159,15 +166,19 @@
 					this.parentDocument.applicationName = application[0].@display;
 					if(application[0].@display.indexOf("SureSelect") > 0){ //If it is sure select we need to show the library capture id input box
 						libraryDesign.visible = true;
+						libraryDesign.includeInLayout = true;
 					}
 					else{
 						libraryDesign.visible = false;
+						libraryDesign.includeInLayout = false;
 					}
 					if(application[0].@display.indexOf("Mononucleosome") != -1 || application[0].@display.indexOf("Genomic") != -1){
 						insertRanges.visible = true;
+						insertRanges.includeInLayout = true;
 					}
 					else{
 						insertRanges.visible = false;
+						insertRanges.includeInLayout = false;
 					}
 				} else if (application != null && application is XML) {
 					this.parentDocument.applicationName = application.@display;
@@ -183,46 +194,6 @@
 			}
 		}
 		
-	   	public function selectSeqLibTreatment(event:ListEvent):void {
-	   		if (event == null || event.columnIndex == 0) {
-	   			return;
-	   		}
-	   		if (seqLibTreatmentGrid == null || seqLibTreatmentGrid.selectedItem == null) {
-	   			return;
-	   		}
-	   		if (seqLibTreatmentGrid.selectedItem.@isSelected == "true") {
-				seqLibTreatmentGrid.selectedItem.@isSelected = "false";
-						
-			} else {
-				seqLibTreatmentGrid.selectedItem.@isSelected = "true";
-			}
-			
-			var count:int = 0;
-			parentDocument.seqLibTreatmentsDisplay = "";
-			for each (var item:Object in seqLibTreatments) {
-				if (item.@isSelected == "true") {
-					this.seqLibTreatmentBox.styleName = 'normalBox';
-					if (count > 0) {
-					   parentDocument.seqLibTreatmentsDisplay += ", ";
-					}
-					parentDocument.seqLibTreatmentsDisplay += item.@display;
-					count++;
-				} 
-			}
-			
-			/* Don't make seq lib treatment required for now.
-			if (count > 0) {
-				this.seqLibTreatmentBox.styleName = 'normalBox';
-			} else {
-				this.seqLibTreatmentBox.styleName = 'requiredBox';
-			}
-			*/ 
-			
-			this.seqLibTreatmentBox.styleName = 'normalBox';
-
-			
-			this.checkSeqAppSetupCompleteness();
-		}
 		
 		private function propagateDesign():void{
 			designComplete = false;
@@ -261,57 +232,36 @@
   <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
   <mx:Canvas width="100%" height="100%">
         	
-	<mx:VBox width="100%" height="100%" verticalGap="2">
-   		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="20" id="sampleSetupContainer" enabled="true">
-		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
-		       <mx:Text text="Select a sequencing application." width="200" id="labelApplication"/>
+	<mx:HBox width="100%" height="100%" verticalGap="2">
+   		<mx:VBox height="100%"  paddingTop="2"  verticalGap="2" id="sampleSetupContainer" enabled="true" >
+			<mx:Text text="Select a sequencing application."  id="labelApplication"/>
+		   <mx:HBox horizontalGap="0" id="hbox1" paddingLeft="12">
 		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
-		       </mx:RadioButtonGroup>
+		       </mx:RadioButtonGroup> 
 		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox">
 		       </mx:VBox>
 		   </mx:HBox>
-			<mx:HBox id="libraryDesign" visible="false">
-				<mx:Label text="Capture Library Design ID" id="designIDLabel" width="200"/>
-				<mx:TextInput id="designID" focusOut="propagateDesign()"/>
-			</mx:HBox>
-			<mx:HBox id="insertRanges" visible="false">
-				<mx:Label text="Insert Range" id="insertRangeLabel" width="200"/>
-				<mx:TextInput id="minInsertRange" width="50" focusOut="propagateInsertRange()"/>
-				<mx:Text text=" to "/>
-				<mx:TextInput id="maxInsertRange" width="50" focusOut="propagateInsertRange()"/>
-				<mx:Text text="Insert sizes range from 60bp to 100bp" fontStyle="italic"/>
-			</mx:HBox>
-		   	 
-		   <mx:HBox width="100%" horizontalGap="0" height="100%" visible="false">
-		       <mx:Text text="Identify all conditions/instructions that apply to these samples." width="200" id="labelSeqLibTreatment"/>
-		       <mx:VBox height="100%"  width="550" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqLibTreatmentBox">
-		           <mx:DataGrid id="seqLibTreatmentGrid"   
-		           	  dataProvider="{seqLibTreatments}" 
-		           	  width="100%" height="100%"
-		           	  itemClick="selectSeqLibTreatment(event)"  
-		           	  showHeaders="false" verticalGridLines="false"  alternatingItemColors="[#ffffff, #ffffff]" borderStyle="none">
-		             <mx:columns>
-			           	  <mx:DataGridColumn headerText=" "  
-			           	  	id="seqLibCheckboxCol"
-			            	width="20" 
-			            	editable="true"                        	
-			            	dataField="@isSelected" 
-			            	editorDataField="selected" sortable="false"
-			            	itemRenderer="views.renderers.CheckBoxIsSelectedSeqLibTreatment">
-					      </mx:DataGridColumn>
-					      
-					      <mx:DataGridColumn headerText="" dataField="@seqLibTreatment">		      	
-				          </mx:DataGridColumn>
-		             	
-		             </mx:columns>
-		           </mx:DataGrid>
-		       </mx:VBox>
-		   </mx:HBox>
-
-
 		</mx:VBox>
 		
-	</mx:VBox>
+		<mx:VBox  visible="{libraryDesign.visible || insertRanges.visible}" includeInLayout="{libraryDesign.visible || insertRanges.visible}"  height="100%"  paddingTop="2">
+			<mx:VBox verticalGap="0" id="insertRanges" paddingTop="30" visible="false" includeInLayout="false">
+				<mx:Label text="Insert Range" id="insertRangeLabel" />
+				<mx:HBox horizontalGap="0">
+					<mx:TextInput id="minInsertRange" width="50" change="propagateInsertRange()"/>
+					<mx:Text text=" to "/>
+					<mx:TextInput id="maxInsertRange" width="50" change="propagateInsertRange()"/>
+				</mx:HBox>
+				<mx:Text text="Insert sizes range from 60 to 100bp" fontStyle="italic"/>
+			</mx:VBox>
+			<mx:Spacer height="100%"/>
+			<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingBottom="70">
+				<mx:Label text="Capture Library Design ID" id="designIDLabel" />
+				<mx:TextInput id="designID" change="propagateDesign()"/>
+			</mx:VBox>
+			
+		</mx:VBox>
+
+	</mx:HBox>
 	
   </mx:Canvas>
 
