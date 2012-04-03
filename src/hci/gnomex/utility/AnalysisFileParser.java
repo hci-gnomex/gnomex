@@ -35,8 +35,10 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
     Element root = this.doc.getRootElement();
     recurseDirectories(root, null, sess);
     
-    Element deleteRoot = this.filesToDeleteDoc.getRootElement();
-    recurseDeleteDirectories(deleteRoot, null, sess);
+    if (filesToDeleteDoc != null) {
+      Element deleteRoot = this.filesToDeleteDoc.getRootElement();
+      recurseDeleteDirectories(deleteRoot, null, sess);
+    }
     
   }
   

@@ -416,6 +416,7 @@
 			<url-pattern>/MoveDataTrack.gx</url-pattern>
 			<url-pattern>/MoveDataTrackFolder.gx</url-pattern>
 			<url-pattern>/SaveAnalysis.gx</url-pattern>
+			<url-pattern>/SaveAnalysisFiles.gx</url-pattern>
 			<url-pattern>/SaveAnalaysisGroup.gx</url-pattern>
 			<url-pattern>/SaveAppUser.gx</url-pattern>
 			<url-pattern>/SaveBillingItemList.gx</url-pattern>
