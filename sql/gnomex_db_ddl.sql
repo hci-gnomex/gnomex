@@ -1389,7 +1389,6 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `sortOrder` INT(10) NULL,
   `idOrganism` INT(10) NULL,
   `idCoreFacility` INT(10) NULL,
-  `idSamplePrepMethod` INT(10) NULL,
   `isSampleBarcodingOptional` CHAR(1) NULL,
   `isInternal` CHAR(1) NULL,
   `isExternal` CHAR(1) NULL,
@@ -1729,43 +1728,6 @@ CREATE TABLE `gnomex`.`SamplePrepMethod` (
   PRIMARY KEY (`idSamplePrepMethod`)
 )
 ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`SamplePrepMethodRequestCategory`;
-CREATE TABLE `gnomex`.`SamplePrepMethodRequestCategory` (
-  `idSamplePrepMethodRequestCategory` INT(10) NOT NULL AUTO_INCREMENT,
-  `idSamplePrepMethod` INT(10) NULL,
-  `codeRequestCategory` VARCHAR(10) NULL,
-  PRIMARY KEY (`idSamplePrepMethodRequestCategory`),
-  CONSTRAINT `FK_SamplePrepMethodRequestCategory_SamplePrepMethod` FOREIGN KEY `FK_SamplePrepMethodRequestCategory_SamplePrepMethod` (`idSamplePrepMethod`)
-    REFERENCES `gnomex`.`SamplePrepMethod` (`idSamplePrepMethod`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SamplePrepMethodRequestCategory_RequestCategory` FOREIGN KEY `FK_SamplePrepMethodRequestCategory_RequestCategory` (`codeRequestCategory`)
-    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`SamplePrepMethodSampleType`;
-CREATE TABLE `gnomex`.`SamplePrepMethodSampleType` (
-  `idSamplePrepMethodSampleType` INT(10) NOT NULL AUTO_INCREMENT,
-  `idSampleType` INT(10) NULL,
-  `idSamplePrepMethod` INT(10) NULL,
-  `isDefaultForSampleType` CHAR(1) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idSamplePrepMethodSampleType`),
-  CONSTRAINT `FK_SamplePrepMethodSampleType_SampleType` FOREIGN KEY `FK_SamplePrepMethodSampleType_SampleType` (`idSampleType`)
-    REFERENCES `gnomex`.`SampleType` (`idSampleType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SamplePrepMethodSampleType_SamplePrepMethod` FOREIGN KEY `FK_SamplePrepMethodSampleType_SamplePrepMethod` (`idSamplePrepMethod`)
-    REFERENCES `gnomex`.`SamplePrepMethod` (`idSamplePrepMethod`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
 
 DROP TABLE IF EXISTS `gnomex`.`SampleSource`;
 CREATE TABLE `gnomex`.`SampleSource` (
