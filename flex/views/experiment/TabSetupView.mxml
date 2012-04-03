@@ -802,9 +802,11 @@
 			} 
 			
 			private function updateFilteredSlideProduct():void{
-				parentDocument.filteredSlideProductList.refresh();
-				parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
-				parentDocument.filteredSlideProductList.refresh();
+				if (parentDocument.filteredSlideProductList != null) {
+					parentDocument.filteredSlideProductList.refresh();
+					parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
+					parentDocument.filteredSlideProductList.refresh();					
+				}
 			}
 			
 			private function filterSlideProduct(item:Object):Boolean{
