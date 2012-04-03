@@ -3,6 +3,12 @@
 
 5.4
 --------------------
+* Get rid of QC and Seq prep workflow fields on Samples tab when submitting a request or registering an external experiment.
+* To fix delete bug on Analysis, DataTrack with url properties, allow nulls for idPropertyEntry on PropertyEntryValue
+* Fixed problem where distribute data tracks not working after FDT upload.  Needed to register analysis files in db before distribute.
+* Fixed sql bug in Analysis delete file when analysis file not yet registered in db.
+* Fixed multi-select drag-and-drop to distribute data tracks. (Made synchronous http service request calls.)
+* Renamed label for segment import from ch1 to chr2
 * Added UsageReportd.java and related script files to create weekly usage report for CvDC
 * Modified BatchDataSource.java and BatchMailer.java to add an optional constructor that defines path to orion and location of hibernate mapping file
 * Modified MailUtil -- added send_bcc command to provide for sending messages with bcc field populated.
@@ -12,6 +18,7 @@
 * Add validation on email address in Create New Account
 * When splitting account any new items created will get the same Billing Status and Complete date as the items they were copied from.
 * Fix issue on new user register where if they entered external user name and then switched to UNID it remembered the external user name and still required a password.
+
 
 5.3.9 (3/12/2012)
 --------------------
