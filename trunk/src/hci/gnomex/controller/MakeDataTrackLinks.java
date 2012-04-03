@@ -142,6 +142,11 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       UCSCLinkFiles link = DataTrackUtil.fetchURLLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
       File[] filesToLink = link.getFilesToLink();
       if (filesToLink== null)  throw new Exception ("No files to link?!");
+      
+      // When new .bw/.bb files are created, add analysis files and then link via data
+      // track file to the data track.
+      MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
+
 
       //look and or make directory to hold softlinks to data, also removes old softlinks
       File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, GNomExFrontController.getWebContextPath());
