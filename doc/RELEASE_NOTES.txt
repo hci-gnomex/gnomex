@@ -20,6 +20,12 @@
 * Fix issue on new user register where if they entered external user name and then switched to UNID it remembered the external user name and still required a password.
 * Removed sample prep method dropdowns (nucleic acid extraction method).  Still have text box available but it is optional.
 
+5.4 Deploy Notes
+--------------------
+* Update nucleic acid methods from dropdown where appropriate -- update Sample set otherSamplePrepMethod=SamplePrepMethod from Sample join SamplePrepMethod on samplePrepMethod.idSamplePrepMethod = Sample.idSamplePrepMethod where otherSamplePrepMethod is null and Sample.idSamplePrepMethod is not null
+* Remove idSamplePrepMethod from RequestCategory table
+* Remove the SamplePrepMethodRequestCategory table
+* Remove the SampePrepMethodSampleType table
 
 5.3.9 (3/12/2012)
 --------------------
