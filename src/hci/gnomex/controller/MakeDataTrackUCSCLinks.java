@@ -3,7 +3,9 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UCSCLinkFiles;
@@ -15,12 +17,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.Iterator;
+
+
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -71,7 +78,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
     try {
       
    
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
       
@@ -116,7 +123,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeHibernateSession();        
       } catch(Exception e) {
         
       }
@@ -142,10 +149,16 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       String ucscGenomeBuildName = gv.getUcscName();
       if (ucscGenomeBuildName == null || ucscGenomeBuildName.length() ==0) throw new Exception ("Missing UCSC Genome Version name, update, and resubmit.");
 
+      List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
+      
       //check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.useq (will be converted if autoConvert is true))
-      UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
+      UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
       File[] filesToLink = link.getFilesToLink();
       if (filesToLink== null)  throw new Exception ("No files to link?!");
+
+      // When new .bw/.bb files are created, add analysis files and then link via data
+      // track file to the data track.
+      registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
       //look and or make directory to hold softlinks to data, also removes old softlinks
       File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, GNomExFrontController.getWebContextPath());
@@ -216,6 +229,54 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 
   }
   
+  
+  public static void registerDataTrackFiles(Session sess, String analysisBaseDir, DataTrack dataTrack, File[] filesToLink) throws Exception {
+    // We need to create an AnalysisFile and DataTrackFile in the db for newly converted files
+    // Only do this if we have linked to an existing analysis file
+    if (dataTrack.getDataTrackFiles() != null && dataTrack.getDataTrackFiles().size() > 0) {
+      // First get the analysis file to clone; this should be the .useq file already
+      // linked to the data track.
+      AnalysisFile analysisFileToClone = null;
+      for (DataTrackFile dtFile1 : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
+        analysisFileToClone = dtFile1.getAnalysisFile();
+        break;
+      }
+      // Now we will look at each of the converted files.  If there isn't an existing
+      // data track file that points back to it (an analysis file), then create it
+      // and link it to the data track.
+      if (analysisFileToClone != null) {
+        for (int x = 0; x < filesToLink.length; x++) {
+          File f = filesToLink[x];
+          boolean found = false;
+          for (DataTrackFile dtFile1 : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
+            String fileName = dtFile1.getAssociatedFilePath(analysisBaseDir);
+            File dtf = new File(fileName);
+            if (dtf.equals(f)) {
+              found = true;
+              analysisFileToClone = dtFile1.getAnalysisFile();
+              break;
+            }
+          }
+          if (!found) {
 
+            AnalysisFile af = new AnalysisFile();
+            af.setIdAnalysis(analysisFileToClone.getIdAnalysis());
+            af.setBaseFilePath(analysisFileToClone.getBaseFilePath());
+            af.setQualifiedFilePath(analysisFileToClone.getQualifiedFilePath());
+            af.setFileName(f.getName());
+            af.setFileSize(new BigDecimal(f.length()));
+
+            sess.save(af);
+
+            DataTrackFile dtf = new DataTrackFile();
+            dtf.setIdAnalysisFile(af.getIdAnalysisFile());
+            dtf.setIdDataTrack(dataTrack.getIdDataTrack());
+            sess.save(dtf);
+          }        
+        }
+      }
+    }
+    
+  }
 
 }

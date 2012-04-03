@@ -242,10 +242,10 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
         dirNode.addAttribute("name", this.getFileName());
         dirNode.addAttribute("url", filePath);
 
-        String ucscLinkFile = "";
+        String ucscLinkFile = "none";
         if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
           for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
-            ucscLinkFile = appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), dirNode, null, dtFile);
+            ucscLinkFile = appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), dirNode, null, dtFile, ucscLinkFile);
           }
         }
         dirNode.addAttribute("ucscLinkFile", ucscLinkFile);			  
@@ -254,7 +254,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
         Element dirNode = filesNode.addElement("Dir");
         dirNode.addAttribute("name", this.getFileName());
         dirNode.addAttribute("url", filePath);
-        String ucscLinkFile = appendFileXML(filePath, dirNode, null, null);
+        String ucscLinkFile = "none";
+        ucscLinkFile = appendFileXML(filePath, dirNode, null, null, ucscLinkFile);
         dirNode.addAttribute("ucscLinkFile", ucscLinkFile);
 			}
 		}
@@ -413,9 +414,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   
 
 	/**Returns 'none' if no files available for UCSC linking, 'convert' for files requiring conversion, or 'link' if they are ready to go.*/
-	public static String appendFileXML(String filePath, Element parentNode, String subDirName, DataTrackFile dataTrackFile) {
+	public static String appendFileXML(String filePath, Element parentNode, String subDirName, DataTrackFile dataTrackFile, String ucscLinkFile) {
 		File fd = new File(filePath);
-		String ucscLinkFile = "none";
 		
 		if (fd.exists()) {
 		  if (fd.isDirectory()) {
@@ -433,7 +433,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   					Element fileNode = parentNode.addElement("Dir");
   					fileNode.addAttribute("name", displayName);
   					fileNode.addAttribute("url", fileName);
-  					appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), null);
+  					ucscLinkFile = appendFileXML(fileName, fileNode, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), null, ucscLinkFile);
   				} else {
   					Element fileNode = parentNode.addElement("File");
   
@@ -545,7 +545,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	}
 
 
-	public List<File> getFiles(String data_root, String analysis_data_root) throws IOException {
+	@SuppressWarnings("unchecked")
+  public List<File> getFiles(String data_root, String analysis_data_root) throws IOException {
 
 		ArrayList<File> files = new ArrayList<File>();
 
