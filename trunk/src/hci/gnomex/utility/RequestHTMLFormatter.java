@@ -308,7 +308,7 @@ public class RequestHTMLFormatter {
       Integer multiplexGroup = sample.getMultiplexGroupNumber() == null ? Integer.valueOf(-99) : sample.getMultiplexGroupNumber();
       if (showMultiplexGroup) {        
         if (!prevMultiplexGroup.equals(multiplexGroup)) {
-          this.addBlankCell(row, sample.getMultiplexGroupNumber().toString());          
+          this.addBlankCell(row, multiplexGroup.toString());          
         } else {
           Sample nextSample = null;
           int next = x + 1;
