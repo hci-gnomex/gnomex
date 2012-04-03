@@ -8,8 +8,8 @@
 	
 	<mx:HTTPService  
 		id="cacheFDTFileDownloadList" 
-		url="CacheAnalysisDownloadList.gx"
-		destination="cacheAnalysisDownloadList"
+		url="CacheAnalysisFileDownloadList.gx"
+		destination="cacheAnalysisFileDownloadList"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onCacheFDTFileDownloadList(event)"
