@@ -78,7 +78,6 @@
 				    " canChangeSampleType='Y'" +
 				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
-				    " canChangeSamplePrepMethod='Y'" +
    					" canChangeNumberSequencingLanes='Y'" +  
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
@@ -91,14 +90,13 @@
 					" seqPrepByCore = 'N'" +
 					" idOligoBarcode = ''" +
 					" barcodeSequence = ''" +
-					" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '') + "'" +				
-					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
+					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text : '') + "'" +				
-					" prepInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text : '') + "'" +				
+					" analysisInstructions=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+					" prepInstructions=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
+					" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" treatment=''"   +				
 					"/>");
 					
@@ -110,7 +108,6 @@
   				    " canChangeSampleType='Y'" +
 				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
-				    " canChangeSamplePrepMethod='Y'" +
    					" canChangeNumberSequencingCycles='Y'" + 
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration=''" +
@@ -124,12 +121,11 @@
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
 					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text : '') + "'" +				
-					" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '') + "'" +				
-					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
+					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
 					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
+					" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" treatment=''"  +				
 					"/>");
 					
@@ -145,7 +141,6 @@
 			    " canChangeSampleType='Y'" +
 			    " canChangeSampleConcentration='Y'" +
 			    " canChangeSampleSource='Y'" +
-			    " canChangeSamplePrepMethod='Y'" +
   				" canChangeNumberSequencingCycles='Y'" +
 				" canChangeNumberSequencingLanes='Y'" + 
 				" concentration=''" +
@@ -154,8 +149,7 @@
 				" codeConcentrationUnit='ng/ul'" + 
 				" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
-				" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '')  + "'" +				
-				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '')  + "'" +				
+				" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
 				" treatment=''"  +				
 				"/>");
 			
@@ -168,7 +162,6 @@
 					" canChangeSampleType='Y'" +
 					" canChangeSampleConcentration='N'" +
 					" canChangeSampleSource='N'" +
-					" canChangeSamplePrepMethod='N'" +
 					" canChangeNumberSequencingCycles='N'" +
 					" canChangeNumberSequencingLanes='N'" + 
 					" concentration=''" +
@@ -177,34 +170,32 @@
 					" codeConcentrationUnit='ng/ul'" + 
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
-					" idSamplePrepMethod=''"  +				
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +				
 					"/>");
 				
 			} else {
-				emptyNode = new XML("<Sample " +
-			    " idSample='" + "Sample" + getNextSampleId() + "'" +
-			    " name='' description='' " +
-			    " cy3='false'" +
-			    " cy5='false'" +			    
-			    " canChangeSampleName='Y'" +
-			    " canChangeSampleType='Y'" +
-			    " canChangeSampleConcentration='Y'" +
-			    " canChangeSampleSource='Y'" +
-			    " canChangeSamplePrepMethod='Y'" +
-  				" canChangeNumberSequencingCycles='Y'" +
-				" canChangeNumberSequencingLanes='Y'" + 
-				" concentration=''" + 
-	   		    " idOligoBarcode = ''" +				
-	   		    " barcodeSequence = ''" +				
-				" codeConcentrationUnit='ng/ul'" + 
-				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
-				" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value  : '') + "'" +				
-				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
-				" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-				" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" 	+	
-				"/>");
+				var xmlString:String = "<Sample " +
+					" idSample='" + "Sample" + getNextSampleId() + "'" +
+					" name='' description='' " +
+					" cy3='false'" +
+					" cy5='false'" +			    
+					" canChangeSampleName='Y'" +
+					" canChangeSampleType='Y'" +
+					" canChangeSampleConcentration='Y'" +
+					" canChangeSampleSource='Y'" +
+					" canChangeNumberSequencingCycles='Y'" +
+					" canChangeNumberSequencingLanes='Y'" + 
+					" concentration=''" + 
+					" idOligoBarcode = ''" +				
+					" barcodeSequence = ''" +				
+					" codeConcentrationUnit='ng/ul'" + 
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
+					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
+					"/>"
+				emptyNode = new XML(xmlString);
 			}
 			
 			parentDocument.samples.addItem(emptyNode);
@@ -317,12 +308,10 @@
 			    	" canChangeSampleType='Y'" +
 			   	 	" canChangeSampleConcentration='Y'" +
 			    	" canChangeSampleSource='Y'" +
-			    	" canChangeSamplePrepMethod='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
-					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
-					" otherSamplePrepMethod='" + sampleToCopy.@otherSamplePrepMethod + "'" +				
+					" otherSamplePrepMethod=\"" + sampleToCopy.@otherSamplePrepMethod + "\"" +				
 					" idSeqLibProtocol='" + sampleToCopy.@idSeqLibProtocol + "'" +				
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
@@ -430,7 +419,6 @@
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idSampleType") &&
 	        			    isEntered(sample, "@idOrganism") &&
-			        		//isEntered(sample, "@idSamplePrepMethod") &&	don't require b/c old requests won't have this filled in        		
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
 							reqdAnnotationsEntered(sample)&& 
@@ -446,7 +434,6 @@
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idSampleType") &&
 							isEntered(sample, "@idOrganism") &&
-			        		(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&	        		
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
 							reqdAnnotationsEntered(sample) &&  
@@ -470,7 +457,6 @@
 					} else {
 	        			if (isEntered(sample, "@name") &&
 			        		isEntered(sample, "@idSampleType") &&	        		
-			        		(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&	        		
 			        		isEntered(sample, "@idSeqLibProtocol") &&	        		
 			        		isEntered(sample, "@concentration") &&
 							isEntered(sample, "@idOrganism") &&
@@ -505,7 +491,6 @@
 		        } else if (currentState != null && currentState.indexOf('QCSamples') >= 0){
 					if (!parentApplication.submitInternalExperiment()) {
 						if (isEntered(sample, "@name") &&
-							(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&	
 							reqdAnnotationsEntered(sample) &&
 							isEntered(sample, "@idSampleType")) {
 							completeCount++;
@@ -513,7 +498,6 @@
 					} else {
 						if (isEntered(sample, "@name") &&
 							isEntered(sample, "@idSampleType") &&		        		
-							(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&		        		
 							isEntered(sample, "@concentration") &&
 							reqdAnnotationsEntered(sample) &&							
 							isEntered(sample, "@codeConcentrationUnit") ) {
@@ -538,7 +522,6 @@
 				} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
-			        	(isEntered(sample, "@idSamplePrepMethod") || !this.samplePrepMethodCol.visible) &&		        		
 			        	(isEntered(sample, "@concentration") || !parentApplication.submitInternalExperiment()) &&  // only require concentration on internal requests
 						reqdAnnotationsEntered(sample) &&
 						isEntered(sample, "@idOrganism")) {
@@ -873,9 +856,7 @@
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
-			this.otherSamplePrepMethodCol.visible = !isExternal;
 			this.preppedByCoreCol.visible = !isExternal;
-			this.samplePrepMethodCol.visible = !isExternal;
 			this.otherSamplePrepMethodCol.visible = !isExternal;
 			this.seqLibProtocolCol.visible = !isExternal;
 			
@@ -953,7 +934,6 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = false;
 				sampleOrganismColumn.editable = false;
-				samplePrepMethodCol.visible = false;
 				this.concentrationCol.visible = false;
 				
 				this.otherOrganismCol.visible = false;
@@ -1460,13 +1440,9 @@
                     <mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
-	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
+	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
 
-                    <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission}"  width="180" dataField="@idSamplePrepMethod" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
- 	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"                
-	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." 
+					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 							width="140" dataField="@otherSamplePrepMethod" 
 							itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 

@@ -45,19 +45,7 @@
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
-         <Filter className="hci.gnomex.model.SamplePrepMethod" filterField="idSamplePrepMethod"/>
   	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
-	</Dictionary>
-	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod"  editable="N">
-	</Dictionary>
-	<Dictionary displayName="Sample Prep Method (Request defaults)" className="hci.gnomex.model.SamplePrepMethodRequestCategory"  editable="N">
-  	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
-  	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
-	</Dictionary>
-	<Dictionary displayName="Sample Prep Method (Sample type defaults)" className="hci.gnomex.model.SamplePrepMethodSampleType"  editable="N">
-  	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
-  	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
-      <Filter className="YN" filterField="isDefaultForSampleType"/>
 	</Dictionary>
 	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
 	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType"  editable="N">

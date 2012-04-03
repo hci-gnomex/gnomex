@@ -7,9 +7,6 @@ import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.SamplePrepMethod;
-import hci.gnomex.model.SamplePrepMethodRequestCategory;
-import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
@@ -51,9 +48,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private String                         sampleTypesXMLString;
   private Document                       sampleTypesDoc;
   
-  private String                         samplePrepMethodsXMLString;
-  private Document                       samplePrepMethodsDoc;
-  
   private String                         applicationsXMLString;
   private Document                       applicationsDoc;
 
@@ -88,19 +82,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         this.addInvalidField( "sampleTypesXMLString", "Invalid sampleTypesXMLString");
       }
     } 
-    
-    
-    if (request.getParameter("samplePrepMethodsXMLString") != null && !request.getParameter("samplePrepMethodsXMLString").equals("")) {
-      samplePrepMethodsXMLString = request.getParameter("samplePrepMethodsXMLString");
-      StringReader reader = new StringReader(samplePrepMethodsXMLString);
-      try {
-        SAXBuilder sax = new SAXBuilder();
-        samplePrepMethodsDoc = sax.build(reader);     
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse samplePrepMethodsXMLString", je );
-        this.addInvalidField( "samplePrepMethodsXMLString", "Invalid samplePrepMethodsXMLString");
-      }
-    }
     
     if (request.getParameter("applicationsXMLString") != null && !request.getParameter("applicationsXMLString").equals("")) {
       applicationsXMLString = request.getParameter("applicationsXMLString");
@@ -156,7 +137,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         sess.flush();
         
         saveApplications(sess, rc);
-        saveSamplePrepMethods(sess, rc);
         saveSampleTypes(sess, rc);
         saveSequencingOptions(sess, rc);
 
@@ -290,47 +270,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
 
-
-      //
-      // Save association between sample types and sample prep methods
-      //
-      String idSamplePrepMethods = node.getAttributeValue("idSamplePrepMethods");
-      existingAssociations = sess.createQuery("SELECT x from SamplePrepMethodSampleType x where idSampleType = " + st.getIdSampleType()).list();
-      HashMap<Integer, SamplePrepMethodSampleType> existingMethodMap = new HashMap<Integer, SamplePrepMethodSampleType>();
-      for (Iterator i1 = existingAssociations.iterator(); i1.hasNext();) {
-        SamplePrepMethodSampleType x = (SamplePrepMethodSampleType)i1.next();
-        existingMethodMap.put(x.getIdSamplePrepMethod(), x);
-      }
-      HashMap<Integer, SamplePrepMethod> methodMap = new HashMap<Integer, SamplePrepMethod>();
-      if (idSamplePrepMethods != null && !idSamplePrepMethods.equals("")) {
-        String[] tokens = idSamplePrepMethods.split(",");
-        for (int x = 0; x < tokens.length; x++) {
-          String idSamplePrepMethodString = tokens[x];
-          methodMap.put(Integer.valueOf(idSamplePrepMethodString), null);
-        }
-      }
-      // Add associations
-      for (Iterator i1 = methodMap.keySet().iterator(); i1.hasNext();) {
-        Integer idSamplePrepMethod = (Integer)i1.next();
-        if (!existingMethodMap.containsKey(idSamplePrepMethod)) {
-          SamplePrepMethodSampleType sta = new SamplePrepMethodSampleType();
-          sta.setIdSampleType(st.getIdSampleType());
-          sta.setIdSamplePrepMethod(idSamplePrepMethod);
-          sess.save(sta);
-        }
-      }
-
-      // Remove associations
-      for (Iterator i1 = existingMethodMap.keySet().iterator(); i1.hasNext();) {
-        Integer idSamplePrepMethod = (Integer)i1.next();
-        if (!methodMap.containsKey(idSamplePrepMethod)) {
-          SamplePrepMethodSampleType sta = existingMethodMap.get(idSamplePrepMethod);
-          sess.delete(sta);
-        }
-      }
-
-
-
       sess.flush();
       sampleTypeMap.put(st.getIdSampleType(), null);
     }
@@ -357,16 +296,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           SampleTypeApplication x = (SampleTypeApplication)i1.next();
           sess.delete(x);
         }
-        existingsAssociations = sess.createQuery("SELECT x from SamplePrepMethodSampleType x where idSampleType = " + sampleType.getIdSampleType()).list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          SamplePrepMethodSampleType x = (SamplePrepMethodSampleType)i1.next();
-          sess.delete(x);
-        }
-        existingsAssociations = sess.createQuery("SELECT x from SampleTypeRequestCategory x where idSampleType = " + sampleType.getIdSampleType()).list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          SampleTypeRequestCategory x = (SampleTypeRequestCategory)i1.next();
-          sess.delete(x);
-        }
         
         if (deleteSampleType) {
           sess.delete(sampleType);
@@ -375,86 +304,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
     }  
-    sess.flush();
-  }
-  
-  private void saveSamplePrepMethods(Session sess, RequestCategory rc) {
-    if (samplePrepMethodsDoc == null || samplePrepMethodsDoc.getRootElement().getChildren().size() == 0) {
-      return;
-    }
-    //
-    // Save samplePrepMethods
-    //
-    HashMap samplePrepMethodMap = new HashMap();
-
-    for(Iterator i = this.samplePrepMethodsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-      Element node = (Element)i.next();
-      SamplePrepMethod spm =  null;
-
-      String id = node.getAttributeValue("idSamplePrepMethod");
-
-      // Save new sample type or load the existing one
-      if (id.startsWith("SamplePrepMethod")) {
-        spm = new SamplePrepMethod();
-      } else {
-        spm = (SamplePrepMethod) sess.load(SamplePrepMethod.class, Integer.valueOf(id));
-      }
-
-      spm.setSamplePrepMethod(node.getAttributeValue("display"));
-      spm.setIsActive(node.getAttributeValue("isActive"));
-      sess.save(spm);
-
-      //
-      // Save assocation between sample prep method and request category
-      //
-      List existingAssociations = sess.createQuery("SELECT x from SamplePrepMethodRequestCategory x where idSamplePrepMethod = " + spm.getIdSamplePrepMethod() + " and x.codeRequestCategory ='" + rc.getCodeRequestCategory()+ "'").list();
-      if (node.getAttributeValue("isSelected").equals("Y")) {
-        if (existingAssociations.size() == 0) {
-          SamplePrepMethodRequestCategory x = new SamplePrepMethodRequestCategory();
-          x.setIdSamplePrepMethod(spm.getIdSamplePrepMethod());
-          x.setCodeRequestCategory(rc.getCodeRequestCategory());
-          sess.save(x);
-        }
-      } else {
-        for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
-          SamplePrepMethodRequestCategory x = (SamplePrepMethodRequestCategory)ix.next();
-          sess.delete(x);
-        }
-      }
-
-
-      sess.flush();
-      samplePrepMethodMap.put(spm.getIdSamplePrepMethod(), null);
-    }
-    // Remove sample prep methods
-    for (Iterator i = sess.createQuery("SELECT spm from SamplePrepMethod spm").list().iterator(); i.hasNext();) {
-      SamplePrepMethod samplePrepMethod = (SamplePrepMethod)i.next();
-      if (!samplePrepMethodMap.containsKey(samplePrepMethod.getIdSamplePrepMethod())) {
-        
-        
-        boolean deleteSamplePrepMethod = true;
-        List samples = sess.createQuery("select count(*) from Sample s where s.idSamplePrepMethod = " + samplePrepMethod.getIdSamplePrepMethod()).list();
-        if (samples.size() > 0) {
-          Integer count = (Integer)samples.get(0);
-          if (count.intValue() > 0) {
-            deleteSamplePrepMethod = false;
-          }
-        }
-        
-
-        List existingAssociations = sess.createQuery("SELECT x from SamplePrepMethodSampleType x where idSamplePrepmethod = " + samplePrepMethod.getIdSamplePrepMethod()).list();
-        for(Iterator i1 = existingAssociations.iterator(); i1.hasNext();) {
-          SamplePrepMethodSampleType x = (SamplePrepMethodSampleType)i1.next();
-          sess.delete(x);
-        }
-        
-        if (deleteSamplePrepMethod) {
-          sess.delete(samplePrepMethod);
-        } else {
-          samplePrepMethod.setIsActive("N");
-        }
-      }
-    }   
     sess.flush();
   }
     

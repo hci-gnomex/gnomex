@@ -139,7 +139,6 @@ public class BuildSearchIndex extends DetailObject {
     cacheDictionary("hci.gnomex.model.Application", "Application");
     cacheDictionary("hci.gnomex.model.AnalysisType", "AnalysisType");
     cacheDictionary("hci.gnomex.model.AnalysisProtocol", "AnalysisProtocol");
-    cacheDictionary("hci.gnomex.model.SamplePrepMethod", "SamplePrepMethod");
     
   }
   
@@ -325,9 +324,9 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.idSampleType, ");
     buf.append("       slideProd.name, ");
     buf.append("       req.idAppUser, ");
-    buf.append("       s1.idSamplePrepMethod, ");
+    buf.append("       '', ");
     buf.append("       s1.otherSamplePrepMethod, ");
-    buf.append("       s2.idSamplePrepMethod, ");
+    buf.append("       '', ");
     buf.append("       s2.otherSamplePrepMethod, ");
     buf.append("       req.idInstitution, ");
     buf.append("       req.name, ");
@@ -402,7 +401,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.idSampleType, ");
     buf.append("       '', ");
     buf.append("       req.idAppUser, ");
-    buf.append("       s1.idSamplePrepMethod, ");
+    buf.append("       '', ");
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       '', ");
     buf.append("       '',  ");
@@ -474,7 +473,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.idSampleType, ");
     buf.append("       '', ");
     buf.append("       req.idAppUser, ");
-    buf.append("       s1.idSamplePrepMethod, ");
+    buf.append("       '', ");
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       '', ");
     buf.append("       '', ");
@@ -1053,8 +1052,6 @@ public class BuildSearchIndex extends DetailObject {
     String       labProject = null;
     String       labRequest = null;
     Integer      idAppUser = null;
-    Integer      idSamplePrepMethod = null;
-    String       otherSamplePrepMethod = null;
     String       samplePrepMethod = null;
     String       otherOrganism = null;
     String       organism = null;
@@ -1081,8 +1078,7 @@ public class BuildSearchIndex extends DetailObject {
       String  sampleDesc      = (String) row[7];
       Integer idOrganism      = (Integer)row[8];
       Integer idSampleType    = (Integer)row[29];
-      idSamplePrepMethod      = (Integer)row[32];
-      otherSamplePrepMethod   = (String)row[33];
+      samplePrepMethod        = (String)row[33];
       otherOrganism           = (String)row[38];
       
       
@@ -1099,13 +1095,6 @@ public class BuildSearchIndex extends DetailObject {
       if (idSampleType != null) {
         idSampleTypeMap.put(idSampleType, null);
       }      
-      
-      if (idSamplePrepMethod != null) {
-        samplePrepMethod = getDictionaryDisplay("hci.gnomex.model.SamplePrepMethod", idSamplePrepMethod.toString());        
-        if (samplePrepMethod.equals("Other")) {
-          samplePrepMethod = otherSamplePrepMethod;
-        }
-      }
 
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
@@ -1119,16 +1108,8 @@ public class BuildSearchIndex extends DetailObject {
       sampleName           = (String) row[10];
       sampleDesc           = (String) row[11];
       idOrganism           = row[12] instanceof Integer ? (Integer)row[12] : null;
-      idSamplePrepMethod   = row[34] instanceof Integer ? (Integer)row[34] : null;
-      otherSamplePrepMethod = (String)row[35];
+      samplePrepMethod     = (String)row[35];
       otherOrganism        = (String)row[39];
-
-      if (idSamplePrepMethod != null) {
-        samplePrepMethod = getDictionaryDisplay("hci.gnomex.model.SamplePrepMethod", idSamplePrepMethod.toString());        
-        if (samplePrepMethod.equals("Other")) {
-          samplePrepMethod = otherSamplePrepMethod;
-        }
-      }
 
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            

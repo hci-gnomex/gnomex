@@ -126,14 +126,6 @@
         	var item:Object = null;
         	var vr:ValidationResultEvent  = null;
 
-
-			// Make sure sample prep method is entered.
-        	for each (item in dirtyItems) {
-        		if (item.@seqPrepStatus == 'Completed' && item.@idSamplePrepMethod == '') {
-        			message += "\n" + item.@sampleNumber + " Sample prep method is required.";
-        			break;
-        		}
-	    	} 	    	       	
 	    	
         	if (message != "") {
 	    		Alert.show(message);

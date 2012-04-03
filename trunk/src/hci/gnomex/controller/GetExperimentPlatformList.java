@@ -16,9 +16,6 @@ import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.Property;
-import hci.gnomex.model.SamplePrepMethod;
-import hci.gnomex.model.SamplePrepMethodRequestCategory;
-import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeRequestCategory;
@@ -52,10 +49,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentPlatformList.class);
 
   private List<SampleType> sampleTypes = new ArrayList<SampleType>();
-  private List <SamplePrepMethod> samplePrepMethods = new ArrayList<SamplePrepMethod>();
   private List <Application> applications = new ArrayList<Application>();
   private List <NumberSequencingCycles> numberSeqCycles = new ArrayList<NumberSequencingCycles>();
-  private HashMap<String, Map<Integer, ?>> samplePrepMethodMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<Integer, ?>> sampleTypeMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<String, RequestCategoryApplication>> applicationMap = new HashMap<String, Map<String, RequestCategoryApplication>>();
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
@@ -105,18 +100,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           Element sampleTypeNode = st.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           listNode.addContent(sampleTypeNode);
           sampleTypeNode.setAttribute("isSelected", isAssociated(rc, st) ? "Y" : "N");
-          sampleTypeNode.setAttribute("idSamplePrepMethods", getIdSamplePrepMethods(st));
           sampleTypeNode.setAttribute("codeApplications", getCodeApplications(st));
-        }
-        
-        listNode = new Element("samplePrepMethods");
-        node.addContent(listNode);
-        for(Iterator i1 = samplePrepMethods.iterator(); i1.hasNext();) {
-          SamplePrepMethod sp = (SamplePrepMethod)i1.next();
-          this.getSecAdvisor().flagPermissions(sp);
-          Element samplePrepMethodNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          listNode.addContent(samplePrepMethodNode);
-          samplePrepMethodNode.setAttribute("isSelected", isAssociated(rc, sp) ? "Y" : "N");
         }
         
         
@@ -217,11 +201,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     return idMap != null && idMap.containsKey(st.getIdSampleType());
   }
   
-  private boolean isAssociated(RequestCategory rc, SamplePrepMethod sp) {
-    Map idMap = samplePrepMethodMap.get(rc.getCodeRequestCategory());
-    return idMap != null && idMap.containsKey(sp.getIdSamplePrepMethod());
-  }
-  
   private boolean isAssociated(RequestCategory rc, Application a) {
     Map idMap = applicationMap.get(rc.getCodeRequestCategory());
     return idMap != null && idMap.containsKey(a.getCodeApplication());
@@ -265,21 +244,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     return numberSequencingCyclesAllowed;
   }
   
-  private String getIdSamplePrepMethods(SampleType st) {
-    String buf = "";
-    Map idMap = sampleTypeXMethodMap.get(st.getIdSampleType());
-    if (idMap != null) {
-      for(Iterator i = idMap.keySet().iterator(); i.hasNext();) {
-        Integer id = (Integer)i.next();
-        if (buf.length() > 0) {
-          buf += ",";
-        }
-        buf += id.toString();
-      }
-    }
-    return buf;
-  }
-
   private String getCodeApplications(SampleType st) {
     String buf = "";
     Map idMap = sampleTypeXApplicationMap.get(st.getIdSampleType());
@@ -323,18 +287,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       sampleTypeMap.put(x.getCodeRequestCategory(), idMap);
     }
     
-    samplePrepMethods = sess.createQuery("SELECT sp from SamplePrepMethod sp order by sp.samplePrepMethod").list();
-    List samplePrepMethodXrefs = sess.createQuery("SELECT x from SamplePrepMethodRequestCategory x").list();
-    for(Iterator i = samplePrepMethodXrefs.iterator(); i.hasNext();) {
-      SamplePrepMethodRequestCategory x = (SamplePrepMethodRequestCategory)i.next();
-      Map idMap = (Map)samplePrepMethodMap.get(x.getCodeRequestCategory());
-      if (idMap == null) {
-        idMap = new HashMap();
-      }
-      idMap.put(x.getIdSamplePrepMethod(), null);
-      samplePrepMethodMap.put(x.getCodeRequestCategory(), idMap);
-    }
-    
     applications = sess.createQuery("SELECT a from Application a order by a.application").list();
     List applicationXrefs = sess.createQuery("SELECT x from RequestCategoryApplication x").list();
     for(Iterator i = applicationXrefs.iterator(); i.hasNext();) {
@@ -345,17 +297,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       idMap.put(x.getCodeApplication(), x);
       applicationMap.put(x.getCodeRequestCategory(), idMap);
-    }
-    
-    List sampleTypeXMethods = sess.createQuery("SELECT x from SamplePrepMethodSampleType x").list();
-    for(Iterator i = sampleTypeXMethods.iterator(); i.hasNext();) {
-      SamplePrepMethodSampleType x = (SamplePrepMethodSampleType)i.next();
-      Map idMap = (Map)sampleTypeXMethodMap.get(x.getIdSampleType());
-      if (idMap == null) {
-        idMap = new HashMap();
-      }
-      idMap.put(x.getIdSamplePrepMethod(), null);
-      sampleTypeXMethodMap.put(x.getIdSampleType(), idMap);
     }
     
     List sampleTypeXApplications = sess.createQuery("SELECT x from SampleTypeApplication x").list();

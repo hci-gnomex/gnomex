@@ -27,7 +27,6 @@
 			params.idAppUser = (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser());
 
 			params.sampleTypesXMLString = "<sampleTypes/>";
-			params.samplePrepMethodsXMLString = "<samplePrepMethods/>" ;
 			params.applicationsXMLString = "<applications/>";
 			params.sequencingOptionsXMLString = "<sequencingOptions/>";
 			

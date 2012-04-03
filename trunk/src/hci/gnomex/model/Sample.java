@@ -33,7 +33,6 @@ public class Sample extends HibernateDetailObject {
   private Integer     idOrganism;
   private String      otherOrganism;
   private Integer     idSampleType;
-  private Integer     idSamplePrepMethod;
   private String      otherSamplePrepMethod;
   private Integer     idSeqLibProtocol;
   private String      codeBioanalyzerChipType;
@@ -183,16 +182,6 @@ public class Sample extends HibernateDetailObject {
   }
 
   
-  public Integer getIdSamplePrepMethod() {
-    return idSamplePrepMethod;
-  }
-
-  
-  public void setIdSamplePrepMethod(Integer idSamplePrepMethod) {
-    this.idSamplePrepMethod = idSamplePrepMethod;
-  }
-
-  
   public Integer getIdSampleType() {
     return idSampleType;
   }
@@ -300,10 +289,6 @@ public class Sample extends HibernateDetailObject {
   public String getCanChangeSampleType() {
     return getCanChangeSampleInfo();
     
-  }
-  
-  public String getCanChangeSamplePrepMethod() {
-    return getCanChangeSampleInfo();    
   }
 
   public String getCanChangeSampleConcentration() {

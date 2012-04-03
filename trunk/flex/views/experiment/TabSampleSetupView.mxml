@@ -47,13 +47,6 @@
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
 			}
-			propagateSamplePrepMethod();
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateSamplePrepMethod():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem != null ? this.samplePrepMethodCombo.selectedItem.@value : '';
-			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
 		private function propagateOtherSamplePrepMethod():void {
@@ -113,50 +106,6 @@
 				this.parentDocument.seqSetup1View.selectDefaultGenomeBuild();
 			}
 		}
-		public function selectDefaultSamplePrepMethod():void {
-			
-			// If the request category specified a default sample prep method,
-			// use it.
-			var requestCategory:Object = parentDocument.getRequestCategory();
-			if (requestCategory.@idSamplePrepMethod != '') {
-				var spm:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod',requestCategory.@idSamplePrepMethod);
-				if (spm is XMLList) {
-					this.samplePrepMethodCombo.selectedItem = spm[0];
-					return;
-				} else {
-					this.sampleOrganismCombo.selectedItem = spm;
-					return;
-				}
-			}
-			
-
-			if (sampleTypeCombo.selectedItem == null || sampleTypeCombo.selectedItem.@value == '') {
-				return;
-			}
-			if (samplePrepMethodCombo.dataProvider.length == 2) {
-				samplePrepMethodCombo.selectedIndex = 1;
-   				this.propagateSamplePrepMethod();
-   				this.propagateSeqRunType();
-   				this.checkSampleSetupCompleteness();
-			} else if (samplePrepMethodCombo.dataProvider.length > 2) {
-				for each(var item:Object in samplePrepMethodCombo.dataProvider) {
-
-					var applicableSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
-	        	   	for each (var xref:Object in applicableSamplePrepMethods) {
-	        	   		if (xref.@idSampleType.toString() == sampleTypeCombo.selectedItem.@value.toString()) {
-	    	   				if (xref.@isDefaultForSampleType == 'Y') {
-	    	   					samplePrepMethodCombo.selectedItem = item;
-	    	   					this.propagateSamplePrepMethod();
-	    	   					this.propagateSeqRunType();
-	    	   					this.checkSampleSetupCompleteness();
-	    	   					break;
-	    	   				}
-	        	   		}
-	        	   	}
-
-				}
-			}
-		} 
 
 		
 		public function getDefaultIdSeqRunType():String {
@@ -234,16 +183,14 @@
         		isComplete = true;
         	} else if (currentState == 'MicroarrayAmendState') {
 	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    hasOrganism() &&
-	        	    hasSamplePrepMethod()) {
+	        	    hasOrganism()) {
 		        	isComplete = true;
 	        	 }
         	
         	} else if (parentDocument.isSolexaAmendState()) {
 	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    hasOrganism() &&
-	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' && 
-	        	    hasSamplePrepMethod()) {
+	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
 	        	    	
 	        	    if (currentState == 'SolexaAmendPreppedState') {
  						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
@@ -259,8 +206,7 @@
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    hasOrganism() &&
-	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' && 
-	        	    hasSamplePrepMethod()) {
+	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
  						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
@@ -274,8 +220,7 @@
         	
         	} else if (parentDocument.isQCState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    hasSamplePrepMethod()) {
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
 	        	    	
 	        	   	// Only need to check if chip type selected if this is 
 	        	   	// a bioanalyzer qc request.
@@ -299,8 +244,7 @@
 			} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    hasOrganism() &&
-	        	    hasSamplePrepMethod()) {
+	        	    hasOrganism()) {
 					isComplete = true;	        	    	
 	        	}
         	}
@@ -325,16 +269,6 @@
         	
     		return isComplete;
     	    	
-        }
-        
-        private function hasSamplePrepMethod():Boolean {
-        	if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@display == 'Other' && this.otherSamplePrepMethod.text != '') {
-        		return true;
-        	} else if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' && this.samplePrepMethodCombo.selectedItem.@display != 'Other') {
-        		return true;
-        	} else {
-        		return false;
-        	}
         }
 		
 		private function hasOrganism():Boolean {
@@ -394,11 +328,8 @@
 			
 			this.sampleTypeCombo.selectedIndex = -1;
 			parentDocument.filteredSampleTypeList.refresh();
-			this.samplePrepMethodCombo.selectedItem = null;
 			if (parentDocument.filteredSampleTypeList.length == 2) {
 				this.sampleTypeCombo.selectedIndex = 1;
-				parentDocument.samplePrepMethodList.refresh();
-				callLater(selectDefaultSamplePrepMethod);
 			}
 			
 			if (this.parentDocument.isSolexaState()) {
@@ -464,13 +395,29 @@
 		}
 		
 		private function pickSampleType():void {
-				samplePrepMethodCombo.selectedIndex=0;
-				parentDocument.samplePrepMethodList.refresh();
-				selectDefaultSamplePrepMethod();
-				propagateSampleType();
-				parentDocument.samplesView.initializeSamplesGrid();
-				checkSampleSetupCompleteness();
-				this.checkForSampleTypeCompatibility();
+			// Select the default organism on sample setup if the request category specifies one
+			if (!parentDocument.isQCState()) {
+				if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
+					var requestCategory:Object = parentDocument.getRequestCategory();
+					if (requestCategory.@idOrganism != '') {
+						var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
+						if (organism is XMLList) {
+							this.sampleOrganismCombo.selectedItem = organism[0];
+							return;
+							
+						} else {
+							this.sampleOrganismCombo.selectedItem = organism;
+							return;
+						}
+					} 
+					
+				}
+			}
+			
+			propagateSampleType();
+			parentDocument.samplesView.initializeSamplesGrid();
+			checkSampleSetupCompleteness();
+			this.checkForSampleTypeCompatibility();
 		}
 		
 		private function pickOrganism():void {
@@ -501,44 +448,6 @@
 				selectDefaultGenomeBuild();			
 			}
 			
-		}
-		
-		private function pickSamplePrepMethod():void {
-			// Clear other otherSamplePrepMethod if non 'Other' selected
-			if (samplePrepMethodCombo.selectedItem == null || samplePrepMethodCombo.selectedItem.@display != 'Other') {
-				otherSamplePrepMethod.text = '';
-				propagateOtherSamplePrepMethod();
-			}
-			
-			// Select the default organism on sample setup if the request category specifies one
-			if (!parentDocument.isQCState()) {
-				if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
-					var requestCategory:Object = parentDocument.getRequestCategory();
-					if (requestCategory.@idOrganism != '') {
-						var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
-						if (organism is XMLList) {
-							this.sampleOrganismCombo.selectedItem = organism[0];
-							return;
-							
-						} else {
-							this.sampleOrganismCombo.selectedItem = organism;
-							return;
-						}
-					} 
-					
-				}
-			}
-
-			parentDocument.samplesView.initializeSamplesGrid();
-			propagateSamplePrepMethod();
-			checkSampleSetupCompleteness();
-			
-			if (this.currentState == 'SolexaSetupState' ||
-			    this.currentState == 'SolexaSetupPreppedState' ||
-			    this.currentState == 'SolexaAmendState' ||
-			    this.currentState == 'SolexaAmendPreppedState') { 
-				parentDocument.filteredSeqRunTypeList.refresh();			    					
-			}
 		}
 		
 		private function pickSeqLibProtocol():void {
@@ -617,7 +526,7 @@
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
          required="true" allowNegative="false" domain="int" maxValue="100" />
     <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
-         required="true" />
+         required="false" />
     <mx:NumberValidator id="organismValidator"
         source="{this.sampleOrganismCombo}"
         lowerThanMinError="This field is required."
@@ -628,18 +537,13 @@
         lowerThanMinError="This field is required."
         property="selectedIndex"
         minValue="1" />
-    <mx:NumberValidator id="samplePrepMethodValidator"
-        source="{this.samplePrepMethodCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="1" />
         
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
 			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle">
-				<mx:Label text="(1) How many samples will you be submitting?" width="310"  id="label5"/>
+				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
 					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
  change="checkSampleSetupCompleteness()">
@@ -647,13 +551,13 @@
 				</mx:TextInput>							
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="hbox6" verticalAlign="middle">
-				<mx:Label text="(2) Which category best describes your samples?" width="310" id="label8"/>
+				<mx:Label text="(2) Which category best describes your samples?" width="334" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
 					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}" close="pickSampleType()">							
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
-				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
+				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
 				<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
 					<mx:dataProvider>{parentApplication.organismList}</mx:dataProvider>
 					<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -661,21 +565,13 @@
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
-				<mx:TextInput width="500" id="otherOrganism" change="{propagateOtherSampleOrganism();checkSampleSetupCompleteness()}" maxChars="200">
+				<mx:TextInput width="450" id="otherOrganism" change="{propagateOtherSampleOrganism();checkSampleSetupCompleteness()}" maxChars="200">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:TextInput>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
-				<mx:Label text="(4) Select the nucleic acid extraction method." width="310" id="label2"/>
-				<mx:ComboBox labelField="@display"  id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}" close="pickSamplePrepMethod()">															
-					<mx:width>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
-				</mx:ComboBox>
-				<mx:Label text="Please specify" paddingLeft="6">
-					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
-				</mx:Label>
-				<mx:TextInput width="500" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="300">
-					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
-				</mx:TextInput>
+				<mx:Label text="(4) Specify the nucleic acid extraction method (optional)." width="334" id="label2"/>
+				<mx:TextInput width="600" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="50"/>
 			</mx:HBox>
 			
 		</mx:VBox>
@@ -707,7 +603,7 @@
         	<mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
         	<mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
         	<mx:SetProperty target="{label2}" name="text">
-        		<mx:value>(4) Select the nucleic acid extraction method.</mx:value>
+        		<mx:value>(4) Specify the nucleic acid extraction method (optional).</mx:value>
         	</mx:SetProperty>
         	<mx:SetProperty target="{label5}" name="width" value="334"/>
         	<mx:SetProperty target="{label2}" name="width" value="334"/>
@@ -838,7 +734,7 @@
              </mx:SetProperty>
              <mx:RemoveChild target="{hbox3}"/>
              <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
              <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop"/>
         </mx:State>
         <mx:State name="SolexaAmendState" basedOn="SolexaSetupState">
@@ -847,7 +743,7 @@
              <mx:SetProperty target="{label7}" name="text">
                   <mx:value>(2) Which organism is the source for these samples?</mx:value>
              </mx:SetProperty>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
              <mx:SetProperty target="{text1}" name="text">
                   <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
              </mx:SetProperty>
@@ -864,7 +760,7 @@
              <mx:SetProperty target="{label7}" name="text">
                   <mx:value>(2) Which organism is the source for these samples?</mx:value>
              </mx:SetProperty>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
              <mx:SetProperty target="{text1}" name="text">
                   <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
              </mx:SetProperty>
