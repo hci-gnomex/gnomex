@@ -58,8 +58,8 @@
     
     <mx:VBox width="100%" height="100%" styleName="form" verticalGap="0" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:TextArea id="chromosomeInfo" width="100%" height="100%" />
-		<mx:Label text="Example format: ch1    123415" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
-		<mx:Label text="                ch2    214560" width="100%" textAlign="right" fontSize="9" fontStyle="italic" paddingTop="0"/>
+		<mx:Label text="Example format: chr1    123415" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:Label text="chr2    214560" width="100%" textAlign="right" fontSize="9" fontStyle="italic" paddingTop="0"/>
     	
     </mx:VBox>
 
