@@ -26,3 +26,7 @@ CREATE TABLE `UnloadDataTrack` (
   KEY `FK_UnloadDataTrack_GenomeBuild` (`idGenomeBuild`)
 ) ENGINE=InnoDB;
 
+
+
+-- allow nulls for idPropertyEntry on PropertyEntryValue
+alter table gnomex.PropertyEntryValue change column idPropertyEntry idPropertyEntry INT(10) NULL;
