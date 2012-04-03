@@ -89,19 +89,17 @@
 				}
 			}
 			
-			private function selectAll(objects:XMLListCollection, viewStack:ViewStack):void {
+			private function selectAll(objects:XMLListCollection):void {
 				for each(var o:Object in objects) {
 					if (o.@isActive == 'Y') {
 						o.@isSelected = 'Y';
 					}
 				}
-				viewStack.selectedIndex = 1;
 			}
-			private function unselectAll(objects:XMLListCollection, viewStack:ViewStack):void {
+			private function unselectAll(objects:XMLListCollection):void {
 				for each(var o:Object in objects) {
 					o.@isSelected = 'N';
 				}
-				viewStack.selectedIndex = 0;
 			}
 			
 		]]>
@@ -109,14 +107,14 @@
 	</mx:Script>
 	
 	 
-	<mx:ViewStack id="selectAllStack" width="80" paddingBottom="0" paddingTop="0">
+	<mx:HBox id="selectAllStack" width="160" paddingBottom="0" paddingTop="0">
 		<mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
-			<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll(options, selectAllStack)"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
+			<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll(options)"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
 		</mx:HBox>
 		<mx:HBox width="100%" paddingBottom="0" paddingTop="0">
-			<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll(options, selectAllStack)"  paddingTop="0" paddingBottom="0"/>
+			<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll(options)"  paddingTop="0" paddingBottom="0"/>
 		</mx:HBox>			    	
-	</mx:ViewStack>
+	</mx:HBox>
 
 	<mx:DataGrid id="checkboxGrid" dataProvider="{options}" 
 				 rowCount="{(options.length > 0 ? options.length - 1 : 1)}"
