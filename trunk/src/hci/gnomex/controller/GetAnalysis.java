@@ -171,8 +171,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             
 
             // Show files uploads that are in the staging area.
-            // Only show these files if user has write permissions.
-            if (showUploads.equals("Y") && this.getSecAdvisor().canUploadData(a)) {
+            if (showUploads.equals("Y")) {
               Element analysisUploadNode = new Element("AnalysisUpload");
               filesNode.addContent(analysisUploadNode);
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);

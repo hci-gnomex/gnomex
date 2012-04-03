@@ -189,8 +189,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             
             
             // Show files uploads that are in the staging area.
-            // Only show these files if user has write permissions.
-            if (includeUploadStagingDir.equals("Y") && this.getSecAdvisor().canUpdate(a)) {
+            if (includeUploadStagingDir.equals("Y")) {
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
               addExpandedFileNodes(baseDir, aNode, aNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap);
             } else {
