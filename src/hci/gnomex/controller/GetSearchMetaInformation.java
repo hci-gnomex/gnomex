@@ -6,8 +6,11 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.lucene.AllObjectsIndexHelper;
 import hci.gnomex.lucene.AnalysisIndexHelper;
 import hci.gnomex.lucene.ExperimentIndexHelper;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.LabFilter;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyOption;
@@ -42,6 +45,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
   private List<SearchListEntry> analysisSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> dataTrackSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> protocolSearchList = new ArrayList<SearchListEntry>();
+  private List<SearchListEntry> allObjectsSearchList = new ArrayList<SearchListEntry>();
   
   public void validate() {
   }
@@ -55,7 +59,13 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
+      // All Objects Fields
+      addLabEntry(sess, allObjectsSearchList);
+      addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), allObjectsSearchList);
+      
       // Experiment fields
+      addLabEntry(sess, experimentSearchList);
+      addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), experimentSearchList);
       addEntry(sess, "Experiment Design", ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, "SELECT ed from ExperimentDesign as ed ", experimentSearchList);
       addEntry(sess, "Experiment Factor", ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS, "SELECT ed from ExperimentFactor as ed ", experimentSearchList);
       addEntry(sess, "Experiment Category", ExperimentIndexHelper.CODE_REQUEST_CATEGORY, DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory"), experimentSearchList);
@@ -74,6 +84,8 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       }
       
       // Analysis Fields
+      addLabEntry(sess, analysisSearchList);
+      addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), analysisSearchList);
       addEntry(sess, "Analysis Type", AnalysisIndexHelper.ID_ANALYSIS_TYPE, DictionaryManager.getDictionaryEntries("hci.gnomex.model.AnalysisType"), analysisSearchList);
       addEntry(sess, "Analysis Protocol", AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, DictionaryManager.getDictionaryEntries("hci.gnomex.model.AnalysisProtocol"), analysisSearchList);
       // Add analysis properties
@@ -87,6 +99,8 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       }
 
       // Add data track properties
+      addLabEntry(sess, dataTrackSearchList);
+      addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), dataTrackSearchList);
       for (Property property : dh.getPropertyList()) {
 
         if (property.getForDataTrack() == null || !property.getForDataTrack().equals("Y") || property.getIsActive().equals("N")) {
@@ -153,6 +167,31 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     addEntry(sess, displayName, searchName, entries, searchList, "Y", "Y");
   }
   
+  private void addLabEntry(Session sess, List<SearchListEntry> searchList) {
+    SearchListEntry entry = new SearchListEntry();
+    
+    entry.DisplayName = "Group";
+    entry.SearchName = AllObjectsIndexHelper.ID_LAB;
+    entry.IsOptionChoice = "Y";
+    entry.AllowMultipleChoice = "Y";
+    searchList.add(entry);
+
+    LabFilter filter = new LabFilter();
+    filter.setUnbounded(true);
+    StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
+    List labs = (List)sess.createQuery(queryBuf.toString()).list();
+    
+    List<DictionaryEntry> designList = new ArrayList<DictionaryEntry>();
+    for(Iterator i = labs.iterator(); i.hasNext();) {
+      Lab lab = (Lab)i.next();
+      GenericDictionaryEntry e = new GenericDictionaryEntry(lab.getIdLab().toString(), lab.getName());
+      if (!e.getDisplay().equals("")) {
+        designList.add(e);
+      }
+      dictionaryMap.put("Group", designList);
+    }
+  }
+  
   private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList, String isOptionChoice, String allowMultipleChoice) {
     SearchListEntry entry = new SearchListEntry();
     entry.DisplayName = displayName;
@@ -180,6 +219,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     buildSearchList(doc.getRootElement(), analysisSearchList, "AnalysisSearchList");
     buildSearchList(doc.getRootElement(), dataTrackSearchList, "DataTrackSearchList");
     buildSearchList(doc.getRootElement(), protocolSearchList, "ProtocolSearchList");
+    buildSearchList(doc.getRootElement(), allObjectsSearchList, "AllObjectsSearchList");
     buildDictionaryMap(doc.getRootElement());
     
     return doc;
@@ -240,6 +280,24 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     public String getDisplay() {
       if (isYes) return "Yes";
       else return "No";
+    }
+  }
+  
+  private class GenericDictionaryEntry extends DictionaryEntry implements Serializable {
+    private String value;
+    private String display;
+    
+    public GenericDictionaryEntry(String v, String d) {
+      value = v;
+      display = d;
+    }
+    
+    public String getValue() {
+      return value;
+    }
+    
+    public String getDisplay() {
+      return display;
     }
   }
 }

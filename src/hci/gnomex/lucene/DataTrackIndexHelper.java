@@ -27,6 +27,7 @@ public class DataTrackIndexHelper extends IndexHelper {
   public static final String       FILE_NAME = "dataTrackFileName";
   public static final String       SUMMARY = "dataTrackSummary";
   public static final String       ID_LAB = "dataTrackIdLab";
+  public static final String       ID_ORGANISM = "dataTrackIdOrganism";
   public static final String       ID_INSTITUTION = "dataTrackIdInstitution";
   public static final String       ID_APPUSER = "dataTrackIdAppUser";
   public static final String       COLLABORATORS = "dataTrackCollaborators";

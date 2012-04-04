@@ -12,6 +12,8 @@ public class SearchListParser implements Serializable {
   private Document        searchDoc;
   private StringBuffer    searchText;
   private String          matchAnyTerm;
+  private Integer         idLab;
+  private Integer         idOrganism;
   
   public String getSearchText() {
     return searchText.toString();
@@ -32,31 +34,45 @@ public class SearchListParser implements Serializable {
       String isOptionChoice = fieldNode.getAttributeValue("isOptionChoice");
       String value = fieldNode.getAttributeValue("value");
       if (searchName != null && !searchName.equals("") && value != null && !value.equals("")) {
-        if (searchText.length() != 0) {
-          if (matchAnyTerm != null && matchAnyTerm.equals("Y")) {
-            searchText.append(" OR ");
-          } else {
-            searchText.append(" AND ");
-          }
-        }
-        
-        searchText.append(" ").append(searchName).append(":(");
-        if (isOptionChoice.equals("N")) {
-          searchText.append("*").append(value).append("*");
+        if (searchName != null && searchName.equals(AllObjectsIndexHelper.ID_LAB)) {
+          idLab = Integer.parseInt(value);
+        } else if (searchName != null && searchName.equals(AllObjectsIndexHelper.ID_ORGANISM)) {
+          idOrganism = Integer.parseInt(value);
         } else {
-          String[] values = value.split(",");
-          Boolean first = true;
-          for(String v:values) {
-            if (!first) {
-              searchText.append(" ");
+          if (searchText.length() != 0) {
+            if (matchAnyTerm != null && matchAnyTerm.equals("Y")) {
+              searchText.append(" OR ");
+            } else {
+              searchText.append(" AND ");
             }
-            first = false;
-            searchText.append(v);
           }
+          
+          searchText.append(" ").append(searchName).append(":(");
+          if (isOptionChoice.equals("N")) {
+            searchText.append("*").append(value).append("*");
+          } else {
+            String[] values = value.split(",");
+            Boolean first = true;
+            for(String v:values) {
+              if (!first) {
+                searchText.append(" ");
+              }
+              first = false;
+              searchText.append(v);
+            }
+          }
+          searchText.append(")");
         }
-        searchText.append(")");
       }
     }
 
+  }
+  
+  public Integer getIdLab() {
+    return idLab;
+  }
+  
+  public Integer getIdOrganism() {
+    return idOrganism;
   }
 }

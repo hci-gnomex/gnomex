@@ -11,7 +11,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.dom4j.Document;
+import org.jdom.Document;
 import org.hibernate.Session;
 
 
@@ -37,7 +37,8 @@ public class GetDataTrackList extends GNomExCommand implements Serializable {
       
       Document doc = dataTrackQuery.getDataTrackDocument(sess, this.getSecAdvisor());
       
-      this.xmlResult = doc.asXML();
+      org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
+      this.xmlResult = out.outputString(doc);
     
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){

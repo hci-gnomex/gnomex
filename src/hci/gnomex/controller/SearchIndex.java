@@ -17,6 +17,7 @@ import hci.gnomex.lucene.SearchListParser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.DataTrackQuery;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestParser;
@@ -92,6 +93,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private Map dataTrackMap = null;
   private Map labToDataTrackFolderMap = null;
   private Map dataTrackFolderToDataTrackMap = null;
+  private List<Integer> dataTrackIds = null;
   
   private ArrayList rankedRequestNodes = null;
 
@@ -159,6 +161,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         analysisFilter.setSearchListText(searchListParser.getSearchText());
         protocolFilter.setSearchListText(searchListParser.getSearchText());
         dataTrackFilter.setSearchListText(searchListParser.getSearchText());
+        experimentFilter.setIdLab(searchListParser.getIdLab());
+        experimentFilter.setIdOrganism(searchListParser.getIdOrganism());
+        analysisFilter.setIdLab(searchListParser.getIdLab());
+        analysisFilter.setIdOrganism(searchListParser.getIdOrganism());
+        dataTrackFilter.setIdLab(searchListParser.getIdLab());
+        dataTrackFilter.setIdOrganism(searchListParser.getIdOrganism());
       } catch (Exception je ) {
         log.error( "Cannot parse searchXMLString", je );
         this.addInvalidField( "searchXMLString", "Invalid search xml");
@@ -526,8 +534,13 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     dataTrackFolderToDataTrackMap = new TreeMap();
     rankedDataTrackNodes = new ArrayList();
     
+    dataTrackIds = new ArrayList<Integer>();
     for (int i = 0; i < hits.length(); i++) {
       org.apache.lucene.document.Document doc = hits.doc(i);
+      Integer idDataTrack  = doc.get(DataTrackIndexHelper.ID_DATATRACK).equals("unknown") ? null : new Integer(doc.get(DataTrackIndexHelper.ID_DATATRACK));
+      if (idDataTrack != null) {
+        dataTrackIds.add(idDataTrack);
+      }
       float score = hits.score(i);
       mapDataTrackDocument(doc, i, score);
       
@@ -975,26 +988,30 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   }
   
-  private org.jdom.Document buildXMLDocument() {
-    org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
+  private org.jdom.Document buildXMLDocument() throws Exception {
+    org.jdom.Document xmlDoc = new org.jdom.Document(new Element(listKind));
     
     if (!isAnalysisOnlySearch && !isDataTrackOnlySearch && !isProtocolOnlySearch) {
-      buildProjectRequestList(doc.getRootElement());
-      buildRequestList(doc.getRootElement());      
+      buildProjectRequestList(xmlDoc.getRootElement());
+      buildRequestList(xmlDoc.getRootElement());      
     }
     if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch) {
-      buildProtocolList(doc.getRootElement());
+      buildProtocolList(xmlDoc.getRootElement());
     }
     if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch) {
-      buildDataTrackFolderList(doc.getRootElement());
-      buildDataTrackList(doc.getRootElement());
+     // buildDataTrackFolderList(doc.getRootElement());
+      DataTrackQuery q = new DataTrackQuery(dataTrackIds);
+      Element qElem = q.getDataTrackDocument(this.getSecAdvisor().getReadOnlyHibernateSession(this.username), this.getSecAdvisor()).getRootElement();
+      qElem.setName("DataTrackFolderList");
+      xmlDoc.getRootElement().addContent(qElem);
+      buildDataTrackList(xmlDoc.getRootElement());
     }
     if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
-      buildAnalysisGroupList(doc.getRootElement());
-      buildAnalysisList(doc.getRootElement());      
+      buildAnalysisGroupList(xmlDoc.getRootElement());
+      buildAnalysisList(xmlDoc.getRootElement());      
     }
     
-    return doc;
+    return xmlDoc;
     
   }
   

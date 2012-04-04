@@ -1934,6 +1934,42 @@
 				}
 		}
 			
+			public function getDataTrackTreeIcon(item:Object):Class {
+				if (item.name() == "Organism") {
+					if (item.@isPopulated == "Y") {
+						return iconOrganism;
+					} else {
+						return iconOrganismFaded;
+					}
+				} else if (item.name() == "DataTrackFolder") {
+					if (item.@idLab != '') {
+						return iconDataTrackFolderForGroup;					
+					} else {
+						return iconFolder;										
+					}
+				} else if (item.name() == "GenomeBuild") {
+					if (item.children() != null && item.children().length() > 0) {
+						return iconGenomeBuild;				
+					} else {
+						return iconGenomeBuildFaded;
+					}
+				} else if (item.name() == "DataTrack") {
+					if (item.@codeVisibility == "MEM") {
+						return iconDataTrackMember;
+					} else if (item.@codeVisibility == "MEMCOL") {
+						return iconDataTrackMemberCollab;
+					} else if (item.@codeVisibility == "OWNER") {
+						return iconDataTrackOwner;
+					} else if (item.@codeVisibility == "INST") {
+						return iconDataTrackInstitution;
+					} else {
+						return iconDataTrackPublic;
+					}
+				} else {
+					return iconDataTrack;
+				}
+			}     
+
 			public function getSampleProperty(idProperty:String):Object {
 				var property:XML = null;
 				for each(var prop:XML in propertyList) {

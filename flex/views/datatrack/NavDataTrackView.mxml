@@ -617,42 +617,6 @@
 		treeContainer.validateNow();
 	}
 
-
-	public function getTreeIcon(item:Object):Class {
-		if (item.name() == "Organism") {
-			if (item.@isPopulated == "Y") {
-				return parentApplication.iconOrganism;
-			} else {
-				return parentApplication.iconOrganismFaded;
-			}
-		} else if (item.name() == "DataTrackFolder") {
-			if (item.@idLab != '') {
-				return parentApplication.iconDataTrackFolderForGroup;					
-			} else {
-				return parentApplication.iconFolder;										
-			}
-		} else if (item.name() == "GenomeBuild") {
-			if (item.children() != null && item.children().length() > 0) {
-				return parentApplication.iconGenomeBuild;				
-			} else {
-				return parentApplication.iconGenomeBuildFaded;
-			}
-		} else if (item.name() == "DataTrack") {
-			if (item.@codeVisibility == "MEM") {
-				return parentApplication.iconDataTrackMember;
-			} else if (item.@codeVisibility == "MEMCOL") {
-				return parentApplication.iconDataTrackMemberCollab;
-			} else if (item.@codeVisibility == "OWNER") {
-				return parentApplication.iconDataTrackOwner;
-			} else if (item.@codeVisibility == "INST") {
-				return parentApplication.iconDataTrackInstitution;
-			} else {
-				return parentApplication.iconDataTrackPublic;
-			}
-		} else {
-			return parentApplication.iconDataTrack;
-		}
-	}     
 	
 	public function refreshDataTrackFilters(idOrganismAdded:Object):void {
 		// We want to clear out the organism dropdown selection
@@ -2079,7 +2043,7 @@
 							 dragMoveEnabled="true"
 							 dragDrop="onDragDrop(event);" 
 							 itemRenderer="views.renderers.TreeNodeRenderer"
-							 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
+							 iconFunction="parentApplication.getDataTrackTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
 					
 				</mx:VBox>
 				

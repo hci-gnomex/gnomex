@@ -16,8 +16,8 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
+import org.jdom.Document;
+import org.jdom.Element;
 import org.hibernate.Session;
 
 
@@ -59,7 +59,8 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       // TODO: GENOPUB Need to send in analysis file data path?  
       if (this.getSecAdvisor().canRead(dataTrack)) {
         Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), baseDir, analysisBaseDir);
-        this.xmlResult = doc.asXML();
+        org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
+        this.xmlResult = out.outputString(doc);
         setResponsePage(this.SUCCESS_JSP);
         
       } else {
