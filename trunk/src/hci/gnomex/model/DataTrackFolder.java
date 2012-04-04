@@ -12,9 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.jdom.Document;
+import org.jdom.Element;
 
 
 public class DataTrackFolder extends DetailObject implements Serializable {
@@ -28,6 +27,7 @@ public class DataTrackFolder extends DetailObject implements Serializable {
   private Set                dataTracks;
   private Integer            idLab;
   private Integer            idGenomeBuild;
+  private GenomeBuild        genomeBuild;
   private String             createdBy;
   private Date               createDate;
   private Lab                lab;
@@ -74,6 +74,12 @@ public class DataTrackFolder extends DetailObject implements Serializable {
   }
   public void setParentFolder(DataTrackFolder parentFolder) {
     this.parentFolder = parentFolder;
+  }
+  public GenomeBuild getGenomeBuild() {
+    return genomeBuild;
+  }
+  public void setGenomeBuild(GenomeBuild genomeBuild) {
+    this.genomeBuild = genomeBuild;
   }
 
 
@@ -189,23 +195,23 @@ public class DataTrackFolder extends DetailObject implements Serializable {
    }
 
    public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) throws UnknownPermissionException {
-     Document doc = DocumentHelper.createDocument();
-     Element root = doc.addElement("DataTrackFolder");
+     Document doc = new Document(new Element("DataTrackFolder"));
+     Element root = doc.getRootElement();
 
      GenomeBuild genomeBuild = dictionaryHelper.getGenomeBuildObject(this.getIdGenomeBuild());
 
-     root.addAttribute("label", this.getName());	
-     root.addAttribute("idDataTrackFolder", this.getIdDataTrackFolder().toString());	
-     root.addAttribute("idGenomeBuild", genomeBuild.getIdGenomeBuild().toString());	
-     root.addAttribute("genomeBuild", genomeBuild.getGenomeBuildName());	
-     root.addAttribute("name", this.getName().toString());	
-     root.addAttribute("description", this.getDescription() != null ? this.getDescription() : "");	
-     root.addAttribute("lab", this.getIdLab() != null ? dictionaryHelper.getLabObject(this.getIdLab()).getName() : "");
-     root.addAttribute("idLab",this.getIdLab() != null ? this.getIdLab().toString() : "");
-     root.addAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
-     root.addAttribute("createDate", this.getCreateDate() != null ? DataTrackUtil.formatDate(this.getCreateDate()) : "");
+     root.setAttribute("label", this.getName() != null ? this.getName() : "");	
+     root.setAttribute("idDataTrackFolder", this.getIdDataTrackFolder().toString());	
+     root.setAttribute("idGenomeBuild", genomeBuild.getIdGenomeBuild().toString());	
+     root.setAttribute("genomeBuild", genomeBuild.getGenomeBuildName());	
+     root.setAttribute("name", this.getName() != null ? this.getName() : "");	
+     root.setAttribute("description", this.getDescription() != null ? this.getDescription() : "");	
+     root.setAttribute("lab", this.getIdLab() != null ? dictionaryHelper.getLabObject(this.getIdLab()).getName() : "");
+     root.setAttribute("idLab",this.getIdLab() != null ? this.getIdLab().toString() : "");
+     root.setAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
+     root.setAttribute("createDate", this.getCreateDate() != null ? DataTrackUtil.formatDate(this.getCreateDate()) : "");
 
-     root.addAttribute("canWrite",    secAdvisor.canUpdate(this) ? "Y" : "N");
+     root.setAttribute("canWrite",    secAdvisor.canUpdate(this) ? "Y" : "N");
 
      return doc;
    }

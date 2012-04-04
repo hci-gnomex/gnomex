@@ -7,9 +7,8 @@ import hci.gnomex.security.SecurityAdvisor;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.jdom.Document;
+import org.jdom.Element;
 
 
 
@@ -140,16 +139,16 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   }
 
   public Document getXML(SecurityAdvisor secAdvisor) throws UnknownPermissionException {
-    Document doc = DocumentHelper.createDocument();
-    Element root = doc.addElement("Organism");
+    Document doc = new Document(new Element("Organism"));
+    Element root = doc.getRootElement();
     
-    root.addAttribute("label",        this.getBinomialName());
-    root.addAttribute("idOrganism",   this.getIdOrganism().toString());
-    root.addAttribute("name",         this.getDas2Name() != null ? this.getDas2Name() : "");        
-    root.addAttribute("commonName",   this.getOrganism() != null ? this.getOrganism() : "");        
-    root.addAttribute("binomialName", this.getBinomialName() != null ? this.getBinomialName() : "");        
-    root.addAttribute("NCBITaxID",    this.getNcbiTaxID() != null ? this.getNcbiTaxID() : "");    
-    root.addAttribute("canWrite",     secAdvisor.canUpdate(this) ? "Y" : "N");
+    root.setAttribute("label",        this.getBinomialName() != null ? this.getBinomialName() : "");
+    root.setAttribute("idOrganism",   this.getIdOrganism().toString());
+    root.setAttribute("name",         this.getDas2Name() != null ? this.getDas2Name() : "");        
+    root.setAttribute("commonName",   this.getOrganism() != null ? this.getOrganism() : "");        
+    root.setAttribute("binomialName", this.getBinomialName() != null ? this.getBinomialName() : "");        
+    root.setAttribute("NCBITaxID",    this.getNcbiTaxID() != null ? this.getNcbiTaxID() : "");    
+    root.setAttribute("canWrite",     secAdvisor.canUpdate(this) ? "Y" : "N");
 
     return doc;
   }

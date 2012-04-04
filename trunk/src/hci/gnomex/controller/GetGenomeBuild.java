@@ -13,7 +13,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.dom4j.Document;
+import org.jdom.Document;
 import org.hibernate.Session;
 
 
@@ -51,7 +51,8 @@ public class GetGenomeBuild extends GNomExCommand implements Serializable {
 
       // TODO: GENOPUB Need to send in genome build file data path?  
       Document doc = genomeBuild.getXML(this.getSecAdvisor(),  baseDir);
-      this.xmlResult = doc.asXML();
+      org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
+      this.xmlResult = out.outputString(doc);
       setResponsePage(this.SUCCESS_JSP);
       
 

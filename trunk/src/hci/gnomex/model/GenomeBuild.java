@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.jdom.Document;
+import org.jdom.Element;
 
 
 
@@ -25,6 +24,7 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   private Integer       idGenomeBuild;
   private String        genomeBuildName;
   private Integer       idOrganism;
+  private Organism      organism;
   private String        isActive;
   private String        isLatestBuild;
   private Integer       idAppUser;
@@ -216,7 +216,13 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   public void setDataPath(String dataPath) {
     this.dataPath = dataPath;
   }
-  
+
+  public Organism getOrganism() {
+    return organism;
+  }
+  public void setOrganism(Organism org) {
+    this.organism = org;
+  }
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getSegments");
@@ -229,55 +235,59 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   }
   @SuppressWarnings("unchecked")
   public Document getXML(SecurityAdvisor secAdvisor, String data_root) throws UnknownPermissionException {
-    Document doc = DocumentHelper.createDocument();
-    Element root = doc.addElement("GenomeBuild");
+    Document doc = new Document(new Element("GenomeBuild"));
+    Element root = doc.getRootElement();
 
-    root.addAttribute("label",          this.getDas2Name());       
-    root.addAttribute("idGenomeBuild",  this.getIdGenomeBuild().toString());        
-    root.addAttribute("das2Name",       this.getDas2Name());
-    root.addAttribute("genomeBuildName",this.getGenomeBuildName());
-    root.addAttribute("ucscName",       this.getUcscName());
-    root.addAttribute("buildDate",      this.getBuildDate() != null ? DataTrackUtil.formatDate(this.getBuildDate()) : "");       
-    root.addAttribute("idOrganism",     this.getIdOrganism().toString());       
-    root.addAttribute("coordURI",       this.getCoordURI() != null ? this.getCoordURI().toString() : ""); 
-    root.addAttribute("coordVersion",   this.getCoordVersion() != null ? this.getCoordVersion().toString() : ""); 
-    root.addAttribute("coordSource",    this.getCoordSource() != null ? this.getCoordSource().toString() : ""); 
-    root.addAttribute("coordTestRange", this.getCoordTestRange() != null ? this.getCoordTestRange().toString() : ""); 
-    root.addAttribute("coordAuthority", this.getCoordAuthority() != null ? this.getCoordAuthority().toString() : ""); 
+    root.setAttribute("label",          this.getDas2Name() != null ? this.getDas2Name() : "");       
+    root.setAttribute("idGenomeBuild",  this.getIdGenomeBuild().toString());        
+    root.setAttribute("das2Name",       this.getDas2Name() != null ? this.getDas2Name() : "");
+    root.setAttribute("genomeBuildName",this.getGenomeBuildName() != null ? this.getGenomeBuildName() : "");
+    root.setAttribute("ucscName",       this.getUcscName() != null ? this.getUcscName() : "");
+    root.setAttribute("buildDate",      this.getBuildDate() != null ? DataTrackUtil.formatDate(this.getBuildDate()) : "");       
+    root.setAttribute("idOrganism",     this.getIdOrganism().toString());       
+    root.setAttribute("coordURI",       this.getCoordURI() != null ? this.getCoordURI().toString() : ""); 
+    root.setAttribute("coordVersion",   this.getCoordVersion() != null ? this.getCoordVersion().toString() : ""); 
+    root.setAttribute("coordSource",    this.getCoordSource() != null ? this.getCoordSource().toString() : ""); 
+    root.setAttribute("coordTestRange", this.getCoordTestRange() != null ? this.getCoordTestRange().toString() : ""); 
+    root.setAttribute("coordAuthority", this.getCoordAuthority() != null ? this.getCoordAuthority().toString() : ""); 
 
     // Only show the sequence files and segments for genome version detail 
     // (if data_root provided).
     if (data_root != null) {
 
       // Sequence files
-      Element filesNode = root.addElement("SequenceFiles");
+      Element filesNode = new Element("SequenceFiles");
+      root.addContent(filesNode);
 
       String filePath = getSequenceDirectory(data_root);
       File fd = new File(filePath);
       if (fd.exists()) {
 
 
-        Element fileNode = filesNode.addElement("Dir");
-        fileNode.addAttribute("name", getSequenceFileName());
-        fileNode.addAttribute("url", filePath);
+        Element fileNode = new Element("Dir");
+        filesNode.addContent(fileNode);
+        fileNode.setAttribute("name", getSequenceFileName() != null ? getSequenceFileName() : "");
+        fileNode.setAttribute("url", filePath != null ? filePath : "");
         appendSequenceFileXML(filePath, fileNode, null);        
       }
 
       // Segments
-      Element segmentsNode = root.addElement("Segments");
+      Element segmentsNode = new Element("Segments");
+      root.addContent(segmentsNode);
       for (Segment segment : (Set<Segment>)this.getSegments()) {
-        Element sNode = segmentsNode.addElement("Segment");
-        sNode.addAttribute("idSegment", segment.getIdSegment().toString());
-        sNode.addAttribute("name", segment.getName());
+        Element sNode = new Element("Segment");
+        segmentsNode.addContent(sNode);
+        sNode.setAttribute("idSegment", segment.getIdSegment().toString());
+        sNode.setAttribute("name", segment.getName() != null ? segment.getName() : "");
 
-        sNode.addAttribute("length", segment.getLength() != null ? NumberFormat.getInstance().format(segment.getLength()) : "");
-        sNode.addAttribute("sortOrder", segment.getSortOrder() != null ? segment.getSortOrder().toString() : "");
+        sNode.setAttribute("length", segment.getLength() != null ? NumberFormat.getInstance().format(segment.getLength()) : "");
+        sNode.setAttribute("sortOrder", segment.getSortOrder() != null ? segment.getSortOrder().toString() : "");
       }
     }
 
 
-    root.addAttribute("canRead", secAdvisor.canRead(this) ? "Y" : "N");
-    root.addAttribute("canWrite", secAdvisor.canUpdate(this) ? "Y" : "N");
+    root.setAttribute("canRead", secAdvisor.canRead(this) ? "Y" : "N");
+    root.setAttribute("canWrite", secAdvisor.canUpdate(this) ? "Y" : "N");
 
     return doc;
   }
@@ -364,22 +374,24 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
         }
 
         if (f1.isDirectory()) {
-          Element fileNode = parentNode.addElement("Dir");
-          fileNode.addAttribute("name", displayName);
-          fileNode.addAttribute("url", fileName);
+          Element fileNode = new Element("Dir");
+          parentNode.addContent(fileNode);
+          fileNode.setAttribute("name", displayName);
+          fileNode.setAttribute("url", fileName);
           appendSequenceFileXML(fileName, fileNode,
               subDirName != null ? subDirName + "/"
                   + f1.getName() : f1.getName());
         } else {
-          Element fileNode = parentNode.addElement("File");
+          Element fileNode = new Element("File");
+          parentNode.addContent(fileNode);
 
           long kb = DataTrackUtil.getKilobytes(f1.length());
           String kilobytes = kb + " kb";
 
-          fileNode.addAttribute("name", displayName);
-          fileNode.addAttribute("url", fileName);
-          fileNode.addAttribute("size", kilobytes);
-          fileNode.addAttribute("lastModified", DataTrackUtil.formatDate(new java.sql.Date(f1.lastModified())));
+          fileNode.setAttribute("name", displayName);
+          fileNode.setAttribute("url", fileName);
+          fileNode.setAttribute("size", kilobytes);
+          fileNode.setAttribute("lastModified", DataTrackUtil.formatDate(new java.sql.Date(f1.lastModified())));
 
         }
       }

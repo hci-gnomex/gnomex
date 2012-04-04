@@ -10,9 +10,6 @@ public class ProtocolFilter extends DetailObject {
   // Criteria
   private String                text;
   private String                text1;
-  private String                text2;
-  private String                text3;
-  private String                text4;
   private String                matchAnyTerm = "N";
   private String                matchAllTerms = "Y";
   private String                searchListText = "";
@@ -57,10 +54,7 @@ public class ProtocolFilter extends DetailObject {
       searchText.append(") ");
     } 
     
-    if ((text1 != null && !text1.equals("")) ||
-        (text2 != null && !text2.equals("")) ||
-        (text3 != null && !text3.equals("")) ||
-        (text4 != null && !text4.equals(""))){ 
+    if ((text1 != null && !text1.equals(""))){ 
       
       this.addLogicalOperator();
       searchText.append("(");
@@ -72,48 +66,6 @@ public class ProtocolFilter extends DetailObject {
         searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;
       }
-      
-      // Search by text2
-      if (text2 != null && !text2.equals("")){
-        if (textCriteriaAdded) {
-          if (matchAnyTerm.equals("Y")) {
-            this.addLogicalOperator();          
-          } else {
-            this.addLogicalOperator();
-          }          
-        }
-        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append("*" + text2 + "*");
-        textCriteriaAdded = true;
-      } 
-      
-      //    Search by text3
-      if (text3 != null && !text3.equals("")){
-        if (textCriteriaAdded) {
-          if (matchAnyTerm.equals("Y")) {
-            this.addLogicalOperator();          
-          } else {
-            this.addLogicalOperator();
-          }          
-        }
-        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append("*" + text3 + "*");
-        textCriteriaAdded = true;
-      } 
-      
-      //    Search by text4
-      if (text4 != null && !text4.equals("")){
-        if (textCriteriaAdded) {
-          if (matchAnyTerm.equals("Y")) {
-            this.addLogicalOperator();          
-          } else {
-            this.addLogicalOperator();
-          }          
-        }
-        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append("*" + text4 + "*");
-        textCriteriaAdded = true;
-      } 
 
       searchText.append(")");
     }
@@ -168,42 +120,6 @@ public class ProtocolFilter extends DetailObject {
   
   public void setText1(String text1) {
     this.text1 = text1;
-  }
-
-
-  
-  public String getText2() {
-    return text2;
-  }
-
-
-  
-  public void setText2(String text2) {
-    this.text2 = text2;
-  }
-
-
-  
-  public String getText3() {
-    return text3;
-  }
-
-
-  
-  public void setText3(String text3) {
-    this.text3 = text3;
-  }
-
-
-  
-  public String getText4() {
-    return text4;
-  }
-
-
-  
-  public void setText4(String text4) {
-    this.text4 = text4;
   }
 
 

@@ -678,13 +678,16 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       dt.createDate, ");
     buf.append("       dt.codeVisibility, ");
     buf.append("       dt.idAppUser,  ");
-    buf.append("       dt.idInstitution ");
+    buf.append("       dt.idInstitution, ");
+    buf.append("       org.idOrganism ");
     
     buf.append("FROM        DataTrackFolder as dtf ");
     buf.append("LEFT JOIN   dtf.lab as dtfLab ");
-    buf.append("LEFT JOIN   dtf.dataTracks as dt ");
+    buf.append("JOIN   dtf.dataTracks as dt ");
     buf.append("LEFT JOIN   dt.lab as lab ");
     buf.append("LEFT JOIN   dt.appUser as owner ");
+    buf.append("LEFT JOIN   dtf.genomeBuild as gen ");
+    buf.append("LEFT JOIN   gen.organism as org ");
 
     buf.append("ORDER BY dtf.name, dt.name ");
     
@@ -1616,6 +1619,7 @@ public class BuildSearchIndex extends DetailObject {
     String publicNote             = ""; 
     Integer idAppUser             = (Integer)row[19];
     Integer idInstitution         = (Integer)row[20];
+    Integer idOrganism            = (Integer)row[21];
     
 
 
@@ -1718,6 +1722,8 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(DataTrackIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(DataTrackIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(DataTrackIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    indexedFieldMap.put(DataTrackIndexHelper.ID_ORGANISM, idOrganism != null ? idOrganism.toString() : "");
+    
     // Output the annotation properties.
     for(Iterator i = annotationsByProperty.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();

@@ -20,9 +20,8 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.jdom.Document;
+import org.jdom.Element;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -44,6 +43,7 @@ public class DataTrackQuery implements Serializable {
 	private String             isVisibilityInstitute = "Y";
 	private String             isServerRefreshMode = "N";
 	private String             emphasizeText = "";
+	private List<Integer>      ids = null;
 	
 	private int                hitCount = 0;
 
@@ -110,6 +110,10 @@ public class DataTrackQuery implements Serializable {
 		}		
 	}
 
+	public DataTrackQuery(List ids) {
+	  this.ids = ids;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Document getDataTrackDocument(Session sess, SecurityAdvisor secAdvisor) throws Exception {
 	  // If we are looking up data track by number, prime the idGenomeBuild
@@ -316,8 +320,8 @@ public class DataTrackQuery implements Serializable {
 		hashDataTracks(dataTrackFolderRows, dataTrackRows, folderCountRows, segmentRows, dictionaryHelper);		
 		
 
-		Document doc = DocumentHelper.createDocument();
-		Element root = doc.addElement("DataTrackList");
+		Document doc = new Document(new Element("DataTrackList"));
+		Element root = doc.getRootElement();
 		
 				
 		// Use hash to create XML Document.  Perform 2 passes so that organisms
@@ -327,7 +331,7 @@ public class DataTrackQuery implements Serializable {
 		hitCount = 0;
 		fillOrganismNodes(root, dictionaryHelper, secAdvisor, true);
 		fillOrganismNodes(root, dictionaryHelper, secAdvisor, false);
-    root.addAttribute("hitCount", Integer.valueOf(hitCount).toString());
+    root.setAttribute("hitCount", Integer.valueOf(hitCount).toString());
 
 		return doc;
 		
@@ -354,9 +358,9 @@ public class DataTrackQuery implements Serializable {
 			}
 			
 			organismNode = organism.getXML(secAdvisor).getRootElement();
-			organismNode.addAttribute("isPopulated", isPopulated ? "Y" : "N");
+			organismNode.setAttribute("isPopulated", isPopulated ? "Y" : "N");
 			emphasizeMatch(organismNode);
-			root.add(organismNode);
+			root.addContent(organismNode);
 			
 			// For each genome build, build up hierarchy
 			if (genomeBuildMap != null) {
@@ -371,11 +375,11 @@ public class DataTrackQuery implements Serializable {
 
 					// Indicate if the genome build has segments
 					List<Segment> segments = this.getSegments(organism, genomeBuild.getDas2Name());
-					genomeBuildNode.addAttribute("hasSegments", (segments != null && segments.size() > 0 ? "Y" : "N"));					
+					genomeBuildNode.setAttribute("hasSegments", (segments != null && segments.size() > 0 ? "Y" : "N"));					
 					emphasizeMatch(genomeBuildNode);
 					
 					// Attach the genome build node
-					organismNode.add(genomeBuildNode);
+					organismNode.addContent(genomeBuildNode);
 					
 					// For each root dataTrack folder, recurse to create dataTracks
 					// and folders.
@@ -385,8 +389,8 @@ public class DataTrackQuery implements Serializable {
 					// If selection criteria was applied to query, prune out nodes that don't 
 					// have any content 
 					if (this.hasDataTrackCriteria()) {
-						if (!genomeBuildNode.hasContent()) {
-							organismNode.remove(genomeBuildNode);					
+						if (!genomeBuildNode.hasChildren()) {
+							organismNode.removeContent(genomeBuildNode);					
 						}
 					}
 
@@ -397,8 +401,8 @@ public class DataTrackQuery implements Serializable {
 			// If selection criteria was applied to query, prune out nodes that don't 
 			// have any content 
 			if (this.hasDataTrackCriteria()) {
-				if (!organismNode.hasContent()) {
-					root.remove(organismNode);					
+				if (!organismNode.hasChildren()) {
+					root.removeContent(organismNode);					
 				}
 			}
 			
@@ -424,7 +428,7 @@ public class DataTrackQuery implements Serializable {
           }
         }	      
 	    }
-	    node.addAttribute("emphasize", emphasize ? "Y" : "N");
+	    node.setAttribute("emphasize", emphasize ? "Y" : "N");
 	    if (emphasize) {
 	      hitCount++;
 	    }
@@ -432,8 +436,8 @@ public class DataTrackQuery implements Serializable {
 	}
 	
 	private boolean isMatch(Element node, String attributeName) {
-	  if (node.attribute(attributeName) != null && node.attribute(attributeName).getValue() != null) {
-	    String value = node.attribute(attributeName).getValue();
+	  if (node.getAttribute(attributeName) != null && node.getAttribute(attributeName).getValue() != null) {
+	    String value = node.getAttribute(attributeName).getValue();
 	    // The attribute matches the emphasize text if it is contained within its text. 
 	    // Match is case-insensitive.
 	    return value.toUpperCase().contains(emphasizeText.toUpperCase());
@@ -862,7 +866,7 @@ public class DataTrackQuery implements Serializable {
 					
 				    folderNode = dtFolder.getXML(secAdvisor, dictionaryHelper).getRootElement();
 				    emphasizeMatch(folderNode);
-				    parentNode.add(folderNode);
+				    parentNode.addContent(folderNode);
 					
 
 				} else {
@@ -874,7 +878,7 @@ public class DataTrackQuery implements Serializable {
 
 				TreeMap<String, ?> dtNameMap = folderToDataTracks.get(folderKey);
 				if (dtNameMap != null && dtNameMap.size() > 0) {
-					folderNode.addAttribute("dataTrackCount", String.valueOf(dtNameMap.size()));
+					folderNode.setAttribute("dataTrackCount", String.valueOf(dtNameMap.size()));
 					// For each dataTrack...
 					for (String dtNameKey : dtNameMap.keySet()) { 
 						String[] tokens1    = dtNameKey.split(KEY_DELIM);
@@ -883,10 +887,10 @@ public class DataTrackQuery implements Serializable {
 						DataTrack dt = dataTrackMap.get(idDataTrack);
 						
 						Element dtNode = dt.getXML(secAdvisor, dictionaryHelper, null, null).getRootElement();
-						dtNode.addAttribute("idDataTrackFolder", dtFolder != null ? dtFolder.getIdDataTrackFolder().toString() : "");	
+						dtNode.setAttribute("idDataTrackFolder", dtFolder != null ? dtFolder.getIdDataTrackFolder().toString() : "");	
 						emphasizeMatch(dtNode);
 						
-						folderNode.add(dtNode);
+						folderNode.addContent(dtNode);
 
 					}						
 				}
@@ -898,15 +902,15 @@ public class DataTrackQuery implements Serializable {
 				// Prune out other group's folders that don't have
 				// any content (no authorized dataTracks in its folder
 				// or its descendent's folder).
-				if (!folderNode.hasContent()) {
-					String folderIdUserGroup = folderNode.attributeValue("idLab");
+				if (!folderNode.hasChildren()) {
+					String folderIdUserGroup = folderNode.getAttributeValue("idLab");
 					boolean prune = true;
 					// Public folders
 					if (folderNode.getName().equals("DataTrackFolder") &&
 						(folderIdUserGroup == null || folderIdUserGroup.equals(""))) {
 						// If we are not filtering by user group,
 						// always show empty public empty folders
-						if (this.idLab == null) {
+						if (this.idLab == null && this.ids == null) {
 							prune = false;
 						} else {
 							// If we are filtering by user group, prune
@@ -919,14 +923,14 @@ public class DataTrackQuery implements Serializable {
 							    folderIdUserGroup != null && 
 							    !folderIdUserGroup.equals("") &&
 							  	(secAdvisor.isGroupIAmMemberOrManagerOf(new Integer(folderIdUserGroup)))) {
-						if (this.idLab == null) {
+						if (this.idLab == null && this.ids == null) {
 							// If we are not filtering by user group, then always
 							// show my group's empty folders
 							prune = false;							
 						} else {
 							// If we are filtering by user group, prune any empty
 							// folders not specifically for the group being filtered
-							if (this.idLab.equals(new Integer(folderIdUserGroup))) {
+							if (this.idLab != null && this.idLab.equals(new Integer(folderIdUserGroup))) {
 								prune = false;								
 							} else {
 								prune = true;
@@ -938,7 +942,7 @@ public class DataTrackQuery implements Serializable {
 						prune = true;
 					}
 					if (prune) {
-						parentNode.remove(folderNode);					
+						parentNode.removeContent(folderNode);					
 					}
 				}
 			}					
@@ -951,7 +955,8 @@ public class DataTrackQuery implements Serializable {
 
     private boolean hasDataTrackCriteria() {
     	if (idLab != null ||
-    	    hasVisibilityCriteria()) {
+    	    hasVisibilityCriteria()
+    	    || ids != null) {
     		return true;
     	} else {
     		return false;
@@ -984,6 +989,28 @@ public class DataTrackQuery implements Serializable {
     queryBuf.append(" gb.das2Name is not NULL");
     this.AND();
     queryBuf.append(" gb.das2Name != ''");
+    
+    // Search by list of data track ids
+    if (ids != null) {
+      if (joinLevel == DATATRACK_LEVEL) {
+        this.AND();
+        queryBuf.append(" dataTrack.idDataTrack in (");
+        // if ids supplied but an empty list, then make sure we get no data tracks.
+        if (ids.size() == 0) {
+          queryBuf.append("-1");
+        } else {
+          Boolean firstId = true;
+          for (Integer id : ids) {
+            if (!firstId) {
+              queryBuf.append(", ");
+            }
+            firstId = false;
+            queryBuf.append(id.toString());
+          }
+        }
+        queryBuf.append(")");
+      }
+    }
     
     // Search for datatrack by number
     if (number != null && !number.equals("")) {

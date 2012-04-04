@@ -6,9 +6,9 @@
 	xmlns:search="views.search.*" 
 	showCloseButton="true"
 	close="{PopUpManager.removePopUp(this)}"
-	title="Search Experiments, Analyses, Protocols and Data Tracks"  defaultButton="{searchButton}"
+	title="Advanced Search"  defaultButton="{searchButton}"
 	creationPolicy="all" show="init()" 
-	width="986" height="450" icon="@Embed('../../assets/magnifier.png')">
+	width="810" height="450" icon="@Embed('../../assets/magnifier.png')">
 
     <mx:HTTPService 
     id="getSlideProductList" 
@@ -47,9 +47,6 @@
     	private var protocolHitLabel:String = "Protocols";
 		[Bindable] 
 		private var dataTrackHitLabel:String = "Data Tracks";
-    
-        [Bindable]
-        private var rowCountMessage:String = new String();
         
         [Bindable]
         public var simpleSearchText:String = null;
@@ -84,7 +81,6 @@
 			if (simpleSearchText != null) {
 				performSimpleSearch(simpleSearchText);
 			}
-			isInitialized = true;
 			this.searchView.scopeSearch();
 		}
 		
@@ -113,7 +109,6 @@
         }
         
         public function setResultsCount():void {
-        	rowCountMessage = searchList.length + " experiments, " + searchAnalysisList.length + " analyses, " + searchProtocolList.length + " protocols, "  + searchDataTrackList.length + " data tracks found.";
         	experimentHitLabel = "Experiments (" + searchList.length + " hits)";
         	analysisHitLabel = "Analysis (" + searchAnalysisList.length + " hits)";
         	protocolHitLabel = "Protocols (" + searchProtocolList.length + " hits)";
@@ -124,9 +119,10 @@
         
         private function onExperimentRowSelected():void  {
         	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber);
+			shrinkWindow();
         }
-        
-        private function shrinkRestoreWindow():void {
+
+		private function shrinkRestoreWindow():void {
 			if (this.restoreButton.label == "Restore Window") {
 				restoreWindow();
 			} else {
@@ -149,6 +145,7 @@
         private function onExperimentNodeSelected():void  {
         	if (resultsTree.selectedItem.name() == "RequestNode") {
 	        	parentApplication.showExperiment(resultsTree.selectedItem.@requestNumber);    		
+				shrinkWindow();
         	}
         }
         
@@ -156,6 +153,7 @@
         	parentApplication.showAnalysis(this.resultAnalysisGrid.selectedItem.@idAnalysis,
         								   this.resultAnalysisGrid.selectedItem.@number, 
         								   this.resultAnalysisGrid.selectedItem.@idLab);
+			shrinkWindow();
         }
         
                 
@@ -164,22 +162,26 @@
 	        	parentApplication.showAnalysis(this.resultsAnalysisTree.selectedItem.@idAnalysis, 
 	        	                               this.resultsAnalysisTree.selectedItem.@number,
 	        	                               this.resultsAnalysisTree.selectedItem.@idLab);    		
+				shrinkWindow();
         	}
         }
 		
 		private function onDataTrackRowSelected():void  {
 			parentApplication.showDataTrackForNumber(this.resultDataTrackGrid.selectedItem.@fileName);
+			shrinkWindow();
 		}
 		
 		
 		private function onDataTrackNodeSelected():void  {
-			if (resultsDataTrackTree.selectedItem.name() == "DataTrackNode") {
-				parentApplication.showDataTrackForNumber(this.resultsDataTrackTree.selectedItem.@fileName);
+			if (resultsDataTrackTree.selectedItem.name() == "DataTrack") {
+				parentApplication.showDataTrackForNumber(this.resultsDataTrackTree.selectedItem.@number);
+				shrinkWindow();
 			}
 		}
         private function onProtocolRowSelected():void  {
         	parentApplication.showProtocol(resultsProtocolGrid.selectedItem.@idProtocol, 
         	                               this.resultsProtocolGrid.selectedItem.@className);
+			shrinkWindow();
         }
         
                 
@@ -187,6 +189,7 @@
         	if (resultsProtocolTree.selectedItem.name() == "Protocol") {
 	        	parentApplication.showProtocol(resultsProtocolTree.selectedItem.@idProtocol, 
 	        	                               resultsProtocolTree.selectedItem.@className);    		
+				shrinkWindow();
         	}
         }
         
@@ -300,7 +303,7 @@
     ]]>
     </mx:Script>
 	<mx:Resize widthTo="200" id="windowShrink" target="{this}" />
-	<mx:Resize widthTo="986" id="windowRestore" target="{this}" />
+	<mx:Resize widthTo="810" id="windowRestore" target="{this}" />
     
     <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
     <mx:XMLListCollection id="searchProtocolList" source="{searchView.searchGNomEx.lastResult.ProtocolList.Protocol}"/>
@@ -326,12 +329,10 @@
                 <mx:HBox width="100%" horizontalAlign="right" id="resultTopButtonView" horizontalGap="20" verticalAlign="middle">
 					<mx:CheckBox id="showTree"  label="Tree view" change="toggleResultTreeView()"/>
 				    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchCriteriaDisplay}" ></mx:Label>
-		        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
                 </mx:HBox>
                 <mx:HBox width="100%" horizontalAlign="right" id="resultTreeTopButtonView" >
 	                <mx:HBox width="100%" horizontalAlign="right"  horizontalGap="20">
 					    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
-			        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
                     </mx:HBox>
                 </mx:HBox>
 
@@ -425,7 +426,7 @@
 										<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
 										<mx:DataGridColumn headerText="Group" width="60" dataField="@labName"/>
 										<mx:DataGridColumn headerText="Data Track Folder" width="70" dataField="@dataTrackFolderName"/>
-										<mx:DataGridColumn headerText="File Name" width="50" dataField="@fileName"/>
+										<mx:DataGridColumn headerText="Data Track #" width="50" dataField="@fileName"/>
 										<mx:DataGridColumn headerText="Data Track Name" width="70" dataField="@name"/>
 										<mx:DataGridColumn headerText="Submitted by" width="60" labelFunction="getOwnerName"/>
 										<mx:DataGridColumn headerText="Submit date" width="50" dataField="@createDate"/>
@@ -499,7 +500,7 @@
 										 dataProvider="{searchView.searchGNomEx.lastResult.DataTrackFolderList}"
 										 labelField="@label" 
 										 doubleClickEnabled="true" doubleClick="onDataTrackNodeSelected()"
-										 iconFunction="parentApplication.getTreeIcon"
+										 iconFunction="parentApplication.getDataTrackTreeIcon"
 										 labelFunction="getTreeLabel"
 										 showRoot="true" >
 								</mx:Tree>

@@ -65,8 +65,6 @@
        public function initializeData():void {
        	//parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
        	parentDocument.filteredSlideProductList.refresh();
-       	
-       	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.OrganismLite');
 
 		this.getSearchMetaInformation.send();
        }
@@ -77,72 +75,17 @@
 			for (var x:Number = 0; x < dm.length; x++) {
 				dictionaryMap[dm[x].@fieldName] = new XMLList(dm[x].DictionaryEntry);
 			}
+			parentDocument.isInitialized = true;
+			searchTypeChange();
 		}
-			/*
-        private function filterSlideProduct(item:Object):Boolean {
-        	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
-        		return true;
-        	}
-			var doesMatchRequestCategoryVendor:Boolean = true;
-        	if (requestCategoryCombo.selectedItem != null && 
-        	    requestCategoryCombo.selectedItem.@value != '') {
-        		doesMatchRequestCategoryVendor = false;
-				var rCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestCategoryCombo.selectedItem.@value);
-        		if (item.@idVendor == rCategory.@idVendor) {
-        			doesMatchRequestCategoryVendor = true;        			
-        		}
-        	}       	
-        	
-        	var doesMatchOrganism:Boolean = true;
-        	if (organismCombo.selectedItem != null && 
-        	    organismCombo.selectedItem.@value != null  &&
-        	    organismCombo.selectedItem.@value != "") {
-        		if (item.@idOrganism == organismCombo.selectedItem.@idOrganism) {
-        			doesMatchOrganism = true;
-        		} else {
-        			doesMatchOrganism = false;
-        		}
-        	}
-        	var doesMatchExperimentCategory:Boolean = true;
-        	if (applicationCombo.selectedItem != null && 
-        	    applicationCombo.selectedItem.@value != null &&
-        	    applicationCombo.selectedItem.@value != "") {
-        		doesMatchExperimentCategory = false;
-        		var categoriesForSlideProduct:XMLList  = item.applications.Application;
-        		for(var x:Number = 0; x < categoriesForSlideProduct.length(); x++) {
-        			if (categoriesForSlideProduct[x].@codeApplication == applicationCombo.selectedItem.@value) {
-        				doesMatchExperimentCategory = true;
-        				break;
-        			}
-        		}
-        	}
-        	var doesMatchGroup:Boolean = true;
-        	if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != "") {
-        		if (item.@isCustom == "Y" && item.@idLab == labCombo.selectedItem.@idLab) {
-        			doesMatchGroup = true;
-        		} else {
-        			doesMatchGroup = false;
-        		}
-        	}
-        	
-        	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
-        }  */
-        public function callSearchIndex():void {
+
+		public function callSearchIndex():void {
 			var params:Object = new Object();
 			params.listKind = "SearchList";
 			params.matchAnyTerm = matchAnyTermRadio.selected == true ? "Y" : "N";
 			params.matchAllTerms = matchAllTermsRadio.selected == true ? "Y" : "N";
 			params.searchPublicProjects = includePublicProjectsCheckBox.selected == true ? "Y" : "N";
 			params.text1 = text1.text;
-			params.text2 = text2.text;
-			params.text3 = text3.text;
-			params.text4 = text4.text;
-			params.idLab = labCombo.selectedItem.@idLab;
-			params.lab = labCombo.selectedItem.@name;
-			params.idOrganism = organismCombo.selectedItem.@value;
-			params.organism = organismCombo.selectedItem.@organism;
-			params.searchOrganismOnSlideProduct = searchOrganismOnSlideProductCheck.selected == true ? "Y" : "N";
-			params.searchOrganismOnSample = searchOrganismOnSampleCheck.selected == true ? "Y" : "N";
 			params.showCategory = "N";
 			params.isExperimentOnlySearch = this.ExperimentsRadioButton.selected ? "Y" : "N"
 			params.isAnalysisOnlySearch = this.AnalysesRadioButton.selected ? "Y" : "N";
@@ -157,6 +100,8 @@
 				params.searchList = this.protocolSearchList;
 			} else if (this.DataTracksRadioButton.selected) {
 				params.searchList = this.dataTrackSearchList;
+			} else {
+				params.searchList = this.allObjectsSearchList;
 			}
 
 			buildSearchCriteriaDisplay();
@@ -188,34 +133,6 @@
 				addLogicalOperator();
 				this.searchCriteriaDisplay += "any text field = " + text1.text;
 			}
-			if (text2.text != "") {
-				addLogicalOperator();
-				this.searchCriteriaDisplay += "any text field = " + text2.text;
-			}
-			if (text3.text != "") {
-				addLogicalOperator();
-				this.searchCriteriaDisplay += "any text field = " + text3.text;
-			}
-			if (text4.text != "") {
-				addLogicalOperator();
-				this.searchCriteriaDisplay += "any text field = " + text4.text;
-			}
-			if (organismCombo.selectedItem.@value != "" && (AllObjectsRadioButton.selected || ExperimentsRadioButton.selected || AnalysesRadioButton.selected)) {
-				addLogicalOperator();
-				if (searchOrganismOnSlideProductCheck.selected && !searchOrganismOnSampleCheck.selected && ExperimentsRadioButton.selected) {
-					this.searchCriteriaDisplay += "organism of microarray slide = ";
-				} else if (!searchOrganismOnSlideProductCheck.selected && searchOrganismOnSampleCheck.selected && ExperimentsRadioButton.selected) {
-					this.searchCriteriaDisplay += "organism of sample = ";
-				} else {
-					this.searchCriteriaDisplay += "organism = ";
-				}
-				this.searchCriteriaDisplay += organismCombo.selectedItem.@display;
-			}
-			if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != "" && (AllObjectsRadioButton.selected || ExperimentsRadioButton.selected
-						|| AnalysesRadioButton.selected || DataTracksRadioButton.selected)) {
-				addLogicalOperator();
-				this.searchCriteriaDisplay += "project lab = " + labCombo.selectedItem.@name;
-			}
 			
 			if (ExperimentsRadioButton.selected) {
 				buildSearchListDisplay(this.experimentSearchList);
@@ -225,6 +142,8 @@
 				buildSearchListDisplay(this.protocolSearchList);
 			} else if (this.DataTracksRadioButton.selected) {
 				buildSearchListDisplay(this.dataTrackSearchList);
+			} else {
+				buildSearchListDisplay(this.allObjectsSearchList);
 			}
 		}
 			
@@ -285,11 +204,6 @@
 			
 		public function clearForm():void {
 			this.text1.text = "";
-			this.text2.text = "";
-			this.text3.text = "";
-			this.text4.text = "";
-			this.labCombo.selectedIndex = 0;
-			this.organismCombo.selectedIndex = 0;
 			
 			for each (var i1:Object in this.experimentSearchList) {
 				i1.@value = "";
@@ -302,6 +216,9 @@
 			}
 			for each (var i4:Object in this.dataTrackSearchList) {
 				i4.@value = "";
+			}
+			for each (var i5:Object in this.allObjectsSearchList) {
+				i5.@value = "";
 			}
 			
 			this.ExperimentsRadioButton.selected = false;
@@ -317,17 +234,6 @@
 			// disable everything till initialized.
 			if (!parentDocument.isInitialized) {
 				this.currentState = "PreInitialization";
-				return;
-			}
-
-			if (this.ExperimentsRadioButton.selected) {
-				currentState = "ExperimentOnlySearchState";
-			} else if (this.AnalysesRadioButton.selected) {
-				currentState = "AnalysisOnlySearchState";
-			} else if (this.ProtocolsRadioButton.selected) {
-				currentState = "ProtocolOnlySearchState";
-			} else if (this.DataTracksRadioButton.selected) {
-				currentState = "DataTrackOnlySearchState";
 			} else {
 				currentState = "";
 			}
@@ -343,13 +249,14 @@
 			} else if (this.DataTracksRadioButton.selected) {
 				this.searchGrid.dataProvider = dataTrackSearchList;
 			} else {
-				this.searchGrid.dataProvider = new XMLListCollection();
+				this.searchGrid.dataProvider = allObjectsSearchList;
 			}
 			scopeSearch();
 		}
         ]]>
     </mx:Script>
     
+	<mx:XMLListCollection id="allObjectsSearchList" source="{this.getSearchMetaInformation.lastResult.AllObjectsSearchList.Field}"/>
 	<mx:XMLListCollection id="experimentSearchList" source="{this.getSearchMetaInformation.lastResult.ExperimentSearchList.Field}"/>
 	<mx:XMLListCollection id="analysisSearchList" source="{this.getSearchMetaInformation.lastResult.AnalysisSearchList.Field}"/>
 	<mx:XMLListCollection id="dataTrackSearchList" source="{this.getSearchMetaInformation.lastResult.DataTrackSearchList.Field}"/>
@@ -359,39 +266,10 @@
 	<mx:Label text="Keywords:" textAlign="left"/>
 	<mx:TextInput id="text1" width="80">
 	</mx:TextInput>
-	<mx:TextInput id="text2" width="80">
-	</mx:TextInput>
-	<mx:TextInput id="text3" width="80">
-	</mx:TextInput>
-	<mx:TextInput id="text4" width="80">
-	</mx:TextInput>
-	<mx:HBox>
-		<mx:Label text="Group:" textAlign="left" id="label3"/>
-		<mx:ComboBox id="labCombo"  
-					 labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
-					 width="200"
-					 >
-		</mx:ComboBox>
-		
-	</mx:HBox>
-	<mx:HBox paddingBottom="0" width="100%" id="hbox2">
-		<mx:Label text="Organism:" textAlign="left" id="label7"/>
-		<mx:VBox verticalGap="0">
-			<mx:ComboBox 
-				id="organismCombo"  labelField="@display"  
-				width="200" 
-				>
-			</mx:ComboBox>
-			<mx:HBox>
-				<mx:CheckBox id="searchOrganismOnSlideProductCheck" label="Microarray"  selected="false" click="scopeSearch()" enabled="false"/>
-				<mx:CheckBox id="searchOrganismOnSampleCheck" label="Sample"  selected="false" click="scopeSearch()" enabled="false"/>
-			</mx:HBox>
-		</mx:VBox>
-	</mx:HBox>
 </mx:HBox>
 <mx:HRule width="100%"/>
 <mx:VBox height="100%" width="100%" verticalGap="6" paddingRight="4">
-	<mx:VBox width="100%" height="240">
+	<mx:VBox width="100%" height="280">
 		<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
 			<mx:Label text="Search " />
 			<mx:RadioButton label="All Objects" selected="true" id="AllObjectsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
@@ -422,7 +300,6 @@
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:VBox>
-	<mx:Label text="* Experiments only will be searched" id="warningLabel" visible="false" fontWeight="bold" color="#730A1E"/>    	
 	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
 	    <mx:HBox width="100%" id="hbox1">
 	         <mx:HBox horizontalGap="0">
@@ -440,55 +317,12 @@
 </mx:VBox>
 
 <mx:states>
-	<mx:State name="ExperimentOnlySearchState">	
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
-		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="true"/>
-		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="true"/>
-	</mx:State>
-	<mx:State name="AnalysisOnlySearchState">	
-		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
-	</mx:State>
-	<mx:State name="ProtocolOnlySearchState">	
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
-		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
-		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{labCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
-	</mx:State>
-	<mx:State name="DataTrackOnlySearchState">	
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Experiments only will be searched"/>
-		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
-		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Analysis only will be searched"/>
-	</mx:State>
 	<mx:State name="PreInitialization">	
-		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{labCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
 		<mx:SetProperty target="{this.ExperimentsRadioButton}" name="enabled" value="false"/>
 		<mx:SetProperty target="{this.AnalysesRadioButton}" name="enabled" value="false"/>
 		<mx:SetProperty target="{this.ProtocolsRadioButton}" name="enabled" value="false"/>
 		<mx:SetProperty target="{this.DataTracksRadioButton}" name="enabled" value="false"/>
 		<mx:SetProperty target="{this.AllObjectsRadioButton}" name="enabled" value="false"/>
-		<mx:SetProperty target="{warningLabel}" name="visible" value="true"/>
-		<mx:SetProperty target="{warningLabel}" name="text" value="* Initializing.  Please Wait."/>
 	</mx:State>
 </mx:states> 
        
