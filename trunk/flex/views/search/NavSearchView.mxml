@@ -98,6 +98,7 @@
 			var params:Object = new Object();
 			params.text1 = searchText;
 			this.searchView.text1.text = searchText;
+			this.searchView.buildSearchCriteriaDisplay();
         	this.searchView.searchGNomEx.send(params);
         }
 
