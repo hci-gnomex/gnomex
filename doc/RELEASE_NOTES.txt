@@ -20,6 +20,7 @@
 * Fix issue on new user register where if they entered external user name and then switched to UNID it remembered the external user name and still required a password.
 * Removed sample prep method dropdowns (nucleic acid extraction method).  Still have text box available but it is optional.
 * Fix issue in DataTrack and Analysis annotations with urls.  Alias was used as the URL if entered.  URL is now always used as URL.
+* New Download Files link on experiment view which opens Files tab.  Makes download workflow more obvious.
 
 5.4 Deploy Notes
 --------------------
