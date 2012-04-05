@@ -8,6 +8,7 @@ import hci.gnomex.utility.ChromatTrimUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -164,10 +165,10 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         // Quality information
         Element qualNode = new Element("Quality");
         
-        qualNode.setAttribute("Q20", "" + getQ(abiFile, 20) + " b");
-        qualNode.setAttribute("Q40", "" + getQ(abiFile, 40) + " b");
-        qualNode.setAttribute("Q20_len", "" + getQPercent(abiFile, 20));
-        qualNode.setAttribute("Q40_len", "" + getQPercent(abiFile, 40));
+        qualNode.setAttribute("q20", "" + getQ(abiFile, 20) + " b");
+        qualNode.setAttribute("q40", "" + getQ(abiFile, 40) + " b");
+        qualNode.setAttribute("q20_len", "" + getQPercent(abiFile, 20));
+        qualNode.setAttribute("q40_len", "" + getQPercent(abiFile, 40));
         
         // This could be used to display a quality graph in flex
         if (includeQualArray) {
@@ -175,7 +176,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           int[] data = getQualVals(abiFile);
           String q = "" + data[0];
           for ( int i = 1; i < data.length; i++) {
-            q += ", " + data[i];
+            q += "," + data[i];
           }
           qualNode.setAttribute("quality", q);
         }
@@ -187,30 +188,35 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         // This information could be used to display the chromatogram in flex
         if (includeTrace) {
           ABITrace trace = new ABITrace(abiFile);
-//          int[] baseCalls = trace.getBasecalls();
+          
+          int[] baseCalls = trace.getBasecalls();
+          String bc = "" + baseCalls[0];
+          for ( int i = 1; i < baseCalls.length; i++) {
+            bc += "," + baseCalls[i];
+          }
 
           int[] aTrace = trace.getTrace(DNATools.a());
           String at = "" + aTrace[0];
           for ( int i = 1; i < aTrace.length; i++) {
-            at += ", " + aTrace[i];
+            at += "," + aTrace[i];
           }
 
           int[] cTrace = trace.getTrace(DNATools.c());
           String ct = "" + cTrace[0];
           for ( int i = 1; i < cTrace.length; i++) {
-            ct += ", " + cTrace[i];
+            ct += "," + cTrace[i];
           }
           
           int[] gTrace = trace.getTrace(DNATools.g());
           String gt = "" + gTrace[0];
           for ( int i = 1; i < gTrace.length; i++) {
-            gt += ", " + gTrace[i];
+            gt += "," + gTrace[i];
           }
           
           int[] tTrace = trace.getTrace(DNATools.t());
           String tt = "" + tTrace[0];
           for ( int i = 1; i < tTrace.length; i++) {
-            tt += ", " + tTrace[i];
+            tt += "," + tTrace[i];
           }
           
           Element traceNode = new Element("Trace");
@@ -218,6 +224,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           traceNode.setAttribute("cTrace", ct);
           traceNode.setAttribute("gTrace", gt);
           traceNode.setAttribute("tTrace", tt);
+          traceNode.setAttribute("baseCalls", bc);
           
           chromNode.addContent(traceNode);
         }
@@ -225,13 +232,9 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         // TRIM
         // This information could be used to display the chromatogram in flex
         ChromatTrimUtil trimUtil = new ChromatTrimUtil(abiFile);
-        trimUtil.setAcceptableQV(25);
-        trimUtil.setWindowLength(10);
-        trimUtil.setReqPercent(88);
-        
         Element trimNode = new Element("Trim");
-        trimNode.setAttribute("TrimLength", String.valueOf(trimUtil.getTrimInterval()[1]-trimUtil.getTrimInterval()[0] + 1));
-        trimNode.setAttribute("TrimPos", String.valueOf(trimUtil.getTrimInterval()[0]) + "-" + String.valueOf(trimUtil.getTrimInterval()[1]));
+        trimNode.setAttribute("trimLength", String.valueOf(trimUtil.getTrimInterval()[1]-trimUtil.getTrimInterval()[0] + 1));
+        trimNode.setAttribute("trimPos", String.valueOf(trimUtil.getTrimInterval()[0]) + "-" + String.valueOf(trimUtil.getTrimInterval()[1]));
         
         chromNode.addContent(trimNode);
         
@@ -377,7 +380,11 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
     int length = getQualVals(abiFile).length;
     int q = getQ(abiFile, qVal);
     
-    return (double) q/length;
+    DecimalFormat twoDForm = new DecimalFormat("#.##");
+    double q_len = (double) q/length;
+    
+    return Double.valueOf(twoDForm.format(q_len));
+    
   }
   
   private String getLane(File abiFile) {
