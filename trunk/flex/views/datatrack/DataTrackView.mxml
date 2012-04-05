@@ -317,7 +317,8 @@
 		if (urlLink[indices[0]][indices[1]].label == 'Enter URL here...') {
 			return;
 		}
-		var urlString:String = urlLink[indices[0]][indices[1]].label;
+		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
+		var urlString:String = values.getItemAt(indices[1]).@url;
 		if (urlString.indexOf("http") < 0) {
 			urlString = "http://" + urlString;
 		}
