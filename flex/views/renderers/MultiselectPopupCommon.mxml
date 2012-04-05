@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
-				width="286" height="220" showCloseButton="true" close="save()" creationComplete="centerMe()"
-				 paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				width="286" height="220" showCloseButton="true" creationComplete="centerMe()"
+				 paddingLeft="4" paddingRight="4" paddingTop="4" close="cancel()" paddingBottom="4">
 	
 	
 	
@@ -151,5 +151,11 @@
 		</mx:columns>
 	</mx:DataGrid>
 	
-	
+	<mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
+		<mx:Button label="Save" click="save()">
+		</mx:Button>
+		<mx:Button label="Cancel"  click="cancel()">
+		</mx:Button>
+	</mx:HBox>
+
 </mx:TitleWindow>
