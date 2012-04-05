@@ -19,6 +19,7 @@
 * When splitting account any new items created will get the same Billing Status and Complete date as the items they were copied from.
 * Fix issue on new user register where if they entered external user name and then switched to UNID it remembered the external user name and still required a password.
 * Removed sample prep method dropdowns (nucleic acid extraction method).  Still have text box available but it is optional.
+* Fix issue in DataTrack and Analysis annotations with urls.  Alias was used as the URL if entered.  URL is now always used as URL.
 
 5.4 Deploy Notes
 --------------------
