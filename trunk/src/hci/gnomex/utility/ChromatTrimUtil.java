@@ -42,6 +42,10 @@ public class ChromatTrimUtil extends DetailObject implements Serializable {
 
       chrom = ChromatogramFactory.create(abiFile);
     
+      setAcceptableQV(25);
+      setWindowLength(10);
+      setReqPercent(88);
+      
       qualArray = getQualArray();
 
 

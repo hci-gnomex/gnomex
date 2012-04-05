@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.utility.ChromatTrimUtil;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import org.biojava.bio.chromatogram.ChromatogramFactory;
 import org.biojava.bio.chromatogram.UnsupportedChromatogramFormatException;
 import org.biojava.bio.program.abi.ABIFParser;
 import org.hibernate.Session;
+import org.jdom.Element;
 
 
 public class SaveChromatogramFromFile extends GNomExCommand implements Serializable {
@@ -107,6 +109,9 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       int q40 = getQ(abiFile, 40);
       
       
+      ChromatTrimUtil trimUtil = new ChromatTrimUtil(abiFile);
+      int trimLength = trimUtil.getTrimInterval()[1]-trimUtil.getTrimInterval()[0] + 1;
+      
       
       // Set chromatogram variables
       chromatogram.setIdPlateWell(idPlateWell);
@@ -116,7 +121,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       chromatogram.setFileName(abiFile.getCanonicalPath());
       chromatogram.setDisplayName(abiFile.getName());
       chromatogram.setReadLength(chrom.getSequenceLength());
-      // Still need trimmed length
+      chromatogram.setTrimmedLength(trimLength);
       chromatogram.setQ20(q20);
       chromatogram.setQ40(q40);
       chromatogram.setaSignalStrength(aSignalStrength);
