@@ -126,7 +126,7 @@
         }
         
 			
-		private function buildSearchCriteriaDisplay():void {
+		public function buildSearchCriteriaDisplay():void {
 			this.searchCriteriaDisplay = "";
 			firstTime = true;
 			if (text1.text != "") {
