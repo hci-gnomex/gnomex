@@ -1,15 +1,8 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
-import java.util.Set;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 
 

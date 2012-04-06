@@ -250,6 +250,7 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
     root.setAttribute("coordSource",    this.getCoordSource() != null ? this.getCoordSource().toString() : ""); 
     root.setAttribute("coordTestRange", this.getCoordTestRange() != null ? this.getCoordTestRange().toString() : ""); 
     root.setAttribute("coordAuthority", this.getCoordAuthority() != null ? this.getCoordAuthority().toString() : ""); 
+    root.setAttribute("isActive",       this.getIsActive() != null ? this.getIsActive() : "");
 
     // Only show the sequence files and segments for genome version detail 
     // (if data_root provided).

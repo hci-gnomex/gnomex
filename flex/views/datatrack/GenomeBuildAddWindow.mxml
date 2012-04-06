@@ -22,6 +22,7 @@
 		 <genomeBuildName>{genomeBuildName.text}</genomeBuildName>
          <buildDate>{buildDate.text}</buildDate>
          <idOrganism>{organismCombo.selectedItem.@idOrganism}</idOrganism>
+		 <isActive>Y</isActive>
       </mx:request>
     </mx:HTTPService> 
     

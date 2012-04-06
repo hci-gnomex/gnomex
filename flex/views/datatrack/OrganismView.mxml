@@ -37,6 +37,7 @@
 		params.binomialName = organismBinomialName.text;
 		params.das2Name     = organismName.text;
 		params.ncbiTaxID    = organismNCBITaxID.text;
+		params.isActive     = parentDocument.browseTree.selectedItem.@isActive;
 		updateOrganism.send(params);
 	}
 	
