@@ -3,9 +3,11 @@ package hci.gnomex.controller;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
+import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -14,6 +16,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +37,8 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
   
   
   private Integer      idDataTrackFolder = null;
+  private String       serverName;
+  private String       baseDir;
   
  
   
@@ -48,7 +53,7 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
    } else {
      this.addInvalidField("idDataTrackFolder", "idDataTrackFolder is required.");
    }
-
+   serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -57,6 +62,9 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
+      
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
+
       dataTrackFolder = (DataTrackFolder)sess.load(DataTrackFolder.class, idDataTrackFolder);
       
       // Check permissions
@@ -134,8 +142,27 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
             // Remove data track file(s)
             if (descendent instanceof DataTrack) {
               DataTrack dt = (DataTrack)descendent;            
-              // TODO GenoPub - Need base directory
-              dt.removeFiles("c:/temp/GenoPub/");              
+              dt.removeFiles(baseDir);  
+              
+              // insert dataTrack reload entry which will cause
+              // das/2 type to be unloaded on next 'das2 reload' request
+              // Note:  If dataTrack is under more than one folder, there
+              // can be multiple das/2 types for one dataTrack.
+              for(DataTrackFolder folder : (Set<DataTrackFolder>)dt.getFolders()) {
+                String path = folder.getQualifiedTypeName();
+                if (path.length() > 0) {
+                  path += "/";
+                }
+                String typeName = path + dt.getName();
+
+                UnloadDataTrack unload = new UnloadDataTrack();
+                unload.setTypeName(typeName);
+                unload.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+                unload.setIdGenomeBuild(dt.getIdGenomeBuild());
+
+                sess.save(unload);
+              }
+
             } 
 
             // Delete the object from db

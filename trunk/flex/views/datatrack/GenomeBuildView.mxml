@@ -74,6 +74,7 @@
 		params.coordVersion      = this.coordVersion.text;
 		params.coordTestRange    = this.coordTestRange.text;
 		params.coordAuthority    = this.coordAuthority.text;
+		params.isActive          = parentDocument.browseTree.selectedItem.@isActive;
 		
 		params.segmentsXML  = "<segments>" + segments.toXMLString() + "</segments>";
 		params.sequenceFilesToRemoveXML  = "<sequenceFilesToRemove>" + sequenceFilesToRemove.toXMLString() + "</sequenceFilesToRemove>";

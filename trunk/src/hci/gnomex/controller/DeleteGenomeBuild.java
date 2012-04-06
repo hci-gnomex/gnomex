@@ -1,7 +1,10 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.GenomeBuildAlias;
+import hci.gnomex.model.Segment;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -59,6 +62,29 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
       
       // Check permissions
       if (this.getSecAdvisor().canDelete(genomeBuild)) {
+        
+        // Delete the root annotation grouping
+        DataTrackFolder dtFolder = genomeBuild.getRootDataTrackFolder();
+        if (dtFolder != null) {
+          // Make sure the root annotation grouping has no children
+          if (dtFolder.getFolders().size() > 0 || dtFolder.getDataTracks().size() > 0) {
+            throw new Exception("The data tracks for" + genomeBuild.getGenomeBuildName() + " must be deleted first.");
+          }
+          sess.delete(dtFolder);
+        }
+
+        // Delete segments
+        for (Iterator<?> i = genomeBuild.getSegments().iterator(); i.hasNext();) {
+          Segment segment = Segment.class.cast(i.next());
+          sess.delete(segment);
+        }
+
+        // Delete aliases
+        for (Iterator<?> i = genomeBuild.getAliases().iterator(); i.hasNext();) {
+          GenomeBuildAlias alias = GenomeBuildAlias.class.cast(i.next());
+          sess.delete(alias);
+        }
+
        
         //
         // Delete genomeBuild
@@ -80,7 +106,7 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
-      this.addInvalidField("constraint", "Unable to delete because genome build is associated with other objects in the datatabase.");
+      this.addInvalidField("constraint", "Unable to delete because genome build is associated with other objects in the database.");
       
       try {
         sess.clear();

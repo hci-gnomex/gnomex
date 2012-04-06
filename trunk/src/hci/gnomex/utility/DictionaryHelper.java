@@ -82,6 +82,19 @@ public class DictionaryHelper implements Serializable {
     
   }
   
+  /**
+   * Only reload the cached dictionaries here, not the dictionary managed
+   * dictionaries.  we need this special reload for web apps outside
+   * of gnomex (das2) so that they can get a fresh copy of dictionaries
+   * like organism and genome build.
+   */
+  public static synchronized DictionaryHelper reloadLimited(Session sess) {
+    theInstance = new DictionaryHelper();
+    PropertyDictionaryHelper.reload(sess);
+    theInstance.loadDictionaries(sess);  
+    return theInstance;
+  }
+  
   private void lazyLoadManagedDictionaries(){
     if (!managedDictionariesLoaded) {
       loadManagedDictionaries();

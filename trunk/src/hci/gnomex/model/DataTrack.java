@@ -227,12 +227,12 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 		// Also look for files that can be linked to the UCSC Genome Browser
 		if (data_root != null) {
       root.setAttribute("folderCount", Integer.valueOf(this.getFolders().size()).toString());
-			Element agsNode = new Element("DataTrackFolders"); 
-			root.addContent(agsNode);
-			for(DataTrackFolder ag : (Set<DataTrackFolder>)this.getFolders()) {
-				Element agNode = new Element("DataTrackFolder");
-				root.addContent(agNode);
-				agNode.setAttribute("name", ag.getQualifiedName());
+			Element foldersNode = new Element("DataTrackFolders"); 
+			root.addContent(foldersNode);
+			for(DataTrackFolder dtf : (Set<DataTrackFolder>)this.getFolders()) {
+				Element folderNode = new Element("DataTrackFolder");
+				foldersNode.addContent(folderNode);
+				folderNode.setAttribute("name", dtf.getQualifiedName());
 			}
 			Element filesNode = new Element("Files");
 			root.addContent(filesNode);
@@ -242,7 +242,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 			if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
 			  // We have linked analysis files
         Element dirNode = new Element("Dir");
-        root.addContent(dirNode);
+        filesNode.addContent(dirNode);
         dirNode.setAttribute("name", this.getFileName());
         dirNode.setAttribute("url", filePath);
 

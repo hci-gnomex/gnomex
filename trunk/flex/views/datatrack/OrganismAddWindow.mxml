@@ -22,6 +22,7 @@
          <das2Name>{das2Name.text}</das2Name>
          <organism>{commonName.text}</organism>
          <binomialName>{binomialName.text}</binomialName>
+		 <isActive>Y</isActive>
       </mx:request>
     </mx:HTTPService> 
     

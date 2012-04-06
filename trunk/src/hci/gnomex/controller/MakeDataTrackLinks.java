@@ -8,30 +8,19 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.USeqUtilities;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.UUID;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.dom4j.Document;
 import org.hibernate.Session;
-
-import hci.gnomex.useq.USeq2UCSCBig;
 
 
 
