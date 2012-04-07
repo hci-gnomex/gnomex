@@ -570,8 +570,8 @@
 				</mx:TextInput>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
-				<mx:Label text="(4) Specify the nucleic acid extraction method (optional)." width="334" id="label2"/>
-				<mx:TextInput width="600" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="50"/>
+				<mx:Text text="(4) Specify the nucleic acid extraction method (optional)." width="334" id="label2"/>
+				<mx:TextInput width="300" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="50"/>
 			</mx:HBox>
 			
 		</mx:VBox>
