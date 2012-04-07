@@ -22,7 +22,6 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
@@ -57,7 +56,6 @@ public class UploadSequenceFileServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     Session sess = null;
-    Transaction tx = null;
     
     serverName = req.getServerName();
     
@@ -67,8 +65,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
 
     try {
       sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
-      tx = sess.beginTransaction();
-      tx.begin();
+
       
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
      
@@ -177,7 +174,6 @@ public class UploadSequenceFileServlet extends HttpServlet {
           sess.flush();
         }
       }
-      tx.commit();
       
       Document doc = DocumentHelper.createDocument();
       Element root = doc.addElement("SUCCESS");
@@ -188,11 +184,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
     } catch (Exception e) {
       Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
       e.printStackTrace();
-      // TODO: Figure out auto-commit setting that prevents rollback
-      // not sure we want to rollback anyways....
-      //tx.rollback();
       sess.flush();
-      tx.commit();
       res.addHeader("message", e.getMessage());
       Document doc = DocumentHelper.createDocument();
       Element root = doc.addElement("ERROR");
