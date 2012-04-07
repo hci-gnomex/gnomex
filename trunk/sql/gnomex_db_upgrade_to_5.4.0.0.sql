@@ -1,4 +1,4 @@
-update Sample join SamplePrepMethod on samplePrepMethod.idSamplePrepMethod = Sample.idSamplePrepMethod
+update Sample join SamplePrepMethod on SamplePrepMethod.idSamplePrepMethod = Sample.idSamplePrepMethod
   set otherSamplePrepMethod=SamplePrepMethod
   where otherSamplePrepMethod is null and Sample.idSamplePrepMethod is not null;
 
@@ -12,6 +12,8 @@ alter table gnomex.RequestCategory drop column idSamplePrepMethod;
 -- Allow nulls for idGenomeBuild, sortOrder on Segment
 alter table gnomex.Segment change column idGenomeBuild idGenomeBuild INT(10) NULL;
 alter table gnomex.Segment change column sortOrder sortOrder INT(10) unsigned NULL;
+
+
 
  
 
