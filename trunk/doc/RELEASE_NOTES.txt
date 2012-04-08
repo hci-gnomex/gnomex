@@ -1,7 +1,11 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4
+5.4.1
+--------------------
+
+
+5.4 (Apr 7, 2011)
 --------------------
 * Get rid of QC and Seq prep workflow fields on Samples tab when submitting a request or registering an external experiment.
 * To fix delete bug on Analysis, DataTrack with url properties, allow nulls for idPropertyEntry on PropertyEntryValue
