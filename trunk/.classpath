@@ -48,5 +48,6 @@
 	<classpathentry kind="lib" path="/hciEnv/lib/XGNOMX.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TOMCAT_LIB"/>
 	<classpathentry kind="lib" path="lib/sam.jar"/>
+	<classpathentry kind="lib" path="lib/biojava.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>
