@@ -2144,7 +2144,7 @@
 			        </mx:HBox>
 			      </mx:HBox>
 			      
-			      <mx:HBox width="100%" horizontalGap="1"  verticalAlign="middle" styleName="customLinkBar" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="true">
+			      <mx:HBox width="100%" horizontalGap="1"  verticalAlign="middle" styleName="customLinkBar" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
 					  <util:CustomLinkButton id="homeLink" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
 					  <mx:VRule height="20" id="submitRequestRule"/>
 					  <util:CustomLinkButton id="submitRequestLink" label="Submit Request" click="{theViews.selectedChild = submitRequestView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
