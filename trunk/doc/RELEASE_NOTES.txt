@@ -3,6 +3,8 @@
 
 5.4.1
 --------------------
+* New navigation for DNA seq gnomex admins.  Also, removed LinkButtonBar and replaces with link buttons for
+  navigation so that view can be activate from Home view and not the main nav bar (to conserve horizontal space).
 
 
 5.4 (Apr 7, 2011)
