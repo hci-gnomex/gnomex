@@ -105,7 +105,7 @@ package views.renderers
 		public function setSample(sample:Object):void {
 			this.sample = sample;
       this.idSample = sample.@idSample;
-			this.sampleName = sample.@name;
+			this.sampleName = sample.@label;
 			this.groupId = sample.@idRequest;
 			this.toolTip = sampleName;
       this.hasSample = true;
