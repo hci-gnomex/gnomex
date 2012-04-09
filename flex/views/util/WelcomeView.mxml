@@ -21,7 +21,7 @@
 		</mx:State>
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{hbox8}" position="lastChild">
-				<mx:VBox height="100%" verticalGap="2">
+				<mx:VBox height="100%" verticalGap="2" id="vbox13">
 					<mx:HBox id="hbox1" horizontalGap="2" verticalAlign="middle" verticalGap="2">
 						<mx:Label text="Administration" styleName="welcomeLabel"/>
 					</mx:HBox> 
@@ -49,7 +49,7 @@
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
-			<mx:SetStyle target="{label4}" name="paddingTop" value="2"/>
+			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
 			<mx:RemoveChild target="{label3}"/>
 			<mx:AddChild relativeTo="{hbox5}" position="before" target="{label3}"/>
 			<mx:RemoveChild target="{button4}"/>
@@ -57,7 +57,7 @@
 			<mx:RemoveChild target="{button5}"/>
 			<mx:AddChild relativeTo="{hbox5}" position="before" target="{button5}"/>
 			<mx:RemoveChild target="{vbox1}"/>
-			<mx:SetStyle target="{label6}" name="paddingTop" value="30"/>
+			<mx:SetStyle target="{label6}" name="paddingTop" value="10"/>
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (admin privileges)'}"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
@@ -112,6 +112,42 @@
 		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
 		</mx:State>
+		<mx:State name="AdminDNASeqState" basedOn="AdminState">
+			<mx:RemoveChild target="{alignmentProfileButton}"/>
+			<mx:RemoveChild target="{button0}"/> 
+			<mx:RemoveChild target="{organismButton}"/>
+			<mx:RemoveChild target="{platformConfigButton}"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:Label text="DNA Sequencing Core" id="label0" styleName="welcomeLabel"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Fill Plates"  click="fillPlates()"  
+							   styleName="dashboardButton" id="button11"  toolTip="Fill plates" icon="@Embed(source='../../assets/plate_add.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Review Instrument Runs"  click="reviewRuns()"  
+							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/genome_build1.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{button11}" position="before">
+				<mx:LinkButton label="Review Orders"  click="reviewOrders()"  
+							   styleName="dashboardButton" id="button16"  toolTip="Review pending orders" icon="@Embed(source='../../assets/page.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Review Results"  click="reviewResults()"  
+							   styleName="dashboardButton" id="button17"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart.png')"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{button8}"/>
+			<mx:SetStyle target="{label4}" name="paddingTop" value="20"/>
+			<mx:SetStyle target="{label2}" name="paddingTop" value="20"/>
+			<mx:SetStyle target="{label6}" name="paddingTop" value="20"/>
+		</mx:State>
 	</mx:states>
 	<mx:Script>
 		<![CDATA[
@@ -137,7 +173,13 @@
 						this.currentState = "GuestState";
 					}
 				} else if (parentApplication.isAdminState) {
-					this.currentState = parentApplication.isExternalDataSharingSite ? "AdminESState" : "AdminState";
+					if (parentApplication.isExternalDataSharingSite) {
+						currentState = "AdminESState";
+					} else if (parentApplication.isCoreDNASeq) {
+						currentState = "AdminDNASeqState"
+					} else {
+						currentState = "AdminState";
+					}
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
 					currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState";						
 				} else if (parentApplication.isExternalUser)  {
@@ -156,6 +198,20 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
 				// If new experiment then initialize ShowCCNumber checkbox
 				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
+			}
+			
+			private function reviewOrders():void {
+			}
+			
+			private function fillPlates():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navPlateView;
+			}
+			
+			private function reviewRuns():void {
+			}
+			
+			private function reviewResults():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navDataView;
 			}
 			
 			private function submitExternalExperiment():void {

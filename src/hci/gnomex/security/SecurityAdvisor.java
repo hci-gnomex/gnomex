@@ -10,6 +10,7 @@ import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.AppUserLite;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.DictionaryEntryUserOwned;
@@ -104,7 +105,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.isUniversityOnlyUser = isUniversityOnlyUser;
     this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
     this.isLabManager = isLabManager;
-    
 
     validate();
     setGlobalPermissions();    
@@ -2243,6 +2243,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.version = version;
   }
 
+  public Set getCoreFacilities() {
+    Set coreFacilities = new TreeSet();
+    // Uncomment to test as DNA Seq core facility admin 
+    /*
+      CoreFacility cf = new CoreFacility();
+      cf.setIdCoreFacility(new Integer(1));
+      cf.setFacilityName("DNA Sequencing");
+      coreFacilities.add(cf);
+    */
+    
+      return coreFacilities;
+  }
+  
+ 
 
   
   

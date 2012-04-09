@@ -9,6 +9,7 @@
 	xmlns:user="views.user.*"
 	xmlns:protocol="views.protocol.*"
 	xmlns:admin="views.admin.*"
+	xmlns:plate="views.plate.*"
 	xmlns:slide="views.slide.*"
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:billing="views.billing.*"
@@ -575,6 +576,9 @@
 			public var userName:String = '';
 			
 			[Bindable]
+			public var isCoreDNASeq:Boolean = false;
+			
+			[Bindable]
 			public var loginDateTime:String = '';
 	        
 	        [Bindable]
@@ -656,6 +660,8 @@
 			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
 			public  var TYPE_QC:String            = 'QC';
 			public  var TYPE_CAP_SEQ:String       = "CAPSEQ";
+			
+			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 
 	        public var PROPERTY_WORKAUTH_INSTRUCTIONS:String              = "workauth_instructions";
 	        public var PROPERTY_WORKAUTH1_URL:String                      = "workauth1_url";
@@ -1325,6 +1331,7 @@
             		return false;
             	}
             }
+			
             
             public function canSubmitRequests(idLab:int):Boolean {
             	var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
@@ -1371,7 +1378,13 @@
 					currentState = "GuestState";
 				} else if (hasPermission("canAccessAnyObject")) {
 					isAdminState = true;
-					currentState = this.isExternalDataSharingSite ? "AdminESState" : "AdminState";
+					if (this.isExternalDataSharingSite) {
+						currentState = "AdminESState";
+					} else if (this.isCoreDNASeq) {
+						currentState = "AdminDNASeqState"
+					} else {
+						currentState = "AdminState";
+					}
 				} else if (hasGroupsToManage()) {
 					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";
 				} else if (hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) {
@@ -1400,7 +1413,10 @@
 				
 				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
 				isGuest = createSecurityAdvisor.lastResult.@isGuest == 'Y' ? true : false;
-
+				var coreFacilityDNASeq:Object = createSecurityAdvisor.lastResult.coreFacilities.CoreFacility.(@facilityName == CORE_FACILITY_DNA_SEQ);
+				if (coreFacilityDNASeq is XMLList && XMLList(coreFacilityDNASeq).length() > 0) {
+					isCoreDNASeq = true;
+				}
 			    
 			    this.appProgressBar.currentState = "LoadingState";
 			    this.showProgress(10);
@@ -2128,13 +2144,30 @@
 			        </mx:HBox>
 			      </mx:HBox>
 			      
-			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
-			 			<util:CustomLinkBar id="linkButtonBar"  styleName="customLinkBar"
-			 				 dataProvider="{initViews}" width="100%" 
-			 			            enabled="false" visible="false"   paddingBottom="2" paddingTop="2"
-			 			            verticalAlign="middle" 
-			 			            itemClick="onViewSelection()"  horizontalAlign="left" >
-			 			</util:CustomLinkBar>
+			      <mx:HBox width="100%" horizontalGap="1"  verticalAlign="middle" styleName="customLinkBar" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="true">
+					  <util:CustomLinkButton id="homeLink" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
+					  <mx:VRule height="20" id="submitRequestRule"/>
+					  <util:CustomLinkButton id="submitRequestLink" label="Submit Request" click="{theViews.selectedChild = submitRequestView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
+					  <mx:VRule height="20" id="amendRequestRule"/>
+					  <util:CustomLinkButton  id="amendRequestLink" label="Add Services to Request" click="{theViews.selectedChild = amendRequestView}" width="100" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
+					  <mx:VRule height="20" id="experimentsRule"/>
+					  <util:CustomLinkButton id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="95" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
+					  <mx:VRule height="20" id="analysisRule"/>
+					  <util:CustomLinkButton id="analysisLink" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
+					  <mx:VRule height="20" id="dataTracksRule"/>
+					  <util:CustomLinkButton id="dataTracksLink" label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
+					  <mx:VRule height="20" id="workflowRule"/>
+					  <util:CustomLinkButton id="workflowLink" label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
+					  <mx:VRule height="20" id="billingRule"/>
+					  <util:CustomLinkButton id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
+					  <mx:VRule height="20" id="protocolsRule"/>
+					  <util:CustomLinkButton id="protocolsLink" label="Protocols" click="{theViews.selectedChild = protocolsView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/bricks.png')"/>
+					  <mx:VRule height="20" id="slidesRule" />
+					  <util:CustomLinkButton id="slidesLink" label="Sides" click="{theViews.selectedChild = slideManagementView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/images.png')"/>
+					  <mx:VRule height="20" id="usersRule"/>
+					  <util:CustomLinkButton id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
+					  <mx:VRule id="usageRule" height="20" />
+					  <util:CustomLinkButton id="usageLink" label="Usage" click="{theViews.selectedChild = navUsageView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/chart_bar.png')"/>
 			      </mx:HBox>
 	      	
 		      	
@@ -2194,6 +2227,17 @@
 						<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
 						</admin:NavUsageView>
 				        
+						<plate:NavPlateView id="navPlateView"   width="100%" height="100%" backgroundAlpha="1.0">	
+						</plate:NavPlateView>
+
+						<plate:NavDataView id="navDataView"    width="100%" height="100%" backgroundAlpha="1.0">	
+						</plate:NavDataView>
+						
+						<mx:VBox id="navOrderView">
+						</mx:VBox>
+
+						<mx:VBox id="navRunView">
+						</mx:VBox>
 			        </mx:ViewStack>
 	    		
 	    	</mx:ViewStack>
@@ -2208,13 +2252,9 @@
 	 <mx:states>
 	 	<mx:State name="enabledState">
 	 	    <mx:SetProperty target="{linkButtonBarBox}" name="visible" value="true"/>
-	 	    <mx:SetProperty target="{linkButtonBar}" name="visible" value="true"/>
-	 	    <mx:SetProperty target="{linkButtonBar}" name="dataProvider" value="theViews"/>
 	 	    <mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
 	 		<mx:SetProperty target="{theViews}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{linkButtonBar}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{linkButtonBar}" name="enabled" value="true"/>
-	 		<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/>
+	 		<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
 	 		<mx:SetProperty target="{requestNumber}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{lookupButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{searchLabel}" name="visible" value="true"/>
@@ -2234,60 +2274,123 @@
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
 			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Verdana"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="11"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
-			<mx:SetProperty target="{this.linkButtonBar}" name="buttonWidth" value="70"/>
 			
+		
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
+			<mx:RemoveChild target="{billingLink}"/>
+			<mx:RemoveChild target="{billingRule}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/> 
+			<mx:RemoveChild target="{slidesLink}"/>
+			<mx:RemoveChild target="{slidesRule}"/>
 	 		<mx:RemoveChild target="{navUsersView}"/>
+			<mx:RemoveChild target="{usersLink}"/>
+			<mx:RemoveChild target="{usersRule}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
-	 		<mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFCFC"/>
+			<mx:RemoveChild target="{workflowLink}"/>
+			<mx:RemoveChild target="{workflowRule}"/>
+			<mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFCFC"/>
 	 		<mx:SetStyle target="{requestNumber}" name="backgroundAlpha" value="1.0"/>
 	 	</mx:State>
 	 	<mx:State name="ManagerState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
+			<mx:RemoveChild target="{billingLink}"/>
+			<mx:RemoveChild target="{billingRule}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/>
-	 		<mx:RemoveChild target="{navWorkflowView}"/>
+			<mx:RemoveChild target="{slidesLink}"/>
+			<mx:RemoveChild target="{slidesRule}"/>	 		
+			<mx:RemoveChild target="{navWorkflowView}"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Verdana"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="11"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
-
+			<mx:RemoveChild target="{workflowLink}"/>
+			<mx:RemoveChild target="{workflowRule}"/>
 	 	</mx:State>
 	 	<mx:State name="UserNonSubmitterState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
+			<mx:RemoveChild target="{submitRequestLink}"/>
+			<mx:RemoveChild target="{submitRequestRule}"/>
 	 		<mx:RemoveChild target="{amendRequestView}"/>
+			<mx:RemoveChild target="{amendRequestLink}"/>
+			<mx:RemoveChild target="{amendRequestRule}"/>
 	 	</mx:State>
 	 	<mx:State name="GuestState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
+			<mx:RemoveChild target="{submitRequestLink}"/>
+			<mx:RemoveChild target="{submitRequestRule}"/>
 	 		<mx:RemoveChild target="{amendRequestView}"/>
+			<mx:RemoveChild target="{amendRequestLink}"/>
+			<mx:RemoveChild target="{amendRequestRule}"/>
 			<mx:RemoveChild target="{navUsageView}"/>
+			<mx:RemoveChild target="{usageLink}"/>
+			<mx:RemoveChild target="{usageRule}"/>
 	 	</mx:State>
 
 		<mx:State name="AdminESState" basedOn="AdminState">
 			<mx:RemoveChild target="{amendRequestView}"/>
+			<mx:RemoveChild target="{amendRequestView}"/>
+			<mx:RemoveChild target="{amendRequestLink}"/>
 			<mx:RemoveChild target="{navBillingView}"/>
+			<mx:RemoveChild target="{billingLink}"/>
+			<mx:RemoveChild target="{billingRule}"/>
 			<mx:RemoveChild target="{navWorkflowView}"/>
+			<mx:RemoveChild target="{workflowLink}"/>
+			<mx:RemoveChild target="{workflowRule}"/>
 		</mx:State>
 
 		 <mx:State name="ManagerESState" basedOn="ManagerState">
 			 <mx:RemoveChild target="{amendRequestView}"/>
+			 <mx:RemoveChild target="{amendRequestLink}"/>
+			 <mx:RemoveChild target="{amendRequestRule}"/>
 		 </mx:State>
 
 		 <mx:State name="UserESState" basedOn="UserState">
 			 <mx:RemoveChild target="{amendRequestView}"/>
+			 <mx:RemoveChild target="{amendRequestLink}"/>
+			 <mx:RemoveChild target="{amendRequestRule}"/>
+		 </mx:State>
+		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
+			 <mx:RemoveChild target="{amendRequestView}"/>
+			 <mx:RemoveChild target="{amendRequestLink}"/>
+			 <mx:RemoveChild target="{amendRequestRule}"/>
+			 <mx:RemoveChild target="{submitRequestLink}"/>
+			 <mx:RemoveChild target="{submitRequestRule}"/>
+			 <mx:RemoveChild target="{navWorkflowView}"/>
+			 <mx:RemoveChild target="{workflowLink}"/>
+			 <mx:RemoveChild target="{workflowRule}"/>
+			 <mx:RemoveChild target="{dataTracksLink}"/>
+			 <mx:RemoveChild target="{dataTracksRule}"/>
+			 <mx:RemoveChild target="{usageLink}"/>
+			 <mx:RemoveChild target="{usageRule}"/>
+			 <mx:RemoveChild target="{protocolsLink}"/>
+			 <mx:RemoveChild target="{protocolsRule}"/>
+			 <mx:RemoveChild target="{slidesLink}"/>
+			 <mx:RemoveChild target="{slidesRule}"/>	 		
+			 <mx:AddChild relativeTo="{homeLink}" position="after">
+			 	<mx:VRule height="20" id="ordersRule"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{ordersRule}" position="after">
+			 	<util:CustomLinkButton id="ordersLink" label="Review Orders" click="{theViews.selectedChild = navOrderView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/page.png')"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{ordersLink}" position="after">
+			 	<mx:VRule height="20" id="fillPlateRule"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{fillPlateRule}" position="after">
+			 	<util:CustomLinkButton id="fillPlateLink" label="Fill Plate" click="{theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{fillPlateLink}" position="after">
+			 	<mx:VRule height="20" id="runsRule"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{runsRule}" position="after">
+			 	<util:CustomLinkButton id="runsLink" label="Instrument Runs" click="{theViews.selectedChild = navRunView}" width="85" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/cog.png')"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{runsLink}" position="after">
+			 	<mx:VRule height="20" id="dataRule"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{dataRule}" position="after">
+			 	<util:CustomLinkButton id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
+			 </mx:AddChild>
 		 </mx:State>
 
 		 

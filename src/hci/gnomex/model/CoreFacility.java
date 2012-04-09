@@ -7,6 +7,9 @@ import java.io.Serializable;
 
 public class CoreFacility extends DictionaryEntry implements Serializable {
   
+  public static final String CORE_FACILITY_DNA_SEQ = "DNA Sequencing";
+  public static final String CORE_FACILITY_GENOMICS = "Microarray and Genomic Analysis";
+  
   private Integer  idCoreFacility;
   private String   facilityName;
   
