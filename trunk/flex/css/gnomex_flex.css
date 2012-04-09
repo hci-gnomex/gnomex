@@ -242,7 +242,7 @@ LinkBar {
 	textSelectedColor: #000000;
 	color: #000000;
 	backgroundAlpha: 1;
-	horizontalGap: 8;
+	horizontalGap: 0;
 	separatorColor: #C3C2B7;
 	linkButtonStyleName: "normalLinkButton";
 	fontSize: 11;

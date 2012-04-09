@@ -35,9 +35,11 @@ public class CustomLinkButton extends LinkButton
 		
 		textField.text = s;
 		// We only want to make the width the standard narrow size if we have a space or dash to wrap the text on
-		if (parent == null || CustomLinkBar(parent).buttonWidth == 0 || (textField.text.length > 10 && textField.text.indexOf(" ") < 0 && textField.text.indexOf("-") < 0)) {			
-		} else {
+		if (parent == null || (parent is CustomLinkBar && CustomLinkBar(parent).buttonWidth == 0) || (textField.text.length > 10 && textField.text.indexOf(" ") < 0 && textField.text.indexOf("-") < 0)) {			
+		} else if (parent is CustomLinkBar) {
 			textField.width = CustomLinkBar(parent).buttonWidth;			
+		} else {
+			textField.width = this.width;
 		}
 		var lineMetrics:TextLineMetrics = textField.getLineMetrics(0);
 		lineMetrics.width = textField.textWidth;
