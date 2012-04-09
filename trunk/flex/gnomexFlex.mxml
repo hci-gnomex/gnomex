@@ -235,6 +235,7 @@
 			import views.admin.PropertyEvent;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
+      		import views.plate.ChromatBrowseView;
 			import views.search.NavSearchView;
 			import views.user.UserPublicView;
 			import views.util.AboutView;

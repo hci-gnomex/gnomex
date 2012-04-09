@@ -1,317 +1,317 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SamplesList>
-<Status name="Redos" >
-  <Request status="Redo" idRequest="6440" name="Order 6440" idLab="1" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="11/5/2011">
-    <Sample name="Sample A" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample B" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample C" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample D" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample E" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample F" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample G" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample H" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample I" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample J" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample K" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample L" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample M" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample N" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample O" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample P" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
-    <Sample name="Sample Q" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
-    <Sample name="Sample R" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+<Status label="Redos" >
+  <Request status="Redo" idRequest="6440" label="6440" idLab="1" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="11/5/2011">
+    <Sample label="Sample A" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample B" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample C" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample D" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample E" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample F" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample G" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample H" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample I" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample J" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample K" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample L" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample M" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample N" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample O" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample P" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
+    <Sample label="Sample Q" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate=""/>
+    <Sample label="Sample R" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6440" idPlate="" />
   </Request>
-  <Request status="Redo" idRequest="6590" name="Order 6590" idLab="3" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="11/1/2011">
-    <Sample name="Sample v" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
-    <Sample name="Sample w" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
-    <Sample name="Sample x" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
-    <Sample name="Sample y" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
-    <Sample name="Sample z" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
-    <Sample name="Sample Aa" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
-    <Sample name="Sample Bb" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
-    <Sample name="Sample Cc" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
-    <Sample name="Sample Dd" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
-    <Sample name="Sample Ee" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
-    <Sample name="Sample Ff" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
-    <Sample name="Sample Gg" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
+  <Request status="Redo" idRequest="6590" label="6590" idLab="3" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="11/1/2011">
+    <Sample label="Sample v" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
+    <Sample label="Sample w" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
+    <Sample label="Sample x" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
+    <Sample label="Sample y" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
+    <Sample label="Sample z" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
+    <Sample label="Sample Aa" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
+    <Sample label="Sample Bb" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
+    <Sample label="Sample Cc" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
+    <Sample label="Sample Dd" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
+    <Sample label="Sample Ee" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
+    <Sample label="Sample Ff" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate=""/>
+    <Sample label="Sample Gg" description="some description here" idLab="3" idSample="732524" type="Assay" idRequest="6590" idPlate="" />
   </Request>
-  <Request status="Redo" idRequest="6597" name="Order 6597" idLab="5" submitter="Stevens, Sara" totalPrice="$4,462.00" submitDate="1/15/2011">
-    <Sample name="Sample Rr" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample Ss" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample Tt" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample Uu" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample Vv" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample Ww" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample Xx" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample Yy" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample Zz" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample aaa" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample bbb" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample ccc" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample ddd" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample eee" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample fff" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample ggg" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
-    <Sample name="Sample hhh" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
-    <Sample name="Sample iii" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+  <Request status="Redo" idRequest="6597" label="6597" idLab="5" submitter="Stevens, Sara" totalPrice="$4,462.00" submitDate="1/15/2011">
+    <Sample label="Sample Rr" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample Ss" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample Tt" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample Uu" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample Vv" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample Ww" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample Xx" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample Yy" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample Zz" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample aaa" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample bbb" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample ccc" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample ddd" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample eee" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample fff" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample ggg" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
+    <Sample label="Sample hhh" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate=""/>
+    <Sample label="Sample iii" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="6597" idPlate="" />
   </Request>
-  <Request status="Redo" idRequest="8100" name="Order 8100" idLab="5" submitter="Johnson, Maurine" totalPrice="$500.00" submitDate="6/17/2011">
-    <Sample name="Sample jjj" description="some description here" idLab="5" idSample="732524" type="Assay" idRequest="8100" idPlate=""/>
+  <Request status="Redo" idRequest="8100" label="8100" idLab="5" submitter="Johnson, Maurine" totalPrice="$500.00" submitDate="6/17/2011">
+    <Sample label="Sample jjj" description="some description here" idLab="5" idSample="732524" type="Assay" idRequest="8100" idPlate=""/>
   </Request>
 </Status>
-<Status name="Pending" >
+<Status label="Pending" >
   
-  <Request status="Pending" idRequest="6518" name="Order 6518" idLab="1" submitter="Jones, Brandt" totalPrice="$6,916.00" submitDate="1/7/2010">
-    <Sample name="Sample T" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
-    <Sample name="Sample U" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
-    <Sample name="Sample V" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
-    <Sample name="Sample W" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
-    <Sample name="Sample X" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
-    <Sample name="Sample Y" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
-    <Sample name="Sample Z" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
-    <Sample name="Sample a" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
-    <Sample name="Sample b" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
-    <Sample name="Sample c" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
-    <Sample name="Sample d" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
-    <Sample name="Sample e" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
+  <Request status="Pending" idRequest="6518" label="6518" idLab="1" submitter="Jones, Brandt" totalPrice="$6,916.00" submitDate="1/7/2010">
+    <Sample label="Sample T" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
+    <Sample label="Sample U" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
+    <Sample label="Sample V" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
+    <Sample label="Sample W" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
+    <Sample label="Sample X" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
+    <Sample label="Sample Y" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
+    <Sample label="Sample Z" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
+    <Sample label="Sample a" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
+    <Sample label="Sample b" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
+    <Sample label="Sample c" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
+    <Sample label="Sample d" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate=""/>
+    <Sample label="Sample e" description="some description here" idLab="1" idSample="732524" type="Mito Seq" idRequest="6518" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="6525" name="Order 6525" idLab="1" submitter="Jones, Brandt" totalPrice="$32.00" submitDate="10/15/2011">
-    <Sample name="Sample f" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6525" idPlate=""/>
-    <Sample name="Sample g" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6525" idPlate="" />
+  <Request status="Pending" idRequest="6525" label="6525" idLab="1" submitter="Jones, Brandt" totalPrice="$32.00" submitDate="10/15/2011">
+    <Sample label="Sample f" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6525" idPlate=""/>
+    <Sample label="Sample g" description="some description here" idLab="1" idSample="732524" type="Cap Seq" idRequest="6525" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="6540" name="Order 6540" idLab="2" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="8/30/2011">
-    <Sample name="Sample h" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample i" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
-    <Sample name="Sample j" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample k" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
-    <Sample name="Sample l" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample m" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
-    <Sample name="Sample n" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample o" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
-    <Sample name="Sample p" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample q" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
-    <Sample name="Sample r" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample s" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
-    <Sample name="Sample t" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
-    <Sample name="Sample u" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+  <Request status="Pending" idRequest="6540" label="6540" idLab="2" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="8/30/2011">
+    <Sample label="Sample h" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample i" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+    <Sample label="Sample j" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample k" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+    <Sample label="Sample l" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample m" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+    <Sample label="Sample n" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample o" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+    <Sample label="Sample p" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample q" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+    <Sample label="Sample r" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample s" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
+    <Sample label="Sample t" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate=""/>
+    <Sample label="Sample u" description="some description here" idLab="2" idSample="732524" type="Cherry Pick" idRequest="6540" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="6680" name="Order 6680" idLab="4" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="10/20/2011">
-    <Sample name="Sample Hh" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
-    <Sample name="Sample Ii" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
-    <Sample name="Sample Jj" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
-    <Sample name="Sample Kk" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
-    <Sample name="Sample Ll" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
-    <Sample name="Sample Mm" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
-    <Sample name="Sample Nn" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
-    <Sample name="Sample Oo" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
-    <Sample name="Sample Pp" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
-    <Sample name="Sample Qq" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
+  <Request status="Pending" idRequest="6680" label="6680" idLab="4" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="10/20/2011">
+    <Sample label="Sample Hh" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
+    <Sample label="Sample Ii" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
+    <Sample label="Sample Jj" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
+    <Sample label="Sample Kk" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
+    <Sample label="Sample Ll" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
+    <Sample label="Sample Mm" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
+    <Sample label="Sample Nn" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
+    <Sample label="Sample Oo" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
+    <Sample label="Sample Pp" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate=""/>
+    <Sample label="Sample Qq" description="some description here" idLab="4" idSample="732524" type="Cap Seq" idRequest="6680" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="7880" name="Order 7880" idLab="5" submitter="Jones, Brandt" totalPrice="$6,916.00" submitDate="5/7/2010">
-    <Sample name="Sample kkk" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
-    <Sample name="Sample lll" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
-    <Sample name="Sample mmm" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
-    <Sample name="Sample nnn" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
-    <Sample name="Sample ooo" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
-    <Sample name="Sample ppp" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
-    <Sample name="Sample qqq" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
-    <Sample name="Sample rrr" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
-    <Sample name="Sample sss" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
-    <Sample name="Sample ttt" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
-    <Sample name="Sample uuu" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
-    <Sample name="Sample vvv" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
+  <Request status="Pending" idRequest="7880" label="7880" idLab="5" submitter="Jones, Brandt" totalPrice="$6,916.00" submitDate="5/7/2010">
+    <Sample label="Sample kkk" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
+    <Sample label="Sample lll" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
+    <Sample label="Sample mmm" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
+    <Sample label="Sample nnn" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
+    <Sample label="Sample ooo" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
+    <Sample label="Sample ppp" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
+    <Sample label="Sample qqq" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
+    <Sample label="Sample rrr" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
+    <Sample label="Sample sss" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
+    <Sample label="Sample ttt" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
+    <Sample label="Sample uuu" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate=""/>
+    <Sample label="Sample vvv" description="some description here" idLab="5" idSample="732524" type="Mito Seq" idRequest="7880" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="1254" name="Order 1254" idLab="5" submitter="Jones, Randy" totalPrice="$32.00" submitDate="12/1/2011">
-    <Sample name="Sample www" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="1254" idPlate=""/>
-    <Sample name="Sample xxx" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="1254" idPlate="" />
+  <Request status="Pending" idRequest="1254" label="1254" idLab="5" submitter="Jones, Randy" totalPrice="$32.00" submitDate="12/1/2011">
+    <Sample label="Sample www" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="1254" idPlate=""/>
+    <Sample label="Sample xxx" description="some description here" idLab="5" idSample="732524" type="Cap Seq" idRequest="1254" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="5243" name="Order 5243" idLab="6" submitter="Wright, Joan" totalPrice="$4,462.00" submitDate="8/30/2011">
-    <Sample name="Sample zzz" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate=""/>
-    <Sample name="Sample AAA" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate="" />
-    <Sample name="Sample BBB" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate=""/>
-    <Sample name="Sample CCC" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate="" />
+  <Request status="Pending" idRequest="5243" label="5243" idLab="6" submitter="Wright, Joan" totalPrice="$4,462.00" submitDate="8/30/2011">
+    <Sample label="Sample zzz" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate=""/>
+    <Sample label="Sample AAA" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate="" />
+    <Sample label="Sample BBB" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate=""/>
+    <Sample label="Sample CCC" description="some description here" idLab="6" idSample="732524" type="Cherry Pick" idRequest="5243" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="9980" name="Order 9980" idLab="7" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="11/1/2011">
-    <Sample name="Sample DDD" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
-    <Sample name="Sample EEE" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
-    <Sample name="Sample FFF" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
-    <Sample name="Sample GGG" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
-    <Sample name="Sample HHH" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
-    <Sample name="Sample III" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
-    <Sample name="Sample JJJ" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
-    <Sample name="Sample KKK" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
-    <Sample name="Sample LLL" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
-    <Sample name="Sample MMM" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
-    <Sample name="Sample NNN" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
-    <Sample name="Sample OOO" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
+  <Request status="Pending" idRequest="9980" label="9980" idLab="7" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="11/1/2011">
+    <Sample label="Sample DDD" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
+    <Sample label="Sample EEE" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
+    <Sample label="Sample FFF" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
+    <Sample label="Sample GGG" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
+    <Sample label="Sample HHH" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
+    <Sample label="Sample III" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
+    <Sample label="Sample JJJ" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
+    <Sample label="Sample KKK" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
+    <Sample label="Sample LLL" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
+    <Sample label="Sample MMM" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
+    <Sample label="Sample NNN" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate=""/>
+    <Sample label="Sample OOO" description="some description here" idLab="7" idSample="732524" type="Assay" idRequest="9980" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="6548" name="Order 6548" idLab="8" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="10/20/2011">
-    <Sample name="Sample PPP" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
-    <Sample name="Sample QQQ" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
-    <Sample name="Sample RRR" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
-    <Sample name="Sample SSS" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
-    <Sample name="Sample TTT" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
-    <Sample name="Sample UUU" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
-    <Sample name="Sample VVV" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
-    <Sample name="Sample WWW" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
-    <Sample name="Sample XXX" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
-    <Sample name="Sample YYY" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
+  <Request status="Pending" idRequest="6548" label="6548" idLab="8" submitter="Stevens, Jeff" totalPrice="$4,462.00" submitDate="10/20/2011">
+    <Sample label="Sample PPP" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
+    <Sample label="Sample QQQ" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
+    <Sample label="Sample RRR" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
+    <Sample label="Sample SSS" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
+    <Sample label="Sample TTT" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
+    <Sample label="Sample UUU" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
+    <Sample label="Sample VVV" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
+    <Sample label="Sample WWW" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
+    <Sample label="Sample XXX" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate=""/>
+    <Sample label="Sample YYY" description="some description here" idLab="8" idSample="732524" type="Cap Seq" idRequest="6548" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="9876" name="Order 9876" idLab="9" submitter="White, John" totalPrice="$4,462.00" submitDate="11/5/2011">
-    <Sample name="Samp. A" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. B" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. C" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. D" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. E" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. F" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. G" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. H" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. I" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. J" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. K" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. L" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. M" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. N" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. O" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. P" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
-    <Sample name="Samp. Q" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
-    <Sample name="Samp. R" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+  <Request status="Pending" idRequest="9876" label="9876" idLab="9" submitter="White, John" totalPrice="$4,462.00" submitDate="11/5/2011">
+    <Sample label="Samp. A" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. B" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. C" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. D" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. E" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. F" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. G" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. H" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. I" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. J" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. K" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. L" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. M" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. N" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. O" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. P" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
+    <Sample label="Samp. Q" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate=""/>
+    <Sample label="Samp. R" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="9876" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="1111" name="Order 1111" idLab="9" submitter="Roberts, Jim" totalPrice="$500.00" submitDate="11/7/2011">
-    <Sample name="Samp. S" description="description about the sample here" idLab="9" idSample="732524" type="Assay" idRequest="1111" idPlate=""/>
+  <Request status="Pending" idRequest="1111" label="1111" idLab="9" submitter="Roberts, Jim" totalPrice="$500.00" submitDate="11/7/2011">
+    <Sample label="Samp. S" description="description about the sample here" idLab="9" idSample="732524" type="Assay" idRequest="1111" idPlate=""/>
   </Request>
-  <Request status="Pending" idRequest="1234" name="Order 1234" idLab="9" submitter="Jones, Brandt" totalPrice="$6,916.00" submitDate="9/7/2010">
-    <Sample name="Samp. T" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
-    <Sample name="Samp. U" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
-    <Sample name="Samp. V" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
-    <Sample name="Samp. W" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
-    <Sample name="Samp. X" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
-    <Sample name="Samp. Y" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
-    <Sample name="Samp. Z" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
-    <Sample name="Samp. a" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
-    <Sample name="Samp. b" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
-    <Sample name="Samp. c" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
-    <Sample name="Samp. d" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
-    <Sample name="Samp. e" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
+  <Request status="Pending" idRequest="1234" label="1234" idLab="9" submitter="Jones, Brandt" totalPrice="$6,916.00" submitDate="9/7/2010">
+    <Sample label="Samp. T" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
+    <Sample label="Samp. U" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
+    <Sample label="Samp. V" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
+    <Sample label="Samp. W" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
+    <Sample label="Samp. X" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
+    <Sample label="Samp. Y" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
+    <Sample label="Samp. Z" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
+    <Sample label="Samp. a" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
+    <Sample label="Samp. b" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
+    <Sample label="Samp. c" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
+    <Sample label="Samp. d" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate=""/>
+    <Sample label="Samp. e" description="description about the sample here" idLab="9" idSample="732524" type="Mito Seq" idRequest="1234" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="2928" name="Order 2928" idLab="9" submitter="Jones, Jaime" totalPrice="$32.00" submitDate="10/15/2011">
-    <Sample name="Samp. f" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="2928" idPlate=""/>
-    <Sample name="Samp. g" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="2928" idPlate="" />
+  <Request status="Pending" idRequest="2928" label="2928" idLab="9" submitter="Jones, Jaime" totalPrice="$32.00" submitDate="10/15/2011">
+    <Sample label="Samp. f" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="2928" idPlate=""/>
+    <Sample label="Samp. g" description="description about the sample here" idLab="9" idSample="732524" type="Cap Seq" idRequest="2928" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="6543" name="Order 6543" idLab="10" submitter="White, John" totalPrice="$4,462.00" submitDate="8/30/2011">
-    <Sample name="Samp. h" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. i" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
-    <Sample name="Samp. j" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. k" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
-    <Sample name="Samp. l" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. m" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
-    <Sample name="Samp. n" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. o" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
-    <Sample name="Samp. p" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. q" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
-    <Sample name="Samp. r" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. s" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
-    <Sample name="Samp. t" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
-    <Sample name="Samp. u" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+  <Request status="Pending" idRequest="6543" label="6543" idLab="10" submitter="White, John" totalPrice="$4,462.00" submitDate="8/30/2011">
+    <Sample label="Samp. h" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. i" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+    <Sample label="Samp. j" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. k" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+    <Sample label="Samp. l" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. m" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+    <Sample label="Samp. n" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. o" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+    <Sample label="Samp. p" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. q" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+    <Sample label="Samp. r" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. s" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
+    <Sample label="Samp. t" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate=""/>
+    <Sample label="Samp. u" description="description about the sample here" idLab="10" idSample="732524" type="Cherry Pick" idRequest="6543" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="4444" name="Order 4444" idLab="11" submitter="White, John" totalPrice="$4,462.00" submitDate="11/9/2011">
-    <Sample name="Samp. v" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
-    <Sample name="Samp. w" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
-    <Sample name="Samp. x" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
-    <Sample name="Samp. y" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
-    <Sample name="Samp. z" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
-    <Sample name="Samp. Aa" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
-    <Sample name="Samp. Bb" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
-    <Sample name="Samp. Cc" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
-    <Sample name="Samp. Dd" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
-    <Sample name="Samp. Ee" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
-    <Sample name="Samp. Ff" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
-    <Sample name="Samp. Gg" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
+  <Request status="Pending" idRequest="4444" label="4444" idLab="11" submitter="White, John" totalPrice="$4,462.00" submitDate="11/9/2011">
+    <Sample label="Samp. v" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
+    <Sample label="Samp. w" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
+    <Sample label="Samp. x" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
+    <Sample label="Samp. y" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
+    <Sample label="Samp. z" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
+    <Sample label="Samp. Aa" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
+    <Sample label="Samp. Bb" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
+    <Sample label="Samp. Cc" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
+    <Sample label="Samp. Dd" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
+    <Sample label="Samp. Ee" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
+    <Sample label="Samp. Ff" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate=""/>
+    <Sample label="Samp. Gg" description="description about the sample here" idLab="11" idSample="732524" type="Assay" idRequest="4444" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="3333" name="Order 3333" idLab="12" submitter="White, John" totalPrice="$12,462.00" submitDate="10/20/2011">
-    <Sample name="Samp. Hh" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
-    <Sample name="Samp. Ii" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
-    <Sample name="Samp. Jj" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
-    <Sample name="Samp. Kk" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
-    <Sample name="Samp. Ll" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
-    <Sample name="Samp. Mm" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
-    <Sample name="Samp. Nn" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
-    <Sample name="Samp. Oo" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
-    <Sample name="Samp. Pp" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
-    <Sample name="Samp. Qq" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
+  <Request status="Pending" idRequest="3333" label="3333" idLab="12" submitter="White, John" totalPrice="$12,462.00" submitDate="10/20/2011">
+    <Sample label="Samp. Hh" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
+    <Sample label="Samp. Ii" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
+    <Sample label="Samp. Jj" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
+    <Sample label="Samp. Kk" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
+    <Sample label="Samp. Ll" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
+    <Sample label="Samp. Mm" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
+    <Sample label="Samp. Nn" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
+    <Sample label="Samp. Oo" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
+    <Sample label="Samp. Pp" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate=""/>
+    <Sample label="Samp. Qq" description="description about the sample here" idLab="12" idSample="732524" type="Cap Seq" idRequest="3333" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="9800" name="Order 9800" idLab="13" submitter="Stevens, Sara" totalPrice="$12,462.00" submitDate="9/15/2011">
-    <Sample name="Samp. Rr" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. Ss" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. Tt" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. Uu" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. Vv" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. Ww" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. Xx" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. Yy" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. Zz" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. aaa" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. bbb" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. ccc" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. ddd" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. eee" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. fff" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. ggg" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
-    <Sample name="Samp. hhh" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
-    <Sample name="Samp. iii" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+  <Request status="Pending" idRequest="9800" label="9800" idLab="13" submitter="Stevens, Sara" totalPrice="$12,462.00" submitDate="9/15/2011">
+    <Sample label="Samp. Rr" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. Ss" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. Tt" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. Uu" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. Vv" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. Ww" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. Xx" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. Yy" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. Zz" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. aaa" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. bbb" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. ccc" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. ddd" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. eee" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. fff" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. ggg" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
+    <Sample label="Samp. hhh" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate=""/>
+    <Sample label="Samp. iii" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="9800" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="9999" name="Order 9999" idLab="13" submitter="Jonas, Mike" totalPrice="$500.00" submitDate="6/17/2011">
-    <Sample name="Samp. jjj" description="description about the sample here" idLab="13" idSample="732524" type="Assay" idRequest="9999" idPlate=""/>
+  <Request status="Pending" idRequest="9999" label="9999" idLab="13" submitter="Jonas, Mike" totalPrice="$500.00" submitDate="6/17/2011">
+    <Sample label="Samp. jjj" description="description about the sample here" idLab="13" idSample="732524" type="Assay" idRequest="9999" idPlate=""/>
   </Request>
-  <Request status="Pending" idRequest="5555" name="Order 5555" idLab="13" submitter="Jones, Jaime" totalPrice="$6,916.00" submitDate="13/7/2010">
-    <Sample name="Samp. kkk" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
-    <Sample name="Samp. lll" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
-    <Sample name="Samp. mmm" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
-    <Sample name="Samp. nnn" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
-    <Sample name="Samp. ooo" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
-    <Sample name="Samp. ppp" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
-    <Sample name="Samp. qqq" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
-    <Sample name="Samp. rrr" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
-    <Sample name="Samp. sss" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
-    <Sample name="Samp. ttt" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
-    <Sample name="Samp. uuu" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
-    <Sample name="Samp. vvv" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
+  <Request status="Pending" idRequest="5555" label="5555" idLab="13" submitter="Jones, Jaime" totalPrice="$6,916.00" submitDate="13/7/2010">
+    <Sample label="Samp. kkk" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
+    <Sample label="Samp. lll" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
+    <Sample label="Samp. mmm" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
+    <Sample label="Samp. nnn" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
+    <Sample label="Samp. ooo" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
+    <Sample label="Samp. ppp" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
+    <Sample label="Samp. qqq" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
+    <Sample label="Samp. rrr" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
+    <Sample label="Samp. sss" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
+    <Sample label="Samp. ttt" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
+    <Sample label="Samp. uuu" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate=""/>
+    <Sample label="Samp. vvv" description="description about the sample here" idLab="13" idSample="732524" type="Mito Seq" idRequest="5555" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="6666" name="Order 6666" idLab="13" submitter="Jones, Randy" totalPrice="$32.00" submitDate="12/9/2011">
-    <Sample name="Samp. www" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="6666" idPlate=""/>
-    <Sample name="Samp. xxx" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="6666" idPlate="" />
+  <Request status="Pending" idRequest="6666" label="6666" idLab="13" submitter="Jones, Randy" totalPrice="$32.00" submitDate="12/9/2011">
+    <Sample label="Samp. www" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="6666" idPlate=""/>
+    <Sample label="Samp. xxx" description="description about the sample here" idLab="13" idSample="732524" type="Cap Seq" idRequest="6666" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="7777" name="Order 7777" idLab="14" submitter="Wright, Joan" totalPrice="$12,462.00" submitDate="8/30/2011">
-    <Sample name="Samp. zzz" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate=""/>
-    <Sample name="Samp. AAA" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate="" />
-    <Sample name="Samp. BBB" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate=""/>
-    <Sample name="Samp. CCC" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate="" />
+  <Request status="Pending" idRequest="7777" label="7777" idLab="14" submitter="Wright, Joan" totalPrice="$12,462.00" submitDate="8/30/2011">
+    <Sample label="Samp. zzz" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate=""/>
+    <Sample label="Samp. AAA" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate="" />
+    <Sample label="Samp. BBB" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate=""/>
+    <Sample label="Samp. CCC" description="description about the sample here" idLab="14" idSample="732524" type="Cherry Pick" idRequest="7777" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="1114" name="Order 1114" idLab="15" submitter="White, John" totalPrice="$12,462.00" submitDate="11/9/2011">
-    <Sample name="Samp. DDD" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
-    <Sample name="Samp. EEE" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
-    <Sample name="Samp. FFF" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
-    <Sample name="Samp. GGG" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
-    <Sample name="Samp. HHH" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
-    <Sample name="Samp. III" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
-    <Sample name="Samp. JJJ" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
-    <Sample name="Samp. KKK" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
-    <Sample name="Samp. LLL" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
-    <Sample name="Samp. MMM" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
-    <Sample name="Samp. NNN" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
-    <Sample name="Samp. OOO" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
+  <Request status="Pending" idRequest="1114" label="1114" idLab="15" submitter="White, John" totalPrice="$12,462.00" submitDate="11/9/2011">
+    <Sample label="Samp. DDD" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
+    <Sample label="Samp. EEE" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
+    <Sample label="Samp. FFF" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
+    <Sample label="Samp. GGG" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
+    <Sample label="Samp. HHH" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
+    <Sample label="Samp. III" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
+    <Sample label="Samp. JJJ" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
+    <Sample label="Samp. KKK" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
+    <Sample label="Samp. LLL" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
+    <Sample label="Samp. MMM" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
+    <Sample label="Samp. NNN" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate=""/>
+    <Sample label="Samp. OOO" description="description about the sample here" idLab="15" idSample="732524" type="Assay" idRequest="1114" idPlate="" />
   </Request>
-  <Request status="Pending" idRequest="8852" name="Order 8852" idLab="16" submitter="White, John" totalPrice="$12,462.00" submitDate="10/20/2011">
-    <Sample name="Samp. PPP" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
-    <Sample name="Samp. QQQ" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
-    <Sample name="Samp. RRR" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
-    <Sample name="Samp. SSS" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
-    <Sample name="Samp. TTT" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
-    <Sample name="Samp. UUU" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
-    <Sample name="Samp. VVV" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
-    <Sample name="Samp. WWW" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
-    <Sample name="Samp. XXX" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
-    <Sample name="Samp. YYY" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
+  <Request status="Pending" idRequest="8852" label="8852" idLab="16" submitter="White, John" totalPrice="$12,462.00" submitDate="10/20/2011">
+    <Sample label="Samp. PPP" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
+    <Sample label="Samp. QQQ" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
+    <Sample label="Samp. RRR" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
+    <Sample label="Samp. SSS" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
+    <Sample label="Samp. TTT" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
+    <Sample label="Samp. UUU" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
+    <Sample label="Samp. VVV" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
+    <Sample label="Samp. WWW" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
+    <Sample label="Samp. XXX" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate=""/>
+    <Sample label="Samp. YYY" description="description about the sample here" idLab="16" idSample="732524" type="Cap Seq" idRequest="8852" idPlate="" />
   </Request>
 </Status>
 </SamplesList>

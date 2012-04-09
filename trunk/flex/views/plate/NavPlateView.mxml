@@ -296,6 +296,11 @@
       //   so generic groupId should be named according to the grouping.
       // Currently is just the request id
 			private function groupColorPicked(event:Event):void {
+        if ( colorPick.selectedIndex == 0 ) {
+          selectedPlate.highlightGroup([]);
+          displayPlateInfo();
+          return;
+        }
         infoViews.selectedChild = orderInfoBox;
 				selectedGroup = event.currentTarget.selectedItem.label;
 				var indices:Array = new Array();
@@ -319,6 +324,7 @@
       
       // Display request information in information box on right
       private function displayPlateInfo():void{
+        infoBoxLabel.text = "Plate Information";
         infoViews.selectedChild = plateInfoBox;
         
 //        var indices:Array = new Array();
@@ -371,6 +377,7 @@
       
       // Display request information in information box on right
       private function displayOrderInfo(group:String):void{
+        infoBoxLabel.text = "Order Information";
         infoViews.selectedChild = orderInfoBox;
         selectedGroup = group;
         
@@ -425,6 +432,7 @@
       // Display lab information in information box on right
       // Currently not used since samples aren't grouped by lab
       private function displayLabInfo(lab:Object):void{
+        infoBoxLabel.text = "Lab Information";
         infoViews.selectedChild = statusInfoBox;
         if ( lab == null ){
           return;
@@ -436,7 +444,7 @@
           if (s.@isOnPlate != null && s.@isOnPlate == true){
             for each (var well:WellContainer in selectedPlate.getWells()) {
               if (well.getSample() != null) {
-                if (well.getSample().@name == s.@name){
+                if (well.getSample().@label == s.@label){
                   samplesOnPlate.push(well.sample);
                 }
               }
@@ -445,7 +453,35 @@
         }
         
         // Label the information box with details from that lab:
-        statusName.text = lab.@name;
+        statusName.text = lab.@label;
+        labNumberSamples.text = samplesOnPlate.length != 0 ? samplesOnPlate.length.toString() : '';
+        
+        labSampleDisplayTree.dataProvider = samplesOnPlate;
+      }
+      
+      private function displayStatusInfo(status:Object):void{
+        infoBoxLabel.text = "Sample Information";
+        infoViews.selectedChild = statusInfoBox;
+        if ( status == null ){
+          return;
+        }
+        
+        var samplesOnPlate:Array = new Array();
+        
+        for each (var s:Object in status..Sample){
+          if (s.@isOnPlate != null && s.@isOnPlate == true){
+            for each (var well:WellContainer in selectedPlate.getWells()) {
+              if (well.getSample() != null) {
+                if (well.getSample().@label == s.@label){
+                  samplesOnPlate.push(well.sample);
+                }
+              }
+            }
+          }
+        }
+        
+        // Label the information box with details from that lab:
+        statusName.text = status.@label;
         labNumberSamples.text = samplesOnPlate.length != 0 ? samplesOnPlate.length.toString() : '';
         
         labSampleDisplayTree.dataProvider = samplesOnPlate;
@@ -1018,6 +1054,15 @@
         
         runs[currentRun].idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
         runName.text = runs[currentRun].idRun;
+        if ( currentRun == 0 ){
+          textRun1.text =  runs[currentRun].idRun != 0 ? "Run " + runs[currentRun].idRun : "Run " + 1;
+        } else if ( currentRun == 1 ){
+          textRun2.text = runs[currentRun].idRun != 0 ? "Run " + runs[currentRun].idRun : "Run " + 2;
+        } else if ( currentRun == 2 ){
+          textRun3.text = runs[currentRun].idRun != 0 ? "Run " + runs[currentRun].idRun : "Run " + 3;
+        } else {
+          textRun4.text = runs[currentRun].idRun != 0 ? "Run " + runs[currentRun].idRun : "Run " + 4;
+        }
         
         if (plateList == null || plateList.length == 0){
           return;
@@ -1605,7 +1650,7 @@
 						// Display the sample well information
 						for each (var well:WellContainer in selectedPlate.getWells()) {
 							if (well.getSample() != null) {
-								if (well.getSample().@name == selection.@name){
+								if (well.getSample().@label == selection.@label){
 									well.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
 									break;
 								}
@@ -1625,6 +1670,7 @@
 					
 					if ( onPlate ) {
 						selectedGroup = selection.@idRequest;
+            infoBoxLabel.text = "Order Information";
 						colorPick.selectedColor = colorPick.getColorAt(colorPick.getLabelIndex(selectedGroup));
 					}
 				}
@@ -1657,7 +1703,7 @@
           if ( selection.@isOnPlate != null && selection.@isOnPlate == true) {
             for each (well in selectedPlate.getWells()) {
               if (well.getSample() != null) {
-                if (well.getSample().@name == selection.@name){
+                if (well.getSample().@label == selection.@label){
                   indices.push(well.index);
                   samplesOnPlate.push(well.sample);
                 }
@@ -1672,7 +1718,7 @@
             if (sample.@isOnPlate != null && sample.@isOnPlate == true){
               for each (well in selectedPlate.getWells()) {
                 if (well.getSample() != null) {
-                  if (well.getSample().@name == sample.@name){
+                  if (well.getSample().@label == sample.@label){
                     indices.push(well.index);
                     samplesOnPlate.push(well.sample);
                   }
@@ -1691,7 +1737,7 @@
               if (s.@isOnPlate != null && s.@isOnPlate == true){
                 for each (well in selectedPlate.getWells()) {
                   if (well.getSample() != null) {
-                    if (well.getSample().@name == s.@name){
+                    if (well.getSample().@label == s.@label){
                       indices.push(well.index);
                       samplesOnPlate.push(well.sample);
                     }
@@ -1700,7 +1746,7 @@
               }
             }
           }
-          displayLabInfo(selection);
+          displayStatusInfo(selection);
         }
         
         // LAB 
@@ -1711,7 +1757,7 @@
               if (s.@isOnPlate != null && s.@isOnPlate == true){
                 for each (well in selectedPlate.getWells()) {
                   if (well.getSample() != null) {
-                    if (well.getSample().@name == s.@name){
+                    if (well.getSample().@label == s.@label){
                       indices.push(well.index);
                       samplesOnPlate.push(well.sample);
                     }
@@ -1741,7 +1787,7 @@
       private function sampleItemClick(event:Event):void{
         
         var sample:Object = event.currentTarget.selectedItem;
-        var sampleName:String = sample.@name;
+        var sampleName:String = sample.@label;
         
         // Select that sample in sample tree
         /* for each(var lab:Object in sampleData..Lab) {
@@ -1768,7 +1814,7 @@
          var index:int = 0;
         // Display the sample well information
         for each (var well:WellContainer in selectedPlate.getWells()) {
-          if (well.getSample().@name == sampleName){
+          if (well.getSample().@label == sampleName){
             well.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
             index = well.index;
             break;
@@ -1820,10 +1866,17 @@
       }
 			
       private function treeLabelFunction(item:Object):String{
-        if (item.@name!=null && item.@name!=''){
-          return item.@name
+        var s:String = ""
+        if (item.@label!=null && item.@label!=''){
+          s+= item.@label;
+          var test:String = item.name();
+          if ( item.name()=='Request' && item.@submitDate!=null) {
+            s += " (" + item.@submitDate + ")";
+          }
+        } else {
+          s += item.name();
         }
-        return item.@label;
+        return s;
       }
       
 		]]>
@@ -1843,21 +1896,21 @@
 		</mx:State>
 		<mx:State name="assayState" enterState="{this.fillColWise=false}">
 			<mx:SetProperty target="{titleLabel}" name="text" value="Assays"/>
-			<mx:SetProperty target="{orderLabel}" name="text" value="Assay Information"/>
+			<mx:SetProperty target="{infoBoxLabel}" name="text" value="Assay Information"/>
 			<mx:SetProperty target="{label2}" name="text" value="Assay:"/>
 			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select an assay by color:"/>
 			<mx:SetProperty target="{label3}" name="text" value="Fill Fragment Analysis Plates for Run:"/>
 		</mx:State>
 		<mx:State name="mitoSeqState" enterState="{this.fillColWise=true}">
 			<mx:SetProperty target="{titleLabel}" name="text" value="Primers"/>
-			<mx:SetProperty target="{orderLabel}" name="text" value="Primer Information"/>
+			<mx:SetProperty target="{infoBoxLabel}" name="text" value="Primer Information"/>
 			<mx:SetProperty target="{label2}" name="text" value="Primer:"/>
 			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select a primer by color:"/>
 			<mx:SetProperty target="{label3}" name="text" value="Fill Mitochondrial Sequencing Plates for Run:"/>
 		</mx:State>
 		<mx:State name="cherryPickState" enterState="{this.fillColWise=false}">
 			<mx:SetProperty target="{titleLabel}" name="text" value="Samples"/>
-			<mx:SetProperty target="{orderLabel}" name="text" value="Origin Information"/>
+			<mx:SetProperty target="{infoBoxLabel}" name="text" value="Origin Information"/>
 			<mx:SetProperty target="{label2}" name="text" value="Origin Plate:"/>
 			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select an origin plate by color:"/>
 			<mx:SetProperty target="{label3}" name="text" value="Fill Cherry Pick Run:"/>
@@ -1876,7 +1929,7 @@
         <!--</mx:VBox>-->
         
        
-        <mx:Button label="Load Run" click="{loadSelectedRun()}" id="loadRunButton"/>
+        <!--<mx:Button label="Load Run" click="{loadSelectedRun()}" id="loadRunButton"/>-->
         <mx:LinkButton label="New run" id="newRunButton" click="{addRun()}"
                        icon="@Embed('../../assets/run_add.png')" 
                        enabled="{numberOfPlates &lt; 13}"
@@ -1967,7 +2020,7 @@
               </mx:ComboBox>
            <!-- </mx:VBox>-->
            <!-- <mx:VBox height="100%" verticalAlign="middle">-->
-              <mx:Button label="Load Plate" click="{loadSelectedPlate()}" id="loadPlateButton"/>
+              <!--<mx:Button label="Load Plate" click="{loadSelectedPlate()}" id="loadPlateButton"/>-->
             <!--</mx:VBox>-->
             <mx:LinkButton label="New plate" id="newPlateButton" click="{addPlate()}"
                            icon="@Embed('../../assets/plate_add.png')"  
@@ -2153,7 +2206,7 @@
 			
 			<mx:VBox styleName="panelBox" height="100%" id="orderTreePanel" horizontalAlign="center" minWidth="200">
 				<mx:HBox width="100%">
-					<mx:Label text="Sample Information" id="orderLabel" styleName="titleLabel"/>
+					<mx:Label text="Plate Information" id="infoBoxLabel" styleName="titleLabel"/>
 				</mx:HBox>
 				
         
@@ -2165,8 +2218,12 @@
               <mx:Text  id="plateNumberText" width="100%"/>
             </mx:HBox>
             <mx:HBox width="100%">
+              <mx:Label text="Plate Name:" fontWeight="bold" />
+              <mx:TextInput  id="plateNameText" editable="true" width="100%"/>
+            </mx:HBox>
+            <mx:HBox width="100%">
               <mx:Label text="Sealing:" fontWeight="bold"/>
-              <mx:Text  id="sealText" width="100%"/>
+              <mx:ComboBox  id="sealText" toolTip="Select Sealing" width="100%"/>
             </mx:HBox>
             <mx:HBox width="100%">
               <mx:Label text="Date Created:" fontWeight="bold"/>
@@ -2181,7 +2238,7 @@
                      dataTipField="@description"
                      doubleClickEnabled="false" 
                      borderStyle="solid"
-                     labelField = "@name"
+                     labelField = "@label"
                      backgroundAlpha="1" 
                      dropShadowEnabled="true"
                      itemClick="sampleItemClick(event)">
@@ -2190,7 +2247,7 @@
           
           <mx:VBox width="100%" height="100%" backgroundColor="#ffffff" id="orderInfoBox">
             <mx:HBox width="100%">
-              <mx:Label text="Request #:" fontWeight="bold" id="label2"/>
+              <mx:Label text="Order #:" fontWeight="bold" id="label2"/>
               <mx:Text  id="groupName" width="100%"/>
             </mx:HBox>
             <mx:HBox width="100%">
@@ -2210,7 +2267,7 @@
                      dataTipField="@description"
                      doubleClickEnabled="false" 
                      borderStyle="solid"
-                     labelField = "@name"
+                     labelField = "@label"
                      backgroundAlpha="1" 
                      dropShadowEnabled="true"
                      itemClick="sampleItemClick(event)">
@@ -2232,7 +2289,7 @@
                      dataTipField="@description"
                      doubleClickEnabled="false" 
                      borderStyle="solid"
-                     labelField="@name"
+                     labelField="@label"
                      backgroundAlpha="1" 
                      dropShadowEnabled="true"
                      itemClick="sampleItemClick(event)">
@@ -2241,11 +2298,11 @@
         </mx:ViewStack>
 				
 				
-				<mx:Label text="Select a request by color:" width="100%" id="colorPickLabel"/>
+				<mx:Label text="Select an order by color:" width="100%" id="colorPickLabel"/>
 				<util:SpecialColorPicker id="colorPick"
 										  width="100%" 
 										  height="50"  />		
-				<mx:Button label="Remove request from plate" visible="{groupName.text!=colorPick.getNoSelectionText()}" 
+				<mx:Button label="Remove order from plate" visible="{groupName.text!=colorPick.getNoSelectionText()}" 
 						   includeInLayout="{groupName.text!=colorPick.getNoSelectionText()}" width="100%"
 						   click="promptToRemoveGroup()"/>
 				<mx:Button label="Clear all samples from plate" visible="{groupName.text==colorPick.getNoSelectionText()}" 
