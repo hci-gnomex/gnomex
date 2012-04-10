@@ -2,6 +2,8 @@ package hci.gnomex.lucene;
 
 
 
+import java.util.List;
+
 import hci.framework.model.DetailObject;
 
 public class DataTrackFilter extends DetailObject {
@@ -12,13 +14,9 @@ public class DataTrackFilter extends DetailObject {
   private String                text1;
   private String                matchAnyTerm = "N";
   private String                matchAllTerms = "Y";
-  private Integer               idLab;
-  private Integer               idOrganism;
+  private List<Integer>         idLabList;
+  private List<Integer>         idOrganismList;
   private String                searchListText = "";
-
-  // Display fields
-  private String                lab;
-  private String                organism;
 
   private StringBuffer          searchText;
   private boolean              firstTime = true;
@@ -76,19 +74,35 @@ public class DataTrackFilter extends DetailObject {
     //
     // Search by lab
     //
-    if (idLab != null){
+    if (idLabList != null && idLabList.size() > 0){
       this.addLogicalOperator();
-      searchText.append(" " + DataTrackIndexHelper.ID_LAB + ":");
-      searchText.append(idLab);
+      searchText.append(" " + DataTrackIndexHelper.ID_LAB + ":(");
+      boolean firstTime = false;
+      for(Integer i: idLabList) {
+        if (!firstTime) {
+          searchText.append(" ");
+        }
+        firstTime = false;
+        searchText.append(i.toString());
+      }
+      searchText.append(")");
     } 
     
     //
     //  Search by idOrganism 
     //
-    if (idOrganism != null){
+    if (idOrganismList != null && idOrganismList.size() > 0){
       this.addLogicalOperator();
-      searchText.append(" " + DataTrackIndexHelper.ID_ORGANISM + ":");
-      searchText.append(idOrganism);
+      searchText.append(" " + DataTrackIndexHelper.ID_ORGANISM + ":(");
+      boolean firstTime = false;
+      for(Integer i: idOrganismList) {
+        if (!firstTime) {
+          searchText.append(" ");
+        }
+        firstTime = false;
+        searchText.append(i.toString());
+      }
+      searchText.append(")");
     } 
 
   }
@@ -156,27 +170,20 @@ public class DataTrackFilter extends DetailObject {
   }
 
 
-  public Integer getIdLab() {
-    return idLab;
+  public List<Integer> getIdLabList() {
+    return idLabList;
   }
-  public void setIdLab(Integer id) {
-    idLab = id;
-  }
-  
-  public String getLab() {
-    return lab;
-  }
-  public void setLab(String l) {
-    lab = l;
+  public void setIdLabList(List<Integer> list) {
+    idLabList = list;
   }
   
-  public Integer getIdOrganism() {
-    return idOrganism;
+  public List<Integer> getIdOrganismLit() {
+    return idOrganismList;
   }
 
   
-  public void setIdOrganism(Integer idOrganism) {
-    this.idOrganism = idOrganism;
+  public void setIdOrganismList(List<Integer> list) {
+    this.idOrganismList = list;
   }
 
 
@@ -186,15 +193,6 @@ public class DataTrackFilter extends DetailObject {
   
   public void setSearchListText(String txt) {
     searchListText = txt;
-  }
-  
-  public String getOrganism() {
-    return organism;
-  }
-
-  
-  public void setOrganism(String organism) {
-    this.organism = organism;
   }
 
 }

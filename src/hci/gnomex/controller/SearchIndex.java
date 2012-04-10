@@ -161,12 +161,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         analysisFilter.setSearchListText(searchListParser.getSearchText());
         protocolFilter.setSearchListText(searchListParser.getSearchText());
         dataTrackFilter.setSearchListText(searchListParser.getSearchText());
-        experimentFilter.setIdLab(searchListParser.getIdLab());
-        experimentFilter.setIdOrganism(searchListParser.getIdOrganism());
-        analysisFilter.setIdLab(searchListParser.getIdLab());
-        analysisFilter.setIdOrganism(searchListParser.getIdOrganism());
-        dataTrackFilter.setIdLab(searchListParser.getIdLab());
-        dataTrackFilter.setIdOrganism(searchListParser.getIdOrganism());
+        experimentFilter.setIdLabList(searchListParser.getIdLabList());
+        experimentFilter.setIdOrganismList(searchListParser.getIdOrganismList());
+        analysisFilter.setIdLabList(searchListParser.getIdLabList());
+        analysisFilter.setIdOrganismList(searchListParser.getIdOrganismList());
+        dataTrackFilter.setIdLabList(searchListParser.getIdLabList());
+        dataTrackFilter.setIdOrganismList(searchListParser.getIdOrganismList());
       } catch (Exception je ) {
         log.error( "Cannot parse searchXMLString", je );
         this.addInvalidField( "searchXMLString", "Invalid search xml");

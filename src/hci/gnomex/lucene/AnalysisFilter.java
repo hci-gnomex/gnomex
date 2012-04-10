@@ -14,8 +14,8 @@ public class AnalysisFilter extends DetailObject {
   
   
   // Criteria
-  private Integer               idLab; 
-  private Integer               idOrganism;
+  private List<Integer>         idLabList; 
+  private List<Integer>         idOrganismList;
   private String                text;
   private String                text1;
   private String                matchAnyTerm = "N";
@@ -23,12 +23,6 @@ public class AnalysisFilter extends DetailObject {
   private String                searchPublicProjects;
   private String                showCategory = "Y";
   private String                searchListText = "";
-
-  // Display fields
-  private String                lab;
-  private String                analysisType; 
-  private String                analysisProtocol; 
-  private String                organism; 
   
   private StringBuffer          searchText;
   private boolean               firstTime = true;
@@ -94,19 +88,35 @@ public class AnalysisFilter extends DetailObject {
     //
     //  Search by idOrganism 
     //
-    if (idOrganism != null){
+    if (idOrganismList != null && idOrganismList.size() > 0){
       this.addLogicalOperator();
-      searchText.append(" " + AnalysisIndexHelper.ID_ORGANISM + ":");
-      searchText.append(idOrganism);
+      searchText.append(" " + AnalysisIndexHelper.ID_ORGANISM + ":(");
+      boolean firstTime = false;
+      for(Integer i: idOrganismList) {
+        if (!firstTime) {
+          searchText.append(" ");
+        }
+        firstTime = false;
+        searchText.append(i.toString());
+      }
+      searchText.append(")");
     } 
 
     //
     // Search by lab
     //
-    if (idLab != null){
+    if (idLabList != null && idLabList.size() > 0){
       this.addLogicalOperator();
-      searchText.append(" " + AnalysisIndexHelper.ID_LAB + ":");
-      searchText.append(idLab);
+      searchText.append(" " + AnalysisIndexHelper.ID_LAB + ":(");
+      boolean firstTime = false;
+      for(Integer i: idLabList) {
+        if (!firstTime) {
+          searchText.append(" ");
+        }
+        firstTime = false;
+        searchText.append(i.toString());
+      }
+      searchText.append(")");
     } 
   }
 
@@ -127,8 +137,8 @@ public class AnalysisFilter extends DetailObject {
   
 
   
-  public Integer getIdLab() {
-    return idLab;
+  public List<Integer> getIdLabList() {
+    return idLabList;
   }
 
   
@@ -136,8 +146,8 @@ public class AnalysisFilter extends DetailObject {
   
 
   
-  public void setIdLab(Integer idLab) {
-    this.idLab = idLab;
+  public void setIdLabList(List<Integer> idLabList) {
+    this.idLabList = idLabList;
   }
 
 
@@ -145,13 +155,13 @@ public class AnalysisFilter extends DetailObject {
   
 
   
-  public Integer getIdOrganism() {
-    return idOrganism;
+  public List<Integer> getIdOrganismList() {
+    return idOrganismList;
   }
 
   
-  public void setIdOrganism(Integer idOrganism) {
-    this.idOrganism = idOrganism;
+  public void setIdOrganismList(List<Integer> idOrganismList) {
+    this.idOrganismList = idOrganismList;
   }
 
   
@@ -213,51 +223,11 @@ public class AnalysisFilter extends DetailObject {
   }
 
   
-  public String getLab() {
-    return lab;
-  }
-
-  
-  public void setLab(String lab) {
-    this.lab = lab;
-  }
-
-  
-  public String getOrganism() {
-    return organism;
-  }
-
-  
-  public void setOrganism(String organism) {
-    this.organism = organism;
-  }
-
-  
   public void setShowCategory(String showCategory) {
     this.showCategory = showCategory;
   }
 
-  
-  public String getAnalysisType() {
-    return analysisType;
-  }
-
-  
-  public void setAnalysisType(String analysisType) {
-    this.analysisType = analysisType;
-  }
-
-  
-  public String getAnalysisProtocol() {
-    return analysisProtocol;
-  }
-
-  
-  public void setAnalysisProtocol(String analysisProtocol) {
-    this.analysisProtocol = analysisProtocol;
-  }
-
-
+ 
   public String getSearchListText() {
     return searchListText;
   }
