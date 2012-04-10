@@ -70,6 +70,8 @@ public class UsageReportd extends TimerTask {
   
   private boolean                     runAsDaemon = false;
   
+  private boolean                     isTestMode = false;
+  
   private FieldFormatter              fFormat;
   
   private Calendar                    startDate = null;
@@ -90,6 +92,8 @@ public class UsageReportd extends TimerTask {
         wakeupHour = Integer.valueOf(args[++i]);
       } else if (args[i].equals ("-runAsDaemon")) {
         runAsDaemon = true;
+      } else if (args[i].equals ("-isTestMode")) {
+        isTestMode = true;
       } else if (args[i].equals ("-baseURL")) {
         baseURL = args[++i];
       } else if (args[i].equals ("-orionPath")) {
@@ -226,12 +230,19 @@ public class UsageReportd extends TimerTask {
       body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
       body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
       body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
-      //body.append("Distribution List: " + distributionList.toString());
+      if(isTestMode) {
+        body.append("Distribution List: " + bccList);        
+      }
+
       body.append("<table width='820' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td width='800' valign='top' align='left'>");
       body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
       body.append(tableRows.toString());
       body.append("</table></td></tr></table></body></html>");
-      MailUtil.send_bcc(mailProps, mainRecipient, "", bccList, replyEmail, subject, body.toString(), true);        
+      if(isTestMode) {
+        MailUtil.send_bcc(mailProps, mainRecipient, "", "", replyEmail, subject, body.toString(), true);                
+      } else {
+        MailUtil.send_bcc(mailProps, mainRecipient, "", bccList, replyEmail, subject, body.toString(), true);               
+      }
       app.disconnect();      
          
     } catch (Exception e) {
@@ -260,7 +271,7 @@ public class UsageReportd extends TimerTask {
         LabStats ls = new LabStats(thisLab.getName());
         labInfo.put(thisLab.getIdLab(), ls);
       } 
-
+      
       getActivityExperimentDetail();
       getActivityAnalysisDetail();
       getActivityTransferDetail("upload");
@@ -396,6 +407,7 @@ public class UsageReportd extends TimerTask {
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number");
     
     List rows = sess.createQuery(queryBuf.toString()).list();
+
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
@@ -412,11 +424,11 @@ public class UsageReportd extends TimerTask {
       LabStats ls = labInfo.get(idLab);
       if(ls != null) {
         int expCount = ls.getExperimentCount() + 1;
-        ls.setExperimentCount(expCount);       
+        ls.setExperimentCount(expCount); 
+        String requestNumber = (String)row[4];
+        String requestCategory = row[7] == null ? "" : ((String)row[7]).toString();    
+        ls.addToExpAnalysisList(requestNumber + " " + requestCategory, expName + "&nbsp;&nbsp;" + expDescription);
       }
-      String requestNumber = (String)row[4];
-      String requestCategory = row[7] == null ? "" : ((String)row[7]).toString();
-      ls.addToExpAnalysisList(requestNumber + " " + requestCategory, expName + "&nbsp;&nbsp;" + expDescription);
     }
   }  
   
