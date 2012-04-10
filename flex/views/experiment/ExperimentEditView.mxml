@@ -770,6 +770,7 @@
 				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				sampleSetupView.enabled = false;
+				sampleSetupView.otherSamplePrepMethod.text = "";
 				if (theTab.contains(annotationView)) {
 					annotationView.enabled = false;								
 				}
