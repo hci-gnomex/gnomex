@@ -18,6 +18,7 @@ public class DataTrackIndexHelper extends IndexHelper {
   public static final String       OWNER_LAST_NAME = "dataTrackOwnerLastName";
   public static final String       CREATE_DATE = "dataTrackCreateDate";
   public static final String       PUBLIC_NOTE = "dataTrackPublicNote";  
+  public static final String       DATA_TRACK_FOLDER_PATH = "dataTrackFolderPath";
   
   // Indexed fields
   public static final String       DATATRACK_FOLDER_NAME = "dataTrackFolderName";

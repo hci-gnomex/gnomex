@@ -2,6 +2,7 @@ package hci.gnomex.lucene;
 
 import hci.dictionary.model.DictionaryEntry;
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
@@ -67,6 +68,7 @@ public class BuildSearchIndex extends DetailObject {
   private Map datatrackMap;
   private Map datatrackCollaboratorMap;
   private Map datatrackAnnotationMap;
+  private Map<Integer, DataTrackFolderPath> dataTrackFolderMap;
   
   
 
@@ -259,6 +261,9 @@ public class BuildSearchIndex extends DetailObject {
 
     IndexWriter datatrackIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_DATATRACK_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
 
+    // Get the data track folder paths
+    getDataTrackFolderPaths(sess);
+    
     // Get data track data
     getDataTrackData(sess);
     
@@ -654,6 +659,42 @@ public class BuildSearchIndex extends DetailObject {
       analysisFileCommentsMap.put(idAnalysis, analysisFileComments);
     }    
     
+  }
+  private void getDataTrackFolderPaths(Session sess) throws Exception {
+    this.dataTrackFolderMap = new HashMap<Integer, DataTrackFolderPath>();
+ 
+    List folderList = (List)sess.createQuery("from DataTrackFolder").list();
+    for(Iterator i = folderList.iterator(); i.hasNext();) {
+      DataTrackFolder f = (DataTrackFolder)i.next();
+      DataTrackFolderPath p = new DataTrackFolderPath();
+      p.idDataTrackFolder = f.getIdDataTrackFolder();
+      p.idParentDataTrackFolder = f.getIdParentDataTrackFolder();
+      p.name = f.getName();
+      if (p.idParentDataTrackFolder == null) {
+        p.dataTrackFolderPath = f.getName();
+        p.pathComplete = true;
+      }
+      dataTrackFolderMap.put(p.idDataTrackFolder, p);
+    }
+    
+    Boolean changed = true;
+    Integer cnt = 0;
+    while(changed && cnt < 1000) {
+      changed = false;
+      cnt++;
+      for(Iterator j = dataTrackFolderMap.keySet().iterator(); j.hasNext();) {
+        DataTrackFolderPath path = dataTrackFolderMap.get(j.next());
+        if (path.pathComplete) {
+          continue;
+        }
+        DataTrackFolderPath parent = dataTrackFolderMap.get(path.idParentDataTrackFolder);
+        if (parent.pathComplete) {
+          path.dataTrackFolderPath = parent.dataTrackFolderPath + "/" + path.name;
+          path.pathComplete = true;
+          changed = true;
+        }
+      }
+    }
   }
   
   private void getDataTrackData(Session sess) throws Exception{
@@ -1696,6 +1737,7 @@ public class BuildSearchIndex extends DetailObject {
         publicNote = "(Public) ";
     }
 
+    DataTrackFolderPath path = this.dataTrackFolderMap.get(idDataTrackFolder);
     
     Map nonIndexedFieldMap = new HashMap();
     nonIndexedFieldMap.put(DataTrackIndexHelper.ID_DATATRACKFOLDER, idDataTrackFolder.toString());
@@ -1705,7 +1747,7 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(DataTrackIndexHelper.OWNER_LAST_NAME, ownerLastName);
     nonIndexedFieldMap.put(DataTrackIndexHelper.CREATE_DATE, createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_SQL) : null);
     nonIndexedFieldMap.put(DataTrackIndexHelper.PUBLIC_NOTE, publicNote);
-    
+    nonIndexedFieldMap.put(DataTrackIndexHelper.DATA_TRACK_FOLDER_PATH, path.dataTrackFolderPath);
 
     Map indexedFieldMap = new HashMap();
     indexedFieldMap.put(DataTrackIndexHelper.ID_DATATRACK, idDataTrack != null ? idDataTrack.toString() : "unknown");
@@ -1762,5 +1804,13 @@ public class BuildSearchIndex extends DetailObject {
           return new InputSource(new StringReader(" "));
       }
 
+  }
+  
+  private class DataTrackFolderPath {
+    public Integer idDataTrackFolder;
+    public Integer idParentDataTrackFolder;
+    public String name = "";
+    public String dataTrackFolderPath = "";
+    public Boolean pathComplete = false;
   }
 }

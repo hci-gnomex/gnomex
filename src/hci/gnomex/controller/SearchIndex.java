@@ -949,7 +949,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private void buildDataTrackNode(Element node, Integer idDataTrack, Document doc, float score, int rank) {
     node.setAttribute("idDataTrack", idDataTrack.toString());
-    node.setAttribute("dataTrackFolderName", doc.get(DataTrackIndexHelper.DATATRACK_FOLDER_NAME));
+    node.setAttribute("dataTrackFolderName", doc.get(DataTrackIndexHelper.DATA_TRACK_FOLDER_PATH));
     node.setAttribute("label", doc.get(DataTrackIndexHelper.DATATRACK_NAME));
     node.setAttribute("createDate", doc.get(DataTrackIndexHelper.CREATE_DATE) != null ? doc.get(DataTrackIndexHelper.CREATE_DATE) : "");
     node.setAttribute("codeVisibility",  doc.get(DataTrackIndexHelper.CODE_VISIBILITY) != null ? doc.get(DataTrackIndexHelper.CODE_VISIBILITY) : "");
