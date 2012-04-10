@@ -82,7 +82,7 @@
 					}
 					if (isSelected) {
 						if (txt.length > 0) {
-							txt += ",";
+							txt += "  ";
 						}
 						txt += option.@display;
 					}
