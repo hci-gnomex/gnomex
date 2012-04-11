@@ -4055,6 +4055,21 @@
 				
 			}
 			
+			private function propagateDesignOrRange():void {
+				if(designOrRangeLabel.text == "Design ID") {
+					this.request.@captureLibDesignId = designOrRangeText.text;
+				}
+				else if((parseInt(designOrRangeText.text) <= 100 && parseInt(designOrRangeText.text) >= 60) && (parseInt(insertSizeTo.text) <= 100 && parseInt(insertSizeTo.text) >= 60)) {
+					this.request.@avgInsertSizeFrom = designOrRangeText.text;
+					this.request.@avgInsertSizeTo = insertSizeTo.text;
+					saveButton.enabled = true;
+				}
+				else {
+					saveButton.enabled = false;
+				}
+					
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -4078,6 +4093,21 @@
   	<mx:XMLListCollection id="projects" source="{getLab.lastResult..Lab.projects.Project}" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
+	
+	<mx:NumberValidator id="minRangeValidator"
+						source="{this.request.@avgInsertSizeFrom != '' ? designOrRangeText : null}"
+						lowerThanMinError="Outside valid range."
+						exceedsMaxError="Outside valid range."
+						property="text"
+						minValue="60"
+						maxValue="100"/>
+	<mx:NumberValidator id="maxRangeValidator"
+						source="{insertSizeTo}"
+						lowerThanMinError="Outside valid range."
+						exceedsMaxError="Outside valid range."
+						property="text"
+						minValue="60"
+						maxValue="100"/>
 
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
@@ -4243,6 +4273,15 @@
     				    </mx:HBox>
 
     				</mx:VBox>
+					
+					<mx:VBox verticalGap="2" id="vbox4" visible="{this.request.@captureLibDesignId !='' || this.request.@avgInsertSizeFrom != ''}">
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Text width="80" fontWeight="bold" id="designOrRangeLabel" text="{this.request.@captureLibDesignId != '' ? 'Cap Lib Design' : 'Avg Insert Size'}"/>
+							<mx:TextInput focusOut="propagateDesignOrRange()" id="designOrRangeText" width="{this.request.@captureLibDesignId != '' ? 130 : 40}" text="{this.request.@captureLibDesignId != '' ? this.request.@captureLibDesignId : this.request.@avgInsertSizeFrom}"/>
+							<mx:Text text=" to " visible="{this.request.@avgInsertSizeTo != ''}"/>
+							<mx:TextInput focusOut="propagateDesignOrRange()" id="insertSizeTo" width="40" text="{this.request.@avgInsertSizeTo}" visible="{this.request.@avgInsertSizeTo != ''}"/>
+						</mx:HBox>
+					</mx:VBox>
     				
     			</mx:HBox>
     		</mx:AddChild>
