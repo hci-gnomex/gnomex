@@ -6,6 +6,11 @@
 --------------------
 * Fix SQL errors in gnomex_db_ddl.sql (Thanks Bernd!)
 * Added Lucene indexing to allow lookup on experiment number, datatrack number and analysis number.
+* Change account screen no longer requests Department
+* Change account screen now has radio buttons indicating existing or new lab.  If existing lab user chooses from a drop down.  If new user fills in text box.
+* Change account screen now has radio buttons for University of Utah or not.  If University of Utah then request UNID.  Otherwise request institution, username and password.
+* Change Account Screen: If existing lab is chosen user is automatically added as a LabUser to that lab.
+* Change Account Screen: Users are now added as inactive to allow for review before activation.
 
 
 5.4.1
