@@ -25,8 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
-
+import org.apache.commons.validator.routines.EmailValidator;
 
 
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {
@@ -103,6 +104,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         if (addresses.length > 1) {
           this.addInvalidField("email", "Email address cannot contain spaces");
         }
+        if (!EmailValidator.getInstance().isValid(appUserScreen.getEmail())) {
+          this.addInvalidField("email", "Email address is not valid.  Please check the email address and try again.");
+        }
       } catch(AddressException ex) {
         this.addInvalidField("email", "Invalid Email Address -- " + ex.toString());
       }
@@ -114,7 +118,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-
+      workAuthAdminEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+      coreFacilityEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+      
       boolean isUsedUsername = false;
       boolean isUseduNID = false;
 
@@ -132,6 +138,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }            
       }      
 
+      if (this.isValid()) {
+        // Send user email before storing app user so if it fails we can give error without
+        // throwing exception
+        try {
+          sendUserEmail(appUserScreen);
+        } catch(Exception e) {
+          this.addInvalidField("email", "Unable to send email.  Please check your email address and try again.");
+        }
+      }
+      
       if (this.isValid()) {
         appUser = appUserScreen;
 
@@ -156,7 +172,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         
         // Default to Lab permission kind
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
-        
+
         if (existingLab) {
           Lab lab = (Lab)sess.load(Lab.class, requestedLabId);
           requestedLab = lab.getName();
@@ -164,20 +180,19 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           labSet.add(lab);
           appUser.setLabs(labSet);
         }
-
         sess.save(appUser);
+
       }
 
       if (this.isValid()) {
+        sendAdminEmail(appUser);
+      }
+      
+      if (this.isValid()) {
         sess.flush();
+        
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
         setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
-        
-        workAuthAdminEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
-        coreFacilityEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-        
-        sendAccountRequestEmail(appUser);                      
-        
       } else {
         if(isUsedUsername || isUseduNID) {
           String outMsg = "";
@@ -193,7 +208,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
       }
 
-    }catch (Exception e){
+    } catch (Exception e) {
       log.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -209,15 +224,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     return this;
   }
 
-
-  
-  public void sendAccountRequestEmail(AppUser appUser)  throws NamingException, MessagingException {
-    //This is to send it to the right application server, without hard coding
-    String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
-    
-    StringBuffer intro = new StringBuffer();
-    intro.append("Your request for a GNomEx account has been received.  The core facility staff will verify the information and then activate your account.<br><br>");
-    
+  private String getEmailBody(AppUser appUser) {
     StringBuffer body = new StringBuffer();
     body.append("Requested User Account:<br><br>");
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
@@ -237,6 +244,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     body.append("</td></tr></table>");
 
+    return body.toString();
+  }
+  
+  private void sendUserEmail(AppUser appUser)  throws NamingException, MessagingException {
+    StringBuffer intro = new StringBuffer();
+    intro.append("Your request for a GNomEx account has been received.  The core facility staff will verify the information and then activate your account.<br><br>");
+    
+    if (appUser.getEmail().equals("bademail@bad.com")) {
+      throw new AddressException("'bademail@bad.com' not allowed");
+    }
     
 
     MailUtil.send(
@@ -244,25 +261,28 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         "",
         coreFacilityEmail,
         "GNomEx User Account Request Received",
-        intro.toString() + body.toString(),
+        intro.toString() + getEmailBody(appUser),
         true
       );
-    
+  }
+  
+  private void sendAdminEmail(AppUser appUser)  throws NamingException, MessagingException {
+    //This is to send it to the right application server, without hard coding
+    String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
+
+    if (appUser.getEmail().equals("bademail@bad.com")) {
+      throw new AddressException("'bademail@bad.com' not allowed");
+    }
 
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");
-    if (existingLab) {
-      introForAdmin.append("The user was registered in the '" + requestedLab + "' lab.<br><br>");
-    } else {
-      introForAdmin.append("The user requested to be registered in a new lab identified as '" + requestedLab + "'.<br><br>");
-    }    
     MailUtil.send(
         workAuthAdminEmail,
         "",
         coreFacilityEmail,
         "GNomEx User Account Request for " + appUser.getFirstName() + " " + appUser.getLastName(),
-        introForAdmin.toString() + body.toString(),
+        introForAdmin.toString() + getEmailBody(appUser),
         true
       );
 
