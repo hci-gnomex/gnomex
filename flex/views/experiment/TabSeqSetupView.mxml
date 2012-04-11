@@ -25,6 +25,8 @@
 		private var isValidRange:Boolean = false;
 		private var designComplete:Boolean = false;
 		
+		private var lengthOfRadioGroup:int = 1;
+		
 
 
 
@@ -53,6 +55,8 @@
 				apps.addItem(item);
 			}
 			
+			var insertBoxesPlaced:Boolean = false;
+			var capLibBoxPlaced:Boolean = false;
 			// Organize the sequencing appliction radio buttons by theme.  
 			for (var key:Object in themeMap) {
 				var theApps:XMLListCollection = themeMap[key];
@@ -78,10 +82,47 @@
 					var rb:RadioButton = new RadioButton();
 					rb.value = app.@value;
 					rb.label = app.@application;
+					if((app.@value == "DNASEQ" || app.@value == "MONNUCSEQ") && !insertBoxesPlaced )
+					{
+						if(lengthOfRadioGroup >= 1 && lengthOfRadioGroup <=3)
+							insertSpacer.height = 35;
+						else if(lengthOfRadioGroup >= 4 && lengthOfRadioGroup <=6)
+							insertSpacer.height = 140;
+						else if(lengthOfRadioGroup >= 7 && lengthOfRadioGroup <= 9)
+							insertSpacer.height = 230;
+						else if(lengthOfRadioGroup >= 10 && lengthOfRadioGroup <= 12)
+							insertSpacer.height = 300;
+						else
+							insertSpacer.height = 380;
+						
+						insertBoxesPlaced = true;
+							
+					}
+
+					if((app.@value == "TDNASEQ" || app.@value == "EXCAPSSC") && !capLibBoxPlaced)
+					{
+						if(lengthOfRadioGroup >= 1 && lengthOfRadioGroup <=3)
+							designSpacer.height = 35;
+						else if(lengthOfRadioGroup >= 4 && lengthOfRadioGroup <=6)
+							designSpacer.height = 140;
+						else if(lengthOfRadioGroup >= 7 && lengthOfRadioGroup <= 9)
+							designSpacer.height = 230;
+						else if (lengthOfRadioGroup >= 10 && lengthOfRadioGroup <= 12)
+							designSpacer.height = 300;
+						else
+							designSpacer.height = 380;
+						
+						capLibBoxPlaced = true;
+						
+					}
+					
 					rb.group = radioGroupSeqApp;
 					rb.setStyle("paddingLeft", 10);
 					rb.addEventListener("click", onSeqAppRadioClick);
 					seqAppBox.addChild(rb);
+					
+					lengthOfRadioGroup++;
+					
 				}
 
 			}
@@ -171,6 +212,9 @@
 					else{
 						libraryDesign.visible = false;
 						libraryDesign.includeInLayout = false;
+						designID.text = "";
+						libraryDesign.styleName = "requiredBox";
+						parentDocument.request.@captureLibDesignId = "";
 					}
 					if(application[0].@display.indexOf("Mononucleosome") != -1 || application[0].@display.indexOf("Genomic") != -1){
 						insertRanges.visible = true;
@@ -179,6 +223,11 @@
 					else{
 						insertRanges.visible = false;
 						insertRanges.includeInLayout = false;
+						maxInsertRange.text = "";
+						minInsertRange.text = "";
+						insertRanges.styleName = "requiredBox";
+						parentDocument.request.avgInsertSizeFrom = "";
+						parentDocument.request.avgInsertSizeTo = "";
 					}
 				} else if (application != null && application is XML) {
 					this.parentDocument.applicationName = application.@display;
@@ -198,10 +247,13 @@
 		private function propagateDesign():void{
 			designComplete = false;
 			isValidRange = false;
+			libraryDesign.styleName = "requiredBox";
+
 			
 			if(designID.text != "" || designID.text != null){
 				parentDocument.request.@captureLibDesignId = designID.text;
 				designComplete = true;
+				libraryDesign.styleName = "undefined";
 			}
 			
 			checkSeqAppSetupCompleteness();
@@ -212,6 +264,7 @@
 			var pattern:RegExp = /[a-z]/i;
 			designComplete = false;
 			isValidRange = false;
+			insertRanges.styleName = "requiredBox";
 			
 			if(minInsertRange.text == "" || maxInsertRange.text == "" || pattern.test(minInsertRange.text) || pattern.test(maxInsertRange.text))
 				isValidRange = false;
@@ -222,12 +275,28 @@
 				parentDocument.request.@avgInsertSizeFrom = minInsertRange.text;
 				parentDocument.request.@avgInsertSizeTo = maxInsertRange.text;
 				isValidRange = true;
+				insertRanges.styleName = "undefined";
 			}	
 			checkSeqAppSetupCompleteness();
 		}
 			
 	]]>
 </mx:Script>
+	
+	<mx:NumberValidator id="minRangeValidator"
+						source="{minInsertRange}"
+						lowerThanMinError="Outside valid range."
+						exceedsMaxError="Outside valid range."
+						property="text"
+						minValue="60"
+						maxValue="100"/>
+	<mx:NumberValidator id="maxRangeValidator"
+						source="{maxInsertRange}"
+						lowerThanMinError="Outside valid range."
+						exceedsMaxError="Outside valid range."
+						property="text"
+						minValue="60"
+						maxValue="100"/>
 
   <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
   <mx:Canvas width="100%" height="100%">
@@ -244,26 +313,30 @@
 		</mx:VBox>
 		
 		<mx:VBox  visible="{libraryDesign.visible || insertRanges.visible}" includeInLayout="{libraryDesign.visible || insertRanges.visible}"  height="100%"  paddingTop="2">
-			<mx:VBox verticalGap="0" id="insertRanges" paddingTop="30" visible="false" includeInLayout="false">
-				<mx:Label text="Insert Range" id="insertRangeLabel" />
-				<mx:HBox horizontalGap="0">
+			<mx:Spacer id="insertSpacer" includeInLayout="{insertRanges.visible}"/>
+			<mx:VBox verticalGap="0" id="insertRanges" paddingTop="10" paddingLeft="10" visible="false" includeInLayout="false" styleName="requiredBox">
+				<mx:HBox horizontalGap="0" paddingBottom="10" paddingRight="10">
+					<mx:Label text="Average Insert Size: " id="insertRangeLabel" />
 					<mx:TextInput id="minInsertRange" width="50" change="propagateInsertRange()"/>
 					<mx:Text text=" to "/>
 					<mx:TextInput id="maxInsertRange" width="50" change="propagateInsertRange()"/>
+					<mx:Text text="bp"/>
 				</mx:HBox>
 				<mx:Text text="Insert sizes range from 60 to 100bp" fontStyle="italic"/>
 			</mx:VBox>
-			<mx:Spacer height="100%"/>
-			<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingBottom="70">
-				<mx:Label text="Capture Library Design ID" id="designIDLabel" />
-				<mx:TextInput id="designID" change="propagateDesign()"/>
+			<mx:Spacer id="designSpacer" includeInLayout="{libraryDesign.visible}"/>
+			<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingTop="10" paddingLeft="10" styleName="requiredBox">
+				<mx:HBox paddingBottom="10" paddingRight="10">
+					<mx:Label text="Capture Library Design ID: " id="designIDLabel" />
+					<mx:TextInput id="designID" change="propagateDesign()"/>
+				</mx:HBox>
 			</mx:VBox>
 			
 		</mx:VBox>
 
 	</mx:HBox>
 	
-  </mx:Canvas>
+ </mx:Canvas>
 
 
 	
