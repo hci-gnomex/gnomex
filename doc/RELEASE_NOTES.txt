@@ -11,6 +11,7 @@
 * Change account screen now has radio buttons for University of Utah or not.  If University of Utah then request UNID.  Otherwise request institution, username and password.
 * Change Account Screen: If existing lab is chosen user is automatically added as a LabUser to that lab.
 * Change Account Screen: Users are now added as inactive to allow for review before activation.
+* Change Account Screen now has more email address validation.
 
 
 5.4.1
