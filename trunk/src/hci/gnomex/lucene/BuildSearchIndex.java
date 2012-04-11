@@ -1389,6 +1389,8 @@ public class BuildSearchIndex extends DetailObject {
     text.append(" ");        
     text.append(labRequest);
     text.append(" ");        
+    text.append(requestNumber);
+    text.append(" ");        
 
     
     Map nonIndexedFieldMap = new HashMap();
@@ -1629,6 +1631,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append(" ");
     buf.append(analysisAnnotations.toString());
     buf.append(" ");
+    buf.append(number);
+    buf.append(" ");
     indexedFieldMap.put(AnalysisIndexHelper.TEXT, buf.toString());
     
     AnalysisIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
@@ -1785,6 +1789,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append(dtfDesc);
     buf.append(" ");
     buf.append(dataTrackAnnotations.toString());
+    buf.append(" ");
+    buf.append(fileName);
     buf.append(" ");
     indexedFieldMap.put(DataTrackIndexHelper.TEXT, buf.toString());
     
