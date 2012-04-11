@@ -5,6 +5,7 @@
 5.4.1.1
 --------------------
 * Fix SQL errors in gnomex_db_ddl.sql (Thanks Bernd!)
+* Added Lucene indexing to allow lookup on experiment number, datatrack number and analysis number.
 
 
 5.4.1
