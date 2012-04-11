@@ -1,14 +1,17 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
 <%@ page import="org.hibernate.Session" %>
+<%@ page import="hci.gnomex.model.Lab" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List" %>
 <html>
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-	<link rel="stylesheet" href="css/login.css" type="text/css" />
-	<title>Create a new GNomEx Account</title>
-	
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="css/login.css" type="text/css" />
+  <title>Create a new GNomEx Account</title>
+  
 <script  type="text/javascript" language="JavaScript">
   function setFocus()
   {
@@ -18,26 +21,29 @@
   function showHideExternal()
   {
 
-    if (document.theform.q1[0].checked)
+    if (document.theform.uofuAffiliate[0].checked)
     {
-      document.getElementById("univUserNameArea1").style.display = "block";
-      document.getElementById("univUserNameArea2").style.display = "block";
-      document.getElementById("externalUserNameArea1").style.display  = "none";
-      document.getElementById("externalUserNameArea2").style.display  = "none";
-      document.getElementById("externalPasswordArea1").style.display = "none";
-      document.getElementById("externalPasswordArea2").style.display = "none";
-      document.getElementById("userNameExternal").value = "";
-      document.getElementById("passwordExternal").value = "";
+      document.getElementById("UofUDiv").style.display = "block";
+      document.getElementById("externalDiv").style.display = "none";
     }
     else
     {
-      document.getElementById("univUserNameArea1").style.display = "none";
-      document.getElementById("univUserNameArea2").style.display = "none";
-      document.getElementById("uNID").value = "";
-      document.getElementById("externalUserNameArea1").style.display  = "block";
-      document.getElementById("externalUserNameArea2").style.display  = "block";
-      document.getElementById("externalPasswordArea1").style.display = "block";
-      document.getElementById("externalPasswordArea2").style.display = "block";
+      document.getElementById("UofUDiv").style.display = "none";
+      document.getElementById("externalDiv").style.display = "block";
+    }
+  }
+  
+  function showHideLab()
+  {
+    if (document.theform.existingLab[0].checked)
+    {
+      document.getElementById("existingLabDiv").style.display = "block";
+      document.getElementById("newLabDiv").style.display = "none";      
+    }
+    else
+    {
+      document.getElementById("existingLabDiv").style.display = "none";
+      document.getElementById("newLabDiv").style.display = "block";      
     }
   }
   
@@ -49,11 +55,16 @@
   }
 </script>
 
-	
+  
 </head>
 
 <%
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
+if (message == null) {
+  message = "";
+}
+
+List labs = null;
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
@@ -69,11 +80,14 @@ try {
     showUserNameChoice = true;
     externalUserDisplay = "display:none;";
   }  
+  
+  labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
+  
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
-	  HibernateGuestSession.closeGuestSession();
+    HibernateGuestSession.closeGuestSession();
   } catch (Exception e) {
   }  
 }
@@ -113,41 +127,63 @@ try {
       <div class="col1"><div class="right">Phone</div></div>
       <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
 
-      <div class="col1"><div class="right">Lab Group</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="lab" onkeypress="return checkAlphaNumeric(event)"  /></div>
+      <div style="width:100%;"><div style="float:left;">
+      <br>
+       Lab Group?
 
-      <div class="col1"><div class="right">Institute</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="institute" /></div>
+       <INPUT TYPE="radio" NAME="existingLab" VALUE="y" onClick="showHideLab();">Use existing
+       <INPUT TYPE="radio" NAME="existingLab" VALUE="n" onClick="showHideLab();">Request New
+      </div></div>
 
-      <div class="col1"><div class="right">Department</div></div>
-      <div class="col2"><input type="text" class="textWide"  name="department" /></div>
+      <div id="existingLabDiv" style="display:none;">
+        <div class="col1"><div class="right">Choose Lab</div></div>
+        <div class="col2"><select name="labDropdown" id="labDropdown" class="textWide">
+          <%
+          Iterator i = labs.iterator();
+          while (i.hasNext()) {
+            Lab l = (Lab) i.next();
+          %>
+            <option value="<%=l.getIdLab()%>"><%=l.getName()%></option>
+          <%}%>
+        </select></div>
+      </div>
+      <div id="newLabDiv" style="display:none;">
+        <div class="col1"><div class="right">Enter Lab</div></div>
+        <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"  /></div>
+      </div>
 
 <% if (showUserNameChoice) { %>
-    <div class="left">
+    <div style="width:100%;"><div style="float:left;">
     <br>
-     Do you have a University user id?
-     <INPUT TYPE="radio" NAME="q1" VALUE="y"  ${param.q1} == 'y' ? 'checked' : '' onClick="showHideExternal();">Yes
-     <INPUT TYPE="radio" NAME="q1" VALUE="n"  ${param.q1} == 'n' ? 'checked' : '' onClick="showHideExternal();">No
-    </div>    
+     Are you affiliated with the University of Utah?
+     <INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes
+     <INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No
+    </div></div>
 <% }  %>
     
+      <div id="UofUDiv" style="display:none">
+        <div id="univUserNameArea1" class="col1"><div class="right">University ID</div></div>
+        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID"  ></div>
+      </div>
 
-      <div id="univUserNameArea1" style="display:none;" class="col1"><div class="right">University ID</div></div>
-      <div id="univUserNameArea2" style="display:none;" class="col2"><input type="text" class="text" name="uNID"  ></div>
-
-      <div id="externalUserNameArea1" style="<%= externalUserDisplay%>" class="col1"><div class="right">User name</div></div>
-      <div id="externalUserNameArea2" style="<%= externalUserDisplay%>" class="col2"><input type="text" class="text" name="userNameExternal"  ></div>
+      <div id="externalDiv" style="display:none">
+        <div class="col1"><div class="right">Institute</div></div>
+        <div class="col2"><input type="text" class="textWide"  name="institute" /></div>
+        
+        <div id="externalUserNameArea1" class="col1"><div class="right">User name</div></div>
+        <div id="externalUserNameArea2" class="col2"><input type="text" class="textWide" name="userNameExternal"  ></div>
 
     
-      <div id="externalPasswordArea1" style="<%= externalUserDisplay%>" class="col1"><div class="right">Password</div></div>
-      <div id="externalPasswordArea2" style="<%= externalUserDisplay%>" class="col2"><input type="password" name="passwordExternal" class="text" ></div>
-    
-      <div class="bottomPanel">   
+        <div id="externalPasswordArea1" class="col1"><div class="right">Password</div></div>
+        <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" class="textWide" ></div>
+      </div>
+
+      <div style="float:left;"><div class="message"> <strong><%= message %></strong></div></div>
+      <div>   
           <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
       </div>
 
   </div>
- <div class="message"> <strong><%= message %></strong></div>
 
 </div>
     <input type="hidden" name="responsePageSuccess" value="/register_user_success.jsp"/>

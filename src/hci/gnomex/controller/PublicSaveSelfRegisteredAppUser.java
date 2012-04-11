@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
@@ -13,6 +14,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.mail.internet.AddressException;
@@ -39,7 +41,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private String         workAuthAdminEmail  = null;
   private String         coreFacilityEmail = null;
   private String         requestedLab = "";
+  private Integer        requestedLabId = null;
   private StringBuffer   requestURL;
+  private Boolean        existingLab = false;
+  private Boolean        uofuAffiliate = false;
   
   public String responsePageSuccess = null;
   public String responsePageError = null;
@@ -49,22 +54,38 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     appUserScreen = new AppUser();
     HashMap errors = this.loadDetailObject(request, appUserScreen);
     this.addInvalidFields(errors);
-
-    requestedLab = request.getParameter("lab");
+    if (request.getParameter("uofuAffiliate") != null && request.getParameter("uofuAffiliate").equals("y")) {
+      uofuAffiliate = true;
+      appUserScreen.setUserNameExternal("");
+      appUserScreen.setPasswordExternal("");
+      appUserScreen.setInstitute("University of Utah");
+    } else {
+      uofuAffiliate = false;
+      appUserScreen.setuNID("");
+    }
+    if (request.getParameter("existingLab") != null && request.getParameter("existingLab").equals("y")) {
+      existingLab = true;
+      requestedLabId = Integer.parseInt(request.getParameter("labDropdown"));
+    } else {
+      existingLab = false;
+      requestedLab = request.getParameter("newLab");
+    }
     
     if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) ||
         (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) ||
         (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) ||
-        (requestedLab == null || requestedLab.equals(""))) {
+        ((requestedLab == null || requestedLab.equals("")) && requestedLabId == null)) {
       this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
     }
     
-    if ((appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals("")) &&
-        (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
+    if (uofuAffiliate && (appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals(""))) {
+      this.addInvalidField("userNameRequiredField", "University Id is required");        
+    }
+    if (!uofuAffiliate && (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
       this.addInvalidField("userNameRequiredField", "User name is required");
     }
     
-    if (appUserScreen.getUserNameExternal() != null && !this.appUserScreen.getUserNameExternal().equals("")) {
+    if (!uofuAffiliate) {
       if (appUserScreen.getPasswordExternal() == null || appUserScreen.getPasswordExternal().equals(""))
       this.addInvalidField("passwordRqrd", "Password is required");
     }
@@ -94,19 +115,12 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
-      boolean checkUsername = true;
       boolean isUsedUsername = false;
       boolean isUseduNID = false;
 
-      if (appUserScreen.getuNID() != null && 
-          !appUserScreen.getuNID().trim().equals("")) {
-        checkUsername = false;
-      }       
-
       AppUser appUser = null;
 
-
-      if(checkUsername) {
+      if(!uofuAffiliate) {
         if (userNameAlreadyExists(sess, appUserScreen.getUserNameExternal(), null)) {
           this.addInvalidField("Username exists", "The User name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
           isUsedUsername = true;
@@ -137,14 +151,21 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
         }
         
-        // Default to active
-        appUser.setIsActive("Y");
+        // Default to inactive
+        appUser.setIsActive("N");
         
         // Default to Lab permission kind
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
+        
+        if (existingLab) {
+          Lab lab = (Lab)sess.load(Lab.class, requestedLabId);
+          requestedLab = lab.getName();
+          HashSet labSet = new HashSet();
+          labSet.add(lab);
+          appUser.setLabs(labSet);
+        }
 
         sess.save(appUser);
-
       }
 
       if (this.isValid()) {
@@ -201,9 +222,12 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     body.append("Requested User Account:<br><br>");
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
-    body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLab));
+    if (existingLab) {
+      body.append("</td></tr><tr><td>Requested lab(Existing):</td><td>" + this.getNonNullString(requestedLab));
+    } else {
+      body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLab));
+    }
     body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
-    body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
     body.append("</td></tr><tr><td>Email:</td><td>" + this.getNonNullString(appUser.getEmail()));
     body.append("</td></tr><tr><td>Phone:</td><td>" + this.getNonNullString(appUser.getPhone()));
     if(appUser.getuNID() != null && appUser.getuNID().length() > 0) {
@@ -228,7 +252,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");
-    
+    if (existingLab) {
+      introForAdmin.append("The user was registered in the '" + requestedLab + "' lab.<br><br>");
+    } else {
+      introForAdmin.append("The user requested to be registered in a new lab identified as '" + requestedLab + "'.<br><br>");
+    }    
     MailUtil.send(
         workAuthAdminEmail,
         "",
