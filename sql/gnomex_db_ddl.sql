@@ -102,7 +102,7 @@ CREATE TABLE `gnomex`.`AnalysisFile` (
   `uploadDate` DATETIME NULL,
   `idAnalysis` INT(10) NULL,
   `qualifiedFilePath` varchar(300) null,
-  `baseFilePath varchar(300) null,
+  `baseFilePath` varchar(300) null,
   PRIMARY KEY (`idAnalysisFile`),
   CONSTRAINT `FK_AnalysisFile_Analysis` FOREIGN KEY `FK_AnalysisFile_Analysis` (`idAnalysis`)
     REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
@@ -742,7 +742,7 @@ CREATE TABLE `gnomex`.`FlowCellChannel` (
   `read1ClustersPassedFilterM` INT(10) NULL,
   `read2ClustersPassedFilterM` INT(10) NULL,
   `q30Gb` DECIMAL(4,1) NULL,
-  'q30Percent' DECIMAL(4,3) NULL,
+  `q30Percent` DECIMAL(4,3) NULL,
   PRIMARY KEY (`idFlowCellChannel`),
   CONSTRAINT `FK_FlowCellChannel_FlowCell` FOREIGN KEY `FK_FlowCellChannel_FlowCell` (`idFlowCell`)
     REFERENCES `gnomex`.`FlowCell` (`idFlowCell`)
@@ -1330,8 +1330,8 @@ CREATE TABLE `gnomex`.`Request` (
   `corePrepInstructions` varchar(5000) null,
   `analysisInstructions` varchar(5000) null,
   `captureLibDesignId` varchar(200) null,
-  `avgInsertSizeFrom` INT(10) null;
-  `avgInsertSizeTo` INT(10) null
+  `avgInsertSizeFrom` INT(10) null,
+  `avgInsertSizeTo` INT(10) null,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -2230,7 +2230,7 @@ CREATE TABLE `GenomeBuildAlias` (
 
 
 --
--- Table structure for table dbo.gpSegment 
+-- Table structure for table dbo.Segment 
 --
 --
 -- Table structure for table `Segment`
@@ -2241,8 +2241,8 @@ CREATE TABLE `Segment` (
   `idSegment` int(10)  NOT NULL auto_increment,
   `length` int(10) unsigned NOT NULL,
   `name` varchar(100) NOT NULL,
-  `idGenomeBuild` int(10)  NOT NULL,
-  `sortOrder` int(10) unsigned NOT NULL,
+  `idGenomeBuild` int(10)  NULL,
+  `sortOrder` int(10) unsigned NULL,
   PRIMARY KEY  (`idSegment`),
   KEY `FK_Segment_GenomeBuild` (`idGenomeBuild`),
   CONSTRAINT `FK_Segment_GenomeBuild` FOREIGN KEY (`idGenomeBuild`) REFERENCES `GenomeBuild` (`idGenomeBuild`)

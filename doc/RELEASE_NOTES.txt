@@ -1,6 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+
+5.4.1.1
+--------------------
+* Fix SQL errors in gnomex_db_ddl.sql (Thanks Bernd!)
+
+
 5.4.1
 --------------------
 * New navigation for DNA seq gnomex admins.  Also, removed LinkButtonBar and replaces with link buttons for
