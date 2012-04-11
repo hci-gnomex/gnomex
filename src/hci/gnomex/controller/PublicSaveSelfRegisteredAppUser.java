@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -82,10 +83,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (uofuAffiliate && (appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals(""))) {
       this.addInvalidField("userNameRequiredField", "University Id is required");        
     }
+    
+    if (uofuAffiliate && !Pattern.matches("^U\\d{7}$", appUserScreen.getuNID().toUpperCase())) {
+      this.addInvalidField("UNID", "University Id must be a 'U' followed by 7 digits.");
+    }
+      
     if (!uofuAffiliate && (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
       this.addInvalidField("userNameRequiredField", "User name is required");
     }
-    
+
     if (!uofuAffiliate) {
       if (appUserScreen.getPasswordExternal() == null || appUserScreen.getPasswordExternal().equals(""))
       this.addInvalidField("passwordRqrd", "Password is required");
@@ -120,24 +126,23 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       Session sess = HibernateSession.currentSession(this.getUsername());
       workAuthAdminEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
       coreFacilityEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-      
-      boolean isUsedUsername = false;
-      boolean isUseduNID = false;
 
       AppUser appUser = null;
 
       if(!uofuAffiliate) {
         if (userNameAlreadyExists(sess, appUserScreen.getUserNameExternal(), null)) {
           this.addInvalidField("Username exists", "The User name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
-          isUsedUsername = true;
         }            
       } else {
         if (uNID_AlreadyExists(sess, appUserScreen.getuNID(), null)) {
           this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " already exists.  Please use another.");
-          isUseduNID = true;
         }            
       }      
 
+      if (nameEmailAlreadyExists(sess, appUserScreen)) {
+        this.addInvalidField("Name/Email", "The combination of name and email already exists.  Please verify you do not have an existing account.");
+      }
+      
       if (this.isValid()) {
         // Send user email before storing app user so if it fails we can give error without
         // throwing exception
@@ -194,18 +199,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
         setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
       } else {
-        if(isUsedUsername || isUseduNID) {
-          String outMsg = "";
-          if(isUsedUsername) {
-            outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
-          } else {
-            outMsg = "uNID '" + appUserScreen.getuNID() + "' is already being used. Please select a different uNID.";                            
-          }
-          this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
-          setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);    
-        } else {
-          setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
-        }
+        setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
       }
 
     } catch (Exception e) {
@@ -335,5 +329,23 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     List users = sess.createQuery(buf.toString()).list();
     return users.size() > 0;    
+  }
+  
+  private static boolean nameEmailAlreadyExists(Session sess, AppUser appUser) {
+    if (appUser.getFirstName() == null || appUser.getLastName() == null || appUser.getEmail() == null) {
+      return false;
+    }
+
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT a.uNID from AppUser as a where a.firstName = '"); 
+    buf.append(appUser.getFirstName()).append("'");
+    buf.append(" and a.lastName = '").append(appUser.getLastName()).append("'");
+    buf.append(" and a.email = '").append(appUser.getEmail()).append("'");
+    if (appUser.getIdAppUser() != null) {
+      buf.append(" AND a.idAppUser != " + appUser.getIdAppUser());
+    }
+    
+    List users = sess.createQuery(buf.toString()).list();
+    return users.size() > 0;
   }
 }
