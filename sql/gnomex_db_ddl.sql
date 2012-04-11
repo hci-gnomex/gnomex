@@ -240,6 +240,7 @@ CREATE TABLE `gnomex`.`AppUser` (
   `codeUserPermissionKind` VARCHAR(10) NULL,
   `userNameExternal` VARCHAR(100) NULL,
   `passwordExternal` VARCHAR(100) NULL,
+   `ucscUrl` VARCHAR(200) null,
   PRIMARY KEY (`idAppUser`)
 )
 ENGINE = INNODB;
