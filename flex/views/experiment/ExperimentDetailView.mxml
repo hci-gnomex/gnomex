@@ -88,28 +88,22 @@
 			this.selectedExperiment = selectedExperiment;
 			
 			if(selectedExperiment.@captureLibDesignId != ""){
-				captureLibLabel.visible = true;
-				captureLibDesign.visible = true;
-				captureLibDesign.text = selectedExperiment.@captureLibDesignId;
-			}
-			else{
-				captureLibLabel.visible = false;
-				captureLibDesign.visible = false;
+				libDesignAndInsertBox.visible = true;
+				designAndInsertLabel.text = "Cap Lib Design";
+				designAndInsertText.text = selectedExperiment.@captureLibDesignId;
+				
+
 			}
 			
-			if(selectedExperiment.@avgInsertSizeFrom != ""){
-				minInsertRange.visible = true;
-				maxInsertRange.visible = true;
-				insertRangeTo.visible = true;
-				insertRangeLabel.visible = true;
-				minInsertRange.text = selectedExperiment.@avgInsertSizeFrom;
-				maxInsertRange.text = selectedExperiment.@avgInsertSizeTo;
+			else if(selectedExperiment.@avgInsertSizeFrom != ""){
+				libDesignAndInsertBox.visible = true;
+				designAndInsertLabel.text = "Avg Insert Size";
+				designAndInsertText.text = selectedExperiment.@avgInsertSizeFrom + " to " + selectedExperiment.@avgInsertSizeTo + " bp";
+
 			}
 			else{
-				minInsertRange.visible = false;
-				maxInsertRange.visible = false;
-				insertRangeTo.visible = false;
-				insertRangeLabel.visible = false;
+				libDesignAndInsertBox.visible = false;
+
 			}
 				
 			if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
@@ -840,18 +834,24 @@
         	</mx:VBox>
         	<mx:VBox width="100%" verticalGap="0">
         	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-        	           <mx:Label text="Group"  width="55" fontWeight="bold"/>
+        	           <mx:Label text="Group"  width="80" fontWeight="bold"/>
         	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
         	     </mx:HBox>
 	        	
 
 	            <mx:HBox width="100%">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-		                <mx:Label width="55" text="Visibility" fontWeight="bold"/>
+		                <mx:Text width="80" text="Visibility" fontWeight="bold"/>
 		                <mx:Text text="{visibilityName}" width="130" />
 		            </mx:HBox>
+				</mx:HBox>
+				<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false">					
+					<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+						<mx:Text id="designAndInsertLabel" width="80" fontWeight="bold"/>
+						<mx:Text id="designAndInsertText" width="130" paddingTop="{selectedExperiment.@captureLibDesignId != '' ? 8 : 0}" />
+					</mx:HBox>
+				</mx:HBox>
 
-	            </mx:HBox>
 	            
         	</mx:VBox>
         	
@@ -877,14 +877,7 @@
 							<mx:Label text="Experiment Name"/>
 							<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
 							<mx:Spacer width="5"/>
-							<mx:Label text="Capture Library Design Id" id="captureLibLabel" visible="false"/>
-							<mx:TextInput id="captureLibDesign" visible="false" editable="false" backgroundColor="0xffffff"/>
-							
-							<mx:Label text="Insert Range" id="insertRangeLabel" width="94" visible="false"/>
-							<mx:TextInput id="minInsertRange" width="50" visible="false" editable="false" backgroundColor="0xffffff"/>
-							<mx:Text text=" to " visible="false" id="insertRangeTo"/>
-							<mx:TextInput id="maxInsertRange" width="50" visible="false" editable="false" backgroundColor="0xffffff"/>
-						</mx:HBox> 
+							</mx:HBox>
 						<mx:Spacer height="4"/>
 						<mx:Label text="Description"/>
 						<util:TextAreaWorkaround  backgroundColor="0xffffff" id="overallDescript" editable="false" text="{this.selectedExperiment.@description}" width="100%" height="100%"/>
