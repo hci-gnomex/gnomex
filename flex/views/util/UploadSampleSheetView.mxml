@@ -451,7 +451,7 @@
 					}					
 					vsMain.selectedChild=chooseColumns;
 					
-				} if (event.data.indexOf("<ERROR") >= 0) {
+				} else if (event.data.indexOf("<ERROR") >= 0) {
 					Alert.show("Unable to read this file. Tab delimited text format is required.", "File Format Error")					
 				} else {
 					var errorMessage:String = event.text;
