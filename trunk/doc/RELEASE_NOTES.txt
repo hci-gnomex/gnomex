@@ -12,7 +12,7 @@
 * Change Account Screen: If existing lab is chosen user is automatically added as a LabUser to that lab.
 * Change Account Screen: Users are now added as inactive to allow for review before activation.
 * Change Account Screen now has more email address validation.
-* Change Account Screen now requires university ids be a "u" or "U" followed by 7 digits.
+* Change Account Screen now has text suggesting university ids be a "u" followed by 7 digits.
 * Change Account Screen now validates that the combination of first name, last name and email address does not already exist in the database.
 
 
