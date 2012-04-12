@@ -83,10 +83,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (uofuAffiliate && (appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals(""))) {
       this.addInvalidField("userNameRequiredField", "University Id is required");        
     }
-    
-    if (uofuAffiliate && !Pattern.matches("^U\\d{7}$", appUserScreen.getuNID().toUpperCase())) {
-      this.addInvalidField("UNID", "University Id must be a 'U' followed by 7 digits.");
-    }
       
     if (!uofuAffiliate && (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
       this.addInvalidField("userNameRequiredField", "User name is required");

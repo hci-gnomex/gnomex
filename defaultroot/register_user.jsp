@@ -161,9 +161,10 @@ try {
     </div></div>
 <% }  %>
     
-      <div id="UofUDiv" style="display:none">
+      <div id="UofUDiv" style="display:none;width:100%;">
         <div id="univUserNameArea1" class="col1"><div class="right">University ID</div></div>
         <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID"  ></div>
+        <div>Format should be a "u" followed by 7 digits (u0000000)</div>
       </div>
 
       <div id="externalDiv" style="display:none">
