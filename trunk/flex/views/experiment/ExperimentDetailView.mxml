@@ -630,67 +630,11 @@
 		
 		public function refreshDownloadList():void {
 			if (theTab.selectedChild == filesView) {
-				// Getting the download list is slow since we now show an expanded file
-				// view by default.  Only show downloads at request or project level.
-				if (parentDocument.parentDocument.selectedIdProject != null || 
-					parentDocument.parentDocument.selectedIdRequest != null) {
-					filesView.getRequestDownloadList.send(getBrowseParameters());
-					filesView.browseMessage = "";
-				} else {
-					filesView.browseMessage = "Click on a project or request to narrow download selection.";
-					filesView.downloadSizeMessage = "";
-					filesView.rowCountMessage = "";
-					filesView.downloadTree.visible = false;
-				}
+				var params:Object = new Object();
+				params.idRequest = this.selectedExperiment.@idRequest;
+				filesView.getRequestDownloadList.send(params);
 				theTab.selectedChild = filesView;
 			}
-		}
-		
-		private function getBrowseParameters():Object {
-			var params:Object = new Object();
-			if (parentDocument.parentDocument.selectedIdProject != null) {
-				params.idProject = parentDocument.parentDocument.selectedIdProject;
-			}
-			if (parentDocument.parentDocument.selectedIdRequest != null) {
-				params.idRequest = parentDocument.parentDocument.selectedIdRequest;
-			}
-			params.idLab = parentDocument.parentDocument.selectedIdLab;
-			
-			if (parentDocument.parentDocument.currentState == 'AdminState' && parentDocument.parentDocument.allExperimentsCheckbox.selected) {
-				params.allExperiments = 'Y';
-			} else {
-				if (parentDocument.parentDocument.currentState == 'AdminState') {
-					if (parentDocument.parentDocument.selectedIdLab == null && parentDocument.parentDocument.browseLabCombo.selectedItem != null) {
-						params.idLab = parentDocument.parentDocument.browseLabCombo.selectedItem.@idLab;
-					}
-					if (parentDocument.parentDocument.browseUserCombo.selectedItem != null) {
-						params.idAppUser = parentDocument.parentDocument.browseUserCombo.selectedItem.@idAppUser;
-					}
-				} else if (parentDocument.parentDocument.currentState != "GuestState")  {
-					if (parentDocument.parentDocument.myExperimentsCheckbox.selected) {
-						params.idAppUser = parentApplication.getIdAppUser();
-					}				
-					if (parentDocument.parentDocument.userAllExperimentsCheckbox.selected) {
-						params.allExperiments = 'Y';
-					}
-				}
-				if (parentDocument.parentDocument.lastWeekCheckbox.selected) {
-					params.lastWeek = 'Y';
-				}
-				if (parentDocument.parentDocument.lastMonthCheckbox.selected) {
-					params.lastMonth = 'Y';
-				}
-				if (parentDocument.parentDocument.lastYearCheckbox.selected) { 
-					params.lastYear = 'Y';
-				}
-				if (parentDocument.parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
-					params.publicExperimentsInOtherGroups = 'Y';
-				}
-				params.isMicroarray  = this.parentDocument.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
-				params.isNextGenSeq  = this.parentDocument.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
-				params.isBioanalyzer = this.parentDocument.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
-			}
-			return params;					
 		}
 		
 		public function filterList():void{		}
