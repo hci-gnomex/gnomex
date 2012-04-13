@@ -636,7 +636,7 @@
 			private function onGetRequest(event:ResultEvent):void {
 				selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.experimentTree.selectedItem.@idRequest);
 				
-				this.experimentDetailWindow = ExperimentDetailWindow(PopUpManager.createPopUp(parentApplication.mainArea, ExperimentDetailWindow, false));
+				this.experimentDetailWindow = ExperimentDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentDetailWindow, false));
 				experimentDetailWindow.width  = 800;
 				experimentDetailWindow.height = 500;	
 				this.experimentDetailWindow.title = 'Experiment ' + selectedExperiment.@number;		
