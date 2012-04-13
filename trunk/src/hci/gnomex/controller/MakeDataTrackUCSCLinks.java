@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +42,9 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
   private String baseDir;
   private String analysisBaseDir;
   private String serverName;
+
+  
+  public static final Pattern TO_STRIP = Pattern.compile("\\n");
 
 
   private static boolean autoConvertUSeqArchives = true;
@@ -205,6 +209,9 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
         //System.out.println("LinkForLoading "+customHttpLink + toEncode);
         //System.out.println(customHttpLink+ GeneralUtils.URLEncode(toEncode)+"\n");
 
+        //remove any returns
+        toEncode = TO_STRIP.matcher(toEncode).replaceAll(" ");
+        
         urlsToLoad.add(customHttpLink + URLEncoder.encode(toEncode, "UTF-8"));
       }
 
