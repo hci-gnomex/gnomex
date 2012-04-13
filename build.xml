@@ -328,7 +328,7 @@
 
             <fileset dir="${build.class.dir}">
             	<include name="hci/gnomex/security/EncrypterService.class" />
-            	<include name="hci/gnomex/security/tomcat/*Realm.class" />
+            	<include name="hci/gnomex/security/tomcat/*Realm*.class" />
             </fileset>
 
 			<manifest>
