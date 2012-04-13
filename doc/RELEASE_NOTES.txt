@@ -6,6 +6,7 @@
 --------------------
 * Fix SQL errors in gnomex_db_ddl.sql (Thanks Bernd!)
 * Added Lucene indexing to allow lookup on experiment number, datatrack number and analysis number.
+* For Data Tracks ucsc links - Added the following to remove any line returns from the name, summary, or description when making UCSC links.
 * Change account screen no longer requests Department
 * Change account screen now has radio buttons indicating existing or new lab.  If existing lab user chooses from a drop down.  If new user fills in text box.
 * Change account screen now has radio buttons for University of Utah or not.  If University of Utah then request UNID.  Otherwise request institution, username and password.
@@ -14,6 +15,7 @@
 * Change Account Screen now has more email address validation.
 * Change Account Screen now has text suggesting university ids be a "u" followed by 7 digits.
 * Change Account Screen now validates that the combination of first name, last name and email address does not already exist in the database.
+* Fixed ExperimentDetailView so that Files tab works from Analysis Edit (Experiments tab, double-click on experiment in tree).  Also, will address issue found when trying to show Experiment Detail from new Topics view.  
 
 
 5.4.1
