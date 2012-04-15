@@ -54,6 +54,7 @@ public class GNomExLDAPRealm extends RealmBase {
   private DirContext ctx;
   private Attributes attr;
 
+  
   @Override
   public Principal authenticate(String username, byte[] credentials) {
     return this.authenticate(username, credentials);
@@ -93,7 +94,6 @@ public class GNomExLDAPRealm extends RealmBase {
 
   @Override
   protected Principal getPrincipal(String username) {
-
     List<String> roles = new ArrayList<String>();
     roles.add("GNomExUser");
     return new GenericPrincipal(this, username, password, roles);
@@ -106,9 +106,8 @@ public class GNomExLDAPRealm extends RealmBase {
 
   @Override
   protected String getName() {
-    return username;
+    return this.getClass().getSimpleName();
   }
-
   public String getLdap_provider_url() {
     return ldap_provider_url;
   }
@@ -239,7 +238,6 @@ public class GNomExLDAPRealm extends RealmBase {
       return false;
     }
 
-
     Hashtable env = new Hashtable();
     env.put(Context.INITIAL_CONTEXT_FACTORY, ldap_init_context_factory);
     env.put(Context.PROVIDER_URL, ldap_provider_url);
@@ -258,9 +256,11 @@ public class GNomExLDAPRealm extends RealmBase {
       return true;
     } catch (AuthenticationException ae) {
       // Auth failed so return false
+      System.out.println("GNomExLDAPRealm checkLDAPCredentials failed " + ae.toString());
+
       return false;
     } catch (Exception e) {
-      System.err.println("hci.gnomex.security.tomcat.GNomExLDAPRealm ERROR - Cannot connect to UofU LDAP server " + e.toString());
+      System.out.println("hci.gnomex.security.tomcat.GNomExLDAPRealm ERROR - Cannot connect to UofU LDAP server " + e.toString());
       return false;
     }
   }
@@ -280,7 +280,7 @@ public class GNomExLDAPRealm extends RealmBase {
       ctx = new InitialDirContext(env1);
       attr = new BasicAttributes(true);
     } catch (NamingException e) {
-      System.err.println("Problem getting attribute: " + e);
+      System.out.println("Problem getting attribute: " + e);
       return false;
     }
 
@@ -303,7 +303,7 @@ public class GNomExLDAPRealm extends RealmBase {
         return false;
       }
     } catch (NamingException e) {
-      System.err.println("Problem getting attribute: " + e);
+      System.out.println("Problem getting attribute: " + e);
       return false;
     }
 
@@ -350,13 +350,13 @@ public class GNomExLDAPRealm extends RealmBase {
       }
 
     } catch (NamingException ne) {
-      System.err.println("FATAL: Naming exception while trying to get connection \n" + ne.getMessage());
+      System.out.println("FATAL: Naming exception while trying to get connection \n" + ne.getMessage());
       return false;
     } catch (ClassNotFoundException cnfe) {
-      System.err.println("FATAL: The JDBC driver was not found on the classpath \n" + cnfe.getMessage());
+      System.out.println("FATAL: The JDBC driver was not found on the classpath \n" + cnfe.getMessage());
       return false;
     } catch (SQLException ex) {
-      System.err.println("FATAL: Unable to run AppUser query hci.gnomex.security.tomcat.GNomExLDAPRealm");
+      System.out.println("FATAL: Unable to run AppUser query hci.gnomex.security.tomcat.GNomExLDAPRealm");
       return false;
     } finally {
       this.closeConnection(con);
@@ -394,14 +394,14 @@ public class GNomExLDAPRealm extends RealmBase {
       }
 
     } catch (NamingException ne) {
-      System.err.println("FATAL: Naming exception while trying to get connection \n" + ne.getMessage());
+      System.out.println("FATAL: Naming exception while trying to get connection \n" + ne.getMessage());
       return false;
     } catch (ClassNotFoundException cnfe) {
-      System.err.println("FATAL: The JDBC driver was not found on the classpath \n" + cnfe.getMessage());
+      System.out.println("FATAL: The JDBC driver was not found on the classpath \n" + cnfe.getMessage());
       return false;
     } catch (SQLException ex) {
-      System.err.println("FATAL: Unable to initialize hci.gnomex.security.tomcat.SecurityManagerLocal");
-      System.err.println(ex.toString());
+      System.out.println("FATAL: Unable to initialize hci.gnomex.security.tomcat.SecurityManagerLocal");
+      System.out.println(ex.toString());
       return false;
     } finally {
       this.closeConnection(con);
@@ -415,7 +415,6 @@ public class GNomExLDAPRealm extends RealmBase {
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
     Context initCtx = new InitialContext();
     DataSource ds = (DataSource)initCtx.lookup(datasource_lookup_name);
-    
     return ds.getConnection();
   }
 
@@ -425,7 +424,7 @@ public class GNomExLDAPRealm extends RealmBase {
          con.close();
       }
     } catch (SQLException ex) {
-      System.err.println("FATAL: Unable to close db connection in hci.gnomex.security.tomcat.GNomExLDAPRealm");
+      System.out.println("FATAL: Unable to close db connection in hci.gnomex.security.tomcat.GNomExLDAPRealm");
     }
   }
 }
