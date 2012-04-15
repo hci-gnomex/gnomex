@@ -30,7 +30,7 @@ package views.renderers
           }
           var g:Graphics = graphics;
           g.clear();
-          g.beginFill( data.@idSampleChannel2 == '0' ? parentApplication.cy5ColorD : 0xffffff );
+          g.beginFill( data.@idSampleChannel2 == '0' ? parentApplication.cy5Color : 0xffffff );
 		  if (data.@idSampleChannel2 == '0' ) {
 	          g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
 	                      parentApplication.cy5Color );          	
