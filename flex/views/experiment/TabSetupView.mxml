@@ -733,12 +733,13 @@
 				//Put a check here to make sure we are dealing with microArray request.  This is the start of the process of filtering the microarray dropdown.
 				//The timeout is needed because sometimes flex will start performing the filter function before the data is in the slideproduct list from the parentapplication.
 				//Placed a timeout in to insure that no null pointers were thrown.
-				if(firstClick && currentState.indexOf("Microarray") > 0){
+				if(firstClick && currentState != null && currentState.indexOf("Microarray") > 0){
 					setTimeout(updateFilteredSlideProduct, 5000);
 					firstClick = false;
 				}
-				else if(currentState.indexOf("Microarray") > 0)
+				else if(currentState != null && currentState.indexOf("Microarray") > 0) {
 					updateFilteredSlideProduct();
+				}
 				
 			
 			}
