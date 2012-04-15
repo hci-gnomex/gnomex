@@ -124,6 +124,8 @@
 					lengthOfRadioGroup++;
 					
 				}
+				
+				
 
 			}
 			
@@ -268,7 +270,7 @@
 			
 			if(minInsertRange.text == "" || maxInsertRange.text == "" || pattern.test(minInsertRange.text) || pattern.test(maxInsertRange.text))
 				isValidRange = false;
-			else if((parseInt(minInsertRange.text) < 60 || parseInt(minInsertRange.text) > 100) || (parseInt(maxInsertRange.text) > 100 || parseInt(maxInsertRange.text) < 60))
+			else if((parseInt(minInsertRange.text) < 100 || parseInt(minInsertRange.text) > 600) || (parseInt(maxInsertRange.text) > 600 || parseInt(maxInsertRange.text) < 100))
 				isValidRange = false;
 			else
 			{
@@ -288,15 +290,15 @@
 						lowerThanMinError="Outside valid range."
 						exceedsMaxError="Outside valid range."
 						property="text"
-						minValue="60"
-						maxValue="100"/>
+						minValue="100"
+						maxValue="600"/>
 	<mx:NumberValidator id="maxRangeValidator"
 						source="{maxInsertRange}"
 						lowerThanMinError="Outside valid range."
 						exceedsMaxError="Outside valid range."
 						property="text"
-						minValue="60"
-						maxValue="100"/>
+						minValue="100"
+						maxValue="600"/>
 
   <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
   <mx:Canvas width="100%" height="100%">
@@ -322,7 +324,7 @@
 					<mx:TextInput id="maxInsertRange" width="50" change="propagateInsertRange()"/>
 					<mx:Text text="bp"/>
 				</mx:HBox>
-				<mx:Text text="Insert sizes range from 60 to 100bp" fontStyle="italic"/>
+				<mx:Text text="Insert sizes range from 100 to 600bp" fontStyle="italic"/>
 			</mx:VBox>
 			<mx:Spacer id="designSpacer" includeInLayout="{libraryDesign.visible}"/>
 			<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingTop="10" paddingLeft="10" styleName="requiredBox">
