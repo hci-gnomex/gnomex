@@ -15,7 +15,8 @@
 * Change Account Screen now has more email address validation.
 * Change Account Screen now has text suggesting university ids be a "u" followed by 7 digits.
 * Change Account Screen now validates that the combination of first name, last name and email address does not already exist in the database.
-* Fixed ExperimentDetailView so that Files tab works from Analysis Edit (Experiments tab, double-click on experiment in tree).  Also, will address issue found when trying to show Experiment Detail from new Topics view. (tdisera)  
+* Fixed ExperimentDetailView so that Files tab works from Analysis Edit (Experiments tab, double-click on experiment in tree).  Also, will address issue found when trying to show Experiment Detail from new Topics view. (tdisera)
+* Changed range on avg insert size (HiSeq experiments)  
 
 5.4.1
 --------------------
