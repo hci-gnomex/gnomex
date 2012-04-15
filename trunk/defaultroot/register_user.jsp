@@ -132,7 +132,7 @@ try {
        Lab Group?
 
        <INPUT TYPE="radio" NAME="existingLab" VALUE="y" onClick="showHideLab();">Use existing
-       <INPUT TYPE="radio" NAME="existingLab" VALUE="n" onClick="showHideLab();">Request New
+       <INPUT TYPE="radio" NAME="existingLab" VALUE="n" onClick="showHideLab();">Request new
       </div></div>
 
       <div id="existingLabDiv" style="display:none;">
