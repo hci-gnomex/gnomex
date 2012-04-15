@@ -127,7 +127,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
       if(!uofuAffiliate) {
         if (userNameAlreadyExists(sess, appUserScreen.getUserNameExternal(), null)) {
-          this.addInvalidField("Username exists", "The User name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
+          this.addInvalidField("Username exists", "The user name " + appUserScreen.getUserNameExternal() + " already exists.  Please use another name.");
         }            
       } else {
         if (uNID_AlreadyExists(sess, appUserScreen.getuNID(), null)) {
@@ -137,6 +137,12 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
       if (nameEmailAlreadyExists(sess, appUserScreen)) {
         this.addInvalidField("Name/Email", "The combination of name and email already exists.  Please verify you do not have an existing account.");
+      }
+      
+      Lab lab = null;
+      if (existingLab) {
+        lab = (Lab)sess.load(Lab.class, requestedLabId);
+        requestedLab = lab.getName();
       }
       
       if (this.isValid()) {
@@ -175,8 +181,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
 
         if (existingLab) {
-          Lab lab = (Lab)sess.load(Lab.class, requestedLabId);
-          requestedLab = lab.getName();
           HashSet labSet = new HashSet();
           labSet.add(lab);
           appUser.setLabs(labSet);
@@ -220,7 +224,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
     if (existingLab) {
-      body.append("</td></tr><tr><td>Requested lab(Existing):</td><td>" + this.getNonNullString(requestedLab));
+      body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLab));
     } else {
       body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLab));
     }
