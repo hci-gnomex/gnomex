@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -58,7 +59,7 @@ public class UsageReportd extends TimerTask {
   
   private String                      baseURL="https://b2b.hci.utah.edu/gnomex";
   
-  private String                      mainRecipient="robb.cundick@hci.utah.edu";
+  private String                      bccTo="";
   
   private ArrayList<String>           waList; 
   
@@ -98,8 +99,8 @@ public class UsageReportd extends TimerTask {
         baseURL = args[++i];
       } else if (args[i].equals ("-orionPath")) {
         orionPath = args[++i];
-      } else if (args[i].equals ("-mainRecipient")) {
-        mainRecipient = args[++i];
+      } else if (args[i].equals ("-bccTo")) {
+        bccTo = args[++i];
       } else if (args[i].equals ("-schemaPath")) {
         schemaPath = args[++i];
       }
@@ -165,18 +166,33 @@ public class UsageReportd extends TimerTask {
         distributionList.append(addComma + appUser.getEmail());
       }
       
-      String bccList = distributionList.toString();
+      String toList = distributionList.toString();
       
       String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName);
       if(replyEmail == null || replyEmail.length() == 0) {
         replyEmail = "DoNotReply@hci.utah.edu";
       }
       
-      String subject = "GNomEx Weekly Usage Report";
+      String site_title = propertyHelper.getProperty(PropertyDictionary.SITE_TITLE);
+      if(site_title==null) {
+        site_title = "";
+      } else {
+        site_title = site_title + " ";
+      }
+      
+      String subject = "GNomEx " + site_title + "Weekly Usage Report";
+      
+      SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
+      String todaysDate = sdf.format(new Date());
       
       getUsageByLab(sess);
 
       StringBuffer tableRows = new StringBuffer("");
+      // Table Title      
+      //body.append(subject + " for " + todaysDate + "<br>");     
+      tableRows.append("<tr><td width='200' colspan='6' align='center'><span class='fontClassBold'>" + subject + " for " + todaysDate + "</span></td></tr>");
+      
+      
       // Table Header
       tableRows.append("<tr><td width='200'><span class='fontClassBold'>Lab<br>&nbsp;</span></td>");
       tableRows.append("<td width='120' align='center'><span class='fontClassBold'>Number of<br>Experiments</span></td>");
@@ -231,7 +247,7 @@ public class UsageReportd extends TimerTask {
       body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
       body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
       if(isTestMode) {
-        body.append("Distribution List: " + bccList);        
+        body.append("Distribution List: " + toList + "<br><br>");        
       }
 
       body.append("<table width='820' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td width='800' valign='top' align='left'>");
@@ -239,9 +255,9 @@ public class UsageReportd extends TimerTask {
       body.append(tableRows.toString());
       body.append("</table></td></tr></table></body></html>");
       if(isTestMode) {
-        MailUtil.send_bcc(mailProps, mainRecipient, "", "", replyEmail, subject, body.toString(), true);                
+        MailUtil.send_bcc(mailProps, bccTo, "", "", replyEmail, subject, body.toString(), true);                
       } else {
-        MailUtil.send_bcc(mailProps, mainRecipient, "", bccList, replyEmail, subject, body.toString(), true);               
+        MailUtil.send_bcc(mailProps, toList, "", bccTo, replyEmail, subject, body.toString(), true);               
       }
       app.disconnect();      
          
