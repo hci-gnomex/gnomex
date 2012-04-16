@@ -1,6 +1,8 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+--------------------
+* Changed weekly usage report to include site in title, changed distribution to use to: instead of bcc: field (rcundick)
 
 5.4.1.1
 --------------------
