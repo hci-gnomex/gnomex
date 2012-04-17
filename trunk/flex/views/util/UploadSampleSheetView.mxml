@@ -86,6 +86,7 @@
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
 			
+			import mx.collections.GroupingCollection;
 			import mx.collections.HierarchicalCollectionView;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
@@ -192,8 +193,14 @@
 				var ssRowCount:int = 1;
 				var sampleGridDataRowsCount:int = 0;
 				var sampleGridDataRows:XMLListCollection = null;
+				var sampleGroupingCollection:GroupingCollection = null;
 				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
-					sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);					
+					if(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source is GroupingCollection) {
+						sampleGroupingCollection = GroupingCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+						sampleGridDataRows = XMLListCollection(sampleGroupingCollection.source);
+					} else {
+						sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+					}
 				} else {
 					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
 				}
@@ -346,6 +353,9 @@
 					}
 				} // End traverse ss row
 				sampleGridDataRows.refresh();
+				if(sampleGroupingCollection != null) {
+					sampleGroupingCollection.refresh(false);
+				}
 				tabSamplesView.checkSamplesCompleteness();
 				vsMain.selectedChild=reportResults;
 			}
