@@ -21,7 +21,7 @@
 * Fixed ExperimentDetailView so that Files tab works from Analysis Edit (Experiments tab, double-click on experiment in tree).  Also, will address issue found when trying to show Experiment Detail from new Topics view. (tdisera)
 * Changed range on avg insert size (HiSeq experiments)  
 * Empty Projects now show in the experiment view. (bspiglejr)
-* Empty Analysis Groups now show in teh analysis group view. (bspiglejr)
+* Empty Analysis Groups now show in the analysis group view. (bspiglejr)
 
 5.4.1
 --------------------
