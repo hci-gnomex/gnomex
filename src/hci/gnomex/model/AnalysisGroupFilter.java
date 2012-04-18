@@ -203,7 +203,7 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" a.createDate >= '");
+      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -215,7 +215,7 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" a.createDate >= '");
+      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -227,7 +227,7 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" a.createDate >= '");
+      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -239,7 +239,7 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" a.createDate >= '");
+      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
