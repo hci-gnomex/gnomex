@@ -308,7 +308,8 @@ public class ProjectRequestFilter extends DetailObject {
 
   private void addRequestCriteria() {
     
-
+    this.addWhereOrAnd();
+    queryBuf.append("( req.idRequest is null OR ( 1=1 ");
     // Search by user 
     if (idAppUser != null){
       this.addWhereOrAnd();
@@ -454,6 +455,7 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("') ");
     }    
+    queryBuf.append(" ) )");
   }
   
   private void addSlideProductCriteria() {
