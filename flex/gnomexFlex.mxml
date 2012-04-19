@@ -2330,8 +2330,8 @@
 
 		<mx:State name="AdminESState" basedOn="AdminState">
 			<mx:RemoveChild target="{amendRequestView}"/>
-			<mx:RemoveChild target="{amendRequestView}"/>
 			<mx:RemoveChild target="{amendRequestLink}"/>
+			<mx:RemoveChild target="{amendRequestRule}"/>
 			<mx:RemoveChild target="{navBillingView}"/>
 			<mx:RemoveChild target="{billingLink}"/>
 			<mx:RemoveChild target="{billingRule}"/>
