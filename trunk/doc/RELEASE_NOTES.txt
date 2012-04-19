@@ -1,12 +1,15 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.4.2
 --------------------
 * Changed weekly usage report to include site in title, changed distribution to use to: instead of bcc: field (rcundick)
 * Fix for samplesheet upload problem when SampleGrid dataprovider is a Grouping Collection (rcundick)
+* Show experiment name on Analysis Detail and Edit views (Experiments tab). (tdisera)
+* Fix bug that was causing Experiment to have orphaned links to analysis, preventing the delete of the experiment due to FK constraint violation. (tdisera)
 
-5.4.1.1
---------------------
+5.4.1.1 (Apr 15, 2012)
+----------------------
 * Fix SQL errors in gnomex_db_ddl.sql.  (tdisera)
 * Added Lucene indexing to allow lookup on experiment number, datatrack number and analysis number. 
 * For Data Tracks ucsc links - Strip any line returns from the name, summary, or description when making UCSC links. (tdisera, dnix)
