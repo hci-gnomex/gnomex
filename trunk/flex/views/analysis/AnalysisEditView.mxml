@@ -140,6 +140,7 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 
+			import views.util.OrganismEvent; 
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -239,7 +240,17 @@
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
 				
+				parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
+					onOrganismRefreshed);		                                  
+				parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
+					onOrganismRefreshed);	
+				
 			}
+			
+			private function onOrganismRefreshed(event:Event):void{
+				filteredGenomeBuildList.refresh();
+			}
+
 			
 			public function refreshDownloadView(e:CloseEvent):void {
 				var params:Object = new Object();
@@ -249,13 +260,9 @@
 			}
 			
 			public function initializeDataProviders():void {
-				filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite');
-				filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 				
 				analysisTypeCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');								
 				analysisProtocolCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');								
-				organismCombo.dataProvider         = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.OrganismLite');							
-				genomeBuildCombo.dataProvider      = filteredGenomeBuildList;								
 				
 			}
 			
@@ -707,7 +714,7 @@
 			// Edit analysis type dictionary
 			//
 			private function editAnalysisType():void {
-				dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
+				dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.theBody, DictionaryEditor, true));
 				dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 					onDictionaryAnalysisTypeInitialized);
 				dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
@@ -733,7 +740,7 @@
 			// Edit analysis protocol dictionary
 			//
 			private function editAnalysisProtocol():void {
-				protocolWindow = views.protocol.ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.mainArea, views.protocol.ProtocolEditWindow, true));
+				protocolWindow = views.protocol.ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.theBody, views.protocol.ProtocolEditWindow, true));
 				protocolWindow.editor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
 				protocolWindow.editor.initializeData('hci.gnomex.model.AnalysisProtocol');
 				PopUpManager.centerPopUp(protocolWindow);
@@ -940,7 +947,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:XMLListCollection  id="filteredGenomeBuildList"/>
+	<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
+	<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
 	<mx:XMLListCollection  id="analysisGroups" source="{analysis..AnalysisGroup}"/>
 	<mx:XMLListCollection  id="experimentItems" />
 	<mx:XMLListCollection  id="hybs"           /> 
@@ -1025,7 +1033,7 @@
 										<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
 									</mx:VBox>								
 									<mx:VBox verticalGap="0">
-										<mx:ComboBox  width="234" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+										<mx:ComboBox  width="234" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
 									</mx:VBox>
 								</mx:HBox>
 								<mx:HBox horizontalGap="0" width="100%">
@@ -1048,7 +1056,7 @@
 									</mx:VBox>
 									<mx:VBox verticalGap="0">																		
 										<mx:HBox verticalGap="0">
-											<mx:ComboBox  width="234" id="genomeBuildCombo" labelField="@display" />
+											<mx:ComboBox  width="234" id="genomeBuildCombo" labelField="@display"  dataProvider="{filteredGenomeBuildList}"/>
 										</mx:HBox>
 									</mx:VBox>
 								</mx:HBox>								

@@ -100,9 +100,6 @@
 		}
 		
 		private function initializeDataProviders():void {
-			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite');
-			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
-			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;		
 			filteredGenomeBuildList.refresh();	
 			
 		}
