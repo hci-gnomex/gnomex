@@ -414,20 +414,42 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (hybParser != null) {
           for(Iterator i = hybParser.getIdHybridizations().iterator(); i.hasNext();) {
             Integer idHybridization = (Integer)i.next();
-            AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
-            experimentItem.setIdAnalysis(analysis.getIdAnalysis());
-            experimentItem.setIdHybridization(idHybridization);
-            experimentItem.setIdRequest(hybParser.getIdRequest(idHybridization));
+            AnalysisExperimentItem experimentItem = null;
+            // The experiment item may already exist; if so, just save it.
+            for(Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
+              AnalysisExperimentItem x = (AnalysisExperimentItem)i1.next();
+              if (x.getIdHybridization().equals(idHybridization)) {
+                experimentItem = x;
+                break;
+              }
+            }
+            if (experimentItem == null) {
+              experimentItem = new AnalysisExperimentItem();
+              experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+              experimentItem.setIdHybridization(idHybridization);
+              experimentItem.setIdRequest(hybParser.getIdRequest(idHybridization));
+            }
             experimentItems.add(experimentItem);
           }          
         }
         if (laneParser != null) {
           for(Iterator i = laneParser.getIdSequenceLanes().iterator(); i.hasNext();) {
             Integer idSequenceLane = (Integer)i.next();
-            AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
-            experimentItem.setIdAnalysis(analysis.getIdAnalysis());
-            experimentItem.setIdSequenceLane(idSequenceLane);
-            experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
+            AnalysisExperimentItem experimentItem = null;
+            // The experiment item may already exist; if so, just save it.
+            for(Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
+              AnalysisExperimentItem x = (AnalysisExperimentItem)i1.next();
+              if (x.getIdSequenceLane().equals(idSequenceLane)) {
+                experimentItem = x;
+                break;
+              }
+            }
+            if (experimentItem == null) {
+              experimentItem = new AnalysisExperimentItem();
+              experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+              experimentItem.setIdSequenceLane(idSequenceLane);
+              experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
+            }
             experimentItems.add(experimentItem);
           }          
         }
