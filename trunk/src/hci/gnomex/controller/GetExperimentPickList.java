@@ -219,6 +219,9 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     String codeRequestCategory = row[4] == null ? "" : ((String)row[4]).toString();
     RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
     
+    String experimentName = row[25] == null ? "" : (String)row[25];
+    String experimentNameLabel = experimentName.equals("") ? "" : (" - " + experimentName);
+    
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[1] == null ? ""  : ((Integer)row[1]).toString());
     requestNode.setAttribute("createDate",             row[2] == null ? ""  : this.formatDate((java.sql.Date)row[2], this.DATE_OUTPUT_ALTIO));
@@ -232,12 +235,19 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     requestNode.setAttribute("isSlideSet",             row[7] == null ? ""  : ((String)row[7]).toString());
     requestNode.setAttribute("ownerFirstName",         row[8] == null ? "" : (String)row[8]);
     requestNode.setAttribute("ownerLastName",          row[9] == null ? "" : (String)row[9]);
-    
+    requestNode.setAttribute("name",                   experimentName);
+
+    String label = "";
     if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
-      requestNode.setAttribute("label", requestNode.getAttributeValue("number") + " - " + requestNode.getAttributeValue("createDateDisplay"));
+      label = requestNode.getAttributeValue("number") +
+              experimentNameLabel +
+              " - " + requestNode.getAttributeValue("createDateDisplay");
     } else {
-      requestNode.setAttribute("label", requestNode.getAttributeValue("number") + " - " + requestNode.getAttributeValue("createDateDisplay") + " - " + requestNode.getAttributeValue("slideProduct"));
+      label = requestNode.getAttributeValue("number") + " - " + 
+          experimentNameLabel + 
+          requestNode.getAttributeValue("slideProduct");
     }
+    requestNode.setAttribute("label", label);
     
     projectNode.addContent(requestNode);
     
@@ -326,7 +336,13 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
           buf.append(", ");
         }
       }
-      requestNode.setAttribute("label", requestNode.getAttributeValue("number") + " - " + requestNode.getAttributeValue("createDateDisplay") + " - " + buf.toString());
+      
+      String experimentNameLabel = requestNode.getAttributeValue("name");
+      if (!experimentNameLabel.equals("")) {
+        experimentNameLabel = " - " + experimentNameLabel;
+      }
+      String requestLabel = requestNode.getAttributeValue("number") + experimentNameLabel + " - " + requestNode.getAttributeValue("createDateDisplay");
+      requestNode.setAttribute("label", requestLabel + " - " + buf.toString());
       itemNode.setAttribute("type", "SequenceLane");
       itemNode.setAttribute("idSequenceLane", ((Integer)row[23]).toString());
 

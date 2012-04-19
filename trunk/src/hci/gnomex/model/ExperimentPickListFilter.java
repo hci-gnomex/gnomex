@@ -49,7 +49,8 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        -1, ");
     queryBuf.append("        '', ");
     queryBuf.append("        hyb.idHybridization, ");
-    queryBuf.append("        slideDesign.name ");
+    queryBuf.append("        slideDesign.name, ");
+    queryBuf.append("        req.name ");
     getMicroarrayQueryBody(queryBuf);
     
     queryBuf.append(" ORDER BY project.name, req.number, hyb.number ");
@@ -106,7 +107,9 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        lane.analysisInstructions, ");
     queryBuf.append("        ch.number, ");
     queryBuf.append("        fc.number, ");
-    queryBuf.append("        lane.idSequenceLane ");
+    queryBuf.append("        lane.idSequenceLane, ");
+    queryBuf.append("        '', ");
+    queryBuf.append("        req.name ");
 
     getNextGenSeqQueryBody(queryBuf);
     
