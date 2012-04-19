@@ -102,6 +102,7 @@
 		}
 		if (found) {
 			theViews.selectedIndex = 1;
+			onSelectOrganism();
 		} else {
 			theViews.selectedIndex = 0;
 		}
@@ -113,33 +114,27 @@
 			
 			if(oList.selectedItem.@organism == "Enter name here.."){
 				var temp:Array = new Array();
-				
-				temp.push({idGenomeBuild: 'GenomeBuild0', das2Name: "", 
-					genomeBuildName: 'Click to enter info', isActive: 'Y'});
-				
 				genomeBuilder = new ArrayCollection(temp);
-			}
-			else{
-			theViews.selectedIndex = 1;
+			} else{
+				theViews.selectedIndex = 1;
 
-			setOwnerCombo();
-
-			dirty.resetDirty();
+				setOwnerCombo();
+	
+				dirty.resetDirty();
 			
- 		//theBuildDate = oList.selectedItem.genomeBuilds.GenomeBuild.@buildDate.toString();
-			var theDate:String = "";
-			tempArray = new Array();
+ 				var theDate:String = "";
+				tempArray = new Array();
 			
-			for each(var node:XML in genomeBuilds){
-				theDate = node.@buildDate.toString();
-				tempArray.push({idGenomeBuild: node.@idGenomeBuild.toString(), das2Name: node.@das2Name.toString(), buildDate: DateField.stringToDate(theDate, "YYYY-MM-DD"), 
+				for each(var node:XML in genomeBuilds){
+					theDate = node.@buildDate.toString();
+					tempArray.push({idGenomeBuild: node.@idGenomeBuild.toString(), das2Name: node.@das2Name.toString(), buildDate: DateField.stringToDate(theDate, "YYYY-MM-DD"), 
 								genomeBuildName: node.@genomeBuildName.toString(), isActive: node.@isActive.toString()
 								});
 	
-			}
-			genomeBuilder = new ArrayCollection(tempArray);
+				}
+				genomeBuilder = new ArrayCollection(tempArray);
 			
-		}
+			}
 		}
 	}
 		

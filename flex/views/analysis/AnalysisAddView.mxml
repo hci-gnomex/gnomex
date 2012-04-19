@@ -53,6 +53,7 @@
 		import views.util.AboutView;
 		import views.util.DateUtils;
 		import views.util.OrganismsWindow;
+		import views.util.OrganismEvent; 
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -60,11 +61,9 @@
 		private var selectedIdAnalysisGroup:Object;
 		private var selectedIdLab:Object;
 		
+		
 		public function initializeData(idLab:Object, idAnalysisGroup:Object):void {
-			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite');
-			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
-			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;		
-			filteredGenomeBuildList.refresh();	
+			initializeDataProviders();
 			selectedIdLab = idLab;
 			selectedIdAnalysisGroup = idAnalysisGroup;
 			// Select the lab in the dropdown.  If no lab was
@@ -89,7 +88,22 @@
 				getAnalysisGroupList.send();
 			}
 			
-					
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
+				onOrganismRefreshed);		                                  
+			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
+				onOrganismRefreshed);		
+			
+		}
+		
+		private function onOrganismRefreshed(event:Event):void{
+			filteredGenomeBuildList.refresh();
+		}
+		
+		private function initializeDataProviders():void {
+			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite');
+			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
+			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;		
+			filteredGenomeBuildList.refresh();	
 			
 		}
 		
@@ -296,7 +310,8 @@
 	]]>
 </mx:Script>
 <mx:XMLListCollection id="analysisGroupList" source="{getAnalysisGroupList.lastResult..AnalysisGroup}"/>
-<mx:XMLListCollection  id="filteredGenomeBuildList"/>
+<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
+<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
 <mx:XMLListCollection id="genomeBuilds"/>
 	<mx:VBox width="100%"  verticalGap="15" horizontalGap="10">
 		<!--mx:VBox width="100%" verticalGap="0">
@@ -370,7 +385,7 @@
 				</mx:VBox>								
 				<mx:VBox verticalGap="0">
 					<mx:ComboBox  width="336" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
-					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}</mx:dataProvider>
+					<mx:dataProvider>{organisms}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:VBox>
 			</mx:HBox>				
@@ -387,7 +402,7 @@
 					</mx:Label>																			
 					<mx:HBox verticalGap="0" horizontalGap="2" width="350">
 						<mx:ComboBox width="281" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
-							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}</mx:dataProvider>
+							<mx:dataProvider>{filteredGenomeBuildList}</mx:dataProvider>
 						</mx:ComboBox>
 						<mx:Button 
 							enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
