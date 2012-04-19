@@ -789,7 +789,7 @@
 		                <mx:Text text="{visibilityName}" width="130" />
 		            </mx:HBox>
 				</mx:HBox>
-				<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false">					
+				<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
 					<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 						<mx:Text id="designAndInsertLabel" width="80" fontWeight="bold"/>
 						<mx:Text id="designAndInsertText" width="130" paddingTop="{selectedExperiment.@captureLibDesignId != '' ? 8 : 0}" />
