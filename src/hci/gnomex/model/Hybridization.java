@@ -504,7 +504,13 @@ public class Hybridization extends HibernateDetailObject {
       return "";
     }
   }
-
+  public String getExperimentName() {
+    if (this.getLabeledSampleChannel1() != null && this.getLabeledSampleChannel1().getSample() != null) {
+      return this.getLabeledSampleChannel1().getRequest().getName();
+    } else {
+      return "";
+    }
+  }
   
   public SlideDesign getSlideDesign() {
     return slideDesign;

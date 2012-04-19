@@ -523,6 +523,7 @@
 		<property name="idLabel" column="idLabel" type="integer"/>
 		<property name="idLabelingProtocol" column="idLabelingProtocol" type="integer"/>
 		<property name="idRequest" column="idRequest" type="integer"/>
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" update="false" insert="false"/>
 		<property name="codeLabelingReactionSize" column="codeLabelingReactionSize" type="string"/>
 		<property name="numberOfReactions" column="numberOfReactions" type="integer"/>
 	</class>

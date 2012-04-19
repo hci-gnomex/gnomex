@@ -476,6 +476,10 @@ public class SequenceLane extends HibernateDetailObject {
     this.request = request;
   }
   
+  public String getExperimentName() {
+    return request.getName();
+  }
+  
   public static boolean hasBarcodeTags(Set seqLanes) {
     int tagCount = 0;
     for(Iterator i = seqLanes.iterator(); i.hasNext();) {

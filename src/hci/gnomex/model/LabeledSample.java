@@ -29,6 +29,7 @@ public class LabeledSample extends HibernateDetailObject {
   private Integer     numberOfReactions;
   private Sample      sample;
   private Integer     idRequest;
+  private Request     request;
   
   public Integer getIdLabel() {
     return idLabel;
@@ -161,6 +162,18 @@ public class LabeledSample extends HibernateDetailObject {
   public void setLabelingBypassed(String labelingBypassed) {
     this.labelingBypassed = labelingBypassed;
   }
-  
+
+  public Request getRequest() {
+    return request;
+  }
+
+  public void setRequest(Request request) {
+    this.request = request;
+  }
+
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getRequest");
+  }
+
 }
 

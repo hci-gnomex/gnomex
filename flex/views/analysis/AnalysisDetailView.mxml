@@ -512,6 +512,7 @@
 							<mx:columns>
 								<mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+								<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
 								<mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
 								<mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
 								<mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
@@ -531,6 +532,7 @@
 							<mx:columns>
 								<mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/> 
+								<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
 								<mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 								<mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
 								<mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
