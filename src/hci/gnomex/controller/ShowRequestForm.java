@@ -212,8 +212,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(he);              
             }
 
-
-
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
               Element hApp = new Element("H4");
               hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
@@ -238,7 +236,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               capLibDesign.setAttribute("style", "text-align:center; color:black");
               maindiv.addContent(capLibDesign);
             }
-
 
             maindiv.addContent(new Element("BR"));
             maindiv.addContent(formatter.makeRequestTable());
@@ -269,8 +266,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             analysisInstruction.addContent(request.getAnalysisInstructions());
             maindiv.addContent(analysisInstruction);
 
-            if(request.getAvgInsertSizeFrom() != null && !request.getAvgInsertSizeFrom().equals(""))
-            {
+            if(request.getAvgInsertSizeFrom() != null && !request.getAvgInsertSizeFrom().equals("")){
               Element avgInsertSize = new Element("H5");
               avgInsertSize.addContent("Average Insert Size");
               maindiv.addContent(avgInsertSize);
@@ -301,8 +297,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);          
             }
 
-
-
             // Append the submission instructions to the printable form
             // for non-guest users.
             String instructions = "";
@@ -310,8 +304,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               if (!this.getSecAdvisor().isGuest()) {
                 instructions = this.getInstructions();
                 if (instructions != null) {
-
-
                   Element instructDiv = new Element("DIV");
                   instructDiv.setAttribute("id", "containerInstruction");
                   outerDiv.addContent(instructDiv);
@@ -337,7 +329,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
               this.xmlResult = this.xmlResult.replaceAll("SUBMISSION_INSTRUCTIONS_GO_HERE", instructions);              
             }
-
 
             // Injust the <script> for java script handling of alternate style sheets
             this.xmlResult = this.xmlResult.replaceAll("JAVASCRIPT_GOES_HERE", "<script type=\"text/javascript\" src=\"switchPrintStyleSheet.js\"></script>");
@@ -387,8 +378,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
     return this;
   }
-
-
 
 
   /**
