@@ -390,13 +390,23 @@
         }
         for(var i:int = 0; i < draggedItems.length; i++) {
           var dragItem:XML = XML(draggedItems[i]);
-          if (dragItem.name() == "FileDescriptor") {
+          if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
+            var fileNode:XML;
+            if (dragItem.name() == "FileDescriptor" ){
+              fileNode = new XML("<FileDescriptor " +
+                " displayName='" +  dragItem.@displayName + "'" + 
+                " fileName='" +  dragItem.@fileName + "'" + 
+                " type='" + dragItem.@type + "'" +
+                " directoryName='" + dragItem.@directoryName + "'/>");
+            }
+            if (dragItem.name() == "RequestDownload" ){
+              fileNode = new XML("<FileDescriptor " +
+                " displayName='" +  dragItem.@itemNumber + "'" + 
+                " fileName='" +  dragItem.@fileName + "'" + 
+                " type='dir'" +
+                " directoryName='" + dragItem.@directoryName + "'/>");
+            }
             
-            var fileNode:XML = new XML("<FileDescriptor " +
-              " displayName='" +  dragItem.@displayName + "'" + 
-              " fileName='" +  dragItem.@fileName + "'" + 
-              " type='" + dragItem.@type + "'" +
-              " directoryName='" + dragItem.@directoryName + "'/>");
             
             for each ( var child:Object in dragItem.children() ) {
               fileNode.appendChild(child);	
@@ -469,13 +479,13 @@
         var dropFolderNode:XML = dropNode;
         if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
           dropFolderNode = dropNode.parent();
-        } else if (dropNode.name() == "Request") {
+        }  else if (dropNode.name() == "Request") {
           if (dropNode.children().length() > 0) {
             dropFolderNode = dropNode.children()[0];
           } else {
             dropFolderNode = null;
           }
-        }
+        } 
         
         if (dropFolderNode != null) {
           downloadTree.selectedItem = dropFolderNode;
