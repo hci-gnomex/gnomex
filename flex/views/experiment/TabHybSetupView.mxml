@@ -20,9 +20,8 @@
 				slideSourcesSorted = true;
 			}
 			
-			organismCombo.selectedIndex = parentDocument.sampleSetupView.sampleOrganismCombo.selectedIndex;
-
-			
+			if(organismCombo.selectedIndex == -1)
+				organismCombo.selectedIndex = parentDocument.sampleSetupView.sampleOrganismCombo.selectedIndex;	
 		} 
 		
 		public function unselectSlideSources():void {
