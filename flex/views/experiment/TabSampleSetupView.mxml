@@ -434,9 +434,9 @@
 			}
 			
 			if (parentDocument.isMicroarrayState()) {
-				parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;	
 				parentDocument.hybSetupView.checkForSlideProductWarning();
 			}
+			
 			propagateSampleOrganism();
 			checkSampleSetupCompleteness();
 
