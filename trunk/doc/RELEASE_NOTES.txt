@@ -8,6 +8,8 @@
 * Show experiment name on Analysis Detail and Edit views (Experiments tab). (tdisera)
 * Fixed bug that was causing Experiment to have orphaned links to analysis, preventing the delete of the experiment due to FK constraint violation. (tdisera)
 * Fix for adding and editing organisms and genome builds from Add Analysis window.  Dropdowns now refresh properly.
+* Changed the validation scheme for the work authorization window.(tcourdy)
+* Fixed bug that was causing the organism selected on the Hyb Setup View to change if user went back and changed the organism on the Sample Setup View.(tcourdy)
 
 5.4.1.1 (Apr 15, 2012)
 ----------------------
