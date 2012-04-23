@@ -21,10 +21,12 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.controls.Alert;
+		
+		private var validEmail:Boolean = false;
 		
 		private function init():void {
 			// totalDollarAmount field removed for now.
@@ -34,10 +36,12 @@
 			totalDollarAmount.visible = false;			
 		}
 		private function save():void {
-			// Make sure either project or activity filled in,
-			// but not both
-			if (this.project.text != '' && this.activity.text != '') {
-				Alert.show("Please fill in only one of the following, either project or activity.");
+			var errorMessage:String = "";
+			
+			errorMessage = checkFormCompleteness();
+			if(errorMessage != "")
+			{
+				Alert.show(errorMessage, "Please fix the following errors with this form before proceeding:");
 				project.setFocus();
 				return;
 			}
@@ -59,6 +63,43 @@
 			params.totalDollarAmountDisplay = this.totalDollarAmount.text;
 			
 			submitWorkAuthForm.send(params);
+
+		}
+		
+		private function checkFormCompleteness():String{
+			var errorMessage:String = "";
+			var regEx:RegExp = /[^0-9]/;
+			
+			if(labCombo.selectedIndex == 0)
+				errorMessage += "- Please select a lab\n";
+			
+			if (this.project.text != '' && this.activity.text != '')
+				errorMessage +="- The chartfield must contain either project or activity, not both.\n";
+			
+			if(bus.text.length != 2 || org.text.length != 5 || fund.text.length != 4 || account.text.length != 5 || au.text.length != 1 || year.text.length != 4 || 
+				(activity.text.length != 5 && project.text != "") && (project.text.length != 8 && activity.text != ""))
+				errorMessage += "- Please check the length of your account number.\n";
+
+			if(bus.text.search(regEx) != -1 || org.text.search(regEx) != -1 || fund.text.search(regEx) != -1 || account.text.search(regEx) != -1 || au.text.search(regEx) != -1 ||
+				year.text.search(regEx) != -1 || activity.text.search(regEx) != -1 || project.text.search(regEx) != -1)
+				errorMessage += "- Only numbers are allowed in the chartfield.\n";
+			
+			if(accountName.text == "")
+				errorMessage += "- Please provide a name for your account.\n";
+			
+			if(fundingAgencyCombo.selectedIndex == 0)
+				errorMessage += "- Please select a funding agency.\n";
+			
+			if(expirationDatePicker.text == "")
+				errorMessage += "- Please pick an expiration date.\n";
+			
+			if(validEmail == false)
+				errorMessage += "- Please enter a valid email address.\n";
+			
+			if(iAgree.selected == false)
+				errorMessage += "- Please agree to the terms and conditions.\n";
+			
+			return errorMessage;
 		}
 		
 		private function onSubmitWorkAuthForm(event:ResultEvent):void {
@@ -78,7 +119,21 @@
 
 	]]>
 </mx:Script>
-
+	
+	<mx:StringValidator required="true" source="{bus}" property="text" maxLength="2" minLength="2" tooShortError="Must be 2 digits"/>
+	<mx:StringValidator required="true" source="{org}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
+	<mx:StringValidator required="true" source="{fund}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
+	<mx:StringValidator required="false" source="{activity}" property="text" maxLength="5" minLength="0"/>
+	<mx:StringValidator required="false" source="{project}" property="text" maxLength="8" minLength="0"/>
+	<mx:StringValidator required="true" source="{account}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
+	<mx:StringValidator required="true" source="{au}" property="text" maxLength="1" minLength="1" requiredFieldError="This field required"/>
+	<mx:StringValidator required="true" source="{year}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
+	<mx:StringValidator required="true" source="{accountName}" property="text" requiredFieldError="This field required"/>
+	<mx:EmailValidator required="true" source="{emailAddress}" property="text" invalid="{validEmail = false}" valid="{validEmail = true}"/> 
+	<mx:NumberValidator required="true" source="{labCombo}" property="selectedIndex" minValue="1" lowerThanMinError="This field required"/>
+	<mx:NumberValidator required="true" source="{fundingAgencyCombo}" property="selectedIndex" minValue="1" lowerThanMinError="This field required"/>
+	
+	
 	<mx:VBox height="100%" width="100%" verticalGap="16" styleName="form" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
 			<mx:Label text="Lab" width="120"/>
@@ -156,11 +211,11 @@
         </mx:HBox>
         <mx:VBox verticalGap="0" width="100%">
     	    <mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Microarray Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
-	        <mx:CheckBox label="I agree" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@value != '') &amp;&amp; this.expirationDatePicker.text != '' &amp;&amp; this.emailAddress.text != '' &amp;&amp; this.bus.text != '' &amp;&amp; this.org.text != '' &amp;&amp; this.fund.text != '' &amp;&amp;  (this.project.text != '' || this.activity.text != '') &amp;&amp;  this.account.text != '' &amp;&amp; this.au.text != '' &amp;&amp; this.year.text != '' /*&amp;&amp; this.totalDollarAmount.text != ''*/}" id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="center"/>
+	        <mx:CheckBox label="I agree" enabled="true" fontSize="11" width="100%" textAlign="center" id="iAgree" />
         </mx:VBox>
     </mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@value != '') &amp;&amp; this.expirationDatePicker.text != '' &amp;&amp; this.emailAddress.text != '' &amp;&amp; this.bus.text != '' &amp;&amp; this.org.text != '' &amp;&amp; this.fund.text != '' &amp;&amp;  (this.project.text != '' || this.activity.text != '') &amp;&amp;  this.account.text != '' &amp;&amp; this.au.text != '' &amp;&amp; this.year.text != '' /*&amp;&amp; this.totalDollarAmount.text != ''*/ &amp;&amp; this.agreeCheckbox.selected}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="true" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 
