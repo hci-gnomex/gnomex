@@ -1,13 +1,18 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.2.1
--------------------
+5.4.2.2
+----------------------
+
+
+
+5.4.2.1 (Apr 24, 2012)
+----------------------
 * Changed the validation scheme for the work authorization window.(tcourdy)
 * Fixed bug that was causing the organism selected on the Hyb Setup View to change if user went back and changed the organism on the Sample Setup View.(tcourdy)
 * Fixed bug where newly created folders could not be filled with files in experiment upload window. (mbowler)
 * Fixed bug with moving sub folders in experiment upload window. (mbowler)
-
+* Emergency bug fix that prevented Submit Reques and Register New Experiment to complete due to SequenceLane null pointer.  Caused by experiment name feature added in 5.4.2 (tdisera)
 
 
 5.4.2 (Apr 23, 2012)
