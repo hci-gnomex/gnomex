@@ -1236,8 +1236,11 @@
 								   <mx:Script>
 									   <![CDATA[
 										   override public function set data(value:Object):void     {      
-											   super.data = value;        
-											   if (value["@label"] == "cy3")       {         
+											   super.data = value; 
+											   if (value == null) {
+												   cy3CheckBox.selected = false;      
+												   cy5CheckBox.selected = false;												   
+											   }else if (value["@label"] == "cy3")       {         
 												   cy3CheckBox.selected = true;      
 												   cy5CheckBox.selected = false;
 											   } else if (value["@label"] == "cy5")       {         
