@@ -1,17 +1,24 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.2
+5.4.2.1
+-------------------
+* Changed the validation scheme for the work authorization window.(tcourdy)
+* Fixed bug that was causing the organism selected on the Hyb Setup View to change if user went back and changed the organism on the Sample Setup View.(tcourdy)
+* Fixed bug where newly created folders could not be filled with files in experiment upload window. (mbowler)
+* Fixed bug with moving sub folders in experiment upload window. (mbowler)
+
+
+
+5.4.2 (Apr 23, 2012)
 --------------------
 * Changed weekly usage report to include site in title, changed distribution to use to: instead of bcc: field (rcundick)
 * Fix for samplesheet upload problem when SampleGrid dataprovider is a Grouping Collection (rcundick)
 * Show experiment name on Analysis Detail and Edit views (Experiments tab). (tdisera)
 * Fixed bug that was causing Experiment to have orphaned links to analysis, preventing the delete of the experiment due to FK constraint violation. (tdisera)
-* Fix for adding and editing organisms and genome builds from Add Analysis window.  Dropdowns now refresh properly.
-* Changed the validation scheme for the work authorization window.(tcourdy)
-* Fixed bug that was causing the organism selected on the Hyb Setup View to change if user went back and changed the organism on the Sample Setup View.(tcourdy)
-* Fixed bug where newly created folders could not be filled with files in experiment upload window. (mbowler)
-* Fixed bug with moving sub folders in experiment upload window. (mbowler)
+* Fix for adding and editing organisms and genome builds from Add Analysis window.  Dropdowns now refresh properly. (tdisera)
+* Fixed drag-and-drop logic for Distribute Data Tracks so that .bam/.bai file pairs can be linked to same data track.  Also fixed problem that was causing duplicate analysis file links to data tracks. (tdisera)
+
 
 5.4.1.1 (Apr 15, 2012)
 ----------------------
