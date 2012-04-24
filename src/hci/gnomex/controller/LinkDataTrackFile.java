@@ -47,6 +47,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
   private Integer idGenomeBuild = null;
   private Integer idDataTrackFolder = null;
   private Integer idAnalysisFile = null;
+  private Integer idAnalysisFileOther = null; // For file pairs
   private Integer idLab = null;
   private boolean isNewDataTrack = false;
   private Integer idDataTrackToDuplicate = null;
@@ -83,6 +84,10 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idAnalysisFile", "idAnalysisFile is required.");
    }
+   if (request.getParameter("idAnalysisFileOther") != null && !request.getParameter("idAnalysisFileOther").equals("")) {
+     idAnalysisFileOther = new Integer(request.getParameter("idAnalysisFileOther"));
+   }
+
    if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
      idLab = new Integer(request.getParameter("idLab"));
    } else if (isNewDataTrack) {
@@ -142,6 +147,14 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       dtFile.setIdAnalysisFile(idAnalysisFile);
       dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
       sess.save(dtFile);
+      
+      // If this is a file pair, add the other analysis file
+      if (idAnalysisFileOther != null) {
+        DataTrackFile dtFileOther = new DataTrackFile();
+        dtFileOther.setIdAnalysisFile(idAnalysisFileOther);
+        dtFileOther.setIdDataTrack(dataTrack.getIdDataTrack());
+        sess.save(dtFileOther);
+      }
       sess.flush();
       
 
