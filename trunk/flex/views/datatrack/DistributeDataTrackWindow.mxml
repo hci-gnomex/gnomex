@@ -32,6 +32,21 @@
 	</mx:request>
 </mx:HTTPService>
 
+
+<mx:HTTPService  
+	id="addAndLinkDataTrackFilePair" 
+	url="LinkDataTrackFile.gx"
+	destination="addAndLinkDataTrackFilePair"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onAddAndLinkDataTrackFilePair(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to create data tracks and link analysis file pair', event)"
+	method="POST" 
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+
 <mx:HTTPService  
 	id="linkDataTrackFileMultiple" 
 	url="LinkDataTrackFile.gx"
@@ -39,7 +54,7 @@
 	resultFormat="e4x"
 	showBusyCursor="true"
 	result="onLinkDataTrackFileMultiple(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to create data tracks and link analysis files', event)"
+	fault="parentApplication.onFailHttpRequest('Failed to  link analysis files', event)"
 	method="POST" 
 	useProxy="false">
 	<mx:request>
@@ -67,6 +82,19 @@
 	showBusyCursor="true"
 	result="onGetDataTrack(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to get data track', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService> 
+	
+<mx:HTTPService             
+	id="getDataTrackForFilePair" 
+	url="GetDataTrack.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetDataTrackForFilePair(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get data track for file pair', event)"
 	method="POST"
 	useProxy="false">
 	<mx:request>
@@ -985,16 +1013,36 @@
 
 	}
 	
+	private function isFilePair(dragParms:Object):Boolean {
+		var fileNameMap:Object = new Object();
+		for each(var di:Object in dragParams) {
+			var fileName:String = di.fileName;
+			var pos:int = fileName.lastIndexOf(".");
+			var baseFileName:String = fileName.substr(0, pos);
+			fileNameMap[baseFileName] = baseFileName;
+		}
+		var baseFileNameCount:int = 0;
+		for (var key:Object in fileNameMap) {
+			baseFileNameCount++;
+		}
+		return baseFileNameCount == 1;
+	}
+	
 	private function promptToAssociateFiles():void {
 		var dragItemCount:int = 0;
 		for each(var di:Object in dragParams) {
 			dragItemCount++;
 		}
-		// One file is dragged onto a data track that contains no files
+		// One file is dragged onto a data track 
 		if (dragItemCount == 1 && dropNode.name() == 'DataTrack') {
 			var params:Object = new Object();
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
+		} //  File pairs are dragged onto a data track
+		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack' && isFilePair(dragParams)) {
+			var params1:Object = new Object();
+			params1.idDataTrack = dropNode.@idDataTrack;
+			getDataTrackForFilePair.send(params1);
 		} 
 		// If more than one file is dragged onto a data track, duplicate the data track to create a 
 		// new one for each dragged file.
@@ -1014,6 +1062,15 @@
 				onPromptToAddAndLink);
 			
 		} 
+		// File pairs dragged onto a folder
+		else if (dragItemCount == 2 && isFilePair(dragParams) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+			Alert.show("Create a Data track for pair of analysis files under  " + dropNode.@label + "?",
+				"Confirm Add",
+				(Alert.YES | Alert.NO),
+				this,
+				onPromptToAddAndLinkFilePair);
+			
+		}
 		// Multiple files dragged onto a folder
 		else if (dragItemCount > 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create Data track for each of the analysis files (total of " + dragItemCount + ")" + " under  " + dropNode.@label + "?",
@@ -1033,26 +1090,47 @@
 			var fileExists:Boolean = false;
 			var fileCount:int = 0;
 			var fileNames:String = "";
+			
+			var isDragFilePair:Boolean = isFilePair(dragParams);
+			
+			var fileNameMap:Object = new Object();
 			for each(var file:Object in getDataTrack.lastResult..File) {
 				fileCount++;
 				fileNames += file.@name + " ";
-				if (file.@name == dragParams[0].fileName) {
-					fileExists = true;
+				for each(var df:Object in dragParams) {
+					if (file.@name == df.fileName) {
+						fileExists = true;
+					}
 				}
+				var pos:int = file.@name.lastIndexOf(".");
+				var baseFileName:String = file.@name.substr(0, pos);
+				fileNameMap[baseFileName] = baseFileName;
 			}
+			
+			var lastPos:int = dragParams[0].fileName.lastIndexOf(".");
+			var  baseFileNameDrag:String = dragParams[0].fileName.substr(0, lastPos);
+			
+			var isFilePair:Boolean = false;
+			if (fileNameMap[baseFileNameDrag] == baseFileNameDrag) {
+				isFilePair = true;
+			}
+			
+			
 			if (fileExists) {
-				Alert.show("File " + dragParams[0].fileName + " already exists for Data track " + dropNode.@label + ".  Overwrite file?",
+				Alert.show("File " + getDragFileNames(dragParams) + " is already linked to Data track " + dropNode.@label + ".");
+				return;				
+			} else if (isFilePair) {
+				Alert.show("Associate " + getDragFileNames(dragParams) + " with Data track " + dropNode.@label + "?",
 					"Confirm",
 					(Alert.YES | Alert.NO),
 					this,
-					onPromptToLink);				
-				
+					onPromptToLink);	
 			} else if (fileCount > 0) {
-				Alert.show("Unable to link " + dragParams[0].fileName + ".\n\nThe file " + fileNames + " is already linked to Data track " + dropNode.@label + ".",
+				Alert.show("Unable to link " + getDragFileNames(dragParams) + ".\n\nThe file " + fileNames + " is already linked to Data track " + dropNode.@label + ".",
 					"Warning");
 				return;
 			} else {
-				Alert.show("Associate " + dragParams[0].fileName + " with Data track " + dropNode.@label + "?",
+				Alert.show("Associate " + getDragFileNames(dragParams) + " with Data track " + dropNode.@label + "?",
 					"Confirm",
 					(Alert.YES | Alert.NO),
 					this,
@@ -1063,7 +1141,47 @@
 			Alert.show(getDataTrack.lastResult..ACTMESSAGE.@TEXT);
 		}		
 	}	
+	
+	private function getDragFileNames(dragParams:Object):String {
+		var fileNames:String = "";
+		for each(var df:Object in dragParams) {
+			fileNames += df.fileName + " ";
+		}
+		return fileNames;
+	}
 
+	private function onGetDataTrackForFilePair(event:ResultEvent):void {
+		if (getDataTrackForFilePair.lastResult.name() == "DataTrack") {
+			
+			var isDragFilePair:Boolean = isFilePair(dragParams);
+			
+			var fileExists:Boolean = false;
+			var existingFileNames:String = "";
+			for each(var file:Object in getDataTrackForFilePair.lastResult..File) {				
+				for each(var df:Object in dragParams) {
+					if (file.@name == df.fileName) {
+						fileExists = true;
+						existingFileNames += file.@name + " ";
+					}
+				}
+			}
+			
+			if (fileExists) {
+				Alert.show("Files " + existingFileNames + " already linked to Data track " + getDataTrackForFilePair.lastResult.@name + ".");
+				return;	
+			} else {
+				Alert.show("Associate " + getDragFileNames(dragParams) + " with Data track " + getDataTrackForFilePair.lastResult.@name + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO),
+					this,
+					onPromptToLinkFilePair);				
+				
+			}
+			
+		} else {
+			Alert.show(getDataTrackForFilePair.lastResult..ACTMESSAGE.@TEXT);
+		}		
+	}	
 	
 	private function onPromptToLink(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
@@ -1101,6 +1219,35 @@
 			linkDataTrackFileMultiple.send(params);
 		}
 	}
+	private function onPromptToAddAndLinkFilePair(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			// we need to link each analysis file in a synchronized fashion.
+			// link the first file, then in the result hander, link the 
+			// next one until no more drag params exist.
+			var params:Object = new Object();
+			params.idDataTrackFolder = dropNode.name() == 'DataTrackFolder' ? dropNode.@idDataTrackFolder : "";
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idAnalysisFileOther = dragParams[1].idAnalysisFile;
+			params.idLab = dragParams[0].idLab;
+			
+			addAndLinkDataTrackFilePair.send(params);
+		}
+	}
+	
+	private function onPromptToLinkFilePair(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			// we need to link each analysis file in a synchronized fashion.
+			// link the first file, then in the result hander, link the 
+			// next one until no more drag params exist.
+			var params:Object = new Object();
+			params.idDataTrack = dropNode.@idDataTrack;
+			params.idGenomeBuild = dropNode.@idGenomeBuild;
+			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			
+			linkDataTrackFileMultiple.send(params);
+		}
+	}
 	
 	private function onPromptToDupAndLinkFiles(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
@@ -1118,7 +1265,6 @@
 		}
 	}
 
-	
 	private function onLinkDataTrackFile(event:ResultEvent): void {
 		if (linkDataTrackFile.lastResult.name() != "SUCCESS") {
 			Alert.show(linkDataTrackFile.lastResult..ACTMESSAGE.@TEXT);
@@ -1126,6 +1272,16 @@
 		}
 		this.refreshDataTracks();
 	}
+	
+	private function onAddAndLinkDataTrackFilePair(event:ResultEvent): void {
+		if (addAndLinkDataTrackFilePair.lastResult.name() != "SUCCESS") {
+			Alert.show(addAndLinkDataTrackFilePair.lastResult..ACTMESSAGE.@TEXT);
+			return;
+		}
+		this.refreshDataTracks();	
+	}
+
+	
 	private function onLinkDataTrackFileMultiple(event:ResultEvent): void {
 		if (linkDataTrackFileMultiple.lastResult.name() != "SUCCESS") {
 			Alert.show(linkDataTrackFileMultiple.lastResult..ACTMESSAGE.@TEXT);
