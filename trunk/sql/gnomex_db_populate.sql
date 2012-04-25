@@ -21,7 +21,8 @@ VALUES (1, 'ChIP-Seq analysis', 'Y', NULL),
   (11, 'SNP/INDEL', 'Y', 566);
 
 INSERT INTO `gnomex`.`AppUser`(`idAppUser`, `lastName`, `firstName`, `uNID`, `email`, `phone`, `department`, `institute`, `jobTitle`, `isActive`, `codeUserPermissionKind`, `userNameExternal`, `passwordExternal`)
-VALUES (1, '', 'admin', null, null, null, NULL, NULL, NULL, 'Y', 'ADMIN', 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=');
+VALUES (1, '', 'admin', null, null, null, NULL, NULL, NULL, 'Y', 'SUPER', 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=');
+
 
 INSERT INTO `gnomex`.`ArrayCoordinate`(`idArrayCoordinate`, `name`, `x`, `y`, `idSlideDesign`)
 VALUES  (2,'1_1',1,1,54),
@@ -281,7 +282,7 @@ VALUES
   (5, 11, 5),
   (5, 10, 6);
 
-INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPriceExternal`,`idPriceCategory`,`isActive`) VALUES
+INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPriceExternalAcademic`,`idPriceCategory`,`isActive`) VALUES
  (1,'Bioanalyzer RNA Nano','sample quality','0.00',NULL,1,'Y'),
  (2,'Bioanalyzer RNA Pico','sample quality','0.00',NULL,1,'Y'),
  (3,'Bioanalyzer DNA 1000','sample quality','0.00',NULL,1,'Y'),
@@ -1260,7 +1261,8 @@ INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermiss
 VALUES ('ADMIN', 'Admin', 'Y'),
   ('BILLING', 'Billing', 'Y'),
   ('LAB', 'Lab', 'Y'),
-  ('USER', 'User', 'Y');
+  ('USER', 'User', 'Y'),
+  ('SUPER', 'Super', 'Y');
 
 INSERT INTO `gnomex`.`Vendor`(`idVendor`, `vendorName`, `description`, `isActive`)
 VALUES (1, 'Agilent', 'Agilent', 'Y'),
@@ -1276,8 +1278,9 @@ VALUES ('OWNER', 'Owner'),
   ('INST', 'Institution'),
   ('PUBLIC', 'Public');
   
-
-
+-- Default core facility
+INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'DEFAULT', 'Y');
+INSERT INTO `gnomex`.`CoreFacilityUser`(`idCoreFacility`, `idAppUser`) VALUES (1, 1);
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

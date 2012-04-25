@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 
 import java.io.Serializable;
 
@@ -59,11 +60,12 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
 
 
-  private Integer  idPropertyDictionary;
-  private String   propertyName;
-  private String   propertyValue;
-  private String   propertyDescription;
-  private String   forServerOnly;
+  private Integer       idPropertyDictionary;
+  private String        propertyName;
+  private String        propertyValue;
+  private String        propertyDescription;
+  private String        forServerOnly;
+  private Integer       idCoreFacility;
 
   public Integer getIdPropertyDictionary() {
     return idPropertyDictionary;
@@ -78,7 +80,16 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   }
  
   public String getDisplay() {
-    return getPropertyName();
+    String postfix = "";
+    if (getIdCoreFacility() != null) {
+      postfix = DictionaryManager.getDisplay("hci.gnomex.model.CoreFacility", getIdCoreFacility().toString());
+      if (postfix == null) {
+        postfix = "";
+      } else {
+        postfix = "(" + postfix + ")";
+      }
+    }
+    return getPropertyName() + postfix;
   }
 
   
@@ -121,4 +132,11 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
     this.forServerOnly = forServerOnly;
   }
 
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+  
+  public void setIdCoreFacility(Integer id) {
+    idCoreFacility = id;
+  }
 }

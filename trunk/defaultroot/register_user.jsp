@@ -1,5 +1,6 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
 <%@ page import="org.hibernate.Session" %>
+<%@ page import="hci.gnomex.model.CoreFacility" %>
 <%@ page import="hci.gnomex.model.Lab" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
@@ -53,10 +54,6 @@
      if(KeyID<32||(KeyID>=33 && KeyID<=47 )||(KeyID>=58 && KeyID<=64 )||(KeyID>=91 && KeyID<=96)||( KeyID>122))
         return false;
   }
-</script>
-
-  
-</head>
 
 <%
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
@@ -65,6 +62,7 @@ if (message == null) {
 }
 
 List labs = null;
+List facilities = null;
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
@@ -82,6 +80,7 @@ try {
   }  
   
   labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
+  facilities = CoreFacility.getActiveCoreFacilities(sess);
   
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
@@ -93,6 +92,9 @@ try {
 }
 
 %>
+
+</script>
+</head>
 
 <body onload="setFocus()">
 
@@ -127,6 +129,19 @@ try {
       <div class="col1"><div class="right">Phone</div></div>
       <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
 
+      <div style="width:100%;text-align:left" id="coreFacilities">
+        <div style="width:100%;clear:both;"><br/></div>
+        Choose Core Facilities<br>
+        <%
+        Iterator facilityIter = facilities.iterator();
+        while (facilityIter.hasNext()) {
+          CoreFacility facility = (CoreFacility) facilityIter.next();
+        %>
+        <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%> 
+        <br>
+        <%}%>
+      </div>
+      
       <div style="width:100%;"><div style="float:left;">
       <br>
        Lab Group?
@@ -149,7 +164,7 @@ try {
       </div>
       <div id="newLabDiv" style="display:none;">
         <div class="col1"><div class="right">Enter Lab</div></div>
-        <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"  /></div>
+        <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"/></div>
       </div>
 
 <% if (showUserNameChoice) { %>
@@ -176,7 +191,7 @@ try {
 
     
         <div id="externalPasswordArea1" class="col1"><div class="right">Password</div></div>
-        <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" class="textWide" ></div>
+        <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" class="textWide"></div>
       </div>
 
       <div style="float:left;"><div class="message"> <strong><%= message %></strong></div></div>
@@ -189,7 +204,22 @@ try {
 </div>
     <input type="hidden" name="responsePageSuccess" value="/register_user_success.jsp"/>
     <input type="hidden" name="responsePageError" value="/register_user.jsp"/>
+
+<script  type="text/javascript" language="JavaScript">
+<%
+if (facilities != null && facilities.size() > 1) {
+%>
+  document.getElementById("coreFacilities").style.display = "block";
+<%
+} else {
+%>
+  document.getElementById("coreFacilities").style.display = "none";
+<%
+}
+%>
+</script>
     </form>
+
 
 </body>
 </html>

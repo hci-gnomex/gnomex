@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
@@ -150,7 +151,11 @@ public class PropertyDictionaryHelper implements Serializable {
     List properties = sess.createQuery("select p from PropertyDictionary as p").list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
       PropertyDictionary prop = (PropertyDictionary)i.next();
-      propertyMap.put(prop.getPropertyName(), prop.getPropertyValue());
+      String name = prop.getPropertyName();
+      if (prop.getIdCoreFacility() != null) {
+        name = prop.getIdCoreFacility().toString() + "\t" + name;
+      }
+      propertyMap.put(name, prop.getPropertyValue());
     }   
   }
   
@@ -163,6 +168,19 @@ public class PropertyDictionaryHelper implements Serializable {
     } else {
       return "";
     }
+  }
+  
+  public String getCoreFacilityProperty(Integer idCoreFacility, String name) {
+    String propertyValue = "";
+    if (name != null && !name.equals("")) {
+      String qualName = idCoreFacility.toString() + "\t" + name;
+      propertyValue = (String)propertyMap.get(qualName);
+      if (propertyValue == null) {
+        propertyValue = (String)propertyMap.get(name);
+      }
+    }
+    
+    return propertyValue;
   }
   
   public String getPropertyPartialMatch(String name) {

@@ -489,7 +489,7 @@ CREATE TABLE `gnomex`.`Price` (
   `name` VARCHAR(200) NULL,
   `description` VARCHAR(500) NULL,
   `unitPrice` DECIMAL(6, 2) NULL,
-  `unitPriceExternal` DECIMAL(6, 2) NULL,
+  `unitPriceExternalAcademic` DECIMAL(6, 2) NULL,
   `idPriceCategory` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idPrice`),
@@ -575,6 +575,7 @@ DROP TABLE IF EXISTS `gnomex`.`CoreFacility`;
 CREATE TABLE `gnomex`.`CoreFacility` (
   `idCoreFacility` INT(10) NOT NULL AUTO_INCREMENT,
   `facilityName` varchar(200) NULL,
+  `isActive` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idCoreFacility`)
 )
 ENGINE = INNODB;
@@ -1264,6 +1265,7 @@ CREATE TABLE `gnomex`.`PropertyDictionary` (
   `propertyValue` VARCHAR(2000) NULL,
   `propertyDescription` VARCHAR(2000) NULL,
   `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N',
+  `idCoreFacility` INT(10) NULL,
   PRIMARY KEY (`idPropertyDictionary`)
 )
 ENGINE = INNODB;

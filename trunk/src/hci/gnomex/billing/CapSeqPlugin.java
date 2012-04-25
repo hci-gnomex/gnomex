@@ -81,10 +81,7 @@ public class CapSeqPlugin implements BillingPlugin {
     
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
-      BigDecimal theUnitPrice = price.getUnitPrice();
-      if (request.getLab() != null && request.getLab().getIsExternalPricing() != null && request.getLab().getIsExternalPricing().equalsIgnoreCase("Y")) {
-        theUnitPrice = price.getUnitPriceExternal();
-      }
+      BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
       
       BillingItem billingItem = new BillingItem();
       billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());

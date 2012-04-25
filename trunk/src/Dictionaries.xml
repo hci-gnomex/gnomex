@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dictionaries>
 
-
+  <Dictionary displayName="Admin - Core Facility" className="hci.gnomex.model.CoreFacility" editable="Y" />
 	<Dictionary displayName="Admin - Funding Agency" className="hci.gnomex.model.FundingAgency"  >
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
 	<Dictionary displayName="Admin - Institution" className="hci.gnomex.model.Institution"  >
 	</Dictionary>
-	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.PropertyDictionary" scrub="Y"/>
+	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.PropertyDictionary" scrub="Y">
+      <Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>
+	</Dictionary>
   <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />
-
-  <Dictionary displayName="Core Facility" className="hci.gnomex.model.CoreFacility"  editable="N">
-  </Dictionary>
 
 	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>

@@ -46,7 +46,9 @@ public class AppUserFilter extends DetailObject {
       queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");      
       queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");      
     }
-    
+    if (hasCoreFacilityCriteria()) {
+      queryBuf.append(" LEFT JOIN           user.coreFacilities as facility");
+    }
     
     
     addUserCriteria();
@@ -71,6 +73,14 @@ public class AppUserFilter extends DetailObject {
     } else {
       return false;
     }
+  }
+  
+  private boolean hasCoreFacilityCriteria() {
+    // If we will add security criteria by core facility, join to core facility
+    if (!secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      return true;
+    }
+    return false;
   }
 
   private void addUserCriteria() {
@@ -112,6 +122,22 @@ public class AppUserFilter extends DetailObject {
   }
     
   private void addSecurityCriteria() {
+    if (secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      // no core facility security required.
+    } else {
+      this.addWhereOrAnd();
+      queryBuf.append(" facility.idCoreFacility in (");
+      Boolean firstFacility = true;
+      for (Iterator facilityIter = secAdvisor.getAppUser().getCoreFacilities().iterator();facilityIter.hasNext();) {
+        CoreFacility facility = (CoreFacility)facilityIter.next();
+        if (!firstFacility) {
+          queryBuf.append(",");
+        }
+        firstFacility = false;
+        queryBuf.append(facility.getIdCoreFacility().toString());
+      }
+      queryBuf.append(")");
+    }
     if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) ) {
       // No criteria needed if user can view all requests
       

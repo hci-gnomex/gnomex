@@ -69,3 +69,50 @@ CREATE TABLE `gnomex`.`RequestStatus` (
 ENGINE = INNODB;
 
 
+--
+-- Property Dictionary core facility
+--
+alter table PropertyDictionary add idCoreFacility INT(10) NULL;
+
+--
+-- Core facility isactive flag
+--
+alter table CoreFacility add isActive CHAR(1) NOT NULL DEFAULT 'Y';
+
+--
+-- Populate default core facility
+--
+INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'DEFAULT', 'Y');
+
+--
+-- Core Facility User
+--
+DROP TABLE IF EXISTS `gnomex`.`CoreFacilityUser`;
+CREATE TABLE `gnomex`.`CoreFacilityUser` (
+  `idCoreFacility` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+  PRIMARY KEY (`idCoreFacility`, `idAppUser`),
+  CONSTRAINT `FK_CoreFacilityUser_AppUser` FOREIGN KEY  (`idAppUser`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_CoreFacilityUser_CoreFacility` FOREIGN KEY  (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+INSERT INTO `gnomex`.`CoreFacilityUser`(`idCoreFacility`, `isAppUser`) select 1, idAppUser from AppUser;
+
+--
+-- Super Admin Role
+--
+INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermissionKind`, `isActive`) insert into UserPermissionKind values('SUPER','Super','Y');
+
+UPDATE `gnomex`.`AppUser` SET codeUserPermissionKind='SUPER' WHERE codeUserPermissionKind='ADMIN'; 
+
+--
+-- Rename Price.unitPriceExternal
+--
+ALTER TABLE `gnomex`.`Price` change column `unitPriceExternal` `unitPriceExternalAcademic` DECIMAL(6, 2) NULL;

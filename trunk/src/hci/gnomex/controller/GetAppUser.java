@@ -3,6 +3,8 @@ package hci.gnomex.controller;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -25,6 +27,7 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
 
 
 public class GetAppUser extends GNomExCommand implements Serializable {
@@ -77,6 +80,8 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("OpenAppUserList"));
       doc.getRootElement().addContent(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
       
+      getCoreFacilities(sess, doc, theAppUser);
+      
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
       
@@ -119,4 +124,49 @@ public class GetAppUser extends GNomExCommand implements Serializable {
     return this;
   }
 
+  private void getCoreFacilities(Session sess, Document doc, AppUser theAppUser) {
+    Element facilitiesNode = new Element("userCoreFacilities");
+    doc.getRootElement().addContent(facilitiesNode);
+    for(Iterator coreIter = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator();coreIter.hasNext();) {
+      Object de = coreIter.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      CoreFacility facility = (CoreFacility)de;
+      String selected = "N";
+      for(Iterator userIter = theAppUser.getCoreFacilities().iterator();userIter.hasNext();) {
+        CoreFacility userFacility = (CoreFacility)userIter.next();
+        if (userFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
+          selected = "Y";
+          break;
+        }
+      }
+      if (selected.equals("N") && (facility.getIsActive() == null || facility.getIsActive().equals("N"))) {
+        continue;
+      }
+
+      if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        Boolean found = false;
+        for(Iterator facilityIter = this.getSecAdvisor().getAppUser().getCoreFacilities().iterator();facilityIter.hasNext();) {
+          CoreFacility secFacility = (CoreFacility)facilityIter.next();
+          if (secFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
+            found = true;
+          }
+        }
+        if (!found) {
+          continue;
+        }
+      }
+      
+      String name = facility.getFacilityName();
+      if (facility.getIsActive() == null || facility.getIsActive().equals("N")) {
+        name += " (inactive)";
+      }
+      Element facilityNode = new Element("coreFacility");
+      facilitiesNode.addContent(facilityNode);
+      facilityNode.setAttribute("value", facility.getIdCoreFacility().toString());
+      facilityNode.setAttribute("display", name);
+      facilityNode.setAttribute("selected",selected);
+    }
+  }
 }

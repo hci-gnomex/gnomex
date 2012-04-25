@@ -143,6 +143,10 @@
 			<key column="idAppUser"/>
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
 		</set>
+    <set name="coreFacilities" table="CoreFacilityUser" lazy="true">
+      <key column="idAppUser"/>
+      <many-to-many column="idCoreFacility" class="hci.gnomex.model.CoreFacility"/>
+    </set>
 	</class>
 	
     <!-- hci.gnomex.model.AppUserPublic -->
@@ -241,6 +245,7 @@
       <generator class="native"/>
     </id>
     <property name="facilityName" column="facilityName" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
   </class>
 	
   
@@ -1360,7 +1365,7 @@
 		<property name="description" column="description" type="string"/>
 		<property name="isActive"  column="isActive" type="string"/>
 		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
-		<property name="unitPriceExternal" column="unitPriceExternal" type="big_decimal"/>
+		<property name="unitPriceExternalAcademic" column="unitPriceExternalAcademic" type="big_decimal"/>
 		<property name="idPriceCategory" column="idPriceCategory" type="integer"/>
 		<set name="priceCriterias" table="PriceCriteria" lazy="true" cascade="delete" >
 			<key column="idPrice"/>
@@ -1390,6 +1395,7 @@
 		<property name="propertyValue"       column="propertyValue" type="string"/>
 		<property name="propertyDescription" column="propertyDescription" type="string"/>
 		<property name="forServerOnly"       column="forServerOnly" type="string"/>
+    <property name="idCoreFacility"      column="idCoreFacility" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.ProtocolType -->

@@ -16,7 +16,7 @@ public class Price extends DictionaryEntry implements Serializable {
   private String     name;
   private String     description;
   private BigDecimal unitPrice;
-  private BigDecimal unitPriceExternal;
+  private BigDecimal unitPriceExternalAcademic;
   private String     isActive;
   private Set        priceCriterias = new TreeSet();
   
@@ -91,14 +91,14 @@ public class Price extends DictionaryEntry implements Serializable {
   }
 
   
-  public BigDecimal getUnitPriceExternal() {
-    return unitPriceExternal;
+  public BigDecimal getUnitPriceExternalAcademic() {
+    return unitPriceExternalAcademic;
   }
 
 
   
-  public void setUnitPriceExternal(BigDecimal unitPriceExternal) {
-    this.unitPriceExternal = unitPriceExternal;
+  public void setUnitPriceExternalAcademic(BigDecimal unitPriceExternalAcademic) {
+    this.unitPriceExternalAcademic = unitPriceExternalAcademic;
   }
 
   
@@ -116,9 +116,9 @@ public class Price extends DictionaryEntry implements Serializable {
   }
   
   
-  public String getUnitPriceExternalCurrency() {
-    if (unitPriceExternal != null) {
-      return NumberFormat.getCurrencyInstance().format(unitPriceExternal);
+  public String getUnitPriceExternalAcademicCurrency() {
+    if (unitPriceExternalAcademic != null) {
+      return NumberFormat.getCurrencyInstance().format(unitPriceExternalAcademic);
     } else {
       return "";
     }
@@ -134,5 +134,11 @@ public class Price extends DictionaryEntry implements Serializable {
     this.priceCriterias = priceCriterias;
   }
   
- 
+ public BigDecimal getEffectiveUnitPrice(Lab lab) {
+   if (lab != null && lab.getIsExternalPricing() != null && lab.getIsExternalPricing().equalsIgnoreCase("Y")) {
+     return unitPriceExternalAcademic;
+   } else {
+     return unitPrice;
+   }
+ }
 }
