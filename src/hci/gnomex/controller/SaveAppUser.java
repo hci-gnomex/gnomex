@@ -1,21 +1,32 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.lucene.SearchListParser;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 
 
@@ -30,6 +41,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
   private AppUser               appUserScreen;
   private boolean              isNewAppUser = false;
+  private ArrayList<CoreFacilityCheck>    userCoreFacilityIds;
   
   
   public void validate() {
@@ -44,7 +56,30 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       isNewAppUser = true;
     }
     
-   
+    userCoreFacilityIds = new ArrayList<CoreFacilityCheck>();
+    String userCoreFacilitiesString = request.getParameter("userCoreFacilities");
+    if (userCoreFacilitiesString != null && userCoreFacilitiesString.length() > 0) {
+      userCoreFacilitiesString = userCoreFacilitiesString.replaceAll("&", "&amp;");
+      userCoreFacilitiesString = "<userCoreFacilities>" + userCoreFacilitiesString + "</userCoreFacilities>";
+      StringReader reader = new StringReader(userCoreFacilitiesString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        org.jdom.Document searchDoc = sax.build(reader);
+        Element rootNode = searchDoc.getRootElement();
+        for(Iterator i = rootNode.getChildren("coreFacility").iterator(); i.hasNext();) {
+          Element facilityNode = (Element)i.next();
+          String selected = facilityNode.getAttributeValue("selected");
+          String idString = facilityNode.getAttributeValue("value");
+          CoreFacilityCheck chk = new CoreFacilityCheck();
+          chk.idCoreFacility = Integer.parseInt(idString);
+          chk.selected = selected;
+          userCoreFacilityIds.add(chk);
+        }
+      } catch (Exception je ) {
+        log.error( "Cannot parse userCoreFacilitiesString", je );
+        this.addInvalidField( "userCoreFacilitiesString", "Invalid search xml");
+      }
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -100,6 +135,18 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               
             }
            
+            // If not super admin user default to all facilities the admin has.
+            appUser.setCoreFacilities(new HashSet());
+            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+              Set facilities = this.getSecAdvisor().getAppUser().getCoreFacilities();
+              for(Iterator facilityIter = facilities.iterator();facilityIter.hasNext();) {
+                CoreFacility f = (CoreFacility)facilityIter.next();
+                CoreFacilityCheck chk = new CoreFacilityCheck();
+                chk.idCoreFacility = f.getIdCoreFacility();
+                chk.selected = "Y";
+                userCoreFacilityIds.add(chk);
+              }
+            }
             sess.save(appUser);
             
           }
@@ -126,6 +173,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
         
         if (this.isValid()) {
+          setCoreFacilities(sess, appUser);
           sess.flush();
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
@@ -203,6 +251,36 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     
   }
   
+  private void setCoreFacilities(Session sess, AppUser appUser) {
+    // Note that since only core facilities the logged in user can see will be in the
+    // list from the front end, we ignore (i.e. neither add or remove) any ids not in
+    // list from the front end.
+    ArrayList<CoreFacility> facilitiesToRemove = new ArrayList<CoreFacility>();
+    ArrayList<CoreFacility> idsToAdd = (ArrayList<CoreFacility>)userCoreFacilityIds.clone();
+    for(Iterator i = appUser.getCoreFacilities().iterator();i.hasNext();) {
+      CoreFacility facility = (CoreFacility)i.next();
+      for(Iterator j = userCoreFacilityIds.iterator();j.hasNext();) {
+        CoreFacilityCheck chk = (CoreFacilityCheck)j.next();
+        if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
+          idsToAdd.remove(chk);
+          if (chk.selected.equals("N")) {
+            facilitiesToRemove.add(facility);
+          }
+          break;
+        }
+      }
+    }
+    
+    appUser.getCoreFacilities().removeAll(facilitiesToRemove);
+    for (Iterator k = idsToAdd.iterator();k.hasNext();) {
+      CoreFacilityCheck chk = (CoreFacilityCheck)k.next();
+      if (chk.selected.equals("Y")) {
+        CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, chk.idCoreFacility);
+        appUser.getCoreFacilities().add(facility);
+      }
+    }
+  }
+  
   private class AppUserComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       AppUser u1 = (AppUser)o1;
@@ -243,4 +321,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     return users.size() > 0;    
   }
 
+  private class CoreFacilityCheck implements Serializable {
+    public Integer idCoreFacility;
+    public String  selected;
+  }
 }

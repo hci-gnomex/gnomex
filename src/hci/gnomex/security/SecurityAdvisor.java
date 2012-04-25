@@ -56,6 +56,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   // Global Permissions
   public static final String          CAN_WRITE_DICTIONARIES                      = "canWriteDictionaries";            
+  public static final String          CAN_WRITE_PROPERTY_DICTIONARY               = "canWritePropertyDictionary";
   public static final String          CAN_MANAGE_WORKFLOW                         = "canManageWorkflow";
   public static final String          CAN_MANAGE_BILLING                          = "canManageBilling";
   public static final String          CAN_ADMINISTER_USERS                        = "canAdministerUsers";
@@ -70,6 +71,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          CAN_BE_LAB_MEMBER                           = "canBeLabMember";  
   public static final String          CAN_BE_LAB_COLLABORATOR                     = "canBeLabCollaborator";            
   public static final String          CAN_SUBMIT_WORK_AUTH_FORMS                  = "canSubmitWorkAuthForms";            
+  
+  public static final String          CAN_ADMINISTER_ALL_CORE_FACILITIES          = "canAdministerAllCoreFacilities";          
+  public static final String          CAN_ASSIGN_SUPER_ADMIN_ROLE                 = "canAssignSuperAdminRole";
   
   public static final String          USER_SCOPE_LEVEL  = "USER";
   public static final String          GROUP_SCOPE_LEVEL = "GROUP";
@@ -189,6 +193,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Hibernate.initialize(appUser.getLabs());
       Hibernate.initialize(appUser.getCollaboratingLabs());
       Hibernate.initialize(appUser.getManagingLabs());
+      Hibernate.initialize(appUser.getCoreFacilities());
       
 
       isGNomExUniversityUser = true;
@@ -210,6 +215,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         Hibernate.initialize(appUser.getLabs());
         Hibernate.initialize(appUser.getCollaboratingLabs());
         Hibernate.initialize(appUser.getManagingLabs());
+        Hibernate.initialize(appUser.getCoreFacilities());
 
         isGNomExExternalUser = true;
         isGNomExUniversityUser = false;
@@ -234,6 +240,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       appUser.setLabs(new TreeSet());
       appUser.setCollaboratingLabs(new TreeSet());
       appUser.setManagingLabs(new TreeSet());
+      appUser.setCoreFacilities(new TreeSet());
       
     }
     
@@ -605,7 +612,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Dictionary
     //    
     else if (object instanceof DictionaryEntry) {
-      // Admins can read every dictionary entry
+      // Admins can read (almost) every dictionary entry
       if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
         canRead = true;
         
@@ -625,7 +632,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canRead = true;
         } 
       }
-      // All null dictionary entries can be read, except for the
+     // All null dictionary entries can be read, except for the
       // null entry from AppUserLite.
       else if (object instanceof NullDictionaryEntry) {
         NullDictionaryEntry de = (NullDictionaryEntry)object;
@@ -638,8 +645,29 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       else {
         canRead = true;
       }
+
     }
-      
+
+    if (canRead) {
+      // Super admins can read every dictionary entry
+      if (!hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        if (object instanceof PropertyDictionary) {
+          PropertyDictionary prop1 = (PropertyDictionary)object;
+          if (prop1.getIdCoreFacility() != null) {
+            // Only show properties with core facility user can see.
+            Boolean found = false;
+            for(Iterator facilityIter = getAppUser().getCoreFacilities().iterator();facilityIter.hasNext();) {
+              CoreFacility facility = (CoreFacility)facilityIter.next();
+              if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
+                found = true;
+              }
+            }
+            canRead = found;
+          }
+        }
+      }
+    }
+    
     return canRead;
   }
   
@@ -798,10 +826,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     else if (object instanceof DictionaryEntry) {
       if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
-        // Admins can write every dictionary except for AppUserLite and null entries.
+        // Admins can write every dictionary except for coreFacility,PropertyDictionary, AppUserLite and null entries.
         if ((object instanceof AppUserLite) ||
             (object instanceof NullDictionaryEntry)) {
-          
+        } else if (object instanceof PropertyDictionary || object instanceof CoreFacility) {
+          canUpdate = hasPermission(this.CAN_WRITE_PROPERTY_DICTIONARY);
         } else {
           canUpdate = true;
         }
@@ -1069,7 +1098,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     else if (object instanceof DictionaryEntry) {
       if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
-        canDelete = true;
+        if (object instanceof PropertyDictionary) {
+          canDelete = hasPermission(this.CAN_WRITE_PROPERTY_DICTIONARY);
+        } else if (object instanceof CoreFacility) {
+          canDelete = hasPermission(this.CAN_WRITE_PROPERTY_DICTIONARY);
+        } else {
+          canDelete = true;
+        }
       }   
     }
     
@@ -1141,45 +1176,68 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       return;
     }
     
+    // Can administer all core facilities (Super user)
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(CAN_ADMINISTER_ALL_CORE_FACILITIES), null);
+    }
+    
+    // Can assign the super user role. (Super user)
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(CAN_ASSIGN_SUPER_ADMIN_ROLE), null);
+    }
+    
     // Can write common dictionaries
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_WRITE_DICTIONARIES), null);
     }
     
+    // Can write property dictionary
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(CAN_WRITE_PROPERTY_DICTIONARY), null);
+    }
+    
     // Can manager workflow
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
     }
 
     // Can manage billing
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
         appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
     }
     
     // Can administer users
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_ADMINISTER_USERS), null);
     }
 
     // Can access any requests
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_ACCESS_ANY_OBJECT), null);
     }
 
     // Can write any request
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_WRITE_ANY_OBJECT), null);
     }
 
     // Can delete requests
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_DELETE_REQUESTS), null);
     }
 
     
     //  Can delete any project
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {        
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {        
       globalPermissionMap.put(new Permission(CAN_DELETE_ANY_PROJECT), null);
     }
 
@@ -1189,7 +1247,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     
     // Can submit requests
-    if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
     }
     

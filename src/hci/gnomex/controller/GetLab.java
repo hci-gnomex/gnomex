@@ -293,8 +293,6 @@ public class GetLab extends GNomExCommand implements Serializable {
     user.excludeMethodFromXML("getUserNameExternal");
     user.excludeMethodFromXML("getPasswordExternal");
     user.excludeMethodFromXML("getPhone");
-    user.excludeMethodFromXML("getIsAdminPermissionLevel");
-    user.excludeMethodFromXML("getIsLabPermissionLevel");
     user.excludeMethodFromXML("getLabs");
     user.excludeMethodFromXML("getCollaboratingLabs");
     user.excludeMethodFromXML("getManagingLabs");  

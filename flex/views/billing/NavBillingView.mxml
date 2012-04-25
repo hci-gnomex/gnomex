@@ -928,7 +928,7 @@
        				 " codeBillingChargeKind='" + dragNode.@codeBillingChargeKind + "'" +
        			 	 " category='" + dragNode.@category + "'" +
        			 	 " description='" + dragNode.@name + "'" +
-       			 	 " unitPrice='" + (dropRequestNode.@isExternalPricing == 'Y' ? dragNode.@unitPriceExternal : dragNode.@unitPrice) + "'" +	
+       			 	 " unitPrice='" + (dropRequestNode.@isExternalPricing == 'Y' ? dragNode.@unitPriceExternalAcademic : dragNode.@unitPrice) + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
 					 //" idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
 					 " idBillingPeriod='" + (lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "") + "'" + 
@@ -1968,7 +1968,7 @@
 				        <util:columns>
   						  <mx:AdvancedDataGridColumn dataField="@display"  headerText="" width="200"/> 
   						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="50" textAlign="right" /> 
-  						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCurrency"  headerText="External" width="50" textAlign="right" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalAcademicCurrency"  headerText="External" width="50" textAlign="right" /> 
   					    </util:columns>
   					</util:AdvancedDataGridAS>
   					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0">

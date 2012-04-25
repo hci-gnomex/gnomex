@@ -117,6 +117,7 @@
     <mx:XMLListCollection id="membershipLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).labs.Lab}"/>
     <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
     <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
+	<mx:XMLListCollection id="userCoreFacilities" source="{getAppUser.lastResult.userCoreFacilities.coreFacility}"/>
     	
 
     <mx:Script>
@@ -411,12 +412,24 @@
             var call:Object = event.token;
             if (call.marker == "doneGetAppUser") {
               fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
+			  if (parentApplication.hasPermission("canAssignSuperAdminRole")) {
+				  userDetailView.enabled = true;
+				  userDetailView.isSuperPermissionLevel.enabled = true;
+			  } else {
+				  if (fullUser.@codeUserPermissionKind == 'SUPER') {
+					  userDetailView.enabled = false;
+				  } else {
+					userDetailView.enabled = true;
+					userDetailView.isSuperPermissionLevel.enabled = false;
+				  }
+			  }
+
               userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
               if (fullUser.@isExternalUser == 'Y' || parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == 'N') {
-              	userDetailView.currentState = "externalUserState";
+              	userDetailView.loginStack.selectedIndex = 1;
               	userDetailView.radioExternalUser.selected = true;
               } else {
-              	userDetailView.currentState = "";
+				  userDetailView.loginStack.selectedIndex = 0;
               	userDetailView.radioUniversityUser.selected = true;
               }
               userDetailView.dirty.resetDirty();

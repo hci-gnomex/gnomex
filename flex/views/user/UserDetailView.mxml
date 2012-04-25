@@ -8,18 +8,6 @@
 <mx:Label id="titleLabel" styleName="titleLabel" text="{'User ' + parentDocument.fullUser.@displayName}"/>
 
     <mx:HTTPService 
-    id="getAppUser" 
-    url="GetAppUser.gx"
-    destination="getAppUser"
-    showBusyCursor="true"
-    resultFormat="e4x"
-    result="onGetAppUser(event)"
-    fault="parentApplication.onFailHttpRequest('Unable to get user', event)"
-    useProxy="false">    
-    </mx:HTTPService >
-    
-
-    <mx:HTTPService 
     id="saveAppUser" 
     url="SaveAppUser.gx"
     showBusyCursor="true"
@@ -41,18 +29,21 @@
             <passwordExternal>{externalUserPassword.text}</passwordExternal>
             <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
             <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
+			<userCoreFacilities>{userCoreFacilitiesString}</userCoreFacilities>
     </mx:request>
     </mx:HTTPService >
     
     <mx:Script>
         <![CDATA[
             import mx.controls.Alert;
+            import mx.events.CloseEvent;
             import mx.rpc.events.FaultEvent;
             import mx.rpc.events.ResultEvent;
-            import mx.events.CloseEvent;
             
            
-            
+            [Bindable]
+			public var userCoreFacilitiesString:String = '';
+			
             private var savedIdAppUser:Object = '';
             
 			public function promptToSaveDirty():void {
@@ -76,10 +67,20 @@
       
 			  
             private function save():void {
+				for (var i:int = 0; i < parentDocument.userCoreFacilities.length; i++) {
+					var facility:XML = XML(parentDocument.userCoreFacilities.getItemAt(i));
+					if (chkCoreFacility[i].selected) {
+						facility.@selected = "Y";
+					} else {
+						facility.@selected = "N";
+					}
+				}
+				userCoreFacilitiesString = parentDocument.userCoreFacilities.toXMLString();
 				saveAppUser.send();
             }
             
             private function onSaveAppUser(event:ResultEvent):void {
+				var s:String = parentDocument.userCoreFacilities.toXMLString();
 				if (saveAppUser.lastResult.name() == "SUCCESS") {
 					savedIdAppUser = saveAppUser.lastResult.@idAppUser;
 					var params:Object = new Object();
@@ -89,6 +90,17 @@
 		 			var itemToSelect:XML = new XML("<AppUser id='" + savedIdAppUser + "'/>");
 	          		parentApplication.navUsersView.itemToSelect = itemToSelect;
     	      		parentApplication.navUsersView.refreshAppUserList();
+					var anyChecked:Boolean = false;
+					for (var i:int = 0; i < parentDocument.userCoreFacilities.length; i++) {
+						var facility:XML = XML(parentDocument.userCoreFacilities.getItemAt(i));
+						if (chkCoreFacility[i].selected) {
+							anyChecked = true;
+							break;
+						}
+					}
+					if (!anyChecked) {
+						Alert.show("No core facilities have been chosen for this user.");
+					}
 				} else { 
 					if (saveAppUser.lastResult.name() == "ERROR") {
 						Alert.show(saveAppUser.lastResult.@message);	
@@ -101,23 +113,14 @@
             	
             }
             
-            
-            private function onGetAppUser(event:ResultEvent):void {
-              parentDocument.fullUser = getAppUser.lastResult.AppUser.(@idAppUser = savedIdAppUser);
-              this.isActive.selected =  parentDocument.fullUser.@isActive == 'Y' ? true : false;
-              
-              
-
-            }
-            
             private function onUserAccountChange():void {
             	this.dirty.setDirty();
             	if (this.radioUniversityUser.selected) {
-            		currentState = "";
+            		loginStack.selectedIndex = 0;
             		externalUserName.text = "";
             		this.externalUserPassword.text = "";
             	} else {            		
-            		currentState = "externalUserState";
+            		loginStack.selectedIndex = 1;
             		uNID.text = "";
             		
             	}
@@ -172,43 +175,69 @@
 				 
 			</mx:HBox>
 		  	<mx:HBox width="100%" height="100%">
-		  	  <mx:VBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
-				<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
-					<mx:RadioButtonGroup id="radioGroupUserAccount"/>
-					<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
-					<mx:RadioButton label="External user" groupName="radiogroup1" click="{onUserAccountChange()}" value="EXTERNAL" id="radioExternalUser">
-					</mx:RadioButton>
-					
-				</mx:HBox>	
-				<mx:HBox paddingLeft="0">	  	      
-		  	    <mx:VBox verticalGap="1" id="unidContainer" width="100">
-		  	      <mx:Label text="uNID" />
-		  	      <mx:TextInput id="uNID" 
-		  	      	text="{parentDocument.fullUser.@uNID}" 
-		  	       width="100" change="dirty.setDirty()"/>
-		  	     </mx:VBox>		  	    	
+		  	  <mx:HBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
+				<mx:VBox  paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8" width="320">
+					<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
+						<mx:RadioButtonGroup id="radioGroupUserAccount"/>
+						<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
+						<mx:RadioButton label="External user" groupName="radiogroup1" click="{onUserAccountChange()}" value="EXTERNAL" id="radioExternalUser">
+						</mx:RadioButton>
+						
+					</mx:HBox>	
+					<mx:ViewStack id="loginStack" width="100%" height="100%">
+						<mx:HBox paddingLeft="0">	  	      
+					  	    <mx:VBox verticalGap="1" id="unidContainer" width="100">
+					  	      <mx:Label text="uNID" />
+					  	      <mx:TextInput id="uNID" 
+					  	      	text="{parentDocument.fullUser.@uNID}" 
+					  	       width="100" change="dirty.setDirty()"/>
+				  	     	</mx:VBox>		  	    	
+						</mx:HBox>		  	
+						<mx:HBox width="100%" >
+							<mx:VBox verticalGap="1"   id="vbox2">
+								<mx:Label text="User name" />
+								<mx:TextInput id="externalUserName" 
+											  width="120" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
+							</mx:VBox>
+							<mx:VBox verticalGap="1"  >
+								<mx:Label text="Password"/>
+								<mx:TextInput id="externalUserPassword" 
+											  text="{parentDocument.fullUser.@passwordExternalEntered}" 
+											  width="167" displayAsPassword="true"  change="dirty.setDirty()"/>
+							</mx:VBox>
+						</mx:HBox>
+					</mx:ViewStack>
+				</mx:VBox>
 		  	    <mx:VBox paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalGap="0" id="permissionKindContainer">
 		  	      <mx:Label text="Permission Level"/>
-		  	        <mx:HBox verticalGap="0" paddingLeft="10" paddingTop="0">
-		  	           <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
+		  	         <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
 		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>LAB</mx:value>
 		  	         </mx:RadioButton>
-		  	          <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+		  	         <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>ADMIN</mx:value>
-		  	          </mx:RadioButton>
+		  	         </mx:RadioButton>
 		  	         <mx:RadioButton label="Billing Admin" id="isBillingPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>BILLING</mx:value>
 		  	         </mx:RadioButton>		  	         	
-		  	        </mx:HBox> 
+					<mx:RadioButton label="Super Admin" id="isSuperPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+						<mx:value>SUPER</mx:value>
+					</mx:RadioButton>		  	         	
 		  	    </mx:VBox>
-				</mx:HBox>		  		
-		  	  </mx:VBox>
-
-
-				
-	
-		    
+		  	  </mx:HBox>
+			  <mx:VBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
+				  <mx:Text text="Select allowed Core Facilities for this user."/>
+				  <mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.userCoreFacilities}">
+					  <mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
+						  <mx:CheckBox id="chkCoreFacility" paddingBottom="0" paddingTop="0" verticalGap="0"
+										  label="{coreFacilityRepeater.currentItem.@display}" width="206"
+										  data="{coreFacilityRepeater.currentItem.@value}"
+										  selected="{coreFacilityRepeater.currentItem.@selected == 'Y' ? true : false}"
+										  enabled="{coreFacilityRepeater.currentItem.@selected == 'N' || parentApplication.hasPermission('canAdministerAllCoreFacilities')}"
+										  click="dirty.setDirty()" />							
+					  </mx:HBox>
+				  </mx:Repeater>
+			  </mx:VBox>
 		    </mx:HBox>
 	
 	  </mx:VBox>
@@ -241,31 +270,7 @@
 	  <mx:HBox width="100%" horizontalAlign="right">
 	    <util:DirtyNote id="dirty"/>
 	  
-		<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')" width="70"/>
+		<mx:Button id="saveButton" label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')" width="70"/>
 	  </mx:HBox>	
 	</mx:ControlBar>
-  
-  <mx:states> 
-
-  	
-  	<mx:State name="externalUserState">
-  	<mx:AddChild relativeTo="{permissionKindContainer}" position="before">
-  		<mx:HBox width="100%" >
-		  	     <mx:VBox verticalGap="1"   id="vbox2">
-		  	     	<mx:Label text="User name" />
-		  	     	<mx:TextInput id="externalUserName" 
-		  	     		width="120" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
-		  	     </mx:VBox>
-		  	     <mx:VBox verticalGap="1"  >
-		  	     	<mx:Label text="Password"/>
-		  	     	<mx:TextInput id="externalUserPassword" 
-		  	     		text="{parentDocument.fullUser.@passwordExternalEntered}" 
-		  	     		width="167" displayAsPassword="true"  change="dirty.setDirty()"/>
-		  	     </mx:VBox>
-		 </mx:HBox>
-
-  	</mx:AddChild>
-  	<mx:RemoveChild target="{unidContainer}"/>
-  	</mx:State>
-  </mx:states>
 </mx:VBox>

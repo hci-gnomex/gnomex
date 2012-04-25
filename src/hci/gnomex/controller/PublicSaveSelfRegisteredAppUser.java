@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
@@ -12,9 +13,11 @@ import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -30,6 +33,8 @@ import org.hibernate.Transaction;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+import sun.tools.tree.ThisExpression;
+
 
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {
   
@@ -40,13 +45,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   
 
   private AppUser        appUserScreen;
-  private String         workAuthAdminEmail  = null;
+  private PropertyDictionaryHelper propertyHelper = null;
   private String         coreFacilityEmail = null;
   private String         requestedLab = "";
   private Integer        requestedLabId = null;
   private StringBuffer   requestURL;
   private Boolean        existingLab = false;
   private Boolean        uofuAffiliate = false;
+  private CoreFacility   facility = null;
+  private String         facilityId = null;
   
   public String responsePageSuccess = null;
   public String responsePageError = null;
@@ -72,6 +79,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       existingLab = false;
       requestedLab = request.getParameter("newLab");
     }
+    
+    facilityId = request.getParameter("facilityRadio");
     
     if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) ||
         (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) ||
@@ -120,9 +129,20 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      workAuthAdminEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
-      coreFacilityEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
+      propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+      coreFacilityEmail = propertyHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+      
+      // Get core facilities.
+      List activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
+      if (activeFacilities.size() == 1) {
+        facility = (CoreFacility)activeFacilities.get(0);
+      } else if (facilityId != null && facilityId.length() > 0) {
+        Integer id = Integer.parseInt(facilityId);
+        facility = (CoreFacility)sess.load(CoreFacility.class, id);
+      } else {
+        this.addInvalidField("Core Facility", "Please choose a core facility");
+      }
+      
       AppUser appUser = null;
 
       if(!uofuAffiliate) {
@@ -151,6 +171,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         try {
           sendUserEmail(appUserScreen);
         } catch(Exception e) {
+          log.error("An exception occurred sending the user email ", e);
+          e.printStackTrace();
           this.addInvalidField("email", "Unable to send email.  Please check your email address and try again.");
         }
       }
@@ -180,13 +202,19 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         // Default to Lab permission kind
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
 
+        // Set lab if selected
         if (existingLab) {
           HashSet labSet = new HashSet();
           labSet.add(lab);
           appUser.setLabs(labSet);
         }
+        
+        // Set default core facility.
+        HashSet facilities = new HashSet();
+        facilities.add(facility);
+        appUser.setCoreFacilities(facilities);
+        
         sess.save(appUser);
-
       }
 
       if (this.isValid()) {
@@ -268,11 +296,12 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       throw new AddressException("'bademail@bad.com' not allowed");
     }
 
+    String toAddress = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");
     MailUtil.send(
-        workAuthAdminEmail,
+        toAddress,
         "",
         coreFacilityEmail,
         "GNomEx User Account Request for " + appUser.getFirstName() + " " + appUser.getLastName(),

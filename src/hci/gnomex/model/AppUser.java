@@ -28,6 +28,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private Set     labs;
   private Set     collaboratingLabs;
   private Set     managingLabs;
+  private Set     coreFacilities;
   
   public String getDepartment() {
     return department;
@@ -129,23 +130,6 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     this.codeUserPermissionKind = codeUserPermissionKind;
   }
   
-  public String getIsAdminPermissionLevel() {
-    if (codeUserPermissionKind != null && codeUserPermissionKind.equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-  
-  public String getIsLabPermissionLevel() {
-    if (codeUserPermissionKind != null && codeUserPermissionKind.equals(UserPermissionKind.GROUP_PERMISSION_KIND)) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-
-  
   public String getPasswordExternal() {
     return passwordExternal;
   }
@@ -191,6 +175,13 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   
   public void setManagingLabs(Set managingLabs) {
     this.managingLabs = managingLabs;
+  }
+  
+  public Set getCoreFacilities() {
+    return coreFacilities;
+  }
+  public void setCoreFacilities(Set facilities) {
+    coreFacilities = facilities;
   }
   
   public String getIsExternalUser() {

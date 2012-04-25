@@ -72,7 +72,7 @@
 	    	params.description = priceDescription.text;
 	    	params.idPrice = price.@idPrice;
 	    	params.unitPrice = unitPrice.text;
-	    	params.unitPriceExternal = unitPriceExternal.text;
+	    	params.unitPriceExternalAcademic = unitPriceExternalAcademic.text;
 	    	params.idPriceCategory = priceCategory.@idPriceCategory;
 	    	params.isActive = priceIsActive.selected ? "Y" : "N";
 	    	
@@ -127,7 +127,7 @@
 		</mx:HBox>
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label text="External Unit price:"/>
-			<mx:TextInput id="unitPriceExternal" width="80" text="{price.@unitPriceExternal}" textAlign="right"/>
+			<mx:TextInput id="unitPriceExternalAcademic" width="80" text="{price.@unitPriceExternalAcademic}" textAlign="right"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:VBox width="100%"  verticalGap="0">
