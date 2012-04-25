@@ -54,6 +54,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private Boolean        uofuAffiliate = false;
   private CoreFacility   facility = null;
   private String         facilityId = null;
+  private String         department = null;
   
   public String responsePageSuccess = null;
   public String responsePageError = null;
@@ -75,6 +76,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (request.getParameter("existingLab") != null && request.getParameter("existingLab").equals("y")) {
       existingLab = true;
       requestedLabId = Integer.parseInt(request.getParameter("labDropdown"));
+      appUserScreen.setDepartment("");
     } else {
       existingLab = false;
       requestedLab = request.getParameter("newLab");
@@ -255,6 +257,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLab));
     } else {
       body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLab));
+      body.append("</td></tr><tr><td>Requested Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
     }
     body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
     body.append("</td></tr><tr><td>Email:</td><td>" + this.getNonNullString(appUser.getEmail()));

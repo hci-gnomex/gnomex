@@ -14,6 +14,7 @@
 * Add Core Facility to dictionary editor.  (bspiglejr)
 * Add IsActive flag to core facility.  (bspiglejr)
 * Only Super Admin's can edit the core facility dictionary or the Property dictionary. (bspiglejr)
+* Gather department name when user specifies a new lab in public registration. (bspiglejr)
 
 5.4.2.2 Deploy Notes
 ----------------------
