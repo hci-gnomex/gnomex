@@ -68,13 +68,26 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
           Object[] row = (Object[])i.next();
 
-          Integer idInstrumentRun = row[0] == null ? new Integer(-2) : (Integer)row[0];
-          String runDate    = this.formatDate((java.sql.Timestamp)row[1]);
-          //        String  status    = row[2] == null ? "" : (String)row[2];
+          Integer idInstrumentRun         = row[0] == null ? new Integer(-2) : (Integer)row[0];
+          String  runDate                 = this.formatDate((java.sql.Timestamp)row[1]);
+          String  createDate              = this.formatDate((java.sql.Timestamp)row[2]);
+          String  codeInstrumentRunStatus = row[3] == null ? "" : row[3].toString();
+          String  comments                = row[4] == null ? "" : row[4].toString();
+          String  label                   = row[5] == null ? "" : row[5].toString();
+          String  codeReactionType        = row[6] == null ? "" : row[6].toString();
+          String  creator                 = row[7] == null ? "" : row[7].toString();
+          String  codeSealType            = row[8] == null ? "" : row[8].toString();
 
           Element iNode = new Element("InstrumentRun");
           iNode.setAttribute("idInstrumentRun", idInstrumentRun.toString());
           iNode.setAttribute("runDate", runDate);
+          iNode.setAttribute("createDate", createDate);
+          iNode.setAttribute("codeInstrumentRunStatus", codeInstrumentRunStatus.toString());
+          iNode.setAttribute("comments", comments);
+          iNode.setAttribute("label", label);
+          iNode.setAttribute("codeReactionType", codeReactionType);
+          iNode.setAttribute("creator", creator);
+          iNode.setAttribute("codeSealType", codeSealType);
 
           List plates = sess.createQuery("SELECT p from Plate as p where p.idInstrumentRun=" + idInstrumentRun).list();
 

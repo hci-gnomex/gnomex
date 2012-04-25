@@ -40,8 +40,14 @@ public class SavePlate extends GNomExCommand implements Serializable {
   private Document              wellsDoc;
   private PlateWellParser       wellParser;
   
-  // plate index -- this corresponds to quadrant
-  private int                   plateIndex = 0;
+  private int                   quadrant = 0;
+  private String                createDateStr = null;
+  private String                comments = null;
+  private String                label = null;
+  private String                codeReactionType = null;
+  private String                creator = null;
+  private String                codeSealType = null;
+  
   
   
   public void validate() {
@@ -52,12 +58,31 @@ public class SavePlate extends GNomExCommand implements Serializable {
       idPlate = Integer.parseInt(request.getParameter("idPlate"));
       isNew = false;
     } 
-    if (request.getParameter("plateIndex") != null && !request.getParameter("plateIndex").equals("")) {
-      plateIndex = Integer.parseInt(request.getParameter("plateIndex"));
+    if (request.getParameter("quadrant") != null && !request.getParameter("quadrant").equals("")) {
+      quadrant = Integer.parseInt(request.getParameter("quadrant"));
     } 
     if (request.getParameter("idInstrumentRun") != null && !request.getParameter("idInstrumentRun").equals("")) {
       idInstrumentRun = Integer.parseInt(request.getParameter("idInstrumentRun"));
     } 
+    if (request.getParameter("createDate") != null && !request.getParameter("createDate").equals("")) {
+      createDateStr = request.getParameter("createDate");
+    }
+    if (request.getParameter("comments") != null && !request.getParameter("comments").equals("")) {
+      comments = request.getParameter("comments");
+    } 
+    if (request.getParameter("label") != null && !request.getParameter("label").equals("")) {
+      label = request.getParameter("label");
+    } 
+    if (request.getParameter("codeReactionType") != null && !request.getParameter("codeReactionType").equals("")) {
+      codeReactionType = request.getParameter("codeReactionType");
+    }
+    if (request.getParameter("creator") != null && !request.getParameter("creator").equals("")) {
+      creator = request.getParameter("creator");
+    } 
+    if (request.getParameter("codeSealType") != null && !request.getParameter("codeSealType").equals("")) {
+      codeSealType = request.getParameter("codeSealType");
+    }
+    
     
     if (request.getParameter("plateWellXMLString") != null
         && !request.getParameter("plateWellXMLString").equals("")) {
@@ -86,6 +111,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       Plate plate;
       
       if(isNew) {
+        // Should set creator to current user.
         plate = new Plate();
         sess.save(plate);
       } else {
@@ -95,6 +121,19 @@ public class SavePlate extends GNomExCommand implements Serializable {
       if ( idInstrumentRun != 0 ) {
         plate.setIdInstrumentRun(idInstrumentRun);
       }
+      
+      java.util.Date createDate = null;
+      if (createDateStr != null) {
+        createDate = this.parseDate(createDateStr);
+      }
+      plate.setCreateDate(createDate != null ? createDate : new java.util.Date(System.currentTimeMillis()));
+      
+      plate.setQuadrant(quadrant);
+      if ( comments != null ) {plate.setComments(comments);}
+      if ( label != null ) {plate.setLabel(label);}
+      if ( codeReactionType != null ) {plate.setCodeReactionType(codeReactionType);}
+//      if ( creator != null ) {plate.setCreator(creator);}
+      if ( codeSealType != null )  {plate.setCodeSealType(codeSealType);}
       
       idPlate = plate.getIdPlate();
       
@@ -144,10 +183,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       sess.flush();
         
       Document doc = new Document(new Element("SUCCESS"));
-      Element pNode = new Element("SavedPlate");
-      pNode.setAttribute("idPlate",String.valueOf(idPlate));
-      pNode.setAttribute("idInstrumentRun",String.valueOf(idInstrumentRun));
-      pNode.setAttribute("plateIndex",String.valueOf(plateIndex));
+      Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       
       List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
 

@@ -69,6 +69,7 @@ public class Sample extends HibernateDetailObject {
   private Set         propertyEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
+  private String      redoFlag = "N";
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
 
@@ -631,6 +632,16 @@ public class Sample extends HibernateDetailObject {
    */
   public String getNumberSequencingLanes() {
     return "";
+  }
+
+  public void setRedoFlag(String redoFlag)
+  {
+    this.redoFlag = redoFlag;
+  }
+
+  public String getRedoFlag()
+  {
+    return redoFlag;
   }
 
 }

@@ -218,10 +218,10 @@
           
           for ( i=0; i < bcArray.length; i++ ) {
             if ( i == trimStart - 1 ) {
-              sequenceBoxString += '<font color="#000000"><B><u>';
+              sequenceBoxString += '<font color="#000000"><B>';
             }
             if ( i == trimStop - 1 ) {
-              sequenceBoxString += '</u></B></font>';
+              sequenceBoxString += '</B></font>';
             }
             baseCallArray.addItem({x:parseInt(bcArray[i]), base:seqArray[i], qual:parseInt(qArray[i])});
             sequenceBoxString += seqArray[i];
@@ -651,7 +651,7 @@
         <mx:VBox height="100%" paddingRight="0" paddingLeft="5">
           <mx:Spacer height="85" width="100%" />
           <mx:VSlider height="100%" id="vZoomSlider" invertThumbDirection="true"
-                      minimum="1" maximum="5" value="1" 
+                      minimum=".5" maximum="5" value="1" 
                       change="dragVZoom(event);" 
                       liveDragging="false" dataTipFormatFunction="vZoomSliderDataTipFunc"/>
           <mx:Spacer height="55" width="100%" />
@@ -860,14 +860,13 @@
       <mx:Canvas label="Sequence" width="100%" height="100%" id="sequenceAccordion" minHeight="0" >
         
             <mx:Text paddingBottom="20" paddingLeft="40" paddingRight="40" paddingTop="20" 
-                     id='sequenceTextBox' width="100%" >
+                     id='sequenceTextBox' width="100%" letterSpacing="2">
               <mx:htmlText >
                 <![CDATA[
                   Sequence
                 ]]>
               </mx:htmlText>
             </mx:Text>
-          
         
           
         

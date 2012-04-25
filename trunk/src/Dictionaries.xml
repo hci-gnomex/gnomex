@@ -120,6 +120,11 @@
 	</Dictionary>
 
 	
+  <Dictionary displayName="Run Status" className="hci.gnomex.model.InstrumentRunStatus" />
+  <Dictionary displayName="Order Status" className="hci.gnomex.model.RequestStatus" />
+  <Dictionary displayName="Seal Type" className="hci.gnomex.model.SealType" />
+  <Dictionary displayName="Reaction Type" className="hci.gnomex.model.ReactionType" />
+  
 	
 	<Dictionary displayName="Microarray Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>

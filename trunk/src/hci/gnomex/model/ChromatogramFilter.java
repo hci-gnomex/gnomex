@@ -27,6 +27,7 @@ public class ChromatogramFilter extends DetailObject {
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private boolean               addJoin = true;
+  private boolean               addRequestJoin = true;
   private SecurityAdvisor       secAdvisor;
 
 
@@ -86,7 +87,7 @@ public class ChromatogramFilter extends DetailObject {
       addCriteria();
     }
     
-    queryBuf.append(" order by c.idChromatogram");
+    queryBuf.append(" order by c.idRequest");
 
   }
 
@@ -101,7 +102,7 @@ public class ChromatogramFilter extends DetailObject {
 
       this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" Request.createDate >= '");
+      queryBuf.append(" PlateWell.createDate >= '");
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -114,7 +115,7 @@ public class ChromatogramFilter extends DetailObject {
 
       this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" Request.createDate >= '");
+      queryBuf.append(" PlateWell.createDate >= '");
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -127,7 +128,7 @@ public class ChromatogramFilter extends DetailObject {
 
       this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" Request.createDate >= '");
+      queryBuf.append(" PlateWell.createDate >= '");
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -140,19 +141,17 @@ public class ChromatogramFilter extends DetailObject {
 
       this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" Request.createDate >= '");
+      queryBuf.append(" PlateWell.createDate >= '");
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
     
     if (requestNumber != null) {
-      this.addJoin();
+      this.addRequestJoin();
       this.addWhereOrAnd();
       
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       queryBuf.append(" (Request.number like '" + requestNumberBase + "[0-9]' OR Request.number = '" + requestNumberBase + "') ");
-//      queryBuf.append(" Request.number >= '");
-//      queryBuf.append(requestNumber);
     }
     
     if (idChromatogram != null){
@@ -173,10 +172,18 @@ public class ChromatogramFilter extends DetailObject {
 
   protected boolean addJoin()  {
     if (addJoin) {
-      queryBuf.append(" join Request on c.idRequest = Request.idRequest ");
+      queryBuf.append(" join PlateWell on c.idPlateWell = PlateWell.idPlateWell ");
       addJoin = false;
     }
     return addJoin;
+  }
+  
+  protected boolean addRequestJoin()  {
+    if (addRequestJoin) {
+      queryBuf.append(" join Request on c.idRequest = Request.idRequest ");
+      addRequestJoin = false;
+    }
+    return addRequestJoin;
   }
   
 

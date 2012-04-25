@@ -27,9 +27,14 @@ public class PlateFilter extends DetailObject {
     addWhere = true;
 
     queryBuf.append(" SELECT p.idPlate, ");
-    queryBuf.append("        p.idInstrumentRun ");
-    //    queryBuf.append("        ir.idInstrumentRun, ");
-    //    queryBuf.append("        ir.status ");
+    queryBuf.append("        p.idInstrumentRun, ");
+    queryBuf.append("        p.quadrant, ");
+    queryBuf.append("        p.createDate, ");
+    queryBuf.append("        p.comments, ");
+    queryBuf.append("        p.label, ");
+    queryBuf.append("        p.codeReactionType, ");
+    queryBuf.append("        p.creator, ");
+    queryBuf.append("        p.codeSealType ");
 
     getQueryBody(queryBuf);
 
@@ -65,7 +70,7 @@ public class PlateFilter extends DetailObject {
       addCriteria();
     }
     
-    queryBuf.append(" order by p.idPlate");
+    queryBuf.append(" order by p.createDate");
 
   }
 

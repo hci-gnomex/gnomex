@@ -1,5 +1,7 @@
 package hci.gnomex.model;
 
+import java.util.Date;
+
 import hci.hibernate3utils.HibernateDetailObject;
 
 
@@ -10,6 +12,7 @@ public class Chromatogram extends HibernateDetailObject {
   private PlateWell  plateWell;
   private Integer    idRequest;
   private String     fileName;
+  private String     qualifiedFilePath;
   private String     displayName;
   private Integer    readLength;
   private Integer    trimmedLength;
@@ -19,6 +22,7 @@ public class Chromatogram extends HibernateDetailObject {
   private Integer    cSignalStrength;
   private Integer    gSignalStrength;
   private Integer    tSignalStrength;
+  private Date       releaseDate;
   
   
   
@@ -70,6 +74,16 @@ public class Chromatogram extends HibernateDetailObject {
   public void setFileName(String fileName)
   {
     this.fileName = fileName;
+  }
+
+  public void setQualifiedFilePath(String qualifiedFilePath)
+  {
+    this.qualifiedFilePath = qualifiedFilePath;
+  }
+
+  public String getQualifiedFilePath()
+  {
+    return qualifiedFilePath;
   }
 
   public String getDisplayName()
@@ -160,6 +174,16 @@ public class Chromatogram extends HibernateDetailObject {
   public void settSignalStrength(Integer tSignalStrength)
   {
     this.tSignalStrength = tSignalStrength;
+  }
+
+  public Date getReleaseDate()
+  {
+    return releaseDate;
+  }
+
+  public void setReleaseDate(Date releaseDate)
+  {
+    this.releaseDate = releaseDate;
   }
     
 }
