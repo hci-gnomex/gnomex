@@ -3,6 +3,7 @@
 
 5.4.2.2
 ----------------------
+* Allow users with read permission on analysis to distribute data tracks (except for guest).
 
 
 
@@ -12,7 +13,7 @@
 * Fixed bug that was causing the organism selected on the Hyb Setup View to change if user went back and changed the organism on the Sample Setup View.(tcourdy)
 * Fixed bug where newly created folders could not be filled with files in experiment upload window. (mbowler)
 * Fixed bug with moving sub folders in experiment upload window. (mbowler)
-* Emergency bug fix that prevented Submit Reques and Register New Experiment to complete due to SequenceLane null pointer.  Caused by experiment name feature added in 5.4.2 (tdisera)
+* Emergency bug fix that prevented Submit Request and Register New Experiment to complete due to SequenceLane null pointer.  Caused by experiment name feature added in 5.4.2 (tdisera)
 
 
 5.4.2 (Apr 23, 2012)
