@@ -216,6 +216,7 @@ public class Analysis extends HibernateDetailObject {
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getAppUser");
     this.excludeMethodFromXML("getPropertyEntries");
+    this.excludeMethodFromXML("getFiles");
   }
 
 
