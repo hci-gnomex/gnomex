@@ -4,7 +4,22 @@
 5.4.2.2
 ----------------------
 * Allow users with read permission on analysis to distribute data tracks (except for guest).
+* Add core facility radio buttons on public user registration.  Hide button if only 1 active facility and default new users to it. (bspiglejr)
+* Rename Price.unitPriceExternal to price.unitPriceExternalAcademic in preparation for new unitPriceExternalCommercial.  (bspiglejr)
+* Add new Super Admin role.  This is like admin but allows editting/creation of core facilities and assigning users to core facilities.  (bspiglejr)
+* Add core facility checkboxes in the user edit screen.  Super Admins have full access, but admins have view access.  (bspiglejr)
+* New users added by admins are added to the admin's core facilities automatically. (bspiglejr)
+* Admins only see users in core facilities the admin is associated with in the user edit screen.  (bspiglejr)
+* Add ability to filter Property Dictionary entries by Core Facility.  (bspiglejr)
+* Add Core Facility to dictionary editor.  (bspiglejr)
+* Add IsActive flag to core facility.  (bspiglejr)
+* Only Super Admin's can edit the core facility dictionary or the Property dictionary. (bspiglejr)
 
+5.4.2.2 Deploy Notes
+----------------------
+* Rename unitPriceExternal to unitPriceExternalAcademic in the price table.
+* Assign all users to the default core facility (declare @idMicroArray int;select @idMicroArray = idCoreFacility from CoreFacility where facilityName='Microarray and Genomic Analysis';insert into CoreFacilityUser select @idMicroArray, idAppUser from AppUser)
+* Change selected AppUser.codeUserPermissionKind values from ADMIN to SUPER
 
 
 5.4.2.1 (Apr 24, 2012)
