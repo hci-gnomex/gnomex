@@ -165,6 +165,9 @@ try {
       <div id="newLabDiv" style="display:none;">
         <div class="col1"><div class="right">Enter Lab</div></div>
         <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"/></div>
+
+        <div class="col1"><div class="right">Department</div></div>
+        <div class="col2"><input type="text" class="textWide"  name="department" /></div>
       </div>
 
 <% if (showUserNameChoice) { %>
