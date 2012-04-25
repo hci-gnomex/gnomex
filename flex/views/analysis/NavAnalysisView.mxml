@@ -26,7 +26,7 @@
     url="GetAnalysis.gx"
     destination="getAnalysis"
     resultFormat="e4x"
-    showBusyCursor="false"
+    showBusyCursor="true"
     result="onGetAnalysis(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
     method="POST"
