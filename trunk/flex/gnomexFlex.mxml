@@ -10,6 +10,9 @@
 	xmlns:protocol="views.protocol.*"
 	xmlns:admin="views.admin.*"
 	xmlns:plate="views.plate.*"
+  	xmlns:data="views.data.*"
+ 	xmlns:order="views.order.*"
+  	xmlns:run="views.run.*"
 	xmlns:slide="views.slide.*"
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:billing="views.billing.*"
@@ -235,7 +238,7 @@
 			import views.admin.PropertyEvent;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
-      		import views.plate.ChromatBrowseView;
+  			import views.data.ChromatBrowseView;
 			import views.search.NavSearchView;
 			import views.user.UserPublicView;
 			import views.util.AboutView;
@@ -2231,14 +2234,15 @@
 						<plate:NavPlateView id="navPlateView"   width="100%" height="100%" backgroundAlpha="1.0">	
 						</plate:NavPlateView>
 
-						<plate:NavDataView id="navDataView"    width="100%" height="100%" backgroundAlpha="1.0">	
-						</plate:NavDataView>
+						<data:NavDataView id="navDataView"    width="100%" height="100%" backgroundAlpha="1.0">	
+						</data:NavDataView>
 						
-						<mx:VBox id="navOrderView">
-						</mx:VBox>
+						<order:NavOrderView id="navOrderView">
+						</order:NavOrderView>
 
-						<mx:VBox id="navRunView">
-						</mx:VBox>
+						<run:NavRunView id="navRunView">
+						</run:NavRunView>
+            
 			        </mx:ViewStack>
 	    		
 	    	</mx:ViewStack>
