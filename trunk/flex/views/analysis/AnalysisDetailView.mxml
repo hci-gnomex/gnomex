@@ -52,6 +52,9 @@
 			import views.util.DownloadHints;
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
+			
+			[Bindable]
+			private var isGuest:Boolean = true;
 
 			[Bindable]
 			public var rowCountMessage:String = new String();
@@ -77,8 +80,8 @@
 			
 			
 			public function checkSecurity():void {
-				if (parentApplication.isGuestMode()) {
-				}
+
+				
 			}
 			
 			public function setupForm(theAnalysis:Object):void {
@@ -106,6 +109,11 @@
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
 				
+				if (parentApplication.isGuestMode()) {
+					isGuest = true;
+				} else {
+					isGuest = false;
+				}
 				
 			}
 			
@@ -416,8 +424,8 @@
 							   click="showDataTracks()" 
 							   icon="@Embed(source='../../assets/datatrack.png')" 
 							   textDecoration="underline" 
-							   visible="{parentDocument.selectedAnalysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
-							   includeInLayout="{parentDocument.selectedAnalysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
+							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
+							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
 							   textAlign="left" fontSize="9" paddingLeft="0">    	        
 				</mx:LinkButton>				
 				
