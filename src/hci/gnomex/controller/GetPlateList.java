@@ -67,14 +67,26 @@ public class GetPlateList extends GNomExCommand implements Serializable {
 
           Object[] row = (Object[])i.next();
 
-          Integer idPlate = row[0] == null ? new Integer(-2) : (Integer)row[0];
-          Integer idInstrumentRun = row[1] == null ? new Integer(-2) : (Integer)row[1];
-          //        String  status    = row[2] == null ? "" : (String)row[2];
+          Integer idPlate          = row[0] == null ? new Integer(0) : (Integer)row[0];
+          Integer idInstrumentRun  = row[1] == null ? new Integer(0) : (Integer)row[1];
+          Integer quadrant         = row[2] == null ? new Integer(0) : (Integer)row[2];
+          String  createDate       = this.formatDate((java.sql.Timestamp)row[3]);
+          String  comments         = row[4] == null ? "" : row[4].toString();
+          String  label            = row[5] == null ? "" : row[5].toString();
+          String  codeReactionType = row[6] == null ? "" : row[6].toString();
+          String  creator          = row[7] == null ? "" : row[7].toString();
+          String  codeSealType     = row[8] == null ? "" : row[8].toString();
 
           Element pNode = new Element("Plate");
           pNode.setAttribute("idPlate", idPlate.toString());
           pNode.setAttribute("idInstrumentRun", idInstrumentRun.toString());
-
+          pNode.setAttribute("quadrant", quadrant.toString());
+          pNode.setAttribute("createDate", createDate);
+          pNode.setAttribute("comments", comments);
+          pNode.setAttribute("label", label);
+          pNode.setAttribute("codeReactionType", codeReactionType);
+          pNode.setAttribute("creator", creator);
+          pNode.setAttribute("codeSealType", codeSealType);
 
           doc.getRootElement().addContent(pNode);
 

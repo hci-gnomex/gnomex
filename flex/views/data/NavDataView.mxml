@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
            xmlns:views="views.*" 
-           xmlns:plate="views.plate.*"  
+           xmlns:data="views.data.*"  
            xmlns:util="views.util.*"  
            showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
            creationPolicy="all"
@@ -81,8 +81,8 @@
       
       <mx:ViewStack id="chromatViews"  visible="true" height="100%" width="100%"  >
         
-        <plate:ChromatBrowseView label="List" id="chromatBrowseView" icon="@Embed('../../assets/application_view_list.png')" parentView="{this}" /> 
-        <plate:ChromatDetailView id="chromatDetailView" 
+        <data:ChromatBrowseView label="List" id="chromatBrowseView" icon="@Embed('../../assets/application_view_list.png')" parentView="{this}" /> 
+        <data:ChromatDetailView id="chromatDetailView" 
                                  selectedChromat="{selectedChromat}" 
                                  selectedIdChromatogram="{selectedIdChromatogram}" 
                                  label="Detail" icon="@Embed(source='../../assets/tv_chart.png')"/> 
@@ -91,7 +91,7 @@
       
       <mx:ViewStack id="faViews"  visible="true" height="100%" width="100%"  >
         
-        <plate:ChromatBrowseView label="List" id="faBrowseView" icon="@Embed('../../assets/application_view_list.png')" parentView="{this}" /> 
+        <data:ChromatBrowseView label="List" id="faBrowseView" icon="@Embed('../../assets/application_view_list.png')" parentView="{this}" /> 
         
         
       </mx:ViewStack>

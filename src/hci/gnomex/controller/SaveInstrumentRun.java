@@ -21,7 +21,14 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   
   private int                   idInstrumentRun;
   private boolean               isNew = true;
+  private String                createDateStr = null;
+  
   private String                runDateStr = null;
+  private String                comments = null;
+  private String                label = null;
+  private String                codeReactionType = null;
+  private String                creator = null;
+  private String                codeSealType = null;
   
   //Variable to indicate which run from the plate editor page (up to 4 runs can be submitted at a time)
   private int                   runNumber = 0;
@@ -34,12 +41,31 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       idInstrumentRun = Integer.parseInt(request.getParameter("idInstrumentRun"));
       isNew = false;
     }
-    if (request.getParameter("runDate") != null && !request.getParameter("runDate").equals("")) {
-      runDateStr = request.getParameter("runDate");
+    if (request.getParameter("createDate") != null && !request.getParameter("createDate").equals("")) {
+      createDateStr = request.getParameter("createDate");
     }
     
     if (request.getParameter("runNumber") != null && !request.getParameter("runNumber").equals("")) {
       runNumber = Integer.parseInt(request.getParameter("runNumber"));
+    }
+    
+    if (request.getParameter("comments") != null && !request.getParameter("comments").equals("")) {
+      comments = request.getParameter("comments");
+    } 
+    if (request.getParameter("label") != null && !request.getParameter("label").equals("")) {
+      label = request.getParameter("label");
+    } 
+    if (request.getParameter("codeReactionType") != null && !request.getParameter("codeReactionType").equals("")) {
+      codeReactionType = request.getParameter("codeReactionType");
+    }
+    if (request.getParameter("creator") != null && !request.getParameter("creator").equals("")) {
+      creator = request.getParameter("creator");
+    } 
+    if (request.getParameter("codeSealType") != null && !request.getParameter("codeSealType").equals("")) {
+      codeSealType = request.getParameter("codeSealType");
+    }
+    if (request.getParameter("runDate") != null && !request.getParameter("runDate").equals("")) {
+      runDateStr = request.getParameter("runDate");
     }
   }
 
@@ -50,18 +76,25 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       InstrumentRun ir;
       
       if(isNew) {
+        // Should set creator to the current user
         ir = new InstrumentRun();
         sess.save(ir);
       } else {
         ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
       }
       
-      java.util.Date runDate = null;
-      if (runDateStr != null) {
-        runDate = this.parseDate(runDateStr);
+      java.util.Date createDate = null;
+      if (createDateStr != null) {
+        createDate = this.parseDate(createDateStr);
       }
-      ir.setRunDate(runDate != null ? runDate : new java.util.Date(System.currentTimeMillis()));
+      ir.setCreateDate(createDate != null ? createDate : new java.util.Date(System.currentTimeMillis()));
       
+      if ( runDateStr != null ) {ir.setRunDate(this.parseDate(runDateStr));}
+      if ( comments != null ) {ir.setComments(comments);}
+      if ( label != null ) {ir.setLabel(label);}
+      if ( codeReactionType != null ) {ir.setCodeReactionType(codeReactionType);}
+//      if ( creator != null ) {ir.setCreator(creator);}
+      if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
         
       sess.flush();
         

@@ -14,11 +14,16 @@ public class InstrumentRunFilter extends DetailObject {
 
   private String                status;
 
-  private String                lastWeek = "N";
-  private String                lastMonth = "N";
-  private String                lastThreeMonths = "N";
-  private String                lastYear = "N";
-  
+  private String                runLastWeek = "N";
+  private String                runLastMonth = "N";
+  private String                runLastThreeMonths = "N";
+  private String                runLastYear = "N";
+
+  private String                createdLastWeek = "N";
+  private String                createdLastMonth = "N";
+  private String                createdLastThreeMonths = "N";
+  private String                createdLastYear = "N";
+
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
@@ -30,10 +35,14 @@ public class InstrumentRunFilter extends DetailObject {
     addWhere = true;
 
     queryBuf.append(" SELECT ir.idInstrumentRun, ");
-    queryBuf.append("        ir.runDate ");
-    // Need to add Status to DB
-    //    queryBuf.append("        ir.runDate, ");
-    //    queryBuf.append("        ir.status ");
+    queryBuf.append("        ir.runDate, ");
+    queryBuf.append("        ir.createDate, ");
+    queryBuf.append("        ir.codeInstrumentRunStatus, ");
+    queryBuf.append("        ir.comments, ");
+    queryBuf.append("        ir.label, ");
+    queryBuf.append("        ir.codeReactionType, ");
+    queryBuf.append("        ir.creator, ");
+    queryBuf.append("        ir.codeSealType ");
 
     getQueryBody(queryBuf);
 
@@ -46,10 +55,14 @@ public class InstrumentRunFilter extends DetailObject {
     boolean hasLimitingCriteria = false;
     if (idInstrumentRun != null ||
         (status != null && !status.equals("")) ||
-        (lastWeek != null && lastWeek.equals("Y")) ||
-        (lastMonth != null && lastMonth.equals("Y")) ||
-        (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
-        (lastYear != null && lastYear.equals("Y"))) {
+        (runLastWeek != null && runLastWeek.equals("Y")) ||
+        (runLastMonth != null && runLastMonth.equals("Y")) ||
+        (runLastThreeMonths != null && runLastThreeMonths.equals("Y")) ||
+        (runLastYear != null && runLastYear.equals("Y")) ||
+        (createdLastWeek != null && createdLastWeek.equals("Y")) ||
+        (createdLastMonth != null && createdLastMonth.equals("Y")) ||
+        (createdLastThreeMonths != null && createdLastThreeMonths.equals("Y")) ||
+        (createdLastYear != null && createdLastYear.equals("Y"))) {
       hasLimitingCriteria = true;
     } else {
       hasLimitingCriteria = false;
@@ -66,10 +79,10 @@ public class InstrumentRunFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM                InstrumentRun as ir ");
-    
+
     addRunCriteria();
 
-    queryBuf.append(" order by ir.runDate");
+    queryBuf.append(" order by ir.createDate");
 
   }
 
@@ -89,8 +102,11 @@ public class InstrumentRunFilter extends DetailObject {
       queryBuf.append(")");
     }
 
-    // Search for instrument run created in last week
-    if (lastWeek.equals("Y")) {
+    // --------------------------
+    // Search by run date
+    //---------------------------
+    // Search for instrument run that ran in last week
+    if (runLastWeek.equals("Y")) {
 
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.DAY_OF_YEAR, -7);
@@ -101,8 +117,8 @@ public class InstrumentRunFilter extends DetailObject {
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
-    // Search for instrument run created in last month
-    if (lastMonth.equals("Y")) {
+    // Search for instrument run that ran in last month
+    if (runLastMonth.equals("Y")) {
 
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.MONTH, -1);
@@ -113,8 +129,8 @@ public class InstrumentRunFilter extends DetailObject {
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
-    // Search for instrument run created in last 3 months
-    if (lastThreeMonths.equals("Y")) {
+    // Search for instrument run that ran in last 3 months
+    if (runLastThreeMonths.equals("Y")) {
 
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.MONTH, -3);
@@ -125,8 +141,8 @@ public class InstrumentRunFilter extends DetailObject {
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
-    // Search for instrument run created in last year
-    if (lastYear.equals("Y")) {
+    // Search for instrument run that ran in last year
+    if (runLastYear.equals("Y")) {
 
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.YEAR, -1);
@@ -138,9 +154,61 @@ public class InstrumentRunFilter extends DetailObject {
       queryBuf.append("'");
     }    
 
+    // --------------------------
+    // Search by create date
+    //---------------------------
+    // Search for instrument run created in last week
+    if (createdLastWeek.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DAY_OF_YEAR, -7);
+      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" ir.createDate >= '");
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for instrument run created in last month
+    if (createdLastMonth.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -1);
+      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" ir.createDate >= '");
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for instrument run created in last 3 months
+    if (createdLastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" ir.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for instrument run created in last year
+    if (createdLastYear.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.YEAR, -1);
+      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" ir.createDate >= '");
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }    
+
   }
-  
-  
+
+
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -183,43 +251,83 @@ public class InstrumentRunFilter extends DetailObject {
   }
 
 
-  public String getLastWeek() {
-    return lastWeek;
+  public String getRunLastWeek() {
+    return runLastWeek;
   }
 
 
-  public void setLastWeek(String lastWeek) {
-    this.lastWeek = lastWeek;
+  public void setRunLastWeek(String lastWeek) {
+    this.runLastWeek = lastWeek;
   }
 
 
-  public String getLastMonth() {
-    return lastMonth;
+  public String getRunLastMonth() {
+    return runLastMonth;
   }
 
 
-  public void setLastMonth(String lastMonth) {
-    this.lastMonth = lastMonth;
+  public void setRunLastMonth(String lastMonth) {
+    this.runLastMonth = lastMonth;
   }
 
 
-  public String getLastThreeMonths() {
-    return lastThreeMonths;
+  public String getRunLastThreeMonths() {
+    return runLastThreeMonths;
   }
 
 
-  public void setLastThreeMonths(String lastThreeMonths) {
-    this.lastThreeMonths = lastThreeMonths;
+  public void setRunLastThreeMonths(String lastThreeMonths) {
+    this.runLastThreeMonths = lastThreeMonths;
   }
 
 
-  public String getLastYear() {
-    return lastYear;
+  public String getRunLastYear() {
+    return runLastYear;
   }
 
 
-  public void setLastYear(String lastYear) {
-    this.lastYear = lastYear;
+  public void setRunLastYear(String lastYear) {
+    this.runLastYear = lastYear;
   }
-  
+
+  public String getCreatedLastWeek()
+  {
+    return createdLastWeek;
+  }
+
+  public void setCreatedLastWeek(String createdLastWeek)
+  {
+    this.createdLastWeek = createdLastWeek;
+  }
+
+  public String getCreatedLastMonth()
+  {
+    return createdLastMonth;
+  }
+
+  public void setCreatedLastMonth(String createdLastMonth)
+  {
+    this.createdLastMonth = createdLastMonth;
+  }
+
+  public String getCreatedLastThreeMonths()
+  {
+    return createdLastThreeMonths;
+  }
+
+  public void setCreatedLastThreeMonths(String createdLastThreeMonths)
+  {
+    this.createdLastThreeMonths = createdLastThreeMonths;
+  }
+
+  public String getCreatedLastYear()
+  {
+    return createdLastYear;
+  }
+
+  public void setCreatedLastYear(String createdLastYear)
+  {
+    this.createdLastYear = createdLastYear;
+  }
+
 }

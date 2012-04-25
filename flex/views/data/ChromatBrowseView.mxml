@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="100%" height="100%" 
+		 xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
+	<mx:Label id="titleLabel" styleName="titleLabel" text="{'Chromatogram List'}"/>
+	
+	<mx:HTTPService  
+		id="getChromatogramList" 
+		url="GetChromatogramList.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetChromatogramList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get chromatogram list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request xmlns="">
+			<requestNumber>{requestNoLookupField.text.indexOf('R') > 0 ? requestNoLookupField.text : ''}</requestNumber>
+			<lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
+			<lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
+			<lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
+			<lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
+			<getAll>{allCheckbox.selected ? 'Y' : 'N'}</getAll>
+		</mx:request>
+	</mx:HTTPService> 
+	
+	<mx:Script> 
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			public var parentView:NavDataView;
+			
+			
+			private function init():void {
+				this.getChromatogramList.send();
+				this.addEventListener("changed",refresh);
+			}
+			
+			private function refresh(e:Event):void{
+				this.getChromatogramList.send();
+			}    	
+			
+			private function onGetChromatogramList(event:ResultEvent):void {
+				if (event.result.name() == "ChromatogramList") {
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting chromatogram list");
+				} 
+			}
+			
+			private function gridItemClick(event:ListEvent):void {
+				parentView.selectedChromat = chromatogramGrid.selectedItem;
+				parentView.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
+				if (event.columnIndex == 2){
+					parentView.switchToDetailView();
+				}
+			}
+			
+			public function toggleDateCheckboxes(checkBoxNumber:int):void {
+				this.requestNoLookupField.text = "";
+				if (checkBoxNumber == 0) {
+					this.lastMonthCheckbox.selected = false;
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastYearCheckbox.selected  = false;
+				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastThreeMonthsCheckbox.selected = false;
+				}   
+			} 			
+			
+			private function setDefaultButton():void {
+				if (this.requestNoLookupField.text != '') {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected = false;
+				} 		
+			}
+			
+		]]>
+	</mx:Script>    	
+	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}"/>
+	
+	<mx:HBox id="filterBox"  horizontalGap="20" verticalAlign="middle">
+		<mx:Label text="Filter by"/>
+		<mx:HBox horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="Order #"/>
+			<mx:TextInput id="requestNoLookupField" width="60" change="{setDefaultButton()}"/>     
+			<mx:Button id="lookupButton"  
+					   fontFamily="Arial"  height="18" width="30"
+					   color="#400040" visible="true" icon="@Embed('../../assets/arrow_right.png')"
+					   click="{if (requestNoLookupField.text != '') this.getChromatogramList.send();}" />
+		</mx:HBox>
+		
+		<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+			<mx:CheckBox id="allCheckbox" label="All Chromatograms" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+				<mx:click>toggleDateCheckboxes(0);this.getChromatogramList.send();</mx:click>
+			</mx:CheckBox>
+			<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+				<mx:click>toggleDateCheckboxes(1);this.getChromatogramList.send();</mx:click>
+			</mx:CheckBox>
+			<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+				<mx:click>toggleDateCheckboxes(2);this.getChromatogramList.send();</mx:click>
+			</mx:CheckBox>
+			<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   >
+				<mx:click>toggleDateCheckboxes(3);this.getChromatogramList.send();</mx:click>
+			</mx:CheckBox>
+			<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+				<mx:click>toggleDateCheckboxes(4);this.getChromatogramList.send();</mx:click>
+			</mx:CheckBox>
+		</mx:HBox>          	  
+		
+	</mx:HBox>
+	
+	<mx:VDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		
+		<mx:VBox width="100%" height="100%" verticalGap="1">		
+			
+			<mx:HBox width="100%" verticalAlign="bottom">
+				<mx:HBox width="100%" verticalAlign="middle" paddingTop="8">
+					<mx:Label text="{'Chromatogram ' + chromatogramGrid.selectedItem.@displayName}"  fontWeight="bold"/>
+				</mx:HBox>
+				<mx:Spacer width="100%"/>
+				<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"/>
+			</mx:HBox>	
+			
+			<mx:DataGrid id="chromatogramGrid" itemClick="gridItemClick(event)" width="100%" height="100%" dataProvider="{chromats}" >
+				<mx:columns>
+					<mx:DataGridColumn  dataField="@idChromatogram" headerText="ID" width="50"/>
+					<mx:DataGridColumn  dataField="@idChromatogram" headerText="" width="32" resizable="false" itemRenderer="views.renderers.LinkButtonFinchTv"/>
+					<mx:DataGridColumn  dataField="@displayName" headerText="Label" width="250" textDecoration="underline"  color="#2017D8">
+						<mx:headerRenderer> 
+							<mx:Component>
+								<mx:Label text="Label" textDecoration="none" color="#000000"/>
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@idRequest" headerText="Order ID" width="65"/>
+					<mx:DataGridColumn  dataField="@readLength" headerText="Length" width="75"/>
+					<mx:DataGridColumn  dataField="@trimmedLength" headerText="Trim Len" width="75"  />
+					<mx:DataGridColumn  dataField="@q20" headerText="q20" width="75"/>
+					<mx:DataGridColumn  dataField="@q40" headerText="q40" width="75"/>
+					<mx:DataGridColumn  dataField="@q20_len" headerText="q20/len" width="75"/>
+					<mx:DataGridColumn  dataField="@q40_len" headerText="q40/len" width="75"/>
+					<mx:DataGridColumn  dataField="@aSignalStrength" headerText="A sig" width="75"/>
+					<mx:DataGridColumn  dataField="@cSignalStrength" headerText="C sig" width="75"  />
+					<mx:DataGridColumn  dataField="@gSignalStrength" headerText="G sig" width="75"/>
+					<mx:DataGridColumn  dataField="@tSignalStrength" headerText="T sig" width="75"  />
+				</mx:columns>				
+			</mx:DataGrid>		
+			
+			
+		</mx:VBox>
+		
+	</mx:VDividedBox>
+	
+	
+	<mx:ControlBar horizontalAlign="left" width="100%">
+			<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
+						   toolTip="Refresh chromatogram list" click="{this.getChromatogramList.send();}"/>
+	</mx:ControlBar>	
+	
+	
+</mx:VBox>

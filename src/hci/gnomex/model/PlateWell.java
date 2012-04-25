@@ -1,5 +1,7 @@
 package hci.gnomex.model;
 
+import java.util.Date;
+
 import hci.hibernate3utils.HibernateDetailObject;
 
 
@@ -14,6 +16,8 @@ public class PlateWell extends HibernateDetailObject {
   private Integer  idSample;
   private Sample   sample;
   private Integer  idRequest;
+  private String   codeReactionType;
+  private Date     createDate;
   
   public Integer getIdPlateWell() {
     return idPlateWell;
@@ -113,6 +117,26 @@ public class PlateWell extends HibernateDetailObject {
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getPlate");
+  }
+
+  public void setCodeReactionType(String codeReactionType)
+  {
+    this.codeReactionType = codeReactionType;
+  }
+
+  public String getCodeReactionType()
+  {
+    return codeReactionType;
+  }
+
+  public void setCreateDate(Date createDate)
+  {
+    this.createDate = createDate;
+  }
+
+  public Date getCreateDate()
+  {
+    return createDate;
   }
   
     

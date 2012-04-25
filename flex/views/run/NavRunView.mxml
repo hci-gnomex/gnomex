@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+		   label="Run" width="100%" height="100%" 
+		   xmlns:views="views.*" 
+		   xmlns:run="views.run.*"
+		   xmlns:util="views.util.*"
+		   creationPolicy="all"  show="init()"
+		   cornerRadius="10"  >
+	
+	
+	
+	<mx:Script> 
+		<![CDATA[
+			
+			
+			public function checkDirty():void {
+			}
+			
+			private function init():void {
+			}
+			
+			
+			
+			
+		]]>
+	</mx:Script> 
+	
+	
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+	
+	<mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
+		
+		
+		<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
+			
+			
+			<mx:VBox styleName="panelBox"   width="175" height="100%" >
+				
+				<mx:HBox width="100%">
+					<mx:Label id="titleLabel" styleName="titleLabel" text="To Do Box"/>
+					<mx:Label id="messageLabel" styleName="labelSmall" textAlign="right" width="100%"/>
+				</mx:HBox> 
+				
+				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
+					
+					<mx:Tree width="100%" height="100%" ></mx:Tree>
+					
+				</mx:VBox>
+				
+				<mx:ControlBar width="100%" verticalAlign="top">
+					
+					
+				</mx:ControlBar> 
+			
+			
+			</mx:VBox>  
+			
+			
+			
+			<mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
+				
+				<run:RunBrowseView id="browseView"  width="100%" height="100%" parentView="{this}">
+				</run:RunBrowseView>
+				
+			</mx:ViewStack>
+			
+			
+			
+		</mx:HDividedBox>
+	</mx:VBox>
+	
+	
+	
+	
+</mx:Canvas>

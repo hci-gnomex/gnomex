@@ -79,17 +79,20 @@ public class GetPlate extends GNomExCommand implements Serializable {
         
         Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         
-        String idRequestString = plateWell.getIdRequest().toString();
-        if ( idRequestString != null && !idRequestString.equals("")) {
-          Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-          if ( request != null ) {
-            node.setAttribute("submitDate", request.getCreateDate().toString());
-            node.setAttribute("submitter", request.getOwnerName());
-            
+        node.setAttribute("requestSubmitDate", "");
+        node.setAttribute("requestSubmitter", "");
+        
+        if ( plateWell.getIdRequest() != null ) {
+          String idRequestString = plateWell.getIdRequest().toString();
+          if ( idRequestString != null && !idRequestString.equals("")) {
+            Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+            if ( request != null ) {
+              node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
+              node.setAttribute("requestSubmitter", request.getOwnerName());
+            }
           }
         }
-      
-
+        
         pwNode.addContent(node);
       }
       

@@ -7,6 +7,7 @@ package views.renderers
 	import mx.containers.Box;
 	import mx.containers.TitleWindow;
 	import mx.controls.Label;
+	import mx.controls.Text;
 	import mx.controls.TextArea;
 	import mx.events.CloseEvent;
 	import mx.events.FlexMouseEvent;
@@ -104,9 +105,9 @@ package views.renderers
 		// function to set the sample
 		public function setSample(sample:Object):void {
 			this.sample = sample;
-      this.idSample = sample.@idSample;
-			this.sampleName = sample.@label;
-			this.groupId = sample.@idRequest;
+      this.idSample = sample.@idSample != null ? sample.@idSample : 0;
+			this.sampleName = sample.@name != null ? sample.@name : '';
+			this.groupId = sample.@idRequest != null ? sample.@idRequest : '';
 			this.toolTip = sampleName;
       this.hasSample = true;
 		}
@@ -125,13 +126,13 @@ package views.renderers
 				tw.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE,closeWellInfo)
 				tw.layout = "vertical";
 				
-				var sampleLabel:TextArea = new TextArea();
-				var requestLabel:TextArea = new TextArea();
-				var notesLabel:TextArea = new TextArea();
-				
+				var sampleLabel:mx.controls.Label = new mx.controls.Label();
+				var requestLabel:mx.controls.Label = new mx.controls.Label();
+				var notesLabel:Text = new mx.controls.Text();
+				        
 				sampleLabel.text = 'Sample: ' + sampleName;
 				requestLabel.text = 'Request #: ' + groupId;
-				notesLabel.text = 'Notes: ' + sample.@description;
+				notesLabel.text = 'Sample Desc: ' + sample.@description;
 				
 				tw.addChild(sampleLabel);
 				tw.addChild(requestLabel);
