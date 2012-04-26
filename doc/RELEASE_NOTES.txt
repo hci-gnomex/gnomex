@@ -15,6 +15,8 @@
 * Add IsActive flag to core facility.  (bspiglejr)
 * Only Super Admin's can edit the core facility dictionary or the Property dictionary. (bspiglejr)
 * Gather department name when user specifies a new lab in public registration. (bspiglejr)
+* Altered queries for usage stats to eliminate duplicate uploads (rcundick)
+* Altered queries for usage report to eliminate duplicate uploads, added cumulative columns to report (rcundick)
 
 5.4.2.2 Deploy Notes
 ----------------------

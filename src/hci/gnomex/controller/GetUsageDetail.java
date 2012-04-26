@@ -195,8 +195,16 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
   }
 
   private void getActivityTransferDetail(Session sess, Element parentElement, String transferType) {
-
+    List rows;
+    TreeMap nodeMap = new TreeMap();
     StringBuffer queryBuf = new StringBuffer();
+    
+    String distinctStr = "";
+    if(transferType.compareTo("upload")==0) {
+      distinctStr = "distinct";
+    }
+    
+    /*
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, count(*) ");
     queryBuf.append("from TransferLog tl, Request r, Lab lab ");
     queryBuf.append("where tl.idRequest = r.idRequest ");
@@ -205,10 +213,24 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = '" + transferType + "' ");
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number"); 
+    rows = sess.createQuery(queryBuf.toString()).list();
+    */
 
-    TreeMap nodeMap = new TreeMap();
-    List rows = sess.createQuery(queryBuf.toString()).list();
+    queryBuf.append("SELECT t.idLab, t.lastName, t.firstName, t.sDateTime, t.number, count(*)  ");
+    queryBuf.append("from ");
+    queryBuf.append("(SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, CAST(tl.startDateTime AS DATE) as sDateTime, r.number, tl.fileName ");
+    queryBuf.append("from TransferLog tl, Request r, Lab lab ");
+    queryBuf.append("where tl.idRequest = r.idRequest ");
+    queryBuf.append("and r.idLab = lab.idLab ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = '" + transferType + "') t ");
+    queryBuf.append("group by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
+    queryBuf.append("order by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
+    rows = sess.createSQLQuery(queryBuf.toString()).list();
+
+
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
@@ -228,6 +250,8 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     }
 
     queryBuf = new StringBuffer();
+    
+    /*
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, count(*) ");
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
@@ -237,8 +261,21 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.transferType = '" + transferType + "' ");
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number");
-
     rows = sess.createQuery(queryBuf.toString()).list();
+    */
+
+    queryBuf.append("SELECT t.idLab, t.lastName, t.firstName, t.sDateTime, t.number, count(*)  ");
+    queryBuf.append("from ");
+    queryBuf.append("(SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, CAST(tl.startDateTime AS DATE) as sDateTime, a.number, tl.fileName ");
+    queryBuf.append("from TransferLog tl, Analysis a, Lab lab  ");
+    queryBuf.append("where tl.idAnalysis = a.idAnalysis and a.idLab = lab.idLab ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "'  ");
+    queryBuf.append("and tl.transferType = '" + transferType + "') t ");
+    queryBuf.append("group by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
+    queryBuf.append("order by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
+    rows = sess.createSQLQuery(queryBuf.toString()).list();
+    
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
