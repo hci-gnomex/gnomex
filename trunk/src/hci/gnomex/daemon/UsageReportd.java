@@ -190,16 +190,28 @@ public class UsageReportd extends TimerTask {
       StringBuffer tableRows = new StringBuffer("");
       // Table Title      
       //body.append(subject + " for " + todaysDate + "<br>");     
-      tableRows.append("<tr><td width='200' colspan='6' align='center'><span class='fontClassBold'>" + subject + " for " + todaysDate + "</span></td></tr>");
+      tableRows.append("<tr><td width='200' colspan='10' align='center'><span class='fontClassBold'>" + subject + " for " + todaysDate + "</span></td></tr>");
       
       
       // Table Header
       tableRows.append("<tr><td width='200'><span class='fontClassBold'>Lab<br>&nbsp;</span></td>");
-      tableRows.append("<td width='120' align='center'><span class='fontClassBold'>Number of<br>Experiments</span></td>");
-      tableRows.append("<td width='120' align='center'><span class='fontClassBold'>Number of<br>Analyses</span></td>");
-      tableRows.append("<td width='120' align='center'><span class='fontClassBold'>Number of<br>Uploads</span></td>");
-      tableRows.append("<td width='120' align='center'><span class='fontClassBold'>Number of<br>Downloads</span></td>");
-      tableRows.append("<td width='120' align='center'><span class='fontClassBold'>Days Since<br>Last Upload</span></td></tr>");
+      tableRows.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>Number of<br>Experiments</span></td>");
+      tableRows.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>Number of<br>Analyses</span></td>");
+      tableRows.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>Number of<br>File Uploads</span></td>");
+      tableRows.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>Number of<br>File Downloads</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Days Since<br>Last Upload</span></td></tr>");
+
+      // Weekly/Cumulative Sub Header
+      tableRows.append("<tr><td width='200'><span class='fontClassBold'>&nbsp;</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Weekly</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Cumulative</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Weekly</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Cumulative</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Weekly</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Cumulative</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Weekly</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>Cumulative</span></td>");
+      tableRows.append("<td width='100' align='center'><span class='fontClassBold'>&nbsp;</span></td></tr>");
 
       // Stats for each lab
       for (Object key : sorted_map.keySet()) {
@@ -215,13 +227,17 @@ public class UsageReportd extends TimerTask {
           labRowSpan++;
         }
         tableRows.append("<tr><td width='200' rowspan='" + labRowSpan + "'><span class='fontClass'>" + value.getLabName() + "</span></td>");
-        tableRows.append("<td width='120' align='right'><span class='fontClass'>" + value.getExperimentCountOutput() + "</span></td>");
-        tableRows.append("<td width='120' align='right'><span class='fontClass'>" + value.getAnalysisCountOutput() + "</span></td>");
-        tableRows.append("<td width='120' align='right'><span class='fontClass'>" + value.getUploadCountOutput() + "</span></td>");
-        tableRows.append("<td width='120' align='right'><span class='fontClass'>" + value.getDownloadCountOutput() + "</span></td>");
-        tableRows.append("<td width='120' align='right'><span class='fontClass'>" + daysSinceLastUpload + "</span></td></tr>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getExperimentCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getCumulativeExperimentCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getAnalysisCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getCumulativeAnalysisCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getUploadCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getCumulativeUploadCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getDownloadCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + value.getCumulativeDownloadCountOutput() + "</span></td>");
+        tableRows.append("<td width='100' align='right'><span class='fontClass'>" + daysSinceLastUpload + "</span></td></tr>");
         if(labRowSpan > 1) {
-          tableRows.append("<tr><td colspan='5' width='600' align='left'><span class='fontClass'>Experiment/Analysis Links: <br>");
+          tableRows.append("<tr><td colspan='9' width='600' align='left'><span class='fontClass'>Experiment/Analysis Links: <br>");
           for(Object eaKey : expAnalysisList) {
             String thisExpAnalysisNumber = (String) eaKey;
             String nameAndDescr = (String) value.getExpAnalysisList().get(eaKey);
@@ -250,7 +266,7 @@ public class UsageReportd extends TimerTask {
         body.append("Distribution List: " + toList + "<br><br>");        
       }
 
-      body.append("<table width='820' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td width='800' valign='top' align='left'>");
+      body.append("<table width='1120' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td width='800' valign='top' align='left'>");
       body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
       body.append(tableRows.toString());
       body.append("</table></td></tr></table></body></html>");
@@ -285,13 +301,18 @@ public class UsageReportd extends TimerTask {
       for (Iterator i = results.iterator(); i.hasNext();) {
         Lab thisLab = (Lab)i.next();
         LabStats ls = new LabStats(thisLab.getName());
+        ls.setLabId(thisLab.getIdLab().intValue()); // This variable for needed only for debugging
         labInfo.put(thisLab.getIdLab(), ls);
       } 
       
       getActivityExperimentDetail();
+      getCumulativeActivityExperimentDetail();
       getActivityAnalysisDetail();
+      getCumulativeActivityAnalysisDetail();
       getActivityTransferDetail("upload");
+      getCumulativeActivityTransferDetail("upload");
       getActivityTransferDetail("download");
+      getCumulativeActivityTransferDetail("download");
       getDaysSinceLastUpload();
       
       ValueComparator bvc =  new ValueComparator(labInfo);
@@ -353,64 +374,123 @@ public class UsageReportd extends TimerTask {
   }    
   
   private void getActivityTransferDetail(String transferType) {
+    
+    String distinctStr = "";
+    if(transferType.compareTo("upload")==0) {
+      distinctStr = "distinct";
+    }
 
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, count(*) ");
+    queryBuf.append("SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, tl.fileName, r.number ");
     queryBuf.append("from TransferLog tl, Request r, Lab lab ");
     queryBuf.append("where tl.idRequest = r.idRequest ");
     queryBuf.append("and r.idLab = lab.idLab ");
     queryBuf.append("and tl.startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.startDateTime < '" + fFormat.formatDate(endDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = '" + transferType + "' ");
-    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.fileName, r.number ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.fileName, r.number");
     
     List rows = sess.createQuery(queryBuf.toString()).list();
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
-      Integer count = (Integer)row[5];
       LabStats ls = labInfo.get(idLab);
       if(ls != null) {
         if(transferType.compareTo("upload") == 0) {
-          int uploadCount = ls.getUploadCount() + count.intValue();
-          ls.setUploadCount(uploadCount);        
+          int uploadCount = ls.getUploadCount() + 1;
+          ls.setUploadCount(uploadCount); 
         } else {
-          int downloadCount = ls.getDownloadCount() + count.intValue();
-          ls.setUploadCount(downloadCount);                
+          int downloadCount = ls.getDownloadCount() + 1;
+          ls.setDownloadCount(downloadCount);                
         }        
       }
     }
     
     queryBuf = new StringBuffer();
-    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, count(*) ");
+    queryBuf.append("SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, tl.fileName, a.number ");
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
     queryBuf.append("and a.idLab = lab.idLab ");
     queryBuf.append("and tl.startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.startDateTime < '" + fFormat.formatDate(endDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = '" + transferType + "' ");
-    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.fileName, a.number ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.fileName, a.number");
 
     rows = sess.createQuery(queryBuf.toString()).list();
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
-
-      Integer count = (Integer)row[5];
       LabStats ls = labInfo.get(idLab);
       if(ls != null) {
         if(transferType.compareTo("upload") == 0) {
-          int uploadCount = ls.getUploadCount() + count.intValue();
+          int uploadCount = ls.getUploadCount() + 1;
           ls.setUploadCount(uploadCount);        
         } else {
-          int downloadCount = ls.getDownloadCount() + count.intValue();
-          ls.setUploadCount(downloadCount);                
+          int downloadCount = ls.getDownloadCount() + 1;
+          ls.setDownloadCount(downloadCount);                
         }        
       }
     }    
-  }  
+  } 
+  
+  private void getCumulativeActivityTransferDetail(String transferType) {
+    String distinctStr = "";
+    if(transferType.compareTo("upload")==0) {
+      distinctStr = "distinct";
+    }
+    
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, tl.fileName, r.number ");
+    queryBuf.append("from TransferLog tl, Request r, Lab lab ");
+    queryBuf.append("where tl.idRequest = r.idRequest ");
+    queryBuf.append("and r.idLab = lab.idLab ");
+    queryBuf.append("and tl.transferType = '" + transferType + "' ");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.fileName, r.number ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.fileName, r.number");
+    
+    List rows = sess.createQuery(queryBuf.toString()).list();
+    for(Iterator i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Integer idLab = (Integer)row[0];
+      LabStats ls = labInfo.get(idLab);
+      if(ls != null) {
+        if(transferType.compareTo("upload") == 0) {
+          int uploadCount = ls.getCumulativeUploadCount() + 1;
+          ls.setCumulativeUploadCount(uploadCount);        
+        } else {
+          int downloadCount = ls.getCumulativeDownloadCount() + 1;
+          ls.setCumulativeDownloadCount(downloadCount);                
+        }        
+      }
+    }
+    
+    queryBuf = new StringBuffer();
+    queryBuf.append("SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, tl.fileName, a.number ");
+    queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
+    queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
+    queryBuf.append("and a.idLab = lab.idLab ");
+    queryBuf.append("and tl.transferType = '" + transferType + "' ");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.fileName, a.number ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.fileName, a.number");
+
+    rows = sess.createQuery(queryBuf.toString()).list();
+    for(Iterator i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Integer idLab = (Integer)row[0];
+      LabStats ls = labInfo.get(idLab);
+      if(ls != null) {
+        if(transferType.compareTo("upload") == 0) {
+          int uploadCount = ls.getCumulativeUploadCount() + 1;
+          ls.setCumulativeUploadCount(uploadCount);        
+        } else {
+          int downloadCount = ls.getCumulativeDownloadCount() + 1;
+          ls.setCumulativeDownloadCount(downloadCount);                
+        }        
+      }
+    }    
+  }    
   
 
   private void getActivityExperimentDetail() {
@@ -420,7 +500,7 @@ public class UsageReportd extends TimerTask {
     queryBuf.append("join r.requestCategory as requestCategory ");
     queryBuf.append("where r.createDate > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and r.createDate < '" + fFormat.formatDate(endDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number");   
     
     List rows = sess.createQuery(queryBuf.toString()).list();
 
@@ -446,7 +526,27 @@ public class UsageReportd extends TimerTask {
         ls.addToExpAnalysisList(requestNumber + " " + requestCategory, expName + "&nbsp;&nbsp;" + expDescription);
       }
     }
-  }  
+  } 
+  
+  private void getCumulativeActivityExperimentDetail() {
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number, r.name, r.description, requestCategory.requestCategory from Request r ");
+    queryBuf.append("join r.lab as lab ");
+    queryBuf.append("join r.requestCategory as requestCategory ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number");
+    
+    List rows = sess.createQuery(queryBuf.toString()).list();
+
+    for(Iterator i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Integer idLab = (Integer)row[0];
+      LabStats ls = labInfo.get(idLab);
+      if(ls != null) {
+        int expCount = ls.getCumulativeExperimentCount() + 1;
+        ls.setCumulativeExperimentCount(expCount); 
+      }
+    }
+  }   
   
   private void getActivityAnalysisDetail() {
 
@@ -477,6 +577,24 @@ public class UsageReportd extends TimerTask {
         ls.setAnalysisCount(analysisCount);        
         String analysisNumber = (String)row[4];
         ls.addToExpAnalysisList(analysisNumber, analysisName + "&nbsp;&nbsp;" + analysisDescription);
+      }
+    }
+  } 
+  
+  private void getCumulativeActivityAnalysisDetail() {
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, a.createDate, a.number, a.name, a.description from Analysis a ");
+    queryBuf.append("join a.lab as lab ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, a.createDate, a.number");
+    
+    List rows = sess.createQuery(queryBuf.toString()).list();
+    for(Iterator i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Integer idLab = (Integer)row[0]; 
+      LabStats ls = labInfo.get(idLab);
+      if(ls != null) {
+        int analysisCount = ls.getCumulativeAnalysisCount() + 1;
+        ls.setCumulativeAnalysisCount(analysisCount);        
       }
     }
   } 
@@ -560,12 +678,42 @@ public class UsageReportd extends TimerTask {
   
   private class LabStats {
     private String labName;
+    private int labId;
     private int daysSinceLastUpload;
     private int experimentCount;
+    private int cumulativeExperimentCount;
     private int analysisCount;
+    private int cumulativeAnalysisCount;
     private int uploadCount;
     private int downloadCount;
+    private int cumulativeUploadCount;
+    private int cumulativeDownloadCount;
     private TreeMap expAnalysisList;
+    
+    public int getLabId() {
+      return labId;
+    }
+
+    public void setLabId(int labId) {
+      this.labId = labId;
+    }
+
+    public int getCumulativeExperimentCount() {
+      return cumulativeExperimentCount;
+    }
+
+    public void setCumulativeExperimentCount(int cumulativeExperimentCount) {
+      this.cumulativeExperimentCount = cumulativeExperimentCount;
+    }
+
+    public int getCumulativeAnalysisCount() {
+      return cumulativeAnalysisCount;
+    }
+
+    public void setCumulativeAnalysisCount(int cumulativeAnalysisCount) {
+      this.cumulativeAnalysisCount = cumulativeAnalysisCount;
+    }
+
     
     public TreeMap getExpAnalysisList() {
       return expAnalysisList;
@@ -580,11 +728,31 @@ public class UsageReportd extends TimerTask {
       daysSinceLastUpload = -1;
       experimentCount = 0;
       analysisCount = 0;
+      cumulativeExperimentCount = 0;
+      cumulativeAnalysisCount = 0;
       uploadCount = 0;
       downloadCount = 0;
+      cumulativeUploadCount = 0;
+      cumulativeDownloadCount = 0;
       expAnalysisList = new TreeMap(new ExpAnalysisComparator());
     }
     
+    public int getCumulativeUploadCount() {
+      return cumulativeUploadCount;
+    }
+
+    public void setCumulativeUploadCount(int cumulativeUploadCount) {
+      this.cumulativeUploadCount = cumulativeUploadCount;
+    }
+
+    public int getCumulativeDownloadCount() {
+      return cumulativeDownloadCount;
+    }
+
+    public void setCumulativeDownloadCount(int cumulativeDownloadCount) {
+      this.cumulativeDownloadCount = cumulativeDownloadCount;
+    }
+
     public void addToExpAnalysisList(String expAnalysisLabel, String nameAndDescription) {
       expAnalysisList.put(expAnalysisLabel, nameAndDescription);
     }
@@ -612,6 +780,13 @@ public class UsageReportd extends TimerTask {
       return "-";
     }
 
+    public String getCumulativeExperimentCountOutput() {
+      if(cumulativeExperimentCount > 0) {
+        return "" + cumulativeExperimentCount;
+      }
+      return "-";
+    }
+
     public void setExperimentCount(int experimentCount) {
       this.experimentCount = experimentCount;
     }
@@ -623,6 +798,13 @@ public class UsageReportd extends TimerTask {
     public String getAnalysisCountOutput() {
       if(analysisCount > 0) {
         return "" + analysisCount;
+      }
+      return "-";
+    }
+
+    public String getCumulativeAnalysisCountOutput() {
+      if(cumulativeAnalysisCount > 0) {
+        return "" + cumulativeAnalysisCount;
       }
       return "-";
     }
@@ -643,6 +825,14 @@ public class UsageReportd extends TimerTask {
     }
 
 
+    public String getCumulativeUploadCountOutput() {
+      if(cumulativeUploadCount > 0) {
+        return "" + cumulativeUploadCount;
+      }
+      return "-";
+    }
+
+
     public void setUploadCount(int uploadCount) {
       this.uploadCount = uploadCount;
     }
@@ -657,6 +847,14 @@ public class UsageReportd extends TimerTask {
       }
       return "-";
     }
+    
+    public String getCumulativeDownloadCountOutput() {
+      if(cumulativeDownloadCount > 0) {
+        return "" + cumulativeDownloadCount;
+      }
+      return "-";
+    }
+    
     public void setDownloadCount(int downloadCount) {
       this.downloadCount = downloadCount;
     }

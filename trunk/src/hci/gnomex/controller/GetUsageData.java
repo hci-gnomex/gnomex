@@ -248,9 +248,11 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
         // Get upload count
         rank = 0;
-        summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
+        //summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
+        summaryRows = sess.createQuery("SELECT tl.idLab, count(distinct fileName) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
         addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
-        Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(*) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
+        //Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(*) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
+        Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(distinct fileName) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
         summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
 
         
@@ -449,7 +451,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
     
     // Tally upload count by week
-    summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
+    //summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
+    summaryRows = sess.createSQLQuery("select t.sDateTime, count(*) from (select distinct CAST(tl.startDateTime AS DATE) as sDateTime, fileName from TransferLog tl where transferType = 'upload') t group by sDateTime order by sDateTime").list();
+    
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
       java.util.Date createDate  = (java.util.Date)rows[0];
