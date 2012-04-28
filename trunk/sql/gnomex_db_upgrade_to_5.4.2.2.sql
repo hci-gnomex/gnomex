@@ -103,12 +103,13 @@ CREATE TABLE `gnomex`.`CoreFacilityUser` (
 )
 ENGINE = INNODB;
 
-INSERT INTO `gnomex`.`CoreFacilityUser`(`idCoreFacility`, `isAppUser`) select 1, idAppUser from AppUser;
+INSERT INTO `gnomex`.`CoreFacilityUser`(`idCoreFacility`, `idAppUser`) select 1, idAppUser from AppUser;
 
 --
 -- Super Admin Role
 --
-INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermissionKind`, `isActive`) insert into UserPermissionKind values('SUPER','Super','Y');
+INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermissionKind`, `isActive`) 
+values ('SUPER','Super','Y');
 
 UPDATE `gnomex`.`AppUser` SET codeUserPermissionKind='SUPER' WHERE codeUserPermissionKind='ADMIN'; 
 
