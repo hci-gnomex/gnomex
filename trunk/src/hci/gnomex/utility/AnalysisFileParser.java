@@ -20,6 +20,7 @@ import org.jdom.Element;
 public class AnalysisFileParser extends DetailObject implements Serializable {
   
   protected Document    doc;
+  protected boolean     dataTrackFilesOnly;
   protected Document    filesToDeleteDoc;
   protected Map         analysisFileMap = new HashMap();
   protected Map         analysisFileToDeleteMap = new HashMap();
@@ -46,7 +47,7 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
     
     for(Iterator i1 = folderNode.getChildren("AnalysisFileDescriptor").iterator(); i1.hasNext();) {
       Element fileNode = (Element)i1.next();
-      
+            
       String idAnalysisFileString = fileNode.getAttributeValue("idAnalysisFileString");
       AnalysisFile af = initializeFile(fileNode, sess);
       
@@ -72,8 +73,10 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
     
   }
   
+  
   protected AnalysisFile initializeFile(Element n, Session sess){
     String idAnalysisFileString = n.getAttributeValue("idAnalysisFileString");
+    
 
     AnalysisFile af = null;
     if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {

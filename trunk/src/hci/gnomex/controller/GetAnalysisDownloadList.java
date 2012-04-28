@@ -46,7 +46,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
   private String                         serverName;
   private String                         baseDir;
-//  private SimpleDateFormat               yearFormat= new SimpleDateFormat("yyyy");
   private Integer                        idAnalysis;    
   private String                         analysisNumber;
   
@@ -170,7 +169,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         Map fileMap = new HashMap();
         List analysisNumbers = new ArrayList<String>();
         GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, a.getKey(), analysisNumbers, analysisMap, directoryMap, false);
-        
+
         for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {
           String analysisNumber = (String)i.next();
           List directoryKeys   = (List)analysisMap.get(analysisNumber);
@@ -201,7 +200,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             }
 
             List   theFiles     = (List)directoryMap.get(directoryKey);
-            
             // For each file in the directory
             for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
               AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
@@ -229,6 +227,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fd.setIdLab(a.getIdLab());
               
               fdNode.setAttribute("idAnalysis", a.getIdAnalysis()!=null?a.getIdAnalysis().toString():"");
+              fdNode.setAttribute("dirty", "N");
               fdNode.setAttribute("key", directoryName != "" ? a.getKey(directoryName) : a.getKey());
               fdNode.setAttribute("type", fd.getType() != null ? fd.getType() : "");
               fdNode.setAttribute("displayName", fd.getDisplayName() != null ? fd.getDisplayName() : "");
@@ -246,6 +245,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("idLab", a.getIdLab() != null ? a.getIdLab().toString() : "");
               fdNode.setAttribute("isSelected", "N");
               fdNode.setAttribute("state", "unchecked");
+              fdNode.setAttribute("isSupportedDataTrack", fd.getIsSupportedDataTrack());
               fdNode.setAttribute("viewURL", fd.getViewURL());
               
               aNode.addContent(fdNode);
@@ -255,6 +255,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             }
           }
         }
+        
 
         // Add any files that are registered in the db, but not on the fileserver
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
@@ -450,7 +451,31 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       
       childFd.excludeMethodFromXML("getChildren");
 
-      Element childFdNode = childFd.toXMLDocument(null, childFd.DATE_OUTPUT_ALTIO).getRootElement();
+      //Element childFdNode = childFd.toXMLDocument(null, childFd.DATE_OUTPUT_ALTIO).getRootElement();
+      Element childFdNode = new Element("AnalysisFileDescriptor");
+      childFdNode.setAttribute("idAnalysis", childFd.getIdAnalysis() != null ? childFd.getIdAnalysis().toString() : "");
+      childFdNode.setAttribute("dirty", "N");
+      childFdNode.setAttribute("type", childFd.getType() != null ? childFd.getType() : "");
+      childFdNode.setAttribute("displayName", childFd.getDisplayName() != null ? childFd.getDisplayName() : "");
+      childFdNode.setAttribute("fileSize", Long.valueOf(childFd.getFileSize()).toString() );
+      childFdNode.setAttribute("fileSizeText", childFd.getFileSizeText() != null ? childFd.getFileSizeText() : "");
+      childFdNode.setAttribute("childFileSize", Long.valueOf(childFd.getChildFileSize()).toString() );
+      childFdNode.setAttribute("fileName", childFd.getFileName() != null ? childFd.getFileName() : "");
+      childFdNode.setAttribute("filePathName", childFd.getFilePathName() != null ? childFd.getFilePathName() : "");
+      childFdNode.setAttribute("qualifiedFileName", childFd.getQualifiedFileName() != null ? childFd.getQualifiedFileName() : "");
+      childFdNode.setAttribute("qualifiedFilePath", childFd.getQualifiedFilePath() != null ? childFd.getQualifiedFilePath() : "");
+      childFdNode.setAttribute("baseFilePath", childFd.getBaseFilePath() != null ? childFd.getBaseFilePath() : "");
+      childFdNode.setAttribute("comments", childFd.getComments() != null ? childFd.getComments() : "");
+      childFdNode.setAttribute("lastModifyDateDisplay", childFd.getLastModifyDateDisplay() != null ? childFd.getLastModifyDateDisplay() : "");
+      childFdNode.setAttribute("uploadDate", childFd.getUploadDate() != null ? childFd.formatDate(childFd.getUploadDate(), DATE_OUTPUT_SQL) : "");
+      childFdNode.setAttribute("zipEntryName", childFd.getZipEntryName() != null ? childFd.getZipEntryName() : "");
+      childFdNode.setAttribute("number", childFd.getNumber() != null ? childFd.getNumber() : "");
+      childFdNode.setAttribute("analysisNumber", childFd.getNumber() != null ? childFd.getNumber() : "");
+      childFdNode.setAttribute("idAnalysisFileString", childFd.getIdAnalysisFileString() != null ? childFd.getIdAnalysisFileString() : "");
+      childFdNode.setAttribute("idLab", childFd.getIdLab() != null ? childFd.getIdLab().toString() : "");
+      childFdNode.setAttribute("viewURL", childFd.getViewURL() != null ? childFd.getViewURL() : "");
+      childFdNode.setAttribute("isSupportedDataTrack", childFd.getIsSupportedDataTrack());
+
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
 

@@ -350,23 +350,94 @@
 					} 
 				}
 			}
-			
-			public function getAnalysisFiles():XMLListCollection{
-				var files:XMLListCollection = new XMLListCollection();
-				
-				for each(var a:Object in downloadList) {
-					if (a.@type != "dir") {
-						files.addItem(a);
-					}
-				}
-				
-				return files;
+
+			public function getDirtyAnalysisFiles():XML{
+				var topNodeShallow:XML = new XML("<Analysis/>");
+				shallowCopy(downloadList[0] as XML, topNodeShallow);
+				recurseGetDirty(downloadList[0], topNodeShallow);
+				return topNodeShallow;
 			}
+
+			public function getDataTrackAnalysisFiles():XML{
+				var topNodeShallow:XML = new XML("<Analysis/>");
+				shallowCopy(downloadList[0] as XML, topNodeShallow);
+				recurseGetDataTrack(downloadList[0], topNodeShallow);
+				return topNodeShallow;
+			}
+			
+			
+			private function recurseGetDirty(node:XML, nodeShallow:XML):void {
+				for each(var childNode:XML in node.children()) {
+					var keep:Boolean = false;					
+					if (childNode.@type == 'dir') {
+						if (childNode.@dirty == 'Y') {
+							keep = true;
+						} else {
+							var dirtyNodes:XMLList = childNode..AnalysisFileDescriptor.(@dirty == 'Y');
+							if (dirtyNodes.length() > 0) {
+								keep = true;
+							}
+						}
+					} else if (childNode.@dirty == 'Y') {
+						keep = true;
+					}
+					if (keep) {
+						var childNodeShallow:XML = new XML("<AnalysisFileDescriptor/>");
+						shallowCopy(childNode, childNodeShallow);
+						nodeShallow.appendChild(childNodeShallow);
+					}
+					recurseGetDirty(childNode, childNodeShallow);
+				}
+			}
+
+			private function recurseGetDataTrack(node:XML, nodeShallow:XML):void {
+				for each(var childNode:XML in node.children()) {
+					var keep:Boolean = false;					
+					if (childNode.@type == 'dir') {
+						if (childNode.@isSupportedDataTrack == 'Y') {
+							keep = true;
+						} else {
+							var dirtyNodes:XMLList = childNode..AnalysisFileDescriptor.(@isSupportedDataTrack == 'Y');
+							if (dirtyNodes.length() > 0) {
+								keep = true;
+							}
+						}
+					} else if (childNode.@isSupportedDataTrack == 'Y') {
+						keep = true;
+					}
+					if (keep) {
+						var childNodeShallow:XML = new XML("<AnalysisFileDescriptor/>");
+						shallowCopy(childNode, childNodeShallow);
+						nodeShallow.appendChild(childNodeShallow);
+					}
+					recurseGetDataTrack(childNode, childNodeShallow);
+				}
+			}
+
+			private function shallowCopy(source:XML, destination:XML):void {
+				for each(var attr:XML in source.attributes()) {
+					destination[attr.name()] = attr.toString();
+				}
+			}
+
 			
 			public function hasUnregisteredFiles():Boolean {
 				var hasUnregisteredFile:Boolean = false;
 				for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
 					if (a.@type != "dir") {
+						if (a.@idAnalysisFileString.toString().indexOf("AnalysisFile") == 0) {
+							hasUnregisteredFile = true;
+							break;
+						}
+					}
+				}
+				return hasUnregisteredFile;
+			}
+			
+			public function hasUnregisteredDataTrackFiles():Boolean {
+				var hasUnregisteredFile:Boolean = false;
+				for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+					if (a.@type != "dir" && a.@isSupportedDataTrack == "Y") {
 						if (a.@idAnalysisFileString.toString().indexOf("AnalysisFile") == 0) {
 							hasUnregisteredFile = true;
 							break;
@@ -387,7 +458,10 @@
       		private function checkEdit(event:AdvancedDataGridEvent):void{
         		if ( event.itemRenderer.data.@type == "dir"){
           			event.preventDefault();
-        		}
+        		} else {
+					event.itemRenderer.data.@dirty = 'Y';
+					parentDocument.dirty.setDirty();
+				}
       		}
 			
 		]]>

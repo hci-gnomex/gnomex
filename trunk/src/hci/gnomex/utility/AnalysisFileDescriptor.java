@@ -260,6 +260,21 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     }
   }
   
+  public String getIsSupportedDataTrack() {
+    boolean found = false;
+    if (type != null) {
+      String extension = "." + type;
+      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS[x])) {
+          found = true;
+          break;
+        }
+      }
+      
+    }
+    return (found ? "Y" : "N");
+  }
+  
 
   public String getIsSelected() {
     return "false";
