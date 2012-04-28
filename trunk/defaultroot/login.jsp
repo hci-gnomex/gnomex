@@ -79,7 +79,7 @@ try {
 
 <% if (showCampusInfoLink) { %>
 <div class="bottomPanel">
-If you have an University ID (u00000000), use it and the password from University Campus Information Systems to login.
+If you have an University ID (u0000000), use it and the password from University Campus Information Systems to login.
 </div>
 <% }  %>
 
