@@ -977,6 +977,19 @@
 			return;			
 		}
 		
+		// Disallow operation if non-datatrack files dragged over
+		for each(var di:Object in ds.dataForFormat("treeDataGridItems") as Array) {
+			if (di.name() == "AnalysisFileDescriptor") {
+				if (di.@isSupportedDataTrack == 'N') {
+					Alert.show("Only supported file types can be distributed as a Data Track.  Look for this icon next to Analysis file.",
+					   "Unsupported file extension", Alert.OK, null, null, parentApplication.iconDataTrack);
+					event.preventDefault();
+					event.target.hideDropFeedback(event);
+					DragManager.showFeedback(DragManager.NONE);		   	
+					return;	
+				}
+			}
+		}
 		
 		
 		// retrieve the data associated with the "items" format. This will be the data that
@@ -984,15 +997,16 @@
 		dragParams = new ArrayCollection();
 		for each(var dragItem:Object in ds.dataForFormat("treeDataGridItems") as Array) {
 			var params:Object = new Object();
-			var keep:Boolean = true;
 			if (dragItem.name() == "AnalysisFileDescriptor") {
-				params.name = "AnalysisFileDescriptor";
-				params.fileName = dragItem.@displayName;
-				params.idAnalysis = dragItem.@idAnalysis;
-				params.idAnalysisFile = dragItem.@idAnalysisFileString;
-				params.idLab = dragItem.@idLab;
-
-				dragParams.addItem(params);
+				if (dragItem.@isSupportedDataTrack == 'Y') {
+					params.name = "AnalysisFileDescriptor";
+					params.fileName = dragItem.@displayName;
+					params.idAnalysis = dragItem.@idAnalysis;
+					params.idAnalysisFile = dragItem.@idAnalysisFileString;
+					params.idLab = dragItem.@idLab;
+					
+					dragParams.addItem(params);
+				} 
 			}
 		}
 		
