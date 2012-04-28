@@ -2135,7 +2135,6 @@
 				visibilityView.visibilityRadioGroup.selectedValue = request.@codeVisibility;
 				visibilityView.privacyExpirationPicker.text = request.@privacyExpirationDate;
 			} else {
-				trace('alt');
 			}
 			
 			
