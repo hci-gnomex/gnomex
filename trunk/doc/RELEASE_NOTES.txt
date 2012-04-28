@@ -20,6 +20,9 @@
 * Change login message to 7 zeros after u for uNID. (tdisera)
 * Rework XML generation and save of Analysis files to improve performance. Only save dirty analysis files and replace framework XML generation with standard jdom Element to improve performance. (tdisera)
 * Improve layout of Analysis Detail and Analysis Edit to provide more vertical space for Files tab.  Moved fields at the top to 'Info' tab.  (tdisera)
+* Disallow drag-and-drop operation for distribute data tracks on analysis files if extension no a supported data track. (tdisera)
+* Sort analysis files in a directory by file name (so that they are ordered alphabetically). (tdisera)
+
 
 5.4.2.2 Deploy Notes
 ----------------------
