@@ -1942,6 +1942,8 @@
 						} else {
 							return iconFolder;			
 						} 
+					} else if (item.hasOwnProperty("@isSupportedDataTrack") && item.@isSupportedDataTrack == 'Y') {
+						return iconDataTrack;
 					} else {
 						return null;			
 					} ;
