@@ -106,10 +106,6 @@
 
 			buildSearchCriteriaDisplay();
             
-            //var codeFactorList:XMLList = parentApplication.getExperimentFactorList.lastResult.ExperimentFactor;    
-            //myXMLString = codeFactorList.toXMLString();
-            //trace(myXMLString.length);
-            //trace(myXMLString);
         	searchGNomEx.send(params); 
         }
 			

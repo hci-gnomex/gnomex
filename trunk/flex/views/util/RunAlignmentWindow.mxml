@@ -160,9 +160,7 @@
 			}
 		}
 		
-		//private function checkAlignmentProfileSelection():void {
-		//	trace("1");		
-		//}
+
 	]]>
 </mx:Script>
 	
