@@ -3,10 +3,10 @@
 
 5.4.2.2
 ----------------------
-* Allow users with read permission on analysis to distribute data tracks (except for guest).
+* Allow users with read permission on analysis to distribute data tracks, except for guest. (tdisera)
 * Add core facility radio buttons on public user registration.  Hide button if only 1 active facility and default new users to it. (bspiglejr)
 * Rename Price.unitPriceExternal to price.unitPriceExternalAcademic in preparation for new unitPriceExternalCommercial.  (bspiglejr)
-* Add new Super Admin role.  This is like admin but allows editting/creation of core facilities and assigning users to core facilities.  (bspiglejr)
+* Add new Super Admin role.  This is like admin but allows editing/creation of core facilities and assigning users to core facilities.  (bspiglejr)
 * Add core facility checkboxes in the user edit screen.  Super Admins have full access, but admins have view access.  (bspiglejr)
 * New users added by admins are added to the admin's core facilities automatically. (bspiglejr)
 * Admins only see users in core facilities the admin is associated with in the user edit screen.  (bspiglejr)
@@ -17,6 +17,9 @@
 * Gather department name when user specifies a new lab in public registration. (bspiglejr)
 * Altered queries for usage stats to eliminate duplicate uploads (rcundick)
 * Altered queries for usage report to eliminate duplicate uploads, added cumulative columns to report (rcundick)
+* Change login message to 7 zeros after u for uNID. (tdisera)
+* Rework XML generation and save of Analysis files to improve performance. Only save dirty analysis files and replace framework XML generation with standard jdom Element to improve performance. (tdisera)
+* Improve layout of Analysis Detail and Analysis Edit to provide more vertical space for Files tab.  Moved fields at the top to 'Info' tab.  (tdisera)
 
 5.4.2.2 Deploy Notes
 ----------------------
