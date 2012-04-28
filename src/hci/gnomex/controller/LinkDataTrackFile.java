@@ -139,7 +139,12 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       }
       // Make sure the user can write this data Track 
       if (!this.getSecAdvisor().canUpdate(dataTrack)) {
-        addInvalidField("writep", "Insufficient permision to write to data track.");
+        addInvalidField("writep", "Insufficient permission to write to data track.");
+      }
+      
+      // Make sure the user can read this analysis
+      if (!this.getSecAdvisor().canRead(analysisFile.getAnalysis())) {
+        addInvalidField("readp", "Insufficient permission to read analysis.");
       }
       
       // Add the analysis file
