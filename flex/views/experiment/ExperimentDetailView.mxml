@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox
+<mx:VBox  
     xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"   creationPolicy="all"
@@ -748,74 +748,75 @@
 <mx:XMLListCollection id="samples" source="{selectedExperiment.samples.Sample}"/>
 <mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 
-<mx:VBox width="100%" height="100%"  styleName="form"  id="vbox2">
-    <mx:VBox height="100%"  width="100%" verticalGap="0">
-        <mx:HBox width="100%" paddingTop="4" paddingBottom="0" horizontalGap="6" paddingLeft="4" paddingRight="4">
-        	<mx:VBox verticalGap="0">
-	        	 
-	        	 <mx:HBox verticalGap="0" horizontalGap="0">
-	        	       <mx:Label text="Experiment"  width="80" fontWeight="bold"/>
-	        	       <mx:Text text="{requestCategoryName}" width="160" />
-	        	 </mx:HBox>
-	            <mx:HBox verticalGap="0" horizontalGap="0">
-	                <mx:Label width="80" fontWeight="bold"/>
-	                <mx:Text  text="{experimentCategoryName}" width="160" />
-	            </mx:HBox>
-        	</mx:VBox>
-        	<mx:VBox verticalGap="0">
-        		 <mx:HBox verticalGap="0" horizontalGap="0">
-        		   <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" fontWeight="bold"/>
-        		   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
-        		 </mx:HBox>
-        	       <mx:HBox verticalGap="0" horizontalGap="0">
-        	         <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" fontWeight="bold"/>
-        	         <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
-        	       </mx:HBox>
-                  <mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
-                    <mx:Label width="100" text="Completed" fontWeight="bold"/>
-                    <mx:Text  text="{this.selectedExperiment.@completedDate}" width="130" />
-                  </mx:HBox>
-        	</mx:VBox>
-        	<mx:VBox width="100%" verticalGap="0">
-        	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-        	           <mx:Label text="Group"  width="80" fontWeight="bold"/>
-        	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
-        	     </mx:HBox>
-	        	
+        
+			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
+					<mx:VBox label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 
-	            <mx:HBox width="100%">
-		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-		                <mx:Text width="80" text="Visibility" fontWeight="bold"/>
-		                <mx:Text text="{visibilityName}" width="130" />
-		            </mx:HBox>
-				</mx:HBox>
-				<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
-					<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-						<mx:Text id="designAndInsertLabel" width="80" fontWeight="bold"/>
-						<mx:Text id="designAndInsertText" width="130" paddingTop="{selectedExperiment.@captureLibDesignId != '' ? 8 : 0}" />
-					</mx:HBox>
-				</mx:HBox>
+						
+						<mx:HBox width="100%" paddingTop="4" paddingBottom="0" horizontalGap="6" paddingLeft="4" paddingRight="4">
+							<mx:VBox verticalGap="4" height="100%">
+								
+								<mx:HBox verticalGap="0" horizontalGap="0">
+									<mx:Label text="Experiment"  width="80" fontWeight="bold"/>
+									<mx:Text text="{requestCategoryName}" width="250" />
+								</mx:HBox>
+								<mx:HBox verticalGap="0" horizontalGap="0">
+									<mx:Label width="80" fontWeight="bold"/>
+									<mx:Text  text="{experimentCategoryName}" width="250" />
+								</mx:HBox>
+								<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+									<mx:Label text="Lab group"  width="80" fontWeight="bold"/>
+									<mx:Text text="{this.selectedExperiment.@labName}" width="250"/>
+								</mx:HBox>
+								<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+									<mx:Text width="80" text="Visibility" fontWeight="bold"/>
+									<mx:Text text="{visibilityName}" width="250" />
+								</mx:HBox>
+							</mx:VBox>
+							<mx:VBox verticalGap="4">
+								<mx:HBox verticalGap="0" horizontalGap="0">
+									<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" fontWeight="bold"/>
+									<mx:Text text="{this.selectedExperiment.@ownerName}" width="200" />
+								</mx:HBox>
+								<mx:HBox verticalGap="0" horizontalGap="0">
+									<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" fontWeight="bold"/>
+									<mx:Text text="{this.selectedExperiment.@createDate}" width="200"/>
+								</mx:HBox>
+								<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
+									<mx:Label width="100" text="Completed" fontWeight="bold"/>
+									<mx:Text  text="{this.selectedExperiment.@completedDate}" width="200" />
+								</mx:HBox>
+								<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
+									<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+										<mx:Text id="designAndInsertLabel" width="100" fontWeight="bold"/>
+										<mx:Text id="designAndInsertText" width="200" paddingTop="{selectedExperiment.@captureLibDesignId != '' ? 8 : 0}" />
+									</mx:HBox>
+								</mx:HBox>
 
-	            
-        	</mx:VBox>
-        	
-        </mx:HBox>
+							</mx:VBox>
+							
+						</mx:HBox>
+						
+						<mx:VBox id="headerBox" width="100%">
+							<mx:HBox width="100%" id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
+								<mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="4" id="label1"/>
+								<mx:Tile horizontalGap="0" width="100%" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
+									<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+										<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
+													   paddingLeft="1" paddingRight="1"
+													   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
+									</mx:Repeater>
+								</mx:Tile>
+								
+							</mx:HBox>
+						</mx:VBox>            
 
-		<mx:VBox id="headerBox" width="100%">
-	        <mx:HBox width="100%" id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
-       		<mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="4" id="label1"/>
-        	<mx:Tile horizontalGap="0" width="100%" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
-        		<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-		    		<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
-		    		paddingLeft="1" paddingRight="1"
-		    		click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
-  				</mx:Repeater>
-        	</mx:Tile>
 
-	        </mx:HBox>	  
-		</mx:VBox>            
-        <mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" id="vbox3">
-			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0" change="tabChangeHandler(event)">
+						
+						
+						
+					</mx:VBox>
+				
 					<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 						<mx:HBox>
 							<mx:Label text="Experiment Name"/>
@@ -1000,37 +1001,36 @@
 						   
 			</mx:TabNavigator>
 			
-        </mx:VBox>      
 		
-	</mx:VBox>
+	<mx:ControlBar width="100%" >
+		<mx:HBox  verticalAlign="middle" 
+				  visible="{theTab.selectedChild==filesView}" 
+				  includeInLayout="{theTab.selectedChild==filesView}" 
+				  width="100%" horizontalAlign="left" 
+				  id="downloadExpandedFilesButtonView"  >
+			<mx:Button id="downloadExpandedFilesButton" 
+					   click="filesView.downloadExpandedFiles()" 
+					   icon="@Embed('../../assets/download.png')" 
+					   toolTip="Download selected files"
+					   label="Download"/>
+			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
+					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+					   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
+					   icon="@Embed(source='../../assets/download_large.png')"/>
+			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
+					   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
+					   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
+					   icon="@Embed(source='../../assets/download_large.png')"/>
+			<mx:Button id="alignSelectedFilesButton" 
+					   click="this.alignSelectedFiles()" 
+					   icon="@Embed('../../assets/align.png')" 
+					   toolTip="Run automated alignment on selected files" 
+					   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
+					   label="Run Alignment"/>
+		</mx:HBox>
+		
+	</mx:ControlBar>
 	
-	<mx:HBox  verticalAlign="middle" 
-			  visible="{theTab.selectedChild==filesView}" 
-			  includeInLayout="{theTab.selectedChild==filesView}" 
-			  width="100%" horizontalAlign="left" 
-			  id="downloadExpandedFilesButtonView"  paddingBottom="5" paddingLeft="5">
-		<mx:Button id="downloadExpandedFilesButton" 
-				   click="filesView.downloadExpandedFiles()" 
-				   icon="@Embed('../../assets/download.png')" 
-				   toolTip="Download selected files"
-				   label="Download"/>
-		<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
-				   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-				   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
-				   icon="@Embed(source='../../assets/download_large.png')"/>
-		<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
-				   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
-				   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
-				   icon="@Embed(source='../../assets/download_large.png')"/>
-		<mx:Button id="alignSelectedFilesButton" 
-				   click="this.alignSelectedFiles()" 
-				   icon="@Embed('../../assets/align.png')" 
-				   toolTip="Run automated alignment on selected files" 
-				   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
-				   label="Run Alignment"/>
-	</mx:HBox>
-	
-</mx:VBox>
 
 <mx:states>
 	<mx:State name="MicroarrayState">		 
@@ -1275,7 +1275,6 @@
 	<mx:State name="ExternalMicroarrayState" basedOn="MicroarrayState">
 		<mx:RemoveChild target="{tile1}"/>
 		<mx:RemoveChild target="{label1}"/>
-		<mx:RemoveChild target="{protocolsBox}"/>
 		<mx:RemoveChild target="{headerBox}"/>
 		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
