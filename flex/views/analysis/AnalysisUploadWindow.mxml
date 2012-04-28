@@ -219,16 +219,16 @@
 			}
 			
 			private function expandDownloadTree():void {
-        var maxFiles:int = 60;
-        var count:int = 0;
+		        var maxFiles:int = 60;
+		        var count:int = 0;
 				if (downloadTree != null) {
-          downloadTree.expandItem(downloadList.getItemAt(0),true); 
+		          	downloadTree.expandItem(downloadList.getItemAt(0),true); 
 					for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
-            downloadTree.expandItem(a,true);
-            count++;
-            if (count>=maxFiles){
-              break;
-            }
+		    	        downloadTree.expandItem(a,true);
+		        	    count++;
+		            	if (count>=maxFiles){
+		              	break;
+          		 		}
 					}
 				}
 			}
@@ -236,7 +236,7 @@
 			private function save():void {
 				var params:Object = new Object();
 				params.idAnalysis = idAnalysis.toString();
-				params.filesXMLString = downloadList.toXMLString();
+				params.filesXMLString = getDirtyAnalysisFiles().toXMLString();
 				if (filesToRemove.length > 0) {
 					params.filesToRemoveXMLString = filesToRemove.toXMLString();			
 				}
@@ -276,6 +276,44 @@
 				addFolderWindow.folderName.setFocus();
 			}
 			
+			public function getDirtyAnalysisFiles():XML{
+				var topNodeShallow:XML = new XML("<Analysis/>");
+				shallowCopy(downloadList[0] as XML, topNodeShallow);
+				recurseGetDirty(downloadList[0], topNodeShallow);
+				return topNodeShallow;
+			}
+			
+			private function recurseGetDirty(node:XML, nodeShallow:XML):void {
+				for each(var childNode:XML in node.children()) {
+					var keep:Boolean = false;
+					if (childNode.@type == 'dir') {
+						if (childNode.@dirty == 'Y') {
+							keep = true;
+						} else {
+							var dirtyNodes:XMLList = childNode..AnalysisFileDescriptor.(@dirty == 'Y');
+							if (dirtyNodes.length() > 0) {
+								keep = true;
+							}
+						}
+					} else if (childNode.@dirty == 'Y') {
+						keep = true;
+					}
+					if (keep) {
+						var childNodeShallow:XML = new XML("<AnalysisFileDescriptor/>");
+						shallowCopy(childNode, childNodeShallow);
+						nodeShallow.appendChild(childNodeShallow);
+					}
+					recurseGetDirty(childNode, childNodeShallow);
+				}
+			}
+			
+			private function shallowCopy(source:XML, destination:XML):void {
+				for each(var attr:XML in source.attributes()) {
+					destination[attr.name()] = attr.toString();
+				}
+			}
+
+			
 			public function addDownloadFolder(folderName:String):void {
 				var parent:XML = XML(downloadTree.selectedItem);
 				if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "Analysis") {
@@ -284,6 +322,7 @@
 				var folder:XML;
 				
 				folder = new XML("<AnalysisFileDescriptor isNew='Y' " +
+					"dirty='Y' " + 
 					"key='X-X-" + folderName + "' " +
 					"displayName='" + folderName + "' " +
 					"type='dir'" +
@@ -327,29 +366,21 @@
 			private function onTabChange():void {
 				if (theTab.selectedIndex == 1) {
 						refreshUploadFiles();
-        }
+        		}
 			}
       
-      private function sendUploadsToDB():void{
-        refreshUploadFiles();
-        var params:Object = new Object();
-        params.idAnalysis = idAnalysis.toString();
-        var fileNode:XML = new XML("<AnalysisFileDescriptor type='dir' displayName='" + this.analysisNumber + "/upload_staging'>" + uploadedFiles.toXMLString() + "</AnalysisFileDescriptor>");
-        params.filesXMLString = fileNode.toXMLString();
-        
-        organizeAnalysisUploadFiles.send(params);
-      }
+		    private function sendUploadsToDB():void{
+		        refreshUploadFiles();
+		        var params:Object = new Object();
+		        params.idAnalysis = idAnalysis.toString();
+		        var fileNode:XML = new XML("<AnalysisFileDescriptor type='dir' displayName='" + this.analysisNumber + "/upload_staging'>" + uploadedFiles.toXMLString() + "</AnalysisFileDescriptor>");
+		        params.filesXMLString = fileNode.toXMLString();
+		        
+		        organizeAnalysisUploadFiles.send(params);
+		    }
 			
-			private function onDragDropFile(event:DragEvent) : void
-			{
-				
-				// For some reason, preventDefault on AdvancedDataGrid
-				// isn't enough to stop the defaut drop operation from
-				// occurring. So I added hideDropFeedback and showFeedback
-				// and that seemed to do the trick.	
-				//this.downloadTree.hideDropFeedback(event);
-				//event.preventDefault();
-				//DragManager.showFeedback(DragManager.NONE);
+			private function onDragDropFile(event:DragEvent) : void {
+
 				
 				// determine where in the grid the drop occurs and select that node by the index; 
 				// followed by retrieving the node itself. 
@@ -406,6 +437,7 @@
 					if (dragItem.name() == "AnalysisFileDescriptor") {
 						
 						var fileNode:XML = new XML("<AnalysisFileDescriptor " +
+							" dirty='Y' " +
 							" displayName='" +  dragItem.@displayName + "'" + 
 							" fileName='" +  dragItem.@fileName + "'" + 
 							" type='" + dragItem.@type + "'" +
@@ -465,9 +497,7 @@
 				event.preventDefault();
 				// Tell the DragManager that the Tree will accent the DragDrop
 				DragManager.acceptDragDrop(Tree(event.target));
-				// hide the "drop line" that is shown in Tree control
-				// when dropping in a Tree
-				//downloadTree.showDropFeedback(event);
+				
 			}
 			
 			private function doDragOver(event:DragEvent):void
@@ -479,16 +509,16 @@
 				var r:int = downloadTree.calculateDropIndex(event);
 				if (r > 0) { 
 					r--;
-        }
-        downloadTree.selectedIndex = r;
-        var dropNode:XML = downloadTree.selectedItem as XML;
-        var dropFolderNode:XML = dropNode;
-        if (dropNode.name() == "AnalysisFileDescriptor" && dropNode.@type != "dir" ) {
-          dropFolderNode = dropNode.parent();
-        } 
-        if (dropFolderNode != null) {
-          downloadTree.selectedItem = dropFolderNode;
-        }
+        		}
+		        downloadTree.selectedIndex = r;
+		        var dropNode:XML = downloadTree.selectedItem as XML;
+		        var dropFolderNode:XML = dropNode;
+		        if (dropNode.name() == "AnalysisFileDescriptor" && dropNode.@type != "dir" ) {
+		          dropFolderNode = dropNode.parent();
+		        } 
+		        if (dropFolderNode != null) {
+		          downloadTree.selectedItem = dropFolderNode;
+		        }
         
 				event.preventDefault();
 			}
@@ -521,19 +551,15 @@
 			}
 			
 			private function xClose(event:CloseEvent):void {
-        if (uploadFilesStack.selectedIndex == 1){
-          refreshUploadFiles();
-          sendUploadsToDB();
-        }
-				event.detail = idAnalysis.toString();
-				PopUpManager.removePopUp(this);
+		        if (uploadFilesStack.selectedIndex == 1){
+		          refreshUploadFiles();
+		          sendUploadsToDB();
+		        }
+						event.detail = idAnalysis.toString();
+						PopUpManager.removePopUp(this);
 			}
 			
 			public function closeWindow():void{
-//        if (uploadFilesStack.selectedIndex == 1){
-//          refreshUploadFiles();
-//          sendUploadsToDB();
-//        }
 				PopUpManager.removePopUp(this);
 				var e:CloseEvent = new CloseEvent(CloseEvent.CLOSE, true);
 				e.detail = idAnalysis.toString();

@@ -135,6 +135,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         
         
+        
         // Hash the know analysis files
         Map knownAnalysisFileMap = new HashMap();
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
@@ -143,7 +144,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         }
 
         
-        // Now add in the files that exist on the file server
+        // Now add in the files from the upload staging area
         Element filesNode = new Element("ExpandedAnalysisFileList");
         aNode.addContent(filesNode);
         
@@ -168,7 +169,6 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             if (dirTokens.length > 1) {
               directoryName = dirTokens[1];
             } 
-            
 
             // Show files uploads that are in the staging area.
             if (showUploads.equals("Y")) {
@@ -177,89 +177,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
               GetAnalysisDownloadList.addExpandedFileNodes(baseDir, aNode, analysisUploadNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap);
             }
-
-            List   theFiles     = (List)directoryMap.get(directoryKey);
-            
-            // For each file in the directory
-            
-            for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-              AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
-
-              AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getDisplayName());
-              
-              if (fd!=null && fd.getDisplayName().equals(Constants.UPLOAD_STAGING_DIR)) {
-                continue;
-              }
-              
-              Element fdNode = new Element("AnalysisFileDescriptor");
-              
-              if (af != null) {
-                fd.setUploadDate(af.getUploadDate());
-                fd.setComments(af.getComments());
-                fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
-                fd.setIdAnalysis(a.getIdAnalysis());
-              } else {
-                fd.setIdAnalysisFileString("AnalysisFile-" + fd.getDisplayName());
-                fd.setIdAnalysis(a.getIdAnalysis());
-              }
-              fd.setQualifiedFilePath(directoryName);
-              fd.setBaseFilePath(GetAnalysisDownloadList.getAnalysisDirectory(baseDir,a));
-              fd.setIdLab(a.getIdLab());
-
-              
-              fdNode.setAttribute("idAnalysis", a.getIdAnalysis()!=null?a.getIdAnalysis().toString():"");
-              fdNode.setAttribute("key", directoryName != "" ? a.getKey(directoryName) : a.getKey());
-              fdNode.setAttribute("type", fd.getType() != null ? fd.getType() : "");
-              fdNode.setAttribute("displayName", fd.getDisplayName() != null ? fd.getDisplayName() : "");
-              fdNode.setAttribute("fileSize", String.valueOf(fd.getFileSize()));
-              fdNode.setAttribute("fileSizeText", String.valueOf(fd.getFileSize()) + " b");
-              fdNode.setAttribute("childFileSize", String.valueOf(fd.getFileSize()));
-              fdNode.setAttribute("fileName", fd.getFileName() != null ? fd.getFileName() : "");
-              fdNode.setAttribute("qualifiedFilePath", fd.getQualifiedFilePath() != null ? fd.getQualifiedFilePath() : "");
-              fdNode.setAttribute("baseFilePath", fd.getBaseFilePath() != null ? fd.getBaseFilePath() : "");
-              fdNode.setAttribute("comments", fd.getComments() != null ? fd.getComments() : "");
-              fdNode.setAttribute("lastModifyDate", fd.getLastModifyDate() != null ? fd.getLastModifyDate().toString() : "");
-              fdNode.setAttribute("zipEntryName", fd.getZipEntryName() != null ? fd.getZipEntryName() : "");
-              fdNode.setAttribute("number", fd.getAnalysisNumber() != null ? fd.getAnalysisNumber() : "");
-              fdNode.setAttribute("idAnalysisFileString", fd.getIdAnalysisFileString());
-              fdNode.setAttribute("isSelected", "N");
-              fdNode.setAttribute("state", "unchecked");
-              
-              filesNode.addContent(fdNode);
-              GetAnalysisDownloadList.recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap);
-              
-              fileMap.put(fd.getQualifiedFileName(), null);
-            }
           }
         }
 
-        // Add any files that are registered in the db, but not on the fileserver
-        for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
-          AnalysisFile af = (AnalysisFile)i.next();
-
-          if (!fileMap.containsKey(af.getQualifiedFileName())) {
-            AnalysisFileDescriptor fd = new AnalysisFileDescriptor();
-
-            fd.setDisplayName(af.getFileName());
-            fd.setFileName(af.getFullPathName());
-            fd.setQualifiedFilePath(af.getQualifiedFilePath());
-            fd.setBaseFilePath(af.getBaseFilePath());
-            fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
-            fd.setIdAnalysis(af.getIdAnalysis());
-            fd.setAnalysisNumber(a.getNumber());
-            fd.setUploadDate(af.getUploadDate());
-            fd.setComments(af.getComments());
-            fd.setFileSize(af.getFileSize() != null ? af.getFileSize().longValue() : 0);
-            fd.excludeMethodFromXML("getChildren");
-
-            Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
-            fdNode.setAttribute("isSelected", "N");
-            fdNode.setAttribute("state", "unchecked");
-
-            filesNode.addContent(fdNode);
-            GetAnalysisDownloadList.recurseAddChildren(fdNode, fd,fileMap, knownAnalysisFileMap);
-          }
-        }
         
         // Get the DataTracks that are linked to this Analysis via its files
         if (a.getFiles().size() > 0) {
