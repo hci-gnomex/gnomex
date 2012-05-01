@@ -28,7 +28,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private Set     labs;
   private Set     collaboratingLabs;
   private Set     managingLabs;
-  private Set     coreFacilities;
+  private Set     managingCoreFacilities;
   
   public String getDepartment() {
     return department;
@@ -177,11 +177,11 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     this.managingLabs = managingLabs;
   }
   
-  public Set getCoreFacilities() {
-    return coreFacilities;
+  public Set getManagingCoreFacilities() {
+    return managingCoreFacilities;
   }
-  public void setCoreFacilities(Set facilities) {
-    coreFacilities = facilities;
+  public void setManagingCoreFacilities(Set facilities) {
+    managingCoreFacilities = facilities;
   }
   
   public String getIsExternalUser() {

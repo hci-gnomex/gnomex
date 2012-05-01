@@ -47,8 +47,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private AppUser        appUserScreen;
   private PropertyDictionaryHelper propertyHelper = null;
   private String         coreFacilityEmail = null;
-  private String         requestedLab = "";
+  private String         requestedLabName = "";
   private Integer        requestedLabId = null;
+  private Lab            requestedLab = null;
   private StringBuffer   requestURL;
   private Boolean        existingLab = false;
   private Boolean        uofuAffiliate = false;
@@ -79,15 +80,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       appUserScreen.setDepartment("");
     } else {
       existingLab = false;
-      requestedLab = request.getParameter("newLab");
+      requestedLabName = request.getParameter("newLab");
+      facilityId = request.getParameter("facilityRadio");
     }
     
-    facilityId = request.getParameter("facilityRadio");
     
     if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) ||
         (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) ||
         (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) ||
-        ((requestedLab == null || requestedLab.equals("")) && requestedLabId == null)) {
+        ((requestedLabName == null || requestedLabName.equals("")) && requestedLabId == null)) {
       this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
     }
     
@@ -141,7 +142,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       } else if (facilityId != null && facilityId.length() > 0) {
         Integer id = Integer.parseInt(facilityId);
         facility = (CoreFacility)sess.load(CoreFacility.class, id);
-      } else {
+      } else if (!existingLab) {
         this.addInvalidField("Core Facility", "Please choose a core facility");
       }
       
@@ -161,10 +162,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         this.addInvalidField("Name/Email", "The combination of name and email already exists.  Please verify you do not have an existing account.");
       }
       
-      Lab lab = null;
       if (existingLab) {
-        lab = (Lab)sess.load(Lab.class, requestedLabId);
-        requestedLab = lab.getName();
+        requestedLab = (Lab)sess.load(Lab.class, requestedLabId);
+        requestedLabName = requestedLab.getName();
       }
       
       if (this.isValid()) {
@@ -207,15 +207,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         // Set lab if selected
         if (existingLab) {
           HashSet labSet = new HashSet();
-          labSet.add(lab);
+          labSet.add(this.requestedLab);
           appUser.setLabs(labSet);
         }
-        
-        // Set default core facility.
-        HashSet facilities = new HashSet();
-        facilities.add(facility);
-        appUser.setCoreFacilities(facilities);
-        
+
         sess.save(appUser);
       }
 
@@ -254,10 +249,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
     if (existingLab) {
-      body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLab));
+      body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLabName));
     } else {
-      body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLab));
+      body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLabName));
       body.append("</td></tr><tr><td>Requested Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
+      body.append("</td></tr><tr><td>Requested Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
     }
     body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
     body.append("</td></tr><tr><td>Email:</td><td>" + this.getNonNullString(appUser.getEmail()));
@@ -299,7 +295,21 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       throw new AddressException("'bademail@bad.com' not allowed");
     }
 
-    String toAddress = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+    String toAddress = "";
+    if (facility != null) {
+      toAddress = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+    } else if (requestedLab != null) {
+      for(Iterator facilityIter = requestedLab.getCoreFacilities().iterator();facilityIter.hasNext();) {
+        CoreFacility f = (CoreFacility)facilityIter.next();
+        String add = propertyHelper.getCoreFacilityProperty(f.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+        if (add != null && add.length() > 0) {
+          if (toAddress != "") {
+            toAddress += ",";
+          }
+          toAddress += add;
+        }
+      }
+    }
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");

@@ -85,27 +85,6 @@ alter table CoreFacility add isActive CHAR(1) NOT NULL DEFAULT 'Y';
 INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'DEFAULT', 'Y');
 
 --
--- Core Facility User
---
-DROP TABLE IF EXISTS `gnomex`.`CoreFacilityUser`;
-CREATE TABLE `gnomex`.`CoreFacilityUser` (
-  `idCoreFacility` INT(10) NOT NULL,
-  `idAppUser` INT(10) NOT NULL,
-  PRIMARY KEY (`idCoreFacility`, `idAppUser`),
-  CONSTRAINT `FK_CoreFacilityUser_AppUser` FOREIGN KEY  (`idAppUser`)
-    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_CoreFacilityUser_CoreFacility` FOREIGN KEY  (`idCoreFacility`)
-    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-INSERT INTO `gnomex`.`CoreFacilityUser`(`idCoreFacility`, `idAppUser`) select 1, idAppUser from AppUser;
-
---
 -- Super Admin Role
 --
 INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermissionKind`, `isActive`) 

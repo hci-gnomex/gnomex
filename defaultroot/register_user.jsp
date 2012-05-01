@@ -128,19 +128,6 @@ try {
 
       <div class="col1"><div class="right">Phone</div></div>
       <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
-
-      <div style="width:100%;text-align:left" id="coreFacilities">
-        <div style="width:100%;clear:both;"><br/></div>
-        Choose Core Facilities<br>
-        <%
-        Iterator facilityIter = facilities.iterator();
-        while (facilityIter.hasNext()) {
-          CoreFacility facility = (CoreFacility) facilityIter.next();
-        %>
-        <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%> 
-        <br>
-        <%}%>
-      </div>
       
       <div style="width:100%;"><div style="float:left;">
       <br>
@@ -163,6 +150,18 @@ try {
         </select></div>
       </div>
       <div id="newLabDiv" style="display:none;">
+        <div style="width:100%;text-align:left" id="coreFacilities">
+          <div style="width:100%;clear:both;"><br/></div>
+          Choose Core Facility<br>
+          <%
+          Iterator facilityIter = facilities.iterator();
+          while (facilityIter.hasNext()) {
+            CoreFacility facility = (CoreFacility) facilityIter.next();
+          %>
+          <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%> 
+          <br>
+          <%}%>
+        </div>
         <div class="col1"><div class="right">Enter Lab</div></div>
         <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"/></div>
 

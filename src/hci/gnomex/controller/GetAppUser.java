@@ -125,7 +125,7 @@ public class GetAppUser extends GNomExCommand implements Serializable {
   }
 
   private void getCoreFacilities(Session sess, Document doc, AppUser theAppUser) {
-    Element facilitiesNode = new Element("userCoreFacilities");
+    Element facilitiesNode = new Element("managingCoreFacilities");
     doc.getRootElement().addContent(facilitiesNode);
     for(Iterator coreIter = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator();coreIter.hasNext();) {
       Object de = coreIter.next();
@@ -134,7 +134,7 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       }
       CoreFacility facility = (CoreFacility)de;
       String selected = "N";
-      for(Iterator userIter = theAppUser.getCoreFacilities().iterator();userIter.hasNext();) {
+      for(Iterator userIter = theAppUser.getManagingCoreFacilities().iterator();userIter.hasNext();) {
         CoreFacility userFacility = (CoreFacility)userIter.next();
         if (userFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
           selected = "Y";
@@ -143,19 +143,6 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       }
       if (selected.equals("N") && (facility.getIsActive() == null || facility.getIsActive().equals("N"))) {
         continue;
-      }
-
-      if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-        Boolean found = false;
-        for(Iterator facilityIter = this.getSecAdvisor().getAppUser().getCoreFacilities().iterator();facilityIter.hasNext();) {
-          CoreFacility secFacility = (CoreFacility)facilityIter.next();
-          if (secFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
-            found = true;
-          }
-        }
-        if (!found) {
-          continue;
-        }
       }
       
       String name = facility.getFacilityName();
