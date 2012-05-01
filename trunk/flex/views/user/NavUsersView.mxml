@@ -117,7 +117,7 @@
     <mx:XMLListCollection id="membershipLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).labs.Lab}"/>
     <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
     <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
-	<mx:XMLListCollection id="userCoreFacilities" source="{getAppUser.lastResult.userCoreFacilities.coreFacility}"/>
+	<mx:XMLListCollection id="managingCoreFacilities" source="{getAppUser.lastResult.managingCoreFacilities.coreFacility}"/>
     	
 
     <mx:Script>

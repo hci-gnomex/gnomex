@@ -30,6 +30,7 @@ public class Lab extends HibernateDetailObject {
   private Set     managers;
   private Set     projects;
   private Set     institutions;
+  private Set     coreFacilities;
 
   // Permission flag
   private boolean canSubmitRequests = false;
@@ -299,6 +300,14 @@ public class Lab extends HibernateDetailObject {
 
   public void setInstitutions(Set institutions) {
     this.institutions = institutions;
+  }  
+  
+  public Set getCoreFacilities() {
+    return coreFacilities;
+  }
+
+  public void setCoreFacilities(Set coreFacilities) {
+    this.coreFacilities = coreFacilities;
   }  
   public List getApprovedBillingAccounts() {
     ArrayList approvedBillingAccounts = new ArrayList();

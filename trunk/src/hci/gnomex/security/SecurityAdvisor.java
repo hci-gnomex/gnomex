@@ -193,7 +193,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Hibernate.initialize(appUser.getLabs());
       Hibernate.initialize(appUser.getCollaboratingLabs());
       Hibernate.initialize(appUser.getManagingLabs());
-      Hibernate.initialize(appUser.getCoreFacilities());
+      Hibernate.initialize(appUser.getManagingCoreFacilities());
       
 
       isGNomExUniversityUser = true;
@@ -215,7 +215,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         Hibernate.initialize(appUser.getLabs());
         Hibernate.initialize(appUser.getCollaboratingLabs());
         Hibernate.initialize(appUser.getManagingLabs());
-        Hibernate.initialize(appUser.getCoreFacilities());
+        Hibernate.initialize(appUser.getManagingCoreFacilities());
 
         isGNomExExternalUser = true;
         isGNomExUniversityUser = false;
@@ -240,7 +240,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       appUser.setLabs(new TreeSet());
       appUser.setCollaboratingLabs(new TreeSet());
       appUser.setManagingLabs(new TreeSet());
-      appUser.setCoreFacilities(new TreeSet());
+      appUser.setManagingCoreFacilities(new TreeSet());
       
     }
     
@@ -656,7 +656,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           if (prop1.getIdCoreFacility() != null) {
             // Only show properties with core facility user can see.
             Boolean found = false;
-            for(Iterator facilityIter = getAppUser().getCoreFacilities().iterator();facilityIter.hasNext();) {
+            for(Iterator facilityIter = getAppUser().getManagingCoreFacilities().iterator();facilityIter.hasNext();) {
               CoreFacility facility = (CoreFacility)facilityIter.next();
               if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
                 found = true;

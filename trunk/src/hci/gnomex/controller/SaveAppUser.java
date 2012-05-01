@@ -4,6 +4,7 @@ import hci.gnomex.lucene.SearchListParser;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -41,7 +42,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
   private AppUser               appUserScreen;
   private boolean              isNewAppUser = false;
-  private ArrayList<CoreFacilityCheck>    userCoreFacilityIds;
+  private ArrayList<CoreFacilityCheck>    managingCoreFacilityIds;
   
   
   public void validate() {
@@ -56,12 +57,12 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       isNewAppUser = true;
     }
     
-    userCoreFacilityIds = new ArrayList<CoreFacilityCheck>();
-    String userCoreFacilitiesString = request.getParameter("userCoreFacilities");
-    if (userCoreFacilitiesString != null && userCoreFacilitiesString.length() > 0) {
-      userCoreFacilitiesString = userCoreFacilitiesString.replaceAll("&", "&amp;");
-      userCoreFacilitiesString = "<userCoreFacilities>" + userCoreFacilitiesString + "</userCoreFacilities>";
-      StringReader reader = new StringReader(userCoreFacilitiesString);
+    managingCoreFacilityIds = new ArrayList<CoreFacilityCheck>();
+    String managingCoreFacilitiesString = request.getParameter("userManagingCoreFacilities");
+    if (managingCoreFacilitiesString != null && managingCoreFacilitiesString.length() > 0) {
+      managingCoreFacilitiesString = managingCoreFacilitiesString.replaceAll("&", "&amp;");
+      managingCoreFacilitiesString = "<managingCoreFacilities>" + managingCoreFacilitiesString + "</managingCoreFacilities>";
+      StringReader reader = new StringReader(managingCoreFacilitiesString);
       try {
         SAXBuilder sax = new SAXBuilder();
         org.jdom.Document searchDoc = sax.build(reader);
@@ -73,11 +74,11 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           CoreFacilityCheck chk = new CoreFacilityCheck();
           chk.idCoreFacility = Integer.parseInt(idString);
           chk.selected = selected;
-          userCoreFacilityIds.add(chk);
+          managingCoreFacilityIds.add(chk);
         }
       } catch (Exception je ) {
-        log.error( "Cannot parse userCoreFacilitiesString", je );
-        this.addInvalidField( "userCoreFacilitiesString", "Invalid search xml");
+        log.error( "Cannot parse managingCoreFacilitiesString", je );
+        this.addInvalidField( "managingCoreFacilitiesString", "Invalid search xml");
       }
     }
   }
@@ -96,6 +97,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         boolean checkUsername = true;
         boolean isUsedUsername = false;
         boolean isUseduNID = false;
+        boolean isManageFacilityError = false;
         
         if (appUserScreen.getuNID() != null && 
             !appUserScreen.getuNID().trim().equals("")) {
@@ -135,18 +137,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               
             }
            
-            // If not super admin user default to all facilities the admin has.
-            appUser.setCoreFacilities(new HashSet());
-            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-              Set facilities = this.getSecAdvisor().getAppUser().getCoreFacilities();
-              for(Iterator facilityIter = facilities.iterator();facilityIter.hasNext();) {
-                CoreFacility f = (CoreFacility)facilityIter.next();
-                CoreFacilityCheck chk = new CoreFacilityCheck();
-                chk.idCoreFacility = f.getIdCoreFacility();
-                chk.selected = "Y";
-                userCoreFacilityIds.add(chk);
-              }
-            }
+            appUser.setManagingCoreFacilities(new HashSet());
             sess.save(appUser);
             
           }
@@ -171,6 +162,17 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
         }
 
+        // Only Admins and Super Admins can manage core facilities.
+        if (!appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) 
+            && !appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+          for(Iterator chkIter = managingCoreFacilityIds.iterator();chkIter.hasNext();) {
+            CoreFacilityCheck chk = (CoreFacilityCheck)chkIter.next();
+            if (chk.selected.equals("Y")) {
+              this.addInvalidField("Manage Core Facility", "Only Admin or Super Admin users can manage core facilities.");
+              isManageFacilityError = true;
+            }
+          }
+        }
         
         if (this.isValid()) {
           setCoreFacilities(sess, appUser);
@@ -178,12 +180,14 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          if(isUsedUsername || isUseduNID) {
+          if(isUsedUsername || isUseduNID || isManageFacilityError) {
             String outMsg = "";
             if(isUsedUsername) {
               outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
-            } else {
+            } else if (isUseduNID) {
               outMsg = "uNID '" + appUserScreen.getuNID() + "' is already being used. Please select a different uNID.";                            
+            } else {
+              outMsg = "Only Admin or Super Admin users can manage core facilities.";
             }
             this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
             setResponsePage(this.SUCCESS_JSP);            
@@ -256,10 +260,10 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     // list from the front end, we ignore (i.e. neither add or remove) any ids not in
     // list from the front end.
     ArrayList<CoreFacility> facilitiesToRemove = new ArrayList<CoreFacility>();
-    ArrayList<CoreFacility> idsToAdd = (ArrayList<CoreFacility>)userCoreFacilityIds.clone();
-    for(Iterator i = appUser.getCoreFacilities().iterator();i.hasNext();) {
+    ArrayList<CoreFacility> idsToAdd = (ArrayList<CoreFacility>)managingCoreFacilityIds.clone();
+    for(Iterator i = appUser.getManagingCoreFacilities().iterator();i.hasNext();) {
       CoreFacility facility = (CoreFacility)i.next();
-      for(Iterator j = userCoreFacilityIds.iterator();j.hasNext();) {
+      for(Iterator j = managingCoreFacilityIds.iterator();j.hasNext();) {
         CoreFacilityCheck chk = (CoreFacilityCheck)j.next();
         if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
           idsToAdd.remove(chk);
@@ -271,12 +275,12 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       }
     }
     
-    appUser.getCoreFacilities().removeAll(facilitiesToRemove);
+    appUser.getManagingCoreFacilities().removeAll(facilitiesToRemove);
     for (Iterator k = idsToAdd.iterator();k.hasNext();) {
       CoreFacilityCheck chk = (CoreFacilityCheck)k.next();
       if (chk.selected.equals("Y")) {
         CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, chk.idCoreFacility);
-        appUser.getCoreFacilities().add(facility);
+        appUser.getManagingCoreFacilities().add(facility);
       }
     }
   }

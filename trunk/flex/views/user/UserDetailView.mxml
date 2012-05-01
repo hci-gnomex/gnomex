@@ -29,7 +29,7 @@
             <passwordExternal>{externalUserPassword.text}</passwordExternal>
             <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
             <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
-			<userCoreFacilities>{userCoreFacilitiesString}</userCoreFacilities>
+			<userManagingCoreFacilities>{managingCoreFacilitiesString}</userManagingCoreFacilities>
     </mx:request>
     </mx:HTTPService >
     
@@ -42,7 +42,7 @@
             
            
             [Bindable]
-			public var userCoreFacilitiesString:String = '';
+			public var managingCoreFacilitiesString:String = '';
 			
             private var savedIdAppUser:Object = '';
             
@@ -67,20 +67,19 @@
       
 			  
             private function save():void {
-				for (var i:int = 0; i < parentDocument.userCoreFacilities.length; i++) {
-					var facility:XML = XML(parentDocument.userCoreFacilities.getItemAt(i));
+				for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
+					var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
 					if (chkCoreFacility[i].selected) {
 						facility.@selected = "Y";
 					} else {
 						facility.@selected = "N";
 					}
 				}
-				userCoreFacilitiesString = parentDocument.userCoreFacilities.toXMLString();
+				managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
 				saveAppUser.send();
             }
             
             private function onSaveAppUser(event:ResultEvent):void {
-				var s:String = parentDocument.userCoreFacilities.toXMLString();
 				if (saveAppUser.lastResult.name() == "SUCCESS") {
 					savedIdAppUser = saveAppUser.lastResult.@idAppUser;
 					var params:Object = new Object();
@@ -91,15 +90,12 @@
 	          		parentApplication.navUsersView.itemToSelect = itemToSelect;
     	      		parentApplication.navUsersView.refreshAppUserList();
 					var anyChecked:Boolean = false;
-					for (var i:int = 0; i < parentDocument.userCoreFacilities.length; i++) {
-						var facility:XML = XML(parentDocument.userCoreFacilities.getItemAt(i));
+					for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
+						var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
 						if (chkCoreFacility[i].selected) {
 							anyChecked = true;
 							break;
 						}
-					}
-					if (!anyChecked) {
-						Alert.show("No core facilities have been chosen for this user.");
 					}
 				} else { 
 					if (saveAppUser.lastResult.name() == "ERROR") {
@@ -226,14 +222,14 @@
 		  	    </mx:VBox>
 		  	  </mx:HBox>
 			  <mx:VBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
-				  <mx:Text text="Select allowed Core Facilities for this user."/>
-				  <mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.userCoreFacilities}">
+				  <mx:Text text="Select Core Facilities this user manages."/>
+				  <mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.managingCoreFacilities}">
 					  <mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
 						  <mx:CheckBox id="chkCoreFacility" paddingBottom="0" paddingTop="0" verticalGap="0"
 										  label="{coreFacilityRepeater.currentItem.@display}" width="206"
 										  data="{coreFacilityRepeater.currentItem.@value}"
 										  selected="{coreFacilityRepeater.currentItem.@selected == 'Y' ? true : false}"
-										  enabled="{coreFacilityRepeater.currentItem.@selected == 'N' || parentApplication.hasPermission('canAdministerAllCoreFacilities')}"
+										  enabled="{parentApplication.hasPermission('canAdministerAllCoreFacilities')}"
 										  click="dirty.setDirty()" />							
 					  </mx:HBox>
 				  </mx:Repeater>

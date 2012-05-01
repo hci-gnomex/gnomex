@@ -1280,7 +1280,6 @@ VALUES ('OWNER', 'Owner'),
   
 -- Default core facility
 INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'DEFAULT', 'Y');
-INSERT INTO `gnomex`.`CoreFacilityUser`(`idCoreFacility`, `idAppUser`) VALUES (1, 1);
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
