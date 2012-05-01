@@ -124,7 +124,7 @@ public class AppUserFilter extends DetailObject {
   private void addSecurityCriteria() {
     if (secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       // no core facility security required.
-    } else {
+    } else if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) ) {
       this.addWhereOrAnd();
       queryBuf.append(" facility.idCoreFacility in (");
       Boolean firstFacility = true;
@@ -137,9 +137,6 @@ public class AppUserFilter extends DetailObject {
         queryBuf.append(facility.getIdCoreFacility().toString());
       }
       queryBuf.append(")");
-    }
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) ) {
-      // No criteria needed if user can view all requests
       
     } else if (secAdvisor.getGroupsIManage().size() > 0) {
       
