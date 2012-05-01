@@ -451,8 +451,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
     
     // Tally upload count by week
-    //summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
-    summaryRows = sess.createSQLQuery("select t.sDateTime, count(*) from (select distinct CAST(tl.startDateTime AS DATE) as sDateTime, fileName from TransferLog tl where transferType = 'upload') t group by sDateTime order by sDateTime").list();
+    summaryRows = sess.createQuery("SELECT tl.startDateTime, count(distinct fileName) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
+    //summaryRows = sess.createSQLQuery("select t.sDateTime, count(*) from (select distinct CAST(tl.startDateTime AS DATE) as sDateTime, fileName from TransferLog tl where transferType = 'upload') t group by sDateTime order by sDateTime").list();
     
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();

@@ -251,7 +251,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
 
     queryBuf = new StringBuffer();
     
-    /*
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, count(*) ");
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
@@ -262,8 +262,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number");
     rows = sess.createQuery(queryBuf.toString()).list();
-    */
+    
 
+    /*
     queryBuf.append("SELECT t.idLab, t.lastName, t.firstName, t.sDateTime, t.number, count(*)  ");
     queryBuf.append("from ");
     queryBuf.append("(SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, CAST(tl.startDateTime AS DATE) as sDateTime, a.number, tl.fileName ");
@@ -275,6 +276,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("group by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
     queryBuf.append("order by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
     rows = sess.createSQLQuery(queryBuf.toString()).list();
+    */
     
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
