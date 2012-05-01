@@ -750,56 +750,45 @@
 
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-					<mx:VBox label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-
-						
-						<mx:HBox width="100%" paddingTop="4" paddingBottom="0" horizontalGap="6" paddingLeft="4" paddingRight="4">
-							<mx:VBox verticalGap="4" height="100%">
-								
-								<mx:HBox verticalGap="0" horizontalGap="0">
-									<mx:Label text="Experiment"  width="80" fontWeight="bold"/>
-									<mx:Text text="{requestCategoryName}" width="250" />
-								</mx:HBox>
-								<mx:HBox verticalGap="0" horizontalGap="0">
-									<mx:Label width="80" fontWeight="bold"/>
-									<mx:Text  text="{experimentCategoryName}" width="250" />
-								</mx:HBox>
-								<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-									<mx:Label text="Lab group"  width="80" fontWeight="bold"/>
-									<mx:Text text="{this.selectedExperiment.@labName}" width="250"/>
-								</mx:HBox>
-								<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-									<mx:Text width="80" text="Visibility" fontWeight="bold"/>
-									<mx:Text text="{visibilityName}" width="250" />
-								</mx:HBox>
-							</mx:VBox>
-							<mx:VBox verticalGap="4">
-								<mx:HBox verticalGap="0" horizontalGap="0">
-									<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" fontWeight="bold"/>
-									<mx:Text text="{this.selectedExperiment.@ownerName}" width="200" />
-								</mx:HBox>
-								<mx:HBox verticalGap="0" horizontalGap="0">
-									<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" fontWeight="bold"/>
-									<mx:Text text="{this.selectedExperiment.@createDate}" width="200"/>
-								</mx:HBox>
-								<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
-									<mx:Label width="100" text="Completed" fontWeight="bold"/>
-									<mx:Text  text="{this.selectedExperiment.@completedDate}" width="200" />
-								</mx:HBox>
-								<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
-									<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-										<mx:Text id="designAndInsertLabel" width="100" fontWeight="bold"/>
-										<mx:Text id="designAndInsertText" width="200" paddingTop="{selectedExperiment.@captureLibDesignId != '' ? 8 : 0}" />
-									</mx:HBox>
-								</mx:HBox>
-
-							</mx:VBox>
-							
+					<mx:VBox verticalGap="6" label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Label text="Experiment"  width="100" />
+							<mx:TextInput editable="false" text="{requestCategoryName}" width="400"  backgroundColor="#FFFFFF"/>
 						</mx:HBox>
-						
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Label width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="400" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Label text="Lab group"  width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@labName}" width="400"/>
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="400" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@createDate}" width="400"/>
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
+							<mx:Label width="100" text="Completed" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="400" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text  width="100" text="Visibility" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{visibilityName}" width="400" />
+						</mx:HBox>
+						<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
+							<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+								<mx:Text id="designAndInsertLabel" width="100" />
+								<mx:TextInput editable="false" backgroundColor="#FFFFFF" id="designAndInsertText" width="400" />
+							</mx:HBox>
+						</mx:HBox>
+
 						<mx:VBox id="headerBox" width="100%">
 							<mx:HBox width="100%" id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
-								<mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="4" id="label1"/>
+								<mx:Label text="Materials &amp; Methods"  id="label1"/>
 								<mx:Tile horizontalGap="0" width="100%" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
 									<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
 										<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
@@ -810,11 +799,6 @@
 								
 							</mx:HBox>
 						</mx:VBox>            
-
-
-						
-						
-						
 					</mx:VBox>
 				
 					<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">

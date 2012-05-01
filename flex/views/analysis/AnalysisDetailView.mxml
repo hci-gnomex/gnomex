@@ -419,54 +419,54 @@
 					<mx:VBox verticalGap="4" width="350" height="100%">
 						
 						<mx:HBox horizontalGap="0" width="100%">
-							<mx:Label text="Name"  width="85" fontWeight="bold">
+							<mx:Label text="Name"  width="98" fontWeight="normal">
 							</mx:Label>
-							<mx:Text  text="{analysis.@name}" width="100%"  />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{analysis.@name}" width="100%"  />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
-							<mx:Text text="{analysis.@ownerName}" width="100%"/> 
+							<mx:Label text="Lab Group"  width="98" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@labName}" width="100%"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Label text="Lab Group"  width="85" fontWeight="bold"/>
-							<mx:Text text="{analysis.@labName}" width="100%"/>
+							<mx:Label text="Submitted by"  width="98" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@ownerName}" width="100%"/> 
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
-							<mx:Text text="{analysis.@createDate}" width="100%"/>
+							<mx:Label text="Submit Date"  width="98" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@createDate}" width="100%"/>
 						</mx:HBox> 
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Organism"  width="85" fontWeight="bold"/>
-							<mx:Text  text="{organismName}" width="100%" />
+							<mx:Label text="Analysis Groups"  width="98" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@analysisGroupNames}" width="100%"/>
 						</mx:HBox>
-						<mx:Label text="Genome Builds"  width="111" fontWeight="bold"/>
-						<mx:DataGrid id="genomeBuildGrid" width="100%" height="46" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]">
-							<mx:columns>
-								<mx:DataGridColumn dataField="@display"/>
-							</mx:columns>
-						</mx:DataGrid>	
+						
+						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
+							<mx:Label text="Visibility"  width="98" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{visibilityName}" width="100%"/>
+						</mx:HBox>
 						
 					</mx:VBox>
 					
 					
 					<mx:VBox verticalGap="4" width="300" height="100%">
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Analysis Groups"  width="98" fontWeight="bold"/>
-							<mx:Text text="{analysis.@analysisGroupNames}" width="100%"/>
-						</mx:HBox>
-						
-						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Visibility"  width="98" fontWeight="bold"/>
-							<mx:Text text="{visibilityName}" width="100%"/>
+							<mx:Label text="Analysis Type"  width="100" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysisTypeName}" width="100%" />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Analysis Type"  width="98" fontWeight="bold"/>
-							<mx:Text text="{analysisTypeName}" width="100%" />
+							<mx:Label text="Analysis Protocol"  width="100" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{analysisProtocolName}" width="100%" />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Protocol"  width="98" fontWeight="bold"/>
-							<mx:Text  text="{analysisProtocolName}" width="100%" />
+							<mx:Label text="Organism"  width="100" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{organismName}" width="100%" />
 						</mx:HBox>
+						<mx:Label text="Genome Builds"  width="111" fontWeight="normal"/>
+						<mx:DataGrid id="genomeBuildGrid" width="100%" height="46" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@display"/>
+							</mx:columns>
+						</mx:DataGrid>	
 					</mx:VBox>
 					
 				

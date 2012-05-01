@@ -4229,62 +4229,6 @@
 	
     <mx:states>
     	<mx:State name="EditState">
-    		<mx:AddChild relativeTo="{vbox1}" position="before">
-    			<mx:HBox paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-    				<mx:VBox verticalGap="0">
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					       <mx:Text text="Experiment" width="90"  fontWeight="bold"/>
-    					       <mx:Text text="{requestCategoryName}" width="240"  fontWeight="normal"/>
-    					   </mx:HBox>
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					    <mx:Spacer width="90"/>
-    					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="240"/>
-    					 </mx:HBox>
-		    			<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
-		    			  <mx:Text text="Submitted by"  fontWeight="bold" width="90"/>
-		    			  <mx:Text text="{this.request.@ownerName}" />
-		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
-		    			</mx:HBox>
-    				</mx:VBox>  
-     				<mx:VBox verticalGap="2" id="vbox3">
-    				    
-    				    <mx:HBox verticalGap="0" horizontalGap="0">
-    				           <mx:Label text="Group"  width="66" fontWeight="bold"/>
-    				           <mx:ComboBox id="requestEditLabCombo"
-    				           	  labelField="@name" 
-    				           	  change="this.dirty.setDirty();refreshLab()" 
-    				           	  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
-    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-    				           	  width="240"/>
-    				       </mx:HBox>
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
-    				        <mx:Label text="Project"  width="66" fontWeight="bold"/>
-    				        <mx:ComboBox id="requestEditProjectCombo"
-    				           	  labelField="@name" 
-    				           	  change="this.dirty.setDirty()"
-    				           	  dataProvider="{projects}" 
-    				           	  enabled="true"
-    				           	  width="240"/>
-    				    </mx:HBox>
-    				    <mx:HBox>
-	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="Completed" width="66"  fontWeight="bold"/>    				       
-	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="{this.request.@completedDate}"/>
-    				    </mx:HBox>
-
-    				</mx:VBox>
-					
-					<mx:VBox verticalGap="2" id="vbox4" visible="{this.request.@captureLibDesignId !='' || this.request.@avgInsertSizeFrom != ''}">
-						<mx:HBox verticalGap="0" horizontalGap="0">
-							<mx:Text width="80" fontWeight="bold" id="designOrRangeLabel" text="{this.request.@captureLibDesignId != '' ? 'Cap Lib Design' : 'Avg Insert Size'}"/>
-							<mx:TextInput focusOut="propagateDesignOrRange()" id="designOrRangeText" width="{this.request.@captureLibDesignId != '' ? 130 : 40}" text="{this.request.@captureLibDesignId != '' ? this.request.@captureLibDesignId : this.request.@avgInsertSizeFrom}"/>
-							<mx:Text text=" to " visible="{this.request.@avgInsertSizeTo != ''}"/>
-							<mx:TextInput focusOut="propagateDesignOrRange()" id="insertSizeTo" width="40" text="{this.request.@avgInsertSizeTo}" visible="{this.request.@avgInsertSizeTo != ''}"/>
-							<mx:Text text=" bp " visible="{this.request.@avgInsertSizeTo != ''}"/>
-						</mx:HBox>
-					</mx:VBox>
-    				
-    			</mx:HBox>
-    		</mx:AddChild>
     		<mx:RemoveChild target="{seqSetup1View}"/>
     		<mx:AddChild relativeTo="{theTab}" position="lastChild">
     			<mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
@@ -4390,6 +4334,64 @@
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:SetProperty target="{navBox}" name="width"/>
+			<mx:AddChild relativeTo="{theTab}" position="firstChild">
+				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
+					 <mx:HBox verticalGap="0" horizontalGap="0">
+					       <mx:Text text="Experiment" width="100"  fontWeight="normal"/>
+					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="400"  fontWeight="normal"/>
+					   </mx:HBox>
+					
+					<mx:HBox verticalGap="0" horizontalGap="0" width="500">
+					    <mx:Spacer width="100"/>
+					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="400"/>
+					 </mx:HBox>
+				 	
+					<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
+						<mx:ComboBox id="requestEditLabCombo"
+									 labelField="@name" 
+									 change="this.dirty.setDirty();refreshLab()" 
+									 dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+									 enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+									 width="400"/>
+					</mx:HBox>
+					
+					<mx:HBox verticalGap="0" horizontalGap="0" id="hbox5">
+						<mx:Label text="Project"  width="100" fontWeight="normal"/>
+						<mx:ComboBox id="requestEditProjectCombo"
+									 labelField="@name" 
+									 change="this.dirty.setDirty()"
+									 dataProvider="{projects}" 
+									 enabled="true"
+									 width="400"/>
+					</mx:HBox>
+					
+					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
+						<mx:Text text="Submitted by"  fontWeight="normal" width="100"/>
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@ownerName}" />
+					</mx:HBox>
+
+					<mx:HBox horizontalGap="0">
+						<mx:Text  text="Submit Date" width="100"  fontWeight="normal"/>    				       
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
+					</mx:HBox>
+						
+					<mx:HBox horizontalGap="0">
+						<mx:Text  text="Completed" width="100"  fontWeight="normal"/>    				       
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
+					</mx:HBox>
+				   
+					
+					<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:Text width="100" fontWeight="normal" id="designOrRangeLabel" text="{this.request.@captureLibDesignId != '' ? 'Cap Lib Design' : 'Avg Insert Size'}"/>
+						<mx:TextInput focusOut="propagateDesignOrRange()" id="designOrRangeText" width="100" text="{this.request.@captureLibDesignId != '' ? this.request.@captureLibDesignId : this.request.@avgInsertSizeFrom}"/>
+						<mx:Text text=" to " visible="{this.request.@avgInsertSizeTo != ''}"/>
+						<mx:TextInput focusOut="propagateDesignOrRange()" id="insertSizeTo" width="100" text="{this.request.@avgInsertSizeTo}" visible="{this.request.@avgInsertSizeTo != ''}"/>
+						<mx:Text text=" bp " visible="{this.request.@avgInsertSizeTo != ''}"/>
+					</mx:HBox>
+					
+				</mx:VBox>
+			</mx:AddChild>
 		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>

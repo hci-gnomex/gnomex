@@ -985,116 +985,113 @@
 	<mx:TabNavigator id="theTab"  paddingTop="1" width="100%" height="100%" >
 		<mx:VBox label="Info" height="100%" width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="4">
 
-			<mx:HBox horizontalGap="10"  verticalAlign="top" horizontalAlign="left">
-				<mx:VBox verticalGap="4" width="330">
+			<mx:HBox horizontalGap="4"  verticalAlign="top" horizontalAlign="left">
+				<mx:VBox verticalGap="6">
 					<mx:HBox horizontalGap="0" width="100%">
-						<mx:Label text="Name" width="81" fontWeight="normal">
+						<mx:Label text="Name" width="100" fontWeight="normal">
 						</mx:Label>
-						<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
+						<mx:TextInput text="{analysis.@name}" width="200" change="dirty.setDirty();" id="analysisName"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-						<mx:Label text="Submit Date"  width="85" fontWeight="normal"/>
-						<mx:Text text="{analysis.@createDate}" width="100%"/>
-					</mx:HBox>        
-				</mx:VBox>
-				
-				<mx:VBox verticalGap="4" width="25%">
 					<mx:HBox horizontalAlign="left" verticalAlign="top" horizontalGap="0">
-						<mx:Label text="Group" width="100" textAlign="left" fontWeight="normal">
+						<mx:Label text="Lab Group" width="100" textAlign="left" fontWeight="normal">
 						</mx:Label>
-						<mx:HBox verticalGap="0" width="100%" horizontalScrollPolicy="off">
-							<mx:Text text="{analysis.@labName}"  width="180"/>
+						<mx:HBox verticalGap="0" width="100%" horizontalScrollPolicy="off" horizontalGap="1">
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@labName}"  width="180"/>
 							<mx:LinkButton 
 								click="{Alert.show('Click on drag-n-drop hint (yellow box in left panel) for tip on how to reassign analysis to another group or move/copy analysis to another folder.')}" 
 								textAlign="left" textDecoration="underline" icon="@Embed(source='../../assets/information.png')" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" width="20"/>
 							
 						</mx:HBox>
 					</mx:HBox>
-					
-					<mx:HBox verticalGap="4" horizontalGap="0" width="100%">
+					<mx:HBox  horizontalGap="0" width="100%">
 						<mx:Label text="Submitted by"  width="100" fontWeight="normal"/>
-						<mx:Text text="{analysis.@ownerName}" width="200"/> 
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@ownerName}" width="200"/> 
 					</mx:HBox>
+					<mx:HBox  horizontalGap="0" width="100%">
+						<mx:Label text="Submit Date"  width="100" fontWeight="normal"/>
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@createDate}" width="200"/>
+					</mx:HBox>        
+					
+				</mx:VBox>
+				
+				<mx:VBox verticalGap="0" >
+					<mx:HBox horizontalGap="0" width="100%">
+						<mx:VBox verticalGap="0">
+							<mx:Label text="Analysis Type" width="100" fontWeight="normal" paddingBottom="0">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
+						</mx:VBox>
+						<mx:VBox verticalGap="0" width="100%">
+							<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+						</mx:VBox>
+					</mx:HBox>
+
+					<mx:HBox horizontalGap="0" width="100%"  paddingTop="6">
+						<mx:VBox verticalGap="0">
+							<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>														
+						</mx:VBox>
+						<mx:VBox verticalGap="0">
+							<mx:ComboBox  width="200" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+						</mx:VBox>
+					</mx:HBox>								
+
+					<mx:HBox horizontalGap="0" paddingTop="6">
+						<mx:VBox  width="100" verticalGap="0">
+							<mx:Label text="Organism" fontWeight="normal">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+						</mx:VBox>								
+						<mx:VBox verticalGap="0">
+							<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
+						</mx:VBox>
+					</mx:HBox>
+					
+					
+					<mx:HBox horizontalGap="0"  paddingTop="6">
+						<mx:VBox verticalGap="0" width="100">
+							<mx:Label text="Genome Builds" width="100%" fontWeight="normal">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+						</mx:VBox>
+						<mx:VBox verticalGap="0">																		
+							<mx:HBox verticalGap="0">
+								<mx:ComboBox  width="200" id="genomeBuildCombo" labelField="@display"  dataProvider="{filteredGenomeBuildList}"/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>								
+					
+					
+					<mx:HBox verticalGap="0" horizontalGap="10" paddingTop="0">
+						<mx:HBox horizontalGap="0" width="100%" verticalAlign="bottom" paddingBottom="2">
+							<mx:Label styleName="hintText" text="(Sel. from dropdown, use + to add to list below)" width="100%" fontWeight="normal">
+							</mx:Label>	
+							<mx:Button 
+								enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
+								icon="@Embed(source='../../assets/add.png')" 
+								disabledIcon="@Embed(source='../../assets/add_disable.png')"
+								click="addGenomeBuild()" 
+								width="25">
+							</mx:Button>
+							<mx:Button  
+								icon="@Embed(source='../../assets/delete.png')" 
+								disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+								enabled="{genomeBuildGrid.selectedItem != null}" 
+								click="removeGenomeBuild()" 
+								width="25"/>
+						</mx:HBox>															
+					</mx:HBox>													
+					<mx:DataGrid id="genomeBuildGrid" width="100%" height="100%" dataProvider="{genomeBuilds}" showHeaders="false">
+						<mx:columns>
+							<mx:DataGridColumn dataField="@display"/>
+						</mx:columns>
+					</mx:DataGrid>																								
+
+
 					
 				</mx:VBox>
 			</mx:HBox>
-			
-			
-			
-			<mx:HBox verticalGap="0" horizontalGap="10" width="100%">
-				
-				<mx:HBox horizontalGap="0" width="330">
-					<mx:VBox  width="92">
-						<mx:Label text="Organism" width="85" fontWeight="normal">
-						</mx:Label>
-						<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
-					</mx:VBox>								
-					<mx:VBox verticalGap="0">
-						<mx:ComboBox  width="234" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
-					</mx:VBox>
-				</mx:HBox>
-				
-				
-				
-				<mx:HBox horizontalGap="0" width="100%">
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Analysis Type" width="100" fontWeight="normal">
-						</mx:Label>
-						<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
-					</mx:VBox>
-					<mx:VBox verticalGap="0" width="100%">
-						<mx:ComboBox  width="234" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
-					</mx:VBox>
-				</mx:HBox>
-			</mx:HBox>
-			<mx:HBox verticalGap="0" horizontalGap="10" width="100%">
-				<mx:HBox horizontalGap="0" width="330">
-					<mx:VBox verticalGap="0" width="92">
-						<mx:Label text="Genome Builds" width="100%" fontWeight="normal">
-						</mx:Label>
-						<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">																		
-						<mx:HBox verticalGap="0">
-							<mx:ComboBox  width="234" id="genomeBuildCombo" labelField="@display"  dataProvider="{filteredGenomeBuildList}"/>
-						</mx:HBox>
-					</mx:VBox>
-				</mx:HBox>								
-				<mx:HBox horizontalGap="0" width="100%">
-					<mx:VBox verticalGap="-5">
-						<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
-						</mx:Label>
-						<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>														
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:ComboBox  width="234" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
-					</mx:VBox>
-				</mx:HBox>								
-			</mx:HBox>
-			<mx:HBox verticalGap="0" horizontalGap="10" width="326">
-				<mx:HBox horizontalGap="0" width="100%" verticalAlign="bottom">
-					<mx:Label styleName="hintText" text="(Sel. from dropdown, use + to add to list below)" width="100%" fontWeight="normal">
-					</mx:Label>	
-					<mx:Button 
-						enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
-						icon="@Embed(source='../../assets/add.png')" 
-						disabledIcon="@Embed(source='../../assets/add_disable.png')"
-						click="addGenomeBuild()" 
-						width="25">
-					</mx:Button>
-					<mx:Button  
-						icon="@Embed(source='../../assets/delete.png')" 
-						disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-						enabled="{genomeBuildGrid.selectedItem != null}" 
-						click="removeGenomeBuild()" 
-						width="25"/>
-				</mx:HBox>															
-			</mx:HBox>													
-			<mx:DataGrid id="genomeBuildGrid" width="326" height="100%" dataProvider="{genomeBuilds}" showHeaders="false">
-				<mx:columns>
-					<mx:DataGridColumn dataField="@display"/>
-				</mx:columns>
-			</mx:DataGrid>																								
 		</mx:VBox>
 
 		<mx:VBox label="Description" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10" width="100%" height="100%">
