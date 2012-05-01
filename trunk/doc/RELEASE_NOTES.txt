@@ -1,7 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.2.2
+5.4.3
+----------------------
+
+
+
+5.4.2.2 (apr 30, 2012)
 ----------------------
 * Allow users with read permission on analysis to distribute data tracks, except for guest. (tdisera)
 * Add core facility radio buttons on public user registration.  Hide button if only 1 active facility and default new users to it. (bspiglejr)
