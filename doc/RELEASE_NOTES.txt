@@ -10,6 +10,11 @@
 * Use CoreFacilityLab to get email addresses for admin email for public registry users. (bspigljejr)
 * Add CoreFaclilityManagers to allow specifying managers for core facilities. (bspiglejr)
 
+5.4.2.3 Deploy Notes
+--------------------
+* assign all labs to the default core facility (declare @idMicroArray int;select @idMicroArray = idCoreFacility from CoreFacility where facilityName='Microarray and Genomic Analysis';insert into CoreFacilityLab)
+
+
 5.4.2.2 (apr 30, 2012)
 ----------------------
 * Allow users with read permission on analysis to distribute data tracks, except for guest. (tdisera)
