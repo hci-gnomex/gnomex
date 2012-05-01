@@ -22,6 +22,7 @@
 * Improve layout of Analysis Detail, Analysis Edit, Experiment Detail to provide more vertical space for Files tab.  Moved fields at the top to 'Info' tab.  (tdisera)
 * Disallow drag-and-drop operation for distribute data tracks on analysis files if extension no a supported data track. (tdisera)
 * Sort analysis files in a directory by file name (so that they are ordered alphabetically). (tdisera)
+* Fixed horizontal scroll problem on Experiment Detail window (tdisera)
 
 
 5.4.2.2 Deploy Notes
