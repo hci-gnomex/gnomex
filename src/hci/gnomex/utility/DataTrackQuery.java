@@ -905,8 +905,12 @@ public class DataTrackQuery implements Serializable {
 				if (!folderNode.hasChildren()) {
 					String folderIdUserGroup = folderNode.getAttributeValue("idLab");
 					boolean prune = true;
+					// always prune if guest user.
+					if (secAdvisor.isGuest()) {
+					  prune = true;
+					}
 					// Public folders
-					if (folderNode.getName().equals("DataTrackFolder") &&
+					else if (folderNode.getName().equals("DataTrackFolder") &&
 						(folderIdUserGroup == null || folderIdUserGroup.equals(""))) {
 						// If we are not filtering by user group,
 						// always show empty public empty folders
