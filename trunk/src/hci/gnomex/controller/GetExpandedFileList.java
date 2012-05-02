@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -271,15 +273,24 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     
 
     if (fd.isDirectory()) {
-      String[] fileList = fd.list();
+      File[] fileList = fd.listFiles();
+      
+      Arrays.sort(fileList, new Comparator<File>(){     
+        public int compare(File f1, File f2)     {         
+          return f1.getName().compareTo(f2.getName());     
+          } }); 
+      
+      
       for (int x = 0; x < fileList.length; x++) {
-        String fileName = directoryName + "/" + fileList[x];
-        File f1 = new File(fileName);
+        File f1 = fileList[x];
+        
+        String fileName = directoryName + "/" + f1.getName();
+
         
         // Show the subdirectory in the name if we are not at the main folder level
         String displayName = "";
         if (flattenSubDirs && subDirName != null) {
-          displayName = subDirName + "/" + fileList[x];
+          displayName = subDirName + "/" + f1.getName();
         } else {
           displayName = f1.getName();        
         }

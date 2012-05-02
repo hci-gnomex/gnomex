@@ -8,6 +8,8 @@
 * Use CoreFacilityLab to get email addresses for admin email for public registry users. (bspigljejr)
 * Add CoreFaclilityManagers to allow specifying managers for core facilities. (bspiglejr)
 * Distribute Data Tracks - require .bam and .bai files to be dragged together. (tdisera)
+* Fix RegisterFiles batch job to correctly match analysis file names in analysis directory (tdisera)
+* Order file names alphabetically for Experiment files. (tdisera)
 
 
 5.4.2.3 Deploy Notes
