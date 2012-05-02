@@ -2344,18 +2344,24 @@
 			<mx:RemoveChild target="{navWorkflowView}"/>
 			<mx:RemoveChild target="{workflowLink}"/>
 			<mx:RemoveChild target="{workflowRule}"/>
+			<mx:SetProperty target="{submitRequestLink}" name="label" value="Register Experiment"/>
+			<mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
 		</mx:State>
 
 		 <mx:State name="ManagerESState" basedOn="ManagerState">
 			 <mx:RemoveChild target="{amendRequestView}"/>
 			 <mx:RemoveChild target="{amendRequestLink}"/>
 			 <mx:RemoveChild target="{amendRequestRule}"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Register Experiment"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
 		 </mx:State>
 
 		 <mx:State name="UserESState" basedOn="UserState">
 			 <mx:RemoveChild target="{amendRequestView}"/>
 			 <mx:RemoveChild target="{amendRequestLink}"/>
 			 <mx:RemoveChild target="{amendRequestRule}"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Register Experiment"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
 		 </mx:State>
 		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
 			 <mx:RemoveChild target="{amendRequestView}"/>

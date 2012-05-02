@@ -85,6 +85,7 @@
 			<mx:RemoveChild target="{button5}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button5}"/>
 			<mx:SetStyle target="{label3}" name="paddingTop" value="26"/>
+			<mx:SetProperty target="{submitExternalExperimentButton}" name="label" value="Register Experiment"/>
 		</mx:State>
 		<mx:State name="UserESState">
 			<mx:RemoveChild target="{button1}"/>
@@ -92,6 +93,7 @@
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
+			<mx:SetProperty target="{submitExternalExperimentButton}" name="label" value="Register Experiment"/>
 		</mx:State>
 		<mx:State name="ExternalUserESState" basedOn="ExternalUserState">
 			<mx:RemoveChild target="{button1}"/>
@@ -99,6 +101,7 @@
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
+			<mx:SetProperty target="{submitExternalExperimentButton}" name="label" value="Register Experiment"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterESState" basedOn="UserNonSubmitterState">
 			<mx:RemoveChild target="{label4}"/>
