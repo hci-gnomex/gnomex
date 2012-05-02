@@ -11,7 +11,7 @@
 * Fix RegisterFiles batch job to correctly match analysis file names in analysis directory (tdisera)
 * Order file names alphabetically for Experiment files. (tdisera)
 * Name links 'Register Experiment' for external data sharing site. (tdisera)
-
+* Prune all empty folders for guest user. (bspiglejr)
 
 5.4.2.3 Deploy Notes
 --------------------
