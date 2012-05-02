@@ -303,7 +303,11 @@ public class RegisterFiles extends TimerTask {
       TreeSet newAnalysisFiles = new TreeSet(new AnalysisFileComparator());
       for (Iterator i2 = analysis.getFiles().iterator(); i2.hasNext();) {
         AnalysisFile af= (AnalysisFile)i2.next();
-        String qualifiedFileName = analysis.getNumber() + "/" + af.getQualifiedFilePath() + "/" + af.getFileName();
+        String directoryName = analysis.getNumber() + "/";
+        if (af.getQualifiedFilePath() != null && !af.getQualifiedFilePath().trim().equals("")) {
+          directoryName += af.getQualifiedFilePath() + "/";
+        }
+        String qualifiedFileName = directoryName + "/" + af.getFileName();
         AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(qualifiedFileName);
         
         // If we don't find the file on the file system, delete it from the db.
