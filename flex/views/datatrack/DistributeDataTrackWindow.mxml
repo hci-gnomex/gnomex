@@ -991,6 +991,28 @@
 			}
 		}
 		
+		// Disallow operation if matching .bam, .bai are not selected
+		var isBamOrBai:Boolean = false;
+		for each(var dragItem1:Object in ds.dataForFormat("treeDataGridItems") as Array) {
+			if (dragItem1.name() == "AnalysisFileDescriptor") {
+				if (dragItem1.@type == 'BAM' || dragItem1.@type == 'bam' || dragItem1.@type == 'BAI' || dragItem1.@type == 'bai') {
+					isBamOrBai = true;
+					break;
+				}
+			}
+		}
+		if (isBamOrBai) {
+			if (!isBAMFilePair(ds.dataForFormat("treeDataGridItems") as Array, "@fileName", "@type")) {
+				Alert.show("Both .bam and .bai must be selected together.",
+					"Missing .bam/.bai file", Alert.OK, null, null, parentApplication.iconDataTrack);
+				event.preventDefault();
+				event.target.hideDropFeedback(event);
+				DragManager.showFeedback(DragManager.NONE);		   	
+				return;
+			}
+		}
+		
+		
 		
 		// retrieve the data associated with the "items" format. This will be the data that
 		// the dragInitiator has copied into the DragSource.
@@ -1001,6 +1023,7 @@
 				if (dragItem.@isSupportedDataTrack == 'Y') {
 					params.name = "AnalysisFileDescriptor";
 					params.fileName = dragItem.@displayName;
+					params.type = dragItem.@type;
 					params.idAnalysis = dragItem.@idAnalysis;
 					params.idAnalysisFile = dragItem.@idAnalysisFileString;
 					params.idLab = dragItem.@idLab;
@@ -1027,19 +1050,45 @@
 
 	}
 	
-	private function isFilePair(dragParms:Object):Boolean {
+	
+	// Need separate function to look at drag items before
+	// they are stuffed into dragParams
+	private function isBAMFilePair(dragItems:Object, fileNameAttribute:String, typeAttribute:String):Boolean {
+		if (dragItems.length != 2) {
+			return false;
+		}
 		var fileNameMap:Object = new Object();
-		for each(var di:Object in dragParams) {
-			var fileName:String = di.fileName;
+		for each(var di:Object in dragItems) {
+			var fileName:String = di[fileNameAttribute];
 			var pos:int = fileName.lastIndexOf(".");
 			var baseFileName:String = fileName.substr(0, pos);
-			fileNameMap[baseFileName] = baseFileName;
+			var extensions:Array = fileNameMap[baseFileName];
+			if (extensions == null) {
+				extensions = new Array();
+			}
+			extensions.push(di[typeAttribute]);
+			fileNameMap[baseFileName] = extensions;
 		}
 		var baseFileNameCount:int = 0;
+		var isBAI:Boolean = false;
+		var isBAM:Boolean = false;
+		// Check the extensions to make sure we have both  a .bai and .bam for
+		// the same file name
 		for (var key:Object in fileNameMap) {
 			baseFileNameCount++;
+			var theExtensions:Array = fileNameMap[key];
+			if (theExtensions.length == 2) {
+				for each (var ext:Object in theExtensions) {
+					if  (ext == 'BAI' || ext == 'bai') {
+						isBAI = true;
+					} else if  (ext == 'BAM' || ext == 'bam') {
+						isBAM = true;
+					} 
+				}
+				
+			}
 		}
-		return baseFileNameCount == 1;
+		return baseFileNameCount == 1 && isBAI && isBAM;
 	}
 	
 	private function promptToAssociateFiles():void {
@@ -1053,7 +1102,7 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
 		} //  File pairs are dragged onto a data track
-		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack' && isFilePair(dragParams)) {
+		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack' && isBAMFilePair(dragParams, "fileName", "type")) {
 			var params1:Object = new Object();
 			params1.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params1);
@@ -1077,7 +1126,7 @@
 			
 		} 
 		// File pairs dragged onto a folder
-		else if (dragItemCount == 2 && isFilePair(dragParams) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+		else if (dragItemCount == 2 && isBAMFilePair(dragParams, "fileName", "type") && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create a Data track for pair of analysis files under  " + dropNode.@label + "?",
 				"Confirm Add",
 				(Alert.YES | Alert.NO),
@@ -1101,48 +1150,17 @@
 	
 	private function onGetDataTrack(event:ResultEvent):void {
 		if (getDataTrack.lastResult.name() == "DataTrack") {
-			var fileExists:Boolean = false;
-			var fileCount:int = 0;
+
+			var existingFiles:Boolean = false;
 			var fileNames:String = "";
-			
-			var isDragFilePair:Boolean = isFilePair(dragParams);
-			
-			var fileNameMap:Object = new Object();
 			for each(var file:Object in getDataTrack.lastResult..File) {
-				fileCount++;
 				fileNames += file.@name + " ";
-				for each(var df:Object in dragParams) {
-					if (file.@name == df.fileName) {
-						fileExists = true;
-					}
-				}
-				var pos:int = file.@name.lastIndexOf(".");
-				var baseFileName:String = file.@name.substr(0, pos);
-				fileNameMap[baseFileName] = baseFileName;
+				existingFiles = true;
 			}
-			
-			var lastPos:int = dragParams[0].fileName.lastIndexOf(".");
-			var  baseFileNameDrag:String = dragParams[0].fileName.substr(0, lastPos);
-			
-			var isFilePair:Boolean = false;
-			if (fileNameMap[baseFileNameDrag] == baseFileNameDrag) {
-				isFilePair = true;
-			}
-			
-			
-			if (fileExists) {
-				Alert.show("File " + getDragFileNames(dragParams) + " is already linked to Data track " + dropNode.@label + ".");
+
+			if (existingFiles) {
+				Alert.show("File " + fileNames + " is already linked to Data track " + dropNode.@label + ".  To link other files to this data track, you must remove these existing analysis file links from the Data Track first.");
 				return;				
-			} else if (isFilePair) {
-				Alert.show("Associate " + getDragFileNames(dragParams) + " with Data track " + dropNode.@label + "?",
-					"Confirm",
-					(Alert.YES | Alert.NO),
-					this,
-					onPromptToLink);	
-			} else if (fileCount > 0) {
-				Alert.show("Unable to link " + getDragFileNames(dragParams) + ".\n\nThe file " + fileNames + " is already linked to Data track " + dropNode.@label + ".",
-					"Warning");
-				return;
 			} else {
 				Alert.show("Associate " + getDragFileNames(dragParams) + " with Data track " + dropNode.@label + "?",
 					"Confirm",
@@ -1167,21 +1185,17 @@
 	private function onGetDataTrackForFilePair(event:ResultEvent):void {
 		if (getDataTrackForFilePair.lastResult.name() == "DataTrack") {
 			
-			var isDragFilePair:Boolean = isFilePair(dragParams);
+			var isDragFilePair:Boolean = isBAMFilePair(dragParams, "fileName", "type");
 			
-			var fileExists:Boolean = false;
+			var existingFiles:Boolean = false;
 			var existingFileNames:String = "";
 			for each(var file:Object in getDataTrackForFilePair.lastResult..File) {				
-				for each(var df:Object in dragParams) {
-					if (file.@name == df.fileName) {
-						fileExists = true;
-						existingFileNames += file.@name + " ";
-					}
-				}
+				existingFiles = true;
+				existingFileNames += file.@name + " ";
 			}
 			
-			if (fileExists) {
-				Alert.show("Files " + existingFileNames + " already linked to Data track " + getDataTrackForFilePair.lastResult.@name + ".");
+			if (existingFiles) {
+				Alert.show("Files " + existingFileNames + " already linked to Data track " + getDataTrackForFilePair.lastResult.@name + ".  To link other files to this data track, you must remove these existing analysis file links from the Data Track first.");
 				return;	
 			} else {
 				Alert.show("Associate " + getDragFileNames(dragParams) + " with Data track " + getDataTrackForFilePair.lastResult.@name + "?",
