@@ -1,14 +1,14 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.3
-----------------------
 
 5.4.2.3
 ----------------------
 * Add CoreFacilityLab to hook core facilities to labs.   (bspiglejr)
 * Use CoreFacilityLab to get email addresses for admin email for public registry users. (bspigljejr)
 * Add CoreFaclilityManagers to allow specifying managers for core facilities. (bspiglejr)
+* Distribute Data Tracks - require .bam and .bai files to be dragged together. (tdisera)
+
 
 5.4.2.3 Deploy Notes
 --------------------
