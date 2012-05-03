@@ -15,10 +15,12 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AppUserComparator;
 import hci.gnomex.utility.DataTrackComparator;
+import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyOptionComparator;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,7 +55,8 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
   private Integer idDataTrackToDuplicate = null;
   
   private String serverName = null;
-  private String baseDir = null;
+  private String baseDirDataTrack = null;
+  private String baseDirAnalysis = null;
  
   
   
@@ -104,7 +107,8 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
+      baseDirDataTrack = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
+      baseDirAnalysis = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
       
       analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
       
@@ -126,7 +130,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
             dataTrack.setIdAppUser(this.getSecAdvisor().getIdAppUser());
           }
         }
-        dataTrack.setDataPath(baseDir);
+        dataTrack.setDataPath(baseDirDataTrack);
         dataTrack.setCreatedBy(this.getUsername());
         dataTrack.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
         dataTrack.setIsLoaded("N");
@@ -146,6 +150,16 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       if (!this.getSecAdvisor().canRead(analysisFile.getAnalysis())) {
         addInvalidField("readp", "Insufficient permission to read analysis.");
       }
+      
+      // Validate the the bam file
+      if (analysisFile.getFileName().endsWith(".bam") || analysisFile.getFileName().endsWith(".BAM")) {
+        File file = analysisFile.getFile(baseDirAnalysis);
+        String error = DataTrackUtil.checkBamFile(file);
+        if (error != null) {
+          addInvalidField("bamv", "Invalid BAM file: " + error + ". Please correct errors before distributing the data track");
+        }
+      }
+
       
       // Add the analysis file
       DataTrackFile dtFile = new DataTrackFile();

@@ -284,7 +284,7 @@ public class RegisterFiles extends TimerTask {
     }
     List results = sess.createQuery(buf.toString()).list();
     
-    // For each experiment
+    // For each analysis
     for (Iterator i = results.iterator(); i.hasNext();) {
       Analysis analysis = (Analysis)i.next();
       
@@ -335,7 +335,7 @@ public class RegisterFiles extends TimerTask {
           af.setIdAnalysis(analysis.getIdAnalysis());
           af.setFileName(fd.getDisplayName());
           af.setQualifiedFilePath(fd.getQualifiedFilePath());
-          af.setBaseFilePath(af.getBaseFilePath());
+          af.setBaseFilePath(fd.getBaseFilePath());
           af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
           af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar + analysis.getNumber());
           newAnalysisFiles.add(af);
