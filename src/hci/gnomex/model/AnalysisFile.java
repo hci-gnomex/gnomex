@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.sql.Date;
 
@@ -134,6 +135,23 @@ public class AnalysisFile extends HibernateDetailObject {
   public void setFileSize(BigDecimal fileSize) {
     this.fileSize = fileSize;
   }
+  
+  public File getFile(String baseDir) {
+    String filePath = "";
+    if (baseFilePath == null || baseFilePath.equals("")) {
+      String createYear = Analysis.getCreateYear(this.getAnalysis().getCreateDate());
+      filePath = baseDir + "/" + createYear + "/" + this.getAnalysis().getNumber();
+    } else {
+      filePath = baseFilePath;
+    }
+    if (this.getQualifiedFilePath() != null && !this.getQualifiedFilePath().equals("")) {
+      filePath += "/" + this.getQualifiedFilePath();
+    }
+    filePath +=  "/" + this.getFileName();
+    
+    return new File(filePath);
+  }
+
 
  
 }
