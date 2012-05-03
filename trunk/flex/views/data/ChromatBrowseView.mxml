@@ -37,6 +37,7 @@
 			import mx.events.PropertyChangeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import views.renderers.LinkButtonFinchTv;
 			
 			public var parentView:NavDataView;
 			
