@@ -307,12 +307,12 @@ public class RegisterFiles extends TimerTask {
         if (af.getQualifiedFilePath() != null && !af.getQualifiedFilePath().trim().equals("")) {
           directoryName += af.getQualifiedFilePath() + "/";
         }
-        String qualifiedFileName = directoryName + "/" + af.getFileName();
+        String qualifiedFileName = directoryName + af.getFileName();
         AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(qualifiedFileName);
         
         // If we don't find the file on the file system, delete it from the db.
         if (fd == null) {
-          System.out.println("WARNING - analysis file " + af.getFileName() + " not found for " + af.getAnalysis().getNumber());
+          System.out.println("WARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
           sess.delete(af);
         } else {
           // Mark that the file system file has been found
