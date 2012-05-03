@@ -1,8 +1,13 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.4.3
+---------------------
 
-5.4.2.3
+
+
+
+5.4.2.3 (May 2, 2012)
 ----------------------
 * Add CoreFacilityLab to hook core facilities to labs.   (bspiglejr)
 * Use CoreFacilityLab to get email addresses for admin email for public registry users. (bspigljejr)
@@ -12,8 +17,9 @@
 * Order file names alphabetically for Experiment files. (tdisera)
 * Name links 'Register Experiment' for external data sharing site. (tdisera)
 * Prune all data track empty folders for guest user. (bspiglejr)
-* Fix bug in RegisterFiles batch job that was setting baseFilePath to null.
+* Fix bug in RegisterFiles batch job that was setting baseFilePath to null. (tdisera)
 * Fix bug in RegisterFiles that was putting extra forward slash in name, resulting in no hashmap lookup and attempted delete of analysis file db object. (tdisera)
+* Validate bam file when linking analysis file to data track (Distribute data tracks window).  (tdisera)
 
 5.4.2.3 Deploy Notes
 --------------------
