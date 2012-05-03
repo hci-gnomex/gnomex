@@ -13,6 +13,7 @@
 * Name links 'Register Experiment' for external data sharing site. (tdisera)
 * Prune all data track empty folders for guest user. (bspiglejr)
 * Fix bug in RegisterFiles batch job that was setting baseFilePath to null.
+* Fix bug in RegisterFiles that was putting extra forward slash in name, resulting in no hashmap lookup and attempted delete of analysis file db object. (tdisera)
 
 5.4.2.3 Deploy Notes
 --------------------
