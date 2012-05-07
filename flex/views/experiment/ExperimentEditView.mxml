@@ -319,13 +319,16 @@
 		[Bindable]
 		public var showCCNumberColumn:Boolean = true;
 		
+		[Bindable]
+		private var requestApplication:Object = null;	
+		
 		public var concentrationValidator:NumberValidator = new NumberValidator();
 		
 		private var isInitialized:Boolean = false;
 			
 		private var lastSelectedApplication:Object = null;
 			
-		private var alertButtonWidth:Number = Alert.buttonWidth
+		private var alertButtonWidth:Number = Alert.buttonWidth;
 
 		private function init():void {
 			
@@ -348,9 +351,6 @@
 					this.currentState = "";
 					this.theTab.removeChild(downloadView);
 				}
-				
-
-				
 
 				this.initializeData();
         	    this.checkSecurity();
@@ -368,9 +368,7 @@
 					
 				} 
 			}
-			
-			
-			
+
 			// Always perform checkSecurity on setupView
 			if (this.theTab.contains(setupView)) {
 				setupView.checkSecurity();
@@ -386,6 +384,13 @@
     	    	this.setupSubmitForm();
         	} else if (this.id == "editView" && request != null) {
         		this.setupTheEditForm();
+				//  Grab the request application so that we know if we need to include avg Insert size or capLib fields
+				//  in the layout.
+				requestApplication = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
+				minRangeValidator.validate(minRangeValidator.minValue);//the number validator fields don't refresh properly if you switch between
+				minRangeValidator.validate(minRangeValidator.maxValue);//experiments so we force them to refresh here.
+				maxRangeValidator.validate(maxRangeValidator.minValue);
+				maxRangeValidator.validate(maxRangeValidator.maxValue);
         	}	
 
 			this.theTab.selectedIndex = 0;
@@ -398,9 +403,6 @@
 				this.theTab.selectedChild = this.samplesView;
 			}	
 		}
-				
-
-
 
 		public function checkDirty():void {
 		}
@@ -1819,8 +1821,6 @@
 			currentState = '';
 			samplesView.currentState = '';
 
-
-
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 			requestIcon = requestCategory.@icon;
@@ -1944,10 +1944,7 @@
 			this.getRequestCategoryName();
 			this.getBillingAccountName(); 
 			this.getExperimentCategoryName();
-			
-			
-			
-			
+
 		    postSetupEditForm();
 
 		}
@@ -4054,19 +4051,23 @@
 				
 			}
 			
-			private function propagateDesignOrRange():void {
-				if(designOrRangeLabel.text == "Design ID") {
-					this.request.@captureLibDesignId = designOrRangeText.text;
-				}
-				else if((parseInt(designOrRangeText.text) <= 600 && parseInt(designOrRangeText.text) >= 100) && (parseInt(insertSizeTo.text) <= 600 && parseInt(insertSizeTo.text) >= 100)) {
-					this.request.@avgInsertSizeFrom = designOrRangeText.text;
-					this.request.@avgInsertSizeTo = insertSizeTo.text;
+			private function propagateDesign():void {
+				this.request.@captureLibDesignId = designText.text;	
+			}
+			
+			private function propagateRange():void {
+				if((parseInt(rangeFrom.text) <= parseInt(requestApplication.@avgInsertSizeTo)) && 
+					(parseInt(rangeFrom.text) >= parseInt(requestApplication.@avgInsertSizeFrom)) && 
+					(parseInt(rangeTo.text) <= parseInt(requestApplication.@avgInsertSizeTo)) && 
+						(parseInt(rangeTo.text) >= parseInt(requestApplication.@avgInsertSizeFrom))) {
+					this.request.@avgInsertSizeFrom = rangeFrom.text;
+					this.request.@avgInsertSizeTo = rangeTo.text;
 					saveButton.enabled = true;
 				}
 				else {
 					saveButton.enabled = false;
 				}
-					
+				
 			}
 			
 		]]>
@@ -4094,19 +4095,19 @@
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 	
 	<mx:NumberValidator id="minRangeValidator"
-						source="{this.request.@avgInsertSizeFrom != '' ? designOrRangeText : null}"
+						source="{rangeFrom}"
 						lowerThanMinError="Outside valid range."
 						exceedsMaxError="Outside valid range."
 						property="text"
-						minValue="100"
-						maxValue="600"/>
+						minValue="{requestApplication.@avgInsertSizeFrom}"
+						maxValue="{requestApplication.@avgInsertSizeTo}"/>
 	<mx:NumberValidator id="maxRangeValidator"
-						source="{insertSizeTo}"
+						source="{rangeTo}"
 						lowerThanMinError="Outside valid range."
 						exceedsMaxError="Outside valid range."
 						property="text"
-						minValue="100"
-						maxValue="600"/>
+						minValue="{requestApplication.@avgInsertSizeFrom}"
+						maxValue="{requestApplication.@avgInsertSizeTo}"/>
 
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
@@ -4382,12 +4383,17 @@
 					</mx:HBox>
 				   
 					
-					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Text width="100" fontWeight="normal" id="designOrRangeLabel" text="{this.request.@captureLibDesignId != '' ? 'Cap Lib Design' : 'Avg Insert Size'}"/>
-						<mx:TextInput focusOut="propagateDesignOrRange()" id="designOrRangeText" width="100" text="{this.request.@captureLibDesignId != '' ? this.request.@captureLibDesignId : this.request.@avgInsertSizeFrom}"/>
-						<mx:Text text=" to " visible="{this.request.@avgInsertSizeTo != ''}"/>
-						<mx:TextInput focusOut="propagateDesignOrRange()" id="insertSizeTo" width="100" text="{this.request.@avgInsertSizeTo}" visible="{this.request.@avgInsertSizeTo != ''}"/>
-						<mx:Text text=" bp " visible="{this.request.@avgInsertSizeTo != ''}"/>
+					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@hasCaptureLibDesign == 'Y'}" visible="{requestApplication.@hasCaptureLibDesign == 'Y'}">
+						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design"/>
+						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
+					</mx:HBox>
+					
+					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@avgInsertSizeFrom != null &amp;&amp; requestApplication.@avgInsertSizeFrom != ''}" visible="{requestApplication.@avgInsertSizeFrom != null &amp;&amp; requestApplication.@avgInsertSizeFrom != ''}">
+						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size"/>
+						<mx:TextInput focusOut="propagateRange()" change="{this.dirty.setDirty()}" id="rangeFrom" width="100" text="{this.request.@avgInsertSizeFrom}"/>
+						<mx:Text fontWeight="normal" text=" to "/>
+						<mx:TextInput focusOut="propagateRange()" id="rangeTo" change="{this.dirty.setDirty()}" width="100" text="{this.request.@avgInsertSizeTo}"/>
+						<mx:Text fontWeight="normal" text=" bp "/>
 					</mx:HBox>
 					
 				</mx:VBox>
