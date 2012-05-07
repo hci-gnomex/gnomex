@@ -608,7 +608,13 @@
 													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
 									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="250"
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
-													   dataField="@idSeqLibProtocols"/>  
+													   dataField="@idSeqLibProtocols"/>
+									<mx:DataGridColumn headerText="Min Insert Size" id="insertSizeMin" dataField="@avgInsertSizeFrom" editable="true"
+													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}"/>
+									<mx:DataGridColumn headerText="Max Insert Size" id="insertSizeMax" dataField="@avgInsertSizeTo" editable="true"
+													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}"/>
+									<mx:DataGridColumn headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}"
+													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" editorDataField="selected" editable="false"/>
 									<mx:DataGridColumn headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
