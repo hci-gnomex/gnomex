@@ -509,7 +509,7 @@
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
 		</set>
-		<set name="projects" table="Project" lazy="true" cascade="none" >
+		<set name="projects" table="Project" lazy="true" cascade="none" order-by="name" >
 			<key column="idLab"/>
 			<one-to-many class="hci.gnomex.model.Project" />
 		</set>
@@ -937,6 +937,10 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idApplicationTheme" column="idApplicationTheme" type="integer"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
+		<property name="avgInsertSizeFrom" column="avgInsertSizeFrom" type="integer"/>
+		<property name="avgInsertSizeTo" column="avgInsertSizeTo" type="integer"/>
+		<property name="hasCaptureLibDesign" column="hasCaptureLibDesign" type="string"/>
+		
 	</class>
 
   <!-- hci.gnomex.model.ApplicationTheme -->
