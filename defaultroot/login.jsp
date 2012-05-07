@@ -53,8 +53,7 @@ try {
 <div id="content" align="center" bgcolor="white">
 
    <div class="header-bar" >
-       <div class="rightMenu" >
-         <a href="change_password.jsp">Change password</a> |    
+       <div class="rightMenu" >    
          <a href="change_password.jsp">Change password</a> |    
          <a href="reset_password.jsp">Reset password</a> |    
          <a href="register_user.jsp">Create a new account</a> 
