@@ -37,7 +37,7 @@
 		params.binomialName = organismBinomialName.text;
 		params.das2Name     = organismName.text;
 		params.ncbiTaxID    = organismNCBITaxID.text;
-		params.isActive     = parentDocument.browseTree.selectedItem.@isActive;
+		params.isActive     = isActive.selected == true ? 'Y' : 'N';
 		updateOrganism.send(params);
 	}
 	
@@ -71,8 +71,10 @@
 				<mx:Label text="NCBI taxonomy ID:" width="120"/>
 				<mx:TextInput id="organismNCBITaxID"  width="300" text="{parentDocument.browseTree.selectedItem.@NCBITaxID}" change="dirtyOrganism.setDirty()" maxChars="45"/>
 			</mx:HBox>
-			
-			
+			<mx:HBox width="100%" >
+				<mx:Label text="Active:" width="120"/>
+				<mx:CheckBox id="isActive"  width="300" change="dirtyOrganism.setDirty()" selected="{parentDocument.browseTree.selectedItem.@isActive == 'Y'}"/>
+			</mx:HBox>
 		</mx:VBox>
 		
 		

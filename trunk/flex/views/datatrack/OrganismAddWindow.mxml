@@ -3,7 +3,7 @@
 	title="New Species"
 	showCloseButton="true" 
 	width="390" 
-	height="228"
+	height="245"
 	verticalGap="0"
 	close="closeWindow()"
 	defaultButton="{saveButton}"	
@@ -22,7 +22,7 @@
          <das2Name>{das2Name.text}</das2Name>
          <organism>{commonName.text}</organism>
          <binomialName>{binomialName.text}</binomialName>
-		 <isActive>Y</isActive>
+		 <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
       </mx:request>
     </mx:HTTPService> 
     
@@ -78,6 +78,10 @@
 			<mx:TextInput id="das2Name"  width="100%" maxChars="200"/>
 		</mx:HBox>
 		<mx:Label text="Example: H_sapiens" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:HBox width="100%" paddingTop="10">
+			<mx:Label text="Active:" width="100"/>
+			<mx:CheckBox id="isActive" selected="true"/>
+		</mx:HBox>
     	
     </mx:VBox>
 
