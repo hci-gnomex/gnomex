@@ -74,7 +74,7 @@
 		params.coordVersion      = this.coordVersion.text;
 		params.coordTestRange    = this.coordTestRange.text;
 		params.coordAuthority    = this.coordAuthority.text;
-		params.isActive          = parentDocument.browseTree.selectedItem.@isActive;
+		params.isActive          = isActive.selected == true ? 'Y' : 'N';
 		
 		params.segmentsXML  = "<segments>" + segments.toXMLString() + "</segments>";
 		params.sequenceFilesToRemoveXML  = "<sequenceFilesToRemove>" + sequenceFilesToRemove.toXMLString() + "</sequenceFilesToRemove>";
@@ -212,6 +212,10 @@
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Coord authority:" width="120"/>
 			<mx:TextInput id="coordAuthority"  width="250" text="{parentDocument.browseTree.selectedItem.@coordAuthority}" change="dirtyGenomeBuild.setDirty()" maxChars="50"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="Active:" width="120"/>
+			<mx:CheckBox id="isActive"  width="250" change="dirtyGenomeBuild.setDirty()" selected="{parentDocument.browseTree.selectedItem.@isActive == 'Y'}"/>
 		</mx:HBox>
 	</mx:VBox>
 	

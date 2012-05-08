@@ -3,7 +3,7 @@
 	title="New Genome build"
 	showCloseButton="true" 
 	width="436" 
-	height="192"
+	height="217"
 	verticalGap="0"
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconGenomeBuild}"
@@ -22,7 +22,7 @@
 		 <genomeBuildName>{genomeBuildName.text}</genomeBuildName>
          <buildDate>{buildDate.text}</buildDate>
          <idOrganism>{organismCombo.selectedItem.@idOrganism}</idOrganism>
-		 <isActive>Y</isActive>
+		 <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
       </mx:request>
     </mx:HTTPService> 
     
@@ -73,7 +73,7 @@
 	]]>
     </mx:Script>
     
-    <mx:VBox height="100%" styleName="form" verticalGap="0" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+    <mx:VBox height="100%" width="100%" styleName="form" verticalGap="0" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox>
 			<mx:Label text="Organism:" width="100"/>
 			<mx:ComboBox labelField="@binomialName" id="organismCombo" width="300">
@@ -89,7 +89,11 @@
 		<mx:HBox paddingTop="10">
 			<mx:Label text="Build date:" width="100"/>
 			<mx:DateField id="buildDate"  width="300"/>
-	</mx:HBox>
+		</mx:HBox>
+		<mx:HBox paddingTop="10">
+			<mx:Label text="Active:" width="100"/>
+			<mx:CheckBox id="isActive" selected="true"/>
+		</mx:HBox>
     	
     </mx:VBox>
 
