@@ -132,7 +132,6 @@ public class GetLabList extends GNomExCommand implements Serializable {
         
         if (lab.getIsMyLab().equals("Y") || otherLabMap.containsKey(lab.getIdLab()) || activeLabMap.containsKey(lab.getIdLab())) {
 
-          lab.excludeMethodFromXML("getDepartment");
           lab.excludeMethodFromXML("getNotes");
           lab.excludeMethodFromXML("getContactName");
           lab.excludeMethodFromXML("getContactAddress");
