@@ -12,6 +12,8 @@ public class InstrumentRunFilter extends DetailObject {
   // Criteria
   private Integer               idInstrumentRun;
 
+  private String                getAll = "N";
+
   private String                status;
 
   private String                runLastWeek = "N";
@@ -62,7 +64,8 @@ public class InstrumentRunFilter extends DetailObject {
         (createdLastWeek != null && createdLastWeek.equals("Y")) ||
         (createdLastMonth != null && createdLastMonth.equals("Y")) ||
         (createdLastThreeMonths != null && createdLastThreeMonths.equals("Y")) ||
-        (createdLastYear != null && createdLastYear.equals("Y"))) {
+        (createdLastYear != null && createdLastYear.equals("Y"))  ||
+        (getAll != null && getAll.equals("Y"))) {
       hasLimitingCriteria = true;
     } else {
       hasLimitingCriteria = false;
@@ -79,8 +82,10 @@ public class InstrumentRunFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM                InstrumentRun as ir ");
-
-    addRunCriteria();
+    
+    if (! getAll.equals("Y")) {
+      addRunCriteria();
+    }
 
     queryBuf.append(" order by ir.createDate");
 
@@ -98,7 +103,7 @@ public class InstrumentRunFilter extends DetailObject {
     if (status != null && !status.equals("")) {
       this.addWhereOrAnd();
       queryBuf.append("(");
-      queryBuf.append(" ir.status like '%" + status + "%'");
+      queryBuf.append(" ir.codeInstrumentRunStatus like '%" + status + "%'");
       queryBuf.append(")");
     }
 
@@ -250,6 +255,16 @@ public class InstrumentRunFilter extends DetailObject {
     this.status = status;
   }
 
+
+  public String getGetAll()
+  {
+    return getAll;
+  }
+
+  public void setGetAll(String getAll)
+  {
+    this.getAll = getAll;
+  }
 
   public String getRunLastWeek() {
     return runLastWeek;

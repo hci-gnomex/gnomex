@@ -22,12 +22,10 @@ public class ChromatogramFilter extends DetailObject {
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
   
-  
+  private String                released = "";
   
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
-  private boolean               addJoin = true;
-  private boolean               addRequestJoin = true;
   private SecurityAdvisor       secAdvisor;
 
 
@@ -48,8 +46,9 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        c.aSignalStrength, ");
     queryBuf.append("        c.cSignalStrength, ");
     queryBuf.append("        c.gSignalStrength, ");
-    queryBuf.append("        c.tSignalStrength ");
-
+    queryBuf.append("        c.tSignalStrength, ");
+    queryBuf.append("        c.releaseDate ");
+    
     getQueryBody(queryBuf);
 
     return queryBuf;
@@ -66,6 +65,7 @@ public class ChromatogramFilter extends DetailObject {
         (lastMonth != null && lastMonth.equals("Y")) ||
         (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
         (lastYear != null && lastYear.equals("Y")) ||
+        (released != null && !released.equals(""))  ||
         (getAll != null && getAll.equals("Y"))) {
       hasLimitingCriteria = true;
     } else {
@@ -83,12 +83,17 @@ public class ChromatogramFilter extends DetailObject {
 
     queryBuf.append(" FROM                Chromatogram as c ");
     
-    if (!getAll.equals("Y")) {
-      addCriteria();
+    if (getAll.equals("Y")) {
+      queryBuf.append(" order by c.idRequest");
+      return;
     }
     
-    queryBuf.append(" order by c.idRequest");
+    queryBuf.append("JOIN    c.plateWell as pw ");
+    queryBuf.append("JOIN    c.request as req ");
 
+    addCriteria();
+    
+    queryBuf.append(" order by c.idRequest");
   }
 
   private void addCriteria() {
@@ -100,9 +105,8 @@ public class ChromatogramFilter extends DetailObject {
       cal.add(Calendar.DAY_OF_YEAR, -7);
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
 
-      this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" PlateWell.createDate >= '");
+      queryBuf.append(" pw.createDate >= '");
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -113,9 +117,8 @@ public class ChromatogramFilter extends DetailObject {
       cal.add(Calendar.MONTH, -1);
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
 
-      this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" PlateWell.createDate >= '");
+      queryBuf.append(" pw.createDate >= '");
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -126,9 +129,8 @@ public class ChromatogramFilter extends DetailObject {
       cal.add(Calendar.MONTH, -3);
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
 
-      this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" PlateWell.createDate >= '");
+      queryBuf.append(" pw.createDate >= '");
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -139,53 +141,43 @@ public class ChromatogramFilter extends DetailObject {
       cal.add(Calendar.YEAR, -1);
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
 
-      this.addJoin();
       this.addWhereOrAnd();
-      queryBuf.append(" PlateWell.createDate >= '");
+      queryBuf.append(" pw.createDate >= '");
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
     
     if (requestNumber != null) {
-      this.addRequestJoin();
       this.addWhereOrAnd();
       
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-      queryBuf.append(" (Request.number like '" + requestNumberBase + "[0-9]' OR Request.number = '" + requestNumberBase + "') ");
+      queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "') ");
     }
     
     if (idChromatogram != null){
       this.addWhereOrAnd();
-      queryBuf.append(" c.idChromatogram =");
+      queryBuf.append(" c.idChromatogram = ");
       queryBuf.append(idChromatogram);
     } 
 
     if (idRequest != null){
       this.addWhereOrAnd();
-      queryBuf.append(" c.idRequest =");
+      queryBuf.append(" c.idRequest = ");
       queryBuf.append(idRequest);
     } 
 
+    if (released != null && released.equals("Y")){
+      this.addWhereOrAnd();
+      queryBuf.append(" c.releaseDate is not null ");
+    } 
+
+    if (released != null && released.equals("N")){
+      this.addWhereOrAnd();
+      queryBuf.append(" c.releaseDate is null ");
+    } 
     
-
   }
 
-  protected boolean addJoin()  {
-    if (addJoin) {
-      queryBuf.append(" join PlateWell on c.idPlateWell = PlateWell.idPlateWell ");
-      addJoin = false;
-    }
-    return addJoin;
-  }
-  
-  protected boolean addRequestJoin()  {
-    if (addRequestJoin) {
-      queryBuf.append(" join Request on c.idRequest = Request.idRequest ");
-      addRequestJoin = false;
-    }
-    return addRequestJoin;
-  }
-  
 
   protected boolean addWhereOrAnd() {
     if (addWhere) {
@@ -226,6 +218,16 @@ public class ChromatogramFilter extends DetailObject {
     this.idRequest = idRequest;
   }
 
+
+  public String getRequestNumber()
+  {
+    return requestNumber;
+  }
+
+  public void setRequestNumber(String requestNumber)
+  {
+    this.requestNumber = requestNumber;
+  }
 
   public String getGetAll()
   {
@@ -275,6 +277,16 @@ public class ChromatogramFilter extends DetailObject {
 
   public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
+  }
+
+  public String getReleased()
+  {
+    return released;
+  }
+
+  public void setReleased(String released)
+  {
+    this.released = released;
   }
   
 
