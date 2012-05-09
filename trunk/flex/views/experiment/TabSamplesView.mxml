@@ -155,35 +155,38 @@
 				"/>");
 			
 			} else if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
-				var plateName:String = "";
-				if (parentDocument.sampleSetupView.containerTypePlate.selected) {
-					var y:int = parentDocument.samples.length / 96;
-					y = y + 1;
-					plateName = "Plate " + String(y);
-				}
-				emptyNode = new XML("<Sample " +
-					" idSample='" + "Sample" + getNextSampleId() + "'" +
-					" name='' description='' " +
-					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
-					" canChangeSampleName='Y'" +
-					" canChangeSampleType='Y'" +
-					" canChangeSampleDropOffLocation='Y'" +
-					" canChangeSampleConcentration='N'" +
-					" canChangeSampleSource='N'" +
-					" canChangeNumberSequencingCycles='N'" +
-					" canChangeNumberSequencingLanes='N'" + 
-					" concentration=''" +
-					" idOligoBarcode = ''" +
-					" barcodeSequence = ''" +
-					" codeConcentrationUnit='ng/ul'" + 
-					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
-					" otherSamplePrepMethod=''" + 				
-					" treatment=''" +	
-					" plateName='" + plateName + "'" +
-					" wellName=''" +
-					"/>");
-				
+				if (parentDocument.samples.length >= 384) {
+					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
+				} else {
+					var plateName:String = "";
+					if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+						var y:int = parentDocument.samples.length / 96;
+						y = y + 1;
+						plateName = "Plate " + String(y);
+					}
+					emptyNode = new XML("<Sample " +
+						" idSample='" + "Sample" + getNextSampleId() + "'" +
+						" name='' description='' " +
+						" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+						" canChangeSampleName='Y'" +
+						" canChangeSampleType='Y'" +
+						" canChangeSampleDropOffLocation='Y'" +
+						" canChangeSampleConcentration='N'" +
+						" canChangeSampleSource='N'" +
+						" canChangeNumberSequencingCycles='N'" +
+						" canChangeNumberSequencingLanes='N'" + 
+						" concentration=''" +
+						" idOligoBarcode = ''" +
+						" barcodeSequence = ''" +
+						" codeConcentrationUnit='ng/ul'" + 
+						" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+						" otherSamplePrepMethod=''" + 				
+						" treatment=''" +	
+						" plateName='" + plateName + "'" +
+						" wellName=''" +
+						"/>");
+				}				
 			} else {
 				var xmlString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -208,9 +211,9 @@
 				emptyNode = new XML(xmlString);
 			}
 			
-			parentDocument.samples.addItem(emptyNode);
-			 
-
+			if (emptyNode != null) {
+				parentDocument.samples.addItem(emptyNode);
+			}
 		}
 		
 		private function getNextSampleId():Number {
