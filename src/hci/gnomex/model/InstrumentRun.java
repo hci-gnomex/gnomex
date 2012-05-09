@@ -7,15 +7,16 @@ import java.util.Date;
 
 public class InstrumentRun extends HibernateDetailObject {
   
-  private Integer        idInstrumentRun;
-  private Date           runDate;
-  private Date           createDate;
-  private String         codeInstrumentRunStatus;
-  private String         comments;
-  private String         label;
-  private String         codeReactionType;
-  private String         creator;
-  private String         codeSealType;
+  private Integer             idInstrumentRun;
+  private Date                runDate;
+  private Date                createDate;
+  private String              codeInstrumentRunStatus;
+  private InstrumentRunStatus instrumentRunStatus;
+  private String              comments;
+  private String              label;
+  private String              codeReactionType;
+  private String              creator;
+  private String              codeSealType;
   
   
   public Integer getIdInstrumentRun()
@@ -106,6 +107,16 @@ public class InstrumentRun extends HibernateDetailObject {
   public String getCodeSealType()
   {
     return codeSealType;
+  }
+
+  
+  public InstrumentRunStatus getInstrumentRunStatus() {
+    return instrumentRunStatus;
+  }
+
+  
+  public void setInstrumentRunStatus( InstrumentRunStatus instrumentRunStatus ) {
+    this.instrumentRunStatus = instrumentRunStatus;
   }
   
     
