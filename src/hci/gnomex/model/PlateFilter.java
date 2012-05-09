@@ -15,6 +15,7 @@ public class PlateFilter extends DetailObject {
   private String                notAddedToARun = "N";
 
   private String                status;
+  private String                plateType;
 
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -35,6 +36,7 @@ public class PlateFilter extends DetailObject {
     queryBuf.append("        p.codeReactionType, ");
     queryBuf.append("        p.creator, ");
     queryBuf.append("        p.codeSealType ");
+//    queryBuf.append("        p.codePlateType ");
 
     getQueryBody(queryBuf);
 
@@ -48,6 +50,7 @@ public class PlateFilter extends DetailObject {
     if (idPlate != null ||
         idInstrumentRun != null ||
        (status != null && !status.equals("")) ||
+//       (plateType != null && !plateType.equals("")) ||
         getAll.equals("Y") ||
         notAddedToARun.equals("Y")) {
       hasLimitingCriteria = true;
@@ -95,6 +98,14 @@ public class PlateFilter extends DetailObject {
       queryBuf.append(" p.status like '%" + status + "%'");
       queryBuf.append(")");
     }
+    
+    // Search by status
+//    if (plateType != null && !plateType.equals("")) {
+//      this.addWhereOrAnd();
+//      queryBuf.append("(");
+//      queryBuf.append(" p.codePlateType like '%" + plateType + "%'");
+//      queryBuf.append(")");
+//    }
     
     // Search by not added to run
     if (notAddedToARun.equals("Y")) {
@@ -164,6 +175,16 @@ public class PlateFilter extends DetailObject {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  
+  public String getPlateType() {
+    return plateType;
+  }
+
+  
+  public void setPlateType( String plateType ) {
+    this.plateType = plateType;
   }
 
   public String getNotAddedToARun()

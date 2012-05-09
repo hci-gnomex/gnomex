@@ -2,8 +2,7 @@ package hci.gnomex.model;
 
 
 import java.sql.Date;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Calendar;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
@@ -18,9 +17,17 @@ public class RequestFilter extends DetailObject {
   private Date                  createDateFrom;
   private Date                  createDateTo;
   
+
+  private String                lastWeek = "N";
+  private String                lastMonth = "N";
+  private String                lastThreeMonths = "N";
+  private String                lastYear = "N";
+
+  
+  private String                status;
   
   private StringBuffer          queryBuf;
-  private boolean              addWhere = true;
+  private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
   
@@ -84,7 +91,61 @@ public class RequestFilter extends DetailObject {
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     } 
-    
+    // Search last week
+    if (lastWeek.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DAY_OF_YEAR, -7);
+      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search last month
+    if (lastMonth.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -1);
+      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search last 3 months
+    if (lastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search last year
+    if (lastYear.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.YEAR, -1);
+      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }    
+    // Search by request status 
+    if (status != null && !status.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestStatus like '");
+      queryBuf.append(status);
+      queryBuf.append("%'");
+    } 
   }
   
   private void addSecurityCriteria() {
@@ -151,6 +212,56 @@ public class RequestFilter extends DetailObject {
   
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
+  }
+
+  
+  
+  public String getLastWeek() {
+    return lastWeek;
+  }
+
+  
+  public void setLastWeek( String lastWeek ) {
+    this.lastWeek = lastWeek;
+  }
+
+  
+  public String getLastMonth() {
+    return lastMonth;
+  }
+
+  
+  public void setLastMonth( String lastMonth ) {
+    this.lastMonth = lastMonth;
+  }
+
+  
+  public String getLastThreeMonths() {
+    return lastThreeMonths;
+  }
+
+  
+  public void setLastThreeMonths( String lastThreeMonths ) {
+    this.lastThreeMonths = lastThreeMonths;
+  }
+
+  
+  public String getLastYear() {
+    return lastYear;
+  }
+
+  
+  public void setLastYear( String lastYear ) {
+    this.lastYear = lastYear;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  
+  public void setStatus( String status ) {
+    this.status = status;
   }
 
 
