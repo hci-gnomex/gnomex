@@ -4,9 +4,11 @@
 5.4.3
 ---------------------
 * Don't allow sortable columns on Workflow - Illumina Data Pipeline.
-* Make average insert size (range) and capture lib design id configurable based on sequencing application.
-* Get rid of duplicate 'Change Password' link on login page.
-
+* Make average insert size (range) and capture lib design id configurable based on sequencing application.(tcourdy)
+* Get rid of duplicate 'Change Password' link on login page.(tcourdy)
+* Added isActive check boxes to the organism and genome build windows under the data tracks view.(tcourdy)
+* Allow users to search for lab groups based on department name.(tcourdy)
+* Projects listed in experiment edit view dropdown box are now sorted alphabetically.(tcourdy) 
 
 5.4.2.3 (May 2, 2012)
 ----------------------
