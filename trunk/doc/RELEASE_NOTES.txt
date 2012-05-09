@@ -5,6 +5,7 @@
 ---------------------
 * Don't allow sortable columns on Workflow - Illumina Data Pipeline.
 * Make average insert size (range) and capture lib design id configurable based on sequencing application.
+* Get rid of duplicate 'Change Password' link on login page.
 
 
 5.4.2.3 (May 2, 2012)
