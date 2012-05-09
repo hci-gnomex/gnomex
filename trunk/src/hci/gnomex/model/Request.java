@@ -72,6 +72,7 @@ public class Request extends HibernateDetailObject {
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
+  private Integer         idSampleDropOffLocation;
   private String          codeRequestStatus;
   private RequestStatus   requestStatus;
     
@@ -862,6 +863,13 @@ public class Request extends HibernateDetailObject {
     return requestStatus;
   }
 
+  public Integer getIdSampleDropOffLocation() {
+    return idSampleDropOffLocation;
+  }
+  
+  public void setIdSampleDropOffLocation(Integer id) {
+    idSampleDropOffLocation = id;
+  }
   
   public void setRequestStatus( RequestStatus requestStatus ) {
     this.requestStatus = requestStatus;

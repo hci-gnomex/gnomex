@@ -110,6 +110,11 @@
 				if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
 					this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
 				}				
+				if (parentDocument.isCapSeqState()) {
+					this.sampleDropOffLocationVbox.visible = true;
+				} else {
+					this.sampleDropOffLocationVbox.visible = false;	
+				}
 			}
 			this.showHideColumns();
 			this.confirmContainer.validateNow();
@@ -123,6 +128,7 @@
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission && !parentDocument.isCapSeqState();
 			
 			wellNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
+			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
         	if (parentDocument.isSolexaState()) {
@@ -176,7 +182,6 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
-				
 				
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
@@ -304,9 +309,17 @@
 					
 				</mx:VBox> 
 			<mx:VBox width ="100%" id="expDescriptBox" verticalGap="0" paddingTop="4">
-				<mx:Label text="Experiment Name" textDecoration="underline" height="16"/>
-				<mx:Label id="experimentName" width="200" alpha="0.8"  text="{parentDocument.isAmendState() ? parentDocument.request.@name
-						  : ''}"/>
+				<mx:HBox id="nameDropOffHBox">
+					<mx:VBox id="experimentNameVbox">
+						<mx:Label text="Experiment Name" textDecoration="underline" height="16"/>
+						<mx:Label id="experimentName" width="200" alpha="0.8"  text="{parentDocument.isAmendState() ? parentDocument.request.@name
+								  : ''}"/>
+					</mx:VBox>
+					<mx:VBox id="sampleDropOffLocationVbox">
+						<mx:Label text="Sample Drop Off Location" textDecoration="underline" height="16"/>
+						<mx:Label id="sampleDropOffLocation" width="200" alpha="0.8"  text="{parentDocument.sampleSetupView.sampleDropOffLocationCombo.selectedItem.@display}"/>
+					</mx:VBox>
+				</mx:HBox>
 				<mx:Label text="Experiment Description" textDecoration="underline" paddingTop="5"/>
 				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" 
 										  verticalScrollPolicy="auto" backgroundColor="#FFFFFF"
@@ -337,6 +350,7 @@
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
+						<mx:DataGridColumn id="plateNameCol" visible="false" headerText="Plate" width="80" dataField="@plateName"/>
 						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" labelFunction="parentDocument.getWellNameByColumn"/>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
 						</mx:DataGridColumn>

@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
@@ -15,6 +16,8 @@ import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
 import hci.gnomex.model.OligoBarcode;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
@@ -136,6 +139,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private String           invoicePrice;
   
+  private Map<String, Plate> storePlateMap = new HashMap<String, Plate>();
   
   public void validate() {
   }
@@ -1015,6 +1019,39 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if (isNewSample) {
       samplesAdded.add(sample);
+    }
+    
+    // create plates and plate wells.
+    Plate plate = requestParser.getPlate(idSampleString);
+    PlateWell well = requestParser.getWell(idSampleString);
+    if (plate != null && well != null) {
+      String idAsString = requestParser.getPlateIdAsString(idSampleString);
+      Plate realPlate = this.storePlateMap.get(idAsString);
+      if (realPlate == null) {
+        realPlate = plate;
+        if (plate.getIdPlate() != null) {
+          realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+          realPlate.setLabel(plate.getLabel());
+        } else {
+          realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        }
+        realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+        sess.save(realPlate);
+        sess.flush();
+        this.storePlateMap.put(idAsString, realPlate);
+      }
+      PlateWell realWell = well;
+      if (well.getIdPlateWell() != null) {
+        realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlate());
+        realWell.setRow(well.getRow());
+        realWell.setCol(well.getCol());
+      }
+      realWell.setSample(sample);
+      realWell.setIdSample(sample.getIdSample());
+      realWell.setPlate(realPlate);
+      realWell.setIdPlate(realPlate.getIdPlate());
+      sess.save(realWell);
+      sess.flush();
     }
   }
 

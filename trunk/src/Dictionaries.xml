@@ -41,11 +41,13 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.OrganismLite" editable="N">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
+  <Dictionary displayName="Plate Type" className="hci.gnomex.model.PlateType" />
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
   	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
 	</Dictionary>
+  <Dictionary displayName="Sample Drop Off Location" className="hci.gnomex.model.SampleDropOffLocation" />
 	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
 	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType"  editable="N">
   </Dictionary>

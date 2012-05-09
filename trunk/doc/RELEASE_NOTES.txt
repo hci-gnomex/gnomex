@@ -3,7 +3,9 @@
 
 5.4.4
 ---------------------
-
+* Add PlateType dictionary and codePlateType to Plate -- default to REACTION plate.  (bspigeljr)
+* Add plate name and sample drop off location to Capillary Sequencing request submission scrrens. (bspiglejr)
+* Group Samples on Capillary Sequencing request submission by plate if chose plate type.  (bspiglejr)
 
 
 5.4.3

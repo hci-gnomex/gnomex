@@ -3,6 +3,8 @@ package hci.gnomex.utility;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ConcentrationUnit;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
@@ -52,7 +54,9 @@ public class RequestParser implements Serializable {
   private String          amendState = "";
   private List<String>    ccNumberList = new ArrayList<String>();
   private Integer         originalIdLab = null;
-
+  private Map<String, Plate> plateMap = new HashMap<String, Plate>();
+  private Map<String, PlateWell> wellMap = new HashMap<String, PlateWell>();
+  private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestDoc = requestDoc;
@@ -206,6 +210,11 @@ public class RequestParser implements Serializable {
       request.setIdOrganismSampleDefault(new Integer(n.getAttributeValue("idOrganismSampleDefault")));
     } else {
       request.setIdOrganismSampleDefault(null);
+    }
+    if (n.getAttributeValue("idSampleDropOffLocation") != null && !n.getAttributeValue("idSampleDropOffLocation").equals("")) {
+      request.setIdSampleDropOffLocation(new Integer(n.getAttributeValue("idSampleDropOffLocation")));
+    } else {
+      request.setIdSampleDropOffLocation(null);
     }
     
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
@@ -538,8 +547,37 @@ public class RequestParser implements Serializable {
      
     }
 
-    
-   
+    // Have well and plate names so create well and plate rows
+    if (n.getAttributeValue("wellName") != null && n.getAttributeValue("wellName").length() > 0
+        && n.getAttributeValue("plateName") != null && n.getAttributeValue("plateName").length() > 0) {
+      Plate plate = new Plate();
+      String plateIdAsString = "";
+      if (n.getAttributeValue("plateId") != null && n.getAttributeValue("plateId").length() > 0) {
+        plateIdAsString = n.getAttributeValue("plateId");
+        plate.setIdPlate(Integer.parseInt(n.getAttributeValue("plateId")));
+      } else {
+        plateIdAsString = n.getAttributeValue("plateName");
+      }
+      plate.setLabel(n.getAttributeValue("plateName"));
+      this.plateMap.put(plateIdAsString, plate);
+      
+      PlateWell well = new PlateWell();
+      String wellIdAsString = "";
+      if (n.getAttributeValue("wellId") != null && n.getAttributeValue("wellId").length() > 0) {
+        wellIdAsString = n.getAttributeValue("wellId");
+        well.setIdPlateWell(Integer.parseInt(n.getAttributeValue("wellId")));
+      } else {
+        wellIdAsString = plateIdAsString + "&" + n.getAttributeValue("wellName");
+      }
+      well.setRow(n.getAttributeValue("wellName").substring(0, 1));
+      well.setCol(Integer.parseInt(n.getAttributeValue("wellName").substring(1)));
+      this.wellMap.put(wellIdAsString, well);
+      
+      SamplePlateWell samplePlateWell = new SamplePlateWell();
+      samplePlateWell.plateIdAsString = plateIdAsString;
+      samplePlateWell.wellIdAsString = wellIdAsString;
+      this.sampleToPlateMap.put(idSampleString, samplePlateWell);
+    }
   }
   
   private void initializeHyb(Element n) {
@@ -1530,8 +1568,38 @@ public class RequestParser implements Serializable {
   public List<String> getCcNumberList() {
     return ccNumberList;
   }
-
   
+  public Plate getPlate(String idSampleString) {
+    SamplePlateWell spw = this.sampleToPlateMap.get(idSampleString);
+    if (spw != null) {
+      return this.plateMap.get(spw.plateIdAsString);
+    } else {
+      return null;
+    }
+  }
+
+  public PlateWell getWell(String idSampleString) {
+    SamplePlateWell spw = this.sampleToPlateMap.get(idSampleString);
+    if (spw != null) {
+      return this.wellMap.get(spw.wellIdAsString);
+    } else {
+      return null;
+    }
+  }
+  
+  public String getPlateIdAsString(String idSampleString) {
+    SamplePlateWell spw = this.sampleToPlateMap.get(idSampleString);
+    if (spw != null) {
+      return spw.plateIdAsString;
+    } else {
+      return null;
+    }
+  }
+  
+  private class SamplePlateWell implements Serializable {
+    public String plateIdAsString = "";
+    public String wellIdAsString = "";
+  }
 
   
 

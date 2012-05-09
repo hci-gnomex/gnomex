@@ -234,6 +234,14 @@ public class DictionaryHelper implements Serializable {
     return propertyDictionaryMap;
   }
   
+  public String getPlateType(String codePlateType) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codePlateType != null && codePlateType.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.PlateType", codePlateType);
+    }
+    return name;
+  }
   public String getSampleType(Sample sample) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -263,6 +271,14 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (idSampleSource != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SampleSource", idSampleSource.toString());
+    }
+    return name;
+  }
+  public String getSampleDropOffLocation(Integer idSampleDropOffLocation) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (idSampleDropOffLocation != null) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.SampleDropOffLocation", idSampleDropOffLocation.toString());
     }
     return name;
   }
