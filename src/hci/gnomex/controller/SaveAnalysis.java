@@ -611,6 +611,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       queryBuf.append("SELECT COUNT(*) FROM DataTrack dt ");
       queryBuf.append("JOIN dt.dataTrackFiles dtf ");
       queryBuf.append("WHERE dtf.idAnalysisFile IN (");
+      boolean firstTime = true;
       if (analysisFileParser != null) {
         for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
           String idAnalysisFile = (String)i.next();
@@ -619,11 +620,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           if (idAnalysisFile.startsWith("AnalysisFile")) {
             continue;
           }
-          queryBuf.append(idAnalysisFile);
-          inCount++;
-          if (i.hasNext()) {
+          if (!firstTime) {
             queryBuf.append(",");
           }
+          queryBuf.append(idAnalysisFile);
+          inCount++;
+          firstTime = false;
         } 
         queryBuf.append(")");
       } else {
