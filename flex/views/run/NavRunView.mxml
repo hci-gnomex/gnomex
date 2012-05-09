@@ -34,7 +34,7 @@
 		<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 			
 			
-			<mx:VBox styleName="panelBox"   width="175" height="100%" >
+			<mx:VBox styleName="panelBox"   width="140" height="100%" >
 				
 				<mx:HBox width="100%">
 					<mx:Label id="titleLabel" styleName="titleLabel" text="To Do Box"/>
