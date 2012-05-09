@@ -71,27 +71,36 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           Object[] row = (Object[])i.next();
 
           
-          Integer idChromatogram = row[0] == null ? new Integer(-2) : (Integer)row[0];
-          Integer idPlateWell = row[1] == null ? new Integer(-2) : (Integer)row[1];
-          Integer idRequest = row[2] == null ? new Integer(-2) : (Integer)row[2];
+          Integer idChromatogram = row[0] == null ? new Integer(0) : (Integer)row[0];
+          Integer idPlateWell = row[1] == null ? new Integer(0) : (Integer)row[1];
+          Integer idRequest = row[2] == null ? new Integer(0) : (Integer)row[2];
           String  fileName    = row[3] == null ? "" : (String)row[3];
           abiFileName = fileName;
           String  displayName    = row[4] == null ? "" : (String)row[4];
-          Integer readLength = row[5] == null ? new Integer(-2) : (Integer)row[5];
-          Integer trimmedLength = row[6] == null ? new Integer(-2) : (Integer)row[6];
-          Integer q20 = row[7] == null ? new Integer(-2) : (Integer)row[7];
-          Integer q40 = row[8] == null ? new Integer(-2) : (Integer)row[8];
-          Integer aSignalStrength = row[9] == null ? new Integer(-2) : (Integer)row[9];
-          Integer cSignalStrength = row[10] == null ? new Integer(-2) : (Integer)row[10];
-          Integer gSignalStrength = row[11] == null ? new Integer(-2) : (Integer)row[11];
-          Integer tSignalStrength = row[12] == null ? new Integer(-2) : (Integer)row[12];
+          Integer readLength = row[5] == null ? new Integer(0) : (Integer)row[5];
+          Integer trimmedLength = row[6] == null ? new Integer(0) : (Integer)row[6];
+          Integer q20 = row[7] == null ? new Integer(0) : (Integer)row[7];
+          Integer q40 = row[8] == null ? new Integer(0) : (Integer)row[8];
+          Integer aSignalStrength = row[9] == null ? new Integer(0) : (Integer)row[9];
+          Integer cSignalStrength = row[10] == null ? new Integer(0) : (Integer)row[10];
+          Integer gSignalStrength = row[11] == null ? new Integer(0) : (Integer)row[11];
+          Integer tSignalStrength = row[12] == null ? new Integer(0) : (Integer)row[12];
+          String  releaseDate = this.formatDate( ( java.sql.Timestamp ) row[13] );
           
-          DecimalFormat twoDForm = new DecimalFormat("#.##");
-          double q20_len = (double) q20/readLength;
-          q20_len = Double.valueOf(twoDForm.format(q20_len));
-          double q40_len = (double) q40/readLength;
-          q40_len = Double.valueOf(twoDForm.format(q40_len));
+          double q20_len;
+          double q40_len;
           
+          if ( readLength!=0 ) {
+            DecimalFormat twoDForm = new DecimalFormat("#.##");
+            q20_len = (double) q20/readLength;
+            q20_len = Double.valueOf(twoDForm.format(q20_len));
+            q40_len = (double) q40/readLength;
+            q40_len = Double.valueOf(twoDForm.format(q40_len));
+          } else {
+            q20_len = new Integer(0);
+            q40_len =  new Integer(0);
+          }
+
           
           Element cNode = new Element("Chromatogram");
           cNode.setAttribute("idChromatogram", idChromatogram.toString());
@@ -110,6 +119,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute("q20_len", "" + q20_len);
           cNode.setAttribute("q40_len", "" + q40_len);
           cNode.setAttribute("viewURL", getViewURL());
+          cNode.setAttribute( "releaseDate", releaseDate );
           
           doc.getRootElement().addContent(cNode);
 

@@ -47,7 +47,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
   private String                codeReactionType = null;
   private String                creator = null;
   private String                codeSealType = null;
-  
+  private String                codePlateType = null;
   
   
   public void validate() {
@@ -82,7 +82,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
     if (request.getParameter("codeSealType") != null && !request.getParameter("codeSealType").equals("")) {
       codeSealType = request.getParameter("codeSealType");
     }
-    
+    if (request.getParameter("codePlateType") != null && !request.getParameter("codePlateType").equals("")) {
+      codePlateType = request.getParameter("codePlateType");
+    }
     
     if (request.getParameter("plateWellXMLString") != null
         && !request.getParameter("plateWellXMLString").equals("")) {
@@ -114,8 +116,13 @@ public class SavePlate extends GNomExCommand implements Serializable {
         // Should set creator to current user.
         plate = new Plate();
         sess.save(plate);
+        creator = this.getUsername();
+        plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
       } else {
         plate = (Plate) sess.get(Plate.class, idPlate);
+        if ( plate.getCreateDate() == null ) {
+          plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        }
       }
       
       if ( idInstrumentRun != 0 ) {
@@ -126,14 +133,20 @@ public class SavePlate extends GNomExCommand implements Serializable {
       if (createDateStr != null) {
         createDate = this.parseDate(createDateStr);
       }
-      plate.setCreateDate(createDate != null ? createDate : new java.util.Date(System.currentTimeMillis()));
+      if ( createDate != null ) {plate.setCreateDate(createDate);}
       
       plate.setQuadrant(quadrant);
       if ( comments != null ) {plate.setComments(comments);}
+      plate.setQuadrant(quadrant);
       if ( label != null ) {plate.setLabel(label);}
       if ( codeReactionType != null ) {plate.setCodeReactionType(codeReactionType);}
-//      if ( creator != null ) {plate.setCreator(creator);}
+      if ( creator != null ) {
+        plate.setCreator(creator);
+      } else if ( plate.getCreator()==null || plate.getCreator().equals("") ) {
+        plate.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
+      }
       if ( codeSealType != null )  {plate.setCodeSealType(codeSealType);}
+      if ( codePlateType != null )  {plate.setCodePlateType(codePlateType);}
       
       idPlate = plate.getIdPlate();
       
@@ -164,6 +177,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
         
         pw.setIdPlate(idPlate);
         pw.setPlate(plate);
+        if ( pw.getCreateDate() == null ) {
+          pw.setCreateDate(plate.getCreateDate());
+        }
         
         boolean exists = false;
         for(Iterator i1 = plate.getPlateWells().iterator(); i1.hasNext();) {
@@ -173,7 +189,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
           }
         }
         
-        // New flow cell channel -- add it to the list
+        // New PlateWell -- add it to the list
         if (!exists) {
           wellsToAdd.add(pw);
         }

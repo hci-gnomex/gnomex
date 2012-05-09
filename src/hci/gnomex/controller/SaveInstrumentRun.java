@@ -12,8 +12,6 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 
 
-
-
 public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
@@ -79,6 +77,8 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         // Should set creator to the current user
         ir = new InstrumentRun();
         sess.save(ir);
+        creator = this.getUsername();
+        ir.setCreateDate(new java.util.Date(System.currentTimeMillis()));
       } else {
         ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
       }
@@ -87,13 +87,18 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       if (createDateStr != null) {
         createDate = this.parseDate(createDateStr);
       }
-      ir.setCreateDate(createDate != null ? createDate : new java.util.Date(System.currentTimeMillis()));
+      if ( createDate != null ) {ir.setCreateDate(createDate);}
+      
       
       if ( runDateStr != null ) {ir.setRunDate(this.parseDate(runDateStr));}
       if ( comments != null ) {ir.setComments(comments);}
       if ( label != null ) {ir.setLabel(label);}
       if ( codeReactionType != null ) {ir.setCodeReactionType(codeReactionType);}
-//      if ( creator != null ) {ir.setCreator(creator);}
+      if ( creator != null ) {
+        ir.setCreator(creator);
+      } else if ( ir.getCreator()==null || ir.getCreator().equals("") ) {
+        ir.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
+      }
       if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
         
       sess.flush();

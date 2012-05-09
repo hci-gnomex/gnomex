@@ -20,7 +20,6 @@ import org.biojava.bio.chromatogram.ChromatogramFactory;
 import org.biojava.bio.chromatogram.UnsupportedChromatogramFormatException;
 import org.biojava.bio.program.abi.ABIFParser;
 import org.hibernate.Session;
-import org.jdom.Element;
 
 
 public class SaveChromatogramFromFile extends GNomExCommand implements Serializable {
