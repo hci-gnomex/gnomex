@@ -274,6 +274,8 @@
 		[Bindable]
 		public var filteredSampleTypeList:XMLListCollection;
 		[Bindable]
+		public var filteredSampleDropOffLocationList:XMLListCollection;
+		[Bindable]
 		public var filteredSeqRunTypeList:XMLListCollection;
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
@@ -427,6 +429,10 @@
         	filteredSampleTypeList.sort = sampleTypeSorter;     	
         	filteredSampleTypeList.refresh();
 			
+			filteredSampleDropOffLocationList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleDropOffLocation'));
+			filteredSampleDropOffLocationList.sort = dictionarySorter;     	
+			filteredSampleDropOffLocationList.refresh();
+			
         	
 	        filteredSeqRunTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqRunType'));
         	seqRunTypeSorter = new Sort();
@@ -500,6 +506,9 @@
 			
 			filteredSampleTypeList.filterFunction = filterSampleType;
 			filteredSampleTypeList.refresh();
+			
+			filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
+			filteredSampleDropOffLocationList.refresh();
 			
 			filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
 			filteredNumberSequencingCycleAllowedList.refresh();
@@ -1044,6 +1053,7 @@
 			
 			
 			filteredSampleTypeList.refresh();
+			filteredSampleDropOffLocationList.refresh();
 			seqLibProtocolList.refresh();
 			
 			if (parentApplication.submitInternalExperiment()) {
@@ -1104,15 +1114,19 @@
 			
 		public function getWellNameByColumn(item:Object,col:int):String
 		{
+			var wellName:String = "";
 			if (samples!= null) {
 				var x:int = samples.getItemIndex(item);
-				return parentApplication.wellNamesByColumn[x];
-			} else {
-				return "";
+				if (x >= 0) {
+					x = x % 96;
+					item.@wellName = parentApplication.wellNamesByColumn[x];
+					wellName = item.@wellName;
+				}
 			}
+			return wellName;
 		}
 
-		public function getHybsGridRowNumber(item:Object,col:int):String
+			public function getHybsGridRowNumber(item:Object,col:int):String
         {
         	if (hybs!= null) {
 	           var x:int = hybs.getItemIndex(item) + 1;
@@ -1386,6 +1400,19 @@
 
         	return doesMatchRequestCategory && doesMatchApplication;
         }  
+			
+		private function filterSampleDropOffLocation(item:Object):Boolean {
+			if (item.@value == "") {
+				return true;
+			}
+			
+			
+			if (item.@isActive == 'N') {
+				return false;
+			}
+			
+			return true;
+		}  
 
         private function filterSeqLibProtocol(item:Object):Boolean {
         	if (item.@value == "") {
@@ -1692,6 +1719,7 @@
 				sample.@treatment = "";
 				sample.@canChangeSampleName='Y';
 				sample.@canChangeSampleType='Y';
+				sample.@canChangeSampleDropOffLocation='Y';
 				sample.@canChangeSampleConcentration='Y';
 				sample.@canChangeSampleSource='Y';
    				sample.@canChangeNumberSequencingLanes='Y';
@@ -2595,6 +2623,10 @@
 			
 			if (theTab.contains(sampleSetupView)) {
 				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
+				
+				if (this.isCapSeqState()) {
+					request.@idSampleDropOffLocation = parentApplication.submitInternalExperiment() ? sampleSetupView.sampleDropOffLocationCombo.selectedItem.@value : '';
+				}
 				
 				if (currentState != 'QCState' && !isCapSeqState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;

@@ -1193,9 +1193,14 @@ DROP TABLE IF EXISTS `gnomex`.`Plate`;
 CREATE TABLE `gnomex`.`Plate` (
   `idPlate` INT(10) NOT NULL AUTO_INCREMENT,
   `idInstrumentRun` INT(10) NULL,
+  `codePlateType` VARCHAR(10) NOT NULL DEFAULT 'REACTION',
   PRIMARY KEY (`idPlate`),
   CONSTRAINT `FK_Plate_InstrumentRun` FOREIGN KEY `FK_Plate_InstrumentRun` (`idInstrumentRun`)
     REFERENCES `gnomex`.`InstrumentRun` (`idInstrumentRun`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Plate_PlateType` FOREIGN KEY `FK_Plate_PlateType` (`codePlateType`)
+    REFERENCES PlateType (`codePlateType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1338,6 +1343,7 @@ CREATE TABLE `gnomex`.`Request` (
   `captureLibDesignId` varchar(200) null,
   `avgInsertSizeFrom` INT(10) null,
   `avgInsertSizeTo` INT(10) null,
+  `idSampleDropOffLocation` INT(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1377,6 +1383,10 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_CoreFacility` FOREIGN KEY FK_Request_CoreFacility (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+CONSTRAINT `FK_Request_SampleDropOffLocation` FOREIGN KEY `FK_Request_SampleDropOffLocation` (`idSampleDropOffLocation`)
+    REFERENCES SampleDropOffLocation (`idSampleDropOffLocation`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2485,6 +2495,30 @@ CREATE TABLE `gnomex`.`CoreFacilityLab` (
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+--
+-- SampleDropOffLocation 
+--
+DROP TABLE IF EXISTS `gnomex`.`SampleDropOffLocation`;
+CREATE TABLE `gnomex`.`SampleDropOffLocation` (
+  `idSampleDropOffLocation` INT(10) NOT NULL AUTO_INCREMENT,
+  `sampleDropOffLocation`   VARCHAR(50) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idSampleDropOffLocation`)
+)
+ENGINE = INNODB;
+
+--
+-- PlateType 
+--
+DROP TABLE IF EXISTS `gnomex`.`PlateType`;
+CREATE TABLE `gnomex`.`PlateType` (
+  `codePlateType` VARCHAR(10) NOT NULL,
+  `plateTypeDescription`   VARCHAR(50) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codePlateType`)
 )
 ENGINE = INNODB;
 

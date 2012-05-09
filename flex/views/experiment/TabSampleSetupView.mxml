@@ -237,7 +237,8 @@
 	        	}
         	} else if (parentDocument.isCapSeqState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
 					
 					isComplete = true;
 				}
@@ -420,6 +421,11 @@
 			this.checkForSampleTypeCompatibility();
 		}
 		
+		private function pickSampleDropOffLocation():void {
+			parentDocument.samplesView.initializeSamplesGrid();
+			checkSampleSetupCompleteness();
+		}
+		
 		private function pickOrganism():void {
 			
 			// Clear other organism if non 'Other' selected
@@ -505,8 +511,10 @@
 				
 				if (sampleCount < 32) {
 					this.containerTypeRadioGroup.selectedValue = "TUBE";
+					this.containerTypeTube.enabled = true;
 				} else {
 					this.containerTypeRadioGroup.selectedValue = "PLATE";
+					this.containerTypeTube.enabled = false;
 				}
 				
 			} 
@@ -537,6 +545,11 @@
         lowerThanMinError="This field is required."
         property="selectedIndex"
         minValue="1" />
+	<mx:NumberValidator id="sampleDropOffLocationValidator"
+						source="{this.sampleDropOffLocationCombo}"
+						lowerThanMinError="This field is required."
+						property="selectedIndex"
+						minValue="1" />
         
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
         	
@@ -775,10 +788,18 @@
                   <mx:HBox width="100%" horizontalGap="0">
                        <mx:Label text="(2) The samples will be delivered in what container?" width="310"  id="label0"/>
                        <mx:RadioButtonGroup id="containerTypeRadioGroup" selectedValue="TUBE"/>
-                       <mx:RadioButton label="Tubes" click="{callLater(onContainerTypeChange)}" value="TUBE" groupName="containerTypeRadioGroup"/>
-                       <mx:RadioButton label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
+                       <mx:RadioButton id="containerTypeTube" label="Tubes" click="{callLater(onContainerTypeChange)}" value="TUBE" groupName="containerTypeRadioGroup"/>
+                       <mx:RadioButton id="containerTypePlate" label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
                   </mx:HBox>
              </mx:AddChild>
+			 <mx:AddChild relativeTo="{hbox6}" position="after">
+			      <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
+				      <mx:Label text="(4) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
+				      <mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
+							 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
+				      </mx:ComboBox>
+			      </mx:HBox>
+			 </mx:AddChild>
              <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
         </mx:State>

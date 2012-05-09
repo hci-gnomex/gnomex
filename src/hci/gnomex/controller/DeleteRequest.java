@@ -5,7 +5,10 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.WorkItem;
@@ -104,6 +107,33 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           sess.delete(tl);
         }
         sess.flush();
+        
+        // Delete source plates
+        String sourcePlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (";
+        Boolean firstSample = true;
+        for(Iterator i = req.getSamples().iterator();i.hasNext();) {
+          Sample s = (Sample)i.next();
+          if (!firstSample) {
+            sourcePlateQuery += ", ";
+          }
+          sourcePlateQuery += s.getIdSample().toString();
+          firstSample = false;
+        }
+        sourcePlateQuery += ")";
+        List sourcePlates = sess.createQuery(sourcePlateQuery).list();
+        Integer idSourcePlate = null;
+        for(Iterator i = sourcePlates.iterator();i.hasNext();) {
+          PlateWell well = (PlateWell)i.next();
+          idSourcePlate = well.getIdPlate();
+          sess.delete(well);
+        }
+        if (idSourcePlate != null) {
+          Plate sourcePlate = (Plate)sess.load(Plate.class, idSourcePlate);
+          if (sourcePlate != null) {
+            sess.delete(sourcePlate);
+          }
+          sess.flush();
+        }
         
         //
         // Delete Request

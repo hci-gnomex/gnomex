@@ -566,6 +566,7 @@
     	<property name="codeReactionType" column="codeReactionType" type="string"/>
     	<property name="creator" column="creator" type="string"/>
     	<property name="codeSealType" column="codeSealType" type="string"/>
+      <property name="codePlateType" column="codePlateType" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.PlateWell -->
@@ -584,6 +585,15 @@
     	<property name="codeReactionType" column="codeReactionType" type="string"/>
    		<property name="createDate" column="createDate" type="date"/>
 	</class>
+	  
+   <!-- hci.gnomex.model.PlateType -->
+  <class name="hci.gnomex.model.PlateType" table="PlateType">
+    <id name="codePlateType" column="codePlateType" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="plateTypeDescription" column="plateTypeDescription" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class>
 	
 	<!-- hci.gnomex.model.Project -->
 	<class name="hci.gnomex.model.Project" table="Project">
@@ -666,6 +676,7 @@
 		<property name="captureLibDesignId" column="captureLibDesignId" type="string"/>
 		<property name="avgInsertSizeFrom" column="avgInsertSizeFrom" type="integer"/>
 		<property name="avgInsertSizeTo" column="avgInsertSizeTo" type="integer"/>						
+		<property name="idSampleDropOffLocation" column="idSampleDropOffLocation" type="integer" />
     	<property name="codeRequestStatus" column="codeRequestStatus" type="string"/>
     	<many-to-one name="requestStatus" column="codeRequestStatus" class="hci.gnomex.model.RequestStatus" cascade="none" insert="false" update="false" />
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
@@ -1555,6 +1566,15 @@
       <generator class="assigned"/>
     </id>
     <property name="reactionType" column="reactionType" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class>
+  
+   <!-- hci.gnomex.model.SampleDropOffLocation -->
+  <class name="hci.gnomex.model.SampleDropOffLocation" table="SampleDropOffLocation">
+    <id name="idSampleDropOffLocation" column="idSampleDropOffLocation" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="sampleDropOffLocation" column="sampleDropOffLocation" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
   </class>
   

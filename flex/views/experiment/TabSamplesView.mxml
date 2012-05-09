@@ -76,6 +76,7 @@
 				    " name='' description='' " +
 				    " canChangeSampleName='Y'" +
 				    " canChangeSampleType='Y'" +
+					" canChangeSampleDropOffLocation='Y'" +
 				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
    					" canChangeNumberSequencingLanes='Y'" +  
@@ -154,12 +155,19 @@
 				"/>");
 			
 			} else if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
+				var plateName:String = "";
+				if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+					var y:int = parentDocument.samples.length / 96;
+					y = y + 1;
+					plateName = "Plate " + String(y);
+				}
 				emptyNode = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
 					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +
 					" canChangeSampleType='Y'" +
+					" canChangeSampleDropOffLocation='Y'" +
 					" canChangeSampleConcentration='N'" +
 					" canChangeSampleSource='N'" +
 					" canChangeNumberSequencingCycles='N'" +
@@ -171,7 +179,9 @@
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
-					" treatment=''" +				
+					" treatment=''" +	
+					" plateName='" + plateName + "'" +
+					" wellName=''" +
 					"/>");
 				
 			} else {
@@ -306,6 +316,7 @@
  	  		        " name='" + sampleToCopy.@name + "'" + 
 					" canChangeSampleName='Y'" +
 			    	" canChangeSampleType='Y'" +
+					" canChangeSampleDropOffLocation='Y'" +
 			   	 	" canChangeSampleConcentration='Y'" +
 			    	" canChangeSampleSource='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
@@ -765,8 +776,30 @@
 			}
 			
 			
-			
-        	if (parentDocument.showSampleMultiplexGroup()) {
+			if (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected) {
+				this.samplesGrid.dataProvider = null;
+				sampleGroupingCollection = new GroupingCollection();
+				sampleGroupingCollection.source = parentDocument.samples;
+				var groupCapSeq:Grouping = new Grouping();
+				var gfCapSeq:GroupingField = new GroupingField();
+				gfCapSeq.name = "@plateName";
+				groupCapSeq.fields = [gfCapSeq];
+				gfCapSeq.compareFunction = sampleCompareFunction;
+				sampleGroupingCollection.grouping  = groupCapSeq;
+				sampleGroupingCollection.refresh(); 
+				this.samplesGrid.dataProvider = sampleGroupingCollection;
+				
+				this.samplesGrid.dragMoveEnabled = false;
+				this.samplesGrid.dropEnabled = false;
+				this.samplesGrid.dragEnabled = false;
+				
+				this.sampleRowNumberCol.visible = false;
+				this.multiplexGroupNumberColumn.visible = false;
+				this.switchFirstSampleGridColumns(this.plateNameCol, this.multiplexGroupNumberColumn);
+				this.plateNameCol.visible = true;
+				this.barcodeColumn.visible = false;
+				this.multiplexGroupNumberEditColumn.visible = false;
+			} else if (parentDocument.showSampleMultiplexGroup()) {
         		this.samplesGrid.dataProvider = null;
         		sampleGroupingCollection = new GroupingCollection();
         		sampleGroupingCollection.source = parentDocument.samples;
@@ -785,8 +818,10 @@
 
         		this.sampleRowNumberCol.visible = false;
         		this.multiplexGroupNumberColumn.visible = true;
+				switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
         		this.barcodeColumn.visible = false;
 				this.multiplexGroupNumberEditColumn.visible = false;
+				this.plateNameCol.visible = false;
 				
         	} else {
 				this.samplesGrid.sortableColumns = false;
@@ -801,6 +836,7 @@
 				this.multiplexGroupNumberColumn.visible = false;
         		this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
 				this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState;
+				this.plateNameCol.visible = false;
 
         	}
         		
@@ -814,6 +850,16 @@
 			this.samplesGrid.validateNow();
         	callLater(this.checkSamplesCompleteness);
 
+		}
+		
+		private function switchFirstSampleGridColumns (col1:AdvancedDataGridColumn, col2:AdvancedDataGridColumn):void {
+			var columns:Array = [];
+			columns[0] = col1;
+			columns[1] = col2;
+			for(var i:int = 2;i < this.samplesGrid.columns.length;i++) {
+				columns[i] = this.samplesGrid.columns[i];
+			}
+			this.samplesGrid.columns = columns;
 		}
 		
 		private function sampleCompareFunction(a:XML, b:XML):int
@@ -1208,8 +1254,8 @@
 				displayItemsExpanded="true"  
 				selectionColor="#DDF3FB">
 				<mx:columns>
-	                <mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
-						width="60">
+					<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
+											   width="60">
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
@@ -1218,7 +1264,8 @@
 								</mx:VBox> 
 							</mx:Component> 
 						</mx:headerRenderer> 
-				    </mx:AdvancedDataGridColumn>
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" labelFunction="parentDocument.getWellNameByColumn"/>
 					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        

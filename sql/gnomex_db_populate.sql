@@ -1329,6 +1329,9 @@ VALUES ('OWNER', 'Owner'),
 -- Default core facility
 INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'DEFAULT', 'Y');
 
+INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('REACTION', 'Reaction plate', 'Y');
+INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('SOURCE', 'Source plate', 'Y');
+
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 

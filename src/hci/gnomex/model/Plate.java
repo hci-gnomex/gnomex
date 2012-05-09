@@ -19,6 +19,7 @@ public class Plate extends HibernateDetailObject {
   private String         codeReactionType;
   private String         creator;
   private String         codeSealType;
+  private String         codePlateType;
   
   
   public Integer getIdPlate()
@@ -119,6 +120,16 @@ public class Plate extends HibernateDetailObject {
   public String getCodeSealType()
   {
     return codeSealType;
+  }
+
+  public void setCodePlateType(String plateType)
+  {
+    this.codePlateType = plateType;
+  }
+
+  public String getCodePlateType()
+  {
+    return codePlateType;
   }
 
   
