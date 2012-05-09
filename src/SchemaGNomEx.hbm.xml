@@ -226,7 +226,8 @@
 		</id>
 		<property name="idPlateWell" column="idPlateWell" type="integer"/>
 		<many-to-one name="plateWell" column="idPlateWell" class="hci.gnomex.model.PlateWell" cascade="none" insert="false" update="false" />
-		<property name="idRequest" column="idRequest" type="integer"/>
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" update="false" insert="false"/>
+    	<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="fileName" column="fileName" type="string"/>
         <property name="qualifiedFilePath" column="qualifiedFilePath" type="string"/>
 		<property name="displayName" column="displayName" type="string"/>
@@ -471,11 +472,13 @@
 		<property name="runDate" column="runDate" type="java.util.Date"/>
     	<property name="createDate" column="createDate" type="java.util.Date"/>
     	<property name="codeInstrumentRunStatus" column="codeInstrumentRunStatus" type="string"/>
-    	<property name="comments" column="comments" type="string"/>
+    	<many-to-one name="instrumentRunStatus" column="codeInstrumentRunStatus" class="hci.gnomex.model.InstrumentRunStatus" cascade="none" insert="false" update="false" />
+     	<property name="comments" column="comments" type="string"/>
     	<property name="label" column="label" type="string"/>
     	<property name="codeReactionType" column="codeReactionType" type="string"/>
     	<property name="creator" column="creator" type="string"/>
     	<property name="codeSealType" column="codeSealType" type="string"/>
+       
     </class>
 
     <!-- hci.gnomex.model.Lab -->
@@ -663,6 +666,8 @@
 		<property name="captureLibDesignId" column="captureLibDesignId" type="string"/>
 		<property name="avgInsertSizeFrom" column="avgInsertSizeFrom" type="integer"/>
 		<property name="avgInsertSizeTo" column="avgInsertSizeTo" type="integer"/>						
+    	<property name="codeRequestStatus" column="codeRequestStatus" type="string"/>
+    	<many-to-one name="requestStatus" column="codeRequestStatus" class="hci.gnomex.model.RequestStatus" cascade="none" insert="false" update="false" />
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />
