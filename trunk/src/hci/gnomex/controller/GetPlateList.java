@@ -2,8 +2,11 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.PlateFilter;
+import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Request;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -61,9 +64,9 @@ public class GetPlateList extends GNomExCommand implements Serializable {
         
         StringBuffer buf = plateFilter.getQuery(this.getSecAdvisor());
         log.info("Query for GetPlateList: " + buf.toString());
-        List runs = sess.createQuery(buf.toString()).list();
+        List plates = sess.createQuery(buf.toString()).list();
 
-        for(Iterator i = runs.iterator(); i.hasNext();) {
+        for(Iterator i = plates.iterator(); i.hasNext();) {
 
           Object[] row = (Object[])i.next();
 
@@ -87,7 +90,34 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           pNode.setAttribute("codeReactionType", codeReactionType);
           pNode.setAttribute("creator", creator);
           pNode.setAttribute("codeSealType", codeSealType);
+          
+          
+          
+          List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
 
+          for(Iterator i2 = plateWells.iterator(); i2.hasNext();) {
+            PlateWell plateWell = (PlateWell)i2.next();
+            plateWell.excludeMethodFromXML("getPlate");
+            plateWell.excludeMethodFromXML("getSample");
+            Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            
+            node.setAttribute("requestSubmitDate", "");
+            node.setAttribute("requestSubmitter", "");
+            
+            if ( plateWell.getIdRequest() != null ) {
+              String idRequestString = plateWell.getIdRequest().toString();
+              if ( idRequestString != null && !idRequestString.equals("")) {
+                Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+                if ( request != null ) {
+                  node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
+                  node.setAttribute("requestSubmitter", request.getOwnerName());
+                }
+              }
+            }
+            
+            pNode.addContent(node);
+          }
+          
           doc.getRootElement().addContent(pNode);
 
         }

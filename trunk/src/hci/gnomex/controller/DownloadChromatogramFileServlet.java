@@ -107,10 +107,9 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
         
         // Check permissions - bypass this file if the user 
         // does not have  permission to read it.
-//        if (!secAdvisor.canRead(analysis)) {  
-//          throw new Exception("Insufficient permissions to read request " + analysis.getNumber() + ".  Bypassing download.");
-//        }
-
+        
+        
+        
         
         if (fileName != null) {
           
@@ -151,7 +150,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
           in = null;
         }
 
-        sess.flush();
+//        sess.flush();
         
 
       } else {
