@@ -236,9 +236,9 @@
 			import views.admin.AlignmentProfileEvent;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
+			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
-  			import views.data.ChromatBrowseView;
 			import views.search.NavSearchView;
 			import views.user.UserPublicView;
 			import views.util.AboutView;
@@ -963,6 +963,16 @@
 				
 			}
 			
+			public function showInstrumentRun(idRun:String):void {
+				navPlateView.switchToView();
+				navPlateView.loadRunById(idRun);
+				navPlateView.tabNav.selectedChild = navPlateView.runTab;
+								
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navPlateView;
+				
+			}
 
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
