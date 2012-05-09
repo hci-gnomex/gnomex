@@ -532,7 +532,7 @@
 </mx:Script>
 
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
-         required="true" allowNegative="false" domain="int" maxValue="100" />
+         required="true" allowNegative="false" domain="int" maxValue="384" />
     <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
          required="false" />
     <mx:NumberValidator id="organismValidator"

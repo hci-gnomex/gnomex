@@ -41,7 +41,7 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.OrganismLite" editable="N">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-  <Dictionary displayName="Plate Type" className="hci.gnomex.model.PlateType" />
+  <Dictionary displayName="Plate Type" className="hci.gnomex.model.PlateType" editable="N" />
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
