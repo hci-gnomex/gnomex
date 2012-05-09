@@ -69,14 +69,12 @@ String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
 boolean showUserNameChoice = false;
-String externalUserDisplay = "display:block;";
 Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
   if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showUserNameChoice = true;
-    externalUserDisplay = "display:none;";
   }  
   
   labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
@@ -216,6 +214,13 @@ if (facilities != null && facilities.size() > 1) {
 } else {
 %>
   document.getElementById("coreFacilities").style.display = "none";
+<%
+}
+%>
+<%
+if (!showUserNameChoice) {
+%>
+  document.getElementById("externalDiv").style.display = "block";
 <%
 }
 %>
