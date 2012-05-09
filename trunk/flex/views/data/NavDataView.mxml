@@ -1,109 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
-           xmlns:views="views.*" 
-           xmlns:data="views.data.*"  
-           xmlns:util="views.util.*"  
-           showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
-           creationPolicy="all"
-           show="init()"
-           label="Data" width="100%" height="100%"  >
-  
-  <mx:Script>
-    <![CDATA[ 
-      import mx.collections.XMLListCollection;
-      import mx.controls.Alert;
-      import mx.controls.dataGridClasses.DataGridListData;
-      
-      import views.util.DataGridAlternatingGroup;
-      import views.util.FillButtonClickEvent;
-      
-      [Bindable]
-      public var selectedChromat:Object; // = chromatBrowseView.chromatogramGrid.selectedItem;
-      [Bindable]
-      public var selectedIdChromatogram:int; // = chromatBrowseView.chromatogramGrid.selectedItem.@idChromatogram as int;
-        
-      
-      private function init():void {
-      }
-      
-      public function checkDirty():void {
-      }
-      
-      private function onSwitchToChromatView():void {
-        
-      }
-      
-      private function onSwitchToFaView():void {
-        
-      }
-      
-      private function onTabChange():void {
-      }
-      
-      public function switchToDetailView():void{
-        this.detailViews.selectedChild = chromatViews;
-        this.chromatViews.selectedChild = chromatDetailView;
-      }
-    ]]>
-    
-    
-  </mx:Script>
-  
-  
-  <mx:HDividedBox width="100%" height="100%">
-    
-    <mx:TabNavigator id="navBar" styleName="navTabNavigator" width="140"  height="100%" change="onTabChange()">
-      
-      <mx:Canvas id="chromatTab" width="100%" height="100%" icon="@Embed(source='../../assets/tv_chart.png')" toolTip="Chromatograms">
-        <mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-          
-          <mx:LinkBar dataProvider="chromatViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSwitchToChromatView()"  height="202"  width="116" paddingTop="4">
-          </mx:LinkBar> 
-          
-        </mx:VBox>
-      </mx:Canvas>
-      
-      <mx:Canvas id="fragmentAnalysisTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Fragment Analysis Files"> 
-        <mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-         
-          <mx:LinkBar dataProvider="faViews"   styleName="navLinkBar" direction="vertical"  itemClick="onSwitchToFaView()" height="202"  width="116" paddingTop="4" >
-          </mx:LinkBar>
-          
-        </mx:VBox>
-      </mx:Canvas >
-      
-      
-    </mx:TabNavigator>
-    
-    
-    
-    <mx:ViewStack id="detailViews" width="100%" height="100%">
-      
-      <mx:ViewStack id="chromatViews"  visible="true" height="100%" width="100%"  >
-        
-        <data:ChromatBrowseView label="List" id="chromatBrowseView" icon="@Embed('../../assets/application_view_list.png')" parentView="{this}" /> 
-        <data:ChromatDetailView id="chromatDetailView" 
-                                 selectedChromat="{selectedChromat}" 
-                                 selectedIdChromatogram="{selectedIdChromatogram}" 
-                                 label="Detail" icon="@Embed(source='../../assets/tv_chart.png')"/> 
-        
-      </mx:ViewStack>
-      
-      <mx:ViewStack id="faViews"  visible="true" height="100%" width="100%"  >
-        
-        <data:ChromatBrowseView label="List" id="faBrowseView" icon="@Embed('../../assets/application_view_list.png')" parentView="{this}" /> 
-        
-        
-      </mx:ViewStack>
-            
-      
-    </mx:ViewStack>
-    
-    
-  </mx:HDividedBox>
-  
-  
-  
-  
-  
+		   xmlns:views="views.*" 
+		   xmlns:data="views.data.*"  
+		   xmlns:util="views.util.*"  
+		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
+		   creationPolicy="all"
+		   show="init()"
+		   label="Data" width="100%" height="100%"  >
+	
+	<mx:Script>
+		<![CDATA[ 
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridListData;
+			
+			import views.util.DataGridAlternatingGroup;
+			import views.util.FillButtonClickEvent;
+			
+			[Bindable]
+			public var selectedChromat:Object; // = chromatBrowseView.chromatogramGrid.selectedItem;
+			[Bindable]
+			public var selectedIdChromatogram:int; // = chromatBrowseView.chromatogramGrid.selectedItem.@idChromatogram as int;
+			
+			
+			private function init():void {
+			}
+			
+			public function checkDirty():void {
+			}
+			
+			private function onSwitchToChromatView():void {
+				this.detailViews.selectedChild = chromatViews;
+				this.chromatViews.selectedChild = chromatBrowseView;
+			}
+			
+			private function onSwitchToFaView():void {
+				this.detailViews.selectedChild = faViews;
+				this.faViews.selectedChild = faBrowseView;
+			}
+			
+			private function onTabChange():void {
+				if ( navBar.selectedChild == chromatTab ) {
+					onSwitchToChromatView();
+				} else if ( navBar.selectedChild == fragmentAnalysisTab ) {
+					onSwitchToFaView();
+				}
+			}
+			
+			public function switchToChromatDetailView():void{
+				this.detailViews.selectedChild = chromatViews;
+				this.chromatViews.selectedChild = chromatDetailView;
+			}
+		]]>
+		
+		
+	</mx:Script>
+	
+	
+	<mx:HDividedBox width = "100%" height = "100%">
+
+		<mx:TabNavigator id = "navBar"
+						 styleName = "navTabNavigator"
+						 width = "140"
+						 height = "100%"
+						 change = "onTabChange()">
+
+			<mx:Canvas id = "chromatTab"
+					   width = "100%"
+					   height = "100%"
+					   icon = "@Embed(source='../../assets/tv_chart.png')"
+					   toolTip = "Chromatograms">
+				<mx:VBox styleName = "panelTabBody"
+						 horizontalAlign = "center"
+						 width = "100%"
+						 height = "100%"
+						 paddingTop = "4">
+
+					<mx:LinkBar dataProvider = "chromatViews"
+								styleName = "navLinkBar"
+								textDecoration = "underline"
+								direction = "vertical"
+								height = "202"
+								width = "116"
+								paddingTop = "4">
+					</mx:LinkBar>
+
+				</mx:VBox>
+
+			</mx:Canvas>
+
+			<mx:Canvas id = "fragmentAnalysisTab"
+					   width = "100%"
+					   height = "100%"
+					   icon = "{parentApplication.iconMicroarray}"
+					   toolTip = "Fragment Analysis Files">
+				<mx:VBox styleName = "panelTabBody"
+						 horizontalAlign = "center"
+						 width = "100%"
+						 height = "100%"
+						 paddingTop = "4">
+
+					<mx:LinkBar dataProvider = "faViews"
+								styleName = "navLinkBar"
+								direction = "vertical"
+								height = "202"
+								width = "116"
+								paddingTop = "4">
+					</mx:LinkBar>
+
+				</mx:VBox>
+
+			</mx:Canvas>
+
+
+		</mx:TabNavigator>
+
+
+
+		<mx:ViewStack id = "detailViews" width = "100%" height = "100%">
+
+			<mx:ViewStack id = "chromatViews"
+						  visible = "true"
+						  height = "100%"
+						  width = "100%">
+
+				<data:ChromatBrowseView label = "List"
+										id = "chromatBrowseView"
+										icon = "@Embed('../../assets/application_view_list.png')"
+										parentView = "{this}" />
+
+				<data:ChromatDetailView id = "chromatDetailView"
+										selectedChromat = "{selectedChromat}"
+										selectedIdChromatogram = "{selectedIdChromatogram}"
+										label = "Detail"
+										icon = "@Embed(source='../../assets/tv_chart.png')" />
+
+			</mx:ViewStack>
+
+			<mx:ViewStack id = "faViews"
+						  visible = "true"
+						  height = "100%"
+						  width = "100%">
+
+				<data:FaBrowseView label = "List"
+								   id = "faBrowseView"
+								   icon = "@Embed('../../assets/application_view_list.png')"
+								   parentView = "{this}" />
+
+
+			</mx:ViewStack>
+
+
+		</mx:ViewStack>
+
+
+	</mx:HDividedBox>
+
+
 </mx:Canvas>

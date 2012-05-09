@@ -74,12 +74,13 @@
 	</mx:HTTPService >
 	
 	
-	<!--<mx:Style source="css/gnomex_flex.css" />-->
 	
 	<mx:Script>
 		<![CDATA[ 
 			import flash.net.navigateToURL;
 			import flash.sampler.Sample;
+			
+			import hci.flex.controls.DropdownLabel;
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
@@ -99,8 +100,6 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.renderers.WellContainer;
-			
-			import hci.flex.controls.DropdownLabel;
 			
 			
 			// The selected group id - as in what group is picked in the 
@@ -168,7 +167,7 @@
 					P1R2, P2R2, P3R2, P4R2,
 					P1R3, P2R3, P3R3, P4R3,
 					P1R4, P2R4, P3R4, P4R4);
-				currentState = "capSeqState";
+//				currentState = "capSeqState";
 				addPlate(); // Add one starting plate
 				colorPick.addEventListener(FlexEvent.VALUE_COMMIT, requestIdPicked);
 				callLater(
@@ -184,14 +183,27 @@
 				runs.push(run1);
 				numberOfRuns = 1;
 				
+				refreshLists();
+				/* var params1:Object = new Object();
+				params1.notAddedToARun = "Y";
+				params1.plateType = "REACTION";
+				getPlateList.send(params1);
+				
+				var params2:Object = new Object();
+				params2.createdLastYear = "Y";
+				getInstrumentRunList.send(params2); */
+				
+			}
+			
+			private function refreshLists():void{
 				var params1:Object = new Object();
 				params1.notAddedToARun = "Y";
+				params1.plateType = "REACTION";
 				getPlateList.send(params1);
 				
 				var params2:Object = new Object();
 				params2.createdLastYear = "Y";
 				getInstrumentRunList.send(params2);
-				
 			}
 			
 			// Function to populate the color picker's colors and labels.
@@ -587,8 +599,8 @@
 			// group in the color picker and reassign the current selected plate
 			private function switchActivePlate():void {
 				CursorManager.setBusyCursor();
-				runChooser.selectedIndex = -1;
-				plateChooser.selectedIndex = -1;
+				runTree.selectedIndex = -1;
+				plateTree.selectedIndex = -1;
 				activePlate = plateStack.selectedChild as Plate;
 				callLater(setUpColorPicker);
 				callLater(toggleFillOrientation);
@@ -970,10 +982,10 @@
 			// --------------------------------
 			
 			private function onGetInstrumentRunList(event:ResultEvent):void{
-				runChooser.selectedIndex = -1;
+				runTree.selectedIndex = -1;
 			}
 			private function onGetPlateList(event:ResultEvent):void{
-				plateChooser.selectedIndex = -1;
+				plateTree.selectedIndex = -1;
 			}
 			
 			
@@ -1027,6 +1039,12 @@
 						plates.push(p);
 					}
 					
+					if ( currentState == "viewState" ) {
+						for ( var i:int = 0; i < 4; i++ ) {
+							removeRun();
+						}
+					}
+					
 					if (getNextEmptyRun(currentRun+1)) {
 						callLater(loadRun, new Array(plates));
 					} else {
@@ -1036,7 +1054,9 @@
 						} 
 					}
 					plateAndRunInfoViews.selectedChild=runInfoBox;
-					tabNav.selectedChild = orderTab;
+					if ( currentState!= "viewState" ) {
+						tabNav.selectedChild = orderTab;
+					}
 				} else {
 					Alert.show("An error occurred while getting the run.");
 				}	
@@ -1100,7 +1120,7 @@
 			}
 			
 			// This uses the http service to get the run with the given id
-			private function loadRunId(idString:String):void{
+			public function loadRunById(idString:String):void{
 				var params:Object = new Object();
 				params.idInstrumentRun = idString;
 				getInstrumentRun.send(params);
@@ -1108,89 +1128,76 @@
 			
 			// Sends the run selected from the pull down to the load run function
 			private function loadSelectedRun():void{
-				var idString:String = runChooser.selectedItem != null ? runChooser.selectedItem.@idInstrumentRun : "";
+				var idString:String = runTree.selectedItem != null ? runTree.selectedItem.@idInstrumentRun : "";
 				if (idString == null || ""){
 					return;
 				}
-				loadRunId(idString);
+				loadRunById(idString);
 			}
 			
+			
+			private function loadRunOrPlate(event:Event):void{
+				if ( currentState == "viewState" ) {
+					for ( var i:int = 0; i < 4; i++ ) {
+						removeRun();
+					}
+				}
+				
+				var selection:Object = runTree.selectedItem;
+				if ( selection == null ) {
+					selection = plateTree.selectedItem;
+				}
+				
+				if ( selection == null ) {
+					return;
+				}
+				
+				if ( selection.name() == "InstrumentRun") {
+					loadSelectedRun();
+				} 
+				
+				if ( selection.name() == "Plate") {
+					loadPlateObject(selection);
+				}
+				
+				runTree.selectedIndex = -1;
+				plateTree.selectedIndex = -1;
+				
+				/* if ( selection.name() == "PlateWell") {
+					
+				} */
+				
+			}
 			/////////////////////
 			// Loading Plates
 			////////////////////
 			
-			// THIS DOESN'T NECESSARILY HAVE TO LOAD THE PLATE IMMEDIATELY UPON GETTING IT
+			 // THIS DOESN'T NECESSARILY HAVE TO LOAD THE PLATE IMMEDIATELY UPON GETTING IT
 			private function onGetPlate(event:ResultEvent):void{
 				
 				if (getPlate.lastResult.name() == "PlateList") {
-					loadPlate();
 					plateAndRunInfoViews.selectedChild=plateInfoBox;
-					tabNav.selectedChild = orderTab;
+					if ( currentState!= "viewState" ) {
+						tabNav.selectedChild = orderTab;
+					}
 				} else {
 					Alert.show("An error occurred while getting the plate.");
 				}		
 				
-			}
+			} 
 			
-			// This loads the plate retrieved by getPlate service
-			private function loadPlate():void{
-				// This checks that the flex plate fill orientation is the
-				// same as the plate being loaded.
-				var orient:Boolean = false;
+			
+			// Loads a plate from an plate xml object
+			private function loadPlateObject(plateObject:Object):void{
 				
-				// Do not overwrite wells
+				// Checks that current plate is empty - if not, adds a plate
+				// SHOULD FIND NEXT EMPTY PLATE - SCAN THROUGH PLATES...
 				if ( activePlate.getWellIDs().length != 0 ){
 					this.addPlate();
-					callLater(loadPlate);
+					callLater(loadPlateObject, [plateObject]);
 					return;
 				}
 				
-				if ( getPlate.lastResult.Plate.@idInstrumentRun != null && getPlate.lastResult.Plate.@idInstrumentRun != '' ){
-					runs[currentRun].idRun = getPlate.lastResult.Plate.@idInstrumentRun;
-					runNumberLabel.text = runs[currentRun].idRun != 0 ? runs[currentRun].idRun : "Run " + (currentRun + 1);
-				}
-				
-				activePlate.idPlate = getPlate.lastResult.Plate.@idPlate;
-				
-				activePlate.plateObject = getPlate.lastResult.Plate;
-				
-				
-				
-				for each( var pw:Object in getPlate.lastResult..PlateWell ){
-					var ind:int = pw.@index;
-					activePlate.addSampleToWell(ind, pw..Sample);
-					var wc:WellContainer = activePlate.getWell(ind) as WellContainer;
-					wc.idPlateWell = pw.@idPlateWell;
-					wc.groupId = pw.@idRequest;
-					wc.idSample = pw.@idSample;
-					wc.hasSample = true;
-					wc.sampleName = pw.@sampleName;
-					wc.submitter = pw.@requestSubmitter;
-					wc.submitDate = pw.@requestSubmitDate;
-					if ( ind == 1 ) {
-						if ( wc.col != pw.@col ) {
-							orient = true;
-						}
-					}
-				}
-				if (orient){
-					fillColWise = !fillColWise;
-					toggleFillOrientation();
-				}
-				activePlate.repopulatePlate();
-				switchActivePlate();
-				callLater(colorPlateByRequest);
-				sampleTree.selectedItem = null;
-				callLater(
-					function():void {
-						numSamples.text = getSamplesCount();
-						displayPlateInfo();
-					}
-				);
-			}
-			
-			// Loads a plate from an object, not directly from getPlate result
-			private function loadPlateObject(plateObject:Object):void{
 				// This checks that the flex plate fill orientation is the
 				// same as the plate being loaded.
 				var orient:Boolean = false;
@@ -1232,21 +1239,6 @@
 				);
 			}
 			
-			// Retrieves the plate with the given id using the getPlate service 
-			private function loadPlateId(idString:String):void{
-				var params:Object = new Object();
-				params.idPlate = idString;
-				getPlate.send(params);
-			}
-			
-			// Retrieves the plate currently selected from the plate drop down menu
-			private function loadSelectedPlate():void{
-				var idString:String = plateChooser.selectedItem != null ? plateChooser.selectedItem.@idPlate : "";
-				if (idString == null || ""){
-					return;
-				}
-				loadPlateId(idString);
-			}
 			
 			// -----------------
 			// Save Functions 
@@ -1309,9 +1301,20 @@
 					runNumberLabel.text = "" + runs[currentRun].idRun;
 					savePlates(runNumber);
 					
+					// NEEED TO RELOAD THE RUN OR AT LEAST REFRESH INFO BOX DISPLAY;
+//					removeRun();
+					
+					refreshLists();
+					/* var params1:Object = new Object();
+					params1.notAddedToARun = "Y";
+					params1.plateType = "REACTION";
+					getPlateList.send(params1);
+					
 					var params2:Object = new Object();
 					params2.createdLastYear = "Y";
-					getInstrumentRunList.send(params2);
+					getInstrumentRunList.send(params2); */
+					
+					
 				} else {
 					Alert.show("An error occurred while saving the instrument run.");
 				}			
@@ -1394,9 +1397,15 @@
 						
 					}
 					
-					var params1:Object = new Object();
+					refreshLists();
+					/* var params1:Object = new Object();
 					params1.notAddedToARun = "Y";
+					params1.plateType = "REACTION";
 					getPlateList.send(params1);
+					
+					var params2:Object = new Object();
+					params2.createdLastYear = "Y";
+					getInstrumentRunList.send(params2); */
 					
 				} else {
 					Alert.show("An error occurred while saving the plate.");
@@ -1906,19 +1915,22 @@
 				return null; // should never be reached
 			}
 			
-			private function plateLabel(item:Object):String{
-				var label:String = item.@idPlate;
-				label += item.@createDate != "" ? " (" + item.@createDate + ")" : "";
-				return label;
+			[Embed(source='../../assets/plate.png')]
+			private var plateIcon:Class;
+			[Embed(source='../../assets/run.png')]
+			private var runIcon:Class;
+			
+			private function treeIconFunction(item:XML):Class {
+				
+				if ( item.name() == "InstrumentRun" ){
+					return runIcon;
+				} else if (item.name() == "Plate" ){
+					return plateIcon;
+				}
+				return null; // should never be reached
 			}
 			
-			private function runLabel(item:Object):String{
-				var label:String = item.@idInstrumentRun;
-				label += item.@createDate != "" ? " (" + item.@createDate + ")" : "";
-				return label;
-			}
-			
-			private function treeLabelFunction(item:Object):String{
+			private function sampleTreeLabelFunction(item:Object):String{
 				var s:String = ""
 				if (item.name()=='Sample'){
 					s+= item.@name;
@@ -1933,6 +1945,40 @@
 				return s;
 			}
 			
+			private function runTreeLabelFunction(item:Object):String{
+				var s:String = ""
+				if (item.name()=='InstrumentRun'){
+					s+= item.@idInstrumentRun;
+					if (item.@label!=null && item.@label!=''){
+						s+= ": " + item.@label;	
+					} 
+					if ( item.@createDate!=null) {
+						s += " (" + item.@createDate + ")";
+					}
+					
+				} else if ( item.name()=='Plate' ) {
+					s+= item.@idPlate;
+					
+					if (item.@label!=null && item.@label!=''){
+						s+= ": " + item.@label;
+						
+					} 
+					if ( item.@createDate!=null) {
+						s += " (" + item.@createDate + ")";
+					}
+					
+				} else if ( item.name()=='PlateWell' ) {
+					s += item.idPlateWell;
+					if ( item.@sampleName != null ) {
+						s += item.@sampleName;
+					}
+				}
+				return s;
+			}
+			
+			public function switchToView():void{
+				currentState="viewState";
+			}
 		]]>
 	</mx:Script>
 	
@@ -1940,551 +1986,1057 @@
 	<mx:XMLListCollection id="samplesList" source="{sampleData.Status}" />
 	<mx:XMLListCollection id="plateList" source="{getPlateList.lastResult..Plate}" />
 	<mx:XMLListCollection id="runList" source="{getInstrumentRunList.lastResult.InstrumentRun}" />
-	
-	
+
+
 	<!--States for each of the different test types-->
+
 	<!--Eventually will want one for cherry picking and generic too?-->
 	<mx:states>
-		<mx:State name="capSeqState"  enterState="{this.fillColWise=true}">
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Capillary Sequencing Plates for Run:"/>
-			<mx:SetProperty target="{titleLabel}" name="text" value="Orders:"/>
+		<mx:State name="viewState">
+			<mx:RemoveChild target="{orderTab}" />
+
+			<mx:RemoveChild target="{button1}" />
+
+			<mx:RemoveChild target="{button2}" />
+
+			<mx:RemoveChild target="{savePlateButton}" />
+
+			<mx:RemoveChild target="{saveRunButton}" />
+
+			<mx:SetProperty target="{plateNameText}" name="editable" value="false" />
+
+			<mx:SetProperty target="{plateCommentsText}" name="editable" value="false" />
+
+			<mx:SetProperty target="{runNameText}" name="editable" value="false" />
+
+			<mx:SetProperty target="{runCommentsText}" name="editable" value="false" />
+
+			<mx:RemoveChild target="{button3}" />
+
+			<mx:RemoveChild target="{button4}" />
+
+			<mx:RemoveChild target="{newPlateButton1}" />
+
+			<mx:RemoveChild target="{newRunButton1}" />
+
 		</mx:State>
+
+		<mx:State name="capSeqState" enterState="{this.fillColWise=true}">
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Capillary Sequencing Plates for Run:" />
+
+			<mx:SetProperty target="{titleLabel}" name="text" value="Orders:" />
+
+		</mx:State>
+
 		<mx:State name="assayState" enterState="{this.fillColWise=false}">
-			<mx:SetProperty target="{titleLabel}" name="text" value="Assays"/>
-			<mx:SetProperty target="{label2}" name="text" value="Assay:"/>
-			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select an assay by color:"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Fragment Analysis Plates for Run:"/>
+			<mx:SetProperty target="{titleLabel}" name="text" value="Assays" />
+
+			<mx:SetProperty target="{label2}" name="text" value="Assay:" />
+
+			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select an assay by color:" />
+
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Fragment Analysis Plates for Run:" />
+
 		</mx:State>
+
 		<mx:State name="mitoSeqState" enterState="{this.fillColWise=false}">
-			<mx:SetProperty target="{titleLabel}" name="text" value="Primers"/>
-			<mx:SetProperty target="{label2}" name="text" value="Primer:"/>
-			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select a primer by color:"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Mitochondrial Sequencing Plates for Run:"/>
+			<mx:SetProperty target="{titleLabel}" name="text" value="Primers" />
+
+			<mx:SetProperty target="{label2}" name="text" value="Primer:" />
+
+			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select a primer by color:" />
+
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Mitochondrial Sequencing Plates for Run:" />
+
 		</mx:State>
+
 		<mx:State name="cherryPickState" enterState="{this.fillColWise=false}">
-			<mx:SetProperty target="{titleLabel}" name="text" value="Samples"/>
-			<mx:SetProperty target="{label2}" name="text" value="Origin Plate:"/>
-			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select an origin plate by color:"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Cherry Pick Run:"/>
+			<mx:SetProperty target="{titleLabel}" name="text" value="Samples" />
+
+			<mx:SetProperty target="{label2}" name="text" value="Origin Plate:" />
+
+			<mx:SetProperty target="{colorPickLabel}" name="text" value="Select an origin plate by color:" />
+
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Cherry Pick Run:" />
+
 		</mx:State>
+
 	</mx:states>
-	
-	<mx:VBox   width="100%" height="100%" verticalGap="2">
-		<mx:VBox styleName="panelBox"   backgroundImage="@Embed(source='../../assets/filterBar.png')"  width="100%" verticalGap="0">
-			<mx:HBox  width="100%" verticalAlign="middle">
-				<mx:Label text="Run:" fontSize="13" fontWeight="bold" id="runTitleLabel"/>
-				<mx:Label  id="runNumberLabel" />
-				
+
+	<mx:VBox width="100%" height="100%" verticalGap="2">
+		<mx:VBox styleName="panelBox"
+				 backgroundImage="@Embed(source='../../assets/filterBar.png')"
+				 width="100%"
+				 verticalGap="0">
+			<mx:HBox width="100%" verticalAlign="middle">
+				<mx:Label text="Run:"
+						  fontSize="13"
+						  fontWeight="bold"
+						  id="runTitleLabel" />
+
+				<mx:Label id="runNumberLabel" />
+
+				<mx:Spacer width="100%" height="100%" />
+
+				<mx:LinkButton label="Edit"
+							   fontSize="9"
+							   click="{currentState='capSeqState'}"
+							   visible="{currentState=='viewState'}"
+							   includeInLayout="{currentState=='viewState'}"
+							   icon="@Embed(source='../../assets/tag_blue_edit.png')"
+							   textDecoration="underline"
+							   id="editButton"
+							   textAlign="left" />
+
+				<mx:LinkButton label="View"
+							   fontSize="9"
+							   click="{switchToView()}"
+							   visible="{currentState!='viewState'}"
+							   includeInLayout="{currentState!='viewState'}"
+							   icon="@Embed(source='../../assets/page_white.png')"
+							   textDecoration="underline"
+							   id="viewButton"
+							   textAlign="left" />
+
 			</mx:HBox>
-			
+
 		</mx:VBox>
-		
-		<mx:HBox id="hDivBox" width="100%" height="100%" horizontalGap="2"> 
-			
-			<mx:TabNavigator  height="100%" styleName="navTabNavigator" id="tabNav">
-				
-				<mx:VBox styleName="panelBox" height="100%" id="orderTab"  label="Orders" horizontalAlign="center"  maxWidth="200">
-					
+
+		<mx:HBox id="hDivBox"
+				 width="100%"
+				 height="100%"
+				 horizontalGap="2">
+
+			<mx:TabNavigator height="100%"
+							 minWidth="225"
+							 styleName="navTabNavigator"
+							 id="tabNav">
+
+				<mx:VBox styleName="panelBox"
+						 height="100%"
+						 id="orderTab"
+						 label="Samples"
+						 horizontalAlign="center">
+
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
-						<mx:Label id="titleLabel" styleName="titleLabel" text="Test"/>
+						<mx:Label id="titleLabel" styleName="titleLabel" text="Test" />
+
 						<mx:Spacer width="100%" height="100%" />
-						<mx:LinkButton label="Add Selected" icon="@Embed('../../assets/add.png')"  click="{addButtonClick()}" id="addSamplesButton"
-									   textDecoration="underline" 
+
+						<mx:LinkButton label="Add Selected"
+									   icon="@Embed('../../assets/add.png')"
+									   click="{addButtonClick()}"
+									   id="addSamplesButton"
+									   textDecoration="underline"
 									   visible="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}"
-									   includeInLayout="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}" color="#000000"/>
-						<mx:LinkButton label="Add All" icon="@Embed('../../assets/add_all.png')" click="{addAllSamples()}"
-									   textDecoration="underline" 
+									   includeInLayout="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}"
+									   color="#000000" />
+
+						<mx:LinkButton label="Add All"
+									   icon="@Embed('../../assets/add_all.png')"
+									   click="{addAllSamples()}"
+									   textDecoration="underline"
 									   visible="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}"
-									   includeInLayout="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}" color="#010101"/>
+									   includeInLayout="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}"
+									   color="#010101" />
+
 					</mx:HBox>
-					
-					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
-						<mx:Tree width="100%" height="100%" toolTip="Drag and drop samples onto plate"
+
+					<mx:VBox id="treeContainer"
+							 dropShadowEnabled="true"
+							 width="100%"
+							 height="100%"
+							 paddingLeft="2"
+							 verticalGap="0">
+						<mx:Tree width="100%"
+								 height="100%"
+								 toolTip="Drag and drop samples onto plate"
 								 color="#000000"
-								 showRoot="false" 
-								 id="sampleTree" 
+								 showRoot="false"
+								 id="sampleTree"
 								 dataProvider="{samplesList}"
 								 borderStyle="solid"
-								 labelFunction="treeLabelFunction"
+								 labelFunction="sampleTreeLabelFunction"
 								 itemClick="sampleTreeItemClick(event)"
 								 itemDoubleClick="addButtonClick()"
 								 doubleClickEnabled="true"
-								 allowMultipleSelection="true" allowDragSelection="true"
+								 allowMultipleSelection="true"
+								 allowDragSelection="true"
 								 dragMoveEnabled="true"
-								 dragEnabled="true"  
+								 dragEnabled="true"
 								 dropEnabled="true"
 								 dragEnter="onDragEnterTree(event)"
 								 dragDrop="dropOnTree(event)"
 								 dragOver="onDragOver(event)"
 								 dragComplete="dragComplete(event)"
 								 iconFunction="isSampleAdded"
-								 backgroundAlpha="1" 
+								 backgroundAlpha="1"
 								 dropShadowEnabled="true">
 						</mx:Tree>
-						
-						<mx:HBox width="100%" borderStyle="inset" backgroundColor="#ffffff" id="selectAllStack" >
-							<mx:LinkButton label="Select All" click="{sampleTree.selectedItems=sampleTree.dataProvider.toArray()}" 
-										   textDecoration="underline" textAlign="center" useHandCursor="true"  color="#000000"/>
-							<mx:Spacer width="100%" height="100%"/>
-							<mx:LinkButton label="Select None" click="{sampleTree.selectedIndex = -1}" 
-										   textDecoration="underline" textAlign="center" useHandCursor="true" color="#000000"/>
+
+						<mx:HBox width="100%"
+								 borderStyle="inset"
+								 backgroundColor="#ffffff"
+								 id="selectAllStack">
+							<mx:LinkButton label="Select All"
+										   click="{sampleTree.selectedItems=sampleTree.dataProvider.toArray()}"
+										   textDecoration="underline"
+										   textAlign="center"
+										   useHandCursor="true"
+										   color="#000000" />
+
+							<mx:Spacer width="100%" height="100%" />
+
+							<mx:LinkButton label="Select None"
+										   click="{sampleTree.selectedIndex = -1}"
+										   textDecoration="underline"
+										   textAlign="center"
+										   useHandCursor="true"
+										   color="#000000" />
+
 						</mx:HBox>
-						
-						<mx:ViewStack id="treeExpansionStack" width="100%" resizeToContent="true"  selectedIndex="0">
+
+						<mx:ViewStack id="treeExpansionStack"
+									  width="100%"
+									  resizeToContent="true"
+									  selectedIndex="0">
 							<mx:HBox horizontalAlign="left">
-								<mx:LinkButton   label="Expand all" color="#000000"
-												 click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" />
-								
+								<mx:LinkButton label="Expand all"
+											   color="#000000"
+											   click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}"
+											   textDecoration="underline" />
+
 							</mx:HBox>
+
 							<mx:HBox horizontalAlign="left">
-								<mx:LinkButton  label="Collapse" color="#000000"
-												click="{treeExpansionStack.selectedIndex = 0;this.expandLabNodes()}" textDecoration="underline" />
+								<mx:LinkButton label="Collapse"
+											   color="#000000"
+											   click="{treeExpansionStack.selectedIndex = 0;this.expandLabNodes()}"
+											   textDecoration="underline" />
+
 							</mx:HBox>
+
 						</mx:ViewStack>
-						
+
 						<mx:HBox width="100%">
-							<mx:Spacer width="100%" height="100%"/>
-							<mx:Label id="numSamples" height="100%" color="#000000"/>
+							<mx:Spacer width="100%" height="100%" />
+
+							<mx:Label id="numSamples" height="100%" color="#000000" />
+
 						</mx:HBox>
+
 					</mx:VBox>
-					
+
 				</mx:VBox>
-				
-				
-				
-				<mx:VBox styleName="panelBox" height="100%" id="plateTab"  horizontalAlign="center" label="Plates" maxWidth="200">
-					
+
+
+
+				<mx:VBox styleName="panelBox"
+						 height="100%"
+						 id="plateTab"
+						 horizontalAlign="center"
+						 label="Plates"
+						 maxWidth="200">
+
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
-						<mx:Label  styleName="titleLabel" text="Plates:"/>
+						<mx:Label styleName="titleLabel" text="Plates:" />
+
 						<mx:Spacer width="100%" height="100%" />
-						<mx:LinkButton label="New plate" id="newPlateButton1" click="{addPlate()}" color="#000000"
-									   icon="@Embed('../../assets/plate_add.png')"  
+
+						<mx:LinkButton label="New plate"
+									   id="newPlateButton1"
+									   click="{addPlate()}"
+									   color="#000000"
+									   icon="@Embed('../../assets/plate_add.png')"
 									   enabled="{numberOfPlates!=16}"
-									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" 
-									   toolTip="New plate..." 
-									   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')" textDecoration="underline"/>
+									   paddingLeft="1"
+									   paddingRight="0"
+									   horizontalGap="0"
+									   letterSpacing=".3"
+									   toolTip="New plate..."
+									   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
+									   textDecoration="underline" />
+
 					</mx:HBox>
-					
-					<mx:VBox id="plateTreeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
-						<mx:ComboBox id="plateChooser" dataProvider="{plateList}" labelFunction="plateLabel"  change="{loadSelectedPlate()}"
-									 selectedIndex="-1"  toolTip="Select a plate to load" prompt="Load Plate" color="#000000">
-						</mx:ComboBox>
-						<mx:Tree width="100%" height="100%" color="#000000" 
-								 showRoot="false" 
-								 id="plateTree" 
-								 borderStyle="solid"
-								 backgroundAlpha="1" 
-								 dropShadowEnabled="true">
-						</mx:Tree>
-						
-						<mx:HBox width="100%">
-							<mx:Spacer width="100%" height="100%"/>
-							<mx:Label id="numPlates" height="100%" color="#000000"/>
-						</mx:HBox>
-					</mx:VBox>
-					
-				</mx:VBox>
-				
-				
-				
-				<mx:VBox styleName="panelBox" height="100%" id="runTab"  horizontalAlign="center" label="Runs" maxWidth="200">
-					
-					<mx:HBox width="100%" verticalAlign="middle" height="26">
-						<mx:Label  styleName="titleLabel" text="Runs:"/>
-						<mx:Spacer width="100%" height="100%" />
-						<mx:LinkButton label="New run" id="newRunButton1" click="{addRun()}" color="#000000"
-									   icon="@Embed('../../assets/run_add.png')" 
-									   enabled="{numberOfPlates &lt; 13}"
-									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" 
-									   toolTip="New run..." 
-									   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')" textDecoration="underline"/>
-					</mx:HBox>
-					
-					<mx:VBox id="runTreeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
-						<mx:ComboBox id="runChooser"  dataProvider="{runList}"  change="{loadSelectedRun()}"
-									 labelFunction="runLabel"  selectedIndex="-1" toolTip="Select a run to load" prompt="Load Run" color="#000000">
-						</mx:ComboBox>
-						<mx:Tree width="100%" height="100%" color="#000000"
-								 showRoot="false" 
-								 id="runTree" 
-								 borderStyle="solid"
-								 backgroundAlpha="1" 
-								 dropShadowEnabled="true">
-						</mx:Tree>
-						
-						<mx:HBox width="100%">
-							<mx:Spacer width="100%" height="100%"/>
-							<mx:Label id="numRuns" height="100%" color="#000000"/>
-						</mx:HBox>
-					</mx:VBox>
-					
-				</mx:VBox>
-				
-				
-				
-			</mx:TabNavigator>
-			
-			
-			<mx:VBox horizontalAlign="center"  height="100%" id="platePanel" width="100%">
-				
-				<mx:VBox  styleName="panelBox" width="100%" verticalAlign="middle">
-					
-					<mx:HBox verticalAlign="middle" width="100%" >
-						<mx:Label text="Plate:" fontWeight="bold" fontSize="12" />
-						<mx:Label  id="plateIdLabel" text="{activePlate.idPlate}"   />
-						
-						<mx:Spacer width="100%" height="100%"/>
-						<mx:LinkButton   label="Create PLT files"  
-										 click="createPltFiles()" 
-										 textDecoration="underline" id="pltButton" />
-						<mx:LinkButton   label="Plate Report"  
-										 click="createPlateReport()" 
-										 textDecoration="underline"  id="printButton" />
-					</mx:HBox>
-					<mx:HRule width="100%"/>
-					<mx:HBox width="100%" verticalAlign="middle">
-						<mx:Label text="Fill orientation:"/>
-						<mx:RadioButtonGroup id="fillOrientation"/>
-						<mx:RadioButton id="radioRow" value="radioRow" label="row"  groupName="fillOrientation" selected="{!fillColWise}" 
-										click="{fillColWise = false;toggleFillOrientation();}"/>
-						<mx:RadioButton id="radioCol" value="radioCol" label="column" groupName="fillOrientation" selected="{fillColWise}" 
-										click="{fillColWise = true;toggleFillOrientation();}" />
-						<mx:Spacer width="100%" height="100%"/>
-						
-					</mx:HBox>
-				</mx:VBox>
-				
-				<mx:HDividedBox width="100%" height="100%" >
-					<mx:Spacer height="100%" width="20" visible="false"/>
-					<mx:HBox id="plateBox" width="100%"  height="100%" horizontalAlign="center" verticalAlign="middle"
+
+					<mx:VBox id="plateTreeContainer"
 							 dropShadowEnabled="true"
-							 dragEnter="onDragEnterPlate(event)" 
-							 dragDrop="dropOnPlate(event)" 
+							 width="100%"
+							 height="100%"
+							 paddingLeft="2"
+							 verticalGap="0">
+
+						<mx:Tree width="100%"
+								 height="100%"
+								 color="#000000"
+								 showRoot="false"
+								 id="plateTree"
+								 labelFunction="runTreeLabelFunction"
+								 borderStyle="solid"
+								 backgroundAlpha="1"
+								 dropShadowEnabled="true"
+								 dataProvider="{plateList}"
+								 allowMultipleSelection="false"
+								 itemClick="loadRunOrPlate(event)"
+								 dragEnabled="false"
+								 iconFunction="treeIconFunction"
+								 variableRowHeight="true"
+								 wordWrap="true">
+						</mx:Tree>
+
+						<mx:HBox width="100%">
+							<mx:Spacer width="100%" height="100%" />
+
+							<mx:Label id="numPlates" height="100%" color="#000000" />
+
+						</mx:HBox>
+
+					</mx:VBox>
+
+				</mx:VBox>
+
+
+
+				<mx:VBox styleName="panelBox"
+						 height="100%"
+						 id="runTab"
+						 horizontalAlign="center"
+						 label="Runs"
+						 maxWidth="200">
+
+					<mx:HBox width="100%" verticalAlign="middle" height="26">
+						<mx:Label styleName="titleLabel" text="Runs:" />
+
+						<mx:Spacer width="100%" height="100%" />
+
+						<mx:LinkButton label="New run"
+									   id="newRunButton1"
+									   click="{addRun()}"
+									   color="#000000"
+									   icon="@Embed('../../assets/run_add.png')"
+									   enabled="{numberOfPlates &lt; 13}"
+									   paddingLeft="1"
+									   paddingRight="0"
+									   horizontalGap="0"
+									   letterSpacing=".3"
+									   toolTip="New run..."
+									   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
+									   textDecoration="underline" />
+
+					</mx:HBox>
+
+					<mx:VBox id="runTreeContainer"
+							 dropShadowEnabled="true"
+							 width="100%"
+							 height="100%"
+							 paddingLeft="2"
+							 verticalGap="0">
+
+						<mx:Tree width="100%"
+								 height="100%"
+								 color="#000000"
+								 showRoot="false"
+								 id="runTree"
+								 labelFunction="runTreeLabelFunction"
+								 borderStyle="solid"
+								 backgroundAlpha="1"
+								 dropShadowEnabled="true"
+								 dataProvider="{runList}"
+								 allowMultipleSelection="false"
+								 itemClick="loadRunOrPlate(event)"
+								 dragEnabled="false"
+								 iconFunction="treeIconFunction"
+								 variableRowHeight="true"
+								 wordWrap="true"
+								 paddingTop="5">
+						</mx:Tree>
+
+						<mx:HBox width="100%">
+							<mx:Spacer width="100%" height="100%" />
+
+							<mx:Label id="numRuns" height="100%" color="#000000" />
+
+						</mx:HBox>
+
+					</mx:VBox>
+
+				</mx:VBox>
+
+
+
+			</mx:TabNavigator>
+
+
+			<mx:VBox horizontalAlign="center"
+					 height="100%"
+					 id="platePanel"
+					 width="100%">
+
+				<mx:VBox styleName="panelBox" width="100%" verticalAlign="middle">
+
+					<mx:HBox verticalAlign="middle" width="100%">
+						<mx:Label text="Plate:" fontWeight="bold" fontSize="12" />
+
+						<mx:Label id="plateIdLabel" text="{activePlate.idPlate}" />
+
+						<mx:Spacer width="100%" height="100%" />
+
+						<mx:LinkButton label="Create PLT files"
+									   click="createPltFiles()"
+									   textDecoration="underline"
+									   id="pltButton" />
+
+						<mx:LinkButton label="Plate Report"
+									   click="createPlateReport()"
+									   textDecoration="underline"
+									   id="printButton" />
+
+					</mx:HBox>
+
+					<mx:HRule width="100%" />
+
+					<mx:HBox width="100%" verticalAlign="middle">
+						<mx:Label text="Fill orientation:" />
+
+						<mx:RadioButtonGroup id="fillOrientation" />
+
+						<mx:RadioButton id="radioRow"
+										value="radioRow"
+										label="row"
+										groupName="fillOrientation"
+										selected="{!fillColWise}"
+										click="{fillColWise = false;toggleFillOrientation();}" />
+
+						<mx:RadioButton id="radioCol"
+										value="radioCol"
+										label="column"
+										groupName="fillOrientation"
+										selected="{fillColWise}"
+										click="{fillColWise = true;toggleFillOrientation();}" />
+
+						<mx:Spacer width="100%" height="100%" />
+
+					</mx:HBox>
+
+				</mx:VBox>
+
+				<mx:HDividedBox width="100%" height="100%">
+					<mx:Spacer height="100%" width="20" visible="false" />
+
+					<mx:HBox id="plateBox"
+							 width="100%"
+							 height="100%"
+							 horizontalAlign="center"
+							 verticalAlign="middle"
+							 dropShadowEnabled="true"
+							 dragEnter="onDragEnterPlate(event)"
+							 dragDrop="dropOnPlate(event)"
 							 dragExit="onDragExitPlate(event)"
 							 dragComplete="dragComplete(event)"
 							 click="sampleTree.selectedIndex = -1;colorPick.selectNone()"
 							 borderStyle="solid"
 							 backgroundColor="#FFFFFF">
-						
+
 						<mx:ViewStack id="plateStack" resizeToContent="true" cacheAsBitmap="true">
-							<plate:Plate visible="false" id="P1R1" label="Q1" icon="{q1Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P2R1" label="Q2" icon="{q2Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P3R1" label="Q3" icon="{q3Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P4R1" label="Q4" icon="{q4Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							
-							<plate:Plate visible="false" id="P1R2" label="Q1" icon="{q1Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P2R2" label="Q2" icon="{q2Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P3R2" label="Q3" icon="{q3Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P4R2" label="Q4" icon="{q4Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							
-							<plate:Plate visible="false" id="P1R3" label="Q1" icon="{q1Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P2R3" label="Q2" icon="{q2Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P3R3" label="Q3" icon="{q3Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P4R3" label="Q4" icon="{q4Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							
-							<plate:Plate visible="false" id="P1R4" label="Q1" icon="{q1Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P2R4" label="Q2" icon="{q2Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P3R4" label="Q3" icon="{q3Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
-							<plate:Plate visible="false" id="P4R4" label="Q4" icon="{q4Icon}" cacheAsBitmap="true" creationPolicy="queued"/>
+							<plate:Plate visible="false"
+										 id="P1R1"
+										 label="Q1"
+										 icon="{q1Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P2R1"
+										 label="Q2"
+										 icon="{q2Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P3R1"
+										 label="Q3"
+										 icon="{q3Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P4R1"
+										 label="Q4"
+										 icon="{q4Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P1R2"
+										 label="Q1"
+										 icon="{q1Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P2R2"
+										 label="Q2"
+										 icon="{q2Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P3R2"
+										 label="Q3"
+										 icon="{q3Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P4R2"
+										 label="Q4"
+										 icon="{q4Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P1R3"
+										 label="Q1"
+										 icon="{q1Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P2R3"
+										 label="Q2"
+										 icon="{q2Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P3R3"
+										 label="Q3"
+										 icon="{q3Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P4R3"
+										 label="Q4"
+										 icon="{q4Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P1R4"
+										 label="Q1"
+										 icon="{q1Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P2R4"
+										 label="Q2"
+										 icon="{q2Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P3R4"
+										 label="Q3"
+										 icon="{q3Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
+							<plate:Plate visible="false"
+										 id="P4R4"
+										 label="Q4"
+										 icon="{q4Icon}"
+										 cacheAsBitmap="true"
+										 creationPolicy="queued" />
+
 						</mx:ViewStack>
-						
-						
+
+
 					</mx:HBox>
-					<mx:Spacer height="100%" width="20" visible="false"/>
+
+					<mx:Spacer height="100%" width="20" visible="false" />
+
 				</mx:HDividedBox>
-				
-				<mx:HBox  width="100%">
+
+				<mx:HBox width="100%">
 					<mx:ApplicationControlBar width="100%" verticalAlign="middle" styleName="panelBox">
 						<mx:HBox width="100%" verticalAlign="middle" height="100%">
-							<mx:HBox horizontalGap="2"  height="100%">
-								
+							<mx:HBox horizontalGap="2" height="100%">
+
 								<!--The run buttons and links-->
-								<mx:HBox id="run1Button" 
+								<mx:HBox id="run1Button"
 										 height="100%"
-										 verticalAlign="middle" 
-										 borderStyle="solid" 
-										 borderColor="black" 
-										 cornerRadius="8" 
+										 verticalAlign="middle"
+										 borderStyle="solid"
+										 borderColor="black"
+										 cornerRadius="8"
 										 buttonMode="true"
-										 useHandCursor="true" 
-										 click="runLinkClickHandler(1)">
-									
-									<mx:Label  text="Run 1"
-											   id="textRun1"
-											   fontWeight="bold" 
-											   buttonMode="true"
-											   useHandCursor="true" 
-											   mouseChildren="false"
-											   click="runLinkClickHandler(1)"/>
-									
-									<mx:LinkBar dataProvider="{plateStack}" 
-												iconField="icon" 
-												labelField="label"
-												id="plateLinkBar" 
-												toolTip="Select a plate" 
-												separatorWidth=".5" 
-												separatorColor="#404040" 
-												itemClick="switchActivePlate()" cornerRadius="10" horizontalGap="1" paddingLeft="0" paddingRight="0"/>
-								</mx:HBox>
-								
-								<mx:HBox id="run2Button" visible="false" includeInLayout="false"
-										 height="100%"
-										 verticalAlign="middle"  
-										 borderStyle="solid" 
-										 borderColor="black" 
-										 cornerRadius="8" 
-										 buttonMode="true" 
 										 useHandCursor="true"
-										 click="runLinkClickHandler(2)" >
-									
-									<mx:Label  text="Run 2" 
-											   id="textRun2"
-											   fontWeight="bold" 
-											   buttonMode="true" 
-											   useHandCursor="true"
-											   mouseChildren="false"
-											   click="runLinkClickHandler(2)"/>
+										 click="runLinkClickHandler(1)">
+
+									<mx:Label text="Run 1"
+											  id="textRun1"
+											  fontWeight="bold"
+											  buttonMode="true"
+											  useHandCursor="true"
+											  mouseChildren="false"
+											  click="runLinkClickHandler(1)" />
+
+									<mx:LinkBar dataProvider="{plateStack}"
+												iconField="icon"
+												labelField="label"
+												id="plateLinkBar"
+												toolTip="Select a plate"
+												separatorWidth=".5"
+												separatorColor="#404040"
+												itemClick="switchActivePlate()"
+												cornerRadius="10"
+												horizontalGap="1"
+												paddingLeft="0"
+												paddingRight="0" />
+
 								</mx:HBox>
-								
-								<mx:HBox id="run3Button" visible="false" includeInLayout="false"
+
+								<mx:HBox id="run2Button"
+										 visible="false"
+										 includeInLayout="false"
 										 height="100%"
-										 verticalAlign="middle"  
-										 borderStyle="solid" 
-										 borderColor="black" 
-										 cornerRadius="8" 
-										 buttonMode="true" 
+										 verticalAlign="middle"
+										 borderStyle="solid"
+										 borderColor="black"
+										 cornerRadius="8"
+										 buttonMode="true"
+										 useHandCursor="true"
+										 click="runLinkClickHandler(2)">
+
+									<mx:Label text="Run 2"
+											  id="textRun2"
+											  fontWeight="bold"
+											  buttonMode="true"
+											  useHandCursor="true"
+											  mouseChildren="false"
+											  click="runLinkClickHandler(2)" />
+
+								</mx:HBox>
+
+								<mx:HBox id="run3Button"
+										 visible="false"
+										 includeInLayout="false"
+										 height="100%"
+										 verticalAlign="middle"
+										 borderStyle="solid"
+										 borderColor="black"
+										 cornerRadius="8"
+										 buttonMode="true"
 										 useHandCursor="true"
 										 click="runLinkClickHandler(3)">
-									
-									<mx:Label  text="Run 3" 
-											   id="textRun3"
-											   fontWeight="bold" 
-											   buttonMode="true" 
-											   useHandCursor="true"
-											   mouseChildren="false"
-											   click="runLinkClickHandler(3)"/>
+
+									<mx:Label text="Run 3"
+											  id="textRun3"
+											  fontWeight="bold"
+											  buttonMode="true"
+											  useHandCursor="true"
+											  mouseChildren="false"
+											  click="runLinkClickHandler(3)" />
+
 								</mx:HBox>
-								
-								<mx:HBox id="run4Button" visible="false" includeInLayout="false"
+
+								<mx:HBox id="run4Button"
+										 visible="false"
+										 includeInLayout="false"
 										 height="100%"
-										 verticalAlign="middle"  
-										 borderStyle="solid" 
-										 borderColor="black" 
-										 cornerRadius="8" 
-										 buttonMode="true" 
+										 verticalAlign="middle"
+										 borderStyle="solid"
+										 borderColor="black"
+										 cornerRadius="8"
+										 buttonMode="true"
 										 useHandCursor="true"
 										 click="runLinkClickHandler(4)">
-									
-									<mx:Label  text="Run 4" 
-											   id="textRun4"
-											   fontWeight="bold" 
-											   buttonMode="true" 
-											   useHandCursor="true"
-											   mouseChildren="false"
-											   click="runLinkClickHandler(4)"/>
+
+									<mx:Label text="Run 4"
+											  id="textRun4"
+											  fontWeight="bold"
+											  buttonMode="true"
+											  useHandCursor="true"
+											  mouseChildren="false"
+											  click="runLinkClickHandler(4)" />
+
 								</mx:HBox>
+
+							</mx:HBox>
+
+							<mx:Spacer width="100%" height="100%" />
+
+							<mx:Button label="Remove Plate"
+									   click="{promptToRemovePlate()}"
+									   icon="@Embed('../../assets/delete.png')"
+									   visible="{(numberOfPlates>1)&amp;&amp;(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"
+									   includeInLayout="{(numberOfPlates>1)&amp;&amp;(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"
+									   id="button1" />
+
+							<mx:Button label="Remove Run"
+									   click="{promptToRemoveRun()}"
+									   icon="@Embed('../../assets/delete.png')"
+									   visible="{currentRun == numberOfRuns-1}"
+									   includeInLayout="{currentRun == numberOfRuns-1}"
+									   id="button2" />
+
+							<mx:Button id="savePlateButton"
+									   icon="@Embed('../../assets/save.png')"
+									   label="Save Plate"
+									   click="{promptToSavePlate()}"
+									   visible="{tabNav.selectedChild==plateTab}"
+									   includeInLayout="{tabNav.selectedChild==plateTab}" />
+
+							<mx:Button id="saveRunButton"
+									   icon="@Embed('../../assets/save.png')"
+									   label="Save Run"
+									   click="{promptToSaveRun()}"
+									   visible="{tabNav.selectedChild==runTab}"
+									   includeInLayout="{tabNav.selectedChild==runTab}" />
+
+						</mx:HBox>
+
+					</mx:ApplicationControlBar>
+
+				</mx:HBox>
+
+			</mx:VBox>
+
+
+			<mx:VBox styleName="panelBox"
+					 height="100%"
+					 id="informationPanel"
+					 horizontalAlign="center"
+					 minWidth="200">
+				<mx:ViewStack width="100%" height="100%" id="infoViews">
+
+
+					<mx:TabNavigator id="plateAndRunInfoViews">
+
+						<mx:VBox width="100%"
+								 height="100%"
+								 backgroundColor="#ffffff"
+								 id="plateInfoBox"
+								 label="Plate Information">
+							<mx:HBox width="100%">
+								<mx:Label text="Plate #:" fontWeight="bold" />
+
+								<mx:Text id="plateNumberText" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Plate Name:" fontWeight="bold" />
+
+								<mx:TextInput id="plateNameText" editable="true" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Comments:" fontWeight="bold" />
+
+								<mx:TextArea id="plateCommentsText" editable="true" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Sealing:" fontWeight="bold" />
+
+								<mx:ComboBox id="sealText"
+											 toolTip="Select Sealing"
+											 width="100%"
+											 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry,'@display', '@value','@idSealType')}" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Creator:" fontWeight="bold" />
+
+								<mx:Text id="plateCreatorText" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Date Created:" fontWeight="bold" />
+
+								<mx:Text id="plateCreateDateText" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Number of Wells:" fontWeight="bold" />
+
+								<mx:Text id="numberWellsText" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:Label text="  Wells:" fontWeight="bold" />
+
+							<mx:List width="100%"
+									 height="100%"
+									 id="wellDisplayTree"
+									 dataTipField="@idSample"
+									 doubleClickEnabled="false"
+									 borderStyle="solid"
+									 labelField="@sampleName"
+									 backgroundAlpha="1"
+									 dropShadowEnabled="true">
+							</mx:List>
+
+						</mx:VBox>
+
+						<mx:VBox width="{plateInfoBox.width}"
+								 height="100%"
+								 backgroundColor="#ffffff"
+								 id="runInfoBox"
+								 label="Run Information">
+							<mx:HBox width="100%">
+								<mx:Label text="Run #:" fontWeight="bold" />
+
+								<mx:Text id="runNumberText" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Run Name:" fontWeight="bold" />
+
+								<mx:TextInput id="runNameText" editable="true" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Comments:" fontWeight="bold" />
+
+								<mx:TextArea id="runCommentsText" editable="true" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Sealing:" fontWeight="bold" />
+
+								<mx:ComboBox id="runSealText" toolTip="Select Sealing" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Reaction:" fontWeight="bold" />
+
+								<mx:ComboBox id="runReactionTypeText" toolTip="reaction type" width="100%" />
+
+								<mx:Spacer width="5" height="100%" />
+
+							</mx:HBox>
+
+							<mx:HBox width="100%">
+								<mx:Label text="Status:" fontWeight="bold" />
+								
+								<mx:ComboBox id="statusText"
+											 toolTip="Select Status"
+											 width="100%"
+											 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry,'@display', '@value','@idSealType')}" />
+								
+								<mx:Spacer width="5" height="100%" />
 								
 							</mx:HBox>
 							
-							<mx:Spacer width="100%" height="100%"/>
-							<mx:Button label="Remove Plate" click="{promptToRemovePlate()}" icon="@Embed('../../assets/delete.png')"
-									   visible="{(numberOfPlates>1)&amp;&amp;(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"  
-									   includeInLayout="{(numberOfPlates>1)&amp;&amp;(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"/>
-							<mx:Button label="Remove Run" click="{promptToRemoveRun()}" icon="@Embed('../../assets/delete.png')"
-									   visible="{currentRun == numberOfRuns-1}"  
-									   includeInLayout="{currentRun == numberOfRuns-1}" />
-							<mx:Button id="savePlateButton" icon="@Embed('../../assets/save.png')" label="Save Plate" click="{promptToSavePlate()}"
-									   visible="{tabNav.selectedChild==plateTab}" includeInLayout="{tabNav.selectedChild==plateTab}" />
-							<mx:Button id="saveRunButton" icon="@Embed('../../assets/save.png')" label="Save Run" click="{promptToSaveRun()}" 
-									   visible="{tabNav.selectedChild==runTab}" includeInLayout="{tabNav.selectedChild==runTab}"/>
-						</mx:HBox>
-					</mx:ApplicationControlBar>
-				</mx:HBox>
-			</mx:VBox>
-			
-			
-			<mx:VBox styleName="panelBox" height="100%" id="informationPanel" horizontalAlign="center" minWidth="200">
-				<mx:ViewStack  width="100%" height="100%" id="infoViews">
-					
-					
-					<mx:TabNavigator  width="100%" height="100%" id="plateAndRunInfoViews">
-						
-						<mx:VBox width="100%" height="100%" backgroundColor="#ffffff" id="plateInfoBox" label="Plate Information">
 							<mx:HBox width="100%">
-								<mx:Label text="Plate #:" fontWeight="bold" />
-								<mx:Text  id="plateNumberText" width="100%"/>
+								<mx:Label text="Creator:" fontWeight="bold" />
+
+								<mx:Text id="runCreatorText" width="100%" />
+
 								<mx:Spacer width="5" height="100%" />
+
 							</mx:HBox>
+
 							<mx:HBox width="100%">
-								<mx:Label text="Plate Name:" fontWeight="bold" />
-								<mx:TextInput  id="plateNameText" editable="true" width="100%"/>
+								<mx:Label text="Date Created:" fontWeight="bold" />
+
+								<mx:Text id="runCreateDateText" width="100%" />
+
 								<mx:Spacer width="5" height="100%" />
+
 							</mx:HBox>
+
 							<mx:HBox width="100%">
-								<mx:Label text="Comments:" fontWeight="bold" />
-								<mx:TextArea  id="plateCommentsText" editable="true" width="100%"/>
+								<mx:Label text="Run Date:" fontWeight="bold" />
+
+								<mx:Text id="runRunDateText" width="100%" />
+
 								<mx:Spacer width="5" height="100%" />
+
 							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Sealing:" fontWeight="bold"/>
-								<mx:ComboBox  id="sealText" toolTip="Select Sealing" width="100%"  
-											  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry,'@display', '@value','@idSealType')}"/> 
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Creator:" fontWeight="bold"/>
-								<mx:Text  id="plateCreatorText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Date Created:" fontWeight="bold"/>
-								<mx:Text  id="plateCreateDateText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Number of Wells:" fontWeight="bold"/>
-								<mx:Text  id="numberWellsText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:Label text="  Wells:" fontWeight="bold"/>
-							<mx:List width="100%" height="100%" id="wellDisplayTree"
-									 dataTipField="@idSample"
-									 doubleClickEnabled="false" 
-									 borderStyle="solid"
-									 labelField = "@sampleName"
-									 backgroundAlpha="1" 
-									 dropShadowEnabled="true">
-							</mx:List>
+
 						</mx:VBox>
-						
-						<mx:VBox width="100%" height="100%" backgroundColor="#ffffff" id="runInfoBox" label="Run Information">
-							<mx:HBox width="100%">
-								<mx:Label text="Run #:" fontWeight="bold" />
-								<mx:Text  id="runNumberText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Run Name:" fontWeight="bold" />
-								<mx:TextInput  id="runNameText" editable="true" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Comments:" fontWeight="bold" />
-								<mx:TextArea  id="runCommentsText" editable="true" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Sealing:" fontWeight="bold"/>
-								<mx:ComboBox  id="runSealText" toolTip="Select Sealing" width="100%"  /> 
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Reaction Type:" fontWeight="bold"/>
-								<mx:ComboBox  id="runReactionTypeText" toolTip="reaction type" width="100%"  /> 
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Creator:" fontWeight="bold"/>
-								<mx:Text  id="runCreatorText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Date Created:" fontWeight="bold"/>
-								<mx:Text  id="runCreateDateText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Label text="Run Date:" fontWeight="bold"/>
-								<mx:Text  id="runRunDateText" width="100%"/>
-								<mx:Spacer width="5" height="100%" />
-							</mx:HBox>
-						</mx:VBox>
-						
+
 					</mx:TabNavigator>
-					
-					
-					
-					<mx:VBox width="100%" height="100%" backgroundColor="#ffffff" id="orderInfoBox">
-						<mx:HBox width="100%" verticalAlign="middle" paddingLeft="3" paddingRight="3" paddingTop="2">
-							<mx:Label text="Order Information" id="orderInfoBoxLabel" styleName="titleLabel"/>
+
+
+
+					<mx:VBox width="100%"
+							 height="100%"
+							 backgroundColor="#ffffff"
+							 id="orderInfoBox">
+						<mx:HBox width="100%"
+								 verticalAlign="middle"
+								 paddingLeft="3"
+								 paddingRight="3"
+								 paddingTop="2">
+							<mx:Label text="Order Information" id="orderInfoBoxLabel" styleName="titleLabel" />
+
 						</mx:HBox>
-						<mx:HRule width="100%"/>
-						<mx:HBox width="100%">
-							<mx:Label text="Order #:" fontWeight="bold" id="label2"/>
-							<mx:Text  id="groupName" width="100%"/>
-							<mx:Spacer width="5" height="100%" />
-						</mx:HBox>
-						<mx:HBox width="100%">
-							<mx:Label text="Submitter:" fontWeight="bold"/>
-							<mx:Text  id="submitter" width="100%"/>
-							<mx:Spacer width="5" height="100%" />
-						</mx:HBox>
-						<mx:HBox width="100%">
-							<mx:Label text="Date Submitted:" fontWeight="bold"/>
-							<mx:Text  id="submitDate" width="100%"/>
-							<mx:Spacer width="5" height="100%" />
-						</mx:HBox>
-						<mx:HBox width="100%">
-							<mx:Label text="Number of Samples:" fontWeight="bold"/>
-							<mx:Text  id="numberSamples" width="100%"/>
-							<mx:Spacer width="5" height="100%" />
-						</mx:HBox>
-						<mx:Label text="  Samples:" fontWeight="bold"/>
-						<mx:List width="100%" height="100%" id="sampleDisplayTree"
-								 dataTipField="@description"
-								 doubleClickEnabled="false" 
-								 borderStyle="solid"
-								 labelField = "@name"
-								 backgroundAlpha="1" 
-								 dropShadowEnabled="true"
-								 itemClick="sampleItemClick(event)">
-						</mx:List>
-					</mx:VBox>
-					
-					<mx:VBox width="100%" height="100%" backgroundColor="#ffffff" id="statusInfoBox">
-						<mx:HBox width="100%" verticalAlign="middle" paddingLeft="3" paddingRight="3" paddingTop="2">
-							<mx:Label text="Sample Information" id="statusInfoBoxLabel" styleName="titleLabel"/>
-						</mx:HBox>
+
 						<mx:HRule width="100%" />
+
 						<mx:HBox width="100%">
-							<mx:Label text="Status:" fontWeight="bold" id="groupLabel"/>
-							<mx:Text  id="statusName" width="100%"/>
+							<mx:Label text="Order #:" fontWeight="bold" id="label2" />
+
+							<mx:Text id="groupName" width="100%" />
+
 							<mx:Spacer width="5" height="100%" />
+
 						</mx:HBox>
-						
+
 						<mx:HBox width="100%">
-							<mx:Label text="Number of Samples:" fontWeight="bold"/>
-							<mx:Text  id="labNumberSamples" width="100%"/>
+							<mx:Label text="Submitter:" fontWeight="bold" />
+
+							<mx:Text id="submitter" width="100%" />
+
 							<mx:Spacer width="5" height="100%" />
+
 						</mx:HBox>
-						<mx:Label text="  Samples:" fontWeight="bold"/>
-						<mx:List width="100%" height="100%" id="labSampleDisplayTree"
+
+						<mx:HBox width="100%">
+							<mx:Label text="Date Submitted:" fontWeight="bold" />
+
+							<mx:Text id="submitDate" width="100%" />
+
+							<mx:Spacer width="5" height="100%" />
+
+						</mx:HBox>
+
+						<mx:HBox width="100%">
+							<mx:Label text="Number of Samples:" fontWeight="bold" />
+
+							<mx:Text id="numberSamples" width="100%" />
+
+							<mx:Spacer width="5" height="100%" />
+
+						</mx:HBox>
+
+						<mx:Label text="  Samples:" fontWeight="bold" />
+
+						<mx:List width="100%"
+								 height="100%"
+								 id="sampleDisplayTree"
 								 dataTipField="@description"
-								 doubleClickEnabled="false" 
+								 doubleClickEnabled="false"
 								 borderStyle="solid"
 								 labelField="@name"
-								 backgroundAlpha="1" 
+								 backgroundAlpha="1"
 								 dropShadowEnabled="true"
 								 itemClick="sampleItemClick(event)">
 						</mx:List>
+
 					</mx:VBox>
+
+					<mx:VBox width="100%"
+							 height="100%"
+							 backgroundColor="#ffffff"
+							 id="statusInfoBox">
+						<mx:HBox width="100%"
+								 verticalAlign="middle"
+								 paddingLeft="3"
+								 paddingRight="3"
+								 paddingTop="2">
+							<mx:Label text="Sample Information" id="statusInfoBoxLabel" styleName="titleLabel" />
+
+						</mx:HBox>
+
+						<mx:HRule width="100%" />
+
+						<mx:HBox width="100%">
+							<mx:Label text="Status:" fontWeight="bold" id="groupLabel" />
+
+							<mx:Text id="statusName" width="100%" />
+
+							<mx:Spacer width="5" height="100%" />
+
+						</mx:HBox>
+
+						<mx:HBox width="100%">
+							<mx:Label text="Number of Samples:" fontWeight="bold" />
+
+							<mx:Text id="labNumberSamples" width="100%" />
+
+							<mx:Spacer width="5" height="100%" />
+
+						</mx:HBox>
+
+						<mx:Label text="  Samples:" fontWeight="bold" />
+
+						<mx:List width="100%"
+								 height="100%"
+								 id="labSampleDisplayTree"
+								 dataTipField="@description"
+								 doubleClickEnabled="false"
+								 borderStyle="solid"
+								 labelField="@name"
+								 backgroundAlpha="1"
+								 dropShadowEnabled="true"
+								 itemClick="sampleItemClick(event)">
+						</mx:List>
+
+					</mx:VBox>
+
 				</mx:ViewStack>
-				
-				
-				<mx:Label text="Select an order by color:" width="100%" id="colorPickLabel"/>
-				<util:SpecialColorPicker id="colorPick"
-										 width="100%" 
-										 height="50"  />		
-				<mx:Button label="Remove order from plate" visible="{groupName.text!=colorPick.getNoSelectionText()}" 
-						   includeInLayout="{groupName.text!=colorPick.getNoSelectionText()}" width="100%"
-						   click="promptToRemoveGroup()"/>
-				<mx:Button label="Clear all samples from plate" visible="{groupName.text==colorPick.getNoSelectionText()}" 
-						   includeInLayout="{groupName.text==colorPick.getNoSelectionText()}" width="100%"
-						   click="promptToRemoveAllSamples()"/>
-				
+
+
+				<mx:Label text="Select an order by color:" width="100%" id="colorPickLabel" />
+
+				<util:SpecialColorPicker id="colorPick" width="100%" height="50" />
+
+				<mx:Button label="Remove order from plate"
+						   visible="{groupName.text!=colorPick.getNoSelectionText()}"
+						   includeInLayout="{groupName.text!=colorPick.getNoSelectionText()}"
+						   width="100%"
+						   click="promptToRemoveGroup()"
+						   id="button3" />
+
+				<mx:Button label="Clear all samples from plate"
+						   visible="{groupName.text==colorPick.getNoSelectionText()}"
+						   includeInLayout="{groupName.text==colorPick.getNoSelectionText()}"
+						   width="100%"
+						   click="promptToRemoveAllSamples()"
+						   id="button4" />
+
 			</mx:VBox>
-			
+
 		</mx:HBox>
+
 	</mx:VBox>
-	
+
 </mx:Canvas>
