@@ -72,7 +72,8 @@ public class Request extends HibernateDetailObject {
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
-  private String          requestStatus;
+  private String          codeRequestStatus;
+  private RequestStatus   requestStatus;
     
   
   
@@ -846,14 +847,24 @@ public class Request extends HibernateDetailObject {
     this.privacyExpirationDate = privacyExpirationDate;
   }
 
-  public void setRequestStatus(String requestStatus)
+  public void setCodeRequestStatus(String requestStatus)
   {
-    this.requestStatus = requestStatus;
+    this.codeRequestStatus = requestStatus;
   }
 
-  public String getRequestStatus()
+  public String getCodeRequestStatus()
   {
+    return codeRequestStatus;
+  }
+
+  
+  public RequestStatus getRequestStatus() {
     return requestStatus;
+  }
+
+  
+  public void setRequestStatus( RequestStatus requestStatus ) {
+    this.requestStatus = requestStatus;
   }
 
 }
