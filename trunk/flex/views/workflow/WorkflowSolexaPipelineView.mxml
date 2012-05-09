@@ -143,7 +143,7 @@
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
+			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()" sortableColumns="false">
 				<util:columns>
 						<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 						<mx:DataGridColumn editable="false" headerText="Flow Cell Channel #"  width="17" dataField="@flowCellNumber" labelFunction="getFullFlowCellChannelNumber">
