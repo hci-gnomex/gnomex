@@ -1,6 +1,11 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+5.4.4
+---------------------
+
+
+
 5.4.3
 ---------------------
 * Don't allow sortable columns on Workflow - Illumina Data Pipeline.
@@ -9,6 +14,8 @@
 * Added isActive check boxes to the organism and genome build windows under the data tracks view.(tcourdy)
 * Allow users to search for lab groups based on department name.(tcourdy)
 * Projects listed in experiment edit view dropdown box are now sorted alphabetically.(tcourdy) 
+* Show instititue/username/password if property set to indicate no university id logins. (bspigle)
+* Fix data track query when Analysis files are deleted (get rid of extra trailing comma when analysis files are not yet saved to db).  (tdisera)
 
 5.4.2.3 (May 2, 2012)
 ----------------------
