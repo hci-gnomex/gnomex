@@ -6,6 +6,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
@@ -124,6 +125,7 @@ public class RequestParser implements Serializable {
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
         request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
         request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
+        request.setCodeRequestStatus(RequestStatus.NEW);
       
         if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
           request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
