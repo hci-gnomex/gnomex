@@ -5,7 +5,7 @@ use gnomex;
 DROP TABLE IF EXISTS `gnomex`.`SampleDropOffLocation`;
 CREATE TABLE `gnomex`.`SampleDropOffLocation` (
   `idSampleDropOffLocation` INT(10) NOT NULL AUTO_INCREMENT,
-  `sampleDropOffLocation`   VARCHAR(50) NOT NULL,
+  `sampleDropOffLocation`   VARCHAR(200) NOT NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idSampleDropOffLocation`)
 )
