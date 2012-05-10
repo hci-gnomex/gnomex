@@ -2279,6 +2279,12 @@
 				var sampleCount:int = 0;
 				for each(var s1:Object in samples) {
 					if (s.@name == s1.@name) {
+						// Same name on different plates ok.
+						if (isCapSeqState() && sampleSetupView.containerTypePlate.selected) {
+							if (s.@plateName != s1.@plateName) {
+								continue;
+							}
+						}
 						sampleCount++;
 					}
 				}
