@@ -158,12 +158,7 @@
 				if (parentDocument.samples.length >= 384) {
 					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
 				} else {
-					var plateName:String = "";
-					if (parentDocument.sampleSetupView.containerTypePlate.selected) {
-						var y:int = parentDocument.samples.length / 96;
-						y = y + 1;
-						plateName = "Plate " + String(y);
-					}
+					var plateName:String = getPlateName(parentDocument.samples.length);
 					emptyNode = new XML("<Sample " +
 						" idSample='" + "Sample" + getNextSampleId() + "'" +
 						" name='' description='' " +
@@ -216,6 +211,16 @@
 			}
 		}
 		
+		private function getPlateName(idx:int):String {
+			var plateName:String = "";
+			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+				var y:int = idx / 96;
+				y = y + 1;
+				plateName = "Plate " + String(y);
+			}
+			return plateName;
+		}
+		
 		private function getNextSampleId():Number {
 			var lastId:Number = -1;
 			
@@ -237,6 +242,7 @@
 		private function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
+			var deleteHappened:Boolean = false;
 			if (samplesGrid.selectedItems.length > 0) {
 				for each(var sample:Object in samplesGrid.selectedItems) {
 					var isValid:Boolean = true;
@@ -280,16 +286,25 @@
 								break;
 							}
 						}
-						}
+					}
 					
 					if (isValid) {
 						parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+						deleteHappened = true;
 					} else {
 						break;
 					}
 					
 				}
 			}
+			
+			if (deleteHappened && parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected) {
+				for (var psIdx:int = 0; psIdx < parentDocument.samples.length; psIdx++) {
+					var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
+					plateSample.@plateName = getPlateName(psIdx);
+				}
+			}
+			
 			if (parentDocument.isMicroarrayState()) {
 				parentDocument.hybsView.hybsGrid.invalidateList();
 				parentDocument.hybsView.hybsGrid.invalidateDisplayList();
@@ -314,7 +329,7 @@
 			if (samplesGrid.selectedIndex != -1) {
 				for each(var sampleToCopy:Object in samplesGrid.selectedItems) {	
 					
-					var emptyNode:XML = new XML("<Sample " +
+					var emptyNodeString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
  	  		        " name='" + sampleToCopy.@name + "'" + 
 					" canChangeSampleName='Y'" +
@@ -339,8 +354,15 @@
 					" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
 					" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
-					" ccNumber='" + sampleToCopy.@ccNumber + "'" +
-					"/>"); 
+					" ccNumber='" + sampleToCopy.@ccNumber + "'";
+					if (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected) {
+						emptyNodeString = emptyNodeString +
+						" plateName='" + getPlateName(parentDocument.samples.length) + "'" +
+						" wellName=''";
+					}
+					
+					emptyNodeString = emptyNodeString + "/>";
+					var emptyNode:XML = new XML(emptyNodeString); 
 					
 					// Now copy the sample annotations
 					for each (var attribute:Object in sampleToCopy.attributes()) {
