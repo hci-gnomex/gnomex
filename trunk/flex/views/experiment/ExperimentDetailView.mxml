@@ -155,6 +155,8 @@
 				if(hbox2 != null) {
 					hbox2.visible = false;		
 				}
+			} else if (requestCategory.@type == 'CAPSEQ') {
+				currentState = 'CapSeqState';
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -816,7 +818,9 @@
 	  							<mx:Label text="Notes for Core Facility" />
 								<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 							</mx:VBox>
-							<mx:VBox verticalGap="0" width="100%" height="100%"  visible="{currentState != 'QCState'}"  includeInLayout="{currentState != 'QCState'}">
+							<mx:VBox verticalGap="0" width="100%" height="100%"  
+									 visible="{currentState != 'QCState' &amp;&amp; currentState != 'CapSeqState'}"  
+									 includeInLayout="{currentState != 'QCState' &amp;&amp; currentState != 'CapSeqState'}">
 								<mx:Label text="Notes for Bioinformatics Group"  />
 								<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
 							</mx:VBox>
@@ -1263,6 +1267,8 @@
 		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="ExternalSeqState">
+	</mx:State>
+	<mx:State name="CapSeqState">		
 	</mx:State>
 </mx:states>
 	
