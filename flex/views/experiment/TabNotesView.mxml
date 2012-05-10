@@ -49,6 +49,13 @@
 	}
 	
 
+	public function setAnalysisVisibility():void {
+		label3.visible = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
+		label3.includeInLayout = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
+		noteToBio.visible = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
+		noteToBio.includeInLayout = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
+	}
+		
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
@@ -67,9 +74,8 @@
 		<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 
 				width ="100%" height="50%"/>
 		<mx:Spacer height="10"  />
-		<mx:Label text="(4) Enter a note for the Bioinformatics Group regarding analysis. (optional)"  visible="{parentDocument.requestType != 'QC'}" includeInLayout="{parentDocument.requestType != 'QC'}" id="label3"/>
+		<mx:Label text="(4) Enter a note for the Bioinformatics Group regarding analysis. (optional)" id="label3"/>
 		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
-				visible="{parentDocument.requestType != 'QC'}" includeInLayout="{parentDocument.requestType != 'QC'}"
 				focusOut="propagateAnalysisInstructions()" width ="100%" height="50%"/>
 		
 	</mx:VBox>

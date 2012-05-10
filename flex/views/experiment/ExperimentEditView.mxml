@@ -891,6 +891,10 @@
 			requestCategoryName = requestCategory.@display.toString();
 			requestType = requestCategory.@type;
 			
+			if (theTab.contains(notesView)) {
+				notesView.setAnalysisVisibility();
+			}
+			
 			if (theTab.contains(confirmView)) {
 				this.confirmView.barcodeColumn.visible = false;        					
 			}
@@ -1852,6 +1856,7 @@
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 			requestIcon = requestCategory.@icon;
+			requestType = requestCategory.@type;
 
 			buttonStack.selectedIndex = 1;
 			
@@ -1861,6 +1866,7 @@
 			samplesView.enabled = true;		
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
+			notesView.setAnalysisVisibility();
 
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
