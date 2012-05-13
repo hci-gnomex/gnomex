@@ -37,3 +37,9 @@ CONSTRAINT `FK_Plate_PlateType` FOREIGN KEY `FK_Plate_PlateType` (`codePlateType
     REFERENCES PlateType (`codePlateType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+    
+    
+-- Populate new property to turn on data track feature
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
+values ('datatrack_supported','Y','Indicates if data track features is supported', 'N');
+
