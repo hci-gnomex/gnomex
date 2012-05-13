@@ -1411,6 +1411,10 @@
 					if (theViews.contains(navDataTrackView)) {
 						theViews.removeChild(navDataTrackView);
 					}
+					if (linkButtonBarBox.contains(this.dataTracksLink)) {
+						linkButtonBarBox.removeChild(this.dataTracksLink);
+						linkButtonBarBox.removeChild(this.dataTracksRule);
+					}
 				}
             }
 
@@ -2096,6 +2100,8 @@
 			PopUpManager.removePopUp(distributeDataTrackWindow);
 			distributeDataTrackWindow = null;
 		}
+			
+						
 
         ]]>
     </mx:Script>
@@ -2170,7 +2176,7 @@
 					  <util:CustomLinkButton id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="95" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
 					  <mx:VRule height="20" id="analysisRule"/>
 					  <util:CustomLinkButton id="analysisLink" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
-					  <mx:VRule height="20" id="dataTracksRule"/>
+					  <mx:VRule height="20" id="dataTracksRule"/> 
 					  <util:CustomLinkButton id="dataTracksLink" label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
 					  <mx:VRule height="20" id="workflowRule"/>
 					  <util:CustomLinkButton id="workflowLink" label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
