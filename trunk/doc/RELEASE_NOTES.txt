@@ -8,6 +8,9 @@
 * Group Samples on Capillary Sequencing request submission by plate if chose plate type.  (bspiglejr)
 * Added changes for Topics feature.  (rcundick)
 * Fixed a bug that was causing the Institutions dropdown on the labView to not refresh properly. (tcourdy)
+* Worked on Super Admin state so that both DNA Seq Core links as well as all admin links are present. (tdisera)
+* Fixed problem with Data Track link when datatracks_supported property not present or set to 'N' (tdisera)
+* Added data track link to home page (tdisera)
 
 
 5.4.3

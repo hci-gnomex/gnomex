@@ -703,6 +703,7 @@
 			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
+			public var PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES:String = "canAdministerAllCoreFacilities";
 
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
@@ -1430,9 +1431,11 @@
 					if (this.isExternalDataSharingSite) {
 						currentState = "AdminESState";
 					} else if (this.isCoreDNASeq) {
-						currentState = "AdminDNASeqState"
-					} else {
-						currentState = "AdminState";
+						if (hasPermission(this.PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES)){
+							currentState = "SuperAdminDNASeqState"
+						} else {
+							currentState = "AdminState";
+						}
 					}
 				} else if (hasGroupsToManage()) {
 					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";
@@ -2439,6 +2442,8 @@
 			 <mx:RemoveChild target="{workflowRule}"/>
 			 <mx:RemoveChild target="{dataTracksLink}"/>
 			 <mx:RemoveChild target="{dataTracksRule}"/>
+			 <mx:RemoveChild target="{analysisLink}"/>
+			 <mx:RemoveChild target="{analysisRule}"/>
 			 <mx:RemoveChild target="{usageLink}"/>
 			 <mx:RemoveChild target="{usageRule}"/>
 			 <mx:RemoveChild target="{protocolsLink}"/>
@@ -2470,6 +2475,7 @@
 			 	<util:CustomLinkButton id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
 			 </mx:AddChild>
 		 </mx:State>
+		 <mx:State name="SuperAdminDNASeqState" basedOn="AdminState"/>
 
 		 
 	 </mx:states>
