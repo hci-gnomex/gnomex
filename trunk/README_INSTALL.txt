@@ -283,6 +283,9 @@ Build Instructions
 3. Run Ant build on build.xml with target=ALL
    >cd path/to/gnomex
    >ant all
+   
+   NOTE:  The Ant build target for Flex compiling requires the extensive JVM memory for the Flex compile.  
+   Consider setting your Java runtime arguments to the following:  -Xms512m -Xmx900m
 
 4. A new gnomex.ear file will be placed in path/to/orion/applications.  
    Restart orion and gnomex will be deployed.
