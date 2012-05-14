@@ -66,7 +66,14 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 	private Set                 propertyEntries;
 	private Set                 dataTrackFiles;
 	private AppUser             appUser;
+	private Set                 topics;
 	
+  public Set getTopics() {
+    return topics;
+  }
+  public void setTopics(Set topics) {
+    this.topics = topics;
+  }
   private Map<String, Object> props;  // tag/value representation of annotation properties
 
   private Integer             folderCount;  // transient variable - initialized in DataTrackQuery

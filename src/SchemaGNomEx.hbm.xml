@@ -71,6 +71,11 @@
       <key column="idAnalysis"/>
       <one-to-many class="hci.gnomex.model.PropertyEntry" />
     </set>
+	    
+		<set name="topics" table="AnalysisToTopic" lazy="true" cascade="none">
+			<key column="idAnalysis"/>
+			<many-to-many column="idTopic" class="hci.gnomex.model.Topic"/>
+		</set>    
 		
 	</class>
 	
@@ -276,6 +281,11 @@
 		<set name="folders" table="DataTrackToFolder" lazy="true" cascade="none">
 			<key column="idDataTrack"/>
 			<many-to-many column="idDataTrackFolder" class="hci.gnomex.model.DataTrackFolder"/>
+		</set>    
+
+		<set name="topics" table="DataTrackToTopic" lazy="true" cascade="none">
+			<key column="idDataTrack"/>
+			<many-to-many column="idTopic" class="hci.gnomex.model.Topic"/>
 		</set>    
 		
 		<set name="collaborators" table="DataTrackCollaborator" lazy="true" cascade="none">
@@ -719,6 +729,11 @@
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.ExperimentFile" />
 		</set>
+		
+		<set name="topics" table="RequestToTopic" lazy="true" cascade="none">
+			<key column="idRequest"/>
+			<many-to-many column="idTopic" class="hci.gnomex.model.Topic"/>
+		</set>    
 		
 	</class>
 	
@@ -1864,5 +1879,43 @@
     <property name="instrument" column="instrument" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
   </class>
+  
+    <!--  Topic -->
+    <class name="hci.gnomex.model.Topic" table="Topic">
+        <id name="idTopic"  column="idTopic"    type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="name"                        column="name"                       type="string"/>
+        <property name="description"                 column="description"                type="string"/>
+        <property name="idParentTopic"               column="idParentTopic"              type="integer"/>
+    	<many-to-one name="parentTopic"              column="idParentTopic" class="hci.gnomex.model.Topic" cascade="none" insert="false" update="false" />
+        <property name="idLab"                       column="idLab"                      type="integer"/>
+        <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+        <property name="createdBy"                   column="createdBy"                  type="string"/>
+        <property name="createDate"                  column="createDate"                 type="java.sql.Date"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
+		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
+		        
+        <set name="topics" table="Topic" lazy="true" cascade="all" order-by="name">
+			    <key column="idParentTopic"/>
+			    <one-to-many class="hci.gnomex.model.Topic" />
+		</set> 
+		  
+		<set name="requests" table="RequestToTopic" lazy="true" cascade="none">
+			    <key column="idTopic"/>
+			    <many-to-many column="idRequest" class="hci.gnomex.model.Request"/>
+		</set>
+		
+		<set name="analyses" table="AnalysisToTopic" lazy="true" cascade="none">
+			    <key column="idTopic"/>
+			    <many-to-many column="idAnalysis" class="hci.gnomex.model.Analysis"/>
+		</set>
+		
+		<set name="dataTracks" table="DataTrackToTopic" lazy="true" cascade="none">
+			    <key column="idTopic"/>
+			    <many-to-many column="idDataTrack" class="hci.gnomex.model.DataTrack"/>
+		</set>
+    </class>
+  
 	
 </hibernate-mapping>

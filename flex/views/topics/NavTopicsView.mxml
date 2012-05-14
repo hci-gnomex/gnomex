@@ -1,0 +1,1241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+		   label="Data Tracks" width="100%" height="100%" 
+		   xmlns:views="views.*" 
+		   xmlns:analysis="views.analysis.*"
+		   xmlns:experiment="views.experiment.*"
+		   xmlns:datatrack="views.datatrack.*"
+		   xmlns:topics="views.topics.*"
+		   xmlns:util="views.util.*"
+		   xmlns:renderers="views.renderers.*"
+		   creationPolicy="all"  show="init()"
+		   cornerRadius="10" >
+	<mx:states>
+		<mx:State name="AdminState">
+		</mx:State>
+		<mx:State name="UserState"/>
+		<mx:State name="GuestState"/>
+	</mx:states>
+
+	<mx:HTTPService  
+		id="getTopicList" 
+		url="GetTopicList.gx"
+		destination="getTopicList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetTopicList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get topic list', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+		
+	<mx:HTTPService             
+		id="moveOrCopyTopic" 
+		url="MoveOrCopyTopic.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onMoveOrCopyTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to move dataTrack folder', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>	
+	
+	<mx:HTTPService             
+		id="deleteTopic" 
+		url="DeleteTopic.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onDeleteTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to remove dataTrack folder', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+		
+	<mx:HTTPService  
+		id="unlinkItemFromTopic" 
+		url="UnlinkItemFromTopic.gx"
+		destination="unlinkItemFromTopic"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onUnlinkItemFromTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to unlink item from topic', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="addItemToTopic" 
+		url="AddItemToTopic.gx"
+		destination="addItemToTopic"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onAddItemToTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to add item to topic', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>	
+	
+	<mx:HTTPService  
+		id="getRequest" 
+		url="GetRequest.gx"
+		destination="getRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
+	<mx:HTTPService  
+		id="getAnalysis" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
+<mx:Script>
+<![CDATA[
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import mx.collections.ArrayCollection;
+	import mx.collections.XMLListCollection;
+	import mx.controls.Alert;
+	import mx.controls.Menu;
+	import mx.controls.ToolTip;
+	import mx.core.DragSource;
+	import mx.events.CloseEvent;
+	import mx.events.DragEvent;
+	import mx.events.ListEvent;
+	import mx.events.MenuEvent;
+	import mx.managers.DragManager;
+	import mx.managers.PopUpManager;
+	import mx.managers.ToolTipManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.renderers.TreeNodeRenderer;
+	
+	private static var alertButtonWidthDefault:Number = Alert.buttonWidth;
+	
+	private var refreshDictionaries:Boolean = false;
+	
+	public var topicNumber:String = "";
+
+	public var isInitialized:Boolean = false;
+	
+	public var dataTrackNumber:String = "";
+	
+	private var lastTreeItem:ListEvent;
+	
+	public var treeItemToSelect:Object = null; 
+	
+	public var refreshItem:Object = null; 
+	
+	[Bindable]
+	public var selectedIdProject:String = null;
+	
+	public var selectedIdRequest:Object;
+	
+	public var selectedIdLab:String;
+	
+	[Bindable]
+	public var selectedExperiment:Object; 
+	
+	public var selectedIdAnalysis:Object;
+	
+	[Bindable]
+	public var selectedAnalysis:Object;
+	
+	[Bindable]
+	private var dataTrackCountLabel:String = "";
+	[Bindable]
+	private var allowExpandAll:Boolean = true;
+	
+	private var hitCount:int = 0;
+	private var firstHitItem:XML = null;
+	private var currentIndex:int = 0;
+	private var hitToolTip:ToolTip = null;
+	
+	private var reassignIsMove:Boolean = false;
+	
+	private var itemToRemove:Object = null;
+	private var itemsToRemove:Array = new Array();
+	
+	private var dragParams:ArrayCollection = null;
+	private var dropNode:Object = null;
+	
+	public function checkDirty():void {
+	}
+
+	
+	public function init():void {
+		refreshTopicForLookup()
+		checkSecurity();	
+		isInitialized = true;
+	}
+	
+	public function refreshTopicForLookup():void {
+		getTopicList.send();
+	}	
+	
+	private function checkSecurity():void {
+		currentState = "";
+		if (parentApplication.hasPermission("canWriteAnyObject")) {
+			currentState = "AdminState";
+		} else if (parentApplication.currentState == "GuestState") {
+			currentState = "GuestState";
+		} else {
+			this.currentState = "UserState";
+		}
+	}
+	
+	private function onGetTopicList(event:ResultEvent): void {
+		if (getTopicList.lastResult.name() != "TopicList") {
+			Alert.show(getTopicList.lastResult..ACTMESSAGE.@TEXT);
+			topicsBrowseTree.visible = false;
+			return;
+		}
+		if (getTopicList.lastResult.Topic.length() == 0) {
+			topicsBrowseTree.visible = false;
+		} else {
+			topicsBrowseTree.visible = true;
+		}
+		
+		// If we are looking up a data track by number, get the tree item to select
+		if (this.topicNumber != "") {
+			var dt:Object = getTopicList.lastResult..Topic.(@idTopic == topicNumber);			
+			if (dt is XMLList && dt.length() > 0) {
+				treeItemToSelect = dt[0];
+			} else {
+				treeItemToSelect = dt;
+			}
+			topicNumber = "";
+		} 		
+		
+		
+		
+		callLater(expandAppropriateNodes);   		
+	}
+	
+	private function selectEmphasizedNode(node:Object):Boolean {
+		if (node.@emphasize == 'Y') {
+			treeItemToSelect = node;
+			return true;
+		} else {
+			var found:Boolean = false;
+			for each(var child:Object in node.children()) {
+				found = selectEmphasizedNode(child);
+				if (found) {
+					break;
+				}
+			}
+			return found;
+		}
+	}
+	
+	private function expandAppropriateNodes():void {
+		var itemToSelect:XML = getItemToSelect();
+		
+		if (allowExpandAll && cbAlwaysExpandTree.selected) {
+			// If the user has check the 'Expand tree' checkbox,
+			// just expand all nodes
+			this.expandAllNodes();
+			topicsBrowseTree.validateNow();
+			callLater(selectTreeItem);					
+		/*
+		} else if (itemToSelect != null && (itemToSelect.name() == "Topic" || itemToSelect.name() == "DataTrack")) {
+			// If there is a tree item selected, expand so it and its ancestors.
+			recurseExpandParent(itemToSelect);
+			topicsBrowseTree.validateNow();
+			callLater(selectTreeItem);
+		*/
+		} else {
+			// Expand all topics for now
+			topicsBrowseTree.expandItem(getTopicList.lastResult, true);
+			for each(var topic:Object in getTopicList.lastResult..Topic) {
+				topicsBrowseTree.expandItem(topic, true);
+			}
+			callLater(selectTreeItem);
+		}
+		
+	}		
+	
+	private function recurseExpandParent(item:XML):void {
+		if (item.name() != 'DataTrack') {
+			topicsBrowseTree.expandItem(item, true);				
+		}
+		if (item.parent() != null) {
+			recurseExpandParent(item.parent());									
+		}
+		
+	}
+	private function selectTreeItem():void {
+		if (treeItemToSelect != null) {
+			var item:Object = getItemToSelect();
+			
+			if (item != null) {
+				topicsBrowseTree.selectedItem = item;
+				topicsBrowseTree.scrollToIndex(topicsBrowseTree.selectedIndex);
+			} else {
+				topicsBrowseTree.selectedItem = null;
+			}
+		}
+		selectView();				
+		
+	}
+	
+	private function getItemToSelect():XML {
+		if (treeItemToSelect == null) {
+			return null;
+		} 
+		if (treeItemToSelect is XMLList && treeItemToSelect.length() == 0) {
+			return null;	
+		}
+		if (treeItemToSelect is XMLList && treeItemToSelect.length() > 0) {
+			treeItemToSelect = treeItemToSelect[0];
+		}
+		
+		var item:XMLList = null;
+		if (treeItemToSelect.name() == "Organism") {
+			item = getTopicList.lastResult.Organism.(@idOrganism == treeItemToSelect.@idOrganism);
+		} else if (treeItemToSelect.name() == "GenomeBuild") {
+			item = getTopicList.lastResult..GenomeBuild.(@idGenomeBuild == treeItemToSelect.@idGenomeBuild);
+		} else if (treeItemToSelect.name() == "Topic") {
+			item = getTopicList.lastResult..Topic.(@idTopic == treeItemToSelect.@idTopic);
+		} else if (treeItemToSelect.name() == "DataTrack") {
+			item = getTopicList.lastResult..DataTrack.(@idDataTrack == treeItemToSelect.@idDataTrack && @idTopic == treeItemToSelect.@idTopic);
+		} else if (treeItemToSelect.name() == "LaunchDataTrack") {
+			item = getTopicList.lastResult..DataTrack.(@idDataTrack == treeItemToSelect.@idDataTrack);
+		}
+		if (item != null && item.length() > 0) {
+			return XML(item[0]);				
+		} else {
+			return null;
+		}
+		
+	}
+	
+	private function onTreeClick():void {
+		this.treeItemToSelect = this.topicsBrowseTree.selectedItem;
+		if (topicView.dirtyTopic != null) {
+			topicView.dirtyTopic.resetDirty();
+		}
+		this.selectView();
+	}
+
+	
+	public function selectView():void {
+		if (this.topicsBrowseTree.selectedItem == null) {
+			//this.removeButtonStack.selectedIndex = 0;
+			this.mainViewStack.selectedChild = this.blankView;
+			return;
+		}
+                
+		if (this.topicsBrowseTree.selectedItem.name() == "Topic") {
+			this.mainViewStack.selectedChild = this.topicView;
+			this.topicView.init();
+			
+		} else if (this.topicsBrowseTree.selectedItem.name() == "DataTrack") {
+			dataTrackView.saveDataTrackButton.visible = false;
+			this.mainViewStack.selectedChild = this.dataTrackView;                
+			
+			var parms1:Object = new Object();
+			parms1.idDataTrack = this.topicsBrowseTree.selectedItem.@idDataTrack;
+			dataTrackView.getDataTrack.send(parms1);
+		} else if (this.topicsBrowseTree.selectedItem.name() == "Request") {
+			// These are needed by experimentDetailView
+			selectedIdLab = null;
+			selectedIdProject = null;
+			selectedIdRequest = topicsBrowseTree.selectedItem.@idRequest;			
+			var params:Object = new Object();
+			params.idRequest = this.topicsBrowseTree.selectedItem.@idRequest;
+			getRequest.send(params);
+			experimentDetailView.editButton.enabled = false;
+			experimentDetailView.downloadsLink.enabled = false;
+			experimentDetailView.detail.hideButtonsBox.visible = false;
+			experimentDetailView.detail.filesView.deleteButtonsContainer.visible = false;
+			this.mainViewStack.selectedChild = this.experimentDetailView;  
+		} else if (this.topicsBrowseTree.selectedItem.name() == "Analysis") {
+			analysisDetailView.titleLabel.text = "Analysis " + topicsBrowseTree.selectedItem.@number;
+			selectedIdAnalysis = topicsBrowseTree.selectedItem.@idAnalysis;
+			var parms:Object = new Object();
+			parms.idAnalysis = selectedIdAnalysis; 
+			getAnalysis.send(parms);
+			selectedIdLab = topicsBrowseTree.selectedItem.@idLab;
+			analysisDetailView.edtButton.enabled = false;
+			analysisDetailView.dstButton.enabled = false;
+			analysisDetailView.hideButtonsBox.visible = false;
+			analysisDetailView.filesView.deleteButtonsContainer.visible = false;
+			this.mainViewStack.selectedChild = this.analysisDetailView;  
+		}
+	}
+	
+	private function onGetRequest(event:ResultEvent):void {
+		selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.topicsBrowseTree.selectedItem.@idRequest);
+		experimentDetailView.titleLabel.text = (topicsBrowseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + topicsBrowseTree.selectedItem.@requestNumber;
+		callLater(postOnGetRequest);	
+	}
+	
+	private function postOnGetRequest():void {
+		experimentDetailView.detail.setupForm(selectedExperiment);	
+	}
+	
+	
+	private function onGetAnalysis(event:ResultEvent):void {
+		if (getAnalysis.lastResult.name() == "SUCCESS") {
+			Alert.show("Analysis not found");
+			return;
+		}
+		if (getAnalysis.lastResult.name() != "OpenAnalysisList") {
+			Alert.show(getAnalysis.lastResult..ACTMESSAGE.@TEXT);
+			return;
+		}
+	
+		if (selectedIdAnalysis != null) {
+			selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);			
+		} 				
+		analysisDetailView.setupForm(this.selectedAnalysis);	
+	}
+	
+	
+	
+	private function collapseAllNodes():void {
+		
+		topicsBrowseTree.expandItem(getTopicList.lastResult, false);
+		for each(var folder:Object in getTopicList.lastResult..Topic) {
+			topicsBrowseTree.expandItem(folder, false);
+		}
+		topicsBrowseTree.validateNow();
+	}
+	
+	public function expandAllNodes():void
+	{
+		for each(var topic:Object in getTopicList.lastResult..Topic) {
+			//if (organism.@isPopulated == "Y") {
+				topicsBrowseTree.expandChildrenOf(topic,true);
+			//}
+		}
+		topicsBrowseTree.validateNow();
+		treeContainer.validateNow();
+	}	
+	
+
+	public function getTreeIcon(item:Object):Class {
+		if (item.name() == "Topic") {
+			return parentApplication.iconTopic;
+		} else if (item.name() == "Request") {
+			return parentApplication.getTreeIcon(item);
+		} else if (item.name() == "Analysis") {
+			return parentApplication.getTreeIcon(item);
+		} else if (item.name() == "DataTrack") {
+			return parentApplication.getDataTrackTreeIcon(item);
+		}
+		return parentApplication.iconTopic; // Should never get here.
+	}     
+	
+
+	
+	public function refreshTopicsAndSelect(itemToSelect:XML):void {
+		treeItemToSelect = itemToSelect;
+		refreshTopics();
+	}
+	
+	public function refreshDataTrackForLookup():void {
+		var params:Object = new Object();
+		params.number = dataTrackNumber;
+		getTopicList.send(params);
+	}
+	
+	public function refreshDataTrackForItem():void {
+		var params:Object = new Object();
+		params.idOrganism = refreshItem.@idOrganism;
+		params.idGenomeBuild = refreshItem.@idGenomeBuild;
+		params.idLab = refreshItem.@idLab;
+		getTopicList.send(params);
+	}
+
+	public function refreshTopics():void {
+		var parms:Object = new Object();
+		
+		getTopicList.send(parms);
+	}
+	
+	private function onToolTipTimerComplete(evt:TimerEvent):void
+	{
+		ToolTipManager.destroyToolTip(hitToolTip);
+	}
+	
+	
+	private function jumpToNextMatch():void {
+		var jump:Boolean = false;
+		currentIndex = -1;
+		for each(var o:XML in getTopicList.lastResult..Organism) {
+			incrementIndex(o);
+			if (jump) {
+				break;
+			}
+			jump = jumpTo(o);
+			if (jump) {
+				break;
+			}
+			for each(var gv:XML in o.GenomeBuild) {
+				incrementIndex(gv);
+				if (jump) {
+					break;
+				}
+				jump = jumpTo(gv);
+				if (jump) {
+					break;
+				}
+				for each(var ra:XML in gv.DataTrack) {
+					incrementIndex(ra);
+					jump = jumpTo(ra);
+					if (jump) {
+						break;
+					}
+				}
+				for each(var ag:XML in gv..Topic) {
+					incrementIndex(ag);
+					if (jump) {
+						break;
+					}
+					jump = jumpTo(ag);
+					if (jump) {
+						break;
+					}
+					for each(var a:XML in ag.DataTrack) {
+						incrementIndex(a);
+						jump = jumpTo(a);
+						if (jump) {
+							break;
+						}
+					}
+				}					
+			}	
+		}
+		if (!jump) {
+			this.topicsBrowseTree.selectedItem = null;
+		}
+	}
+	private function incrementIndex(item:XML):void {
+		if (isOpenItem(item)) {
+			currentIndex++;
+		}
+		
+		item.@currentIndex = currentIndex;
+	}
+	
+	private function isOpenItem(item:XML):Boolean{
+		var isOpen:Boolean = false;
+		for each(var openItem:XML in topicsBrowseTree.openItems) {
+			if (item == openItem) {
+				isOpen = true;
+				break;
+			}
+			
+			if (!isOpen) {
+				for each(var openChildItem:XML in openItem.elements()) {
+					if (item == openChildItem) {
+						isOpen = true;
+						break;
+					}
+				}
+				
+			}
+		} 	
+		return isOpen;		
+	}
+	
+	private function jumpTo(item:XML):Boolean {
+		if (item.@emphasize == "Y" &&
+			this.topicsBrowseTree.selectedItem != item &&
+			this.topicsBrowseTree.selectedIndex < currentIndex) {
+			recurseExpandParent(item);	
+			topicsBrowseTree.selectedItem = item;
+			topicsBrowseTree.scrollToIndex(topicsBrowseTree.selectedIndex);
+			selectView();
+			return true;
+		} else {
+			return false;
+		}			
+	}
+	
+	
+	public function cleanRichTextHTML(htmlText:String):String {
+		var pattern:RegExp = /<TEXTFORMAT.*?>/g;
+		var str:String = htmlText.replace(pattern, "");
+		pattern = /<FONT.*?>/g;
+		str = str.replace(pattern, "");
+		pattern = /<\/FONT.*?>/g;
+		str = str.replace(pattern, "");
+		pattern = /<\/TEXTFORMAT.*?>/g;
+		str = str.replace(pattern, "");
+		
+		return str;		    
+	}
+	
+	private function promptToRemoveSelectedItems():void {
+		itemsToRemove = new Array();
+		for each(var item:Object in topicsBrowseTree.selectedItems) {
+			var keep:Boolean = true;
+			var ancestorFolders:Array = getAncestors(item, "Topic");
+			
+			// Since we are deleting the folder and its contents, ignore
+			// any contents of a folder if the folder is being deleted.
+			for each(var ancestor:Object in ancestorFolders) {
+				for each(var candidateToDelete:Object in topicsBrowseTree.selectedItems) {
+					if (candidateToDelete.name() == "Topic") {
+						if (ancestor.@idTopic == candidateToDelete.@idTopic) {
+							keep = false;
+							break;  	
+						}
+						
+					}
+				}
+			}
+			
+			if (keep) {
+				itemsToRemove.push(item);
+			}
+		}
+		removeSelectedItems();
+	}
+
+	
+	private function removeSelectedItems():void {
+		if (itemsToRemove.length == 0) {
+			return;
+		}
+		itemToRemove = itemsToRemove.shift();
+		if (itemToRemove.name() == "Topic") {
+			this.promptToRemoveTopic();
+		} else {
+			this.promptToUnlinkItemFromTopic();
+		}
+		
+	}
+	
+	private function getAncestors(item:Object, ancestorName:String):Array {
+		var ancestors:Array = new Array();
+		var firstTime:Boolean = true;
+		while( item != null)
+		{
+			if (firstTime) {
+				firstTime = false;
+			} else if( item.name() == ancestorName ) {
+				ancestors.push(item);
+			}
+			item = item.parent();
+		}
+		return ancestors;
+	}
+	
+	private function getAncestor(item:XML, ancestorName:String):XML {
+		var ancestor:XML = null;
+		while( item )
+		{
+			if( item.name() == ancestorName )
+			{
+				ancestor = item;
+				break;
+			}
+			item = item.parent();
+		}
+		return ancestor;
+	}
+	
+	private function getChildDataTracks(item:Object, children:Array):void {
+		for each(var child:Object in item.children()) {
+			if (child.name() == "DataTrack") {
+				children.push(child);											
+			} else {
+				this.getChildDataTracks(child, children);
+			}
+		}
+	}
+		
+	/***********************************************************************
+	 * 
+	 * DATA TRACK FOLDER DELETE AND MOVE FUNCTIONS 
+	 *  
+	 */        
+	private function promptToRemoveTopic():void {
+		if (itemToRemove.children() != null && itemToRemove.children().length() > 0) {
+			Alert.show("Removing topic '" + itemToRemove.@label + "'" +
+				" will also remove all descendent topics and links to experiments, analyses, and data tracks.\n\n" +
+				"Are you sure you want to delete the topic and all of its contents?\n",
+				"Warning", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToRemoveTopic);      			
+		} else {
+			Alert.show("Remove topic '" + itemToRemove.@label + "'?",
+				"Confirm", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToRemoveTopic);     
+		}
+	}
+	
+	private function onPromptToRemoveTopic(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			
+			removeTopic();
+		}
+	}
+	
+	private function removeTopic():void {
+		// After the delete operation has finished,
+		// select either the next sibling, or if no more children,
+		// the parent node.
+		if (itemToRemove.childIndex() == 0) {
+			this.treeItemToSelect = itemToRemove.parent();
+		} else {
+			var idx:int = topicsBrowseTree.selectedItem.childIndex() - 1;
+			this.treeItemToSelect = itemToRemove.parent().children()[idx];
+		}
+		
+		
+		// Delete the Topic
+		var params:Object = new Object();
+		params.idTopic = itemToRemove.@idTopic;
+		deleteTopic.send(params);
+	}
+	
+	private function onDeleteTopic(event:ResultEvent):void {
+		if (deleteTopic.lastResult.name() == "SUCCESS") {
+			topicView.dirtyTopic.resetDirty();
+			
+			if (itemsToRemove.length == 0) {
+				refreshTopics();			
+			}
+		} else {
+			Alert.show(deleteTopic.lastResult..ACTMESSAGE.@TEXT);
+		}
+		removeSelectedItems();
+	}
+      
+	private function promptToUnlinkItemFromTopic():void {
+		var message:String = "";
+		// If the dataTrack is referenced under multiple dataTrack
+		// groupings, just unlink it.  If the dataTrack is refererenced
+		// under only one dataTrack grouping, delete the dataTrack.
+		var dataTrack:Object = dataTrackView.getDataTrack.lastResult;
+		
+		var itemType:String = "dataTrack";
+		
+		if(itemToRemove.name() == "Request") {
+			itemType = "request";
+		} else if (itemToRemove.name() == "Analysis") {
+			itemType = "analysis";
+		} 
+		
+		message = "Remove link to " + itemType + " '" + itemToRemove.@name + 
+				"' under '" + itemToRemove.parent().@label + "'?";
+
+		Alert.show(message,
+			"Confirm", 
+			(Alert.YES | Alert.NO), this, 
+			onPromptToUnlinkItemFromTopic);     
+	}
+	
+	private function onPromptToUnlinkItemFromTopic(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			unlinkItem();
+		}
+	}
+	
+	private function unlinkItem():void {
+		// After the delete operation has finished,
+		// select either the next sibling, or if no more children,
+		// the parent node.
+		if (itemToRemove.childIndex() == 0) {
+			this.treeItemToSelect = itemToRemove.parent();
+		} else {
+			var idx:int = itemToRemove.childIndex() - 1;
+			this.treeItemToSelect = itemToRemove.parent().children()[idx];
+		} 
+		
+		// Unlink the item
+		var params:Object = new Object();
+		if(itemToRemove.name() == "Request") {
+			params.idRequest = itemToRemove.@idRequest;
+		} else if (itemToRemove.name() == "Analysis") {
+			params.idAnalysis = itemToRemove.@idAnalysis;
+		} else {
+			params.idDataTrack = itemToRemove.@idDataTrack;
+		} 
+
+		if (itemToRemove.parent().name() == "Topic") {
+			params.idTopic = itemToRemove.parent().@idTopic;
+		}
+		unlinkItemFromTopic.send(params);		
+	}
+	
+	private function onMoveOrCopyTopic(event:ResultEvent):void {
+		if (moveOrCopyTopic.lastResult.name() == "SUCCESS") {
+			if (topicView.dirtyTopic != null) {
+				topicView.dirtyTopic.resetDirty();
+			}
+			
+			treeItemToSelect = new XML("<Topic " +
+				"idTopic='" + moveOrCopyTopic.lastResult.@idTopic + "' " +
+				"/>");
+			
+			if (dragParams.length > 0) {
+				this.performMoveOrCopy();
+			} else {
+				refreshTopics();			
+			}
+			
+		} else {
+			Alert.show(moveOrCopyTopic.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+	
+	private function onUnlinkItemFromTopic(event:ResultEvent):void {	
+		if (unlinkItemFromTopic.lastResult.name() == "SUCCESS") {
+			topicView.dirtyTopic.resetDirty();
+			
+			if (itemsToRemove.length == 0) {
+				refreshTopics();			
+			}
+		} else {
+			Alert.show(unlinkItemFromTopic.lastResult..ACTMESSAGE.@TEXT);
+		}
+		removeSelectedItems();		
+	}
+	
+	private function onAddItemToTopic(event:ResultEvent):void {
+		if (addItemToTopic.lastResult.name() == "SUCCESS") {
+			if (topicView.dirtyTopic != null) {
+				topicView.dirtyTopic.resetDirty();
+			}		
+			treeItemToSelect = new XML("<Topic " +
+				"idTopic='" + addItemToTopic.lastResult.@idTopic + "' " +
+				"/>");
+			refreshTopics();			
+		} else {
+			Alert.show(addItemToTopic.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+
+	private function onDragDrop( event:DragEvent ) : void
+	{
+		
+		var ds:DragSource = event.dragSource;
+		var withinTopics:Boolean;
+		var action:String;
+		var sourceId:String = "";
+		
+		if(event.dragInitiator is Tree) {
+			sourceId = Tree(event.dragInitiator).id;
+		}
+		
+		if(sourceId == "topicsBrowseTree") {
+			withinTopics = true;
+			action = "move";
+		} else if(sourceId == 'expBrowseTree' || sourceId == 'anBrowseTree' || sourceId == 'dtBrowseTree') {
+			withinTopics = false;
+			action = "link"
+		} else {
+			Alert.show('Object dragged from illegal source');
+			return;
+		}
+		
+		// Determine the drop node
+		var dropIndex:int = this.topicsBrowseTree.calculateDropIndex(event);
+		dropNode = this.topicsBrowseTree.indexToItemRenderer(dropIndex).data as XML;
+		// If the drop node is an experiment, analysis, or data track, go up to next level
+		// and make it the drop target
+		if (dropNode.name() == "Request" || dropNode.name() == "Experiment" || dropNode.name() == "DataTrack") {
+			dropNode = dropNode.parent();
+		}
+		
+		
+		// retrieve the data associated with the "items" format. This will be the data that
+		// the dragInitiator has copied into the DragSource.
+		var itemCnt:int = 0;
+		dragParams = new ArrayCollection();
+		var params:Object = new Object();
+		for each(var dragItem:Object in ds.dataForFormat("treeItems") as Array) {
+			var keep:Boolean = true;
+			if (dragItem.name() == "Request") {
+				params.name = "Request";
+				//params.idRequest = dragItem.@idRequest;
+				params["idRequest" + itemCnt] = dragItem.@idRequest;
+				if (withinTopics && dragItem.parent().name() == "Topic") {
+					params.idTopicOld = dragItem.parent().@idTopic;
+				}
+				if (dropNode.name() == "Topic") {
+					params.idTopic = dropNode.@idTopic;
+				}
+				// Ignore operation if user dragged to its own parent
+				if (withinTopics && dragItem.parent() == dropNode) {
+					keep = false;
+				}
+				
+				if (keep) {
+					dragParams.addItem(params);
+					itemCnt++;
+				}
+			} else if (dragItem.name() == "Analysis") {
+				params.name = "Analysis";
+				//params.idAnalysis = dragItem.@idAnalysis;
+				params["idAnalysis" + itemCnt] = dragItem.@idAnalysis;
+				if (withinTopics && dragItem.parent().name() == "Topic") {
+					params.idTopicOld = dragItem.parent().@idTopic;
+				}
+				if (dropNode.name() == "Topic") {
+					params.idTopic = dropNode.@idTopic;
+				}
+				// Ignore operation if user dragged to its own parent
+				if (withinTopics && dragItem.parent() == dropNode) {
+					keep = false;
+				}
+				
+				if (keep) {
+					dragParams.addItem(params);
+					itemCnt++;
+				}
+			} else if (dragItem.name() == "DataTrack") {
+				params.name = "DataTrack";
+				//params.idDataTrack = dragItem.@idDataTrack;
+				params["idDataTrack" + itemCnt] = dragItem.@idDataTrack;
+				if (withinTopics && dragItem.parent().name() == "Topic") {
+					params.idTopicOld = dragItem.parent().@idTopic;
+				}
+				if (dropNode.name() == "Topic") {
+					params.idTopic = dropNode.@idTopic;
+				}
+				// Ignore operation if user dragged to its own parent
+				if (withinTopics && dragItem.parent() == dropNode) {
+					keep = false;
+				}
+				
+				if (keep) {
+					dragParams.addItem(params);
+					itemCnt++;
+				}
+			} else if (dragItem.name() == "Topic") {
+				params.name = "Topic";
+				params.idTopic = dragItem.@idTopic;
+				
+				if (dropNode.name() == "Topic") {
+					params.idParentTopicNew = dropNode.@idTopic;
+				}
+				// Ignore operation if user dragged to its own parent
+				if (dragItem.parent() == dropNode) {
+					keep = false;
+				}
+				// Ignore operation if item is dragged back to itself
+				if (dragItem == dropNode) {
+					keep = false;
+				}
+				/*
+				// Ignore operation if item is dragged lower in its own hierarchy
+				var dropParent:Object = dropNode.parent();
+				while(dropParent != null) {
+					if(dragItem == dropParent) {
+						keep = false;
+						break;
+					}
+					dropParent = dropParent.parent();
+				}
+				*/
+				if (dragItem == dropNode) {
+					keep = false;
+				}
+				// Disallow operation if user does not have write
+				// permissions on dataTrack grouping
+				if (dragItem.@canWrite != "Y") {
+					Alert.show("Insufficient permissions to move topic " + dragItem.@label + ".");
+					event.preventDefault();
+					event.target.hideDropFeedback(event);
+					DragManager.showFeedback(DragManager.NONE);		   	
+					return;
+				}
+				if (keep) {
+					dragParams.addItem(params);			       		
+				}
+			}
+		}
+		
+		
+		
+		event.preventDefault();
+		event.target.hideDropFeedback(event);
+		DragManager.showFeedback(DragManager.NONE);		
+		
+		// Reassign dragged dataTrack or dataTrack grouping to
+		// new parent 
+		if (dropNode != null && dragParams.length > 0) {
+			if(withinTopics) {
+				promptToMoveOrCopy();				
+			} else {
+				addItemToTopic.send(params);
+			}
+		}		
+		return;       
+	} 
+	
+	private function promptToMoveOrCopy():void {
+		reassignIsMove = true;
+		Alert.yesLabel = "Move";
+		Alert.noLabel = "Copy";
+		Alert.buttonWidth = 100;
+		
+		var destination:String = "Do you want to move or copy this branch to the top level of the tree?";
+		if(dropNode != null) {
+			destination = "Do you want to move or copy items to " + dropNode.@label + "?";
+		}
+		
+		Alert.show(destination, "", 
+			(Alert.YES | Alert.NO | Alert.CANCEL), this, 
+			onPromptToMoveOrCopy);     
+		
+	}
+	
+	private function onPromptToMoveOrCopy(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			reassignIsMove = true;
+			this.performMoveOrCopy();
+		} else if (event.detail==Alert.NO) {
+			reassignIsMove = false;
+			this.performMoveOrCopy();
+		} 
+		Alert.yesLabel = "Yes";
+		Alert.noLabel = "No";
+		Alert.buttonWidth = alertButtonWidthDefault;
+	}        
+	
+	
+	private function performMoveOrCopy():void {
+		if (dragParams.length == 0) {
+			return;
+		}
+		var params:Object = dragParams[0];
+		params.isMove = reassignIsMove ? "Y" : "N";
+		if (params.name == "Request" || params.name == "Analysis" || params.name == "DataTrack") {
+			dragParams.removeItemAt(0);
+			addItemToTopic.send(params);			
+		} else if (params.name == "Topic") {
+			dragParams.removeItemAt(0);
+			moveOrCopyTopic.send(params);
+		} 	
+	}
+	
+	public function setLastTreeItem(event:ListEvent):void
+	{
+		lastTreeItem = event;
+	}
+	
+	
+	private function addItem(label:String):void {
+		if (label == "Topic") {
+			showAddTopicWindow(false);
+		} else if (label == "ChildTopic") {
+			showAddTopicWindow(true);
+		} else if (label == "MoveToTop") {
+			var params:Object = new Object();
+			params.name = "Topic";
+			params.idTopic = topicsBrowseTree.selectedItem.@idTopic;
+			dragParams = new ArrayCollection();
+			dragParams.addItem(params);	
+			promptToMoveOrCopy();	
+		}
+		
+	}	
+	
+	private function deleteSelectedTopic():void {
+		promptToRemoveSelectedItems();
+	}
+	
+	private function deleteLink():void {
+		promptToRemoveSelectedItems();
+	}
+	
+	private function showAddTopicWindow(isChild:Boolean):void {
+		var addTopicWindow:TopicAddWindow = TopicAddWindow(PopUpManager.createPopUp(parentApplication.mainArea, TopicAddWindow, true));
+		PopUpManager.centerPopUp(addTopicWindow);
+		var parentObj:Object = null;
+		if(isChild) {
+			parentObj = topicsBrowseTree.selectedItem;			
+		}
+
+		addTopicWindow.init(parentObj, this, null);
+		if (currentState == 'AdminState') {
+			addTopicWindow.labCombo.selectedItem = null;
+		}
+		addTopicWindow.topicName.setFocus();
+	}
+	
+	private function expandTree():void {
+		topicsBrowseTree.selectedItem=null;
+		if (cbAlwaysExpandTree.selected) {
+			expandAppropriateNodes();
+		}	else {
+			this.collapseAllNodes();
+			expandAppropriateNodes();  
+		}
+	}
+	
+	public function getTreeLabel(item:Object):String {
+		if (item.name() == "Analysis") { 
+			return item.@number + " (" + item.@name + ")";
+		} else {
+			return item.@label;
+		}
+	}	
+
+]]>
+</mx:Script>
+	
+<mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
+	<mx:VBox backgroundImage="@Embed(source='../../assets/filterBar.png')" 
+			 backgroundSize="100%" width="100%" 
+			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+
+			<mx:HBox width="100%" 
+					 verticalAlign="middle" paddingTop="6" paddingBottom="6"
+					 id="topBar" horizontalGap="0">
+				<mx:LinkButton   label="New top level topic" 
+								 enabled="true"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="New topic" 
+								 click="{addItem('Topic')}" 
+								 id="linkbutton1"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
+								 icon="@Embed(source='../../assets/topic_new.png')"/>
+				<mx:LinkButton   label="Move selected topic to top level" 
+								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; topicsBrowseTree.selectedItem.name() == 'Topic' &amp;&amp; topicsBrowseTree.selectedItem.@idParentTopic != ''}"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="Move selected topic to top level" 
+								 click="{addItem('MoveToTop')}" 
+								 id="linkbutton2"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
+								 icon="@Embed(source='../../assets/topic_new.png')"/>				
+				<mx:LinkButton   label="New child topic" 
+								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; topicsBrowseTree.selectedItem.name() == 'Topic'}"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="New child topic" 
+								 click="{addItem('ChildTopic')}" 
+								 id="linkbutton3"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
+								 icon="@Embed(source='../../assets/topic_new.png')"/>
+				<mx:LinkButton   label="Delete topic" 
+								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; topicsBrowseTree.selectedItem.name() == 'Topic'}"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="Delete topic and items belonging to it" 
+								 click="{deleteSelectedTopic()}" 
+								 id="linkbutton4"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/topic_delete_disable.png')" 
+								 icon="@Embed(source='../../assets/topic_delete.png')"/>
+				<mx:LinkButton   label="Add link" 
+								 enabled="true"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="Link new experiment, analysis, or datatrack" 
+								 click="{this.mainViewStack.selectedChild = this.topicLinkView}" 
+								 id="linkbutton5"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/link_add_disable.png')" 
+								 icon="@Embed(source='../../assets/link_add.png')"/>
+				<mx:LinkButton   label="Unlink" 
+								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; topicsBrowseTree.selectedItem.name() != 'Topic'}"
+								 visible="{currentState != 'GuestState'}"
+								 includeInLayout="{currentState != 'GuestState'}"
+								 styleName="linkMenuButton"   					        	
+								 toolTip="Remove link between topic and experiment, analysis, or datatrack" 
+								 click="{deleteLink()}" 
+								 id="linkbutton6"  textAlign="left" 
+								 disabledIcon="@Embed(source='../../assets/link_delete_disable.png')" 
+								 icon="@Embed(source='../../assets/link_delete.png')"/>
+			</mx:HBox>
+    </mx:VBox>
+	
+	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
+		<mx:VBox styleName="panelBox"   width="320" height="100%" id="navPanel" >
+			<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Data Tracks">
+				<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+					
+					<mx:Tree width="100%" height="100%" 
+							 dataProvider="{getTopicList.lastResult}" 
+							 showRoot="false" 
+							 id="topicsBrowseTree" 
+							 itemRollOver="setLastTreeItem(event)"
+							 click="onTreeClick();"
+							 doubleClickEnabled="false" 
+							 borderStyle="solid"
+							 labelField="@label"
+							 labelFunction="getTreeLabel"
+							 dragEnabled="true" 
+							 dropEnabled="true" 
+							 dragMoveEnabled="true"
+							 dragDrop="onDragDrop(event);" 
+							 itemRenderer="views.renderers.TreeNodeRenderer"
+							 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
+					
+				</mx:VBox>
+				
+			</mx:VBox>
+			<mx:ControlBar width="100%" verticalAlign="bottom">				
+				<mx:CheckBox id="cbAlwaysExpandTree" label="Expand"  					
+					click="expandTree()" 
+					enabled="{this.allowExpandAll}"
+					styleName="menuLabelSmall" />
+				<mx:Spacer width="100%"/>
+				<mx:Label text="{dataTrackCountLabel}" styleName="menuLabelSmall" />
+			</mx:ControlBar>
+		</mx:VBox>
+		
+		 
+		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="all">
+			<mx:Panel id="blankView" width="100%" height="100%"   borderThicknessBottom="27">			    	
+			</mx:Panel>
+			
+			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">
+			</datatrack:DataTrackView>
+			
+			<topics:TopicView id="topicView" width="100%" height="100%" creationPolicy="all">
+			</topics:TopicView>
+			
+			<topics:TopicLinkView id="topicLinkView" width="100%" height="100%" creationPolicy="all">
+			</topics:TopicLinkView>
+	
+			<experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
+			</experiment:ExperimentDetailPanel>
+			
+			<analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
+			</analysis:AnalysisDetailView>			
+			
+		</mx:ViewStack>
+
+    </mx:HDividedBox>	
+
+	
+</mx:VBox>
+	
+</mx:Canvas>

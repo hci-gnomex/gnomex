@@ -819,6 +819,8 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (76,'sequence_alignment_supported','N','True if sequence alignment feature supported.', 'N'),
  (77,'lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y'),
  (78, 'datatrack_supported','Y','Indicates if data track feature is supported', 'N');
+ (79, 'topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N');
+
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
 VALUES ('IACUC', 'IACUC', 'Y'),

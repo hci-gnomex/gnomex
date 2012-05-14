@@ -1,5 +1,6 @@
 package hci.gnomex.model;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
 import hci.framework.model.FieldFormatter;
 import hci.framework.security.UnknownPermissionException;
@@ -75,12 +77,19 @@ public class Request extends HibernateDetailObject {
   private Integer         idSampleDropOffLocation;
   private String          codeRequestStatus;
   private RequestStatus   requestStatus;
-    
+  private Set             topics;    
   
   
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
+ 
+  public Set getTopics() {
+    return topics;
+  }
+  public void setTopics(Set topics) {
+    this.topics = topics;
+  }  
   
   public String getCodeApplication() {
     return codeApplication;
@@ -874,5 +883,115 @@ public class Request extends HibernateDetailObject {
   public void setRequestStatus( RequestStatus requestStatus ) {
     this.requestStatus = requestStatus;
   }
+
+  @SuppressWarnings("unchecked")
+  public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
+    Document doc = new Document(new Element("Request"));
+    Element root = doc.getRootElement();
+    
+    String labName = "";
+    if(this.getLab() != null) {
+      labName = Lab.formatLabName(this.getLab().getLastName(), this.getLab().getFirstName());
+    }
+    
+    String projectName = "";
+    String projectLabName = "";
+    String ownerLastName = "";
+    String ownerFirstName = "";
+    if(this.getProject() != null) {
+      projectName = this.getNonNullString(this.getProject().getName());
+      if(this.getProject().getLab() != null) {
+        projectLabName = Lab.formatLabName(this.getProject().getLab().getLastName(), this.getProject().getLab().getFirstName());
+      }
+      if(this.getProject().getAppUser() != null) {
+        ownerLastName = this.getNonNullString(this.getProject().getAppUser().getLastName());
+        ownerFirstName = this.getNonNullString(this.getProject().getAppUser().getFirstName());
+      }
+    }
+
+
+    
+    String codeRequestCategory =  this.getNonNullString(this.getCodeRequestCategory());
+    RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+    
+    root.setAttribute("idRequest",              this.getNonNullString(this.getIdRequest()));
+    root.setAttribute("requestNumber",          this.getNonNullString(this.getNumber()));
+    root.setAttribute("requestCreateDate",      this.createDate == null ? ""  : this.formatDate(this.createDate, this.DATE_OUTPUT_ALTIO));
+    root.setAttribute("requestCreateDateDisplay", this.getCreateDate() == null ? ""  : this.formatDate(this.getCreateDate(), this.DATE_OUTPUT_SQL));
+    root.setAttribute("requestCreateDateDisplayMedium", this.getCreateDate() == null ? ""  : DateFormat.getDateInstance(DateFormat.MEDIUM).format(this.getCreateDate()));
+    root.setAttribute("createDate",             this.getCreateDate() == null ? ""  : this.formatDate(this.getCreateDate(), this.DATE_OUTPUT_SLASH));
+    root.setAttribute("idSlideProduct",         this.getIdSlideProduct() == null ? ""  : this.getIdSlideProduct().toString());
+    root.setAttribute("idLab",                  this.getNonNullString(this.getIdLab()));
+    root.setAttribute("idAppUser",              this.getNonNullString(this.getIdAppUser()));
+    root.setAttribute("codeRequestCategory",    codeRequestCategory);
+    root.setAttribute("icon",                   requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+    root.setAttribute("type",                   requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
+    root.setAttribute("codeApplication",        this.getNonNullString(this.getCodeApplication()));
+    root.setAttribute("labName",                labName);
+    root.setAttribute("slideProductName",       this.getSlideProduct() == null ? "":this.getNonNullString(this.getSlideProduct().getName()));
+    root.setAttribute("projectLabName",         projectLabName);
+    root.setAttribute("projectName",            projectName);
+    root.setAttribute("codeVisibility",         this.getNonNullString(this.getCodeVisibility()));
+    root.setAttribute("ownerFirstName",         ownerFirstName);
+    root.setAttribute("ownerLastName",          ownerLastName);
+    root.setAttribute("isExternal",             this.getNonNullString(this.getIsExternal()));
+    root.setAttribute("name",                   this.getNonNullString(this.getName()));
+    root.setAttribute("isDirty",                "N");
+    root.setAttribute("isSelected",             "N");
+    root.setAttribute("analysisNames",          "");
+    
+    if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
+      root.setAttribute("requestPublicNote",          "(Public) ");
+    } else {
+      root.setAttribute("requestPublicNote", "");
+    }
+    
+    Integer idLab = this.getIdLab();
+    Integer idAppUser = this.getIdAppUser();
+    root.setAttribute("canUpdateVisibility", secAdvisor.canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
+   
+    if (RequestCategory.isMicroarrayRequestCategory(root.getAttributeValue("codeRequestCategory"))) {
+      StringBuffer displayName = new StringBuffer();
+      displayName.append(root.getAttributeValue("requestNumber"));
+      if (root.getAttributeValue("name") != null && !root.getAttributeValue("name").equals("")) {
+        displayName.append(" - ");
+        displayName.append(root.getAttributeValue("name"));                
+      }      
+      displayName.append(" - ");
+      displayName.append(root.getAttributeValue("slideProductName"));      
+      displayName.append(" - ");
+      displayName.append(root.getAttributeValue("ownerFirstName"));
+      displayName.append(" ");
+      displayName.append(root.getAttributeValue("ownerLastName"));
+      displayName.append(" ");
+      displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
+      
+      root.setAttribute("displayName", displayName.toString());
+      root.setAttribute("label",       displayName.toString());
+      
+    } else {
+      StringBuffer displayName = new StringBuffer();
+      displayName.append(root.getAttributeValue("requestNumber"));
+      if (root.getAttributeValue("name") != null && !root.getAttributeValue("name").equals("")) {
+        displayName.append(" - ");
+        displayName.append(root.getAttributeValue("name"));                
+      }
+      if (root.getAttributeValue("codeApplication") != null && !root.getAttributeValue("codeApplication").equals("")) {
+        displayName.append(" - ");
+        displayName.append(dh.getApplication(root.getAttributeValue("codeApplication")));                
+      }
+      displayName.append(" - ");
+      displayName.append(root.getAttributeValue("ownerFirstName"));
+      displayName.append(" ");
+      displayName.append(root.getAttributeValue("ownerLastName"));
+      displayName.append(" ");
+      displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
+
+      root.setAttribute("displayName", displayName.toString());
+      root.setAttribute("label",       displayName.toString());
+      
+    }
+    return doc;
+  }  
 
 }

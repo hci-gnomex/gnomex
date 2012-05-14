@@ -24,6 +24,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.SlideProduct;
+import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.HibernateGuestSession;
@@ -667,7 +668,35 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }
     }
-    
+    //
+    // Topic
+    //
+    else if (object instanceof Topic) {
+      
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // GNomEx Users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        Topic t = (Topic)object;
+        if (isGroupIAmMemberOf(t.getIdLab()) || isGroupIManage(t.getIdLab()) || isGroupICollaborateWith(t.getIdLab())) {
+          canRead = true;
+        } else {
+          if (t.hasPublicChildren()) {
+            canRead = true;
+          }
+        }
+      }  
+      // Guests
+      else {
+        Topic t = (Topic)object;
+        // Analysis group is accessible if any of its analysis are marked as public
+        if (t.hasPublicChildren()) {
+          canRead = true;
+        }
+      }     
+    }       
     return canRead;
   }
   
@@ -848,6 +877,31 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }
     }
+    //
+    // Topic
+    //
+    else if (object instanceof Topic) {
+      
+      // Admins
+      if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = true;
+      }
+      // Univerity GNomEx users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        Topic t = (Topic)object;
+        
+        // Lab manager
+        if (isGroupIManage(t.getIdLab())) {
+          canUpdate = true;
+        }
+        //  Owner of topic
+        else if (isGroupIAmMemberOf(t.getIdLab()) && isOwner(t.getIdAppUser())) {
+          canUpdate = true;
+        } 
+        
+      } 
+    } 
+
     return canUpdate;
   }
   
@@ -1107,7 +1161,25 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }   
     }
-    
+    //
+    // Topic
+    //
+    else if (object instanceof Topic) {
+      Topic t = (Topic)object;
+      
+      // Admin
+      if (hasPermission(this.CAN_DELETE_ANY_PROJECT)) {
+        canDelete = true;
+      } 
+      // Lab manager
+      else if (isGroupIManage(t.getIdLab())) {
+        canDelete = true;
+      }        
+      // Analysis group owner
+      else if (isGroupIAmMemberOf(t.getIdLab()) && isOwner(t.getIdAppUser())) {
+          canDelete = true;
+      }
+    }    
     return canDelete;
   }
   

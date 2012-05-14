@@ -1,5 +1,7 @@
 package hci.gnomex.model;
 
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;
@@ -7,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.jdom.Document;
+import org.jdom.Element;
 
 
 public class Analysis extends HibernateDetailObject {
@@ -33,12 +38,19 @@ public class Analysis extends HibernateDetailObject {
   private Set       collaborators = new TreeSet();
   private Set<GenomeBuild>   genomeBuilds = new TreeSet<GenomeBuild>();
   private Set                 propertyEntries;
-
+  private Set                 topics;
+  
 
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
   
+  public Set getTopics() {
+    return topics;
+  }
+  public void setTopics(Set topics) {
+    this.topics = topics;
+  }
   
   
   public String getCodeVisibility() {
@@ -403,6 +415,56 @@ public class Analysis extends HibernateDetailObject {
   }
   public void setPropertyEntries(Set propertyEntries) {
     this.propertyEntries = propertyEntries;
+  }
+  @SuppressWarnings("unchecked")
+  public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
+    Document doc = new Document(new Element("Analysis"));
+    Element root = doc.getRootElement();
+    
+    String labName = "";
+    if(this.getLab() != null) {
+      labName = Lab.formatLabName(this.getLab().getLastName(), this.getLab().getFirstName());
+    }    
+
+    root.setAttribute("idAnalysis",              this.getNonNullString(this.getIdAnalysis()));
+    root.setAttribute("number",                  this.getNonNullString(this.getNumber()));
+    root.setAttribute("name",                    this.getNonNullString(this.getName()));
+    root.setAttribute("label",                   this.getNonNullString(this.getName()));
+    root.setAttribute("description",             this.getNonNullString(this.getDescription()));
+    root.setAttribute("createDateDisplay",       this.getCreateDate() == null ? ""  : this.formatDate(this.getCreateDate(), this.DATE_OUTPUT_SQL));
+    root.setAttribute("createDate",              this.getCreateDate() == null ? ""  : this.formatDate(this.createDate, this.DATE_OUTPUT_SLASH));
+    root.setAttribute("idLab",                   this.getNonNullString(this.getIdLab()));
+    root.setAttribute("labName",                 labName);
+    root.setAttribute("idAnalysisType",          this.getNonNullString(this.getIdAnalysisType()));    
+    root.setAttribute("idAnalysisProtocol",      this.getNonNullString(this.getIdAnalysisProtocol()));    
+    root.setAttribute("idOrganism",              this.getNonNullString(this.getIdOrganism())); 
+    root.setAttribute("codeVisibility",          this.getNonNullString(this.getCodeVisibility())); 
+    root.setAttribute("idAppUser",               this.getNonNullString(this.getIdAppUser()));
+    root.setAttribute("ownerName",               this.getOwnerName());
+    root.setAttribute("isDirty",                "N");
+    root.setAttribute("isSelected",             "N");
+    
+    if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
+      root.setAttribute("requestPublicNote",          "(Public) ");
+    } else {
+      root.setAttribute("requestPublicNote", "");
+    }
+    
+    String createDate    = this.formatDate(this.getCreateDate());
+    String analysisNumber = this.getNonNullString(this.getNumber());
+    String tokens[] = createDate.split("/");
+    String createMonth = tokens[0];
+    String createDay   = tokens[1];
+    String createYear  = tokens[2];
+    String sortDate = createYear + createMonth + createDay;
+    String key = createYear + "-" + sortDate + "-" + analysisNumber;    
+    root.setAttribute("key", key);
+
+    Integer idLab = this.getIdLab();
+    Integer idAppUser = this.getIdAppUser();
+    root.setAttribute("canUpdateVisibility", secAdvisor.canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
+
+    return doc;
   }
 
 }
