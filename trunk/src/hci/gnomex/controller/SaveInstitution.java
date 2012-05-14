@@ -33,7 +33,7 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger
-  .getLogger(SaveInstitution.class);
+                                                 .getLogger(SaveInstitution.class);
 
   private String                         institutionsXMLString;
   private Document                       institutionsDoc;
@@ -44,8 +44,7 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    if (request.getParameter("institutionsXMLString") != null
-        && !request.getParameter("institutionsXMLString").equals("")) {
+    if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
       institutionsXMLString = request.getParameter("institutionsXMLString");
       StringReader reader = new StringReader(institutionsXMLString);
       try {
@@ -54,12 +53,12 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
       } catch (JDOMException je) {
         log.error("Cannot parse institutionsXMLString", je);
         this.addInvalidField("institutionsXMLString",
-        "Invalid institutionsXMLString");
+            "Invalid institutionsXMLString");
       }
     }
     if (institutionsDoc == null) {
       this.addInvalidField("institutionsXMLString",
-      "institutionsXMLString is required");
+          "institutionsXMLString is required");
     }
 
   }
@@ -75,55 +74,45 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
       for (int i = 0; i < institutions.size(); i++) {
         boolean isFound = false;
         Institution dbInstitution = (Institution) institutions.get(i);
-        for (Iterator j = this.institutionsDoc.getRootElement().getChildren()
-            .iterator(); j.hasNext();) {
+        for (Iterator j = this.institutionsDoc.getRootElement().getChildren().iterator(); j.hasNext();) {
           Element node = (Element) j.next();
-          Integer id = Integer
-          .parseInt(node.getAttributeValue("idInstitution"));
-
-          if (dbInstitution.getIdInstitution().equals(id)) {
+          //If it isn't a new institution and the inst. from the doc is in the database then we don't delete it
+          if (!node.getAttributeValue("idInstitution").equals("") && 
+              dbInstitution.getIdInstitution().equals(Integer.parseInt(node.getAttributeValue("idInstitution")))) {
             isFound = true;
             break;
           }
         }
+        //if we can't find it, delete it
         if (!isFound) {
           sess.delete(dbInstitution);
         }
-
+        sess.flush();
       }
 
       if (institutionsDoc != null) {
-
-        for (Iterator i = this.institutionsDoc.getRootElement().getChildren()
-            .iterator(); i.hasNext();) {
+        for (Iterator i = this.institutionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element node = (Element) i.next();
 
           String idInstitution = node.getAttributeValue("idInstitution");
-          if (idInstitution == null) {
+          if (idInstitution == null || idInstitution.equals("")) {
             inst1 = new Institution();
-          } else {
-            inst1 = (Institution) sess.load(Institution.class,
-                Integer.valueOf(idInstitution));
+          } 
+          else {
+            inst1 = (Institution) sess.load(Institution.class, Integer.valueOf(idInstitution));
           }
 
           inst1.setInstitution(node.getAttributeValue("institution"));
           inst1.setDescription(node.getAttributeValue("description"));
           inst1.setIsActive(node.getAttributeValue("isActive"));
-          if (inst1.getIsActive().equals("false"))
-            inst1.setIsActive("N");
-
-          if (inst1.getIsActive().equals("true"))
-            inst1.setIsActive("Y");
-
           sess.save(inst1);
-
         }
         sess.flush();
       }
 
       else {
         this.addInvalidField("Insufficient permissions",
-        "Insufficient permission to save new Institutions.");
+            "Insufficient permission to save new Institutions.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e) {
@@ -138,7 +127,7 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
     }
 
     this.xmlResult = "<SUCCESS institution=\"" + inst1.getIdInstitution()
-    + "\"/>";
+        + "\"/>";
     setResponsePage(this.SUCCESS_JSP);
 
     return this;
