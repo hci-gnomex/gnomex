@@ -47,17 +47,14 @@
 			private function init():void {
 			}
 			
-			private function addInstitution(event:MouseEvent):void 
-			{
+			private function addInstitution(event:MouseEvent):void {
 				dirty.setDirty();
-				institutionList.addItem((<Institution institution="***Click to Edit***" description="***Click to Edit***" isActive="Y"/>));
+				institutionList.addItem((<Institution idInstitution="" institution="***Click to Edit***" description="***Click to Edit***" isActive="Y"/>));
 				
 			}
 			
-			private function removeInstitution(event:MouseEvent):void
-			{
-				if(institutionGrid.selectedItem != null)
-				{
+			private function removeInstitution(event:MouseEvent):void{
+				if(institutionGrid.selectedItem != null){
 					dirty.setDirty()
 					institutionList.removeItemAt(institutionList.getItemIndex(institutionGrid.selectedItem));
 					
@@ -66,22 +63,15 @@
 					return;		
 			}
 			
-			private function onSaveInstitution(event:ResultEvent): void
-			{
-				if (saveInstitution.lastResult.name() == "SUCCESS") 
-				{
-					idInstitution = saveInstitution.lastResult.@idInstitution;
-					
-					//parentApplication.institutionList.send();
-				} 
-				else 
-				{
-					//mx.controls.Alert.show("Save Successful");
+			private function onSaveInstitution(event:ResultEvent): void {
+				if (saveInstitution.lastResult.name() == "SUCCESS") {
+					Alert.show("Your changes were saved");
 				}
+				else
+					Alert.show("There was an error with your save request");
 			}	
 			
-			private function save(): void
-			{
+			private function save(): void{
 				dirty.resetDirty();
 				var params:Object = new Object();
 				params.institutionsXMLString = "<institutionList>" + this.institutionList.toXMLString() + "</institutionList>";
@@ -94,7 +84,6 @@
 						null, 
 						(Alert.YES | Alert.NO), this, 
 						onPromptToSaveDirty);
-					
 				}
 				else
 					closeWindow();
@@ -105,8 +94,7 @@
 					save();
 					closeWindow();
 				}
-				else
-				{
+				else{
 					dirty.resetDirty();
 					closeWindow();
 				}
