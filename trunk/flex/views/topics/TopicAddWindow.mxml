@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="{windowTitle}"
+	showCloseButton="true" 
+	width="452" 
+	height="162"
+	verticalGap="0"
+	close="closeWindow()"
+	titleIcon="{parentApplication.iconTopic}"
+	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
+ 	
+    <mx:HTTPService             
+      id="saveTopic" 
+      url="SaveTopic.gx"
+      resultFormat="e4x"
+      result="onSaveTopic(event)"
+      fault="parentApplication.onFailHttpRequest('Failed to add data track folder', event)"
+      method="POST"
+      useProxy="false">
+      <mx:request>
+         <name>{topicName.text}</name>
+         <description>{topicDescription.text}</description>
+         <idParentTopic>{idParentTopic}</idParentTopic>
+         <idLab>{labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : ''}</idLab>
+		 <idAppUser>{parentApplication.getIdAppUser()}</idAppUser>
+      </mx:request>
+    </mx:HTTPService> 
+    
+       
+    <mx:Script>
+	<![CDATA[
+	
+	import mx.controls.Alert;
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	[Bindable]
+	public var idParentTopic:Object = null;
+	[Bindable]
+	public var windowTitle:Object = null;
+		
+	private var parentView:DisplayObject;
+
+	public function init(parent:Object, parentView:DisplayObject, idLab:Object):void {
+		this.parentView = parentView;
+		
+		var idLab:Object = idLab;
+		if (idLab == null) {
+			if (parent != null && parent.hasOwnProperty("@idLab") && parent.@idLab != null && parent.@idLab != "") {
+				idLab = parent.@idLab;
+			}
+		}
+		// If the parent topic is owned by a lab,
+		// setup this topic the same way.
+		if (idLab != null) {
+			for each (var item:Object in labCombo.dataProvider) {
+				if (item.@idLab == idLab) {
+					labCombo.selectedItem = item;
+					break;
+				}
+			}
+		}	
+		
+		if (parent != null) {
+			this.idParentTopic = parent.@idTopic;
+			windowTitle = "Add subtopic of " + parent.@label;		
+			
+		} else {
+			this.idParentTopic = null;
+			windowTitle = "Add new top level topic";
+		}
+	}
+	
+
+   	private function onSaveTopic(event:ResultEvent):void {
+		if (saveTopic.lastResult.name() == "SUCCESS") {			
+			closeWindow();
+			var itemToSelect:XML = new XML(
+			   "<Topic " +
+			     " idLab='" + (labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : '') + "'" +
+			     " idTopic='" + saveTopic.lastResult.@idTopic + "'" +
+			    "/>");
+			if (parentView is NavTopicsView) {
+				NavTopicsView(parentView).refreshTopicsAndSelect(itemToSelect);
+			}
+		} else {
+			Alert.show(saveTopic.lastResult..ACTMESSAGE.@TEXT);
+		}	
+	}
+
+   
+    private function closeWindow():void {
+		PopUpManager.removePopUp(this);		
+	}
+	
+	]]>
+    </mx:Script>
+    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="10">
+		<mx:HBox  width="100%" paddingTop="4">
+			<mx:Label text="Name:" width="105"/>
+			<mx:TextInput id="topicName" width="308" maxChars="2000"/>
+		</mx:HBox>
+		<mx:HBox  width="100%" paddingTop="4">
+			<mx:Label text="Description:" width="105"/>
+			<mx:TextInput id="topicDescription" width="308" maxChars="50000"/>
+		</mx:HBox>
+		<mx:HBox width="100%" id="hbox2">
+			<mx:Label text="Lab:" width="105"/>
+			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="308" labelField="@name"></mx:ComboBox>
+		</mx:HBox>
+    	
+    </mx:VBox>
+
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button id="saveButton"  
+			enabled="{(topicName.text != null &amp;&amp; topicName.text.length > 0) ? true : false}" 
+			icon="{parentApplication.iconSave}" 
+			disabledIcon="{parentApplication.iconSaveDisabled}" 
+			label="Save"
+			click="{saveTopic.send()}"/>
+		<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

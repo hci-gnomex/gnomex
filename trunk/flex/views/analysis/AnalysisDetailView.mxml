@@ -395,11 +395,11 @@
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="bottom">
 			
 			<mx:HBox  horizontalCenter="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
-				<mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">
+				<mx:LinkButton id="edtButton" label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">
 					<mx:height>{analysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 					<mx:visible>{analysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>
-				<mx:LinkButton label="Distribute Data Tracks" 
+				<mx:LinkButton id="dstButton" label="Distribute Data Tracks" 
 							   click="showDataTracks()" 
 							   icon="@Embed(source='../../assets/datatrack.png')" 
 							   textDecoration="underline" 
@@ -549,35 +549,39 @@
 		</mx:TabNavigator>
 		
 	
-	<mx:ControlBar paddingTop="3">
+	<mx:ControlBar>
 		<mx:HBox width="100%">
-			<mx:Button id="downloadExpandedFilesButton" 
-					   click="filesView.downloadExpandedFiles()"
-					   icon="@Embed('../../assets/download.png')" 
-					   toolTip="Download selected folders"
-					   label="Download"  
-					   visible="{theTab.selectedChild == filesView}"
-					   includeInLayout="{theTab.selectedChild == filesView}"/>
-			<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}" 
-					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}"
-					   label="FDT Download" click="{this.downloadFilesUsingFDT()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}" 
-					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}"
-					   label="HTTP Download"  
-					   click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button id="alignSelectedFilesButton" 
-					   click="this.alignSelectedFiles()" 
-					   icon="@Embed('../../assets/align.png')" 
-					   toolTip="Run automated alignment on selected files"
-					   visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isAdminState}"
-					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported  &amp;&amp; parentApplication.isAdminState}"
-					   label="Run Alignment"/>	
-			<mx:LinkButton  label="Downloading tips" textDecoration="underline" 
-							visible="{theTab.selectedChild == filesView}"
-							includeInLayout="{theTab.selectedChild == filesView}"
-							click="showDownloadHints()" styleName="hintLink" 
-							icon="@Embed(source='../../assets/information.png')" fontStyle="italic"/>		
+			<mx:HBox  verticalAlign="middle" 
+					  width="100%" horizontalAlign="left" 
+					  id="hideButtonsBox">
+				<mx:Button id="downloadExpandedFilesButton" 
+						   click="filesView.downloadExpandedFiles()"
+						   icon="@Embed('../../assets/download.png')" 
+						   toolTip="Download selected folders"
+						   label="Download"  
+						   visible="{theTab.selectedChild == filesView}"
+						   includeInLayout="{theTab.selectedChild == filesView}"/>
+				<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}" 
+						   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}"
+						   label="FDT Download" click="{this.downloadFilesUsingFDT()}" 
+						   icon="@Embed(source='../../assets/download_large.png')"/>
+				<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}" 
+						   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}"
+						   label="HTTP Download"  
+						   click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+				<mx:Button id="alignSelectedFilesButton" 
+						   click="this.alignSelectedFiles()" 
+						   icon="@Embed('../../assets/align.png')" 
+						   toolTip="Run automated alignment on selected files"
+						   visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isAdminState}"
+						   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported  &amp;&amp; parentApplication.isAdminState}"
+						   label="Run Alignment"/>	
+				<mx:LinkButton  label="Downloading tips" textDecoration="underline" 
+								visible="{theTab.selectedChild == filesView}"
+								includeInLayout="{theTab.selectedChild == filesView}"
+								click="showDownloadHints()" styleName="hintLink" 
+								icon="@Embed(source='../../assets/information.png')" fontStyle="italic"/>		
+			</mx:HBox>		
 		</mx:HBox>
 		
 	</mx:ControlBar>

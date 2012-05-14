@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+		  xmlns:mx="http://www.adobe.com/2006/mxml"     
+		  xmlns:views="views.*" 
+		  xmlns:datatrack="views.datatrack.*"
+		  xmlns:util="views.util.*" 
+		  xmlns:topics="views.topics.*" initialize="init();"
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+	
+	
+	
+	<mx:VBox width="100%" verticalGap="2">
+		<mx:HBox horizontalGap="1">
+			<mx:Image id="idIcon"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="" />
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:HTTPService  
+		id="getProjectRequestList" 
+		url="GetProjectRequestList.gx"
+		destination="getProjectRequestList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetProjectRequestList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getRequestFromNav" 
+		url="GetRequest.gx"
+		destination="getRequest"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetRequestFromNav(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysisGroupList" 
+		url="GetAnalysisGroupList.gx"
+		destination="getAnalysisGroupList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysisGroupList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
+		method="POST"   
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getDataTrackList" 
+		url="GetDataTrackList.gx"
+		destination="getDataTrackList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetDataTrackList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get data track list', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>	
+	
+	<mx:HTTPService  
+		id="getAnalysis" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>	
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var selectedRequestNumber:Object;
+			
+			public var selectedAnalysisNumber:Object;
+			
+			public var dataTrackNumber:Object;
+			
+	
+			
+			public var dtTreeItemToSelect:Object = null; 
+			
+			private function init():void {
+				checkSecurity();
+				this.typeNav.selectedChild == this.expTab;
+				onTabChange();
+			}
+			
+			public function checkSecurity():void {
+				if (parentApplication.hasPermission("canAccessAnyObject")) {
+					currentState = "AdminState";
+				} else if (parentApplication.currentState == "GuestState") {
+					currentState = "GuestState"; 
+				} else {
+					currentState = "";
+				}
+			}			
+						
+			private function lookupItem():void {
+				var params:Object = new Object();
+				var number:String = requestNumber.text;
+				number = number.toUpperCase();
+				if (number.indexOf("DT") == 0) {
+					params.number = number;
+					dataTrackNumber = number;
+					getDataTrackList.send(params);
+					typeNav.selectedChild = dtTab;
+				} else if (number.indexOf("A") == 0) {
+					params.analysisNumber = number;
+					selectedAnalysisNumber = number;
+					this.getAnalysis.send(params);
+					typeNav.selectedChild = anTab;
+				} else if(number != null && number.length > 0) {
+					params.requestNumber = number;
+					selectedRequestNumber = number;
+					getRequestFromNav.send(params);
+					typeNav.selectedChild = expTab;
+				} else {
+					return;
+				}
+				
+				// Reset the other controls
+				this.lastMonthCheckbox.selected = false;
+				this.lastWeekCheckbox.selected = false;
+				this.lastYearCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				labCombo.selectedItem = null;
+				organismCombo.selectedItem = null;
+				genomeBuildCombo.selectedItem = null;				
+				
+			}	
+			
+			private function onGetRequestFromNav(event:ResultEvent):void {
+				if (getRequestFromNav.lastResult.name() == "SUCCESS") {
+					if (selectedRequestNumber != null) {
+						Alert.show("Experiment " + selectedRequestNumber + " not found.");
+					} else {
+						//Alert.show("Experiment " + selectedIdRequest + " not found.");
+					}
+					selectedRequestNumber = null;
+					return;
+				}
+				if (getRequestFromNav.lastResult.name() != "OpenRequestList") {
+					Alert.show(getRequestFromNav.lastResult..ACTMESSAGE.@TEXT);
+					return;
+				}	
+
+				var selectedRequestNumberBase:String = String(selectedRequestNumber).toUpperCase();
+				if (selectedRequestNumberBase.indexOf("R") > 0) {
+					var tokens:Array = String(selectedRequestNumber).toUpperCase().split("R");
+					if (tokens != null && tokens.length > 0) {
+						selectedRequestNumberBase = tokens[0] + "R";
+					}
+				}
+				
+				var reg:RegExp = new RegExp(selectedRequestNumberBase, "i");
+				
+				var selectedExperiment:Object = getRequestFromNav.lastResult.Request.(reg["test"](@number));
+				selectedRequestNumber = selectedExperiment.@number.toString();
+
+				
+				var params:Object = new Object();
+				params.idProject = selectedExperiment.@idProject;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				
+				// Need this workaround to prevent type #1009 error.
+				this.expBrowseTree.setFocus();
+				
+				// For normal users, make sure we scope to the
+				// correct level to show the experiment just looked up.
+				if (currentState == null || currentState == "") {
+					if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {		
+						// If this experiment is not in user's lab, search
+						// other lab's public experiments.
+						if (selectedExperiment.@codeVisibility == 'PUBLIC') {
+							params.publicExperimentsInOtherGroups = "Y";
+						} 
+					} else if (parentApplication.getIdAppUser() != selectedExperiment.@idAppUser) {
+						// If this experiment is not owned by user, include
+						// all lab's experiments, not just user's experiments.
+						params.showMyLabsAlways = "Y";
+					}
+				} 
+				getProjectRequestList.send(params);
+			}
+			
+			
+			private function onGetAnalysis(event:ResultEvent):void {
+				if (getAnalysis.lastResult.name() == "SUCCESS") {
+					Alert.show("Analysis not found");
+					parentApplication.theViews.selectedIndex = 0;
+					return;
+				}
+				if (getAnalysis.lastResult.name() != "OpenAnalysisList") {
+					Alert.show(getAnalysis.lastResult..ACTMESSAGE.@TEXT);
+					return;
+				}
+				
+				var selectedAnalysis:Object = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
+				
+				var params:Object = new Object();
+				params.idAnalysisGroup = selectedAnalysis.@idAnalysisGroup;
+				params.idLab = selectedAnalysis.@idLab;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				params.searchPublicProjects = "N"; 
+				getAnalysisGroupList.send(params);
+			}			
+				
+			
+			private function onGetAnalysisGroupList(event:ResultEvent): void {
+				if (getAnalysisGroupList.lastResult.Lab.length() == 0) {
+					anBrowseTree.visible = false;
+				} else {
+					anBrowseTree.visible = true;
+				}
+				
+				if (getAnalysisGroupList.lastResult.@message != "") {
+					messageLabel.text = "(" + getAnalysisGroupList.lastResult.@message + ")";
+				} else {
+					messageLabel.text =  "(" + getAnalysisGroupList.lastResult.@analysisCount +  " analyses)"; 
+				}
+				
+				callLater(expandAndReselectTree);    					
+				//callLater(reselectTreeItem);
+				//callLater(expandAllNodes); 
+			}
+
+			private function toggleDateCheckboxes(checkBoxNumber:int):void {
+				if (checkBoxNumber == 1) {
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 2) {
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 3) {
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastYearCheckbox.selected  = false;
+				}  else if (checkBoxNumber == 4) {
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastThreeMonthsCheckbox.selected = false;
+				}   
+			} 	
+			
+			private function onTabChange():void {
+				if (this.typeNav.selectedChild == this.dtTab) {
+					hboxDT.visible = true;
+					hboxDT.includeInLayout = true;
+					hboxNotDT.visible = false;
+					idIcon.source = parentApplication.iconDataTrack;
+					titleLabel_1.text = "Data Track";
+				} else {
+					if (this.typeNav.selectedChild == this.expTab) {
+						idIcon.source = parentApplication.iconExperiment;		
+						titleLabel_1.text  = "Experiment";
+					} else {						
+						idIcon.source = parentApplication.iconAnalysis;
+						titleLabel_1.text  = "Analysis";
+					}
+					hboxNotDT.visible = true;
+					hboxDT.visible = false;
+					hboxDT.includeInLayout = false;
+				}
+				titleLabel.text = "Add " + titleLabel_1.text + " (find and drag to topic)";
+				searchParamsChange();
+			}	
+			
+			private function refreshDataTracks():void {
+			}	
+			
+			public function getTreeLabel(item:Object):String {
+				if (item.name() == "Request") {
+					return item.@requestNumber + (item.@name != "" ? " - " + item.@name : "");
+				} else if (item.name() == "Analysis") { 
+					return item.@number + " (" + item.@name + ")";
+				} else {
+					return item.@label;
+				}
+			}	
+			
+			
+			private function onGetProjectRequestList(event:ResultEvent): void {
+				if (getProjectRequestList.lastResult.name() != "ProjectRequestList") {
+					Alert.show(getProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
+					expBrowseTree.visible = false;
+					return;
+				}
+				
+				if (getProjectRequestList.lastResult.Lab.length() == 0) {
+					expBrowseTree.visible = false;
+				} else {
+					expBrowseTree.visible = true;
+				}
+				
+				if (getProjectRequestList.lastResult.@message != "") {
+					messageLabel.text = "(" + getProjectRequestList.lastResult.@message + ")";
+				} else {
+					messageLabel.text =  "(" + getProjectRequestList.lastResult.@experimentCount +  " experiments)"; 
+				}
+				
+				callLater(expandAndReselectTree);    	
+				
+			}
+			
+			private function onGetDataTrackList(event:ResultEvent): void {
+				if (getDataTrackList.lastResult.name() != "DataTrackList") {
+					Alert.show(getDataTrackList.lastResult..ACTMESSAGE.@TEXT);
+					anBrowseTree.visible = false;
+					return;
+				}
+
+				if (getDataTrackList.lastResult.Organism.length() == 0) {
+					anBrowseTree.visible = false;
+				} else {
+					anBrowseTree.visible = true;
+				}
+				var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
+				
+				// If we are looking up a data track by number, get the tree item to select
+				if (this.dataTrackNumber != "") {
+					var dt:Object = getDataTrackList.lastResult..DataTrack.(@number == dataTrackNumber);			
+					if (dt is XMLList && dt.length() > 0) {
+						dtTreeItemToSelect = dt[0];
+					} else {
+						dtTreeItemToSelect = dt;
+					}
+					dataTrackNumber = "";
+				} 
+
+				
+				callLater(expandAppropriateDTNodes);    	
+				
+			}			
+			
+			private function expandAppropriateDTNodes():void {
+				var itemToSelect:XML = getItemDTToSelect();
+				
+				if (itemToSelect != null && (itemToSelect.name() == "DataTrackFolder" || itemToSelect.name() == "DataTrack")) {
+					// If there is a tree item selected, expand so it and its ancestors.
+					recurseExpandDTParent(itemToSelect);
+					dtBrowseTree.validateNow();
+					callLater(selectDTTreeItem);
+				} else {
+					// If no item to select or we have selected organism or genome build, 
+					// expand out to first folder level for all organisms, genome build.
+					dtBrowseTree.expandItem(getDataTrackList.lastResult, true);
+					for each(var organism:Object in getDataTrackList.lastResult..Organism) {
+						if (organism.@isPopulated == "Y") {
+							dtBrowseTree.expandItem(organism, true);  	
+							
+							for each(var gb:Object in organism.GenomeBuild) {
+								dtBrowseTree.expandItem(gb, true);
+							}
+						}
+					}
+					callLater(selectDTTreeItem);
+				}
+				
+			}
+			
+			private function recurseExpandDTParent(item:XML):void {
+				if (item.name() != 'DataTrack') {
+					dtBrowseTree.expandItem(item, true);				
+				}
+				if (item.parent() != null) {
+					recurseExpandDTParent(item.parent());									
+				}
+				
+			}
+			private function selectDTTreeItem():void {
+				if (dtTreeItemToSelect != null) {
+					var item:Object = getItemDTToSelect();
+					
+					if (item != null) {
+						dtBrowseTree.selectedItem = item;
+						dtBrowseTree.scrollToIndex(dtBrowseTree.selectedIndex);
+					} else {
+						dtBrowseTree.selectedItem = null;
+					}
+				}
+				//selectView();				
+				
+			}			
+			
+			private function getItemDTToSelect():XML {
+				if (dtTreeItemToSelect == null) {
+					return null;
+				} 
+				if (dtTreeItemToSelect is XMLList && dtTreeItemToSelect.length() == 0) {
+					return null;	
+				}
+				if (dtTreeItemToSelect is XMLList && dtTreeItemToSelect.length() > 0) {
+					dtTreeItemToSelect = dtTreeItemToSelect[0];
+				}
+				
+				var item:XMLList = null;
+				if (dtTreeItemToSelect.name() == "Organism") {
+					item = getDataTrackList.lastResult.Organism.(@idOrganism == dtTreeItemToSelect.@idOrganism);
+				} else if (dtTreeItemToSelect.name() == "GenomeBuild") {
+					item = getDataTrackList.lastResult..GenomeBuild.(@idGenomeBuild == dtTreeItemToSelect.@idGenomeBuild);
+				} else if (dtTreeItemToSelect.name() == "DataTrackFolder") {
+					item = getDataTrackList.lastResult..DataTrackFolder.(@idDataTrackFolder == dtTreeItemToSelect.@idDataTrackFolder);
+				} else if (dtTreeItemToSelect.name() == "DataTrack") {
+					item = getDataTrackList.lastResult..DataTrack.(@idDataTrack == dtTreeItemToSelect.@idDataTrack && @idDataTrackFolder == dtTreeItemToSelect.@idDataTrackFolder);
+				} else if (dtTreeItemToSelect.name() == "LaunchDataTrack") {
+					item = getDataTrackList.lastResult..DataTrack.(@idDataTrack == dtTreeItemToSelect.@idDataTrack);
+				}
+				if (item != null && item.length() > 0) {
+					return XML(item[0]);				
+				} else {
+					return null;
+				}
+				
+			}			
+			
+			
+			private function expandAndReselectTree():void {		
+				expandAllNodes();      		
+				callLater(selectTreeNode);
+			}	
+			
+			public function expandAllNodes():void
+			{
+				if (this.typeNav.selectedChild == this.expTab) {
+					expBrowseTree.expandItem(getProjectRequestList.lastResult, true);
+					for each(var lab:Object in getProjectRequestList.lastResult..Lab) {
+						expBrowseTree.expandItem(lab, true);
+					}
+					for each(var project:Object in getProjectRequestList.lastResult..Project) {
+						expBrowseTree.expandItem(project, true);
+					}
+					expBrowseTree.validateNow();		
+				} else if (this.typeNav.selectedChild == this.anTab) {
+					anBrowseTree.expandItem(getAnalysisGroupList.lastResult, true);
+					for each(lab in getAnalysisGroupList.lastResult..Lab) {
+						anBrowseTree.expandItem(lab, true);
+					}
+					for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
+						anBrowseTree.expandItem(ag, true);
+					}
+					for each(var a:Object in getAnalysisGroupList.lastResult..Analysis) {
+						anBrowseTree.expandItem(a, true);
+					}
+					anBrowseTree.validateNow();
+				}					
+			}	
+			
+			private function selectTreeNode():void {
+				var idx:int = -1; 
+				var pos:int = 0;
+				var lab:Object;
+				var project:Object;
+				var request:Object; 
+				var analysisGroup:Object;
+				var analysis:Object;				
+				
+				
+				// If actionscript sets selectedItem (rather than selectedIndex) on tree,
+				// there is a flex bug that causes an extra node to be inserted under
+				// selected item.  To work around this problem, I'm iterating through
+				// open items to determine the selected index.  This is clumsy code,
+				// but it woirks!
+				if (this.typeNav.selectedChild == this.expTab) {
+					if (selectedRequestNumber != null) {
+						for each (lab in getProjectRequestList.lastResult..Lab) {
+							pos++;	    	
+							for each(project in lab.Project) {
+								pos++;
+								for each( request in project.Request) {
+									pos++;
+									if (request.@requestNumber == String(selectedRequestNumber).toUpperCase()) {
+										idx = --pos;
+										break;
+									} 
+								}
+								if (idx != -1) {
+									break;
+								} 
+							}
+							if (idx != -1) {
+								break;
+							}
+						}    			
+					}
+					
+					if (idx != -1) {
+						// Select the tree item
+						expBrowseTree.selectedIndex = idx;
+						expBrowseTree.scrollToIndex(expBrowseTree.selectedIndex);
+					} else {
+						// Otherwise, just select first lab
+						expBrowseTree.selectedIndex = 0;
+					}
+					selectedRequestNumber = null;					
+				} else if (this.typeNav.selectedChild == this.anTab) {
+					if (selectedAnalysisNumber != null) {
+						for each (lab in getAnalysisGroupList.lastResult..Lab) {
+							pos++;	    	
+							for each(analysisGroup in lab.AnalysisGroup) {
+								pos++;
+								for each( analysis in analysisGroup.Analysis) {
+									pos++;
+									if (analysis.@number == selectedAnalysisNumber) {
+										idx = --pos;		    					
+										break;
+									} 
+								}
+								if (idx != -1) {
+									break;
+								} 
+							}
+							if (idx != -1) {
+								break;
+							}
+						}    			
+					}	
+					if (idx != -1) {
+						// Select the tree item
+						anBrowseTree.selectedIndex = idx;
+						anBrowseTree.scrollToIndex(anBrowseTree.selectedIndex);
+					} else {
+						// Otherwise, just select first lab
+						anBrowseTree.selectedIndex = 0;
+					}	
+					selectedAnalysisNumber = null;
+				}
+			}	
+			
+			public function getBrowseParameters():Object {
+				
+				
+				var params:Object = new Object();
+				
+				if (labCombo.selectedItem != null) {
+					params.idLab = labCombo.selectedItem.@idLab;
+				}
+				if (lastWeekCheckbox.selected) { 
+					params.lastWeek = 'Y'; 
+				} else if (lastMonthCheckbox.selected) {
+					params.lastMonth = 'Y';
+				} else if (lastThreeMonthsCheckbox.selected) {
+					params.lastThreeMonths = 'Y';
+				} else if (lastYearCheckbox.selected) {
+					params.lastYear = 'Y';
+				}
+				params.publicExperimentsInOtherGroups = 'N';
+				
+				if (currentState == 'AdminState' || 
+					lastWeekCheckbox.selected || 
+					lastMonthCheckbox.selected || 
+					lastYearCheckbox.selected ) {
+					params.showMyLabsAlways = 'N'; 
+				} else {
+					params.showMyLabsAlways = 'Y';
+				}
+				params.isMicroarray  = "N";
+				params.isNextGenSeq  = "N";
+				params.isBioanalyzer = "N";
+
+				
+				params.showSamples = 'N';
+				params.showCategory = 'N';
+				
+				return params;
+			}	
+			
+			private function searchParamsChange():void {
+				if (this.typeNav.selectedChild == this.expTab) {
+					getProjectRequestList.send(getBrowseParameters());			
+				} else if (this.typeNav.selectedChild == this.anTab) {
+					this.anBrowseTree.selectedItem = null;
+					getAnalysisGroupList.send(getBrowseParameters());
+				} else if (this.typeNav.selectedChild == this.dtTab) {				
+					var parms:Object = new Object();
+					parms.idLab = this.labCombo.visible && this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
+					parms.isVisibilityPublic = "Y";
+					parms.isVisibilityOwner = "Y";
+					parms.isVisibilityMembers = "Y";
+					parms.isVisibilityInstitute = "Y";
+					parms.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@idOrganism : "";
+					parms.idGenomeBuild = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+					getDataTrackList.send(parms);
+				}
+			}
+			
+			private function filterGenomeBuild(item:Object):Boolean {
+				if (item.@value == "") {
+					return true;
+				}
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				
+				if (item.@das2Name == "") {
+					return false;
+				}
+				var doesMatch:Boolean = false;
+				if (this.organismCombo.selectedItem != null && 
+					this.organismCombo.selectedItem.@idOrganism != null  &&
+					this.organismCombo.selectedItem.@idOrganism != "") {
+					if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@idOrganism.toString()) {
+						doesMatch = true;
+					}
+				}
+				return doesMatch;
+			}
+			
+			protected function browseTreeItemClicked(event:ListEvent):void {
+				var newArray:Array = new Array();
+				var theTree:Tree = Tree(event.currentTarget);
+				// Only allow selection of items that can be accepted by NavTopicsView
+				for each (var item:Object in theTree.selectedItems) {
+					if(item.name() == 'Request' || item.name() == 'Analysis' || item.name() == 'DataTrack') {
+						newArray.push(item);
+					}	
+				}
+				theTree.selectedItems = newArray;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="filteredGenomeBuildList" filterFunction="filterGenomeBuild" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"/>
+	
+	<mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
+		<mx:HBox width="100%" >
+			<mx:Label text="Filter by:" paddingLeft="8"/>
+			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxDT">
+				<mx:ComboBox labelField="@binomialName" change="filteredGenomeBuildList.refresh();searchParamsChange();" id="organismCombo" styleName="menuLabelSmall" prompt="Organism..." width="170">
+					<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
+				</mx:ComboBox>
+				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange();" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
+			</mx:HBox>	
+			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" prompt="Lab..." change="searchParamsChange();" ></mx:ComboBox>
+			<mx:Label text="Lookup by #" paddingLeft="8"/>
+			<mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="true"/>
+			<mx:Button id="lookupButton"  
+					   fontFamily="Arial"  height="18" width="30"
+					   color="#400040" click="lookupItem()" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>	
+			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxNotDT">
+				<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="2"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(1);searchParamsChange();</mx:click>
+				</mx:CheckBox>
+				<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(2);searchParamsChange();</mx:click>
+				</mx:CheckBox>
+				<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(3);searchParamsChange();</mx:click>
+				</mx:CheckBox>		    		
+				<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
+					<mx:click>toggleDateCheckboxes(4);searchParamsChange();</mx:click>
+				</mx:CheckBox>
+			</mx:HBox>		
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:Label id="titleLabel_1" styleName="titleLabel" text="Analysis"/>
+			<mx:Label id="messageLabel" styleName="labelSmall" text="" width="100%" textAlign="right"/>
+		</mx:HBox>
+		<mx:TabNavigator id="typeNav" width="100%" height="100%" tabWidth="130"  styleName="panelBody" change="onTabChange()">
+			<mx:VBox id="expTab" width="100%" height="100%" label="Experiments" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">		
+				<mx:Tree width="100%" height="100%" 
+						 dataProvider="{getProjectRequestList.lastResult}" 
+						 showRoot="false" 
+						 id="expBrowseTree" 
+						 doubleClickEnabled="false" 
+						 borderStyle="solid"
+						 labelField="@label"
+						 labelFunction="getTreeLabel" 
+						 dragEnabled="true" 
+						 iconFunction="parentApplication.getTreeIcon" 
+						 backgroundAlpha="1" 
+						 dropShadowEnabled="true" 
+						 allowMultipleSelection="true" 
+						 itemClick="browseTreeItemClicked(event);"></mx:Tree>
+			</mx:VBox>		
+			<mx:VBox id="anTab" width="100%" height="100%" label="Analyses" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">	
+				<mx:Tree width="100%" height="100%" 
+						 dataProvider="{getAnalysisGroupList.lastResult}" 
+						 showRoot="false" 
+						 id="anBrowseTree" 
+						 doubleClickEnabled="false" 
+						 borderStyle="solid"
+						 labelField="@label"
+						 labelFunction="getTreeLabel"
+						 iconFunction="parentApplication.getTreeIcon" 
+						 backgroundAlpha="1"
+						 dragEnabled="true" 
+						 allowMultipleSelection="true" 
+						 itemClick="browseTreeItemClicked(event);"></mx:Tree>				
+			</mx:VBox>		
+			<mx:VBox id="dtTab" width="100%" height="100%" label="DataTracks" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+				<mx:Tree width="100%" height="100%" 
+						 dataProvider="{getDataTrackList.lastResult}" 
+						 showRoot="false" 
+						 id="dtBrowseTree" 
+						 doubleClickEnabled="false" 
+						 borderStyle="solid"
+						 labelField="@label"
+						 dragEnabled="true" 
+						 itemRenderer="views.renderers.TreeNodeRenderer"
+						 iconFunction="parentApplication.getDataTrackTreeIcon" 
+						 backgroundAlpha="1" 
+						 dropShadowEnabled="true" 
+						 allowMultipleSelection="true" 
+						 itemClick="browseTreeItemClicked(event);"></mx:Tree>				
+			</mx:VBox>		
+		</mx:TabNavigator>			
+	</mx:VBox>
+	<mx:states>
+		<mx:State name="GuestState">
+		</mx:State>
+		
+		<mx:State name="AdminState">
+		</mx:State>
+		
+		
+	</mx:states>
+</mx:VBox>

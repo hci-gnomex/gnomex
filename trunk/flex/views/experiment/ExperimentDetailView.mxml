@@ -996,27 +996,30 @@
 				  includeInLayout="{theTab.selectedChild==filesView}" 
 				  width="100%" horizontalAlign="left" 
 				  id="downloadExpandedFilesButtonView"  >
-			<mx:Button id="downloadExpandedFilesButton" 
-					   click="filesView.downloadExpandedFiles()" 
-					   icon="@Embed('../../assets/download.png')" 
-					   toolTip="Download selected files"
-					   label="Download"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-					   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
-					   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
-					   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button id="alignSelectedFilesButton" 
-					   click="this.alignSelectedFiles()" 
-					   icon="@Embed('../../assets/align.png')" 
-					   toolTip="Run automated alignment on selected files" 
-					   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
-					   label="Run Alignment"/>
-		</mx:HBox>
-		
+			<mx:HBox  verticalAlign="middle" 
+					  width="100%" horizontalAlign="left" 
+					  id="hideButtonsBox">
+				<mx:Button id="downloadExpandedFilesButton" 
+						   click="filesView.downloadExpandedFiles()" 
+						   icon="@Embed('../../assets/download.png')" 
+						   toolTip="Download selected files"
+						   label="Download"/>
+				<mx:Button id="fdt_downloadButton" visible="{parentApplication.isFDTSupported ? true : false}" 
+						   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+						   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
+						   icon="@Embed(source='../../assets/download_large.png')"/>
+				<mx:Button id="http_downloadButton" visible="{parentApplication.isFDTSupported ? false : true}" 
+						   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
+						   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
+						   icon="@Embed(source='../../assets/download_large.png')"/>
+				<mx:Button id="alignSelectedFilesButton" 
+						   click="this.alignSelectedFiles()" 
+						   icon="@Embed('../../assets/align.png')" 
+						   toolTip="Run automated alignment on selected files" 
+						   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
+						   label="Run Alignment"/>
+			</mx:HBox>
+		</mx:HBox>		
 	</mx:ControlBar>
 	
 

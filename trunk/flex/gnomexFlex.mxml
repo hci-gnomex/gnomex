@@ -6,6 +6,7 @@
 	xmlns:experiment="views.experiment.*"  
 	xmlns:analysis="views.analysis.*" 
 	xmlns:datatrack="views.datatrack.*" 
+	xmlns:topics="views.topics.*" 
 	xmlns:user="views.user.*"
 	xmlns:protocol="views.protocol.*"
 	xmlns:admin="views.admin.*"
@@ -523,10 +524,9 @@
 			[Embed(source="assets/bullet_delete.png")]
 			public var iconSmallDelete:Class;
 
-			
-			
-			
-			
+			[Bindable]
+			[Embed(source="assets/topic.png")]
+			public var iconTopic:Class;		
 	        
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]
@@ -596,6 +596,9 @@
 			
 			[Bindable]
 			public var isFDTSupported:Boolean = false;
+			
+			[Bindable]
+			public var isTopicsSupported:Boolean = false;
 			
 			[Bindable]
 			public var isPrivacyExpirationSupported:Boolean = false;
@@ -699,6 +702,7 @@
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
 			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
+			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
 
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
@@ -962,7 +966,7 @@
 				}
 				
 			}
-			
+
 			public function showInstrumentRun(idRun:String):void {
 				navPlateView.switchToView();
 				navPlateView.loadRunById(idRun);
@@ -973,6 +977,23 @@
 				theViews.selectedChild = navPlateView;
 				
 			}
+			
+			public function showTopicForNumber(topicNumber:String):void {
+					navTopicsView.topicNumber = topicNumber;
+										
+					// We have to make sure that the first time a lookup
+					// occurs after launch, we refresh the datatrack
+					// through show event (init()).  The next time
+					// through, we will make the call directly.
+					if (navTopicsView.isInitialized) {
+						navTopicsView.refreshTopicForLookup()
+					}
+					
+					this.stateStack.selectedChild = theViews;
+					theViews.visible = true;
+					theViews.selectedChild = navTopicsView;
+			}
+			
 
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
@@ -1168,7 +1189,14 @@
 				} else {
 					return false;
 				}
-			}			
+			}
+			public function launchTopicDetail():Boolean { 
+				if (Application.application.parameters.topicNumber != null && Application.application.parameters.topicNumber != 'null') {
+					return true;
+				} else {
+					return false;
+				}
+			}
 			public function launchBillingAccountDetail():Boolean {
 				if (Application.application.parameters.launchWindow != null &&
 					Application.application.parameters.launchWindow == "BillingAccountDetail" &&
@@ -1215,6 +1243,13 @@
 			public function getLaunchDataTrackNumber():String {
 				if (Application.application.parameters.dataTrackNumber != null) {
 					return Application.application.parameters.dataTrackNumber;
+				} else {
+					return "";
+				}
+			}
+			public function getLaunchTopicNumber():String {
+				if (Application.application.parameters.topicNumber != null) {
+					return Application.application.parameters.topicNumber;
 				} else {
 					return "";
 				}
@@ -1515,6 +1550,13 @@
 					this.isFDTSupported = false;
 				}
 				
+				if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null && 
+					this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) == 'Y') {
+					this.isTopicsSupported = true;
+				} else {
+					this.isTopicsSupported = false;
+				}
+				
 				if (this.getProperty(this.DATASET_PRIVACY_EXPIRATION) != null && 
 					parseInt(this.getProperty(this.DATASET_PRIVACY_EXPIRATION)) > 0) {
 					this.isPrivacyExpirationSupported = true;
@@ -1754,8 +1796,10 @@
 	        		this.showExperiment(getLaunchRequestNumber());
 	        	} else if (launchAnalysisDetail()) {
    					this.showAnalysisForNumber(getLaunchAnalysisNumber());
-	        	} else if (launchDataTrackDetail()) {
+				} else if (launchDataTrackDetail()) {
 					this.showDataTrackForNumber(getLaunchDataTrackNumber());
+				} else if (launchTopicDetail()) {
+					this.showTopicForNumber(getLaunchTopicNumber());
 				} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
    					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
@@ -2178,6 +2222,8 @@
 					  <util:CustomLinkButton id="analysisLink" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
 					  <mx:VRule height="20" id="dataTracksRule"/> 
 					  <util:CustomLinkButton id="dataTracksLink" label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
+					  <mx:VRule height="20" id="topicsRule" visible="{this.isTopicsSupported}" includeInLayout="{this.isTopicsSupported}"/>
+					  <util:CustomLinkButton id="topicsLink" label="Topics" click="{theViews.selectedChild = navTopicsView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/topic.png')" visible="{this.isTopicsSupported}" includeInLayout="{this.isTopicsSupported}"/>
 					  <mx:VRule height="20" id="workflowRule"/>
 					  <util:CustomLinkButton id="workflowLink" label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
 					  <mx:VRule height="20" id="billingRule"/>
@@ -2230,6 +2276,9 @@
 						
 						<datatrack:NavDataTrackView id="navDataTrackView"  label="Data Tracks" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
 						</datatrack:NavDataTrackView>
+
+						<topics:NavTopicsView id="navTopicsView"  label="Topics" width="100%" height="100%" icon="@Embed('assets/topic.png')">
+						</topics:NavTopicsView>
 		
 						<workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 				        </workflow:NavWorkflowView> 

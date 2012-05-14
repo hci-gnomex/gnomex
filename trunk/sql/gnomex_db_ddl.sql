@@ -2530,6 +2530,70 @@ alter table FlowCell add column runNumber int(10) NULL;
 alter table FlowCell add idInstrument int(10) NULL;
 alter table FlowCell add side char(1) NULL;
 
+--
+-- Table structure for table `Topic`
+--
+DROP TABLE IF EXISTS `gnomex`.`Topic`;
+CREATE TABLE `gnomex`.`Topic` (
+  `idTopic` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(2000) NOT NULL,
+  `description` VARCHAR(10000) NULL,
+  `idParentTopic` int(10) NOT NULL,  
+  `idLab` int(10) NOT NULL,
+  `createdBy` VARCHAR(200) NOT NULL,
+  `createDate` datetime default NULL,
+  `idAppUser` int(10)  default NULL,  
+  PRIMARY KEY (`idTopic`),
+  KEY `FK_Topic_AppUser` (`idAppUser`),
+  KEY `FK_Topic_Lab` (`idLab`),  
+  KEY `FK_Topic_ParentTopic` (`idParentTopic`),  
+  CONSTRAINT `FK_Topic_AppUser` FOREIGN KEY (`idAppUser`) REFERENCES `AppUser` (`idAppUser`),
+  CONSTRAINT `FK_Topic_Lab` FOREIGN KEY (`idLab`) REFERENCES `Lab` (`idLab`),
+  CONSTRAINT `FK_Topic_ParentTopic` FOREIGN KEY (`idParentTopic`) REFERENCES `Topic` (`idTopic`)
+) ENGINE = INNODB;
+
+
+--
+-- Table structure for table `RequestToTopic`
+--
+DROP TABLE IF EXISTS `RequestToTopic`;
+CREATE TABLE `RequestToTopic` (
+  `idTopic` int(10)  NOT NULL,
+  `idRequest` int(10)  NOT NULL,
+  PRIMARY KEY  (`idTopic`,`idRequest`),
+  KEY `FK_TopicRequest_Request` (`idRequest`),
+  CONSTRAINT `FK_RequestToTopic_Topic` FOREIGN KEY (`idTopic`) REFERENCES `Topic` (`idTopic`),
+  CONSTRAINT `FK_TopicRequest_Request` FOREIGN KEY (`idRequest`) REFERENCES `Request` (`idRequest`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `AnalysisToTopic`
+--
+DROP TABLE IF EXISTS `AnalysisToTopic`;
+CREATE TABLE `AnalysisToTopic` (
+  `idTopic` int(10)  NOT NULL,
+  `idAnalysis` int(10)  NOT NULL,
+  PRIMARY KEY  (`idTopic`,`idAnalysis`),
+  KEY `FK_TopicAnalysis_Analysis` (`idAnalysis`),
+  CONSTRAINT `FK_AnalysisToTopic_Topic` FOREIGN KEY (`idTopic`) REFERENCES `Topic` (`idTopic`),
+  CONSTRAINT `FK_TopicAnalysis_Analysis` FOREIGN KEY (`idAnalysis`) REFERENCES `Analysis` (`idAnalysis`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `DataTrackToTopic`
+--
+DROP TABLE IF EXISTS `DataTrackToTopic`;
+CREATE TABLE `DataTrackToTopic` (
+  `idTopic` int(10)  NOT NULL,
+  `idDataTrack` int(10)  NOT NULL,
+  PRIMARY KEY  (`idTopic`,`idDataTrack`),
+  KEY `FK_TopicDataTrack_DataTrack` (`idDataTrack`),
+  CONSTRAINT `FK_DataTrackToTopic_Topic` FOREIGN KEY (`idTopic`) REFERENCES `Topic` (`idTopic`),
+  CONSTRAINT `FK_TopicDataTrack_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`)
+) ENGINE=InnoDB;
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------
