@@ -2375,16 +2375,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   public Set getCoreFacilities() {
-    Set coreFacilities = new TreeSet();
-    // Uncomment to test as DNA Seq core facility admin 
-    /*
-      CoreFacility cf = new CoreFacility();
-      cf.setIdCoreFacility(new Integer(1));
-      cf.setFacilityName("DNA Sequencing");
-      coreFacilities.add(cf);
-    */
-    
-      return coreFacilities;
+    if (appUser != null && appUser.getManagingCoreFacilities() != null) {
+      return appUser.getManagingCoreFacilities();
+    } else {
+      return null;
+    }
   }
   
  
