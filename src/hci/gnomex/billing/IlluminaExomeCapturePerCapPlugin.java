@@ -67,21 +67,7 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
       String key = (String)i.next();
       Integer sampleCount = sampleMap.get(key);
 
-      // Calculate number of captures (6 multiplex grups per capture)
-      int captures = 0;
-      if (sampleCount.intValue() < SAMPLES_PER_CAPTURE) {
-        captures = 1;
-      } else {
-        int mod = sampleCount.intValue() % SAMPLES_PER_CAPTURE;
-        if (mod == 0) {
-          captures = sampleCount.intValue() / SAMPLES_PER_CAPTURE;
-        } else {
-          captures = sampleCount.intValue() / SAMPLES_PER_CAPTURE;
-          captures++;
-        } 
-      }
-      
-      qty += captures;
+      qty ++;
       
     }
 
