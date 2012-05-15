@@ -38,48 +38,54 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
     if (samples == null || samples.size() == 0) {
       return billingItems;
     }
-
     
-    // Generate the billing item.  Find the price using the
-    // criteria of the illumina application.
-    int numberOfSamples = 0;
-    
-    // Show the sample numbers in the notes
-    String notes = "";
+    HashMap<String, Integer> sampleMap = new HashMap<String, Integer>();
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample s = (Sample)i.next();
       
-      if (notes.length() > 0) {
-        notes += ",";
-      }
-      notes += s.getNumber();
-      
       // Only charge for lib prep if core is performing it.
-      if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equals("Y")) {
-        numberOfSamples++;
+      if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equals("N")) {
+        continue;
       } 
       
-    }
-    
-    // If we don't have any samples that were prepped by core
-    // just bypass creating billing item.
-    if (numberOfSamples == 0) {
-      return billingItems;
-    }
-    
-    // Calculate number of captures (6 samples per capture)
-    int qty = 0;
-    if (numberOfSamples < SAMPLES_PER_CAPTURE) {
-      qty = 1;
-    } else {
-      int mod = numberOfSamples % SAMPLES_PER_CAPTURE;
-      if (mod == 0) {
-        qty = numberOfSamples / SAMPLES_PER_CAPTURE;
+      String key = null;
+      if (s.getMultiplexGroupNumber() == null || s.getMultiplexGroupNumber().equals("")) {
+        key = s.getName();
       } else {
-        qty = numberOfSamples / SAMPLES_PER_CAPTURE;
-        qty++;
-      } 
+        key = s.getMultiplexGroupNumber().toString();
+      }
+      Integer sampleCount = sampleMap.get(key);
+      if (sampleCount == null) {
+        sampleCount = new Integer(0);
+      }
+      sampleCount = new Integer(sampleCount.intValue() + 1);
+      sampleMap.put(key, sampleCount);
     }
+    
+    int qty = 0;
+    for (Iterator i = sampleMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      Integer sampleCount = sampleMap.get(key);
+
+      // Calculate number of captures (6 multiplex grups per capture)
+      int captures = 0;
+      if (sampleCount.intValue() < SAMPLES_PER_CAPTURE) {
+        captures = 1;
+      } else {
+        int mod = sampleCount.intValue() % SAMPLES_PER_CAPTURE;
+        if (mod == 0) {
+          captures = sampleCount.intValue() / SAMPLES_PER_CAPTURE;
+        } else {
+          captures = sampleCount.intValue() / SAMPLES_PER_CAPTURE;
+          captures++;
+        } 
+      }
+      
+      qty += captures;
+      
+    }
+
+    
     
     
 
@@ -120,11 +126,6 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(price.getIdPriceCategory());
       billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
-
-      // Hold off on saving the notes.  Need to reserve note field
-      // for complete date, etc at this time.
-      //billingItem.setNotes(notes);
-
 
       billingItems.add(billingItem);
 
