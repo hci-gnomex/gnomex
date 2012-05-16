@@ -51,14 +51,12 @@
 			var notUnique:Boolean = false;
 			for(var i:int = 0; i < labs.length; i++)
 			{
-				var temp:String = labs.getItemAt(i).@name;
-				var index:int = temp.indexOf(",");
-				var theLab:String = temp.substring(0, index);
-
-				if(theLab == lastName.text || temp == lastName.text){
+				var theLab:Object = labs.getItemAt(i);
+				
+				if(theLab.@lastName.toString().toUpperCase() == lastName.text.toUpperCase() && 
+				   theLab.@firstName.toString().toUpperCase() == firstName.text.toUpperCase()){
 					notUnique = true;
 				}
-					
 			}
 			
 			if(notUnique == true)
@@ -121,12 +119,12 @@
 	<mx:XMLListCollection id="labs" source="{getLabList.lastResult..Lab}"/>
 	<mx:HBox width="100%">
 		<mx:VBox height="100%" verticalGap="0" width="100%">
-			<mx:Label text="Investigator Last name (or lab name)"/>
-			<mx:TextInput id="lastName" width="100%"/>
-		</mx:VBox>
-		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Investigator First Name"/>
 			<mx:TextInput id="firstName" width="100%"/>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Investigator Last name (or lab name)"/>
+			<mx:TextInput id="lastName" width="100%"/>
 		</mx:VBox>
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">

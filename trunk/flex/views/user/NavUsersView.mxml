@@ -310,7 +310,7 @@
             var addWindow:GroupAddView = GroupAddView(mx.managers.PopUpManager.createPopUp(this, GroupAddView, true));
             mx.managers.PopUpManager.centerPopUp(addWindow);
             addWindow.setFocus();
-            addWindow.lastName.setFocus();
+            addWindow.firstName.setFocus();
 
           }  
           
