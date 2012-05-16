@@ -109,7 +109,7 @@
 				params.includeUploadStagingDir = 'N';
 				getAnalysisDownloadList.send(params);
         
-        refreshUploadFiles();
+        		refreshUploadFiles();
 			}
 			
 			public function refreshFiles():void {
@@ -194,8 +194,8 @@
 				}      	
 			}
 			
-			public function onUploadFinished(event:Event):void{
-        this.theTab.selectedIndex = 1;
+			public function onUploadFinished(event:Event):void {
+        		this.theTab.selectedIndex = 1;
 				refreshUploadFiles();
 			}
 			
@@ -365,7 +365,7 @@
 			
 			private function onTabChange():void {
 				if (theTab.selectedIndex == 1) {
-						refreshUploadFiles();
+					refreshFiles();
         		}
 			}
       

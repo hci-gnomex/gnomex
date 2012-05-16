@@ -324,7 +324,7 @@
       private function onTabChange():void {
         if (theTab.selectedIndex == 1) {
           if (this.uploadedFiles == null || this.uploadedFiles.length == 0) {
-            refreshUploadFiles();
+            refreshFiles();
           }
         }
       }
