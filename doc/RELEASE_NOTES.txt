@@ -14,7 +14,7 @@
 * Changed billing plug-in code to correctly handle Illumina target enrichment charges as price per capture, not per sample (tdisera)
 * Fixed bug that caused error when trying to delete experiment, analysis, or data track with collaborators.  Fixed by added explicit deletes to backend delete commands. (tdisera)
 * Fix check for duplicate lab when new lab is added.  Check for duplicate on last AND first name, ignoring case. (tdisera)
-* Position first name text field before last name text field on Add Lab Group window.
+* Position first name text field before last name text field on Add Lab Group window. (tdisera)
 
 5.4.3
 ---------------------
