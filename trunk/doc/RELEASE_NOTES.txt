@@ -12,7 +12,7 @@
 * Fixed problem with Data Track link when datatracks_supported property not present or set to 'N' (tdisera)
 * Added data track link to home page (tdisera)
 * Changed billing plug-in code to correctly handle Illumina target enrichment charges as price per capture, not per sample (tdisera)
-
+* Fixed bug that caused error when trying to delete experiment, analysis, or data track with collaborators.  Fixed by added explicit deletes to backend delete commands. (tdisera)
 
 
 5.4.3
