@@ -20,17 +20,6 @@
     fault="parentApplication.onFailHttpRequest('Unable to get group', event)"
     useProxy="false">    
     </mx:HTTPService >  
-	
-	<mx:HTTPService 
-		id="getLabList" 
-		url="GetLabList.gx"
-		showBusyCursor="true"
-		resultFormat="e4x"
-		result="onGetLabList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get group list', event)"
-		destination="getLabList"
-		useProxy="false">
-	</mx:HTTPService >
 
 <mx:Script>
 	<![CDATA[
@@ -41,36 +30,7 @@
 		import mx.rpc.events.ResultEvent;
 		
 		private var savedIdLab:Object;
-		
-		public function prepToSave():void
-		{
-			getLabList.send();
-		}
-		
-		private function onGetLabList(event:ResultEvent):void{
-			var notUnique:Boolean = false;
-			for(var i:int = 0; i < labs.length; i++)
-			{
-				var theLab:Object = labs.getItemAt(i);
-				
-				if(theLab.@lastName.toString().toUpperCase() == lastName.text.toUpperCase() && 
-				   theLab.@firstName.toString().toUpperCase() == firstName.text.toUpperCase()){
-					notUnique = true;
-				}
-			}
-			
-			if(notUnique == true)
-			{
-				Alert.show("The lab name you selected is already in use.  Please select a different name for your lab", "Lab name already in use");
-			}
-			else
-			{
-				save();
-			}
 
-		}
-		
-		
 		private function save():void {
 			var params:Object = new Object();
 			
@@ -99,7 +59,7 @@
 	 			getLab.send(params);
 				PopUpManager.removePopUp(this);
 			} else {
-				Alert.show("An error occurred while saving the group.");
+				Alert.show(saveLab.lastResult..ACTMESSAGE.@TEXT);;
 			}			
 		}
 		
@@ -115,8 +75,6 @@
         }
 	]]>
 </mx:Script>
-	
-	<mx:XMLListCollection id="labs" source="{getLabList.lastResult..Lab}"/>
 	<mx:HBox width="100%">
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Investigator First Name"/>
@@ -128,7 +86,7 @@
 		</mx:VBox>
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="prepToSave()" icon="@Embed(source='../../assets/save.png')" enabled="{lastName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{lastName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
