@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -40,16 +41,16 @@ import org.jdom.input.SAXBuilder;
 
 
 public class SaveLab extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
-  
+
   private String                         institutionsXMLString;
   private Document                       institutionsDoc;
   private LabInstitutionParser           labInstitutionParser;
-  
+
   private String                         membersXMLString;
   private Document                       membersDoc;
   private LabMemberParser                labMemberParser;
@@ -71,24 +72,23 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
   private String                         serverName;
   private String                         launchAppURL;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     labScreen = new Lab();
     HashMap errors = this.loadDetailObject(request, labScreen);
     this.addInvalidFields(errors);
     if (labScreen.getIdLab() == null || labScreen.getIdLab().intValue() == 0) {
       isNewLab = true;
     }
-    
 
     if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
       institutionsXMLString = request.getParameter("institutionsXMLString");
     }
-    
+
     StringReader reader = new StringReader(institutionsXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
@@ -98,12 +98,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
       log.error( "Cannot parse institutionsXMLString", je );
       this.addInvalidField( "institutionsXMLString", "Invalid institutionsXMLString");
     }
-    
-    
+
+
     if (request.getParameter("membersXMLString") != null && !request.getParameter("membersXMLString").equals("")) {
       membersXMLString = request.getParameter("membersXMLString");
     }
-    
+
     reader = new StringReader(membersXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
@@ -113,11 +113,11 @@ public class SaveLab extends GNomExCommand implements Serializable {
       log.error( "Cannot parse membersXMLString", je );
       this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
     }
-    
+
     if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
       collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
     }
-    
+
     reader = new StringReader(collaboratorsXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
@@ -127,17 +127,17 @@ public class SaveLab extends GNomExCommand implements Serializable {
       log.error( "Cannot parse collaboratorsXMLString", je );
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }
-    
+
     if (request.getParameter("accountsXMLString") != null && !request.getParameter("accountsXMLString").equals("")) {
       accountsXMLString = request.getParameter("accountsXMLString");
     }
-    
-    
+
+
 
     if (request.getParameter("managersXMLString") != null && !request.getParameter("managersXMLString").equals("")) {
       managersXMLString = request.getParameter("managersXMLString");
     }
-    
+
     reader = new StringReader(managersXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
@@ -147,23 +147,23 @@ public class SaveLab extends GNomExCommand implements Serializable {
       log.error( "Cannot parse managersXMLString", je );
       this.addInvalidField( "managersXMLString", "Invalid managersXMLString");
     }
-    
-    
+
+
     if (request.getParameter("accountsXMLString") != null && !request.getParameter("accountsXMLString").equals("")) {
       accountsXMLString = request.getParameter("accountsXMLString");
     }
-    
+
     reader = new StringReader(accountsXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
       accountsDoc = sax.build(reader);
       accountParser = new BillingAccountParser(accountsDoc);
-      
+
     } catch (JDOMException je ) {
       log.error( "Cannot parse accountsXMLString", je );
       this.addInvalidField( "accountsXMLString", "Invalid accountsXMLString");
     }
-    
+
     try {
       launchAppURL = this.getLaunchAppURL(request);  
     } catch (Exception e) {
@@ -175,151 +175,159 @@ public class SaveLab extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
-        accountParser.parse(sess);
-        labInstitutionParser.parse(sess);
-        labMemberParser.parse(sess);
-        collaboratorParser.parse(sess);
-        managerParser.parse(sess);
-        
-        Lab lab = null;
-              
-        if (isNewLab) {
-          lab = labScreen;
-          sess.save(lab);
-        } else {
-          
-          lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
-          
-          // Need to initialize billing accounts; otherwise new accounts
-          // get in the list and get deleted.
-          Hibernate.initialize(lab.getBillingAccounts());
-          
-          initializeLab(lab);
-        }
+      List labs = sess.createQuery("from Lab where firstName='" + labScreen.getFirstName() +  "' and lastName='" + labScreen.getLastName()+"'").list();
 
+      if(labs.size() == 0){
 
-        //
-        // Save billing accounts
-        //
-        for(Iterator i = accountParser.getBillingAccountMap().keySet().iterator(); i.hasNext();) {
-          String idBillingAccountString = (String)i.next();
-          BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);
-          ba.setIdLab(lab.getIdLab());
-          sess.save(ba);
-          
-          // If billing account has just been approved, send out a notification
-          // email to submitter of work auth form as well as lab managers
-          if (ba.isJustApproved()) {
-            this.sendApprovedBillingAccountEmail(sess, ba, lab);
+        if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+          accountParser.parse(sess);
+          labInstitutionParser.parse(sess);
+          labMemberParser.parse(sess);
+          collaboratorParser.parse(sess);
+          managerParser.parse(sess);
+
+          Lab lab = null;
+
+          if (isNewLab) {
+            lab = labScreen;
+            sess.save(lab);
+          } else {
+
+            lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
+
+            // Need to initialize billing accounts; otherwise new accounts
+            // get in the list and get deleted.
+            Hibernate.initialize(lab.getBillingAccounts());
+
+            initializeLab(lab);
           }
-        }
-        
-        // Remove billing accounts no longer in the billing acount list
-        List billingAccountsToRemove = new ArrayList();
-        if (lab.getBillingAccounts() != null) {
-          for(Iterator i = lab.getBillingAccounts().iterator(); i.hasNext();) {
-            BillingAccount ba = (BillingAccount)i.next();
-            if (!accountParser.getBillingAccountMap().containsKey(ba.getIdBillingAccount().toString())) {
-              billingAccountsToRemove.add(ba);
+
+
+          //
+          // Save billing accounts
+          //
+          for(Iterator i = accountParser.getBillingAccountMap().keySet().iterator(); i.hasNext();) {
+            String idBillingAccountString = (String)i.next();
+            BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);
+            ba.setIdLab(lab.getIdLab());
+            sess.save(ba);
+
+            // If billing account has just been approved, send out a notification
+            // email to submitter of work auth form as well as lab managers
+            if (ba.isJustApproved()) {
+              this.sendApprovedBillingAccountEmail(sess, ba, lab);
             }
           }
-          for(Iterator i = billingAccountsToRemove.iterator(); i.hasNext();) {
-            BillingAccount ba = (BillingAccount)i.next();
-            lab.getBillingAccounts().remove(ba);
-            sess.delete(ba);
-          }
-        }
-        
-        //
-        // Save lab institutions
-        //
-        TreeSet institutions = new TreeSet(new InstitutionComparator());
-        for(Iterator i = labInstitutionParser.getInstititionMap().keySet().iterator(); i.hasNext();) {
-          Integer idInstitution = (Integer)i.next();
-          Institution institution = (Institution)labInstitutionParser.getInstititionMap().get(idInstitution);     
-          institutions.add(institution);
-        }
-        lab.setInstitutions(institutions);
-        
-        sess.flush();
-        
-        //
-        // Save lab members
-        //
-        TreeSet members = new TreeSet(new AppUserComparator());
-        for(Iterator i = labMemberParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
-          Integer idAppUser = (Integer)i.next();
-          AppUser appUser = (AppUser)labMemberParser.getAppUserMap().get(idAppUser);     
-          members.add(appUser);
-        }
-        lab.setMembers(members);
-        
-        sess.flush();
-        
-        
-        //
-        // Save lab collaborators
-        //
-        TreeSet collaborators = new TreeSet(new AppUserComparator());
-        for(Iterator i = collaboratorParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
-          Integer idAppUser = (Integer)i.next();
-          AppUser appUser = (AppUser)collaboratorParser.getAppUserMap().get(idAppUser);     
-          collaborators.add(appUser);
-        }
-        lab.setCollaborators(collaborators);
-        
-        sess.flush();
-        
-        
-        
-        //
-        // Save lab managers
-        //
-        TreeSet managers = new TreeSet(new AppUserComparator());
-        for(Iterator i = managerParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
-          Integer idAppUser = (Integer)i.next();
-          AppUser appUser = (AppUser)managerParser.getAppUserMap().get(idAppUser);     
-          managers.add(appUser);
-        }
-        lab.setManagers(managers);
-        
-        sess.flush();
 
-        
-        this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
-      
-        setResponsePage(this.SUCCESS_JSP);
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save lab.");
+          // Remove billing accounts no longer in the billing acount list
+          List billingAccountsToRemove = new ArrayList();
+          if (lab.getBillingAccounts() != null) {
+            for(Iterator i = lab.getBillingAccounts().iterator(); i.hasNext();) {
+              BillingAccount ba = (BillingAccount)i.next();
+              if (!accountParser.getBillingAccountMap().containsKey(ba.getIdBillingAccount().toString())) {
+                billingAccountsToRemove.add(ba);
+              }
+            }
+            for(Iterator i = billingAccountsToRemove.iterator(); i.hasNext();) {
+              BillingAccount ba = (BillingAccount)i.next();
+              lab.getBillingAccounts().remove(ba);
+              sess.delete(ba);
+            }
+          }
+
+          //
+          // Save lab institutions
+          //
+          TreeSet institutions = new TreeSet(new InstitutionComparator());
+          for(Iterator i = labInstitutionParser.getInstititionMap().keySet().iterator(); i.hasNext();) {
+            Integer idInstitution = (Integer)i.next();
+            Institution institution = (Institution)labInstitutionParser.getInstititionMap().get(idInstitution);     
+            institutions.add(institution);
+          }
+          lab.setInstitutions(institutions);
+
+          sess.flush();
+
+          //
+          // Save lab members
+          //
+          TreeSet members = new TreeSet(new AppUserComparator());
+          for(Iterator i = labMemberParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
+            Integer idAppUser = (Integer)i.next();
+            AppUser appUser = (AppUser)labMemberParser.getAppUserMap().get(idAppUser);     
+            members.add(appUser);
+          }
+          lab.setMembers(members);
+
+          sess.flush();
+
+
+          //
+          // Save lab collaborators
+          //
+          TreeSet collaborators = new TreeSet(new AppUserComparator());
+          for(Iterator i = collaboratorParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
+            Integer idAppUser = (Integer)i.next();
+            AppUser appUser = (AppUser)collaboratorParser.getAppUserMap().get(idAppUser);     
+            collaborators.add(appUser);
+          }
+          lab.setCollaborators(collaborators);
+
+          sess.flush();
+
+
+
+          //
+          // Save lab managers
+          //
+          TreeSet managers = new TreeSet(new AppUserComparator());
+          for(Iterator i = managerParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
+            Integer idAppUser = (Integer)i.next();
+            AppUser appUser = (AppUser)managerParser.getAppUserMap().get(idAppUser);     
+            managers.add(appUser);
+          }
+          lab.setManagers(managers);
+
+          sess.flush();
+
+
+          this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
+
+          setResponsePage(this.SUCCESS_JSP);
+        } else {
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to save lab.");
+          setResponsePage(this.ERROR_JSP);
+        }
+      }
+      else{
+        this.addInvalidField("Duplicate Lab Name", "That lab name is already in use");
         setResponsePage(this.ERROR_JSP);
       }
-      
+
     }catch (Exception e){
       log.error("An exception has occurred in SaveLab ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   private void initializeLab(Lab lab) {
     lab.setFirstName(labScreen.getFirstName());
     lab.setLastName(labScreen.getLastName());
     lab.setDepartment(labScreen.getDepartment());
-    
+
     lab.setContactAddress(labScreen.getContactAddress());
     lab.setContactCity(labScreen.getContactCity());
     lab.setContactCodeState(labScreen.getContactCodeState());
@@ -331,18 +339,18 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setIsExternalPricing(labScreen.getIsExternalPricing());
     lab.setIsActive(labScreen.getIsActive());
     lab.setExcludeUsage(labScreen.getExcludeUsage());
-    
+
   }
-  
+
   private void sendApprovedBillingAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
-    
+
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    
-    
+
+
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
     String submitterSubject = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved";    
-    
+
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
     String coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
@@ -357,7 +365,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
         coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       }
     }
-    
+
     submitterNote.append("The following work authorization " +
         "has been approved by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) +  
         ".  Lab members can now submit experiment " +
@@ -373,18 +381,18 @@ public class SaveLab extends GNomExCommand implements Serializable {
     body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
     body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
     body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
-    
+
 
     if (send) {
       // Email submitter
       MailUtil.send(submitterEmail, 
-            null,
-            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
-            submitterSubject, 
-            submitterNote.toString() + body.toString(),
-            false); 
+          null,
+          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          submitterSubject, 
+          submitterNote.toString() + body.toString(),
+          false); 
 
-      
+
       // Email lab contact email address(es)
       if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
         String contactEmail = lab.getContactEmail();
@@ -395,32 +403,32 @@ public class SaveLab extends GNomExCommand implements Serializable {
             null,
             dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
             isTestEmail ? submitterSubject + " (for lab contact " + lab.getContactEmail() + ")" : submitterSubject, 
-            submitterNote.toString() + body.toString(),
-            false); 
-                
+                submitterNote.toString() + body.toString(),
+                false); 
+
       }
 
     }
-    
+
   }
-  
+
   private class AppUserComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       AppUser u1 = (AppUser)o1;
       AppUser u2 = (AppUser)o2;
-      
+
       return u1.getIdAppUser().compareTo(u2.getIdAppUser());
-      
+
     }
   }
-  
+
   private class InstitutionComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       Institution u1 = (Institution)o1;
       Institution u2 = (Institution)o2;
-      
+
       return u1.getIdInstitution().compareTo(u2.getIdInstitution());
-      
+
     }
   }
 
