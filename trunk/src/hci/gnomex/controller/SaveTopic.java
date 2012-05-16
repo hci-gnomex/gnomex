@@ -69,14 +69,17 @@ public class SaveTopic extends GNomExCommand implements Serializable {
           
         }
         
-        Query query = sess.createQuery(queryBuf.toString());
-        List<Object[]> topicRows = (List<Object[]>)query.list();
-        
-        if(topicRows.size() > 0) {
-          this.addInvalidField("Illegal Topic Name", "A duplicate topic already exists at this level of the hierarchy.");
-          setResponsePage(this.ERROR_JSP); 
-          return this;
-        } 
+        if(isNewTopic) {
+          // If this is a new topic then check for duplicate topic name.
+          Query query = sess.createQuery(queryBuf.toString());
+          List<Object[]> topicRows = (List<Object[]>)query.list();
+          
+          if(topicRows.size() > 0) {
+            this.addInvalidField("Illegal Topic Name", "A duplicate topic already exists at this level of the hierarchy.");
+            setResponsePage(this.ERROR_JSP); 
+            return this;
+          }           
+        }
 
         this.topic.setName(topicName);
         this.topic.setDescription(RequestParser.unEscapeBasic(topic.getDescription()));

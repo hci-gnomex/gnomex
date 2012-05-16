@@ -1131,8 +1131,8 @@
 								 toolTip="Move selected topic to top level" 
 								 click="{addItem('MoveToTop')}" 
 								 id="linkbutton2"  textAlign="left" 
-								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
-								 icon="@Embed(source='../../assets/topic_new.png')"/>				
+								 disabledIcon="@Embed(source='../../assets/topic_top_level_disable.png')" 
+								 icon="@Embed(source='../../assets/topic_top_level.png')"/>				
 				<mx:LinkButton   label="New child topic" 
 								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; topicsBrowseTree.selectedItem.name() == 'Topic'}"
 								 visible="{currentState != 'GuestState'}"

@@ -16,6 +16,8 @@
 * Fix check for duplicate lab when new lab is added.  Check for duplicate on last AND first name, ignoring case. (tdisera)
 * Position first name text field before last name text field on Add Lab Group window. (tdisera)
 * Moved the duplicate lab name validation checking from the client to the server. (tcourdy)
+* Fixed Topics bugs. (rcundick)
+* Changed refresh of organize files window to include right hand tree as well. (rcundick)
 
 5.4.3
 ---------------------

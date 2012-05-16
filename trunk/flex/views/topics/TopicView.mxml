@@ -53,11 +53,9 @@
 			this.dirtyTopic.resetDirty();
 			parentDocument.treeItemToSelect = this.parentDocument.topicsBrowseTree.selectedItem;
 			parentDocument.refreshTopics();			
-		} else if (updateTopic.lastResult.name() == "Error") {
-			Alert.show(updateTopic.lastResult.@message);
 		} else {
-			Alert.show("An error occurred while saving topic");				
-		}
+			Alert.show(updateTopic.lastResult..ACTMESSAGE.@TEXT);
+		} 
 	}
 
 	private function removeRichTextButtons():void {
