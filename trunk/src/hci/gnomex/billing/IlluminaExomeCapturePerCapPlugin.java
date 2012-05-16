@@ -68,7 +68,6 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
       Integer sampleCount = sampleMap.get(key);
 
       qty ++;
-      
     }
 
     
