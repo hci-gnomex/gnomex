@@ -501,12 +501,12 @@
 							<mx:VBox height="100%" width="67%">
 								<mx:HBox width="100%">
 									<mx:VBox  verticalGap="0" width="100%">
-										<mx:Label text="Investigator's Last Name (or lab name)"/>
-										<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="100%" change="dirty.setDirty()"/>
-									</mx:VBox>
-									<mx:VBox  verticalGap="0" width="100%">
 										<mx:Label text="Investigator's First Name"/>
 										<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="100%" change="dirty.setDirty()"/>
+									</mx:VBox>
+									<mx:VBox  verticalGap="0" width="100%">
+										<mx:Label text="Investigator's Last Name (or lab name)"/>
+										<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="100%" change="dirty.setDirty()"/>
 									</mx:VBox>
 									
 								</mx:HBox>
