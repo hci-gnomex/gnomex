@@ -546,6 +546,7 @@ CREATE TABLE `gnomex`.`Chromatogram` (
   `cSignalStrength` int(10) NULL,
   `gSignalStrength` int(10) NULL,
   `tSignalStrength` int(10) NULL,
+  `releaseDate` DATETIME NULL,
   PRIMARY KEY (`idChromatogram`),
   CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
     REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
@@ -884,10 +885,25 @@ DROP TABLE IF EXISTS `gnomex`.`InstrumentRun`;
 CREATE TABLE `gnomex`.`InstrumentRun` (
   `idInstrumentRun` INT(10) NOT NULL AUTO_INCREMENT,
   `runDate` DATETIME NULL,
+  `createDate` DATETIME NULL,
+  `codeInstrumentRunStatus` VARCHAR(10) NULL,
+  `comments VARCHAR(200) NULL,
+  `label` VARCHAR(100) NULL,
+  `codeReactionType` VARCHAR(10) NULL,
+  `creator` VARCHAR(50) NULL,
+  `codeSealType` VARCHAR(10) NULL,
   PRIMARY KEY (`idInstrumentRun`)
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`InstrumentRunStatus`;
+CREATE TABLE `gnomex`.`InstrumentRunStatus` (
+  `codeInstrumentRunStatus` VARCHAR(10) NOT NULL,
+  `instrumentRunStatus` VARCHAR(50) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeInstrumentRunStatus`)
+)
+ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`Lab`;
 CREATE TABLE `gnomex`.`Lab` (
@@ -1194,6 +1210,13 @@ CREATE TABLE `gnomex`.`Plate` (
   `idPlate` INT(10) NOT NULL AUTO_INCREMENT,
   `idInstrumentRun` INT(10) NULL,
   `codePlateType` VARCHAR(10) NOT NULL DEFAULT 'REACTION',
+  `quadrant` INT(10) NULL,
+  `createDate` DATETIME NULL,
+  `comments` VARCHAR(200) NULL,
+  `label` VARCHAR(10) NULL,
+  `codeReactionType` VARCHAR(10) NULL,
+  `creator` VARCHAR(50) NULL,
+  `codeSealType` VARCHAR(10) NULL,
   PRIMARY KEY (`idPlate`),
   CONSTRAINT `FK_Plate_InstrumentRun` FOREIGN KEY `FK_Plate_InstrumentRun` (`idInstrumentRun`)
     REFERENCES `gnomex`.`InstrumentRun` (`idInstrumentRun`)
@@ -1215,6 +1238,8 @@ CREATE TABLE `gnomex`.`PlateWell` (
   `idPlate` INT(10) NULL,
   `idSample` INT(10) NULL,
   `idRequest` INT(10) NULL,
+  `createDate` DATETIME NULL,
+  `codeReactionType` VARCHAR(10) NULL,
   PRIMARY KEY (`idPlateWell`),
   CONSTRAINT `FK_PlateWell_Plate` FOREIGN KEY `FK_PlateWell_Plate` (`idPlate`)
     REFERENCES `gnomex`.`Plate` (`idPlate`)
@@ -1736,6 +1761,34 @@ CREATE TABLE gnomex.PropertyEntryValue (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `gnomex`.`ReactionType`;
+CREATE TABLE `gnomex`.`ReactionType` (
+  `codeReactionType` VARCHAR(10) NOT NULL,
+  `reactionType` VARCHAR(50) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeReactionType`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SealType`;
+CREATE TABLE `gnomex`.`SealType` (
+  `codeSealType` VARCHAR(10) NOT NULL,
+  `sealType` VARCHAR(50) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeSealType`)
+)
+ENGINE = INNODB;
+
+
+DROP TABLE IF EXISTS `gnomex`.`RequestStatus`;
+CREATE TABLE `gnomex`.`RequestStatus` (
+  `codeRequestStatus` VARCHAR(10) NOT NULL,
+  `requestStatus` VARCHAR(50) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeRequestStatus`)
+)
+ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`SamplePrepMethod`;
 CREATE TABLE `gnomex`.`SamplePrepMethod` (
