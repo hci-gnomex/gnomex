@@ -88,6 +88,11 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
           sess.save(unload);
         }
 
+        //
+        // Delete (unlink) collaborators
+        //
+        dataTrack.setCollaborators(null);
+        sess.flush();
 
         // remove dataTrack files
         dataTrack.removeFiles(baseDir);

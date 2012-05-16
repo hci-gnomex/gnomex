@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
@@ -85,6 +86,16 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
           sess.delete(tl);
         }
         sess.flush();
+        
+        //
+        // Delete (unlink) collaborators
+        //
+        for (Iterator i1 = analysis.getCollaborators().iterator(); i1.hasNext();) {
+          AnalysisCollaborator ac = (AnalysisCollaborator)i1.next();
+          sess.delete(ac);
+        }
+        sess.flush();
+
         
         //
         // Delete Analysis

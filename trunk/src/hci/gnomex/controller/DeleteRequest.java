@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Plate;
@@ -134,6 +135,16 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           }
           sess.flush();
         }
+        
+        //
+        // Delete (unlink) collaborators
+        //
+        for (Iterator i1 = req.getCollaborators().iterator(); i1.hasNext();) {
+          ExperimentCollaborator ec = (ExperimentCollaborator)i1.next();
+          sess.delete(ec);
+        }
+        sess.flush();
+
         
         //
         // Delete Request
