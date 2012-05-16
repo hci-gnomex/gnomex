@@ -178,7 +178,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      List labs = sess.createQuery("from Lab where firstName='" + labScreen.getFirstName() +  "' and lastName='" + labScreen.getLastName()+"'").list();
+      List labs = sess.createQuery("from Lab where upper(firstName)='" + labScreen.getFirstName().toUpperCase() +  "' and upper(lastName)='" + labScreen.getLastName().toUpperCase()+"'").list();
 
       if(labs.size() == 0){
 
