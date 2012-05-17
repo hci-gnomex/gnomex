@@ -348,7 +348,10 @@
 					ssRowCount++;  
 					if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
 						if(ssRowCount <= ssRowList.length()) {
-							tabSamplesView.addSample();
+							if (!tabSamplesView.addSample()) {
+								// add sample failed.
+								break;
+							}
 						}
 					}
 				} // End traverse ss row

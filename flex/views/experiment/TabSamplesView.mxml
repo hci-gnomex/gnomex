@@ -65,9 +65,10 @@
 			copySampleSheetColumnWindow.init(this);
 		}
 		
-		public function addSample():void {
+		public function addSample():Boolean {
 			var emptyNode:XML = null;
 			var idOrganism:String = parentDocument.setupView.getIdOrganism();
+			var isValid:Boolean = true;
 			if (parentDocument.isSolexaState()) {
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
@@ -157,6 +158,10 @@
 			} else if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
 				if (parentDocument.samples.length >= 384) {
 					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
+					isValid = false;
+				} else if (parentDocument.samples.length >= 96 && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue != 'PLATE') {
+					Alert.show("You have selected Tube as your container.  In order to have more than 96 samples please select Plate.  Add Sample ignored.");
+					isValid = false;
 				} else {
 					var plateName:String = getPlateName(parentDocument.samples.length);
 					emptyNode = new XML("<Sample " +
@@ -209,6 +214,8 @@
 			if (emptyNode != null) {
 				parentDocument.samples.addItem(emptyNode);
 			}
+			
+			return isValid;
 		}
 		
 		private function getPlateName(idx:int):String {
@@ -257,6 +264,15 @@
 					
 					if (isValid) {
 					
+						if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
+							if (parentDocument.samples.length <= 30 && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+								Alert.show("You may not have less than 30 samples in a Plate container.  Delete ignored.");
+								isValid = false;
+							}
+						}
+					}
+					
+					if (isValid) {
 						for each(var hyb:Object in parentDocument.hybs) {
 							if (hyb.@idSampleChannel1 == sample.@idSample) {
 								if (sample.@idSample.indexOf("Sample") >= 0) {
