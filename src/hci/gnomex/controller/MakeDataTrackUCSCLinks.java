@@ -42,6 +42,8 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
   private String baseDir;
   private String analysisBaseDir;
   private String serverName;
+  private String dataTrackFileServerURL;
+  private String dataTrackFileServerWebContext;
 
   
   public static final Pattern TO_STRIP = Pattern.compile("\\n");
@@ -73,6 +75,8 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+      dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
+      dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
       
       String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
       if (portNumber == null) {
@@ -80,7 +84,10 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       } else {
         portNumber = ":" + portNumber;           
       }
-      baseURL =  "http"+  "://"  + serverName + portNumber + contextPath + "/";
+      
+      // We have to serve files from Tomcat, so use das2 base url
+      baseURL =  dataTrackFileServerWebContext;
+
       
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
@@ -153,7 +160,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
       //look and or make directory to hold softlinks to data, also removes old softlinks
-      File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, GNomExFrontController.getWebContextPath());
+      File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
 
       //what data type (bam, bigBed, bigWig)
       String type = "type=" + DataTrackUtil.fetchUCSCDataType (filesToLink);

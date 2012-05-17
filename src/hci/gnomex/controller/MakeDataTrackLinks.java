@@ -35,6 +35,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private String baseDir;
   private String analysisBaseDir;
   private String serverName;
+  private String dataTrackFileServerURL;
+  private String dataTrackFileServerWebContext;
 
 
   public void validate() {
@@ -60,6 +62,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+      dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
+      dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
       
       
       String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
@@ -68,7 +72,9 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       } else {
         portNumber = ":" + portNumber;           
       }
-      baseURL =  "http"+  "://"  + serverName + portNumber + contextPath + "/";
+      
+      // We have to serve files from Tomcat, so use das2 base url
+      baseURL =  dataTrackFileServerURL;
 
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
@@ -138,7 +144,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 
 
       //look and or make directory to hold softlinks to data, also removes old softlinks
-      File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, GNomExFrontController.getWebContextPath());
+      File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
 
       //make randomWord 6 char long and append genome build names
       String randomWord = UUID.randomUUID().toString();

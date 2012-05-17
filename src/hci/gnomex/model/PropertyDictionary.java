@@ -54,7 +54,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SEQUENCE_ALIGNMENT_SUPPORTED        = "sequence_alignment_supported";      
   public static final String        SEQUENCE_ALIGNMENT_SERVER_URL       = "sequence_alignment_server_url";      
   public static final String        TOPICS_SUPPORTED                    = "topics_supported";
-  
+  public static final String        DATATRACK_FILESERVER_URL            = "datatrack_fileserver_url";
+  public static final String        DATATRACK_FILESERVER_WEB_CONTEXT    = "datatrack_fileserver_web_context";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
