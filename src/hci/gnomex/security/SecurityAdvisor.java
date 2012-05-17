@@ -2378,7 +2378,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (appUser != null && appUser.getManagingCoreFacilities() != null) {
       return appUser.getManagingCoreFacilities();
     } else {
-      return null;
+      return new TreeSet();
     }
   }
   
