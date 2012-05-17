@@ -167,6 +167,35 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
       sess.save(dtFile);
       
+      // If we are linking a .bw or .bai, see if we have linked to its pair.
+      // If not, fill in idAnalysisFileOther, so that the pair is linked as
+      // well.
+      if (idAnalysisFileOther == null) {
+        boolean lookForBam = false;
+        boolean lookForBai = false;
+        int pos =  analysisFile.getFileName().lastIndexOf(".");
+        String baseFileName = analysisFile.getFileName().substring(0, pos);
+        
+        if (analysisFile.getFileName().toUpperCase().endsWith(".BAI")) {
+          lookForBam = true;
+        } else if (analysisFile.getFileName().toUpperCase().endsWith(".BAM")){
+          lookForBai = true;
+        }
+        for (Iterator i = analysisFile.getAnalysis().getFiles().iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          int afPos = af.getFileName().lastIndexOf(".");
+          String afBaseFileName = af.getFileName().substring(0, afPos);
+          if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {
+            if (lookForBai && af.getFileName().toUpperCase().endsWith(".BAI")) {
+              idAnalysisFileOther = af.getIdAnalysisFile();
+            } else if (lookForBam && af.getFileName().toUpperCase().endsWith(".BAM")) {
+              idAnalysisFileOther = af.getIdAnalysisFile();
+            }
+          }
+        }
+      } 
+        
+      
       // If this is a file pair, add the other analysis file
       if (idAnalysisFileOther != null) {
         DataTrackFile dtFileOther = new DataTrackFile();
