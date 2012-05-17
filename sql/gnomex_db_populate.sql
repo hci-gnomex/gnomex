@@ -819,7 +819,10 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (76,'sequence_alignment_supported','N','True if sequence alignment feature supported.', 'N'),
  (77,'lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y'),
  (78, 'datatrack_supported','Y','Indicates if data track feature is supported', 'N');
- (79, 'topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N');
+ (79, 'topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N'),
+ (80, 'datatrack_fileserver_url','http://yourservername:8080/das2gnomex/','The URL from Apache Tomcat where the data track files will be served', 'N'),
+ (81, 'datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N');
+ 
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
