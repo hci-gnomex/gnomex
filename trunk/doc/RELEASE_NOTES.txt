@@ -19,6 +19,7 @@
 * Fixed Topics bugs. (rcundick)
 * Changed refresh of organize files window to include right hand tree as well. (rcundick)
 * Orion can't server large data track files (+ 2GB), so serve data track files (UCSC browser, generic links) from Apache Tomcat rather than Orion.  Web context (file path) and Tomcat webapp URL are GNomEx properties (datatrack_fileserver_url, datatrack_fileserver_web_context). (tdisera)
+* Automatically link (in backend code).bai file with .bam file (and vice versa) when Analysis file is linked to Data Track. (tdisera) 
 
 5.4.3
 ---------------------

@@ -1001,18 +1001,6 @@
 				}
 			}
 		}
-		if (isBamOrBai) {
-			if (!isBAMFilePair(ds.dataForFormat("treeDataGridItems") as Array, "@fileName", "@type")) {
-				Alert.show("Both .bam and .bai must be selected together.",
-					"Missing .bam/.bai file", Alert.OK, null, null, parentApplication.iconDataTrack);
-				event.preventDefault();
-				event.target.hideDropFeedback(event);
-				DragManager.showFeedback(DragManager.NONE);		   	
-				return;
-			}
-		}
-		
-		
 		
 		// retrieve the data associated with the "items" format. This will be the data that
 		// the dragInitiator has copied into the DragSource.
@@ -1027,6 +1015,11 @@
 					params.idAnalysis = dragItem.@idAnalysis;
 					params.idAnalysisFile = dragItem.@idAnalysisFileString;
 					params.idLab = dragItem.@idLab;
+					
+					// Don't include .bai if .bam is already selected
+					if (this.hasMatchingBAMFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")) {
+						continue;
+					}
 					
 					dragParams.addItem(params);
 				} 
@@ -1048,6 +1041,38 @@
 		
 		return;       
 
+	}
+	
+	private function hasMatchingBAMFilePair(dragItem:Object, dragItems:Object, fileNameAttribute:String, typeAttribute:String):Boolean {
+		
+		
+		var hasBAMFilePair:Boolean = false;
+		
+		var idx:int = dragItem[fileNameAttribute].lastIndexOf(".");
+		var dragItemBaseFileName:String = dragItem[fileNameAttribute].substr(0, idx);
+		var dragItemExt:String = dragItem[typeAttribute];
+		
+		if (dragItemExt.toString().toUpperCase() != "BAI") {
+			return false;
+		}
+
+		for each(var di:Object in dragItems) {
+			var fileName:String = di[fileNameAttribute];
+			var ext:String = di[typeAttribute];
+			var pos:int = fileName.lastIndexOf(".");
+			var baseFileName:String = fileName.substr(0, pos);
+			
+			if (baseFileName.toString().toUpperCase() == dragItemBaseFileName.toUpperCase()) {
+				if (dragItemExt.toUpperCase() != ext.toUpperCase()) {
+					if (ext.toUpperCase() == "BAM" ) {
+						hasBAMFilePair = true;
+						break;
+					}
+				}
+			}
+			
+		}
+		return hasBAMFilePair;
 	}
 	
 	
@@ -1079,9 +1104,9 @@
 			var theExtensions:Array = fileNameMap[key];
 			if (theExtensions.length == 2) {
 				for each (var ext:Object in theExtensions) {
-					if  (ext == 'BAI' || ext == 'bai') {
+					if  (ext.toUpperCase() == 'BAI') {
 						isBAI = true;
-					} else if  (ext == 'BAM' || ext == 'bam') {
+					} else if  (ext.toUpperCase() == 'BAM') {
 						isBAM = true;
 					} 
 				}
@@ -1096,13 +1121,15 @@
 		for each(var di:Object in dragParams) {
 			dragItemCount++;
 		}
+
+		
 		// One file is dragged onto a data track 
 		if (dragItemCount == 1 && dropNode.name() == 'DataTrack') {
 			var params:Object = new Object();
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
 		} //  File pairs are dragged onto a data track
-		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack' && isBAMFilePair(dragParams, "fileName", "type")) {
+		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && isBAMFilePair(dragParams, "fileName", "type")) {
 			var params1:Object = new Object();
 			params1.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params1);
@@ -1143,9 +1170,7 @@
 				onPromptToAddAndLinkFiles);
 			
 		}
-		
 	}
-	
 	
 	
 	private function onGetDataTrack(event:ResultEvent):void {
