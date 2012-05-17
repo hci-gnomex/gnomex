@@ -509,12 +509,16 @@
 			} else {
 				var sampleCount:int = parseInt(numberOfSamples.text);
 				
-				if (sampleCount < 32) {
+				if (sampleCount < 30) {
 					this.containerTypeRadioGroup.selectedValue = "TUBE";
 					this.containerTypeTube.enabled = true;
-				} else {
+					this.containerTypePlate.enabled = false;
+				} else if (sampleCount > 96) {
 					this.containerTypeRadioGroup.selectedValue = "PLATE";
 					this.containerTypeTube.enabled = false;
+				} else {
+					this.containerTypePlate.enabled = true;
+					this.containerTypeTube.enabled = true;
 				}
 				
 			} 
