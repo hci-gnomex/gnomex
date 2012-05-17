@@ -105,7 +105,16 @@ CREATE TABLE `DataTrackToTopic` (
   CONSTRAINT `FK_TopicDataTrack_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`)
 ) ENGINE=InnoDB;
 
+-- Property for topic feature, turned off for now
 INSERT INTO `gnomex`.`Property` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) 
   values ('topics_supported', 'N', 'If Y then Topics feature is activated.', 'N');
+
+
+-- Properties for serving data track files from the Apace Tomcat Server
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
+values ('datatrack_fileserver_url','http://yourservername:8080/das2gnomex/','The URL from Apache Tomcat where the data track files will be served', 'N');
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
+values ('datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N');
+
 
 
