@@ -106,7 +106,7 @@ CREATE TABLE `DataTrackToTopic` (
 ) ENGINE=InnoDB;
 
 -- Property for topic feature, turned off for now
-INSERT INTO `gnomex`.`Property` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) 
+INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) 
   values ('topics_supported', 'N', 'If Y then Topics feature is activated.', 'N');
 
 
