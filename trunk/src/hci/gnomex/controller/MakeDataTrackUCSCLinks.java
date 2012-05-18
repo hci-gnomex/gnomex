@@ -86,7 +86,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       }
       
       // We have to serve files from Tomcat, so use das2 base url
-      baseURL =  dataTrackFileServerWebContext;
+      baseURL =  dataTrackFileServerURL;
 
       
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
