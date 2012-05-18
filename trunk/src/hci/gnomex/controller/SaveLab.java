@@ -180,7 +180,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       List labs = sess.createQuery("from Lab where upper(firstName)='" + labScreen.getFirstName().toUpperCase() +  "' and upper(lastName)='" + labScreen.getLastName().toUpperCase()+"'").list();
 
-      if(labs.size() == 0){
+      if(labs.size() == 0 || !isNewLab){
 
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
           accountParser.parse(sess);
