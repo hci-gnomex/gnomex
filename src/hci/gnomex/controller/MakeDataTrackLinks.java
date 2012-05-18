@@ -59,7 +59,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     try {
       
    
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
       dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
@@ -111,7 +111,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeHibernateSession();        
       } catch(Exception e) {
         
       }
