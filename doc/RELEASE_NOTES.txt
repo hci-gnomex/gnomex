@@ -1,7 +1,7 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.4
+5.4.4 (May 18, 2012)
 ---------------------
 * Add PlateType dictionary and codePlateType to Plate -- default to REACTION plate.  (bspigeljr)
 * Add plate name and sample drop off location to Capillary Sequencing request submission scrrens. (bspiglejr)
@@ -17,6 +17,7 @@
 * Position first name text field before last name text field on Add Lab Group window. (tdisera)
 * Moved the duplicate lab name validation checking from the client to the server. (tcourdy)
 * Fixed Topics bugs. (rcundick)
+* Entire directories can now be uploaded using FDT. (rcundick)
 * Changed refresh of organize files window to include right hand tree as well. (rcundick)
 * Orion can't server large data track files (+ 2GB), so serve data track files (UCSC browser, generic links) from Apache Tomcat rather than Orion.  Web context (file path) and Tomcat webapp URL are GNomEx properties (datatrack_fileserver_url, datatrack_fileserver_web_context). (tdisera)
 * Automatically link (in backend code).bai file with .bam file (and vice versa) when Analysis file is linked to Data Track. (tdisera) 
