@@ -889,6 +889,15 @@ VALUES ('AFFY', 'CHIP'),
   ('HISEQ', 'MONNUCSEQ'),
   ('HISEQ', 'TSCRPTSEQ');
 
+-- Populate RequestStatus dictionary
+insert into gnomex.RequestStatus 
+(codeRequestStatus, requestStatus, isActive)
+values 
+('COMPLETE',	'complete',	'Y'),
+('FAILED',	'failed',	'Y'),
+('NEW',	        'new',	        'Y'),
+('PROCESSING',	'processing',	'Y'),
+('SUBMITTED',	'submitted',	'Y');
  
 -- Insert entries into PropertyType
 INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('TEXT',        'Text');
