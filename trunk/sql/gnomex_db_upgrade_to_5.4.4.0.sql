@@ -116,5 +116,13 @@ values ('datatrack_fileserver_url','http://yourservername:8080/das2gnomex/','The
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N');
 
-
+-- Populate RequestStatus dictionary
+insert into gnomex.RequestStatus 
+(codeRequestStatus, requestStatus, isActive)
+values 
+('COMPLETE',	'complete',	'Y'),
+('FAILED',	'failed',	'Y'),
+('NEW',	        'new',	        'Y'),
+('PROCESSING',	'processing',	'Y'),
+('SUBMITTED',	'submitted',	'Y');
 
