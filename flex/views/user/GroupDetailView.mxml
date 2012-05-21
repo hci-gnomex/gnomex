@@ -354,27 +354,28 @@
 		private function onSaveGroup(event:ResultEvent):void {
 			if (saveGroup.lastResult.name() == "SUCCESS") {
 				savedIdLab = saveGroup.lastResult.@idLab;
-
+				
 				var params:Object = new Object();
 				params.idLab = savedIdLab;
-	 			getLab.send(params);
-	 			
+				getLab.send(params);
+				
 				dirty.resetDirty();
 			} else {
 				Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
 			}
 			
 		}
- 
-        
-        private function onGetLab(event:ResultEvent):void {
-          parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
-          
-          var itemToSelect:XML = new XML("<Lab id='" + savedIdLab + "'/>");
-          parentApplication.navUsersView.itemToSelect = itemToSelect;
-          
-          parentApplication.navUsersView.refreshGroupList();
-        }
+		
+		
+		private function onGetLab(event:ResultEvent):void {
+			parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+			
+			var itemToSelect:XML = new XML("<Lab id='" + savedIdLab + "'/>");
+			parentApplication.navUsersView.itemToSelect = itemToSelect;
+			
+			parentApplication.navUsersView.refreshGroupList();
+			parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
+		}
 
           public function promptToVerifyUserAccounts():void {
           
