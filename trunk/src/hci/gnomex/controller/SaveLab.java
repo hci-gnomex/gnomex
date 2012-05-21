@@ -86,11 +86,10 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
     
     // Don't allow for blank first and last name on lab
-    if (labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("")) {
-      if (labScreen.getLastName() == null || labScreen.getLastName().trim().equals("")) {
+    if ((labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("")) || 
+        (labScreen.getLastName() == null || labScreen.getLastName().trim().equals(""))) {
         this.addInvalidField("reqdname", "Lab first or last name must be filled in");
       }
-    }
 
     if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
       institutionsXMLString = request.getParameter("institutionsXMLString");
