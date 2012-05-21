@@ -164,17 +164,31 @@ TitleWindow {
 }
 
 Alert {
-	borderAlpha: 1.0;
-	backgroundColor: #BAB8A5;
-	borderColor: #BAB8A5;
+	borderAlpha: .2;
+	backgroundColor: #FFFFFF;
+	borderColor: #FFFFFF;
 	cornerRadius: 4;
 	borderStyle: solid;
-	backgroundAlpha: 1;
-	fontSize: 11;
+	backgroundAlpha: 0.2;
+	fontSize: 14;
 	titleStyleName: alertTitle;
 	controlBarStyleName: alertControlBar;
-	backgroundSize: "100%";
+	fontFamily: Calibri;
+	color: #000000;
 }
+.alertTitle
+{
+	fontWeight: bold;
+	fontSize: 14;
+	color: #000000;
+}
+.alertControlBar
+{
+	fontSize: 12;
+	color: #000000;
+	backgroundAlpha: .2;
+}
+
 
 TitleWindow {
 	headerColors: #C3C2B7, #C3C2B7; 
@@ -709,16 +723,6 @@ Text.navLabelSmall
 	fontSize: 12;
 	leading: 0;
 }
-.alertTitle
-{
-	fontSize: 11;
-}
-.alertControlBar
-{
-	fontSize: 10;
-	color: #3F3E28;
-	backgroundAlpha: 1.0;
-}
 Text.progressLabel
 {
 	color: #ffffff;
@@ -805,4 +809,11 @@ Text.progressLabel
 	paddingTop: 4;
 	verticalGap: 2; 
 	
+}
+@font-face
+{
+	fontFamily: Calibri;
+	fontWeight: normal;
+	fontStyle: normal;
+	src: local("Calibri");
 }
