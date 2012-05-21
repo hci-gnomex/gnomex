@@ -84,6 +84,13 @@ public class SaveLab extends GNomExCommand implements Serializable {
     if (labScreen.getIdLab() == null || labScreen.getIdLab().intValue() == 0) {
       isNewLab = true;
     }
+    
+    // Don't allow for blank first and last name on lab
+    if (labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("")) {
+      if (labScreen.getLastName() == null || labScreen.getLastName().trim().equals("")) {
+        this.addInvalidField("reqdname", "Lab first or last name must be filled in");
+      }
+    }
 
     if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
       institutionsXMLString = request.getParameter("institutionsXMLString");
@@ -178,34 +185,50 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      List labs = sess.createQuery("from Lab where upper(firstName)='" + labScreen.getFirstName().toUpperCase() +  "' and upper(lastName)='" + labScreen.getLastName().toUpperCase()+"'").list();
+      
+      StringBuffer buf = new StringBuffer();
+      buf.append("from Lab where upper(lastName) = '" +  labScreen.getLastName().toUpperCase()+" '");
+      if (labScreen.getFirstName() != null && !labScreen.getFirstName().trim().equals("")) {
+        buf.append(" AND upper(firstName) = '" +  labScreen.getFirstName().toUpperCase()+ "'");
+      }
+      // If this is an existing lab, check for duplicate lab name, excluding this lab.
+      if (!isNewLab) {
+        buf.append(" AND idLab != " + labScreen.getIdLab().toString());
+      }
+      List labs = sess.createQuery(buf.toString()).list();
+      
+      // If there are duplicate labs, throw an error.
+      if (labs.size() > 0) {
+        String labFirstName = labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("") ? "" : labScreen.getFirstName() + " ";
+        this.addInvalidField("Duplicate Lab Name", "The lab name " + labFirstName + labScreen.getLastName() + " is already in use.");
+        setResponsePage(this.ERROR_JSP);
+      }
 
-      if(labs.size() == 0 || !isNewLab){
-
+      if (isValid()) {
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
           accountParser.parse(sess);
           labInstitutionParser.parse(sess);
           labMemberParser.parse(sess);
           collaboratorParser.parse(sess);
           managerParser.parse(sess);
-
+  
           Lab lab = null;
-
+  
           if (isNewLab) {
             lab = labScreen;
             sess.save(lab);
           } else {
-
+  
             lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
-
+  
             // Need to initialize billing accounts; otherwise new accounts
             // get in the list and get deleted.
             Hibernate.initialize(lab.getBillingAccounts());
-
+  
             initializeLab(lab);
           }
-
-
+  
+  
           //
           // Save billing accounts
           //
@@ -214,14 +237,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
             BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);
             ba.setIdLab(lab.getIdLab());
             sess.save(ba);
-
+  
             // If billing account has just been approved, send out a notification
             // email to submitter of work auth form as well as lab managers
             if (ba.isJustApproved()) {
               this.sendApprovedBillingAccountEmail(sess, ba, lab);
             }
           }
-
+  
           // Remove billing accounts no longer in the billing acount list
           List billingAccountsToRemove = new ArrayList();
           if (lab.getBillingAccounts() != null) {
@@ -237,7 +260,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
               sess.delete(ba);
             }
           }
-
+  
           //
           // Save lab institutions
           //
@@ -248,9 +271,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
             institutions.add(institution);
           }
           lab.setInstitutions(institutions);
-
+  
           sess.flush();
-
+  
           //
           // Save lab members
           //
@@ -261,10 +284,10 @@ public class SaveLab extends GNomExCommand implements Serializable {
             members.add(appUser);
           }
           lab.setMembers(members);
-
+  
           sess.flush();
-
-
+  
+  
           //
           // Save lab collaborators
           //
@@ -275,11 +298,11 @@ public class SaveLab extends GNomExCommand implements Serializable {
             collaborators.add(appUser);
           }
           lab.setCollaborators(collaborators);
-
+  
           sess.flush();
-
-
-
+  
+  
+  
           //
           // Save lab managers
           //
@@ -290,22 +313,20 @@ public class SaveLab extends GNomExCommand implements Serializable {
             managers.add(appUser);
           }
           lab.setManagers(managers);
-
+  
           sess.flush();
-
-
+  
+  
           this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
-
+  
           setResponsePage(this.SUCCESS_JSP);
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to save lab.");
           setResponsePage(this.ERROR_JSP);
         }
       }
-      else{
-        this.addInvalidField("Duplicate Lab Name", "That lab name is already in use");
-        setResponsePage(this.ERROR_JSP);
-      }
+
+      
 
     }catch (Exception e){
       log.error("An exception has occurred in SaveLab ", e);
@@ -324,8 +345,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
   }
 
   private void initializeLab(Lab lab) {
-    lab.setFirstName(labScreen.getFirstName());
-    lab.setLastName(labScreen.getLastName());
+    lab.setFirstName(labScreen.getFirstName() != null ? labScreen.getFirstName().trim() : labScreen.getFirstName());
+    lab.setLastName(labScreen.getLastName() != null ? labScreen.getLastName().trim() : labScreen.getLastName());
     lab.setDepartment(labScreen.getDepartment());
 
     lab.setContactAddress(labScreen.getContactAddress());
