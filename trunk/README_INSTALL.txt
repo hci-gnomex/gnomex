@@ -100,8 +100,8 @@ Install Instructions
      'Admin - Property'.  Review the entries and make sure you modify the following properties 
      to match your environment:
       Required properties - Make sure all of these directories exist.
-      -	experiment_read_directory, experiment_write_directory      
-      -	analysis_read_directory, analysis_write_directory        
+      -	experiment_read_directory, experiment_write_directory   *NOTE: Set these properties to the same file path    
+      -	analysis_read_directory, analysis_write_directory       *NOTE: Set these properties to the same file path 
       -	flowcell_directory				
       -	lucene_index_directory
       -	lucene_experiment_index_directory
