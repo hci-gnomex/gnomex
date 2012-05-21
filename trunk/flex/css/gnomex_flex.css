@@ -169,17 +169,16 @@ Alert {
 	borderColor: #FFFFFF;
 	cornerRadius: 4;
 	borderStyle: solid;
-	backgroundAlpha: 0.2;
-	fontSize: 14;
+	backgroundAlpha: 1;
+	fontSize: 12;
 	titleStyleName: alertTitle;
 	controlBarStyleName: alertControlBar;
-	fontFamily: Calibri;
 	color: #000000;
 }
 .alertTitle
 {
 	fontWeight: bold;
-	fontSize: 14;
+	fontSize: 12;
 	color: #000000;
 }
 .alertControlBar
@@ -809,11 +808,4 @@ Text.progressLabel
 	paddingTop: 4;
 	verticalGap: 2; 
 	
-}
-@font-face
-{
-	fontFamily: Calibri;
-	fontWeight: normal;
-	fontStyle: normal;
-	src: local("Calibri");
 }
