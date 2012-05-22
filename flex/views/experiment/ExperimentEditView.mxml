@@ -2266,14 +2266,14 @@
 			warningMessage = '';
 			
 			if (isCapSeqState()) {
-				if (parentDocument.samples.length > 96 && sampleSetupView.containerTypeRadioGroup.selectedValue != 'PLATE') {
+				if (samples.length > 96 && sampleSetupView.containerTypeRadioGroup.selectedValue != 'PLATE') {
 					errorMessage += "You may not have more than 96 samples in a Tube container.\n\n";
 				}
-				if (parentDocument.samples.length < 30 && sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+				if (samples.length < 30 && sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
 					errorMessage += "You may not have less than 30 samples in a Plate container.\n\n";
 				}
 			}				
-			// Make sur lab and billing acount filled in
+			// Make sure lab and billing account filled in
 			if (isEditState()) {
 				if (requestEditLabCombo.selectedItem == null || requestEditLabCombo.selectedItem.@idLab == '') {
 					errorMessage += "Lab must be specified.\n\n";
