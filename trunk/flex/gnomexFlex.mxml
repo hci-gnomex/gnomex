@@ -2475,7 +2475,10 @@
 			 	<util:CustomLinkButton id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
 			 </mx:AddChild>
 		 </mx:State>
-		 <mx:State name="SuperAdminDNASeqState" basedOn="AdminState"/>
+		 <mx:State name="SuperAdminDNASeqState" basedOn="AdminState">
+			 <mx:RemoveChild target="{usageLink}"/>
+			 <mx:RemoveChild target="{usageRule}"/>
+		 </mx:State>
 
 		 
 	 </mx:states>
