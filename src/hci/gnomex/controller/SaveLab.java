@@ -85,11 +85,13 @@ public class SaveLab extends GNomExCommand implements Serializable {
       isNewLab = true;
     }
     
-    // Don't allow for blank first and last name on lab
-    if ((labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("")) || 
-        (labScreen.getLastName() == null || labScreen.getLastName().trim().equals(""))) {
+    // It is invalid for both the first and last name of the lab to be blank.
+    if (labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("")) {
+      if (labScreen.getLastName() == null || labScreen.getLastName().trim().equals("")) {
         this.addInvalidField("reqdname", "Lab first or last name must be filled in");
       }
+    }
+
 
     if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
       institutionsXMLString = request.getParameter("institutionsXMLString");
@@ -186,9 +188,17 @@ public class SaveLab extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
       StringBuffer buf = new StringBuffer();
-      buf.append("from Lab where upper(lastName) = '" +  labScreen.getLastName().toUpperCase()+" '");
+      boolean whereAdded = false;
+      buf.append("from Lab ");
+      if (labScreen.getLastName() != null && !labScreen.getLastName().trim().equals("")) {
+        buf.append(whereAdded ? " AND " : " WHERE" );
+        buf.append(" upper(lastName) = '" +  labScreen.getLastName().toUpperCase()+ "'");
+        whereAdded = true;
+      }
       if (labScreen.getFirstName() != null && !labScreen.getFirstName().trim().equals("")) {
-        buf.append(" AND upper(firstName) = '" +  labScreen.getFirstName().toUpperCase()+ "'");
+        buf.append(whereAdded ? " AND " : " WHERE" );
+        buf.append(" upper(firstName) = '" +  labScreen.getFirstName().toUpperCase()+ "'");
+        whereAdded = true;
       }
       // If this is an existing lab, check for duplicate lab name, excluding this lab.
       if (!isNewLab) {
