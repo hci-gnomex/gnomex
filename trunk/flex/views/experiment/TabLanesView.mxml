@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sample Sequencing Runs" enabled="true" width="100%" height="100%">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sample Sequence Lanes" enabled="true" width="100%" height="100%">
 <mx:Script>	
 	<![CDATA[
 		import mx.events.CloseEvent;
@@ -418,7 +418,7 @@
 			</mx:AddChild>
 
 			<mx:AddChild relativeTo="{buttonContainer}" position="before">
-			    <mx:Label id="lanesTitle" text="Sample Sequencing Runs (to assign sample to lane, drag sample to right-hand grid)"/>				
+			    <mx:Label id="lanesTitle" text="Sample Sequence Lanes (to assign sample to lane, drag sample to right-hand grid)"/>				
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="LanesAdminState" basedOn="LanesEditState">			

@@ -309,7 +309,7 @@
 	       				continue;
 	       			}
 	       			if (theItem.@idSeqRunType != item.@idSeqRunType) {
-	       				warningMessage += "The flow cell channels have samples destined for different sequence run types.\n\n";
+	       				warningMessage += "The flow cell channels have samples destined for different sequence lane types.\n\n";
 	       				isValid = false;
 	       				invalidCount++;
 	       				break;
@@ -577,7 +577,7 @@
 		
 		private function checkCompatibleSeqRun(dragNode:XML, channelNode:XML, event:DragEvent):Boolean {
 			if (dragNode.@idSeqRunType != channelNode.@idSeqRunType) {
-   				Alert.show("Warning - Incompatible sequence run type.");
+   				Alert.show("Warning - Incompatible sequence lane type.");
 	       		event.preventDefault();
 	       		event.target.hideDropFeedback(event);
 	       		DragManager.showFeedback(DragManager.NONE);
