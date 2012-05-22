@@ -90,7 +90,7 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
     queryBuf.append(" LEFT JOIN  req.samples as sample ");
     
-    queryBuf.append(" WHERE (sample.redoFlag != 'Y' AND req.codeRequestStatus = '" + RequestStatus.NEW + "') ");
+    queryBuf.append(" WHERE (sample.redoFlag != 'Y' AND req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "') ");
     
 
     addWhere = false;
