@@ -8,7 +8,7 @@
 <mx:HBox>
 	<mx:Image source="{parentApplication.iconSolexa}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
-		text="{codeStepNext == 'SEQRUN' ? 'Illumina GAIIx Sequencing Run' : 'Illumina HiSeq Sequencing Run'}"/>
+		text="{codeStepNext == 'SEQRUN' ? 'Illumina GAIIx Sequence Lane' : 'Illumina HiSeq Sequence Lane'}"/>
 	
 </mx:HBox>
 

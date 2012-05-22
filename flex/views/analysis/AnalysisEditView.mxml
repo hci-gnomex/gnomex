@@ -1125,7 +1125,7 @@
 		<mx:Canvas label="Experiments" width="100%" height="100%">
 			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:VBox width="230" height="100%">
-					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sample sequencing runs onto grid">						
+					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sample sequence lanes onto grid">						
 					</mx:Text>
 					<mx:ComboBox 
 						id="expLabCombo" 

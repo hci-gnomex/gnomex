@@ -108,7 +108,7 @@
 				</mx:Image>			
 			</mx:HBox>
 			<mx:VBox id="seqRunTypeContainer" width="100%" verticalGap="0">
-			    <mx:Label text="Sequencing run type"/>
+			    <mx:Label text="Sequence Lane type"/>
 				<mx:VBox verticalGap="0" id="seqRunTypeBox" paddingLeft="10">
 				    <mx:RadioButtonGroup id="seqRunTypeRadioGroup"/>
 					<mx:Repeater id="seqRunRepeater" dataProvider="{seqRunTypes}"> 

@@ -233,7 +233,7 @@
 		}		
 		
 		if(this.seqRunTypeCombo.selectedItem == null || this.seqRunTypeCombo.selectedItem.@value=='') {
-			mx.controls.Alert.show("Please provide a value for the Sequence Run Type field.", "Sequence Run Type Required");
+			mx.controls.Alert.show("Please provide a value for the Sequence Lane Type field.", "Sequence Lane Type Required");
 			return;
 		}		
 		

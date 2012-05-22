@@ -674,7 +674,7 @@ public class RequestHTMLFormatter {
       Date createDate = (Date)i.next();
       List<SequenceLane> theLanes = laneDateMap.get(createDate);
 
-      String caption = "Sample Sequencing Runs";
+      String caption = "Sample Sequence Lanes";
       if (laneDateMap.size() > 1 || 
           (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES))) {
         if (sectionCount == 0) {
