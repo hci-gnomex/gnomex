@@ -7,6 +7,9 @@
 * Change style of Alert (message box). (tdisera)
 * Added more rigorous back-end checking for duplicate Lab names. (tdisera/tcourdy)
 * Fixed actionscript error in navUsersView that occurred when the datagrid was trying to be refreshed after a pre-existing lab was being saved. (tcourdy)
+* Add new backend command for Plate Editor (GetPendingSampleList).  (tdisera)
+* More work on nav bar for Super Admin to stay within 1024 width. (tdisera)
+
 
 
 5.4.4 (May 18, 2012)
