@@ -91,10 +91,7 @@
 				libDesignAndInsertBox.visible = true;
 				designAndInsertLabel.text = "Cap Lib Design";
 				designAndInsertText.text = selectedExperiment.@captureLibDesignId;
-				
-
 			}
-			
 			else if(selectedExperiment.@avgInsertSizeFrom != ""){
 				libDesignAndInsertBox.visible = true;
 				designAndInsertLabel.text = "Avg Insert Size";
@@ -152,9 +149,7 @@
 				if(headerBox != null) {
 					headerBox.visible = false;
 				}
-				if(hbox2 != null) {
-					hbox2.visible = false;		
-				}
+				
 			} else if (requestCategory.@type == 'CAPSEQ') {
 				currentState = 'CapSeqState';
 			}
@@ -1175,7 +1170,7 @@
 	</mx:State>
 	<mx:State name="SolexaState">
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
-				<mx:VBox  id="lanesConfirmContainer" label="Sample Sequencing Runs"  verticalGap="0" width="100%" height="100%">
+				<mx:VBox  id="lanesConfirmContainer" label="Sample Sequence Lanes"  verticalGap="0" width="100%" height="100%">
 						<mx:AdvancedDataGrid width="100%" 
 							height="100%" id="lanesConfirmGrid"
 							displayItemsExpanded="true"
@@ -1270,6 +1265,7 @@
 		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="ExternalSeqState">
+		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="CapSeqState">		
 	</mx:State>
