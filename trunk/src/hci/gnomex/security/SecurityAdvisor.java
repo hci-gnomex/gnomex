@@ -64,7 +64,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          CAN_ACCESS_ANY_OBJECT                       = "canAccessAnyObject";
   public static final String          CAN_WRITE_ANY_OBJECT                        = "canWriteAnyObject";
   public static final String          CAN_DELETE_ANY_PROJECT                      = "canDeleteAnyProject";            
-  public static final String          CAN_DELETE_REQUESTS                         = "canDeleteRequests";            
+  public static final String          CAN_DELETE_REQUESTS                         = "canDeleteRequests";   
+  public static final String          CAN_MANAGE_DNA_SEQ                          = "canManageDNASeq";
   
   public static final String          CAN_PARTICIPATE_IN_GROUPS                   = "canParticipateInGroups";            
   public static final String          CAN_SUBMIT_REQUESTS                         = "canSubmitRequests";            
@@ -1262,6 +1263,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
         appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_WRITE_DICTIONARIES), null);
+    }
+    
+    // Can manage DNA Seq Core
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ), null);
+    } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+      if (appUser.getManagingCoreFacilities() != null) {
+        for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
+          CoreFacility coreFacility = (CoreFacility)i.next();
+          if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
+            globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ), null);
+          }
+        }
+      }
     }
     
     // Can write property dictionary

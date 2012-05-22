@@ -460,6 +460,7 @@
 			<url-pattern>/GetAnalysisLabList.gx</url-pattern>
 			<url-pattern>/GetBillingItemList.gx</url-pattern>
 			<url-pattern>/GetBillingRequestList.gx</url-pattern>
+			<url-pattern>/GetPendingSampleList.gx</url-pattern>
 			<url-pattern>/GetPrice.gx</url-pattern>
 			<url-pattern>/GetPriceCategory.gx</url-pattern>
 			<url-pattern>/GetPriceSheet.gx</url-pattern>
