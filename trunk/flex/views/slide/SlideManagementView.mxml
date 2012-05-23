@@ -758,7 +758,7 @@
 			  <mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 					<mx:Label text="" fontSize="20" color="#A1A1A2" textAlign="right" right="10" top="10" height="31" left="10"/>
 		     </mx:Canvas> 
-		     <mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
+		     <mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form" verticalScrollPolicy="off" horizontalScrollPolicy="off">
   		    
   		      <mx:TabNavigator width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 					
@@ -836,16 +836,16 @@
 							</hci:ComboBox>
 						</mx:VBox>		
 				</mx:HBox>
-					<mx:HBox y="187" right="10" left="10" height="100%" id="hbox1" width="100%">
-					<mx:VBox x="10" y="192" width="100%" verticalGap="0" height="100%">
-						<mx:Label text="Application:" left="10" top="142" height="18" width="100%" id="label5"/>
-						<mx:Repeater dataProvider="{realApps}" height ="100%"
+					<mx:HBox y="187" right="10" left="10" height="100%" id="hbox1" verticalScrollPolicy="auto">
+					<mx:VBox x="10" y="192" verticalGap="0" height="100%" verticalScrollPolicy="auto">
+						<mx:Label text="Application:" left="10" top="142" width="100%" height="18" id="label5"/>
+						<mx:Repeater dataProvider="{realApps}" height="100%"
 									 id="sdApplication">
 							<mx:CheckBox id="check" paddingTop="0" label="{sdApplication.currentItem.@application}" data="{sdApplication.currentItem.@value}" change="dirty.setDirty()" selected="{sdApplication.currentItem.@isActive == 'Y' ? true : false}" click="updateApplications(event.currentTarget.getRepeaterItem())"/>
 						</mx:Repeater>
-						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
-						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
-						<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
+						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189"/>
+						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10"/>
+						<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" visible="false"/>
 					</mx:VBox>
 					</mx:HBox>
 			</mx:VBox>
