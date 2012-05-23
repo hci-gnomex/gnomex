@@ -87,17 +87,18 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
 
           Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
-          String idRequestString = plateWell.getIdRequest().toString();
-          if ( idRequestString != null && !idRequestString.equals("")) {
-            Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-            if ( request != null ) {
-              node.setAttribute("RequestSubmitDate", request.getCreateDate().toString());
-              node.setAttribute("RequestSubmitter", request.getOwnerName());
+          if ( plateWell.getIdRequest() != null ) {
+            String idRequestString = plateWell.getIdRequest().toString();
+            if ( idRequestString != null && !idRequestString.equals("")) {
+              Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+              if ( request != null ) {
+                node.setAttribute("RequestSubmitDate", request.getCreateDate().toString());
+                node.setAttribute("RequestSubmitter", request.getOwnerName());
 
+              }
             }
           }
-
-
+          
           pwNode.addContent(node);
         }
         pNode.addContent(pwNode);
