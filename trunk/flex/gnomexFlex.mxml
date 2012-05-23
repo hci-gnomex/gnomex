@@ -969,7 +969,7 @@
 			}
 
 			public function showInstrumentRun(idRun:String):void {
-				navPlateView.switchToView();
+				navPlateView.switchToViewState();
 				navPlateView.loadRunById(idRun);
 				navPlateView.tabNav.selectedChild = navPlateView.runTab;
 								
