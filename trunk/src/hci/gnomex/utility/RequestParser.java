@@ -6,6 +6,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
@@ -125,7 +126,6 @@ public class RequestParser implements Serializable {
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
         request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
         request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
-        request.setCodeRequestStatus(RequestStatus.NEW);
       
         if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
           request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
@@ -261,6 +261,8 @@ public class RequestParser implements Serializable {
     }
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));      
+    } else if (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+      request.setCodeRequestStatus(RequestStatus.NEW);
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 
