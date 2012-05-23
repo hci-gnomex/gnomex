@@ -1,0 +1,467 @@
+
+@media screen {
+	body {
+		font-family: arial,Helvetica,sans-serif;
+	font-size: 9pt;
+	width: 700;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+td.gridreverse {
+	color: white;
+	font-weight: bold;
+	background-color: black;
+}
+}
+
+@media print {
+	body {
+		font-family: Arial,Helvetica;
+	font-size: 9pt;
+	width: 700;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+a {
+	display: none;
+}
+
+}
+
+table {
+	cell-padding: 10px;
+	width: 700;
+	border: none;
+	padding-top: 0;
+}
+
+p.break {
+	page-break-before: always;
+}
+#container{
+	font-size: 11pt;
+	width:700;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
+}
+
+#printLinkColRight {
+	margin-bottom: 15px;
+	float: right;
+	margin-left: 0px;
+	width: 90;
+	line-height: 180%;
+	font-style: normal;
+	font-size: 9pt;
+}
+
+#footer {
+	clear: both;
+}
+
+#containerForm{
+	font-size: 11pt;
+	width:700;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
+}
+
+H2 {
+	margin-top: 0;
+	font-size: 12pt;
+	font-weight: bold;
+	padding-top: 0;
+	padding-bottom: 0;
+	line-height: 0;
+	text-align: center;
+} 
+h3 {
+	font-size: 11pt;
+	font-weight: bold;
+	padding-top: 5;
+	text-align: left;
+}
+h4 {	
+	font-size: 10pt;
+	font-weight: bold;
+	padding-top: 0;
+	padding-bottom: 0;
+	line-height: 0;
+	text-align: center;
+}
+h5
+{
+	font-size: 10pt;
+	font-weight: bold;
+	color: #8B7765;
+	text-align: left;
+	margin-top: 15;
+	margin-bottom: 5;
+}
+h6 {
+	font-size: 10pt;
+	font-weight: normal;
+	font-style: italic;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 10;
+	margin-right: 10;
+	padding: 10;
+	border: solid thin;
+	border-color: #D8D8D8 ;
+}
+
+caption
+{
+	font-size: 10pt;
+	font-weight: bold;
+	color: #8B7765;
+	caption-side: top;
+	text-align: left;
+	padding-top: 15;
+	padding-bottom: 5;
+}
+caption.narrow
+{
+	font-size: 10pt;
+	font-weight: bold;
+	color: #8B7765;
+	caption-side: top;
+	text-align: left;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+th {
+	font-size: 8pt;
+	border-bottom: solid thin;
+	border-color: #D8D8D8  ;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+th.plategrid {
+	font-size: 8pt;
+	padding-left: 5px;
+	padding-right: 5px;
+	border: none;
+}
+.ptext {
+	font-size: 7pt;
+	padding-left: 2px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-right: 2px;
+	border: solid thin;
+	border-color: #000000  ;
+}
+td {
+	font-size: 9pt;
+	padding-left: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 2px;
+	border-bottom: solid thin;
+	border-right: solid thin;
+	border-color: #D8D8D8  ;
+}
+td.label {
+	font-size: 9pt;
+	border: none;
+	font-weight: bold;
+	color: #8B7765;
+	padding-right: 10;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+td.value {
+	font-size: 9pt;
+	border: none;
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+td.plate{
+	font-size: 7pt;
+	padding-left: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-right: 5px;
+	border-bottom: solid thin;
+	border-right: solid thin;
+	border-top: solid thin;
+	border-left: solid thin;
+	border-color: #D8D8D8  ;
+	text-align: left;
+	width: 75;
+}
+td.noborder {
+	font-size: 9pt;
+	padding-left: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 2px;
+	border: none;
+}
+td.grid {
+	font-size: 9pt;
+	padding-left: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 2px;
+	border: none;
+	border-color: #D8D8D8;
+	text-align: center;
+}
+td.gridempty {
+	width: 150;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}   
+td.gridblank {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-left: solid thin;
+	border-right: none;
+	border-bottom: none;
+	border-top: none;
+	border-color: #D8D8D8;
+}  
+
+.colored0 {
+	background-color: #FFFFFF;
+}
+.colored1 {
+	background-color: #0000FF;
+}
+.colored2 {
+	background-color: #00FFFF;
+}
+.colored3 {
+	background-color: #7FFF00;
+}
+.colored4 {
+	background-color: #FF7F50;
+}
+.colored5 {
+	background-color: #6495ED;
+}
+.colored6 {
+	background-color: #DC143C;
+}
+.colored7 {
+	background-color: #006400;
+}
+.colored8 {
+	background-color: #8B008B;
+}
+.colored9 {
+	background-color: #00008B;
+}
+.colored10 {
+	background-color: #2F4F4F;
+}
+.colored11 {
+	background-color: #00CED1;
+}
+.colored12 {
+	background-color: #FF1493;
+}
+.colored13 {
+	background-color: #008B8B;
+}
+.colored14 {
+	background-color: #1E90FF;
+}
+.colored15 {
+	background-color: #FF00FF;
+}
+.colored16 {
+	background-color: #FF8C00;
+}
+.colored17 {
+	background-color: #DCDCDC;
+}
+.colored18 {
+	background-color: #FFD700;
+}
+.colored19 {
+	background-color: #483D8B;
+}
+.colored20 {
+	background-color: #808080;
+}
+.colored21 {
+	background-color: #ADFF2F;
+}
+.colored22 {
+	background-color: #4B0082;
+}
+.colored23 {
+	background-color: #8FBC8F;
+}
+.colored24 {
+	background-color: #F0E68C;
+}
+.colored25 {
+	background-color: #ADD8E6;
+}
+.colored26 {
+	background-color: #F08080;
+}
+.colored27 {
+	background-color: #ADD8E6;
+}
+.colored28 {
+	background-color: #90EE90;
+}
+.colored29 {
+	background-color: #20B2AA;
+}
+.colored30 {
+	background-color: #FFA07A;
+}
+.colored31 {
+	background-color: #87CEFA;
+}
+.colored32 {
+	background-color: #B0C4DE;
+}
+.colored33 {
+	background-color: #32CD32;
+}
+.colored34 {
+	background-color: #800000;
+}
+.colored35 {
+	background-color: #66CDAA;
+}
+.colored36 {
+	background-color: #9370DB;
+}
+.colored37 {
+	background-color: #00FA9A;
+}
+.colored38 {
+	background-color: #6B8E23;
+}
+.colored39 {
+	background-color: #FFA500;
+}
+.colored40 {
+	background-color: #FF4500;
+}
+.colored41 {
+	background-color: #DA70D6;
+}
+.colored42 {
+	background-color: #AFEEEE;
+}
+.colored43 {
+	background-color: #DB7093;
+}
+.colored44 {
+	background-color: #FFDAB9;
+}
+.colored45 {
+	background-color: #CD853F;
+}
+.colored46 {
+	background-color: #DDA0DD;
+}
+.colored47 {
+	background-color: #B0E0E6;
+}
+.colored48 {
+	background-color: #BC8F8F;
+}
+.colored49 {
+	background-color: #4169E1;
+}
+.colored50 {
+	background-color: #FA8072;
+}
+.colored51 {
+	background-color: #F4A460;
+}
+.colored52 {
+	background-color: #2E8B57;
+}
+.colored53 {
+	background-color: #FFF5EE;
+}
+.colored54 {
+	background-color: #C0C0C0;
+}
+.colored55 {
+	background-color: #6A5ACD;
+}
+.colored56 {
+	background-color: #00FF7F;
+}
+.colored57 {
+	background-color: #4682B4;
+}
+.colored58 {
+	background-color: #D8BFD8;
+}
+.colored59 {
+	background-color: #FF6347;
+}
+.colored60 {
+	background-color: #40E0D0;
+}
+.colored61 {
+	background-color: #EE82EE;
+}
+.colored62 {
+	background-color: #FFFF00;
+}
+.colored63 {
+	background-color: #9ACD32;
+}
+.colored64 {
+	background-color: #E3CF57;
+}
+.colored65 {
+	background-color: #8B475D;
+}
+.colored66 {
+	background-color: #6495ED;
+}
+.colored67 {
+	background-color: #33A1C9;
+}
+.colored68 {
+	background-color: #87CEFF;
+}
+.colored69 {
+	background-color: #00C957;
+}
+.colored70 {
+	background-color: #FFFF00;
+}
+.colored71 {
+	background-color: #FAEBD7;
+}
+.colored72 {
+	background-color: #9932CC;
+}
+.colored73 {
+	background-color: #5F9EA0;
+}
+.colored74 {
+	background-color: #E9967A;
+}
+.colored75 {
+	background-color: #A9A9A9;
+}
+.colored76 {
+	background-color: #F5F5F5;
+}
