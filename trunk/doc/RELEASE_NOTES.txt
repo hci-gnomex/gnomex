@@ -8,6 +8,7 @@
 * Avg insert and cap lib fields are no longer displayed for external experiments on experiment edit view.(tcourdy)
 * Fixed display problems with the completed field on experiment edit/detail views.(tcourdy) 
 * Removed horizontal and vertical scroll bars for Slide Management window.(tcourdy)
+* Tab names now correct for Cap Seq requests in view/edit.  (bspiglejr)
 
 5.4.4.1 (May 21, 2012)
 ----------------------
