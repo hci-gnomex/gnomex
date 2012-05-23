@@ -259,6 +259,9 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
+    if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
+      request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));      
+    }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 
     for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
