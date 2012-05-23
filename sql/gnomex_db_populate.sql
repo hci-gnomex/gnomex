@@ -855,7 +855,7 @@ insert into ReactionType
 (codeReactionType, reactionType, isActive)
 values 
 ('SEQ',  'Capillary Sequencing', 'Y'),
-('MIT',  'Mitochondrial D-Loop Sequencing', 'Y'),
+('MIT',  'Mito D-Loop', 'Y'),
 ('CHERRY',  'Cherry Picking', 'Y'),
 ('FRAG',  'Fragment Analysis', 'Y');
 
