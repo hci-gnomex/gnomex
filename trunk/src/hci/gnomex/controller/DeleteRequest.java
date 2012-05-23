@@ -110,32 +110,33 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         sess.flush();
         
         // Delete source plates
-        String sourcePlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (";
-        Boolean firstSample = true;
-        for(Iterator i = req.getSamples().iterator();i.hasNext();) {
-          Sample s = (Sample)i.next();
-          if (!firstSample) {
-            sourcePlateQuery += ", ";
+        if (req.getSamples().size() > 0) {
+          String sourcePlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (";
+          Boolean firstSample = true;
+          for(Iterator i = req.getSamples().iterator();i.hasNext();) {
+            Sample s = (Sample)i.next();
+            if (!firstSample) {
+              sourcePlateQuery += ", ";
+            }
+            sourcePlateQuery += s.getIdSample().toString();
+            firstSample = false;
           }
-          sourcePlateQuery += s.getIdSample().toString();
-          firstSample = false;
-        }
-        sourcePlateQuery += ")";
-        List sourcePlates = sess.createQuery(sourcePlateQuery).list();
-        Integer idSourcePlate = null;
-        for(Iterator i = sourcePlates.iterator();i.hasNext();) {
-          PlateWell well = (PlateWell)i.next();
-          idSourcePlate = well.getIdPlate();
-          sess.delete(well);
-        }
-        if (idSourcePlate != null) {
-          Plate sourcePlate = (Plate)sess.load(Plate.class, idSourcePlate);
-          if (sourcePlate != null) {
-            sess.delete(sourcePlate);
+          sourcePlateQuery += ")";
+          List sourcePlates = sess.createQuery(sourcePlateQuery).list();
+          Integer idSourcePlate = null;
+          for(Iterator i = sourcePlates.iterator();i.hasNext();) {
+            PlateWell well = (PlateWell)i.next();
+            idSourcePlate = well.getIdPlate();
+            sess.delete(well);
           }
-          sess.flush();
+          if (idSourcePlate != null) {
+            Plate sourcePlate = (Plate)sess.load(Plate.class, idSourcePlate);
+            if (sourcePlate != null) {
+              sess.delete(sourcePlate);
+            }
+            sess.flush();
+          }
         }
-        
         //
         // Delete (unlink) collaborators
         //
