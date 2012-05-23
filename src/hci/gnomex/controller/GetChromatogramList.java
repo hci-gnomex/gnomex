@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ChromatogramFilter;
+import hci.gnomex.model.Request;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -70,7 +71,6 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
 
           Object[] row = (Object[])i.next();
 
-          
           Integer idChromatogram = row[0] == null ? new Integer(0) : (Integer)row[0];
           Integer idPlateWell = row[1] == null ? new Integer(0) : (Integer)row[1];
           Integer idRequest = row[2] == null ? new Integer(0) : (Integer)row[2];
@@ -101,6 +101,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
             q40_len =  new Integer(0);
           }
 
+          Request request = (Request) sess.createQuery("SELECT req from Request as req where req.idRequest=" + idRequest).uniqueResult();
+          String submitter = request!=null ? request.getOwnerName() : "";
           
           Element cNode = new Element("Chromatogram");
           cNode.setAttribute("idChromatogram", idChromatogram.toString());
@@ -120,6 +122,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute("q40_len", "" + q40_len);
           cNode.setAttribute("viewURL", getViewURL());
           cNode.setAttribute( "releaseDate", releaseDate );
+          cNode.setAttribute( "submitter", submitter );
           
           doc.getRootElement().addContent(cNode);
 

@@ -3,6 +3,10 @@ package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.Chromatogram;
+import hci.gnomex.model.InstrumentRun;
+import hci.gnomex.model.InstrumentRunStatus;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,6 +57,26 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
 
       this.initializeChromat(sess, node, ch);
+      
+      PlateWell pw = null;
+      Plate p = null;
+      InstrumentRun ir=null;
+      
+      if ( ch.getIdPlateWell() != null ) {
+        pw = (PlateWell) sess.get(PlateWell.class, ch.getIdPlateWell());
+      }
+      if ( pw != null && pw.getIdPlate() != null ) {
+        p = (Plate) sess.get(Plate.class, pw.getIdPlate());
+      }
+      if ( p != null && p.getIdInstrumentRun() != null ) {
+        ir = (InstrumentRun) sess.get(InstrumentRun.class, p.getIdInstrumentRun());
+      }
+      if ( ch.getReleaseDate() != null ) {
+        if ( ir!=null ) {
+          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+        }
+      }
+      
       sess.flush();
       
       chMap.put( idChromatogram, ch );
