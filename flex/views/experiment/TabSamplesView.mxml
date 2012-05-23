@@ -767,10 +767,18 @@
 		}
 		
 		public function propagateContainerType(containerType:String):void {
+			var idx:int = 0;
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@containerType = containerType;
+				if (containerType == 'Plate') {
+					sample.@plateName = this.getPlateName(idx);
+				} else {
+					sample.@plateName = '';
+				}
+				idx++;
 			}
 		}
+		
 		public function propagateOrganism(idOrganism:String):void {
 			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
@@ -817,7 +825,7 @@
 			}
 			
 			
-			if (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected) {
+			if (parentDocument.isCapSeqState() && parentDocument.showPlateGroup()) {
 				this.samplesGrid.dataProvider = null;
 				sampleGroupingCollection = new GroupingCollection();
 				sampleGroupingCollection.source = parentDocument.samples;
