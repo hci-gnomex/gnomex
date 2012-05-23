@@ -899,6 +899,12 @@ values
 ('PROCESSING',	'processing',	'Y'),
 ('SUBMITTED',	'submitted',	'Y');
  
+ -- Populate SealType dictionary
+insert into gnomex.SealType
+(codeSealType, sealType, isActive)
+values 
+('HEATSEAL',  'Heat Sealing', 'Y');
+  
 -- Insert entries into PropertyType
 INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('TEXT',        'Text');
 INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('URL',         'URL');

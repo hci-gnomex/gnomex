@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.InstrumentRun;
+import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -27,6 +28,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   private String                codeReactionType = null;
   private String                creator = null;
   private String                codeSealType = null;
+  private String                codeInstrumentRunStatus = null;
   
   //Variable to indicate which run from the plate editor page (up to 4 runs can be submitted at a time)
   private int                   runNumber = 0;
@@ -62,6 +64,9 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     if (request.getParameter("codeSealType") != null && !request.getParameter("codeSealType").equals("")) {
       codeSealType = request.getParameter("codeSealType");
     }
+    if (request.getParameter("codeInstrumentRunStatus") != null && !request.getParameter("codeInstrumentRunStatus").equals("")) {
+      codeInstrumentRunStatus = request.getParameter("codeInstrumentRunStatus");
+    }
     if (request.getParameter("runDate") != null && !request.getParameter("runDate").equals("")) {
       runDateStr = request.getParameter("runDate");
     }
@@ -86,9 +91,8 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       java.util.Date createDate = null;
       if (createDateStr != null) {
         createDate = this.parseDate(createDateStr);
+        ir.setCreateDate(createDate);
       }
-      if ( createDate != null ) {ir.setCreateDate(createDate);}
-      
       
       if ( runDateStr != null ) {ir.setRunDate(this.parseDate(runDateStr));}
       if ( comments != null ) {ir.setComments(comments);}
@@ -100,7 +104,13 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         ir.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
       }
       if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
-        
+      if ( codeInstrumentRunStatus != null )  {
+        ir.setCodeInstrumentRunStatus(codeInstrumentRunStatus);
+        if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) && ir.getRunDate() == null ) {
+          ir.setRunDate( new java.util.Date(System.currentTimeMillis()) ); 
+        }
+      }
+      
       sess.flush();
         
       this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\" runNumber=\"" + runNumber + "\"/>";

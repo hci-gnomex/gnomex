@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PlateWellParser;
@@ -115,6 +116,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       if(isNew) {
         // Should set creator to current user.
         plate = new Plate();
+        plate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
         sess.save(plate);
         creator = this.getUsername();
         plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
@@ -146,10 +148,14 @@ public class SavePlate extends GNomExCommand implements Serializable {
         plate.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
       }
       if ( codeSealType != null )  {plate.setCodeSealType(codeSealType);}
-      if ( codePlateType != null )  {plate.setCodePlateType(codePlateType);}
+      
+      if ( codePlateType != null && !codePlateType.equals( "" ) )  {
+        plate.setCodePlateType(codePlateType);
+      } 
       
       idPlate = plate.getIdPlate();
       
+      sess.flush();
       
       //
       // Remove wells

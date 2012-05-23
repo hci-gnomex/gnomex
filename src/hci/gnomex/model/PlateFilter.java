@@ -35,8 +35,8 @@ public class PlateFilter extends DetailObject {
     queryBuf.append("        p.label, ");
     queryBuf.append("        p.codeReactionType, ");
     queryBuf.append("        p.creator, ");
-    queryBuf.append("        p.codeSealType ");
-//    queryBuf.append("        p.codePlateType ");
+    queryBuf.append("        p.codeSealType, ");
+    queryBuf.append("        p.codePlateType ");
 
     getQueryBody(queryBuf);
 
@@ -50,7 +50,7 @@ public class PlateFilter extends DetailObject {
     if (idPlate != null ||
         idInstrumentRun != null ||
        (status != null && !status.equals("")) ||
-//       (plateType != null && !plateType.equals("")) ||
+       (plateType != null && !plateType.equals("")) ||
         getAll.equals("Y") ||
         notAddedToARun.equals("Y")) {
       hasLimitingCriteria = true;
@@ -99,13 +99,13 @@ public class PlateFilter extends DetailObject {
       queryBuf.append(")");
     }
     
-    // Search by status
-//    if (plateType != null && !plateType.equals("")) {
-//      this.addWhereOrAnd();
-//      queryBuf.append("(");
-//      queryBuf.append(" p.codePlateType like '%" + plateType + "%'");
-//      queryBuf.append(")");
-//    }
+    // Search by plate type
+    if (plateType != null && !plateType.equals("")) {
+      this.addWhereOrAnd();
+      queryBuf.append("(");
+      queryBuf.append(" p.codePlateType like '%" + plateType + "%'");
+      queryBuf.append(")");
+    }
     
     // Search by not added to run
     if (notAddedToARun.equals("Y")) {

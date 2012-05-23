@@ -10,8 +10,7 @@ import java.io.Serializable;
 public class InstrumentRunStatus extends DictionaryEntry implements Serializable {
   public static final String                  PENDING             = "PENDING";
   public static final String                  RUNNING             = "RUNNING";
-  public static final String                  PROCESSING          = "PROCESSING";
-  public static final String                  COMPLETED           = "COMPLETE";
+  public static final String                  COMPLETE            = "COMPLETE";
   public static final String                  FAILED              = "FAILED";
   
   private String   codeInstrumentRunStatus;
