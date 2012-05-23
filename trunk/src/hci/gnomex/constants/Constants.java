@@ -30,6 +30,7 @@ public class Constants {
   public static final String              REQUEST_FORM_PRINT_CSS          = "css/requestFormPrint.css";
   public static final String              REQUEST_FORM_PRINT_INSTRUCTIONS_CSS  = "css/requestFormPrintAll.css";
   public static final String              EMAIL_NOTIFY_CSS                = "css/emailNotify.css";
+  public static final String              PLATE_REPORT_CSS                = "css/plateReport.css";
 
   public static final String              LOGGING_PROPERTIES              = "gnomex_logging.properties";
   
