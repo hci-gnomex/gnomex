@@ -2623,6 +2623,7 @@
 			request.@isExternal = isExternalExperimentSubmission() ? "Y" : "N";
 			
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
+			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
 			request.@idAppUser = this.getIdAppUserSubmitter();
 			
