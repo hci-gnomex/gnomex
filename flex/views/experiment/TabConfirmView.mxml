@@ -315,7 +315,7 @@
 						<mx:Label id="experimentName" width="200" alpha="0.8"  text="{parentDocument.isAmendState() ? parentDocument.request.@name
 								  : ''}"/>
 					</mx:VBox>
-					<mx:VBox id="sampleDropOffLocationVbox">
+					<mx:VBox id="sampleDropOffLocationVbox" visible="false">
 						<mx:Label text="Sample Drop Off Location" textDecoration="underline" height="16"/>
 						<mx:Label id="sampleDropOffLocation" width="200" alpha="0.8"  text="{parentDocument.sampleSetupView.sampleDropOffLocationCombo.selectedItem.@display}"/>
 					</mx:VBox>
