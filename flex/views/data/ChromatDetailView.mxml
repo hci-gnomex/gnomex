@@ -858,7 +858,8 @@
     
     <mx:Accordion width="100%"   resizeToContent="true" id="accordion4">
       <mx:Canvas label="Sequence" width="100%" height="100%" id="sequenceAccordion" minHeight="0" >
-        
+        <mx:VBox width="100%">
+			
             <mx:Text paddingBottom="20" paddingLeft="40" paddingRight="40" paddingTop="20" 
                      id='sequenceTextBox' width="100%" letterSpacing="2">
               <mx:htmlText >
@@ -868,8 +869,27 @@
               </mx:htmlText>
             </mx:Text>
         
-          
-        
+		  <mx:HBox horizontalAlign="center" width="100%">
+			  <mx:Legend  direction="horizontal">
+				  <mx:LegendItem label="High quality bases" fontWeight="bold">
+					  <mx:fill>
+						  <mx:SolidColor color="black"/>
+					  </mx:fill>
+					  <mx:stroke>
+						  <mx:Stroke color="black"/>
+					  </mx:stroke>
+				  </mx:LegendItem>
+				  <mx:LegendItem label="Low quality trimmed bases" fontWeight="bold" color="0xCC0000">
+					  <mx:fill>
+						  <mx:SolidColor color="0xCC0000"/>
+					  </mx:fill>
+					  <mx:stroke>
+						  <mx:Stroke color="0xCC0000" weight="2"/>
+					  </mx:stroke>
+				  </mx:LegendItem>
+			  </mx:Legend>
+		  </mx:HBox>
+        </mx:VBox>
       </mx:Canvas>
       
       <mx:Canvas  width="100%" height="0" minHeight="0" />
