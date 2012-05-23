@@ -132,7 +132,12 @@
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
 			this.currentState = '';	
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
-				currentState = 'QCState';
+				if(this.selectedExperiment.@isExternal != 'Y'){
+					currentState = 'QCState';
+				}
+				else{
+					currentState = 'ExternalQCState';
+				}
 				
 			} else if (this.selectedExperiment.@isExternal != 'Y' &&
 				       (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
@@ -187,9 +192,6 @@
 
 				}
 			}
-			
-			
-			
 
 			getRequestCategoryName();
 			getExperimentCategoryName();
@@ -1281,6 +1283,9 @@
 			</mx:VBox>
 		</mx:AddChild>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
+	</mx:State>
+	<mx:State name="ExternalQCState">
+		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 </mx:states>
 	
