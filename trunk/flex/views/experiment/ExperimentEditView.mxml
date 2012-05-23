@@ -542,7 +542,7 @@
 		}
 			
 		public function isCapSeqState():Boolean {
-			if (currentState == 'CapSeqState' || currentState == 'CapSeqAmendState') {
+			if (currentState == 'CapSeqState' || currentState == 'CapSeqAmendState' || currentState == 'CapSeqEditState') {
 				return true;
 			} else {
 				return false;
@@ -566,7 +566,8 @@
 				currentState == 'SolexaEditState' ||
 				currentState == 'SeqExternalEditState' ||
 			    currentState == 'QCEditState' ||
-			    currentState == 'MicroarrayEditState') {
+			    currentState == 'MicroarrayEditState' ||
+				currentState == 'CapSeqEditState') {
 				return true;    	
 			} else {
 				return false;
@@ -1887,7 +1888,7 @@
 					}
 				}
 			}
-
+			
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				samplesView.addSampleButton.visible = true;
 				samplesView.copySampleButton.visible = true;
@@ -1900,7 +1901,6 @@
 				samplesView.clearSamplesButton.visible = false;
 			}
 			
-
 			if (requestCategory.@type == 'ILLUMINA') {
 				currentState = request.@isExternal == 'Y' ? 'SeqExternalEditState' : 'SolexaEditState';
 				this.annotationView.checkSecurity();			
@@ -1936,6 +1936,12 @@
 				}
 				samplesView.showHideColumns(); 
 
+			} else if (requestCategory.@type == parentApplication.TYPE_CAP_SEQ) {
+				this.currentState = "CapSeqEditState";
+				this.sampleSetupView.currentState = 'CapSeqState';
+				
+				this.samplesView.currentState = 'CapSeqState';				
+				this.samplesView.showHideColumns();						
 			} else {
 				
 				currentState = 'MicroarrayEditState';
@@ -2953,7 +2959,9 @@
 					externalIdRequest = submittedIdRequest;
 					promptToUpload();
 				} else {
-					showPrintableRequestForm();
+					if (!this.isCapSeqState()) {
+						showPrintableRequestForm();
+					}
 				}
 				// Just close the window when the request has been submitted
 				// and show the submitted experiment in the Experiments view.
@@ -3955,6 +3963,21 @@
     		return show;
     	}
 			
+		public function showPlateGroup():Boolean {
+			var show:Boolean = false;
+			if (this.isCapSeqState()) {
+				if (this.isEditState()) {
+					show = false;
+				} else if (sampleSetupView.containerTypePlate.selected) {
+					show = true;
+				} else {
+					show = false;
+				}
+			}
+			
+			return show;
+		}
+
 		protected function agreeCheckbox_clickHandler(event:MouseEvent):void {
 			this.submitButton.enabled = agreeCheckbox.selected;
 		}
@@ -4509,6 +4532,17 @@
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="CapSeqEditState" basedOn="EditState">
+			<mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
