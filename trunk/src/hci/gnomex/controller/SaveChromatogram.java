@@ -4,6 +4,9 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
+import hci.gnomex.model.InstrumentRunStatus;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -116,13 +119,33 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       
       ch = (Chromatogram) sess.get(Chromatogram.class, idChromatogram);
       
+      PlateWell pw = null;
+      Plate p = null;
+      InstrumentRun ir=null;
+      
+      if ( ch.getIdPlateWell() != null ) {
+        pw = (PlateWell) sess.get(PlateWell.class, ch.getIdPlateWell());
+      }
+      if ( pw != null && pw.getIdPlate() != null ) {
+        p = (Plate) sess.get(Plate.class, pw.getIdPlate());
+      }
+      if ( p != null && p.getIdInstrumentRun() != null ) {
+        ir = (InstrumentRun) sess.get(InstrumentRun.class, p.getIdInstrumentRun());
+      }
+      
       // Set releaseDate if released
       if ( released.equals( "Y" )) {
         ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
+        if ( ir!=null ) {
+          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+        }
       }
       if (releaseDateStr != null) {
         java.util.Date releaseDate = this.parseDate(releaseDateStr);
         ch.setReleaseDate(releaseDate);
+        if ( ir!=null ) {
+          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+        }
       }
       
       if ( idPlateWell != 0 ) {ch.setIdPlateWell( idPlateWell );}
