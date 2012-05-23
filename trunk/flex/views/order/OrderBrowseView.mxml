@@ -17,14 +17,31 @@
 		useProxy="false">
 	</mx:HTTPService >
 	
+	<mx:HTTPService 
+		id="saveRequest" 
+		url="SaveRequest.gx"
+		resultFormat="e4x"
+		result="onSaveRequest(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to save order', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
 	
 	<mx:Script> 
 		<![CDATA[
-			
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
 			
 			[Bindable]
 			public var parentView:NavOrderView;
@@ -34,21 +51,51 @@
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
+				
+				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
+					orderGrid.selectedIndex = -1;
+				}
+				
 				selectedOrders.refresh();
+			}
+			
+			private function selectionChange( event:ListEvent ):void {
+				for each ( var obj:Object in orderGrid ) {
+					obj.@isSelected = false;
+				}
+				for each ( var obj1:Object in orderGrid.selectedItems ) {
+					obj1.@isSelected = true;
+				}
 			}
 			
 			private function submitAction():void {
 				if ( comboBox.selectedItem == null ) {
 					return;
 				}
+				for each ( var req:Object in selectedOrders ) {
+					req.@codeRequestStatus = comboBox.selectedItem.@codeRequestStatus;
+					
+					var params:Object = new Object;
+					params.requestXMLString = req.toXMLString();
+					saveRequest.send( params );
+				}
+			}
+
+			private function onSaveRequest( event:ResultEvent ):void {
+				if ( event.result.name() == "SUCCESS" ) {
+					this.getList();
+					return;
+				}
+				Alert.show( event.result..ERROR.@message.toString(), "Error saving orders" );
 				
 			}
-			
+
 			private function getList():void {
 				getRequestList.send(getOrderParameters());
 			}
 			
 			private function onGetRequestList(event:ResultEvent):void{
+				comboBox.selectedIndex = -1;
 				if ( getRequestList.lastResult.name() == "RequestList"){
 					selectedOrders.refresh();
 					return;
@@ -89,6 +136,22 @@
 				}
 				
 				return params;
+			}
+			
+			
+			private function promptToDelete():void {
+				
+				Alert.show( "Are you sure you want to delete these orders?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+			}
+			
+			private function onPromptToDelete( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					deleteOrders();
+				}
+			}
+			
+			private function deleteOrders():void {
 			}
 			
 			private function checkEmptyFilter():Boolean {
@@ -232,8 +295,8 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox width = "100%" verticalGap = "0">
-		<mx:HRule width = "100%" />
+	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0">
+		<!--<mx:HRule width = "100%" />-->
 		
 		<mx:HBox id = "filterBar"
 				 horizontalGap = "0"
@@ -423,7 +486,7 @@
 			
 			<mx:HBox width = "100%" verticalAlign = "bottom">
 				<mx:HBox width = "100%" verticalAlign = "middle" paddingTop = "8">
-					<mx:Label text = "{'Order ' + runGrid.selectedItem.@idRequest}" fontWeight = "bold" />
+					<mx:Label text = "{'Order ' + orderGrid.selectedItem.@idRequest}" fontWeight = "bold" />
 					
 				</mx:HBox>
 				
@@ -433,9 +496,11 @@
 				
 			</mx:HBox>
 			
-			<mx:DataGrid id = "runGrid"
+			<mx:DataGrid id = "orderGrid"
+						 allowMultipleSelection="true"
 						 itemClick = "gridItemClick(event)"
 						 click="{selectedOrders.refresh()}"
+						 change="selectionChange(event)"
 						 width = "100%"
 						 height = "100%"
 						 dataProvider = "{orderList}"
@@ -480,7 +545,7 @@
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
 					
-					<mx:DataGridColumn dataField = "@requestStatus" headerText = "Status" width = "70" />
+					<mx:DataGridColumn dataField = "@codeRequestStatus" headerText = "Status" width = "70" />
 					
 					<mx:DataGridColumn  headerText = "Samples" width = "100" />
 					
@@ -496,19 +561,28 @@
 	
 	
 	<mx:ControlBar horizontalAlign = "left" width = "100%">
-		<mx:Label id = "nSelectedRuns" text="{selectedOrders.length + ' selected'}" />
+		<mx:Label id = "nSelectedOrders" text="{selectedOrders.length + ' selected'}" />
 		
 		<mx:ComboBox id = "comboBox" 
-					 prompt="Select Action" 
-					 dataProvider="{selectedOrders}" 
-					 labelField="@name" />
+					 prompt="- Change Status -" 
+					 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry}"
+					 labelField="@codeRequestStatus" />
 		
 		<mx:LinkButton textDecoration = "underline"
 					   label = "Go"
 					   icon = "@Embed('../../assets/bullet_go.png')"
+					   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 					   toolTip = "Submit action" 
 					   click="{submitAction()}" 
-					   visible="{selectedOrders.length>0}"/>
+					   enabled="{selectedOrders.length>0}"/>
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Delete"
+					   icon="@Embed('../../assets/delete.png')"
+					   toolTip="Delete selected orders"
+					   click="{promptToDelete()}" 
+					   disabledIcon="@Embed('../../assets/delete_disable.png')"
+					   enabled="{selectedOrders.length>0}"/>
 		
 		<mx:Spacer width="100%" height="100%" />
 		

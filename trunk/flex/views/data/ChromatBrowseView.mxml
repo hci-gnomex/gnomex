@@ -60,23 +60,31 @@
 			import mx.utils.ObjectUtil;
 
 
-
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
+			
 			public var parentView:NavDataView;
 
 			public var selectedList:ListCollectionView;
 
 			[Bindable]
 			private var actionDictionary:XMLListCollection = new XMLListCollection();
+			
+			private var dictXML:XML = <actionDictionary>
+									<action value="RELEASE"   display="Release data to user" />
+									<action value="REQUEUE"    display="Release and requeue samples" />
+									<action value="DOWNLOAD"  display="Download chromats" />
+								</actionDictionary>;
+			
+			private var dlXML:XML = <actionDictionary>
+									<action value="DOWNLOAD"  display="Download chromats" />
+								</actionDictionary>;
 
 
 			private function init():void {
 				this.getChromatogramList.send();
-
-				var dictXML:XML = <actionDictionary>
-						<action value="RELEASE"   display="Release data to user" />
-						<action value="DELETE"    display="Delete chromats" />
-						<action value="DOWNLOAD"  display="Download chromats" />
-					</actionDictionary>;
 
 				actionDictionary.source = dictXML.action;
 			}
@@ -94,16 +102,32 @@
 
 
 			private function gridItemClick( event:ListEvent ):void {
-				parentView.selectedChromat = chromatogramGrid.selectedItem;
-				parentView.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
+				if ( chromatogramGrid.selectedItem != null ) {
+					parentView.selectedChromat = chromatogramGrid.selectedItem;
+					parentView.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
+				}
 
 				if ( event.columnIndex == 3 ) {
 					parentView.switchToChromatDetailView();
 				}
+				
+				if ( event.columnIndex != 0 && event.columnIndex != 3 ) {
+					chromatogramGrid.selectedIndex = -1;
+				}
+				
 				selectedChromats.refresh();
 			}
 
-
+			private function selectionChange( event:ListEvent ):void {
+				for each ( var obj:Object in chromatogramGrid ) {
+					obj.@isSelected = false;
+				}
+				for each ( var obj1:Object in chromatogramGrid.selectedItems ) {
+					obj1.@isSelected = true;
+				}
+			}
+			
+			
 			private function submitAction():void {
 				if ( comboBox.selectedItem == null ) {
 					return;
@@ -130,6 +154,22 @@
 
 			}
 
+			
+			private function promptToDelete():void {
+				
+				Alert.show( "Are you sure you want to delete these chromatograms?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+			}
+			
+			private function onPromptToDelete( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					deleteChromats();
+				}
+			}
+			
+			private function deleteChromats():void {
+			}
+			
 
 			private function selectedFilterFunc( item:XML ):Boolean {
 				return item.@isSelected == true;
@@ -138,8 +178,8 @@
 
 			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
 				this.requestNoLookupField.text = "";
-
 				if ( checkBoxNumber == 0 ) {
+					actionDictionary.source = dictXML.action;
 					this.notReleasedCheckbox.selected = false;
 					this.releasedCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
@@ -172,7 +212,6 @@
 
 			public function toggleReleaseCheckboxes( checkBoxNumber:int ):void {
 				this.requestNoLookupField.text = "";
-
 				if ( checkBoxNumber == 0 ) {
 					this.allCheckbox.selected = false;
 					this.notReleasedCheckbox.selected = false;
@@ -184,6 +223,7 @@
 
 
 			private function setDefaultButton():void {
+				actionDictionary.source = dictXML.action;
 				if ( this.requestNoLookupField.text != '' ) {
 					this.allCheckbox.selected = false;
 					this.lastWeekCheckbox.selected = false;
@@ -211,8 +251,8 @@
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
 
-	<mx:VBox width="100%" verticalGap="0">
-		<mx:HRule width="100%" />
+	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0">
+		<!--<mx:HRule width="100%" />-->
 
 		<mx:HBox id="filterBar"
 				 horizontalGap="0"
@@ -342,6 +382,7 @@
 							 paddingLeft="2"
 							 horizontalGap="0">
 					<mx:click>
+						actionDictionary.source = dlXML.action;
 						toggleReleaseCheckboxes( 0 );
 						this.getChromatogramList.send();
 					</mx:click>
@@ -352,8 +393,10 @@
 							 label="not released"
 							 paddingRight="0"
 							 paddingLeft="2"
-							 horizontalGap="0">
+							 horizontalGap="0"
+							 selected="true" >
 					<mx:click>
+						actionDictionary.source = dictXML.action;
 						toggleReleaseCheckboxes( 1 );
 						this.getChromatogramList.send();
 					</mx:click>
@@ -363,7 +406,10 @@
 			</mx:HBox>
 
 		</mx:HBox>
-
+			
+		<mx:HBox>
+			<mx:Label text="instrument run:" />
+		</mx:HBox>
 	</mx:VBox>
 
 	<mx:VDividedBox width="100%"
@@ -389,8 +435,10 @@
 			</mx:HBox>
 
 			<mx:DataGrid id="chromatogramGrid"
+						 allowMultipleSelection="true"
 						 itemClick="gridItemClick(event)"
 						 click="{selectedChromats.refresh()}"
+						 change="selectionChange(event)"
 						 width="100%"
 						 height="100%"
 						 dataProvider="{chromats}"
@@ -443,10 +491,9 @@
 									   headerText="Released:"
 									   width="90" />
 
-					<mx:DataGridColumn dataField="@idRequest"
-									   headerText="Order ID"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('idRequest')" />
+					<mx:DataGridColumn dataField="@submitter"
+									   headerText="Submitter"
+									   width="100" />
 
 					<mx:DataGridColumn dataField="@readLength"
 									   headerText="Length"
@@ -520,9 +567,19 @@
 		<mx:LinkButton textDecoration="underline"
 					   label="Go"
 					   icon="@Embed('../../assets/bullet_go.png')"
+					   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 					   toolTip="Submit action"
 					   click="{submitAction()}" 
-					   visible="{selectedChromats.length>0}"/>
+					   enabled="{selectedChromats.length>0}"
+					   />
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Delete"
+					   icon="@Embed('../../assets/delete.png')"
+					   toolTip="Delete selected chromatograms"
+					   click="{promptToDelete()}" 
+					   disabledIcon="@Embed('../../assets/delete_disable.png')"
+					   enabled="{selectedChromats.length>0}"/>
 
 		<mx:Spacer width="100%" height="100%" />
 

@@ -16,14 +16,31 @@
 		useProxy="false">
 	</mx:HTTPService >
 	
+	<mx:HTTPService 
+		id="saveInstrumentRun" 
+		url="SaveInstrumentRun.gx"
+		resultFormat="e4x"
+		result="onSaveInstrumentRun(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to save run', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
 	
 	<mx:Script> 
 		<![CDATA[
 			
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
 			
 			[Bindable]
 			public var parentView:NavRunView;
@@ -34,19 +51,47 @@
 			
 			
 			private function gridItemClick(event:ListEvent):void {
-//				parentView.selectedChromat = chromatogramGrid.selectedItem;
 				var idRun:String = runGrid.selectedItem.@idInstrumentRun;
 				
 				if ( event.columnIndex == 2 ) {
 					parentApplication.showInstrumentRun(idRun);
 				}
+				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
+					runGrid.selectedIndex = -1;
+				}
 				selectedRuns.refresh();
+			}
+			
+			private function selectionChange( event:ListEvent ):void {
+				for each ( var obj:Object in runGrid ) {
+					obj.@isSelected = false;
+				}
+				for each ( var obj1:Object in runGrid.selectedItems ) {
+					obj1.@isSelected = true;
+				}
 			}
 			
 			private function submitAction():void {
 				if ( comboBox.selectedItem == null ) {
 					return;
 				}
+				for each ( var run:Object in selectedRuns ) {
+					run.@codeInstrumentRunStatus = comboBox.selectedItem.@codeInstrumentRunStatus;
+					
+					var params:Object = new Object;
+					params.idInstrumentRun = run.@idInstrumentRun;
+					params.codeInstrumentRunStatus = comboBox.selectedItem.@codeInstrumentRunStatus;
+					saveInstrumentRun.send( params );
+				}
+				
+			}
+			
+			private function onSaveInstrumentRun( event:ResultEvent ):void {
+				if ( event.result.name() == "SUCCESS" ) {
+					this.getList();
+					return;
+				}
+				Alert.show( event.result..ERROR.@message.toString(), "Error saving runs" );
 				
 			}
 			
@@ -64,20 +109,29 @@
 				
 			}
 			
+			private function promptToDelete():void {
+				
+				Alert.show( "Are you sure you want to delete these runs?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+			}
+			
+			private function onPromptToDelete( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					deleteRuns();
+				}
+			}
+			
+			private function deleteRuns():void {
+			}
+			
 			private function getRunParameters():Object {
 				var params:Object = new Object;
-				
-				/* if ( checkEmptyFilter() ) {
-					params.number = 0;
-					return params;
-				} */
 				
 				if ( this.allCheckbox.selected ) {
 					params.getAll = 'Y';
 					return params;
 				}
 				
-//				params.number = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
 				params.createdLastWeek = this.createdLastWeekCheckbox.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = this.createdLastMonthCheckbox.selected ? 'Y' : 'N' ;
 				params.createdLastThreeMonths = this.createdLastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
@@ -90,9 +144,6 @@
 				
 				if ( this.pendingCheckbox.selected ) {
 					params.status = 'PENDING' ;
-				}
-				if ( this.processingCheckbox.selected ) {
-					params.status = 'PROCESSING' ;
 				}
 				if ( this.runningCheckbox.selected ) {
 					params.status = 'RUNNING' ;
@@ -110,9 +161,6 @@
 			private function checkEmptyFilter():Boolean {
 				var empty:Boolean = true;
 				
-				/* if ( requestNoLookupField.text != null ? requestNoLookupField.text : '' ) {
-					return false;
-				} */
 				if ( this.createdLastWeekCheckbox.selected ) {
 					return false ;
 				}
@@ -138,9 +186,6 @@
 					return false ;
 				}
 				if ( this.pendingCheckbox.selected ) {
-					return false ;
-				}
-				if ( this.processingCheckbox.selected ) {
 					return false ;
 				}
 				if ( this.runningCheckbox.selected ) {
@@ -173,7 +218,6 @@
 					this.createdLastYearCheckbox.selected  = false;
 					
 					this.pendingCheckbox.selected = false;
-					this.processingCheckbox.selected = false;
 					this.runningCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
@@ -235,36 +279,30 @@
 			
 			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
 				if (checkBoxNumber == 1) {
-					this.processingCheckbox.selected = false;
+					this.allCheckbox.selected = false;
 					this.runningCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
 					
 				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
 					this.pendingCheckbox.selected = false;
-					this.runningCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
 					
 				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
 					this.pendingCheckbox.selected = false;
-					this.processingCheckbox.selected = false;
-					this.completeCheckbox.selected = false;
+					this.runningCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
 					
 				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
 					this.pendingCheckbox.selected = false;
-					this.processingCheckbox.selected = false;
 					this.runningCheckbox.selected  = false;
-					this.failedCheckbox.selected  = false;
+					this.completeCheckbox.selected  = false;
 					
-				}   else if (checkBoxNumber == 5) {
-					this.pendingCheckbox.selected = false;
-					this.processingCheckbox.selected = false;
-					this.runningCheckbox.selected  = false;
-					this.completeCheckbox.selected = false;
-					
-				}   
+				} 
 			} 	
 			
 		]]>
@@ -274,176 +312,172 @@
 	<mx:XMLListCollection id = "selectedRuns" source="{getInstrumentRunList.lastResult.InstrumentRun}" 
 						  filterFunction="selectedFilterFunc"/>
 
-	<mx:VBox width = "100%" verticalGap = "0">
-		<mx:HRule width = "100%" />
-
-		<mx:HBox id = "filterBar"
-				 horizontalGap = "0"
-				 paddingTop = "4"
-				 paddingBottom = "4"
-				 paddingLeft = "0"
-				 horizontalAlign = "left"
-				 verticalAlign = "middle">
-
-			<mx:Label text = "Filter by:" paddingRight = "20" />
-
-			<mx:HBox horizontalGap="0"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="5">
-				<mx:CheckBox id="allCheckbox"
-							 label="All"
-							 paddingRight="0"
-							 paddingLeft="0"
-							 horizontalGap="0">
-					<mx:click>
-						toggleDateCheckboxes( 0 );
-						this.getList();
-					</mx:click>
+	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0" >
+			<mx:HBox id = "filterBar"
+					 horizontalGap = "0"
+					 paddingTop = "4"
+					 paddingBottom = "4"
+					 paddingLeft = "0"
+					 horizontalAlign = "left"
+					 verticalAlign = "middle">
+				
+				<mx:Label text = "Filter by:" width="65"/>
+				
+				<mx:HBox horizontalGap="0" height="100%"
+						 verticalAlign="middle"
+						 verticalGap="0"
+						 horizontalAlign="right"
+						 paddingLeft="5"
+						 paddingRight="5">
+					<mx:CheckBox id="allCheckbox"
+								 label="All"
+								 paddingRight="0"
+								 paddingLeft="0"
+								 horizontalGap="0">
+						<mx:click>
+							toggleDateCheckboxes( 0 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
 					
-				</mx:CheckBox>
+				</mx:HBox>
+				
+				<mx:VRule height="20" />
+				
+				<mx:HBox id = "runDateCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
+					<mx:CheckBox id = "lastWeekCheckbox"
+								 label = "Run in last week"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 paddingLeft = "2"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleDateCheckboxes( 1 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastMonthCheckbox"
+								 label = "month"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleDateCheckboxes( 2 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastThreeMonthsCheckbox"
+								 label = "3 months"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleDateCheckboxes( 3 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastYearCheckbox"
+								 label = "year"
+								 paddingLeft = "2"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleDateCheckboxes( 4 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					<mx:VRule height = "20" />
+					<mx:HBox id = "createDateCheckboxBar"
+							 horizontalGap = "0" height="100%"
+							 verticalAlign = "middle"
+							 verticalGap = "0"
+							 horizontalAlign = "right"
+							 paddingLeft = "5"
+							 paddingRight = "5">
+						<mx:CheckBox id = "createdLastWeekCheckbox"
+									 label = "Created in last week"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 paddingLeft = "2"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleCreateDateCheckboxes( 1 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "createdLastMonthCheckbox"
+									 label = "month"
+									 paddingRight = "0"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleCreateDateCheckboxes( 2 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "createdLastThreeMonthsCheckbox"
+									 label = "3 months"
+									 paddingRight = "0"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleCreateDateCheckboxes( 3 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "createdLastYearCheckbox"
+									 label = "year"
+									 paddingLeft = "2"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleCreateDateCheckboxes( 4 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+					</mx:HBox>
+					
+				</mx:HBox>
+				
+				<mx:VRule height = "20" />
+				
 				
 			</mx:HBox>
-			
-			<mx:VRule height="20" />
-			
-			<mx:HBox id = "runDateCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5"
-					 paddingRight = "5">
-				<mx:CheckBox id = "lastWeekCheckbox"
-							 label = "Run in last week"
-							 paddingRight = "0"
-							 horizontalGap = "0"
-							 paddingLeft = "2"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleDateCheckboxes( 1 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id = "lastMonthCheckbox"
-							 label = "month"
-							 paddingRight = "0"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleDateCheckboxes( 2 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id = "lastThreeMonthsCheckbox"
-							 label = "3 months"
-							 paddingRight = "0"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleDateCheckboxes( 3 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id = "lastYearCheckbox"
-							 label = "year"
-							 paddingLeft = "2"
-							 paddingRight = "0"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleDateCheckboxes( 4 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-			</mx:HBox>
-
-			<mx:VRule height = "20" />
-
-			<mx:HBox id = "createDateCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5"
-					 paddingRight = "5">
-				<mx:CheckBox id = "createdLastWeekCheckbox"
-							 label = "Created in last week"
-							 paddingRight = "0"
-							 horizontalGap = "0"
-							 paddingLeft = "2"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 1 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id = "createdLastMonthCheckbox"
-							 label = "month"
-							 paddingRight = "0"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 2 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id = "createdLastThreeMonthsCheckbox"
-							 label = "3 months"
-							 paddingRight = "0"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 3 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id = "createdLastYearCheckbox"
-							 label = "year"
-							 paddingLeft = "2"
-							 paddingRight = "0"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 4 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-			</mx:HBox>
-
-			<mx:VRule height = "20" />
-
 			<mx:HBox id = "statusCheckboxBar"
 					 horizontalGap = "0"
-					 height = "100%"
 					 verticalAlign = "middle"
 					 verticalGap = "0"
 					 horizontalAlign = "right"
-					 paddingLeft = "5">
+					 paddingLeft = "67">
 				<mx:CheckBox label = "Pending"
 							 id = "pendingCheckbox"
 							 horizontalGap = "0"
@@ -453,11 +487,11 @@
 						toggleStatusCheckboxes( 1 );
 						getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
-				<mx:CheckBox label = "Processing"
-							 id = "processingCheckbox"
+				
+				<mx:CheckBox label = "Running"
+							 id = "runningCheckbox"
 							 paddingLeft = "2"
 							 horizontalGap = "0"
 							 styleName = "labelSmall">
@@ -465,11 +499,11 @@
 						toggleStatusCheckboxes( 2 );
 						getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
-				<mx:CheckBox label = "Running"
-							 id = "runningCheckbox"
+				
+				<mx:CheckBox label = "Complete"
+							 id = "completeCheckbox"
 							 paddingLeft = "2"
 							 horizontalGap = "0"
 							 styleName = "labelSmall">
@@ -477,11 +511,11 @@
 						toggleStatusCheckboxes( 3 );
 						getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
-				<mx:CheckBox label = "Complete"
-							 id = "completeCheckbox"
+				
+				<mx:CheckBox label = "Failed"
+							 id = "failedCheckbox"
 							 paddingLeft = "2"
 							 horizontalGap = "0"
 							 styleName = "labelSmall">
@@ -489,28 +523,12 @@
 						toggleStatusCheckboxes( 4 );
 						getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
-				<mx:CheckBox label = "Failed"
-							 id = "failedCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 5 );
-						getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
+				
 			</mx:HBox>
-
-
-		</mx:HBox>
-
+		
 	</mx:VBox>
-
 	<mx:VDividedBox width = "100%"
 					height = "100%"
 					styleName = "form"
@@ -534,8 +552,10 @@
 			</mx:HBox>
 
 			<mx:DataGrid id = "runGrid"
+						 allowMultipleSelection="true"
 						 itemClick="gridItemClick(event)"
 						 click="{selectedRuns.refresh()}"
+						 change="selectionChange(event)"
 						 width = "100%"
 						 height = "100%"
 						 dataProvider = "{runList}"
@@ -603,16 +623,25 @@
 		<mx:Label id = "nSelectedRuns" text="{selectedRuns.length + ' selected'}" />
 		
 		<mx:ComboBox id = "comboBox" 
-					 prompt="Select Action" 
-					 dataProvider="{selectedRuns}" 
-					 labelField="@label" />
+					 prompt="- Change Status -" 
+					 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.InstrumentRunStatus').DictionaryEntry}"
+					 labelField="@codeInstrumentRunStatus" />
 		
 		<mx:LinkButton textDecoration = "underline"
 					   label = "Go"
 					   icon = "@Embed('../../assets/bullet_go.png')"
+					   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 					   toolTip = "Submit action" 
 					   click="{submitAction()}" 
-					   visible="{selectedRuns.length>0}"/>
+					   enabled="{selectedRuns.length>0}"/>
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Delete"
+					   icon="@Embed('../../assets/delete.png')"
+					   toolTip="Delete selected runs"
+					   click="{promptToDelete()}" 
+					   disabledIcon="@Embed('../../assets/delete_disable.png')"
+					   enabled="{selectedRuns.length>0}"/>
 		
 		<mx:Spacer width="100%" height="100%" />
 		
