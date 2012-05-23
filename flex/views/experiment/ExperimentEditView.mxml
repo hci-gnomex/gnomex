@@ -2939,6 +2939,10 @@
 						message = 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
 						title = "Experiment Registered";			
 						
+					} else if (this.isCapSeqState()) {
+						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.';
+						title = "Request Submitted";			
+						
 					} else {
 						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
 						title = "Request Submitted";			
