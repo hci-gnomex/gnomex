@@ -242,6 +242,38 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  public String getReactionType(String codeReactionType) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeReactionType != null && codeReactionType.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.ReactionType", codeReactionType);
+    }
+    return name;
+  }
+  public String getSealType(String codeSealType) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeSealType != null && codeSealType.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.SealType", codeSealType);
+    }
+    return name;
+  }
+  public String getInstrumentRunStatus(String codeInstrumentRunStatus) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeInstrumentRunStatus != null && codeInstrumentRunStatus.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.InstrumentRunStatus", codeInstrumentRunStatus);
+    }
+    return name;
+  }
+  public String getRequestStatus(String codeRequestStatus) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeRequestStatus != null && codeRequestStatus.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", codeRequestStatus);
+    }
+    return name;
+  }
   public String getSampleType(Sample sample) {
     lazyLoadManagedDictionaries();
     String name = "";
