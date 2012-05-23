@@ -633,6 +633,14 @@ VALUES ('CGH', 'CGH', 'Y', 3, NULL),
   ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5),
   ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3);
 
+-- Populate InstrumentRunStatus dictionary
+insert into gnomex.InstrumentRunStatus 
+(codeInstrumentRunStatus, instrumentRunStatus, isActive)
+values 
+('COMPLETE',  'complete', 'Y'),
+('FAILED',  'failed', 'Y'),
+('PENDING',  'pending', 'Y'),
+('RUNNING', 'running',  'Y');
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
 VALUES (1, 18, 'Y'),
@@ -842,6 +850,14 @@ VALUES ('BIOREPL', 'Biological Replicate', 'biological_replicate', NULL, 'Y'),
   ('SPIKE', 'Spike', 'spike_quality_control', NULL, 'Y'),
   ('TECHREPL', 'Technical Replicate', 'technical_replicate', NULL, 'Y');
 
+-- Populate ReactionType dictionary
+insert into ReactionType
+(codeReactionType, reactionType, isActive)
+values 
+('SEQ',  'Capillary Sequencing', 'Y'),
+('MIT',  'Mitochondrial D-Loop Sequencing', 'Y'),
+('CHERRY',  'Cherry Picking', 'Y'),
+('FRAG',  'Fragment Analysis', 'Y');
 
 INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`, isInternal, isExternal)
 VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY', 'Y', 'Y'),

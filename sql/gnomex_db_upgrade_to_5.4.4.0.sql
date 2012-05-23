@@ -132,3 +132,26 @@ values
 ('PROCESSING',	'processing',	'Y'),
 ('SUBMITTED',	'submitted',	'Y');
 
+-- Populate InstrumentRunStatus dictionary
+insert into gnomex.InstrumentRunStatus 
+(codeInstrumentRunStatus, instrumentRunStatus, isActive)
+values 
+('COMPLETE',  'complete', 'Y'),
+('FAILED',  'failed', 'Y'),
+('PENDING',  'pending', 'Y'),
+('RUNNING', 'running',  'Y');
+
+-- Populate ReactionType dictionary
+insert into ReactionType
+(codeReactionType, reactionType, isActive)
+values 
+('SEQ',  'Capillary Sequencing', 'Y'),
+('MIT',  'Mitochondrial D-Loop Sequencing', 'Y'),
+('CHERRY',  'Cherry Picking', 'Y'),
+('FRAG',  'Fragment Analysis', 'Y');
+
+-- Populate SealType dictionary
+insert into gnomex.SealType
+(codeSealType, sealType, isActive)
+values 
+('HEATSEAL',  'Heat Sealing', 'Y');
