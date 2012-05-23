@@ -3,7 +3,11 @@
 
 5.4.5
 ---------------------
-
+* Changed any text that was displayed to the user from "Sequence Run" to "Sequence Lane". (tcourdy)
+* Added isActive to the populate.sql script for both Genome Build and Organism to fix issues that were occurring with a fresh install.(tcourdy)
+* Avg insert and cap lib fields are no longer displayed for external experiments on experiment edit view.(tcourdy)
+* Fixed display problems with the completed field on experiment edit/detail views.(tcourdy) 
+* Removed horizontal and vertical scroll bars for Slide Management window.(tcourdy)
 
 5.4.4.1 (May 21, 2012)
 ----------------------
