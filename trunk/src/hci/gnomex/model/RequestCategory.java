@@ -14,6 +14,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   QUALITY_CONTROL_REQUEST_CATEGORY = "QC";
   public static final String   SOLEXA_REQUEST_CATEGORY = "SOLEXA";
   public static final String   ILLUMINA_HISEQ_REQUEST_CATEGORY = "HISEQ";
+  public static final String   CAPILLARY_SEQUENCING_REQUEST_CATEGORY = "CAPSEQ";
   
   public static final String   NIMBLEGEN_MICROARRAY_REQUEST_CATEGORY = "NIMBLE";
   public static final String   INHOUSE_MICROARRAY_REQUEST_CATEGORY = "INHOUSE";
