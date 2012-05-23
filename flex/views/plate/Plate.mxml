@@ -1,164 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx = 'http://www.adobe.com/2006/mxml' 
-		   xmlns:renderers="views.renderers.*">
-	
+<mx:Canvas xmlns:mx='http://www.adobe.com/2006/mxml' xmlns:renderers="views.renderers.*">
+
 	<mx:Script>
 		<![CDATA[
 			import flash.sampler.NewObjectSample;
-			
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.containers.GridItem;
 			import mx.containers.GridRow;
 			import mx.controls.Label;
 			import mx.controls.Text;
-			
 			import views.renderers.WellContainer;
 			
 			[Bindable]
-			public var idPlate:int=0;
-			
+			public var idPlate:int              = 0;
 			[Bindable]
 			public var plateObject:Object;
-			
 			// Variable to designate if the plate's wells will be indexed
 			// column-wise or row-wise. Default is column-wise.
 			public var currentFillByCol:Boolean = true;
-			public var nowFillByCol:Boolean = true;
+			public var nowFillByCol:Boolean     = true;
 			
-			public function setFillByCol(colFill:Boolean):void{
+			
+			public function setFillByCol( colFill:Boolean ):void {
+				
 				currentFillByCol = colFill;
 			}
-			public function setNowFillByCol(colFill:Boolean):void{
+			
+			
+			public function setNowFillByCol( colFill:Boolean ):void {
+				
 				nowFillByCol = colFill;
 			}
 			
 			
-			public function resetPlate():void{
+			public function resetPlate():void {
+				
 				removeAllWells();
 				idPlate = 0;
 				plateObject = null;
 			}
 			
+			
 			// This puts the row and column labels on the plate and all
 			// of the wells.
-			public function populatePlate():void{
+			public function populatePlate():void {
+				
 				grid.removeAllChildren();
 				var row:int;
 				var col:int;
-				var gr:GridRow = new GridRow();
+				var gr:GridRow  = new GridRow();
 				var gi:GridItem = new GridItem();
-				
 				// Top left corner label is blank.
-				gr.addChild(gi);
+				gr.addChild( gi );
 				
 				// Label the top of the plate with column numbers
-				for (col = 1; col<13; col++){
+				for ( col = 1; col < 13; col++ ) {
 					gi = new GridItem();
-					gi.setStyle('horizontalAlign','center');
-					gi.setStyle('verticalAlign', 'middle');
-					gi.toolTip= (col<10 ? 'Column 0' + col : 'Column ' + col);
-					
+					gi.setStyle( 'horizontalAlign', 'center' );
+					gi.setStyle( 'verticalAlign', 'middle' );
+					gi.toolTip = ( col < 10 ? 'Column 0' + col : 'Column ' + col );
 					var label:Label = new Label();
 					// Pad the single digits with 0
-					label.text = (col<10 ? '0' + col : col.toString());
-					gi.addChild(label);
-					gr.addChild(gi);
+					label.text = ( col < 10 ? '0' + col : col.toString());
+					gi.addChild( label );
+					gr.addChild( gi );
 				}
-				grid.addChild(gr);
-				
+				grid.addChild( gr );
 				// Fill in the rest of the plate
 				var alph:String = "ABCDEFGH";
-				for (row = 0; row<8; row++){
+				
+				for ( row = 0; row < 8; row++ ) {
 					gr = new GridRow();
 					gr.id = "Row" + row;
-					
 					// Label the row number
 					gi = new GridItem();
-					gi.setStyle('horizontalAlign','center');
-					gi.setStyle('verticalAlign', 'middle');
-					gi.toolTip = 'Row ' + alph.charAt(row);
+					gi.setStyle( 'horizontalAlign', 'center' );
+					gi.setStyle( 'verticalAlign', 'middle' );
+					gi.toolTip = 'Row ' + alph.charAt( row );
 					label = new Label();
-					label.text = alph.charAt(row);
-					gi.addChild(label);
-					gr.addChild(gi);
+					label.text = alph.charAt( row );
+					gi.addChild( label );
+					gr.addChild( gi );
 					
 					// Add the wells
-					for (col = 0; col<12; col++){
+					for ( col = 0; col < 12; col++ ) {
 						gi = new GridItem();
 						gi.id = 'Item' + row + col;
-						gi.setStyle('horizontalAlign','center');
-						gi.setStyle('verticalAlign', 'middle');
-						gi.setStyle('borderStyle','solid');
-						gi.setStyle('borderColor','white');
-						
+						gi.setStyle( 'horizontalAlign', 'center' );
+						gi.setStyle( 'verticalAlign', 'middle' );
+						gi.setStyle( 'borderStyle', 'solid' );
+						gi.setStyle( 'borderColor', 'white' );
 						// This creates a well container for each well.
-						// Now the well container takes a string name as input.  
+						// Now the well container takes a string name as input.
 						// Maybe: this should take a well object as input which should
 						// be obtained from some list of wells for the plate.
 						// Maybe: create a getWellsInPlate servlet to return all wells
 						// contained in a given plate?
-						var well:WellContainer = new WellContainer('');
-						
-						gi.addChild(well);
-						gr.addChild(gi);
+						var well:WellContainer = new WellContainer( '' );
+						well.plateView = this.parentDocument as NavPlateView;
+						gi.addChild( well );
+						gr.addChild( gi );
 					}
-					grid.addChild(gr);
-				} 
+					grid.addChild( gr );
+				}
 				// Assign each well an index number.
 				indexWells();
 				
-				// This is setting a name and tooltip for each well. 
-				// In the future this will be taken care of above i.e. the name will 
-				// be the sample name taken from the well object.
-				for (row = 1; row<9; row++){
-					gr = grid.getChildAt(row) as GridRow;
-					for (col = 1; col<13; col++){
-						gi = gr.getChildAt(col) as GridItem;
-						well = gi.getChildAt(0) as WellContainer;
-						well.setLabel((well.index+1).toString());
+				// Set the label of the well as index
+				for ( row = 1; row < 9; row++ ) {
+					gr = grid.getChildAt( row ) as GridRow;
+					
+					for ( col = 1; col < 13; col++ ) {
+						gi = gr.getChildAt( col ) as GridItem;
+						well = gi.getChildAt( 0 ) as WellContainer;
+						well.setLabel(( well.index + 1 ).toString());
 					}
 				}
 			}
 			
+			
 			// Refill the plate depending on fill by col
-			public function repopulatePlate():void{
+			public function repopulatePlate():void {
 				
 				var wells:ArrayCollection = getWells();
-				
 				var row:int;
 				var col:int;
-				var gr:GridRow = new GridRow();
-				var gi:GridItem = new GridItem();
-				var index:int = 0;
-				
+				var gr:GridRow            = new GridRow();
+				var gi:GridItem           = new GridItem();
+				var index:int             = 0;
 				var well:WellContainer;
-				var alph:String = "ABCDEFGH";
+				var alph:String           = "ABCDEFGH";
 				
-				if (nowFillByCol){
-					for (col = 1; col<13; col++){
-						for (row = 1; row<9; row++){
-							gr = grid.getChildAt(row) as GridRow;
-							gi = gr.getChildAt(col) as GridItem;
-							well = wells[index];
-							well.row = alph.charAt(row-1);
+				if ( nowFillByCol ) {
+					for ( col = 1; col < 13; col++ ) {
+						for ( row = 1; row < 9; row++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
+							gi = gr.getChildAt( col ) as GridItem;
+							well = wells[ index ];
+							well.row = alph.charAt( row - 1 );
 							well.col = col;
 							gi.removeAllChildren();
-							gi.addChild(well);
+							gi.addChild( well );
 							index++;
 						}
 					}
 				} else {
-					for (row = 1; row<9; row++){
-						gr = grid.getChildAt(row) as GridRow;
+					for ( row = 1; row < 9; row++ ) {
+						gr = grid.getChildAt( row ) as GridRow;
 						
-						for (col = 1; col<13; col++){
-							gi = gr.getChildAt(col) as GridItem;
-							well = wells[index];
-							well.row = alph.charAt(row-1);
+						for ( col = 1; col < 13; col++ ) {
+							gi = gr.getChildAt( col ) as GridItem;
+							well = wells[ index ];
+							well.row = alph.charAt( row - 1 );
 							well.col = col;
 							gi.removeAllChildren();
-							gi.addChild(well);
+							gi.addChild( well );
 							index++;
 						}
 					}
@@ -166,7 +163,8 @@
 				currentFillByCol = nowFillByCol;
 			}
 			
-			public function removeAllWells():void{
+			
+			public function removeAllWells():void {
 				
 				var gr:GridRow;
 				var gi:GridItem;
@@ -175,30 +173,32 @@
 				var col:int;
 				var index:int = 0;
 				
-				if (currentFillByCol){
-					for (col = 1; col<13; col++){
-						for (row = 1; row<9; row++){
-							gr = grid.getChildAt(row) as GridRow;
-							gi = gr.getChildAt(col) as GridItem;
+				if ( currentFillByCol ) {
+					for ( col = 1; col < 13; col++ ) {
+						for ( row = 1; row < 9; row++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
+							gi = gr.getChildAt( col ) as GridItem;
 							gi.removeAllChildren();
-							well = new WellContainer('');
+							well = new WellContainer( '' );
+//							well.plateView = this.parentDocument as NavPlateView;
 							well.index = index;
-							well.setLabel((index+1).toString());
-							gi.addChild(well);
+							well.setLabel(( index + 1 ).toString());
+							gi.addChild( well );
 							index++;
 						}
 					}
 				} else {
-					for (row = 1; row<9; row++){
-						gr = grid.getChildAt(row) as GridRow;
+					for ( row = 1; row < 9; row++ ) {
+						gr = grid.getChildAt( row ) as GridRow;
 						
-						for (col = 1; col<13; col++){
-							gi = gr.getChildAt(col) as GridItem;
+						for ( col = 1; col < 13; col++ ) {
+							gi = gr.getChildAt( col ) as GridItem;
 							gi.removeAllChildren();
-							well = new WellContainer(index.toString());
+							well = new WellContainer( index.toString());
+//							well.plateView = this.parentDocument as NavPlateView;
 							well.index = index;
-							well.setLabel((index+1).toString());
-							gi.addChild(well);
+							well.setLabel(( index + 1 ).toString());
+							gi.addChild( well );
 							index++;
 						}
 					}
@@ -206,43 +206,44 @@
 				indexWells();
 			}
 			
+			
 			// Function to return an array of all the wells in the plate
-			public function getWells():ArrayCollection{
-				var wells:Array = new Array();
+			public function getWells():ArrayCollection {
 				
+				var wells:Array = new Array();
 				var gr:GridRow;
 				var gi:GridItem;
 				var well:WellContainer;
 				var row:int;
 				var col:int;
 				
-				if (currentFillByCol){
-					for (col = 1; col<13; col++){
-						for (row = 1; row<9; row++){
-							gr = grid.getChildAt(row) as GridRow;
-							gi = gr.getChildAt(col) as GridItem;
-							well = gi.getChildAt(0) as WellContainer;
-							
-							wells.push(well);
+				if ( currentFillByCol ) {
+					for ( col = 1; col < 13; col++ ) {
+						for ( row = 1; row < 9; row++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
+							gi = gr.getChildAt( col ) as GridItem;
+							well = gi.getChildAt( 0 ) as WellContainer;
+							wells.push( well );
 						}
 					}
 				} else {
-					for (row = 1; row<9; row++){
-						gr = grid.getChildAt(row) as GridRow;
+					for ( row = 1; row < 9; row++ ) {
+						gr = grid.getChildAt( row ) as GridRow;
 						
-						for (col = 1; col<13; col++){
-							gi = gr.getChildAt(col) as GridItem;
-							well = gi.getChildAt(0) as WellContainer;
-							
-							wells.push(well);
+						for ( col = 1; col < 13; col++ ) {
+							gi = gr.getChildAt( col ) as GridItem;
+							well = gi.getChildAt( 0 ) as WellContainer;
+							wells.push( well );
 						}
 					}
 				}
-				return new ArrayCollection(wells);
+				return new ArrayCollection( wells );
 			}
 			
-			public function getWell(index:int):WellContainer{
-				for each (var well:WellContainer in getWells() ) {
+			
+			public function getWell( index:int ):WellContainer {
+				
+				for each ( var well:WellContainer in getWells()) {
 					if ( well.index == index ) {
 						return well;
 					}
@@ -250,50 +251,40 @@
 				return null;
 			}
 			
+			
+			
 			// Function to return an array of all the wells in the plate
-			public function getWellsXML():String{
-				var wellXMLString:String = "<plateWellXMLString>"
+			public function getWellsXML():String {
 				
+				var wellXMLString:String = "<plateWellXMLString>"
 				var gr:GridRow;
 				var gi:GridItem;
 				var well:WellContainer;
 				var row:int;
 				var col:int;
 				
-				if (currentFillByCol){
-					for (col = 1; col<13; col++){
-						for (row = 1; row<9; row++){
-							gr = grid.getChildAt(row) as GridRow;
-							gi = gr.getChildAt(col) as GridItem;
-							well = gi.getChildAt(0) as WellContainer;
-							if (well.hasSample) {
-								wellXMLString += "<PlateWell " +
-									" row ='" + well.row + "'" +
-									" col ='" + well.col + "'" +
-									" index ='" + well.index + "'" +
-									" idSample ='" + well.idSample + "'" +
-									" idRequest ='" + well.getGroupId() + "'" +
-									" idPlateWell ='" + well.idPlateWell + "'" +
-									"/>";
+				if ( currentFillByCol ) {
+					for ( col = 1; col < 13; col++ ) {
+						for ( row = 1; row < 9; row++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
+							gi = gr.getChildAt( col ) as GridItem;
+							well = gi.getChildAt( 0 ) as WellContainer;
+							
+							if ( well.hasSample ) {
+								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.index + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
 							}
 						}
 					}
 				} else {
-					for (row = 1; row<9; row++){
-						gr = grid.getChildAt(row) as GridRow;
+					for ( row = 1; row < 9; row++ ) {
+						gr = grid.getChildAt( row ) as GridRow;
 						
-						for (col = 1; col<13; col++){
-							gi = gr.getChildAt(col) as GridItem;
-							well = gi.getChildAt(0) as WellContainer;
-							if (well.hasSample) {
-								wellXMLString += "<PlateWell " +
-									" row ='" + well.row + "'" +
-									" col ='" + well.col + "'" +
-									" index ='" + well.index + "'" +
-									" idSample ='" + well.idSample + "'" +
-									" idRequest ='" + well.getGroupId() + "'" +
-									" idPlateWell ='" + well.idPlateWell + "'" +
-									"/>";
+						for ( col = 1; col < 13; col++ ) {
+							gi = gr.getChildAt( col ) as GridItem;
+							well = gi.getChildAt( 0 ) as WellContainer;
+							
+							if ( well.hasSample ) {
+								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.index + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
 							}
 						}
 					}
@@ -302,206 +293,199 @@
 				return wellXMLString;
 			}
 			
+			
 			// Function to return an array of all the unique groupIDs on the plate
-			public function getWellIDs():Array{
-				var idArray:Array = new Array();
+			public function getWellIDs():Array {
+				
+				var idArray:Array       = new Array();
 				var isDuplicate:Boolean = false;
 				
-				for each (var well:WellContainer in getWells()){
-					if (well.getGroupId() != null && well.getGroupId() != ""){
+				for each ( var well:WellContainer in getWells()) {
+					if ( well.getGroupId() != null && well.getGroupId() != "" ) {
 						isDuplicate = false;
-						for each (var id:String in idArray){
-							if (well.getGroupId() == id ){
+						
+						for each ( var id:String in idArray ) {
+							if ( well.getGroupId() == id ) {
 								isDuplicate = true;
 								break;
 							}
 						}
-						if (!isDuplicate){
-							idArray.push(well.getGroupId());
+						
+						if ( !isDuplicate ) {
+							idArray.push( well.getGroupId());
 						}
-					} 
+					}
 				}
 				return idArray;
 			}
 			
+			
 			// Function to highlight all wells with indices in the given array
-			public function highlightGroup(indices:Array):void{
+			public function highlightGroup( indices:Array ):void {
 				
-				for each (var well:WellContainer in getWells()){
-					
+				for each ( var well:WellContainer in getWells()) {
 					var gi:GridItem = well.parent as GridItem;
 					
-					if ( indices.length <= 0 ){
-						gi.setStyle('borderColor','white');
-						well.setStyle('backgroundAlpha',1);
+					if ( indices.length <= 0 ) {
+						gi.setStyle( 'borderColor', 'white' );
+						well.setStyle( 'backgroundAlpha', 1 );
+					} else if ( indices.lastIndexOf( well.index ) != -1 ) {
+						gi.setStyle( 'borderColor', 'black' );
+						well.setStyle( 'backgroundAlpha', 1 );
+					} else {
+						gi.setStyle( 'borderColor', 'white' );
+						well.setStyle( 'backgroundAlpha', .3 );
 					}
-					else if ( indices.lastIndexOf( well.index ) != -1 ){
-						gi.setStyle('borderColor','black');
-						well.setStyle('backgroundAlpha',1);
-					}
-					else{
-						gi.setStyle('borderColor','white');
-						well.setStyle('backgroundAlpha',.3);
-					}					
 				}
 			}
 			
-			// Function to color certain wells between two indices with a 
+			
+			// Function to color certain wells between two indices with a
 			// given color
-			public function colorWells(startIndex:int, endIndex:int, color:uint):void{
+			public function colorWells( startIndex:int, endIndex:int, color:uint ):void {
 				
-				for each (var well:WellContainer in getWells()){
-					if (well.index >= startIndex && well.index <= endIndex){
-						well.setColor(color);
+				for each ( var well:WellContainer in getWells()) {
+					if ( well.index >= startIndex && well.index <= endIndex ) {
+						well.setColor( color );
 					}
 				}
 			}
+			
 			
 			// Function to set the sample object for some well
-			public function addSampleToWell(index:int, sample:Object):void {
-				for each (var well:WellContainer in getWells()){
-					if (well.index == index) {
-						well.setSample(sample);
+			public function addSampleToWell( index:int, sample:Object ):void {
+				
+				for each ( var well:WellContainer in getWells()) {
+					if ( well.index == index ) {
+						well.setSample( sample );
+						well.plateView = this.parentDocument as NavPlateView;
 					}
 				}
-				
 			}
 			
 			
-			public function addWellsToPlate(wells:Array):void{
+			public function addWellsToPlate( wells:Array ):void {
 				
 				var gr:GridRow;
 				var gi:GridItem;
 				var row:int;
 				var col:int;
-				
 				var well:WellContainer;
 				var sample:Object;
 				
-				if ( wells.length > 0 ){
-					if (currentFillByCol){
-						for (col = 1; col<13; col++){
-							for (row = 1; row<9; row++){
-								gr = grid.getChildAt(row) as GridRow;
-								gi = gr.getChildAt(col) as GridItem;
+				if ( wells.length > 0 ) {
+					if ( currentFillByCol ) {
+						for ( col = 1; col < 13; col++ ) {
+							for ( row = 1; row < 9; row++ ) {
+								gr = grid.getChildAt( row ) as GridRow;
+								gi = gr.getChildAt( col ) as GridItem;
 								
 								if ( wells.length > 0 ) {
 									gi.removeAllChildren();
 									well = wells.shift();
+									well.plateView = this.parentDocument as NavPlateView;
 									
-									if ( well.getSample() != null ){
+									if ( well.getSample() != null ) {
 										sample = well.getSample();
 										sample.@isOnPlate = true;
 									}
-									gi.addChild(well);
-									
+									gi.addChild( well );
 								} else {
 									break;
 								}
-								
 							}
 						}
 					} else {
-						for (row = 1; row<9; row++){
-							gr = grid.getChildAt(row) as GridRow;
+						for ( row = 1; row < 9; row++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
 							
-							for (col = 1; col<13; col++){
-								gi = gr.getChildAt(col) as GridItem;
+							for ( col = 1; col < 13; col++ ) {
+								gi = gr.getChildAt( col ) as GridItem;
 								
 								if ( wells.length > 0 ) {
 									gi.removeAllChildren();
 									well = wells.shift();
+									well.plateView = this.parentDocument as NavPlateView;
 									
-									if ( well.getSample() != null ){
+									if ( well.getSample() != null ) {
 										sample = well.getSample();
 										sample.@isOnPlate = true;
 									}
-									gi.addChild(well);
-									
+									gi.addChild( well );
 								} else {
 									break;
 								}
-								
 							}
 						}
 					}
 				}
 				indexWells();
-				
 			}
 			
 			
-			// Function to assign group IDs to certain wells given their indices. The group
-			// ID can refer to the Order, Assay, or Primer depending on how you want to group
-			// the wells
-			public function setWellsGroupId(indices:Array, id:String):void {
+			// Function to assign group IDs to certain wells given their indices.
+			public function setWellsGroupId( indices:Array, id:String ):void {
 				
-				for each (var well:WellContainer in getWells()){
-					
-					if ( indices.lastIndexOf( well.index ) != -1 ){
-						well.setGroupId(id);
+				for each ( var well:WellContainer in getWells()) {
+					if ( indices.lastIndexOf( well.index ) != -1 ) {
+						well.setGroupId( id );
 					}
 				}
 			}
 			
+			
 			// Function to assign all the wells an index number, this
 			// will be done either column or row-wise.
-			public function indexWells():void{
+			public function indexWells():void {
+				
 				var gr:GridRow;
 				var gi:GridItem
 				var well:WellContainer
-				
 				var row:int;
 				var col:int;
-				var ind:int = 0;
-				
+				var ind:int     = 0;
 				var alph:String = "ABCDEFGH";
 				
-				if (currentFillByCol){
-					for (col = 1; col<13; col++){
-						for (row = 1; row<9; row++){
-							gr = grid.getChildAt(row) as GridRow;
-							gi = gr.getChildAt(col) as GridItem;
-							well = gi.getChildAt(0) as WellContainer;
-							
+				if ( currentFillByCol ) {
+					for ( col = 1; col < 13; col++ ) {
+						for ( row = 1; row < 9; row++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
+							gi = gr.getChildAt( col ) as GridItem;
+							well = gi.getChildAt( 0 ) as WellContainer;
 							well.index = ind;
-							well.setLabel((well.index+1).toString());
-							well.row = alph.charAt(row-1);
+							well.setLabel(( well.index + 1 ).toString());
+							well.row = alph.charAt( row - 1 );
 							well.col = col;
 							ind++;
 						}
-					} 	
+					}
 				} else {
-					for (row = 1; row<9; row++){
-						for (col = 1; col<13; col++){
-							gr = grid.getChildAt(row) as GridRow;
-							gi = gr.getChildAt(col) as GridItem;
-							well = gi.getChildAt(0) as WellContainer;
-							
+					for ( row = 1; row < 9; row++ ) {
+						for ( col = 1; col < 13; col++ ) {
+							gr = grid.getChildAt( row ) as GridRow;
+							gi = gr.getChildAt( col ) as GridItem;
+							well = gi.getChildAt( 0 ) as WellContainer;
 							well.index = ind;
-							well.setLabel((well.index+1).toString());
-							well.row = alph.charAt(row-1);
+							well.setLabel(( well.index + 1 ).toString());
+							well.row = alph.charAt( row - 1 );
 							well.col = col;
 							ind++;
 						}
-					} 	
+					}
 				}
 			}
-			
 		]]>
-	</mx:Script> 
-	
-	
-	<mx:Grid id="grid" 
-			 horizontalAlign="center" 
+	</mx:Script>
+	<mx:Grid id="grid"
+			 horizontalAlign="center"
 			 verticalAlign="middle"
-			 backgroundColor="#FFFFFF" 
-			 borderColor="Black" 
-			 cornerRadius="15" 
+			 backgroundColor="#FFFFFF"
+			 borderColor="Black"
+			 cornerRadius="15"
 			 paddingBottom="2"
 			 paddingLeft="2"
 			 paddingRight="2"
 			 paddingTop="2"
 			 initialize="populatePlate()" />
-	
+
 </mx:Canvas>
