@@ -18,9 +18,9 @@ package views.renderers
 		override protected function updateDisplayList(
 			unscaledWidth:Number, unscaledHeight:Number): void {
 			super.updateDisplayList(unscaledWidth,unscaledHeight);
-			graphics.lineStyle(1);
+			graphics.lineStyle(0);
 			graphics.beginFill(0xFFFFFF);
-			graphics.drawRoundRect (0,0,unscaledWidth,unscaledHeight,3,3);
+			graphics.drawRoundRect (0,0,unscaledWidth,unscaledHeight,0,0);
 			graphics.endFill();
 		}
 				
