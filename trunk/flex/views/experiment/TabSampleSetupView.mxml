@@ -528,6 +528,7 @@
 		}
 		
 		private function onContainerTypeChange():void {
+			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.showHideColumns();
 			parentDocument.confirmView.showHideColumns();
