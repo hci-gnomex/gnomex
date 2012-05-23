@@ -3626,7 +3626,7 @@
 			} else if (this.currentState == "MicroarrayAmendState") {
 				this.titleLabel.text = "Adding Microarray services to Sample Quality Experiment ";	
 			} else if (this.currentState == "SolexaLaneAmendState") {
-				this.titleLabel.text = "Adding Illumina sample sequencing runs to Experiment ";			
+				this.titleLabel.text = "Adding Illumina sample sequence lanes to Experiment ";			
 			} else if (this.currentState == "CapSeqAmendState") {
 				this.titleLabel.text = "Adding Capillary Sequencing services to Experiment ";
 			}
@@ -4453,18 +4453,18 @@
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
 					</mx:HBox>
 						
-					<mx:HBox horizontalGap="0">
+					<mx:HBox horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
 						<mx:Text  text="Completed" width="100"  fontWeight="normal"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
 					</mx:HBox>
 				   
 					
-					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@hasCaptureLibDesign == 'Y'}" visible="{requestApplication.@hasCaptureLibDesign == 'Y'}">
+					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
 						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design"/>
 						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
 					</mx:HBox>
 					
-					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@avgInsertSizeFrom != null &amp;&amp; requestApplication.@avgInsertSizeFrom != ''}" visible="{requestApplication.@avgInsertSizeFrom != null &amp;&amp; requestApplication.@avgInsertSizeFrom != ''}">
+					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
 						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size"/>
 						<mx:TextInput focusOut="propagateRange()" change="{this.dirty.setDirty()}" id="rangeFrom" width="100" text="{this.request.@avgInsertSizeFrom}"/>
 						<mx:Text fontWeight="normal" text=" to "/>
@@ -4653,7 +4653,7 @@
 							    		label="{requestCategoryRepeater2.currentItem.@display}"  width="206"
 							    		value="{'ADD-LANES-' + requestCategoryRepeater2.currentItem.@value}" 
 							    		click="highlightAmendRequestCategory();setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()"  />							
-  									<mx:Text text="Adding sample Sequencing Runs only" width="100%" fontStyle="italic" fontWeight="normal"/>		
+  									<mx:Text text="Adding sample Sequence Lanes only" width="100%" fontStyle="italic" fontWeight="normal"/>		
 							  	 				
 								</mx:HBox>
 							</mx:Repeater>
