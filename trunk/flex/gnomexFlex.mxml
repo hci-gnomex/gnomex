@@ -1441,8 +1441,10 @@
 						if (hasPermission(this.PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES)){
 							currentState = "SuperAdminDNASeqState"
 						} else {
-							currentState = "AdminState";
+							currentState = "AdminDNASeqState";
 						}
+					} else {
+						currentState = "AdminState";
 					}
 				} else if (hasGroupsToManage()) {
 					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";

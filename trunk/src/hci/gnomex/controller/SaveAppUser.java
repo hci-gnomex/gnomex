@@ -162,14 +162,16 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
         }
 
-        // Only Admins and Super Admins can manage core facilities.
-        if (!appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) 
-            && !appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-          for(Iterator chkIter = managingCoreFacilityIds.iterator();chkIter.hasNext();) {
-            CoreFacilityCheck chk = (CoreFacilityCheck)chkIter.next();
-            if (chk.selected.equals("Y")) {
-              this.addInvalidField("Manage Core Facility", "Only Admin or Super Admin users can manage core facilities.");
-              isManageFacilityError = true;
+        // Only super admins can assign core facilities to labs.
+        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+          if (!appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) 
+              && !appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+            for(Iterator chkIter = managingCoreFacilityIds.iterator();chkIter.hasNext();) {
+              CoreFacilityCheck chk = (CoreFacilityCheck)chkIter.next();
+              if (chk.selected.equals("Y")) {
+                this.addInvalidField("Manage Core Facility", "Only Admin or Super Admin users can manage core facilities.");
+                isManageFacilityError = true;
+              }
             }
           }
         }

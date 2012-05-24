@@ -55,7 +55,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ)) {
+    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
       this.addInvalidField("perm", "Insufficient permissions to view pending samples for DNA Seq core");
     }
 
