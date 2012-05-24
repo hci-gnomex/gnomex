@@ -7,6 +7,8 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UsageRowDescriptor;
+import hci.gnomex.utility.UsageRowDescriptorComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -18,7 +20,9 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -97,9 +101,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
           } else if (fieldName.equals("analysisCount")) {
             getActivityAnalysisDetail(sess, doc.getRootElement());
           } else if (fieldName.equals("uploadCount")) {
-            getActivityTransferDetail(sess, doc.getRootElement(), "upload");
+            getActivityTransferDetailUpload(sess, doc.getRootElement());
           } else if (fieldName.equals("downloadCount")) {
-            getActivityTransferDetail(sess, doc.getRootElement(), "download");
+            getActivityTransferDetailDownload(sess, doc.getRootElement());
           }
         }
 
@@ -194,44 +198,271 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     }
   }
 
-  private void getActivityTransferDetail(Session sess, Element parentElement, String transferType) {
-    List rows;
-    TreeMap nodeMap = new TreeMap();
+  private void getActivityTransferDetailUpload(Session sess, Element parentElement) {
+    List<Object> rows;
+    TreeMap<UsageRowDescriptor, Element> nodeMap = new TreeMap<UsageRowDescriptor, Element>(new UsageRowDescriptorComparator());
     StringBuffer queryBuf = new StringBuffer();
     
-    String distinctStr = "";
-    if(transferType.compareTo("upload")==0) {
-      distinctStr = "distinct";
+    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
+    queryBuf.append("from TransferLog tl, Request r, Lab lab ");
+    queryBuf.append("where tl.idRequest = r.idRequest ");
+    queryBuf.append("and r.idLab = lab.idLab ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = 'upload' ");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
+    rows = sess.createQuery(queryBuf.toString()).list();
+    
+    Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
+    TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> ();
+    for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      UsageRowDescriptor thisDescriptor = new UsageRowDescriptor();
+      
+      thisDescriptor.setIdLab((Integer)row[0]);
+      thisDescriptor.setLabLastName((String)row[1]);
+      thisDescriptor.setLabFirstName((String)row[2]);
+      thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
+      thisDescriptor.setNumber((String)row[4]);
+      thisDescriptor.setFileName((String)row[5]); 
+      
+      // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
+      UsageRowDescriptor thisCounter = new UsageRowDescriptor();
+      thisCounter.setUsageRowDescriptorAsCounter(thisDescriptor);
+      
+      if (uniqueEntries.add(thisDescriptor)) {
+        // If current row descriptor not already on the list, then increment counter
+        Integer thisCount = rowCounterMap.get(thisCounter);
+        if(thisCount != null) {
+          // If counter already present then increment
+          thisCount = new Integer(thisCount.intValue()+1);        
+        } else {
+          // If counter not present then start at 1
+          thisCount = new Integer(1);
+        }
+        rowCounterMap.put(thisCounter, thisCount);
+        
+      }
+    } 
+    // Now traverse the rowCounter list and retrieve the counts
+    Iterator<UsageRowDescriptor> it = rowCounterMap.keySet().iterator();
+    while(it.hasNext()) {
+      UsageRowDescriptor thisRow = (UsageRowDescriptor) it.next();
+      Integer thisCount = rowCounterMap.get(thisRow);
+      Element node = new Element("Entry");
+      node.setAttribute("labName", getLabName(thisRow.getIdLab(), thisRow.getLabLastName(), thisRow.getLabFirstName()));
+      node.setAttribute("number", thisRow.getNumber());
+      node.setAttribute("transferDate", this.formatDate(thisRow.getCreateDate()));
+      node.setAttribute("uploadCount", thisCount.toString());
+
+      //nodeMap.put(Lab.formatLabName(thisRow.getLabLastName(), thisRow.getLabFirstName()) + thisRow.getNumber(), node);
+      nodeMap.put(thisRow, node);
     }
     
-    /*
+
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
+    queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
+    queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
+    queryBuf.append("and a.idLab = lab.idLab ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = 'upload' ");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName"); 
+    rows = sess.createQuery(queryBuf.toString()).list();
+    
+    uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
+    rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
+    for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      UsageRowDescriptor thisDescriptor = new UsageRowDescriptor();
+      
+      thisDescriptor.setIdLab((Integer)row[0]);
+      thisDescriptor.setLabLastName((String)row[1]);
+      thisDescriptor.setLabFirstName((String)row[2]);
+      thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
+      thisDescriptor.setNumber((String)row[4]);
+      thisDescriptor.setFileName((String)row[5]); 
+      
+      // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
+      UsageRowDescriptor thisCounter = new UsageRowDescriptor();
+      thisCounter.setUsageRowDescriptorAsCounter(thisDescriptor);
+      
+      if (uniqueEntries.add(thisDescriptor)) {
+        // If current row descriptor not already on the list, then increment counter
+        Integer thisCount = rowCounterMap.get(thisCounter);
+        if(thisCount != null) {
+          // If counter already present then increment
+          thisCount = new Integer(thisCount.intValue()+1);        
+        } else {
+          // If counter not present then start at 1
+          thisCount = new Integer(1);
+        }
+        rowCounterMap.put(thisCounter, thisCount);
+        
+      }
+    } 
+    // Now traverse the rowCounter list and retrieve the counts
+    it = rowCounterMap.keySet().iterator();
+    while(it.hasNext()) {
+      UsageRowDescriptor thisRow = (UsageRowDescriptor) it.next();
+      Integer thisCount = rowCounterMap.get(thisRow);
+      Element node = new Element("Entry");
+      node.setAttribute("labName", getLabName(thisRow.getIdLab(), thisRow.getLabLastName(), thisRow.getLabFirstName()));
+      node.setAttribute("number", thisRow.getNumber());
+      node.setAttribute("transferDate", this.formatDate(thisRow.getCreateDate()));
+      node.setAttribute("uploadCount", thisCount.toString());
+
+      //nodeMap.put(Lab.formatLabName(thisRow.getLabLastName(), thisRow.getLabFirstName()) + thisRow.getNumber(), node);
+      nodeMap.put(thisRow, node);
+    }
+
+    for (Iterator<UsageRowDescriptor> i = nodeMap.keySet().iterator(); i.hasNext();) {
+      UsageRowDescriptor key = (UsageRowDescriptor)i.next();
+      Element node = (Element)nodeMap.get(key);
+      parentElement.addContent(node);
+    }
+
+    
+  }
+  
+  private void getActivityTransferDetailDownload(Session sess, Element parentElement) {
+    List<Object> rows;
+    TreeMap<UsageRowDescriptor, Element> nodeMap = new TreeMap<UsageRowDescriptor, Element>(new UsageRowDescriptorComparator());
+    StringBuffer queryBuf = new StringBuffer();
+    
+    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
+    queryBuf.append("from TransferLog tl, Request r, Lab lab ");
+    queryBuf.append("where tl.idRequest = r.idRequest ");
+    queryBuf.append("and r.idLab = lab.idLab ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = 'download' ");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
+    rows = sess.createQuery(queryBuf.toString()).list();
+    
+    TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
+    for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+
+      // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
+      UsageRowDescriptor thisCounter = new UsageRowDescriptor();
+      thisCounter.setIdLab((Integer)row[0]);
+      thisCounter.setLabLastName((String)row[1]);
+      thisCounter.setLabFirstName((String)row[2]);
+      thisCounter.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
+      thisCounter.setNumber((String)row[4]);
+      thisCounter.setFileName(""); 
+      
+      Integer thisCount = rowCounterMap.get(thisCounter);
+      if(thisCount != null) {
+        // If counter already present then increment
+        thisCount = new Integer(thisCount.intValue()+1);        
+      } else {
+        // If counter not present then start at 1
+        thisCount = new Integer(1);
+      }
+      rowCounterMap.put(thisCounter, thisCount);
+    } 
+    // Now traverse the rowCounter list and retrieve the counts
+    Iterator<UsageRowDescriptor> it = rowCounterMap.keySet().iterator();
+    while(it.hasNext()) {
+      UsageRowDescriptor thisRow = (UsageRowDescriptor) it.next();
+      Integer thisCount = rowCounterMap.get(thisRow);
+      Element node = new Element("Entry");
+      node.setAttribute("labName", getLabName(thisRow.getIdLab(), thisRow.getLabLastName(), thisRow.getLabFirstName()));
+      node.setAttribute("number", thisRow.getNumber());
+      node.setAttribute("transferDate", this.formatDate(thisRow.getCreateDate()));
+      node.setAttribute("downloadCount", thisCount.toString());
+
+      //nodeMap.put(Lab.formatLabName(thisRow.getLabLastName(), thisRow.getLabFirstName()) + thisRow.getNumber(), node);
+      nodeMap.put(thisRow, node);
+    }
+    
+
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
+    queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
+    queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
+    queryBuf.append("and a.idLab = lab.idLab ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = 'download' ");
+    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName"); 
+    rows = sess.createQuery(queryBuf.toString()).list();
+    
+    rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
+    for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
+      UsageRowDescriptor thisCounter = new UsageRowDescriptor();
+      thisCounter.setIdLab((Integer)row[0]);
+      thisCounter.setLabLastName((String)row[1]);
+      thisCounter.setLabFirstName((String)row[2]);
+      thisCounter.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
+      thisCounter.setNumber((String)row[4]);
+      thisCounter.setFileName(""); 
+      
+      // If current row descriptor not already on the list, then increment counter
+      Integer thisCount = rowCounterMap.get(thisCounter);
+      if(thisCount != null) {
+        // If counter already present then increment
+        thisCount = new Integer(thisCount.intValue()+1);        
+      } else {
+        // If counter not present then start at 1
+        thisCount = new Integer(1);
+      }
+      rowCounterMap.put(thisCounter, thisCount);
+    } 
+    // Now traverse the rowCounter list and retrieve the counts
+    it = rowCounterMap.keySet().iterator();
+    while(it.hasNext()) {
+      UsageRowDescriptor thisRow = (UsageRowDescriptor) it.next();
+      Integer thisCount = rowCounterMap.get(thisRow);
+      Element node = new Element("Entry");
+      node.setAttribute("labName", getLabName(thisRow.getIdLab(), thisRow.getLabLastName(), thisRow.getLabFirstName()));
+      node.setAttribute("number", thisRow.getNumber());
+      node.setAttribute("transferDate", this.formatDate(thisRow.getCreateDate()));
+      node.setAttribute("downloadCount", thisCount.toString());
+
+      //nodeMap.put(Lab.formatLabName(thisRow.getLabLastName(), thisRow.getLabFirstName()) + thisRow.getNumber(), node);
+      nodeMap.put(thisRow, node);
+    }
+
+    for (Iterator<UsageRowDescriptor> i = nodeMap.keySet().iterator(); i.hasNext();) {
+      UsageRowDescriptor key = (UsageRowDescriptor)i.next();
+      Element node = (Element)nodeMap.get(key);
+      parentElement.addContent(node);
+    }
+    
+  }
+  
+  
+  
+  private void getActivityTransferDetailDownloadOld(Session sess, Element parentElement) {
+    List<Object> rows;
+    TreeMap<String, Element> nodeMap = new TreeMap<String, Element>();
+    StringBuffer queryBuf = new StringBuffer();
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, count(*) ");
     queryBuf.append("from TransferLog tl, Request r, Lab lab ");
     queryBuf.append("where tl.idRequest = r.idRequest ");
     queryBuf.append("and r.idLab = lab.idLab ");
-    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.transferType = '" + transferType + "' ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = 'download' ");
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number"); 
     rows = sess.createQuery(queryBuf.toString()).list();
-    */
 
-    queryBuf.append("SELECT t.idLab, t.lastName, t.firstName, t.sDateTime, t.number, count(*)  ");
-    queryBuf.append("from ");
-    queryBuf.append("(SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, CAST(tl.startDateTime AS DATE) as sDateTime, r.number, tl.fileName ");
-    queryBuf.append("from TransferLog tl, Request r, Lab lab ");
-    queryBuf.append("where tl.idRequest = r.idRequest ");
-    queryBuf.append("and r.idLab = lab.idLab ");
-    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.transferType = '" + transferType + "') t ");
-    queryBuf.append("group by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
-    queryBuf.append("order by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
-    rows = sess.createSQLQuery(queryBuf.toString()).list();
-
-
-    for(Iterator i = rows.iterator(); i.hasNext();) {
+    for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
       String labLastName = (String)row[1];
@@ -244,7 +475,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       node.setAttribute("labName", getLabName(idLab, labLastName, labFirstName));
       node.setAttribute("number", requestNumber);
       node.setAttribute("transferDate", this.formatDate(createDate));
-      node.setAttribute( transferType + "Count", count.toString());
+      node.setAttribute("downloadCount", count.toString());
 
       nodeMap.put(Lab.formatLabName(labLastName, labFirstName) + requestNumber, node);
     }
@@ -256,29 +487,15 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
     queryBuf.append("and a.idLab = lab.idLab ");
-    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.transferType = '" + transferType + "' ");
+    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
+    queryBuf.append("and tl.transferType = 'download' ");
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number");
     rows = sess.createQuery(queryBuf.toString()).list();
-    
 
-    /*
-    queryBuf.append("SELECT t.idLab, t.lastName, t.firstName, t.sDateTime, t.number, count(*)  ");
-    queryBuf.append("from ");
-    queryBuf.append("(SELECT " + distinctStr + " lab.idLab, lab.lastName, lab.firstName, CAST(tl.startDateTime AS DATE) as sDateTime, a.number, tl.fileName ");
-    queryBuf.append("from TransferLog tl, Analysis a, Lab lab  ");
-    queryBuf.append("where tl.idAnalysis = a.idAnalysis and a.idLab = lab.idLab ");
-    queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
-    queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "'  ");
-    queryBuf.append("and tl.transferType = '" + transferType + "') t ");
-    queryBuf.append("group by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
-    queryBuf.append("order by t.idLab, t.lastName, t.firstName, t.sDateTime, t.number ");
-    rows = sess.createSQLQuery(queryBuf.toString()).list();
-    */
     
-    for(Iterator i = rows.iterator(); i.hasNext();) {
+    for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
       String labLastName = (String)row[1];
@@ -291,12 +508,12 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       node.setAttribute("labName", getLabName(idLab, labLastName, labFirstName));
       node.setAttribute("number", analysisNumber);
       node.setAttribute("transferDate", this.formatDate(createDate));
-      node.setAttribute(transferType + "Count", count.toString());
+      node.setAttribute("downloadCount", count.toString());
 
       nodeMap.put(Lab.formatLabName(labLastName, labFirstName) + analysisNumber, node);
     }
 
-    for (Iterator i = nodeMap.keySet().iterator(); i.hasNext();) {
+    for (Iterator<String> i = nodeMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
       Element node = (Element)nodeMap.get(key);
       parentElement.addContent(node);
@@ -304,6 +521,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
 
     
   }
+  
   /**
    * Show lab label if logged in user is admin or usage_user_visibility set to 'full'.
    * If usage_user_visibility set to 'masked', mask lab names for labs that user

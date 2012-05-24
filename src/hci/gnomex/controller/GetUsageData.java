@@ -3,6 +3,8 @@ package hci.gnomex.controller;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UsageRowDescriptor;
+import hci.gnomex.utility.UsageRowDescriptorComparator;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -248,10 +250,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
         // Get upload count
         rank = 0;
-        //summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
         summaryRows = sess.createQuery("SELECT tl.idLab, count(distinct fileName) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
         addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
-        //Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(*) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
         Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(distinct fileName) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
         summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
 
@@ -448,28 +448,58 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       }
     }
     
-    
-    
+        
     // Tally upload count by week
-    summaryRows = sess.createQuery("SELECT tl.startDateTime, count(distinct fileName) from TransferLog tl where transferType = 'upload' group by tl.startDateTime order by tl.startDateTime").list();
-    //summaryRows = sess.createSQLQuery("select t.sDateTime, count(*) from (select distinct CAST(tl.startDateTime AS DATE) as sDateTime, fileName from TransferLog tl where transferType = 'upload') t group by sDateTime order by sDateTime").list();
+    summaryRows = sess.createQuery("SELECT tl.startDateTime, tl.fileName from TransferLog tl where transferType = 'upload' group by tl.startDateTime, tl.fileName order by tl.startDateTime, tl.fileName").list();
     
-    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-      Object[] rows = (Object[])i.next();
-      java.util.Date createDate  = (java.util.Date)rows[0];
-      Integer uploadCount     = (Integer)rows[1];
+    Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
+    TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> ();
+    for(Iterator<Object> i = summaryRows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      UsageRowDescriptor thisDescriptor = new UsageRowDescriptor();
       
-      String createDateKey = dfNormal.format(createDate);
+      thisDescriptor.setIdLab(new Integer(0));
+      thisDescriptor.setLabLastName("");
+      thisDescriptor.setLabFirstName("");
+      thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[0]));
+      thisDescriptor.setNumber("");
+      thisDescriptor.setFileName((String)row[1]); 
+      
+      // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
+      UsageRowDescriptor thisCounter = new UsageRowDescriptor();
+      thisCounter.setUsageRowDescriptorAsCounter(thisDescriptor);
+      
+      if (uniqueEntries.add(thisDescriptor)) {
+        // If current row descriptor not already on the list, then increment counter
+        Integer thisCount = rowCounterMap.get(thisCounter);
+        if(thisCount != null) {
+          // If counter already present then increment
+          thisCount = new Integer(thisCount.intValue()+1);        
+        } else {
+          // If counter not present then start at 1
+          thisCount = new Integer(1);
+        }
+        rowCounterMap.put(thisCounter, thisCount);
+        
+      }
+    } 
+    // Now traverse the rowCounter list and retrieve the counts
+    Iterator<UsageRowDescriptor> it = rowCounterMap.keySet().iterator();
+    while(it.hasNext()) {
+      UsageRowDescriptor thisRow = (UsageRowDescriptor) it.next();
+      Integer thisCount = rowCounterMap.get(thisRow);
+
+      
+      String createDateKey = dfNormal.format(thisRow.getCreateDate());
       Integer weekNumber = weekNumberMap.get(createDateKey);
       if (weekNumber != null) {
         ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
         if (ai != null) {
-          ai.uploadCount += uploadCount;
+          ai.uploadCount += thisCount;
         }
-      }
-    }
-    
-    
+      }      
+    }       
+     
     // Tally download count by week
     summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'download' group by tl.startDateTime order by tl.startDateTime").list();
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {

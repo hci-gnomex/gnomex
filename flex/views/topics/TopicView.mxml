@@ -9,7 +9,8 @@
 	<mx:VBox width="100%" verticalGap="2">
 		<mx:HBox horizontalGap="1">
 			<mx:Image source="{parentApplication.iconTopic}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Folder ' + parentDocument.topicsBrowseTree.selectedItem.@name}" />
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Topic ' + parentDocument.topicsBrowseTree.selectedItem.@name}" />
+			<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 		</mx:HBox>
 	</mx:VBox>
 	
@@ -28,13 +29,34 @@
 	</mx:HTTPService>	
 <mx:Script>
 <![CDATA[
-	import mx.rpc.events.ResultEvent;
 	import mx.controls.Alert;
+	import mx.rpc.events.ResultEvent;
+	import views.util.WebLinksView;
+	import mx.managers.PopUpManager;
 	
 	public function init():void {
 		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.topicsBrowseTree.selectedItem.@idLab);
 		this.dirtyTopic.resetDirty();
-	}	
+	}
+	
+	public function showLinks():void {
+		/*
+		var userLink:String =  "GNomEx User:\r"  + parentApplication.baseURL 
+			+ parentApplication.GNOMEX_USER_JSP;
+		var guestLink:String = "\r\rGuest:\r"  + parentApplication.baseURL + parentApplication.GNOMEX_GUEST_JSP;
+		var topicNumber:String = "?topicNumber=" + parentDocument.topicsBrowseTree.selectedItem.@idTopic;
+		
+		Alert.show(userLink + topicNumber + guestLink + topicNumber, "Web Links for Topic " + parentDocument.topicsBrowseTree.selectedItem.@name);
+		*/
+		var webLinksView:WebLinksView = new WebLinksView();
+		var topicNumber:String = "?topicNumber=" + parentDocument.topicsBrowseTree.selectedItem.@idTopic;
+
+		PopUpManager.addPopUp(webLinksView, this, true);
+		PopUpManager.centerPopUp(webLinksView);
+		webLinksView.setTitleMessage("Topic " + parentDocument.topicsBrowseTree.selectedItem.@name);
+		webLinksView.setUserLink(topicNumber);
+		webLinksView.setGuestLink(topicNumber);
+	}
 	
 	private function save():void {
 		var params:Object = new Object();

@@ -724,6 +724,12 @@
 			[Bindable]
 			public var idAppUser:Object = null;
 			
+			[Bindable]
+			public var baseURL:String = "";
+			public var GNOMEX_USER_JSP:String = "/gnomexFlex.jsp";
+			public var GNOMEX_GUEST_JSP:String = "/gnomexGuestFlex.jsp";
+
+			
 			private function init():void {
 				getLaunchProperties.send();
 			} 
@@ -735,7 +741,8 @@
 						this.isUnivUserAuth = true;
 					} else {
 						this.isUnivUserAuth = false;
-					}					
+					}	
+					baseURL = getLaunchProperties.lastResult.Property.(@name == "base_url").@value;
 					stateStack.selectedChild = initViews; 
 					linkbutton1.visible = true;
 					linkbutton3.visible = true;
