@@ -1,6 +1,12 @@
 ﻿GNomEx Release Notes
 ---------------------
 
+
+---------------------
+* Fixed problems with usage stat queries. (rcundick)
+* Added code to obtain base URL from back end. (rcundick)
+* Added window to display links for guest/user direct access to Topic. (rcundick)
+
 5.4.5
 ---------------------
 * Changed any text that was displayed to the user from "Sequence Run" to "Sequence Lane". (tcourdy)
