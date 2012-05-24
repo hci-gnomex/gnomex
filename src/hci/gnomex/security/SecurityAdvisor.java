@@ -65,7 +65,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          CAN_WRITE_ANY_OBJECT                        = "canWriteAnyObject";
   public static final String          CAN_DELETE_ANY_PROJECT                      = "canDeleteAnyProject";            
   public static final String          CAN_DELETE_REQUESTS                         = "canDeleteRequests";   
-  public static final String          CAN_MANAGE_DNA_SEQ                          = "canManageDNASeq";
+  public static final String          CAN_MANAGE_DNA_SEQ_CORE                     = "canManageDNASeqCore";
+  public static final String          CAN_MANAGE_GENOMICS_CORE                    = "canManageGenomicsCore";
   
   public static final String          CAN_PARTICIPATE_IN_GROUPS                   = "canParticipateInGroups";            
   public static final String          CAN_SUBMIT_REQUESTS                         = "canSubmitRequests";            
@@ -288,9 +289,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Request
     //
     if (object instanceof Request) {
-      // Admins
-      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+      // Super Admins
+      if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canRead = true;
+      } // Admins - restrict to core facility
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        Request req = (Request)object;
+        canRead = isCoreFacilityIManage(req.getIdCoreFacility());
       }
       // Normal gnomex users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
@@ -355,8 +360,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Analysis
     //
     else if (object instanceof Analysis) {
-      // Admins
-      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)){
         canRead = true;
       }
       // Normal gnomex users
@@ -718,9 +722,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     if (object instanceof Request) {
       
-      // Admins
-      if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+      // Super Admins
+      if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canUpdate = true;
+      }
+      // Admins - Can only update requests from core facility user manages
+      else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+          Request req = (Request)object;
+          canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
       }
       // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
@@ -930,9 +939,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       //
       if (object instanceof Request) {
         
-        // Admins
-        if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+     // Super Admins
+        if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
           canUpdate = true;
+        }
+        // Admins - Can only update requests from core facility user manages
+        else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+            Request req = (Request)object;
+            canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
         }
         // University GNomEx users
         else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
@@ -1054,8 +1068,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     if (object instanceof Request) { 
       Request r = (Request)object;
-      // Admin
-      if (hasPermission(this.CAN_DELETE_REQUESTS)) {
+      
+      // Super Admin can delete any request
+      if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        canDelete = true;
+      } 
+      // Admin - can delete experiments from core facility user manages
+      else if (hasPermission(this.CAN_DELETE_REQUESTS)) {
         canDelete = true;
       } 
       // Lab manager or owner can delete experiment if the samples
@@ -1259,35 +1278,58 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       globalPermissionMap.put(new Permission(CAN_ASSIGN_SUPER_ADMIN_ROLE), null);
     }
     
-    // Can write common dictionaries
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_WRITE_DICTIONARIES), null);
-    }
     
     // Can manage DNA Seq Core
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ), null);
+      globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
     } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
       if (appUser.getManagingCoreFacilities() != null) {
         for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
           CoreFacility coreFacility = (CoreFacility)i.next();
           if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
-            globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ), null);
+            globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
           }
         }
       }
     }
+    
+    
+    // Can manage Genomics Core Facility
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+    } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+      if (appUser.getManagingCoreFacilities() != null) {
+        for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
+          CoreFacility coreFacility = (CoreFacility)i.next();
+          if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_GENOMICS)) {
+            globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+          }
+        }
+      }
+    }
+
+    
+    // Can write common dictionaries
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(CAN_WRITE_DICTIONARIES), null);
+    }
+
     
     // Can write property dictionary
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_WRITE_PROPERTY_DICTIONARY), null);
     }
     
-    // Can manager workflow
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+    // Can manage workflow - until other cores come online that require workflows, we
+    // will just give this permission to super admins and the admins that manage the 
+    // Genomics core facility.
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
+    } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+      if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE)) {
+        globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
+      }
     }
 
     // Can manage billing
@@ -1513,6 +1555,39 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     return labs;
   }
+  
+  public boolean isCoreFacilityIManage(Integer idCoreFacility) {
+    boolean isMyCoreFacility = false;
+    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+      for (Iterator i = this.getCoreFacilities().iterator(); i.hasNext();) {
+        CoreFacility coreFacility = (CoreFacility)i.next();
+        if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
+          isMyCoreFacility = true;
+          break;
+        }
+      }
+    }
+    return isMyCoreFacility;
+  }
+  
+  
+  public boolean isLabOfMyCoreFacility(Lab lab) {
+    boolean isLabOfMyCoreFacility = false;
+    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+      for (Iterator i = this.getCoreFacilities().iterator(); i.hasNext();) {
+        CoreFacility coreFacility = (CoreFacility)i.next();
+        for (Iterator i1 = lab.getCoreFacilities().iterator(); i1.hasNext(); ) {
+          CoreFacility cf = (CoreFacility)i1.next();
+          if (coreFacility.getIdCoreFacility().equals(cf.getIdCoreFacility())) {
+            isLabOfMyCoreFacility = true;
+            break;
+          }
+        }
+      }
+    }
+    return isLabOfMyCoreFacility;
+  }
+
   public boolean isInstitutionIAmMemberOf(Integer idInstitution) {
     boolean isMyInstitution = false;
     
@@ -1555,9 +1630,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return isMyLab;
   }
   
-  
+
   public boolean isGroupIAmMemberOrManagerOf(Integer idLab) {
     return isGroupIAmMemberOf(idLab) || isGroupIManage(idLab);
+    
   }
 
   public boolean isGroupICollaborateWith(Integer idLab) {
@@ -1581,14 +1657,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return isMyLab;
   }
   
+  public boolean isGroupIdManager(Lab theLab) {
+    return isGroupIManage(theLab.getIdLab());
+  }
+  
   public boolean isGroupIManage(Integer idLab) {
     boolean isMyLab = false;
     
     if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
       isMyLab = true;
     } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      
-      if (idLab != null) {
         for(Iterator i = this.getAppUser().getManagingLabs().iterator(); i.hasNext();) {
           Lab lab = (Lab)i.next();
           if (lab.getIdLab().equals(idLab)) {
@@ -1596,7 +1674,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             break;
           }
         }      
-      }
+     
     }
 
     return isMyLab;
@@ -1667,9 +1745,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public boolean buildSpannedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, String classShortName, String collabClassShortName, boolean isFirstCriteria, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
-    if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       
       // GNomex is not restricted
+      
+    } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      
+      // GNomex admin is restricted to objects for their core facility
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      isFirstCriteria = false;
+      appendCoreFacilityCriteria(queryBuf, classShortName);
       
     } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
@@ -1732,9 +1817,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup) {
-    if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       
-      // GNomex is not restricted
+      // GNomex super admin is not restricted
+      
+    } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      
+      // GNomex admin is restricted to objects for their core facility
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      isFirstCriteria = false;
+      appendCoreFacilityCriteria(queryBuf, classShortName);
       
     } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       
@@ -1921,6 +2013,32 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     queryBuf.append(" ) ");
     return true;
   }
+  
+  
+  private boolean appendCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
+    if (this.getCoreFacilities().isEmpty()) {
+      throw new RuntimeException("Unable to filter admin by core facilties -- no core facilities have been assiged to this user");
+    }
+    
+    queryBuf.append(" ( ");
+
+    // req.idLab in (....)
+    queryBuf.append(classShortName);
+    queryBuf.append(".idCoreFacility in ( ");
+    for(Iterator i = this.getCoreFacilities().iterator(); i.hasNext();) {
+      CoreFacility coreFacility = (CoreFacility)i.next();
+      queryBuf.append(coreFacility.getIdCoreFacility());
+      if (i.hasNext()) {
+        queryBuf.append(", ");
+      }
+    }      
+    queryBuf.append(" )");
+
+    queryBuf.append(" )");
+    
+    return true;
+  }
+  
 
   
   private boolean appendInstitutionCriteria(StringBuffer queryBuf, String classShortName ) {

@@ -52,6 +52,12 @@ public class LabFilter extends DetailObject {
       queryBuf.append(" JOIN lab.appUsers as user ");
     }
     
+    // If the user is an admin (not a super admin), we need to filter lab list by core facility
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
+        secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
+    }
+    
     
     
     addLabCriteria();
@@ -59,6 +65,8 @@ public class LabFilter extends DetailObject {
     addUserCriteria();
     if (!isUnbounded) {
       addSecurityCriteria();      
+    } else {
+      addUnboundedSecurityCriteria();
     }
     
     queryBuf.append(" order by lab.lastName, lab.firstName");
@@ -131,13 +139,51 @@ public class LabFilter extends DetailObject {
     }
   }
   
+  private void addUnboundedSecurityCriteria() {
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
+        secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+ 
+    // Filter to show only labs associated with core facilities this admin manages
+    if (secAdvisor.getCoreFacilities().isEmpty()) {
+      throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
+    }
+    this.addWhereOrAnd();
+    queryBuf.append(" coreFacility.idCoreFacility in ( ");
+    for(Iterator i = secAdvisor.getCoreFacilities().iterator(); i.hasNext();) {
+      CoreFacility cf = (CoreFacility)i.next();
+      queryBuf.append(cf.getIdCoreFacility());
+      if (i.hasNext()) {
+        queryBuf.append(", ");
+      }
+    }      
+    queryBuf.append(" )");        
+   }
+  }
+  
   
   private void addSecurityCriteria() {
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      // No criteria needed if user can view all requests
+    if (secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      // No criteria needed if this is a super users
+      
+    } if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      
+      // Filter to show only labs associated with core facilities this admin manages
+      if (secAdvisor.getCoreFacilities().isEmpty()) {
+        throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
+      }
+      this.addWhereOrAnd();
+      queryBuf.append(" coreFacility.idCoreFacility in ( ");
+      for(Iterator i = secAdvisor.getCoreFacilities().iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        queryBuf.append(cf.getIdCoreFacility());
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }      
+      queryBuf.append(" )");        
+      
       
     } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
-      
       if (this.secAdvisor.getAllMyGroups().size() > 0) {
         // Limit to requests for labs that the user is a member of
         this.addWhereOrAnd();
@@ -150,6 +196,11 @@ public class LabFilter extends DetailObject {
           }
         }      
         queryBuf.append(" )");        
+      } else {
+        // If user doesn't belong to any labs, just apply criteria that will 
+        // ensure that lab list is empty
+        this.addWhereOrAnd();
+        queryBuf.append(" lab.idLab = -1 ");
       }
       
     } 

@@ -40,11 +40,27 @@ public class AppUserFilter extends DetailObject {
   
   public void getQueryBody(StringBuffer queryBuf) {
     
+    // We need to join to labs and the core facilities if the user is an admin (not a super admin).
+    boolean joinToCoreFacility = false;
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
+        secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      joinToCoreFacility = true;
+    }
+
+    
+    
     queryBuf.append(" FROM           AppUser as user ");
-    if (hasLabCriteria()) {
+    if (hasLabCriteria() || joinToCoreFacility) {
       queryBuf.append(" LEFT JOIN           user.labs as lab ");      
       queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");      
       queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");      
+    }
+    
+    // If the user is an admin (not a super admin), we need to filter lab list by core facility
+    if (joinToCoreFacility) {
+      queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacilityMem ");
+      queryBuf.append(" LEFT JOIN collabLab.coreFacilities as coreFacilityCollab ");
+      queryBuf.append(" LEFT JOIN managerLab.coreFacilities as coreFacilityMgr ");
     }
     
     
@@ -111,8 +127,34 @@ public class AppUserFilter extends DetailObject {
   }
     
   private void addSecurityCriteria() {
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) ) {
-      // No criteria needed if user can view all requests
+    if (secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) ) {
+      // No criteria needed for super users
+    } 
+    else if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) ) {
+      // Admins can see users belong to labs that are associated with the core facilties
+      // this admin manages.
+      
+      if (secAdvisor.getCoreFacilities().isEmpty()) {
+        throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to user query.");
+      }
+      this.addWhereOrAnd();
+      queryBuf.append("(");
+      
+      queryBuf.append(" coreFacilityMem.idCoreFacility in ( ");
+      appendCoreFacilityInClause();
+      queryBuf.append(" OR ");
+
+      
+      queryBuf.append(" coreFacilityCollab.idCoreFacility in ( ");
+      appendCoreFacilityInClause();
+      queryBuf.append(" OR ");
+ 
+      queryBuf.append(" coreFacilityMgr.idCoreFacility in ( ");
+      appendCoreFacilityInClause();
+      
+      
+      queryBuf.append(")");
+
     } else if (secAdvisor.getGroupsIManage().size() > 0) {
       
       // Lab managers must be able to add any user to his/her lab,
@@ -181,6 +223,18 @@ public class AppUserFilter extends DetailObject {
       queryBuf.append(" user.idAppUser = ");
       queryBuf.append(secAdvisor.getIdAppUser());
     }
+    
+  }
+  
+  private void appendCoreFacilityInClause() {
+    for(Iterator i = secAdvisor.getCoreFacilities().iterator(); i.hasNext();) {
+      CoreFacility cf = (CoreFacility)i.next();
+      queryBuf.append(cf.getIdCoreFacility());
+      if (i.hasNext()) {
+        queryBuf.append(", ");
+      }
+    }      
+    queryBuf.append(" )");
     
   }
   
