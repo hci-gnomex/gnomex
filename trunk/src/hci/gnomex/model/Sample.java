@@ -70,6 +70,7 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
   private String      redoFlag = "N";
+  private String      isControl;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
 
@@ -644,4 +645,10 @@ public class Sample extends HibernateDetailObject {
     return redoFlag;
   }
 
+  public String getIsControl() {
+    return isControl;
+  }
+  public void setIsControl(String isControl) {
+    this.isControl = isControl;
+  }
 }

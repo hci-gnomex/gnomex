@@ -795,6 +795,7 @@
 		<property name="ccNumber" column="ccNumber" type="string" />
 		<property name="multiplexGroupNumber" column="multiplexGroupNumber" type="integer"/>
 		<property name="barcodeSequence" column="barcodeSequence" type="string" />
+		<property name="isControl" column="isControl" type="string" />
 		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />

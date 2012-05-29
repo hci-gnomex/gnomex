@@ -17,3 +17,6 @@ update Request r
 set r.idCoreFacility = cf.idCoreFacility
   join RequestCategory r on r.codeRequestCategory = rc.codeRequestCategory
   join CoreFacility cf on rc.idCoreFacility = cf.idCoreFacility;
+
+-- new isControl for Sample
+alter table Sample add column isControl char(1) NULL;
