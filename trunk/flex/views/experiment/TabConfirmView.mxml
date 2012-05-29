@@ -129,6 +129,7 @@
 			
 			wellNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
+			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
         	if (parentDocument.isSolexaState()) {
@@ -351,7 +352,9 @@
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
 						<mx:DataGridColumn id="plateNameCol" visible="false" headerText="Plate" width="80" dataField="@plateName"/>
-						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" labelFunction="parentDocument.getWellNameByColumn"/>
+						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
+						<mx:DataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" dataField="@isControl">
+						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
 						</mx:DataGridColumn>
 						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
