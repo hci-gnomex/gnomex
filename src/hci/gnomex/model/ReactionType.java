@@ -10,6 +10,8 @@ public class ReactionType extends DictionaryEntry implements Comparable, Seriali
 
   public static final String   SEQUENCING_REACTION_TYPE = "SEQ";
   public static final String   FRAGMENT_ANALYSIS_REACTION_TYPE = "FRAG";
+  public static final String   CHERRY_PICKING_REACTION_TYPE = "CHERRY";
+  public static final String   MITO_DLOOP_REACTION_TYPE = "MIT";
 
   
   private String   codeReactionType;
