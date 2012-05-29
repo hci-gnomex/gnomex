@@ -1587,6 +1587,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
   `redoFlag` CHAR(1) NULL, 
+  `isControl` CHAR(1) NULL, 
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)

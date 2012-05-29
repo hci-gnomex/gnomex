@@ -402,6 +402,11 @@ public class RequestParser implements Serializable {
     } else {
       sample.setPrepInstructions(null);
     }
+    if (n.getAttributeValue("isControl") != null && !n.getAttributeValue("isControl").equals("")) {
+      sample.setIsControl(n.getAttributeValue("isControl"));
+    } else {
+      sample.setIsControl(null);
+    }
     
     if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
       if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
