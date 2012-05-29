@@ -56,7 +56,11 @@
 		public function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
-			uploadSampleSheetWindow.init(this);
+			var numPlates:int = 0;
+			if (hasPlates()) {
+				numPlates = (new Number(parentDocument.sampleSetupView.numberOfSamples.text) / 96) + 1; 
+			}
+			uploadSampleSheetWindow.init(this, numPlates);
 		}
 		
 		public function copyColumn():void {
@@ -164,28 +168,9 @@
 					isValid = false;
 				} else {
 					var plateName:String = getPlateName(parentDocument.samples.length);
-					emptyNode = new XML("<Sample " +
-						" idSample='" + "Sample" + getNextSampleId() + "'" +
-						" name='' description='' " +
-						" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
-						" canChangeSampleName='Y'" +
-						" canChangeSampleType='Y'" +
-						" canChangeSampleDropOffLocation='Y'" +
-						" canChangeSampleConcentration='N'" +
-						" canChangeSampleSource='N'" +
-						" canChangeNumberSequencingCycles='N'" +
-						" canChangeNumberSequencingLanes='N'" + 
-						" concentration=''" +
-						" idOligoBarcode = ''" +
-						" barcodeSequence = ''" +
-						" codeConcentrationUnit='ng/ul'" + 
-						" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
-						" otherSamplePrepMethod=''" + 				
-						" treatment=''" +	
-						" plateName='" + plateName + "'" +
-						" wellName=''" +
-						"/>");
+					var isControl:String = getIsControl(parentDocument.samples.length);
+					var wellName:String = getWellName(parentDocument.samples.length);
+					emptyNode = getEmptyCapSeqNode(plateName, wellName, isControl); 
 				}				
 			} else {
 				var xmlString:String = "<Sample " +
@@ -218,6 +203,32 @@
 			return isValid;
 		}
 		
+		private function getEmptyCapSeqNode(plateName:String, wellName:String, isControl:String):XML {
+			var emptyNode:XML = new XML("<Sample " +
+				" idSample='" + "Sample" + getNextSampleId() + "'" +
+				" name='' description='' " +
+				" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+				" canChangeSampleName='Y'" +
+				" canChangeSampleType='Y'" +
+				" canChangeSampleDropOffLocation='Y'" +
+				" canChangeSampleConcentration='N'" +
+				" canChangeSampleSource='N'" +
+				" canChangeNumberSequencingCycles='N'" +
+				" canChangeNumberSequencingLanes='N'" + 
+				" concentration=''" +
+				" idOligoBarcode = ''" +
+				" barcodeSequence = ''" +
+				" codeConcentrationUnit='ng/ul'" + 
+				" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+				" otherSamplePrepMethod=''" + 				
+				" treatment=''" +	
+				" plateName='" + plateName + "'" +
+				" wellName='" + wellName + "'" +
+				" isControl='" + isControl + "'" +
+				"/>");
+			return emptyNode;
+		}
 		private function getPlateName(idx:int):String {
 			var plateName:String = "";
 			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
@@ -226,6 +237,25 @@
 				plateName = "Plate " + String(y);
 			}
 			return plateName;
+		}
+		
+		private function getWellName(idx:int):String {
+			var wellName:String = "";
+			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+				var y:int = idx % 96;
+				wellName = parentApplication.wellNamesByColumn[y];
+			}
+			return wellName;
+		}
+		
+		private function getIsControl(idx:int):String {
+			var isControl:String = "N";
+			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+				if (idx % 96 == 95) {
+					isControl = "Y";
+				}
+			}
+			return isControl;
 		}
 		
 		private function getNextSampleId():Number {
@@ -314,10 +344,11 @@
 				}
 			}
 			
-			if (deleteHappened && parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected) {
+			if (deleteHappened && hasPlates()) {
 				for (var psIdx:int = 0; psIdx < parentDocument.samples.length; psIdx++) {
 					var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
 					plateSample.@plateName = getPlateName(psIdx);
+					plateSample.@isControl = getIsControl(psIdx);
 				}
 			}
 			
@@ -371,7 +402,7 @@
 					" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
 					" ccNumber='" + sampleToCopy.@ccNumber + "'";
-					if (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected) {
+					if (hasPlates()) {
 						emptyNodeString = emptyNodeString +
 						" plateName='" + getPlateName(parentDocument.samples.length) + "'" +
 						" wellName=''";
@@ -426,12 +457,50 @@
     		for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
     			addSample();
     		}
-        }
-        
-        
-        
+			if (hasPlates()) {
+				fillPlates();
+			}
+		}
 		
+		public function hasPlates():Boolean {
+			return (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected);
+		}
 		
+		public function fillPlates():void {
+			if (hasPlates()) {
+				for(var idx:int = 0; idx < 4; idx++) {
+					var lastSample:int = ((idx + 1) * 96) - 1;
+					var firstSample:int = idx * 96;
+					if (parentDocument.samples.length <= firstSample) {
+						// nothing on this or subsequent plates.
+						break;
+					}
+					if (parentDocument.samples.length >= firstSample && parentDocument.samples.length <= lastSample) {
+						while (parentDocument.samples.length <= lastSample) {
+							addSample();
+						}
+					}
+					if (parentDocument.samples.length > lastSample) {
+						var sample:Object = parentDocument.samples.getItemAt(lastSample);
+						if (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == "") {
+							sample.@name = "Control";
+							sample.@isControl = "Y";
+						}
+					}
+				}
+			}
+		}
+		
+		public function clearIsControlForPlate(plateIdx:int):void {
+			if (hasPlates()) {
+				var lastSample:int = ((plateIdx + 1) * 96) - 1;
+				if (parentDocument.samples.length > lastSample) {
+					var sample:Object = parentDocument.samples.getItemAt(lastSample);
+					sample.@isControl = "N";
+				}
+			}
+		}
+        
 		public function promptToClearAllSamples():void {
 			Alert.show("Remove all samples currently showing in list?",
 						null, 
@@ -444,7 +513,11 @@
             if (event.detail==Alert.YES) {
             	parentDocument.samples.removeAll();
             	parentDocument.lanes.removeAll();
-				addSample();	// Add an initial blank sample to the gric
+				if (hasPlates()) {
+					fillPlates(); // make sure at least one full plate.
+				} else {
+					addSample();	// Add an initial blank sample to the gric
+				}
             	checkSamplesCompleteness();
             	this.initializeBarcoding();
             }
@@ -825,7 +898,7 @@
 			}
 			
 			
-			if (parentDocument.isCapSeqState() && parentDocument.showPlateGroup()) {
+			if (hasPlates()) {
 				this.samplesGrid.dataProvider = null;
 				sampleGroupingCollection = new GroupingCollection();
 				sampleGroupingCollection.source = parentDocument.samples;
@@ -963,8 +1036,19 @@
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 			
 			
-			wellNameCol.visible = (currentState == 'CapSeqState' && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
-        	
+			wellNameCol.visible = (hasPlates()) ? true : false;
+			isControlCol.visible = wellNameCol.visible;
+			plateNameCol.editable = !wellNameCol.visible;
+			wellNameCol.editable = !wellNameCol.visible;
+			if (hasPlates()) {
+				this.addSampleButton.visible = false;
+				this.deleteSampleButton.visible = false;
+				this.copySampleButton.visible = false;
+			} else {
+				this.addSampleButton.visible = true;
+				this.deleteSampleButton.visible = true;
+				this.copySampleButton.visible = true;
+			}
 			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
 				numberSequencingLanesCol.editable = true;
@@ -1316,7 +1400,38 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" labelFunction="parentDocument.getWellNameByColumn"/>
+					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
+					<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" 
+											   dataField="@isControl" rendererIsEditor="true">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox change="onChange(event)" selected="{data.hasOwnProperty('@isControl') &amp;&amp; data.@isControl == 'Y'}" 
+											 enabled="{data.hasOwnProperty('@wellName') &amp;&amp; data.@wellName=='H12'}">
+									<mx:Script>
+										<![CDATA[
+											private function onChange(evt:Event):void {
+												if (data.hasOwnProperty("@isControl")) {
+													if (data.@isControl == 'Y') {
+														data.@isControl = 'N';
+													} else {
+														data.@isControl = 'Y';
+													}
+												}
+											}
+											/*override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+												super.updateDisplayList(unscaledWidth, unscaledHeight);
+												// Don't show unless H12 well.
+												if (data.hasOwnProperty('@wellName') && data.@wellName=='H12') {
+												} else {
+													this.visible = false;
+												}
+											}*/
+										]]>
+									</mx:Script>
+								</mx:CheckBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
 					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 											   editable="true" 
