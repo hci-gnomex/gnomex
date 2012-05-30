@@ -51,6 +51,10 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
   private Element              pendingNode = null;
   private Element              requestNode = null;
   
+  TreeMap<String, TreeMap<Integer, List<Object[]>>> assayMap = null;
+  TreeMap<Integer, List<Object[]>> requestMap = null;
+
+  
   public void validate() {
   }
   
@@ -90,28 +94,15 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
       //
-      // Get the 'redo' samples. Organize by request, then well
+      // Get the 'redo' samples. Organize by primer or assay, then request, then well
       //
       StringBuffer buf = filter.getRedoQuery();
       log.info("Redo sample query for GetPendingSampleList: " + buf.toString());
       Query query = sess.createQuery(buf.toString());
       List redoResults = (List)query.list();
-      
-      Integer prevIdRequest  = new Integer(-1);
-      for(Iterator i = redoResults.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        
-        Integer idRequest           = (Integer)row[0];
-        Element n = null;
-        if (idRequest.intValue() != prevIdRequest.intValue()) {
-          addRequestNode(redoNode, row, dictionaryHelper);          
-          addWellNode(row, dictionaryHelper);
-        } else {
-          addWellNode(row, dictionaryHelper);
-        }
-        prevIdRequest = idRequest;
-      }
-
+      assayMap = new  TreeMap<String, TreeMap<Integer, List<Object[]>>>();
+      hashResults(redoResults);
+      fillNodes(redoNode, dictionaryHelper);
 
 
       //
@@ -132,49 +123,13 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       log.info("Pending plate wells query for GetPendingSampleList: " + buf.toString());
       query = sess.createQuery(buf.toString());
       List pendingWells = (List)query.list();
-      
-      
-      TreeMap<Integer, List<Object[]>> pendingMap = new TreeMap<Integer, List<Object[]>>();
-      // Hash the pending tubes
-      for(Iterator i = pendingTubes.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        Integer idRequest           = (Integer)row[0];
-        List<Object[]> results = pendingMap.get(idRequest);
-        if (results == null) {
-          results = new ArrayList<Object[]>();
-          pendingMap.put(idRequest, results);
-        }
-        results.add(row);
-      }
-      // Now hash the pending wells
-      for(Iterator i = pendingWells.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        Integer idRequest           = (Integer)row[0];
-        List<Object[]> results = pendingMap.get(idRequest);
-        if (results == null) {
-          results = new ArrayList<Object[]>();
-          pendingMap.put(idRequest, results);
-        }
-        results.add(row);
-      }
-      
-      // Now create a request node for each key in the map
-      // and create a well node child of the request node
-      // for every row associated with the request.
-      for (Iterator i = pendingMap.keySet().iterator(); i.hasNext();) {
-        Integer idRequest = (Integer)i.next();
-        List<Object[]> results = pendingMap.get(idRequest);
 
-        boolean firstTime = true;
-        for (Object[]row : results) {
-          if (firstTime) {
-            addRequestNode(pendingNode, row, dictionaryHelper);  
-            firstTime = false;
-          }
-          addWellNode(row, dictionaryHelper);
-        }
-      }
+      assayMap = new  TreeMap<String, TreeMap<Integer, List<Object[]>>>();
+      hashResults(pendingTubes);
+      hashResults(pendingWells);
+      fillNodes(pendingNode, dictionaryHelper);
       
+       
 
       
       
@@ -204,6 +159,78 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     }
     
     return this;
+  }
+  
+  private void hashResults(List rows) {
+    // Hash the pending tubes
+    for(Iterator i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Integer idRequest           = (Integer)row[0];
+      Integer idAssay             = (Integer)row[13];
+      Integer idPrimer            = (Integer)row[14];
+      
+      String assayKey = " ";
+      if (idAssay != null && idAssay.intValue() != -1) {
+        assayKey = DictionaryManager.getDisplay("hci.gnomex.model.Assay", idAssay.toString());
+      } else if (idPrimer != null && idPrimer.intValue() != -1){
+        assayKey = DictionaryManager.getDisplay("hci.gnomex.model.Primer", idPrimer.toString());
+      }
+      
+      requestMap = assayMap.get(assayKey);
+      if (requestMap == null) {
+        requestMap = new TreeMap<Integer, List<Object[]>>();
+        assayMap.put(assayKey, requestMap);
+      }
+      
+      
+      List<Object[]> results = requestMap.get(idRequest);
+      if (results == null) {
+        results = new ArrayList<Object[]>();
+        requestMap.put(idRequest, results);
+      }
+      results.add(row);
+    }
+    
+  }
+  
+  private void fillNodes(Element statusNode, DictionaryHelper dictionaryHelper) {
+    Element parentNode = null;
+    
+    // Now create a request node for each key in the map
+    // and create a well node child of the request node
+    // for every row associated with the request.
+    for(Iterator i = assayMap.keySet().iterator(); i.hasNext();) {
+      String assayKey = (String)i.next();
+      requestMap = assayMap.get(assayKey);
+      
+      if (filter.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+        parentNode = statusNode;
+      } else if (filter.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+        parentNode = new Element("Assay");
+        statusNode.addContent(parentNode);
+      } if (filter.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+        parentNode = new Element("Primer");
+        statusNode.addContent(parentNode);
+      } else {
+        parentNode = statusNode;
+      }
+      
+      for (Iterator i1 = requestMap.keySet().iterator(); i1.hasNext();) {
+        Integer idRequest = (Integer)i1.next();
+        List<Object[]> results = requestMap.get(idRequest);
+
+        boolean firstTime = true;
+        for (Object[]row : results) {
+          if (firstTime) {
+            addRequestNode(parentNode, row, dictionaryHelper);  
+            firstTime = false;
+          }
+          addWellNode(row, dictionaryHelper);
+        }
+      }
+      
+    }
+    
   }
   
   
