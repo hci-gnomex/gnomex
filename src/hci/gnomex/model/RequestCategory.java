@@ -32,7 +32,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   TYPE_CAP_SEQ             = "CAPSEQ";
   public static final String   TYPE_FRAGMENT_ANALYSIS   = "FRAGANAL";
   public static final String   TYPE_MITOCHONDRIAL_DLOOP = "MITSEQ";
-  public static final String   TYPEpCHERRY_PICKING      = "CHERRYPICK";
+  public static final String   TYPE_CHERRY_PICKING      = "CHERRYPICK";
 
   
   private String   codeRequestCategory;
