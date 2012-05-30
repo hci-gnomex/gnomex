@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +65,11 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     this.addInvalidFields(errors);
     
     
+    if (!filter.hasRequiredCriteria()) {
+      this.addInvalidField("reqrdCritieria", "Missing required criteria to filter pending samples by request category");
+    }
+    
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -82,23 +88,94 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-      
-      // Get the 'redo' samples
+
+      //
+      // Get the 'redo' samples. Organize by request, then well
+      //
       StringBuffer buf = filter.getRedoQuery();
       log.info("Redo sample query for GetPendingSampleList: " + buf.toString());
       Query query = sess.createQuery(buf.toString());
       List redoResults = (List)query.list();
       
-      fillStatusNode(redoNode, redoResults, dictionaryHelper);
+      Integer prevIdRequest  = new Integer(-1);
+      for(Iterator i = redoResults.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        
+        Integer idRequest           = (Integer)row[0];
+        Element n = null;
+        if (idRequest.intValue() != prevIdRequest.intValue()) {
+          addRequestNode(redoNode, row, dictionaryHelper);          
+          addWellNode(row, dictionaryHelper);
+        } else {
+          addWellNode(row, dictionaryHelper);
+        }
+        prevIdRequest = idRequest;
+      }
 
-      
-      // Get the pending samples
-      buf = filter.getPendingQuery();
-      log.info("Pending sample query for GetPendingSampleList: " + buf.toString());
+
+
+      //
+      // Get the pending samples (in tubes) and then get the pending samples
+      // in wells. Now let's stick this into a tree map so that this is order by 
+      // request number (requests for tubes and requests for plates intermixed)
+      // Organize under a status xml node, and then by request, then well.  
+      // Tubes don't have wells, so we just have a well with a blank row and col
+      // for the well address.
+      //
+      buf = filter.getPendingTubesQuery();
+      log.info("Pending tube query for GetPendingSampleList: " + buf.toString());
       query = sess.createQuery(buf.toString());
-      List pendingResults = (List)query.list();
+      List pendingTubes = (List)query.list();
+      
+      // Get the pending samples (in plates)
+      buf = filter.getPendingWellsQuery();
+      log.info("Pending plate wells query for GetPendingSampleList: " + buf.toString());
+      query = sess.createQuery(buf.toString());
+      List pendingWells = (List)query.list();
+      
+      
+      TreeMap<Integer, List<Object[]>> pendingMap = new TreeMap<Integer, List<Object[]>>();
+      // Hash the pending tubes
+      for(Iterator i = pendingTubes.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        Integer idRequest           = (Integer)row[0];
+        List<Object[]> results = pendingMap.get(idRequest);
+        if (results == null) {
+          results = new ArrayList<Object[]>();
+          pendingMap.put(idRequest, results);
+        }
+        results.add(row);
+      }
+      // Now hash the pending wells
+      for(Iterator i = pendingWells.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        Integer idRequest           = (Integer)row[0];
+        List<Object[]> results = pendingMap.get(idRequest);
+        if (results == null) {
+          results = new ArrayList<Object[]>();
+          pendingMap.put(idRequest, results);
+        }
+        results.add(row);
+      }
+      
+      // Now create a request node for each key in the map
+      // and create a well node child of the request node
+      // for every row associated with the request.
+      for (Iterator i = pendingMap.keySet().iterator(); i.hasNext();) {
+        Integer idRequest = (Integer)i.next();
+        List<Object[]> results = pendingMap.get(idRequest);
 
-      fillStatusNode(pendingNode, pendingResults, dictionaryHelper);
+        boolean firstTime = true;
+        for (Object[]row : results) {
+          if (firstTime) {
+            addRequestNode(pendingNode, row, dictionaryHelper);  
+            firstTime = false;
+          }
+          addWellNode(row, dictionaryHelper);
+        }
+      }
+      
+
       
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -129,27 +206,6 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     return this;
   }
   
-  private void fillStatusNode(Element parentNode, List results, DictionaryHelper dictionaryHelper) {
-    
-    Integer prevIdRequest  = new Integer(-1);
-
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      
-      Integer idRequest           = (Integer)row[0];
-      
-      Element n = null;
-      if (idRequest.intValue() != prevIdRequest.intValue()) {
-        addRequestNode(parentNode, row, dictionaryHelper);          
-        addSampleNode(row, dictionaryHelper);
-      } else {
-        addSampleNode(row, dictionaryHelper);
-      }
-
-      prevIdRequest = idRequest;
-    }
-    
-  }
   
   private void addRequestNode(Element parentNode, Object[] row, DictionaryHelper dictionaryHelper) {
     
@@ -163,6 +219,9 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
     AppUser submitter           = (AppUser)row[8];
     Sample sample               = (Sample)row[9];
+    String wellRow              = (String)row[10]  == null ? ""  : (String)row[10];
+    Integer wellCol             = (Integer)row[11];
+    Integer wellIndex           = (Integer)row[12];
 
     
     requestNode = new Element("Request");
@@ -176,7 +235,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
   
   }
   
-  private void addSampleNode(Object[] row, DictionaryHelper dictionaryHelper) {
+  private void addWellNode(Object[] row, DictionaryHelper dictionaryHelper) {
     
     Integer idRequest           = (Integer)row[0];
     String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
@@ -188,15 +247,21 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
     AppUser submitter           = (AppUser)row[8];
     Sample sample               = (Sample)row[9];
+    String wellRow              = (String)row[10]  == null ? ""  : (String)row[10];
+    Integer wellCol             = (Integer)row[11];
+    Integer wellIndex           = (Integer)row[12];
     
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
       
-    Element n = new Element("Sample");
+    Element n = new Element("Well");
     n.setAttribute("name",           sample.getName());
     n.setAttribute("idRequest",      idRequest != null ? idRequest.toString() : "");
     n.setAttribute("idLab",          idLab != null ? idLab.toString() : "");
     n.setAttribute("idSample",       sample.getIdSample().toString());
     n.setAttribute("type",           requestCategory.getRequestCategory());
+    n.setAttribute("row",            wellRow != null ? wellRow : "");
+    n.setAttribute("col",            wellCol != null ? wellCol.toString() : "");
+    n.setAttribute("index",          wellIndex != null ? wellIndex.toString() : "");
     n.setAttribute("idPlate",        "");
     
     requestNode.addContent(n);      

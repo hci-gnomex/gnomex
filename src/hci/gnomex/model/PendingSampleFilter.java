@@ -14,6 +14,7 @@ public class PendingSampleFilter extends DetailObject {
   // Criteria
   private String               requestNumber;
   private Integer              idLab;
+  private String               codeRequestCategory;
   private String               lastWeek = "N";
   private String               lastMonth = "N";
   private String               lastThreeMonths = "N";
@@ -23,13 +24,8 @@ public class PendingSampleFilter extends DetailObject {
   private StringBuffer         queryBuf;
   private boolean              addWhere = true;
   
-  public boolean hasCriteria() {
-    if ((requestNumber == null || requestNumber.equals("")) ||
-        idLab != null ||
-        (lastWeek == null || lastWeek.equals("")) ||
-        (lastMonth == null || lastMonth.equals("")) ||
-        (lastThreeMonths == null || lastThreeMonths.equals("")) ||
-        (lastYear == null || lastYear.equals(""))) {
+  public boolean hasRequiredCriteria() {
+    if (codeRequestCategory == null || codeRequestCategory.equals("")) {
       return false;
     } else {
       return true;
@@ -50,30 +46,38 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            lab.lastName, ");
     queryBuf.append("            lab.firstName, ");
     queryBuf.append("            appUser, ");
-    queryBuf.append("            sample ");
+    queryBuf.append("            sample, ");
+    queryBuf.append("            well.row, ");
+    queryBuf.append("            well.col, ");
+    queryBuf.append("            well.position ");
     
-    queryBuf.append(" FROM       Request as req ");
+    
+    queryBuf.append(" FROM       Plate as plate ");
+    queryBuf.append(" JOIN       plate.plateWells as well ");
+    queryBuf.append(" JOIN       well.sample as sample ");
+    queryBuf.append(" JOIN       sample.request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
-    queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
-    queryBuf.append(" LEFT JOIN  req.samples as sample ");
+    queryBuf.append(" JOIN       req.appUser as appUser ");
     
-    queryBuf.append(" WHERE sample.redoFlag = 'Y' ");
+    queryBuf.append(" WHERE well.redoFlag = 'Y' ");
+    queryBuf.append(" AND   plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
     
 
     addWhere = false;
     
     addRequestCriteria();
     
-    queryBuf.append(" ORDER BY req.createDate, req.idRequest ");
+    queryBuf.append(" ORDER BY req.createDate, req.idRequest, well.position ");
 
     return queryBuf;
     
   }
   
-  public StringBuffer getPendingQuery() {
+  public StringBuffer getPendingTubesQuery() {
     addWhere = true;
     queryBuf = new StringBuffer();
     
+    // Get all samples that are NOT in a well
     queryBuf.append(" SELECT     req.idRequest, ");
     queryBuf.append("            req.number, ");
     queryBuf.append("            req.codeRequestStatus, ");
@@ -83,14 +87,19 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            lab.lastName, ");
     queryBuf.append("            lab.firstName, ");
     queryBuf.append("            appUser, ");
-    queryBuf.append("            sample ");
+    queryBuf.append("            sample, ");
+    queryBuf.append("            '', ");
+    queryBuf.append("            -1, ");
+    queryBuf.append("            -1 ");
     
-    queryBuf.append(" FROM       Request as req ");
-    queryBuf.append(" JOIN       req.lab as lab ");
-    queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
-    queryBuf.append(" LEFT JOIN  req.samples as sample ");
+    queryBuf.append(" FROM      Request as req ");
+    queryBuf.append(" JOIN      req.lab as lab ");
+    queryBuf.append(" JOIN      req.appUser as appUser ");
+    queryBuf.append(" JOIN      req.samples as sample ");
+    queryBuf.append(" LEFT JOIN sample.wells as well ");
     
-    queryBuf.append(" WHERE (sample.redoFlag != 'Y' AND req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "') ");
+    queryBuf.append(" WHERE req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "' ");
+    queryBuf.append(" AND   well.idPlateWell is NULL ");  // this will get all request samples NOT in a well
     
 
     addWhere = false;
@@ -103,7 +112,47 @@ public class PendingSampleFilter extends DetailObject {
     return queryBuf;
     
   }
-  
+
+  public StringBuffer getPendingWellsQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT     req.idRequest, ");
+    queryBuf.append("            req.number, ");
+    queryBuf.append("            req.codeRequestStatus, ");
+    queryBuf.append("            req.codeRequestCategory, ");
+    queryBuf.append("            req.createDate, ");
+    queryBuf.append("            lab.idLab, ");
+    queryBuf.append("            lab.lastName, ");
+    queryBuf.append("            lab.firstName, ");
+    queryBuf.append("            appUser, ");
+    queryBuf.append("            sample, ");
+    queryBuf.append("            well.row, ");
+    queryBuf.append("            well.col, ");
+    queryBuf.append("            well.position ");
+    
+    
+    queryBuf.append(" FROM       Plate as plate ");
+    queryBuf.append(" JOIN       plate.plateWells as well ");
+    queryBuf.append(" JOIN       well.sample as sample ");
+    queryBuf.append(" JOIN       sample.request as req ");
+    queryBuf.append(" JOIN       req.lab as lab ");
+    queryBuf.append(" JOIN       req.appUser as appUser ");
+    
+    queryBuf.append(" WHERE req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "' ");
+    queryBuf.append(" AND   plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
+    
+
+    addWhere = false;
+    
+    addRequestCriteria();
+    
+    queryBuf.append(" ORDER BY req.createDate, req.idRequest, well.position ");
+
+    return queryBuf;
+    
+  }
+
 
   private void addRequestCriteria() {
 
@@ -113,13 +162,21 @@ public class PendingSampleFilter extends DetailObject {
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
     } 
+    
+    // Search by request category 
+    if (codeRequestCategory != null && 
+        !codeRequestCategory.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '" + codeRequestCategory + "' ");
+    }     
+
+    
     // Search by request number 
     if (requestNumber != null && 
         !requestNumber.equals("")){
       this.addWhereOrAnd();
       
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-      //queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "') ");
       queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "' OR req.number like '" + requestNumberBase + "R[0-9]' OR req.number = '" + requestNumberBase + "R') ");
     }     
     
@@ -238,6 +295,14 @@ public class PendingSampleFilter extends DetailObject {
 
   public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
+  }
+
+  public String getCodeRequestCategory() {
+    return codeRequestCategory;
+  }
+
+  public void setCodeRequestCategory(String codeRequestCategory) {
+    this.codeRequestCategory = codeRequestCategory;
   }
 
   
