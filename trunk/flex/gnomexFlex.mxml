@@ -667,6 +667,7 @@
 			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
 			public  var TYPE_QC:String            = 'QC';
 			public  var TYPE_CAP_SEQ:String       = "CAPSEQ";
+			public  var TYPE_FRAG_ANAL:String	  = "FRAGANAL";
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 

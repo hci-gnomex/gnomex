@@ -159,7 +159,7 @@
 				" treatment=''"  +				
 				"/>");
 			
-			} else if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
+			} else if (currentState != null && (currentState.indexOf('CapSeq') >= 0)) {
 				if (parentDocument.samples.length >= 384) {
 					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
 					isValid = false;
@@ -172,6 +172,32 @@
 					var wellName:String = getWellName(parentDocument.samples.length);
 					emptyNode = getEmptyCapSeqNode(plateName, wellName, isControl); 
 				}				
+				
+			} else if (currentState != null && (currentState.indexOf('FragAnal') >= 0)) {
+				emptyNode = new XML("<Sample " +
+					" idSample='" + "Sample" + getNextSampleId() + "'" +
+					" name='' description='' " +
+					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +
+					" canChangeSampleType='Y'" +
+					" canChangeSampleDropOffLocation='Y'" +
+					" canChangeSampleConcentration='N'" +
+					" canChangeSampleSource='N'" +
+					" canChangeNumberSequencingCycles='N'" +
+					" canChangeNumberSequencingLanes='N'" + 
+					" concentration=''" +
+					" idOligoBarcode = ''" +
+					" barcodeSequence = ''" +
+					" codeConcentrationUnit='ng/ul'" + 
+					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+					" otherSamplePrepMethod=''" + 				
+					" treatment=''" +
+					" hasAssay1 = 'Y'" +
+					" hasAssay2 = 'Y'" +
+					" hasAssay3 = 'Y'" +
+					" hasAssay4 = 'Y'" +
+					"/>");
 			} else {
 				var xmlString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -644,6 +670,12 @@
 						
 						completeCount++;
 					}
+				} else if (currentState == 'FragAnalState') {
+					if (isEntered(sample, "@name") &&
+						(isEntered(sample, "@hasAssay1") || isEntered(sample, "@hasAssay2") || isEntered(sample, "@hasAssay3") || isEntered(sample, "@hasAssay4"))) {
+						
+						completeCount++;
+					}
 				} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
@@ -747,6 +779,8 @@
     		} else if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
     		} else if (parentDocument.isCapSeqState()) {
+				parentDocument.confirmView.enabled = isComplete;
+			} else if (parentDocument.isFragAnalState()) {
 				parentDocument.confirmView.enabled = isComplete;
 			} else {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
@@ -967,7 +1001,20 @@
 			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 			this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 			
-			
+			if (parentDocument.isFragAnalState()) {
+				if (parentDocument.sampleSetupView.assay1Combo.selectedItem != null) {
+					this.assay1Col.headerText = parentDocument.sampleSetupView.assay1Combo.selectedItem.@display;
+				}
+				if (parentDocument.sampleSetupView.assay2Combo.selectedItem != null) {
+					this.assay2Col.headerText = parentDocument.sampleSetupView.assay2Combo.selectedItem.@display;
+				}
+				if (parentDocument.sampleSetupView.assay3Combo.selectedItem != null) {
+					this.assay3Col.headerText = parentDocument.sampleSetupView.assay3Combo.selectedItem.@display;
+				}
+				if (parentDocument.sampleSetupView.assay4Combo.selectedItem != null) {
+					this.assay4Col.headerText = parentDocument.sampleSetupView.assay4Combo.selectedItem.@display;
+				}
+			}
         	
 			this.samplesGrid.validateNow();
         	callLater(this.checkSamplesCompleteness);
@@ -1020,7 +1067,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-            this.sampleTypeCol.visible = currentState != 'CapSeqState';
+            this.sampleTypeCol.visible = currentState != 'CapSeqState' && !parentDocument.isFragAnalState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -1040,6 +1087,12 @@
 			isControlCol.visible = wellNameCol.visible;
 			plateNameCol.editable = !wellNameCol.visible;
 			wellNameCol.editable = !wellNameCol.visible;
+			
+			this.assay1Col.visible = parentDocument.isFragAnalState() ? true : false;
+			this.assay2Col.visible = parentDocument.isFragAnalState() ? true : false;
+			this.assay3Col.visible = parentDocument.isFragAnalState() ? true : false;
+			this.assay4Col.visible = parentDocument.isFragAnalState() ? true : false;
+			
 			if (hasPlates()) {
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
@@ -1119,6 +1172,24 @@
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
+				
+			} else if (currentState == 'FragAnalState') {
+				
+				numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
+				idSeqRunTypeCol.visible = false; 
+				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.editable = false;
+				sampleOrganismColumn.visible = false;
+				sampleOrganismColumn.editable = false;
+				this.concentrationCol.visible = false;
+				
+				this.otherOrganismCol.visible = false;
+				otherSamplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+				labelColumn.visible = false;
 
 				
 			}else {
@@ -1142,7 +1213,7 @@
 			}
 			
 			// If this is a QC request, hide the annotation columns 
-			if (currentState != null && (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState')) {
+			if (currentState != null && (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState') {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -1402,14 +1473,14 @@
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 					<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" 
-											   dataField="@isControl" rendererIsEditor="true">
+											   dataField="@isControl" rendererIsEditor="true" editorDataField="selected">
 						<mx:itemRenderer>
 							<mx:Component>
-								<mx:CheckBox change="onChange(event)" selected="{data.hasOwnProperty('@isControl') &amp;&amp; data.@isControl == 'Y'}" 
+								<mx:CheckBox change="onChangeIsControl(event)" selected="{data.hasOwnProperty('@isControl') &amp;&amp; data.@isControl == 'Y'}" 
 											 enabled="{data.hasOwnProperty('@wellName') &amp;&amp; data.@wellName=='H12'}">
 									<mx:Script>
 										<![CDATA[
-											private function onChange(evt:Event):void {
+											private function onChangeIsControl(evt:Event):void {
 												if (data.hasOwnProperty("@isControl")) {
 													if (data.@isControl == 'Y') {
 														data.@isControl = 'N';
@@ -1519,6 +1590,94 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
+					<mx:AdvancedDataGridColumn id="assay1Col" visible="false" editable="false" headerText="Assay 1" width="100" resizable="false" 
+											   dataField="@hasAssay1" rendererIsEditor="true" editorDataField="selected">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox change="onChangeAssay1(event)" selected="{data.hasOwnProperty('@hasAssay1') &amp;&amp; data.@hasAssay1 == 'Y'}">
+									<mx:Script>
+										<![CDATA[
+											private function onChangeAssay1(evt:Event):void {
+												if (data.hasOwnProperty("@hasAssay1")) {
+													if (data.@hasAssay1 == 'Y') {
+														data.@hasAssay1 = 'N';
+													} else {
+														data.@hasAssay1 = 'Y';
+													}
+												}
+											}
+										]]>
+									</mx:Script>
+								</mx:CheckBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn id="assay2Col" visible="false" editable="false" headerText="Assay 2" width="100" resizable="false" 
+											   dataField="@hasAssay2" rendererIsEditor="true" editorDataField="selected">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox change="onChangeAssay2(event)" selected="{data.hasOwnProperty('@hasAssay2') &amp;&amp; data.@hasAssay2 == 'Y'}">
+									<mx:Script>
+										<![CDATA[
+											private function onChangeAssay2(evt:Event):void {
+												if (data.hasOwnProperty("@hasAssay2")) {
+													if (data.@hasAssay2 == 'Y') {
+														data.@hasAssay2 = 'N';
+													} else {
+														data.@hasAssay2 = 'Y';
+													}
+												}
+											}
+										]]>
+									</mx:Script>
+								</mx:CheckBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn id="assay3Col" visible="false" editable="false" headerText="Assay 3" width="100" resizable="false" 
+											   dataField="@hasAssay3" rendererIsEditor="true" editorDataField="selected">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox change="onChangeAssay3(event)" selected="{data.hasOwnProperty('@hasAssay3') &amp;&amp; data.@hasAssay3 == 'Y'}">
+									<mx:Script>
+										<![CDATA[
+											private function onChangeAssay3(evt:Event):void {
+												if (data.hasOwnProperty("@hasAssay3")) {
+													if (data.@hasAssay3 == 'Y') {
+														data.@hasAssay3 = 'N';
+													} else {
+														data.@hasAssay3 = 'Y';
+													}
+												}
+											}
+										]]>
+									</mx:Script>
+								</mx:CheckBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn id="assay4Col" visible="false" editable="false" headerText="Assay 4" width="100" resizable="false" 
+											   dataField="@hasAssay4" rendererIsEditor="true" editorDataField="selected">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox change="onChangeAssay4(event)" selected="{data.hasOwnProperty('@hasAssay4') &amp;&amp; data.@hasAssay4 == 'Y'}">
+									<mx:Script>
+										<![CDATA[
+											private function onChangeAssay4(evt:Event):void {
+												if (data.hasOwnProperty("@hasAssay4")) {
+													if (data.@hasAssay4 == 'Y') {
+														data.@hasAssay4 = 'N';
+													} else {
+														data.@hasAssay4 = 'Y';
+													}
+												}
+											}
+										]]>
+									</mx:Script>
+								</mx:CheckBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
 
 					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					 
@@ -1681,7 +1840,7 @@
 					<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 	                   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
-				
+
 				</mx:columns>
 			</mx:AdvancedDataGrid>
 
@@ -1740,6 +1899,12 @@
 			</mx:SetProperty>
 		</mx:State>
 		<mx:State name="CapSeqState">
+			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
+			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+		</mx:State>
+		<mx:State name="FragAnalState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>

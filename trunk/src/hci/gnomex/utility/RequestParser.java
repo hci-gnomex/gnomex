@@ -59,6 +59,7 @@ public class RequestParser implements Serializable {
   private Map<String, Plate> plateMap = new HashMap<String, Plate>();
   private Map<String, PlateWell> wellMap = new HashMap<String, PlateWell>();
   private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
+  private Map<String, String> sampleAssays = new HashMap<String, String>();
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestDoc = requestDoc;
@@ -84,7 +85,10 @@ public class RequestParser implements Serializable {
     saveReuseOfSlides = false;
     amendState = "";
     ccNumberList =  new ArrayList<String>();
-    
+    plateMap = new HashMap<String, Plate>();
+    wellMap = new HashMap<String, PlateWell>();
+    sampleToPlateMap = new HashMap<String, SamplePlateWell>();
+    sampleAssays = new HashMap<String, String>();
   }
   
   
@@ -595,6 +599,32 @@ public class RequestParser implements Serializable {
       samplePlateWell.plateIdAsString = plateIdAsString;
       samplePlateWell.wellIdAsString = wellIdAsString;
       this.sampleToPlateMap.put(idSampleString, samplePlateWell);
+    }
+    
+    // Have map of assays chosen.  Build up the map
+    if (n.getAttributeValue("hasAssay1") != null && n.getAttributeValue("hasAssay1").length() > 0) {
+      String map = "";
+      if (n.getAttributeValue("hasAssay1").equals("Y")) {
+        map += "Y";
+      } else {
+        map += "N";
+      }
+      if (n.getAttributeValue("hasAssay2").equals("Y")) {
+        map += "Y";
+      } else {
+        map += "N";
+      }
+      if (n.getAttributeValue("hasAssay3").equals("Y")) {
+        map += "Y";
+      } else {
+        map += "N";
+      }
+      if (n.getAttributeValue("hasAssay4").equals("Y")) {
+        map += "Y";
+      } else {
+        map += "N";
+      }
+      this.sampleAssays.put(idSampleString, map);
     }
   }
   
@@ -1614,12 +1644,18 @@ public class RequestParser implements Serializable {
     }
   }
   
+  public Boolean doesSampleHaveAssay(String idSampleString, Integer assayNumber) {
+    String aMap = this.sampleAssays.get(idSampleString);
+    if (aMap != null && aMap.length() == 4 && assayNumber > 0 && assayNumber < 5) {
+      return (aMap.substring(assayNumber-1, assayNumber).equals("Y"));
+    } else {
+      return false;
+    }
+  }
+  
   private class SamplePlateWell implements Serializable {
     public String plateIdAsString = "";
     public String wellIdAsString = "";
   }
-
-  
-
 
 }

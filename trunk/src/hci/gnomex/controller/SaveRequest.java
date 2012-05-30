@@ -48,6 +48,7 @@ import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.SampleAssaysParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
@@ -98,7 +99,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private String           requestXMLString;
   private Document         requestDoc;
   private RequestParser    requestParser;
-
+  
   private String                       filesToRemoveXMLString;
   private Document                     filesToRemoveDoc;
   private FileDescriptorUploadParser   filesToRemoveParser;
@@ -140,6 +141,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private String           invoicePrice;
   
   private Map<String, Plate> storePlateMap = new HashMap<String, Plate>();
+  
+  private SampleAssaysParser assaysParser;
   
   public void validate() {
   }
@@ -197,6 +200,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
 
     serverName = request.getServerName();
+    
+    if (request.getParameter("assaysXMLString") != null && !request.getParameter("assaysXMLString").equals("")) {
+      String assaysXMLString = "<assays>" + request.getParameter("assaysXMLString") + "</assays>";
+      reader = new StringReader(assaysXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        Document assaysDoc = sax.build(reader);
+        assaysParser = new SampleAssaysParser(assaysDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse assays", je );
+        this.addInvalidField( "Assays", "Invalid assays xml");
+      }
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -1057,6 +1073,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       realWell.setPlate(realPlate);
       realWell.setIdPlate(realPlate.getIdPlate());
       sess.save(realWell);
+      sess.flush();
+    }
+    
+    // create plate and plate wells for fragment analysis, if applicable
+    if (assaysParser != null) {
+      assaysParser.parse(sess);
+
+      Plate assayPlate = new Plate();
+      assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+      assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+      sess.save(assayPlate);
+      sess.flush();
+      for (Integer assayNumber = 1; assayNumber < 5; assayNumber++) {
+        if (requestParser.doesSampleHaveAssay(idSampleString, assayNumber)) {
+          PlateWell assayWell = new PlateWell();
+          assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          assayWell.setIdAssay(assaysParser.getID(assayNumber));
+          assayWell.setIdPlate(assayPlate.getIdPlate());
+          assayWell.setIdSample(sample.getIdSample());
+          assayWell.setPlate(assayPlate);
+          assayWell.setPosition((new Integer(sampleCount) - 1) * 4 + assayNumber);
+          assayWell.setSample(sample);
+          sess.save(assayWell);
+        }
+      }
       sess.flush();
     }
   }
