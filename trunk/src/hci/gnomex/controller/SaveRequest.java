@@ -1045,6 +1045,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlate());
         realWell.setRow(well.getRow());
         realWell.setCol(well.getCol());
+      } else {
+        // If this is a new well, we will assume that the samples are being saved
+        // in the order they are listed, so set the well position based on
+        // to sample count which is incremented as we iterate through the
+        // list of samples.
+        realWell.setPosition(new Integer(sampleCount));
       }
       realWell.setSample(sample);
       realWell.setIdSample(sample.getIdSample());
