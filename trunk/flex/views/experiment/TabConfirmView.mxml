@@ -110,10 +110,18 @@
 				if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
 					this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
 				}				
-				if (parentDocument.isCapSeqState()) {
+				if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
 					this.sampleDropOffLocationVbox.visible = true;
+					this.vbox4.visible = false;
 				} else {
 					this.sampleDropOffLocationVbox.visible = false;	
+					this.vbox4.visible = true;
+				}
+				if (parentDocument.isMitSeqState()) {
+					this.primerVbox.visible = true;
+					this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
+				} else {
+					this.primerVbox.visible = false;	
 				}
 			}
 			this.showHideColumns();
@@ -125,12 +133,31 @@
 
         public function showHideColumns():void {
 			
-			concentrationCol.visible = parentApplication.isInternalExperimentSubmission && !parentDocument.isCapSeqState();
+			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
+				&& !parentDocument.isCapSeqState()
+				&& !parentDocument.isFragAnalState()
+				&& !parentDocument.isMitSeqState();
 			
 			wellNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
+			
+			if (parentDocument.isFragAnalState()) {
+				this.hasAssay1.visible = true;
+				this.hasAssay1.headerText = parentDocument.sampleSetupView.assay1Combo.selectedItem.@display;
+				this.hasAssay2.visible = true;
+				this.hasAssay2.headerText = parentDocument.sampleSetupView.assay2Combo.selectedItem.@display;
+				this.hasAssay3.visible = true;
+				this.hasAssay3.headerText = parentDocument.sampleSetupView.assay3Combo.selectedItem.@display;
+				this.hasAssay4.visible = true;
+				this.hasAssay4.headerText = parentDocument.sampleSetupView.assay4Combo.selectedItem.@display;
+			} else {
+				this.hasAssay1.visible = false;
+				this.hasAssay2.visible = false;
+				this.hasAssay3.visible = false;
+				this.hasAssay4.visible = false;
+			}
 			
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
@@ -184,6 +211,30 @@
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
 				
+			} else if (parentDocument.isFragAnalState()) {
+				concentrationUnitConfirmColumn.visible = false;
+				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
+				chipTypeConfirmColumn.visible = false; 
+				otherSamplePrepMethodConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = true;
+				
+			} else if (parentDocument.isMitSeqState()) {
+				concentrationUnitConfirmColumn.visible = false;
+				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
+				chipTypeConfirmColumn.visible = false; 
+				otherSamplePrepMethodConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = true;
+				
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
@@ -200,7 +251,7 @@
 
 			}
 			// If this is a QC request, hide the annotation columns 
-			if (parentDocument.currentState == 'QCState' || parentDocument.isCapSeqState() ) {
+			if (parentDocument.currentState == 'QCState' || parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() ) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -320,6 +371,10 @@
 						<mx:Label text="Sample Drop Off Location" textDecoration="underline" height="16"/>
 						<mx:Label id="sampleDropOffLocation" width="200" alpha="0.8"  text="{parentDocument.sampleSetupView.sampleDropOffLocationCombo.selectedItem.@display}"/>
 					</mx:VBox>
+					<mx:VBox id="primerVbox" visible="false">
+						<mx:Label text="Sample Primers" textDecoration="underline" height="16"/>
+						<mx:Label id="primer" alpha="0.8"  text=""/>
+					</mx:VBox>
 				</mx:HBox>
 				<mx:Label text="Experiment Description" textDecoration="underline" paddingTop="5"/>
 				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" 
@@ -357,6 +412,16 @@
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
 						</mx:DataGridColumn>
+						
+						<mx:DataGridColumn id="hasAssay1" visible="false" editable="false" headerText="Assay 1?" width="100" resizable="false" dataField="@hasAssay1">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="hasAssay2" visible="false" editable="false" headerText="Assay 2?" width="100" resizable="false" dataField="@hasAssay2">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="hasAssay3" visible="false" editable="false" headerText="Assay 3?" width="100" resizable="false" dataField="@hasAssay3">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="hasAssay4" visible="false" editable="false" headerText="Assay 4?" width="100" resizable="false" dataField="@hasAssay4">
+						</mx:DataGridColumn>
+
 						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>

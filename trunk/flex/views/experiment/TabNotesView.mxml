@@ -50,10 +50,14 @@
 	
 
 	public function setAnalysisVisibility():void {
-		label3.visible = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
-		label3.includeInLayout = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
-		noteToBio.visible = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
-		noteToBio.includeInLayout = parentDocument.requestType != 'QC' && parentDocument.requestType != 'CAPSEQ';
+		var includeBioNote:Boolean = (parentDocument.requestType != parentApplication.TYPE_QC
+			&& parentDocument.requestType != parentApplication.TYPE_CAP_SEQ
+			&& parentDocument.requestType != parentApplication.TYPE_FRAG_ANAL
+			&& parentDocument.requestType != parentApplication.TYPE_MIT_SEQ)
+		label3.visible = includeBioNote;
+		label3.includeInLayout = includeBioNote;
+		noteToBio.visible = includeBioNote;
+		noteToBio.includeInLayout = includeBioNote;
 	}
 		
 	]]>
