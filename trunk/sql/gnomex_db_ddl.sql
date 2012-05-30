@@ -274,6 +274,19 @@ CREATE TABLE `gnomex`.`ArrayDesign` (
 )
 ENGINE = INNODB;
 
+
+-- New table Assay
+DROP TABLE IF EXISTS `gnomex`.`Assay`;
+CREATE TABLE gnomex.Assay(
+	idAssay int(10) auto_increment NOT NULL,
+	name varchar(50) NOT NULL,
+	description varchar(200) NULL,
+	isActive char(1) NULL,
+ PRIMARY KEY (idAssay) 
+ ) ENGINE = INNODB;
+ 
+
+
 DROP TABLE IF EXISTS `gnomex`.`BillingAccount`;
 CREATE TABLE `gnomex`.`BillingAccount` (
   `idBillingAccount` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1240,6 +1253,9 @@ CREATE TABLE `gnomex`.`PlateWell` (
   `idRequest` INT(10) NULL,
   `createDate` DATETIME NULL,
   `codeReactionType` VARCHAR(10) NULL,
+  `redoFlag` CHAR(1) NULL, 
+  `idAssay` INT(10) NULL,
+  `idPrimer` INT(10) NULL,
   PRIMARY KEY (`idPlateWell`),
   CONSTRAINT `FK_PlateWell_Plate` FOREIGN KEY `FK_PlateWell_Plate` (`idPlate`)
     REFERENCES `gnomex`.`Plate` (`idPlate`)
@@ -1249,6 +1265,14 @@ CREATE TABLE `gnomex`.`PlateWell` (
     REFERENCES `gnomex`.`Sample` (`idSample`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
+  CONSTRAINT `FK_PlateWell_Assay` FOREIGN KEY `FK_PlateWell_Assay` (`idAssay`)
+    REFERENCES `gnomex`.`Assay` (`idAssay`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_PlateWell_Primer` FOREIGN KEY `FK_PlateWell_Primer` (`idPrimer`)
+    REFERENCES `gnomex`.`Primer` (`idPrimer`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_PlateWell_Request` FOREIGN KEY `FK_PlateWell_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
@@ -1256,6 +1280,18 @@ CREATE TABLE `gnomex`.`PlateWell` (
 )
 ENGINE = INNODB;
 
+
+-- New table Primer
+DROP TABLE IF EXISTS `gnomex`.`Primer`;
+CREATE TABLE gnomex.Primer(
+	idPrimer int(10) auto_increment NOT NULL,
+	name varchar(50) NOT NULL,
+	description varchar(200) NULL,
+	sequence varchar(2000) null,
+	isActive char(1) NULL,
+ PRIMARY KEY (idPrimer) 
+ ) ENGINE = INNODB;
+ 
 
 DROP TABLE IF EXISTS `gnomex`.`Project`;
 CREATE TABLE `gnomex`.`Project` (
@@ -1586,7 +1622,6 @@ CREATE TABLE `gnomex`.`Sample` (
   `ccNumber` VARCHAR(20) NULL,
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
-  `redoFlag` CHAR(1) NULL, 
   `isControl` CHAR(1) NULL, 
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
