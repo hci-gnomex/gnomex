@@ -8,6 +8,7 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
@@ -59,7 +60,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     try {
       
    
-      Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
+      Session sess = HibernateSession.currentSession(this.getSecAdvisor().getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
       dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
@@ -111,7 +112,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeHibernateSession();        
+        HibernateSession.closeSession();        
       } catch(Exception e) {
         
       }
