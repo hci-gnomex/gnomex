@@ -18,5 +18,45 @@ set r.idCoreFacility = cf.idCoreFacility
   join RequestCategory r on r.codeRequestCategory = rc.codeRequestCategory
   join CoreFacility cf on rc.idCoreFacility = cf.idCoreFacility;
 
+  
+-- New table Primer
+CREATE TABLE gnomex.Primer(
+	idPrimer int(10) auto_increment NOT NULL,
+	name varchar(50) NOT NULL,
+	description varchar(200) NULL,
+	sequencing varchar(2000) null,
+	isActive char(1) NULL,
+ PRIMARY KEY (idPrimer) 
+ ) ENGINE = INNODB;
+ 
+-- New table Assay
+CREATE TABLE gnomex.Assay(
+	idAssay int(10) auto_increment NOT NULL,
+	name varchar(50) NOT NULL,
+	description varchar(200) NULL,
+	isActive char(1) NULL,
+ PRIMARY KEY (idAssay) 
+ ) ENGINE = INNODB;
+ 
+ 
+-- Add idPrimer, idAssay to PlateWell
+alter table gnomex.PlateWell add column idAssay int(10) null;
+alter table gnomex.PlateWell add column idPrimer int(10) null;
+alter table gnomex.PlateWell  add
+CONSTRAINT `FK_PlateWell_Assay` FOREIGN KEY `FK_PlateWell_Assay` (`idAssay`)
+    REFERENCES Assay (`idAssay`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+alter table gnomex.PlateWell  add
+CONSTRAINT `FK_PlateWell_Primer` FOREIGN KEY `FK_PlateWell_Primer` (`idPrimer`)
+    REFERENCES Primer (`idPrimer`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
+-- Move redoFlag from Sample to PlateWell
+alter table gnomex.PlateWell add column redoFlag char(1) null;
+alter table gnomex.Sample drop column redoFlag;    
+
+
 -- new isControl for Sample
 alter table Sample add column isControl char(1) NULL;

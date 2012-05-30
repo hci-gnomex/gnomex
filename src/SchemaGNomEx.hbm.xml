@@ -565,7 +565,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="idInstrumentRun" column="idInstrumentRun" type="integer"/>
-		<set name="plateWells" table="plateWells" lazy="false" cascade="none">
+		<set name="plateWells" table="PlateWell" lazy="false" cascade="none">
 			<key column="idPlate"/>
 			<one-to-many class="hci.gnomex.model.PlateWell" />
 		</set>
@@ -586,7 +586,7 @@
 		</id>
 		<property name="row" column="row" type="string"/>
 		<property name="col" column="col" type="integer"/>
-		<property name="index" column="ind" type="integer"/>
+		<property name="position" column="ind" type="integer"/>
 		<property name="idPlate" column="idPlate" type="integer"/>
 		<property name="idSample" column="idSample" type="integer"/>
 		<property name="idRequest" column="idRequest" type="integer"/>
@@ -594,6 +594,9 @@
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
     	<property name="codeReactionType" column="codeReactionType" type="string"/>
    		<property name="createDate" column="createDate" type="date"/>
+		<property name="idAssay" column="idAssay" type="integer"/>
+		<property name="idPrimer" column="idPrimer" type="integer"/>
+		<property name="redoFlag" column="redoFlag" type="string"/>
 	</class>
 	  
    <!-- hci.gnomex.model.PlateType -->
@@ -753,6 +756,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="idRequest" column="idRequest" type="integer"/>
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
 		<property name="number" column="number" type="string"/>
 		<property name="name" column="name" type="string"/>
 		<property name="description" column="description" type="string"/>
@@ -777,7 +781,6 @@
 		<property name="qualRINNumber" column="qualRINNumber" type="string"/>
 		<property name="fragmentSizeFrom" column="fragmentSizeFrom" type="integer"/>
 		<property name="fragmentSizeTo" column="fragmentSizeTo" type="integer"/>
-    	<property name="redoFlag" column="redoFlag" type="string" />
 		<property name="seqPrepByCore" column="seqPrepByCore" type="string"/>
 		<property name="seqPrepDate" column="seqPrepDate" type="date"/>
 		<property name="seqPrepFailed" column="seqPrepFailed" type="string"/>
@@ -808,6 +811,10 @@
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.LabeledSample" />
 		</set>
+		<set name="wells" table="PlateWell" lazy="true" cascade="none">
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.PlateWell"/>
+		</set>    
   </class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
@@ -1015,6 +1022,17 @@
 		<property name="idArrayCoordinate" column="idArrayCoordinate" type="integer"/>
 	</class>
 	
+	<!-- hci.gnomex.model.Assay -->
+	<class name="hci.gnomex.model.Assay" table="Assay">
+		<id name="idAssay" column="idAssay" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+	
 	<!-- hci.gnomex.model.BioanalyzerChipType -->
 	<class name="hci.gnomex.model.BioanalyzerChipType" table="BioanalyzerChipType">
 		<id name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string">
@@ -1133,6 +1151,20 @@
     <property name="instrumentRunStatus" column="instrumentRunStatus" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
   </class>
+  
+  	
+	<!-- hci.gnomex.model.Primer -->
+	<class name="hci.gnomex.model.Primer" table="Primer">
+		<id name="idPrimer" column="idPrimer" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="sequence" column="sequence" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+  
 
 	<!-- hci.gnomex.model.PropertyType -->
 	<class name="hci.gnomex.model.PropertyType" table="PropertyType">
