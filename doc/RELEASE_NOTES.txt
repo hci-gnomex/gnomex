@@ -1,12 +1,6 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-
----------------------
-* Fixed problems with usage stat queries. (rcundick)
-* Added code to obtain base URL from back end. (rcundick)
-* Added window to display links for guest/user direct access to Topic. (rcundick)
-
 5.4.5
 ---------------------
 * Changed any text that was displayed to the user from "Sequence Run" to "Sequence Lane". (tcourdy)
@@ -15,6 +9,11 @@
 * Fixed display problems with the completed field on experiment edit/detail views.(tcourdy) 
 * Removed horizontal and vertical scroll bars for Slide Management window.(tcourdy)
 * Tab names now correct for Cap Seq requests in view/edit.  (bspiglejr)
+* Fixed problems with usage stat queries. (rcundick)
+* Added code to obtain base URL from back end. (rcundick)
+* Added window to display links for guest/user direct access to Topic. (rcundick)
+* Introduced new dictionaries Assay, Primer and added as foreign keys to PlateWell. (tdisera)
+* Moved redoFlag from Sample to PlateWell. (tdisera)
 * Is Control for Cap Seq plate requests is now functional.  (bspiglejr)
 
 5.4.4.1 (May 21, 2012)
