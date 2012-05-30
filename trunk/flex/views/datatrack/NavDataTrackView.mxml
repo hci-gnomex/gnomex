@@ -17,6 +17,7 @@
 			<mx:SetStyle target="{duplicateButton}" name="paddingRight" value="1"/>
 			<mx:SetStyle target="{downloadButton}" name="paddingRight" value="1"/>
 			<mx:SetStyle target="{makeUCSCLinkButton}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{makeIGVLinkButton}" name="paddingRight" value="1"/>
 			<mx:SetStyle target="{makeURLLinksButton}" name="paddingRight" value="1"/>
 		</mx:State>
 		<mx:State name="UserState"/>
@@ -173,6 +174,21 @@
 </mx:HTTPService> 
 
 <mx:HTTPService             
+	id="makeIGVLink" 
+	url="MakeDataTrackIGVLink.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onMakeIGVLink(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get IGV link URL', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+		<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
+		<launchIGV>{launchIGVString}</launchIGV>
+	</mx:request>
+</mx:HTTPService> 
+
+<mx:HTTPService             
 	id="makeLinks" 
 	url="MakeDataTrackLinks.gx"
 	resultFormat="e4x"
@@ -265,6 +281,8 @@
 
 	private var organismFilterToSelect:Object = null;
 	
+	[Bindable]
+	public var launchIGVString:String = "yes";
 
 	[Bindable]
 	private var dataTrackCountLabel:String = "";
@@ -956,6 +974,31 @@
 		else {
 			//this should never happen
 			Alert.show(makeUCSCLinks.lastResult.toXMLString(), "Error! Failed to convert UCSC link, contact site admin!");
+		}
+	}
+	
+	
+	/************************************************************************
+	 * Make IGV Link 
+	 *
+	 */
+	private function createIGVLink():void {
+	
+		if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
+			Alert.show("Patience! Converting useq to bw/bb format.");
+		}
+		makeIGVLink.send();
+	}
+	
+	private function onMakeIGVLink(event:ResultEvent):void {
+		if (makeIGVLink.lastResult.name() == "SUCCESS") {
+			//modify boolean so subsequent calls don't relaunch IGV
+			launchIGVString = "no";
+			navigateToURL(new URLRequest(makeIGVLink.lastResult.@igvURL),"IGV");
+		}
+		else {
+			//this should never happen
+			Alert.show(makeIGVLink.lastResult.toXMLString(), "Error! Failed to make IGV link, contact site admin!");
 		}
 	}
 	
@@ -1805,8 +1848,7 @@
 			 backgroundSize="100%" width="100%" 
 			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 
-			<mx:HBox width="100%" 
-					 verticalAlign="middle" paddingTop="6" paddingBottom="6"
+			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="0">
 				<mx:LinkButton   label="New Data Track" 
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
@@ -1923,7 +1965,8 @@
 							   enabled="true"
 							   click="{treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
 				
-				<mx:VRule height="20" id="vrule21x" width="2" />	
+				<mx:VRule height="20" id="vrule21x" width="2" />
+					
 				<mx:LinkButton styleName="linkMenuButton" label="UCSC Browser" 
 							   icon="@Embed(source='../../assets/ucscFavicon.png')"
 							   disabledIcon="@Embed(source='../../assets/ucscFaviconDeselected.png')"  					        	
@@ -1931,7 +1974,19 @@
 							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackView.dataTrackFiles.length !=0 &amp;&amp;  dataTrackView.getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
 							   click="{createUCSCLink()}" 
 							   id="makeUCSCLinkButton" />
+							   
+				<mx:VRule height="20" id="vrule21z" width="2" />
+					
+				<mx:LinkButton styleName="linkMenuButton" label="IGV Browser" 
+							   icon="@Embed(source='../../assets/igv.png')"
+							   disabledIcon="@Embed(source='../../assets/igv_disable.png')"  					        	
+							   toolTip="Create file link(s) for viewing the selected data track in the IGV Genome Browser"
+							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackView.dataTrackFiles.length !=0 &amp;&amp;  dataTrackView.getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
+							   click="{createIGVLink()}" 
+							   id="makeIGVLinkButton" />
+							   
 				<mx:VRule height="20" id="vrule21y" width="2" />	
+				
 				<mx:LinkButton styleName="linkMenuButton" label="URL Links" 
 							   icon="@Embed(source='../../assets/icon_link.gif')"
 							   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"  					        	
@@ -1940,65 +1995,87 @@
 							   click="{createURLLinks()}" 
 							   id="makeURLLinksButton"  />
 				
-				<mx:VRule height="20" id="vrule2" width="2"
-						  visible="{currentState != 'GuestState'}"
-						  includeInLayout="{currentState != 'GuestState'}"
-						  />
-				<mx:LinkButton styleName="linkMenuButton" label="Refresh Server" 
-							   visible="{currentState != 'GuestState'}"
-							   includeInLayout="{currentState != 'GuestState'}"
-							   icon="@Embed(source='../../assets/database_lightning.png')" 
-							   click="{refreshDAS2()}" 
-							   id="reloadDas2ServerButton"  />
 						
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="4" paddingTop="2" verticalAlign="middle" 
+			<mx:HBox width="100%" horizontalGap="0" paddingTop="4" verticalAlign="middle" 
 					 paddingBottom="4" id="hbox15"   
 					 paddingRight="2" paddingLeft="2">
-				
-				<mx:Label text="Filters:" styleName="menuLabelSmall"/>
-				<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170">
-					<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
-				</mx:ComboBox>
-				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
-				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
-							 visible="{currentState == 'AdminState'}"
-							 includeInLayout="{currentState == 'AdminState'}"
-							 prompt="Lab..."
-							 labelField="@name" change="{refreshDataTracks()}" styleName="menuLabelSmall" width="170"></mx:ComboBox>
-				
-				<mx:HBox horizontalGap="2" paddingLeft="4"
-						 visible="{currentState != 'GuestState'}"
-						 includeInLayout="{currentState != 'GuestState'}">
-					<mx:Label text="Visible to" 							
+				    <mx:VBox verticalGap="0">
+						<mx:Label text="Filters:" styleName="menuLabelSmall" textAlign="left" paddingTop="0" paddingBottom="0"/>
+						<mx:HBox horizontalGap="2">
+							<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170">
+								<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
+							</mx:ComboBox>
+							<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
+							<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+										 visible="{currentState == 'AdminState'}"
+										 includeInLayout="{currentState == 'AdminState'}"
+										 prompt="Lab..."
+										 labelField="@name" change="{refreshDataTracks()}" styleName="menuLabelSmall" width="170"></mx:ComboBox>
+
+							
+							<mx:HBox horizontalGap="1" paddingLeft="4"
+									 visible="{currentState != 'GuestState'}"
+									 includeInLayout="{currentState != 'GuestState'}" verticalAlign="top" height="100%">
+								<mx:Label text="Visible to" 							
+										  visible="{currentState != 'GuestState'}"
+										  includeInLayout="{currentState != 'GuestState'}"
+										  styleName="menuLabelSmall" id="label3" paddingTop="0" paddingBottom="0"/>
+								<mx:VBox verticalGap="0" height="100%" verticalAlign="middle">
+									<mx:CheckBox id="cbVisibilityOwner" label="Owner"  
+												 visible="{currentState != 'GuestState'}"
+												 includeInLayout="{currentState != 'GuestState'}"
+												 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+									<mx:CheckBox id="cbVisibilityMem" label="Members"  
+												 visible="{currentState != 'GuestState'}"
+												 includeInLayout="{currentState != 'GuestState'}"
+												 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+									
+								</mx:VBox>
+								<mx:VBox verticalGap="0" height="100%" verticalAlign="middle">
+									<mx:CheckBox id="cbVisibilityInstitute" label="Institution" 							
+												 visible="{currentState != 'GuestState'}"
+												 includeInLayout="{currentState != 'GuestState'}"
+												 paddingLeft="0" selected="true"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+									<mx:CheckBox id="cbVisibilityPublic" label="Public"
+												 visible="{currentState != 'GuestState'}"
+												 includeInLayout="{currentState != 'GuestState'}"
+												 selected="true" paddingLeft="0"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+									
+								</mx:VBox>
+								
+								
+							</mx:HBox>
+
+							
+							
+						</mx:HBox>
+						
+					</mx:VBox>
+						
+					
+					
+					
+				<mx:Spacer width="100%"/>
+				<mx:HBox horizontalGap="0"  height="100%">
+					<mx:VRule height="20" id="vrule1" width="2"/>
+					
+					<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
+								   icon="@Embed(source='../../assets/refresh.png')" 
+								   click="{treeItemToSelect=null;locateText.text='enter search here...';refreshDataTracks()}" id="linkbutton8"/>
+					<mx:VRule height="20" id="vrule2" width="2"
 							  visible="{currentState != 'GuestState'}"
 							  includeInLayout="{currentState != 'GuestState'}"
-							  styleName="menuLabelSmall" id="label3" paddingTop="0" paddingBottom="0"/>
-					<mx:CheckBox id="cbVisibilityOwner" label="Owner"  
-								 visible="{currentState != 'GuestState'}"
-								 includeInLayout="{currentState != 'GuestState'}"
-								 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
-					<mx:CheckBox id="cbVisibilityMem" label="Members"  
-								 visible="{currentState != 'GuestState'}"
-								 includeInLayout="{currentState != 'GuestState'}"
-								 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
-					<mx:CheckBox id="cbVisibilityInstitute" label="Institution" 							
-								 visible="{currentState != 'GuestState'}"
-								 includeInLayout="{currentState != 'GuestState'}"
-								 paddingLeft="0" selected="true"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
-					<mx:CheckBox id="cbVisibilityPublic" label="Public"
-								 visible="{currentState != 'GuestState'}"
-								 includeInLayout="{currentState != 'GuestState'}"
-								 selected="true" paddingLeft="0"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
+							  />
+					<mx:LinkButton styleName="linkMenuButton" label="Reload DAS2 Server" 
+								   visible="{currentState != 'GuestState'}"
+								   includeInLayout="{currentState != 'GuestState'}"
+								   icon="@Embed(source='../../assets/database_lightning.png')" 
+								   click="{refreshDAS2()}" 
+								   id="reloadDas2ServerButton"  />
+					
 					
 				</mx:HBox>
-				
-				<mx:VRule height="20" id="vrule1" width="2"/>
-				
-				<mx:LinkButton styleName="linkMenuButton" label="Refresh" 
-							   icon="@Embed(source='../../assets/refresh.png')" 
-							   click="{treeItemToSelect=null;locateText.text='enter search here...';refreshDataTracks()}" id="linkbutton8" paddingLeft="4" paddingRight="0"/>
-			
 			</mx:HBox>
 
         

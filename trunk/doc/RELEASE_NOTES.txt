@@ -15,6 +15,7 @@
 * Introduced new dictionaries Assay, Primer and added as foreign keys to PlateWell. (tdisera)
 * Moved redoFlag from Sample to PlateWell. (tdisera)
 * Is Control for Cap Seq plate requests is now functional.  (bspiglejr)
+* New IGB Browser link on Data Tracks view to launch IGB browser (dnix)
 
 5.4.4.1 (May 21, 2012)
 ----------------------
