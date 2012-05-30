@@ -69,11 +69,6 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     this.addInvalidFields(errors);
     
     
-    if (!filter.hasRequiredCriteria()) {
-      this.addInvalidField("reqrdCritieria", "Missing required criteria to filter pending samples by request category");
-    }
-    
-    
   }
 
   public Command execute() throws RollBackCommandException {

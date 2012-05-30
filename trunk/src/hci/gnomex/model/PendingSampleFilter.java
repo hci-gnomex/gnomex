@@ -14,7 +14,7 @@ public class PendingSampleFilter extends DetailObject {
   // Criteria
   private String               requestNumber;
   private Integer              idLab;
-  private String               codeRequestCategory;
+  private String               codeRequestCategory = RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY;
   private String               lastWeek = "N";
   private String               lastMonth = "N";
   private String               lastThreeMonths = "N";
