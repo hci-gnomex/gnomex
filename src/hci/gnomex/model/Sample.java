@@ -25,6 +25,7 @@ public class Sample extends HibernateDetailObject {
   
   private Integer     idSample;
   private Integer     idRequest;
+  private Request     request;
   private String      number;
   private String      name;
   private String      description;
@@ -69,7 +70,7 @@ public class Sample extends HibernateDetailObject {
   private Set         propertyEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
-  private String      redoFlag = "N";
+  private Set         wells;
   private String      isControl;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
@@ -231,6 +232,8 @@ public class Sample extends HibernateDetailObject {
     this.excludeMethodFromXML("getPropertyEntries");
     this.excludeMethodFromXML("getTreatmentEntries");
     this.excludeMethodFromXML("getLabeledSamples");
+    this.excludeMethodFromXML("getRequest");
+    this.excludeMethodFromXML("getWells");
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
@@ -626,6 +629,15 @@ public class Sample extends HibernateDetailObject {
     this.otherOrganism = otherOrganism;
   }
   
+  public Request getRequest() {
+    return request;
+  }
+
+  public void setRequest(Request request) {
+    this.request = request;
+  }
+
+  
   /*
    * Added this getter so that XML has attribute @numberSequencingLanes
    * so that it is highlighted on 'Add services' when QC request
@@ -635,20 +647,18 @@ public class Sample extends HibernateDetailObject {
     return "";
   }
 
-  public void setRedoFlag(String redoFlag)
-  {
-    this.redoFlag = redoFlag;
-  }
-
-  public String getRedoFlag()
-  {
-    return redoFlag;
-  }
-
   public String getIsControl() {
     return isControl;
   }
   public void setIsControl(String isControl) {
     this.isControl = isControl;
+  }
+
+  public Set getWells() {
+    return wells;
+  }
+
+  public void setWells(Set wells) {
+    this.wells = wells;
   }
 }
