@@ -198,6 +198,27 @@
 					" hasAssay3 = 'Y'" +
 					" hasAssay4 = 'Y'" +
 					"/>");
+			} else if (currentState != null && (currentState.indexOf('MitSeq') >= 0)) {
+				emptyNode = new XML("<Sample " +
+					" idSample='" + "Sample" + getNextSampleId() + "'" +
+					" name='' description='' " +
+					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +
+					" canChangeSampleType='Y'" +
+					" canChangeSampleDropOffLocation='Y'" +
+					" canChangeSampleConcentration='N'" +
+					" canChangeSampleSource='N'" +
+					" canChangeNumberSequencingCycles='N'" +
+					" canChangeNumberSequencingLanes='N'" + 
+					" concentration=''" +
+					" idOligoBarcode = ''" +
+					" barcodeSequence = ''" +
+					" codeConcentrationUnit='ng/ul'" + 
+					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+					" otherSamplePrepMethod=''" + 				
+					" treatment=''" +
+					"/>");
 			} else {
 				var xmlString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -676,6 +697,11 @@
 						
 						completeCount++;
 					}
+				} else if (currentState == 'MitSeqState') {
+					if (isEntered(sample, "@name")) {
+						
+						completeCount++;
+					}
 				} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
@@ -781,6 +807,8 @@
     		} else if (parentDocument.isCapSeqState()) {
 				parentDocument.confirmView.enabled = isComplete;
 			} else if (parentDocument.isFragAnalState()) {
+				parentDocument.confirmView.enabled = isComplete;
+			} else if (parentDocument.isMitSeqState()) {
 				parentDocument.confirmView.enabled = isComplete;
 			} else {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
@@ -1067,7 +1095,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-            this.sampleTypeCol.visible = currentState != 'CapSeqState' && !parentDocument.isFragAnalState();
+            this.sampleTypeCol.visible = currentState != 'CapSeqState' && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -1092,7 +1120,7 @@
 			this.assay2Col.visible = parentDocument.isFragAnalState() ? true : false;
 			this.assay3Col.visible = parentDocument.isFragAnalState() ? true : false;
 			this.assay4Col.visible = parentDocument.isFragAnalState() ? true : false;
-			
+
 			if (hasPlates()) {
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
@@ -1190,6 +1218,24 @@
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
+				
+			} else if (currentState == 'MitSeqState') {
+				
+				numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
+				idSeqRunTypeCol.visible = false; 
+				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.editable = false;
+				sampleOrganismColumn.visible = false;
+				sampleOrganismColumn.editable = false;
+				this.concentrationCol.visible = false;
+				
+				this.otherOrganismCol.visible = false;
+				otherSamplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+				labelColumn.visible = false;
 
 				
 			}else {
@@ -1213,7 +1259,7 @@
 			}
 			
 			// If this is a QC request, hide the annotation columns 
-			if (currentState != null && (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState') {
+			if (currentState != null && (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState' || currentState == 'MitSeqState') {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -1905,6 +1951,12 @@
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 		</mx:State>
 		<mx:State name="FragAnalState">
+			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
+			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+		</mx:State>
+		<mx:State name="MitSeqState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>

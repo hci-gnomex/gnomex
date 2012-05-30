@@ -50,6 +50,7 @@ import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleAssaysParser;
 import hci.gnomex.utility.SampleNumberComparator;
+import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
 import hci.gnomex.utility.RequestParser.HybInfo;
@@ -143,6 +144,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Map<String, Plate> storePlateMap = new HashMap<String, Plate>();
   
   private SampleAssaysParser assaysParser;
+  private SamplePrimersParser primersParser;
   
   public void validate() {
   }
@@ -211,6 +213,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       } catch (JDOMException je ) {
         log.error( "Cannot parse assays", je );
         this.addInvalidField( "Assays", "Invalid assays xml");
+      }
+    }
+    
+    if (request.getParameter("primersXMLString") != null && !request.getParameter("primersXMLString").equals("")) {
+      String assaysXMLString = "<primers>" + request.getParameter("primersXMLString") + "</primers>";
+      reader = new StringReader(assaysXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        Document primersDoc = sax.build(reader);
+        primersParser = new SamplePrimersParser(primersDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse primers", je );
+        this.addInvalidField( "Primers", "Invalid primers xml");
       }
     }
   }
@@ -1097,6 +1112,29 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           assayWell.setSample(sample);
           sess.save(assayWell);
         }
+      }
+      sess.flush();
+    }
+    
+    // create plate and plate wells for mitochondrial sequencing, if applicable
+    if (primersParser != null) {
+      primersParser.parse(sess);
+
+      Plate primerPlate = new Plate();
+      primerPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+      primerPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+      sess.save(primerPlate);
+      sess.flush();
+      for (Integer primerNumber = 1; primerNumber < 7; primerNumber++) {
+        PlateWell primerWell = new PlateWell();
+        primerWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        primerWell.setIdPrimer(primersParser.getID(primerNumber));
+        primerWell.setIdPlate(primerPlate.getIdPlate());
+        primerWell.setIdSample(sample.getIdSample());
+        primerWell.setPlate(primerPlate);
+        primerWell.setPosition((new Integer(sampleCount) - 1) * 6 + primerNumber);
+        primerWell.setSample(sample);
+        sess.save(primerWell);
       }
       sess.flush();
     }

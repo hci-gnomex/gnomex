@@ -253,6 +253,19 @@
 					
 					isComplete = true;
 				}
+			} else if (parentDocument.isMitSeqState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '' &&
+					this.primer1Combo.selectedItem  != null && this.primer1Combo.selectedItem.@value != '' &&
+					this.primer2Combo.selectedItem  != null && this.primer2Combo.selectedItem.@value != '' &&
+					this.primer3Combo.selectedItem  != null && this.primer3Combo.selectedItem.@value != '' &&
+					this.primer4Combo.selectedItem  != null && this.primer4Combo.selectedItem.@value != '' &&
+					this.primer5Combo.selectedItem  != null && this.primer5Combo.selectedItem.@value != '' &&
+					this.primer6Combo.selectedItem  != null && this.primer6Combo.selectedItem.@value != '') {
+					
+					isComplete = true;
+				}
 			} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
@@ -831,25 +844,29 @@
 						<mx:VBox>
 							<mx:Label text="Assay 1" id="labelAssay1"/>
 							<mx:ComboBox labelField="@display" width="150" id="assay1Combo" 
-										 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+										 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
+										 change="checkSampleSetupCompleteness()">							
 							</mx:ComboBox>
 						</mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Assay 2" id="labelAssay2"/>
 						   <mx:ComboBox labelField="@display" width="150" id="assay2Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Assay 3" id="labelAssay3"/>
 						   <mx:ComboBox labelField="@display" width="150" id="assay3Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Assay 4" id="labelAssay4"/>
 						   <mx:ComboBox labelField="@display" width="150" id="assay4Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 				   </mx:HBox>
@@ -858,7 +875,61 @@
 		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
 		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
 	   </mx:State>
-   	
+	   <mx:State name="MitSeqState" basedOn="DropoffBase">
+		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
+		   <mx:RemoveChild target="{samplePrepContainer}"/>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:VBox width="100%" horizontalGap="0">
+				   <mx:Label text="(2) Choose the Primers to be used." width="310"  id="labelPrimerHeader"/>
+				   <mx:HBox width="100%" horizontalGap="5">
+					   <mx:VBox>
+						   <mx:Label text="Primer 1" id="labelPrimer1"/>
+						   <mx:ComboBox labelField="@display" width="150" id="primer1Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Primer 2" id="labelPrimer2"/>
+						   <mx:ComboBox labelField="@display" width="150" id="primer2Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Primer 3" id="labelPrimer3"/>
+						   <mx:ComboBox labelField="@display" width="150" id="primer3Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Primer 4" id="labelPrimer4"/>
+						   <mx:ComboBox labelField="@display" width="150" id="primer4Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Primer 5" id="labelPrimer5"/>
+						   <mx:ComboBox labelField="@display" width="150" id="primer5Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Primer 6" id="labelPrimer6"/>
+						   <mx:ComboBox labelField="@display" width="150" id="primer6Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										change="checkSampleSetupCompleteness()">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+				   </mx:HBox>
+			   </mx:VBox>
+		   </mx:AddChild>
+		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
+	   </mx:State>
    </mx:states>
    	 
 
