@@ -242,6 +242,17 @@
 					
 					isComplete = true;
 				}
+			} else if (parentDocument.isFragAnalState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '' &&
+					this.assay1Combo.selectedItem != null && this.assay1Combo.selectedItem.@value != '' && 
+					this.assay2Combo.selectedItem != null && this.assay2Combo.selectedItem.@value != '' && 
+					this.assay3Combo.selectedItem != null && this.assay3Combo.selectedItem.@value != '' && 
+					this.assay4Combo.selectedItem != null && this.assay4Combo.selectedItem.@value != '') {
+					
+					isComplete = true;
+				}
 			} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
@@ -786,7 +797,17 @@
                   <mx:value>(5) Should sequencing libraries be constructed with barcode tags for multiplexing capability?</mx:value>
              </mx:SetProperty>
         </mx:State>
-        <mx:State name="CapSeqState">
+	    <mx:State name="DropoffBase">
+			<mx:AddChild relativeTo="{hbox6}" position="after">
+				<mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
+					<mx:Label text="(4) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
+					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
+								 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
+					</mx:ComboBox>
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+        <mx:State name="CapSeqState" basedOn="DropoffBase">
              <mx:RemoveChild target="{sampleOrganismContainer}"/>
              <mx:RemoveChild target="{samplePrepContainer}"/>
              <mx:AddChild relativeTo="{hbox6}" position="before">
@@ -797,17 +818,46 @@
                        <mx:RadioButton id="containerTypePlate" label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
                   </mx:HBox>
              </mx:AddChild>
-			 <mx:AddChild relativeTo="{hbox6}" position="after">
-			      <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
-				      <mx:Label text="(4) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
-				      <mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
-							 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
-				      </mx:ComboBox>
-			      </mx:HBox>
-			 </mx:AddChild>
              <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
         </mx:State>
+	   <mx:State name="FragAnalState" basedOn="DropoffBase">
+		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
+		   <mx:RemoveChild target="{samplePrepContainer}"/>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:VBox width="100%" horizontalGap="0">
+				   <mx:Label text="(2) Choose the Assays to be used." width="310"  id="labelAssayHeader"/>
+				   <mx:HBox width="100%" horizontalGap="5">
+						<mx:VBox>
+							<mx:Label text="Assay 1" id="labelAssay1"/>
+							<mx:ComboBox labelField="@display" width="150" id="assay1Combo" 
+										 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+							</mx:ComboBox>
+						</mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Assay 2" id="labelAssay2"/>
+						   <mx:ComboBox labelField="@display" width="150" id="assay2Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Assay 3" id="labelAssay3"/>
+						   <mx:ComboBox labelField="@display" width="150" id="assay3Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+					   <mx:VBox>
+						   <mx:Label text="Assay 4" id="labelAssay4"/>
+						   <mx:ComboBox labelField="@display" width="150" id="assay4Combo" 
+										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}">							
+						   </mx:ComboBox>
+					   </mx:VBox>					   
+				   </mx:HBox>
+			   </mx:VBox>
+		   </mx:AddChild>
+		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
+	   </mx:State>
    	
    </mx:states>
    	 

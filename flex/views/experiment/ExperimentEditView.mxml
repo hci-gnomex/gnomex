@@ -548,6 +548,14 @@
 				return false;
 			}
 		}
+			
+		public function isFragAnalState():Boolean {
+			if (currentState == 'FragAnalState' || currentState == 'FragAnalEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		
 				
 		public function isMicroarrayState():Boolean {
@@ -975,6 +983,19 @@
 				this.sampleSetupView.currentState = 'CapSeqState';
 				
 				this.samplesView.currentState = 'CapSeqState';				
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
+				
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_FRAG_ANAL) {
+				this.currentState = "FragAnalState";
+				this.sampleSetupView.currentState = 'FragAnalState';
+				
+				this.samplesView.currentState = 'FragAnalState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
@@ -2335,7 +2356,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isCapSeqState()) {
+				if (!isQCState() && !isCapSeqState() && !isFragAnalState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -2467,6 +2488,17 @@
 				params.idProject = setupView.projectCombo.selectedItem.@idProject;				
 			}
 			
+			// Chosen Assays
+			if (isFragAnalState()) {
+				var assays:XMLListCollection = new XMLListCollection();
+				addAssay(assays, "1", sampleSetupView.assay1Combo.selectedItem);
+				addAssay(assays, "2", sampleSetupView.assay2Combo.selectedItem);
+				addAssay(assays, "3", sampleSetupView.assay3Combo.selectedItem);
+				addAssay(assays, "4", sampleSetupView.assay4Combo.selectedItem);
+				
+				params.assaysXMLString = assays.toXMLString();
+			}
+
 			var exceeds500:Boolean = false;
 			
 			if(agreeCheckbox.visible) {
@@ -2491,10 +2523,18 @@
 			if(exceeds500) {
 				params.invoicePrice = createBillingItems.lastResult.Request.@invoicePrice;
 			}		
+			
 			saveNewRequest.send(params);			
 			
 		}
-		
+			
+		private function addAssay(assays:XMLListCollection, number:String, item:Object):void {
+			if (item != null) {
+				var assayXML:XML = new XML("<Assay number='" + number + "' name='" + item.@display + "' id='" + item.@value + "'/>");
+				assays.addItem(assayXML);
+			}
+		}
+
 		public function getMultiplexLanes():void {
 			if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
 				this.seqSetup1View.propagateGenomeBuild();
@@ -2651,11 +2691,11 @@
 			if (theTab.contains(sampleSetupView)) {
 				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 				
-				if (this.isCapSeqState()) {
+				if (this.isCapSeqState() || this.isFragAnalState()) {
 					request.@idSampleDropOffLocation = parentApplication.submitInternalExperiment() ? sampleSetupView.sampleDropOffLocationCombo.selectedItem.@value : '';
 				}
 				
-				if (currentState != 'QCState' && !isCapSeqState()) {
+				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -2849,11 +2889,11 @@
 			if (downloadView.getFilesToDelete().length > 0) {
 				params.filesToRemoveXMLString = downloadView.getFilesToDelete().toXMLString();			
 			}
-			
+
 			saveExistingRequest.send(params);			
 			
 		}
-		
+			
 		public function promptToSubmitRequest():void {
 			Alert.show( warningMessage + "\n\nDo you want to submit the request anyway?", 
 						"Warning", 
@@ -2939,7 +2979,7 @@
 						message = 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
 						title = "Experiment Registered";			
 						
-					} else if (this.isCapSeqState()) {
+					} else if (this.isCapSeqState() || this.isFragAnalState()) {
 						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.';
 						title = "Request Submitted";			
 						
@@ -2963,7 +3003,7 @@
 					externalIdRequest = submittedIdRequest;
 					promptToUpload();
 				} else {
-					if (!this.isCapSeqState()) {
+					if (!this.isCapSeqState() && !this.isFragAnalState()) {
 						showPrintableRequestForm();
 					}
 				}
@@ -3661,7 +3701,7 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				
-			if (!this.isCapSeqState()) {
+			if (!this.isCapSeqState() && !this.isFragAnalState()) {
 				this.annotationView.checkSecurity();		
 			}
 			if (this.isSolexaAmendState()) {
@@ -4538,6 +4578,26 @@
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="CapSeqEditState" basedOn="EditState">
+			<mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+		</mx:State>
+		<mx:State name="FragAnalState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="FragAnalEditState" basedOn="EditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
