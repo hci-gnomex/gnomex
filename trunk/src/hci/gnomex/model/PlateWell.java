@@ -10,7 +10,7 @@ public class PlateWell extends HibernateDetailObject {
   private Integer  idPlateWell;
   private String   row;
   private Integer  col;
-  private Integer  index;
+  private Integer  position;
   private Integer  idPlate;
   private Plate    plate;
   private Integer  idSample;
@@ -18,6 +18,9 @@ public class PlateWell extends HibernateDetailObject {
   private Integer  idRequest;
   private String   codeReactionType;
   private Date     createDate;
+  private String   redoFlag = "N";
+  private Integer  idAssay;
+  private Integer  idPrimer;
   
   public Integer getIdPlateWell() {
     return idPlateWell;
@@ -47,14 +50,14 @@ public class PlateWell extends HibernateDetailObject {
     this.col = col;
   }
 
-  public Integer getIndex()
-  {
-    return index;
+
+
+  public Integer getPosition() {
+    return position;
   }
 
-  public void setIndex(Integer index)
-  {
-    this.index = index;
+  public void setPosition(Integer position) {
+    this.position = position;
   }
 
   public Integer getIdPlate()
@@ -137,6 +140,30 @@ public class PlateWell extends HibernateDetailObject {
   public Date getCreateDate()
   {
     return createDate;
+  }
+
+  public String getRedoFlag() {
+    return redoFlag;
+  }
+
+  public void setRedoFlag(String redoFlag) {
+    this.redoFlag = redoFlag;
+  }
+
+  public Integer getIdAssay() {
+    return idAssay;
+  }
+
+  public void setIdAssay(Integer idAssay) {
+    this.idAssay = idAssay;
+  }
+
+  public Integer getIdPrimer() {
+    return idPrimer;
+  }
+
+  public void setIdPrimer(Integer idPrimer) {
+    this.idPrimer = idPrimer;
   }
   
     
