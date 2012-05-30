@@ -105,9 +105,9 @@ public class PlateWellParser extends DetailObject implements Serializable
     
     if (n.getAttributeValue("index") != null
         && !n.getAttributeValue("index").equals("")) {
-      well.setIndex(new Integer(n.getAttributeValue("index")));
+      well.setPosition(new Integer(n.getAttributeValue("index")));
     } else {
-      well.setIndex(null);
+      well.setPosition(null);
     }
     
   }
