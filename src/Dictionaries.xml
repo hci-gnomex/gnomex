@@ -41,7 +41,6 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.OrganismLite" editable="N">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-  <Dictionary displayName="Plate Type" className="hci.gnomex.model.PlateType" editable="N" />
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
@@ -105,6 +104,7 @@
   <Dictionary displayName="Illumina Sequencing Platform" className="hci.gnomex.model.SequencingPlatform" />
 	<Dictionary displayName="Illumina Oligo Barcode Scheme" className="hci.gnomex.model.OligoBarcodeScheme"  editable="Y"  >
 	</Dictionary>
+
 	<Dictionary displayName="Illumina Oligo Barcode" className="hci.gnomex.model.OligoBarcode"  editable="Y"  >
 			<Filter className="hci.gnomex.model.OligoBarcodeScheme" filterField="idOligoBarcodeScheme"/>
 	</Dictionary>
@@ -122,12 +122,6 @@
 	</Dictionary>
 
 	
-  <Dictionary displayName="Run Status" className="hci.gnomex.model.InstrumentRunStatus" editable="N" />
-  <Dictionary displayName="Order Status" className="hci.gnomex.model.RequestStatus" editable="N" />
-  <Dictionary displayName="Seal Type" className="hci.gnomex.model.SealType" editable="N" />
-  <Dictionary displayName="Reaction Type" className="hci.gnomex.model.ReactionType" editable="N" />
-  
-	
 	<Dictionary displayName="Microarray Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
@@ -144,6 +138,17 @@
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
 	<Dictionary displayName="Microarray Slide Source" className="hci.gnomex.model.SlideSource"  editable="Y"/>
+
+
+
+  <Dictionary displayName="DNA Seq Core - Plate Type" className="hci.gnomex.model.PlateType" editable="N" />
+  <Dictionary displayName="DNA Seq Core - Primer" className="hci.gnomex.model.Primer"  />
+  <Dictionary displayName="DNA Seq Core - Assay" className="hci.gnomex.model.Assay" />
+  <Dictionary displayName="DNA Seq Core - Run Status" className="hci.gnomex.model.InstrumentRunStatus" editable="N" />
+  <Dictionary displayName="DNA Seq Core - Order Status" className="hci.gnomex.model.RequestStatus" editable="N" />
+  <Dictionary displayName="DNA Seq Core - Seal Type" className="hci.gnomex.model.SealType" editable="N" />
+  <Dictionary displayName="DNA Seq Core - Reaction Type" className="hci.gnomex.model.ReactionType" editable="N" />
+  
 
 
 	
