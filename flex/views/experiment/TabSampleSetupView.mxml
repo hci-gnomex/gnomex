@@ -557,6 +557,27 @@
 			parentDocument.samplesView.showHideColumns();
 			parentDocument.confirmView.showHideColumns();
 		}
+		
+		public function getSamplePrimerList():String {
+			var list:String = "";
+			list = addPrimerToList(list, this.primer1Combo);
+			list = addPrimerToList(list, this.primer2Combo);
+			list = addPrimerToList(list, this.primer3Combo);
+			list = addPrimerToList(list, this.primer4Combo);
+			list = addPrimerToList(list, this.primer5Combo);
+			list = addPrimerToList(list, this.primer6Combo);
+			return list;
+		}
+		
+		private function addPrimerToList(list:String, combo:ComboBox):String {
+			if (combo.selectedItem != null && combo.selectedItem.@value != '') {
+				if (list.length > 0) {
+					list += ", ";
+				}
+				list += combo.selectedItem.@display;
+			}
+			return list;
+		}
 	]]>
 </mx:Script>
 
