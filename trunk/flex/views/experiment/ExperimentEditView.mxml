@@ -556,6 +556,14 @@
 				return false;
 			}
 		}
+			
+		public function isMitSeqState():Boolean {
+			if (currentState == 'MitSeqState' || currentState == 'MitSeqEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		
 				
 		public function isMicroarrayState():Boolean {
@@ -996,6 +1004,19 @@
 				this.sampleSetupView.currentState = 'FragAnalState';
 				
 				this.samplesView.currentState = 'FragAnalState';				
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
+				
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_MIT_SEQ) {
+				this.currentState = "MitSeqState";
+				this.sampleSetupView.currentState = 'MitSeqState';
+				
+				this.samplesView.currentState = 'MitSeqState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
@@ -2356,7 +2377,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isCapSeqState() && !isFragAnalState()) {
+				if (!isQCState() && !isCapSeqState() && !isFragAnalState() && !isMitSeqState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -2498,6 +2519,19 @@
 				
 				params.assaysXMLString = assays.toXMLString();
 			}
+			
+			// Chosen Assays
+			if (isMitSeqState()) {
+				var primers:XMLListCollection = new XMLListCollection();
+				addPrimer(primers, "1", sampleSetupView.primer1Combo.selectedItem);
+				addPrimer(primers, "2", sampleSetupView.primer2Combo.selectedItem);
+				addPrimer(primers, "3", sampleSetupView.primer3Combo.selectedItem);
+				addPrimer(primers, "4", sampleSetupView.primer4Combo.selectedItem);
+				addPrimer(primers, "5", sampleSetupView.primer5Combo.selectedItem);
+				addPrimer(primers, "6", sampleSetupView.primer6Combo.selectedItem);
+				
+				params.primersXMLString = primers.toXMLString();
+			}
 
 			var exceeds500:Boolean = false;
 			
@@ -2532,6 +2566,13 @@
 			if (item != null) {
 				var assayXML:XML = new XML("<Assay number='" + number + "' name='" + item.@display + "' id='" + item.@value + "'/>");
 				assays.addItem(assayXML);
+			}
+		}
+			
+		private function addPrimer(primers:XMLListCollection, number:String, item:Object):void {
+			if (item != null) {
+				var primerXML:XML = new XML("<Primer number='" + number + "' name='" + item.@display + "' id='" + item.@value + "'/>");
+				primers.addItem(primerXML);
 			}
 		}
 
@@ -2691,11 +2732,11 @@
 			if (theTab.contains(sampleSetupView)) {
 				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 				
-				if (this.isCapSeqState() || this.isFragAnalState()) {
+				if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState()) {
 					request.@idSampleDropOffLocation = parentApplication.submitInternalExperiment() ? sampleSetupView.sampleDropOffLocationCombo.selectedItem.@value : '';
 				}
 				
-				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState()) {
+				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState() && !isMitSeqState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -2979,7 +3020,7 @@
 						message = 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
 						title = "Experiment Registered";			
 						
-					} else if (this.isCapSeqState() || this.isFragAnalState()) {
+					} else if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState()) {
 						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.';
 						title = "Request Submitted";			
 						
@@ -3003,7 +3044,7 @@
 					externalIdRequest = submittedIdRequest;
 					promptToUpload();
 				} else {
-					if (!this.isCapSeqState() && !this.isFragAnalState()) {
+					if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState()) {
 						showPrintableRequestForm();
 					}
 				}
@@ -3701,7 +3742,7 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				
-			if (!this.isCapSeqState() && !this.isFragAnalState()) {
+			if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState()) {
 				this.annotationView.checkSecurity();		
 			}
 			if (this.isSolexaAmendState()) {
@@ -4598,6 +4639,26 @@
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="FragAnalEditState" basedOn="EditState">
+			<mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+		</mx:State>
+		<mx:State name="MitSeqState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="MitSeqEditState" basedOn="EditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
