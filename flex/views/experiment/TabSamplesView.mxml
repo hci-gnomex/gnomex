@@ -1697,11 +1697,11 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
 					
-					<mx:AdvancedDataGridColumn id="sourceWellCol" visible="false" editable="true" headerText="Source Well" width="75" resizable="false"
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sourceWellCol" visible="false" editable="true" headerText="Source Well" width="75" resizable="false"
 											   dataField="@sourceWell" rendererIsEditor="false" editorDataField="value" sortable="false"
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@sourceWell')}"                
 											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@sourceWell', true)}"/>
-					<mx:AdvancedDataGridColumn id="destinationWellCol" visible="false" editable="true" headerText="Dest. Well" width="75" resizable="false"
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="destinationWellCol" visible="false" editable="true" headerText="Dest. Well" width="75" resizable="false"
 											   dataField="@destinationWell" rendererIsEditor="false" editorDataField="value" sortable="false"
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@destinationWell')}"                
 											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@destinationWell', true)}"/>
