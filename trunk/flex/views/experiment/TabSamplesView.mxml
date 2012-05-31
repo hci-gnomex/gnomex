@@ -34,6 +34,7 @@
 		import views.renderers.GridColumnFillButton;
 		import views.renderers.LabelBarcodeSequence;
 		import views.renderers.TextInputSeqPrepByCore;
+		import views.util.AdvancedDataGridColumnWithType;
 		import views.util.AnnotationAdvancedDataGridColumn;
 		import views.util.CopySampleSheetColumnView;
 		import views.util.UploadSampleSheetView;
@@ -1587,9 +1588,9 @@
 					<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-					<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" 
+					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" 
 											   dataField="@isControl" rendererIsEditor="true" editorDataField="selected">
-						<mx:itemRenderer>
+						<util:itemRenderer>
 							<mx:Component>
 								<mx:CheckBox change="onChangeIsControl(event)" selected="{data.hasOwnProperty('@isControl') &amp;&amp; data.@isControl == 'Y'}" 
 											 enabled="{data.hasOwnProperty('@wellName') &amp;&amp; data.@wellName=='H12'}">
@@ -1616,8 +1617,8 @@
 									</mx:Script>
 								</mx:CheckBox>
 							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
+						</util:itemRenderer>
+					</util:AdvancedDataGridColumnWithType>
 					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
 					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 											   id="sampleNameCol"
@@ -1716,9 +1717,9 @@
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@destinationWell')}"                
 											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@destinationWell', true)}"/>
 					
-					<mx:AdvancedDataGridColumn id="assay1Col" visible="false" editable="false" headerText="Assay 1" width="100" resizable="false" 
+					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay1Col" visible="false" editable="false" headerText="Assay 1" width="100" resizable="false" 
 											   dataField="@hasAssay1" rendererIsEditor="true" editorDataField="selected">
-						<mx:itemRenderer>
+						<util:itemRenderer>
 							<mx:Component>
 								<mx:CheckBox change="onChangeAssay1(event)" selected="{data.hasOwnProperty('@hasAssay1') &amp;&amp; data.@hasAssay1 == 'Y'}">
 									<mx:Script>
@@ -1736,11 +1737,11 @@
 									</mx:Script>
 								</mx:CheckBox>
 							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn id="assay2Col" visible="false" editable="false" headerText="Assay 2" width="100" resizable="false" 
+						</util:itemRenderer>
+					</util:AdvancedDataGridColumnWithType>
+					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay2Col" visible="false" editable="false" headerText="Assay 2" width="100" resizable="false" 
 											   dataField="@hasAssay2" rendererIsEditor="true" editorDataField="selected">
-						<mx:itemRenderer>
+						<util:itemRenderer>
 							<mx:Component>
 								<mx:CheckBox change="onChangeAssay2(event)" selected="{data.hasOwnProperty('@hasAssay2') &amp;&amp; data.@hasAssay2 == 'Y'}">
 									<mx:Script>
@@ -1758,11 +1759,11 @@
 									</mx:Script>
 								</mx:CheckBox>
 							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn id="assay3Col" visible="false" editable="false" headerText="Assay 3" width="100" resizable="false" 
+						</util:itemRenderer>
+					</util:AdvancedDataGridColumnWithType>
+					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay3Col" visible="false" editable="false" headerText="Assay 3" width="100" resizable="false" 
 											   dataField="@hasAssay3" rendererIsEditor="true" editorDataField="selected">
-						<mx:itemRenderer>
+						<util:itemRenderer>
 							<mx:Component>
 								<mx:CheckBox change="onChangeAssay3(event)" selected="{data.hasOwnProperty('@hasAssay3') &amp;&amp; data.@hasAssay3 == 'Y'}">
 									<mx:Script>
@@ -1780,11 +1781,11 @@
 									</mx:Script>
 								</mx:CheckBox>
 							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn id="assay4Col" visible="false" editable="false" headerText="Assay 4" width="100" resizable="false" 
+						</util:itemRenderer>
+					</util:AdvancedDataGridColumnWithType>
+					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay4Col" visible="false" editable="false" headerText="Assay 4" width="100" resizable="false" 
 											   dataField="@hasAssay4" rendererIsEditor="true" editorDataField="selected">
-						<mx:itemRenderer>
+						<util:itemRenderer>
 							<mx:Component>
 								<mx:CheckBox change="onChangeAssay4(event)" selected="{data.hasOwnProperty('@hasAssay4') &amp;&amp; data.@hasAssay4 == 'Y'}">
 									<mx:Script>
@@ -1802,8 +1803,8 @@
 									</mx:Script>
 								</mx:CheckBox>
 							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
+						</util:itemRenderer>
+					</util:AdvancedDataGridColumnWithType>
 
 					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					 
