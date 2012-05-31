@@ -613,6 +613,7 @@
 	          	}
 	        }
         	var completeCount:int = 0;
+			var nameCompleteCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
         		if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
         			
@@ -716,9 +717,10 @@
 					} 
 	        		 
         		} else if (currentState == 'CapSeqState') {
-					if (isEntered(sample, "@name") &&
-						isEntered(sample, "@idSampleType")) {
-						
+					if (isEntered(sample, "@name")) {
+						nameCompleteCount++;
+					}
+					if (isEntered(sample, "@idSampleType")) {
 						completeCount++;
 					}
 				} else if (currentState == 'FragAnalState') {
@@ -760,7 +762,15 @@
         	
         	var isComplete:Boolean = false;
         	if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
-        		isComplete = true;
+				if (currentState == 'CapSeqState') {
+					if (nameCompleteCount >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
+						isComplete = true;
+					} else {
+						isComplete = false;
+					}
+				} else {
+        			isComplete = true;
+				}
         	} else if (parentDocument.isEditState()) {
         		isComplete = true;
         	}

@@ -2840,7 +2840,9 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				request.samples.appendChild(sample);
+				if (sample.@name != null && sample.@name != '') {
+					request.samples.appendChild(sample);
+				}
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
 			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {

@@ -132,7 +132,13 @@
 		} 
 
         public function showHideColumns():void {
-			
+			this.filteredSamples.removeAll();
+			for each(var sample:Object in parentDocument.samples) {
+				if (sample.@name != null && sample.@name != '') {
+					this.filteredSamples.addItem(sample);
+				}
+			}
+
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
 				&& !parentDocument.isCapSeqState()
 				&& !parentDocument.isFragAnalState()
@@ -289,6 +295,7 @@
 		} 
 	]]>
 </mx:Script>
+	<mx:XMLListCollection id="filteredSamples"/>
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
 			<mx:HBox width="100%" horizontalGap="4">
@@ -420,9 +427,9 @@
 
 			 
 			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="4">
-				<mx:Label text="{'Samples (' + parentDocument.samples.length + ')'}" id="label1" textDecoration="underline"/>
-				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 
-					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{parentDocument.samples.length + longDescriptionRowCount}"
+				<mx:Label text="{'Samples (' + filteredSamples.length + ')'}" id="label1" textDecoration="underline"/>
+				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{filteredSamples}" 
+					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{filteredSamples.length + longDescriptionRowCount}"
 					sortableColumns="false" alpha="0.8" fontSize="9" variableRowHeight="true" >
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
