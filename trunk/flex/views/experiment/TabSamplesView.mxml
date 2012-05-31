@@ -3,7 +3,7 @@
     xmlns:views="*.views" 
 	xmlns:util="views.util.*"
     xmlns:fx="*.views.renderers" show="{this.initializeBarcoding();}"
-	label="Sample View" width="100%" height="100%"  enabled="false">
+	label="Sample View" width="100%" height="100%"  enabled="false" xmlns:controls="hci.flex.controls.*" xmlns:renderers="views.renderers.*">
   
 <mx:Script>
 	<![CDATA[
@@ -218,6 +218,29 @@
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +
+					"/>");
+			} else if (currentState != null && (currentState.indexOf('CherryPick') >= 0)) {
+				emptyNode = new XML("<Sample " +
+					" idSample='" + "Sample" + getNextSampleId() + "'" +
+					" name='' description='' " +
+					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +
+					" canChangeSampleType='Y'" +
+					" canChangeSampleDropOffLocation='Y'" +
+					" canChangeSampleConcentration='N'" +
+					" canChangeSampleSource='N'" +
+					" canChangeNumberSequencingCycles='N'" +
+					" canChangeNumberSequencingLanes='N'" + 
+					" concentration=''" +
+					" idOligoBarcode = ''" +
+					" barcodeSequence = ''" +
+					" codeConcentrationUnit='ng/ul'" + 
+					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+					" otherSamplePrepMethod=''" + 				
+					" treatment=''" +
+					" sourceWell=''" +
+					" destinationWell=''" +
 					"/>");
 			} else {
 				var xmlString:String = "<Sample " +
@@ -702,6 +725,11 @@
 						
 						completeCount++;
 					}
+				} else if (currentState == 'CherryPickState') {
+					if (isEntered(sample, "@name") && isEntered(sample, "@sourceWell") && isEntered(sample, "@destinationWell")) {
+						
+						completeCount++;
+					}
 				} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
@@ -809,6 +837,8 @@
 			} else if (parentDocument.isFragAnalState()) {
 				parentDocument.confirmView.enabled = isComplete;
 			} else if (parentDocument.isMitSeqState()) {
+				parentDocument.confirmView.enabled = isComplete;
+			} else if (parentDocument.isFragAnalState()) {
 				parentDocument.confirmView.enabled = isComplete;
 			} else {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
@@ -1095,7 +1125,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-            this.sampleTypeCol.visible = currentState != 'CapSeqState' && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState();
+            this.sampleTypeCol.visible = currentState != 'CapSeqState' && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() && !parentDocument.isCherryPickState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -1120,6 +1150,9 @@
 			this.assay2Col.visible = parentDocument.isFragAnalState() ? true : false;
 			this.assay3Col.visible = parentDocument.isFragAnalState() ? true : false;
 			this.assay4Col.visible = parentDocument.isFragAnalState() ? true : false;
+
+			this.sourceWellCol.visible = parentDocument.isCherryPickState() ? true : false;
+			this.destinationWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 
 			if (hasPlates()) {
 				this.addSampleButton.visible = false;
@@ -1236,6 +1269,24 @@
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
+				
+			} else if (currentState == 'CherryPickState') {
+				
+				numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
+				idSeqRunTypeCol.visible = false; 
+				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.editable = false;
+				sampleOrganismColumn.visible = false;
+				sampleOrganismColumn.editable = false;
+				this.concentrationCol.visible = false;
+				
+				this.otherOrganismCol.visible = false;
+				otherSamplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+				labelColumn.visible = false;
 
 				
 			}else {
@@ -1259,7 +1310,8 @@
 			}
 			
 			// If this is a QC request, hide the annotation columns 
-			if (currentState != null && (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState' || currentState == 'MitSeqState') {
+			if (currentState != null 
+				&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState') {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -1636,6 +1688,16 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
+					
+					<mx:AdvancedDataGridColumn id="sourceWellCol" visible="false" editable="true" headerText="Source Well" width="75" resizable="false"
+											   dataField="@sourceWell" rendererIsEditor="false" editorDataField="value" sortable="false"
+											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@sourceWell')}"                
+											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@sourceWell', true)}"/>
+					<mx:AdvancedDataGridColumn id="destinationWellCol" visible="false" editable="true" headerText="Dest. Well" width="75" resizable="false"
+											   dataField="@destinationWell" rendererIsEditor="false" editorDataField="value" sortable="false"
+											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@destinationWell')}"                
+											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@destinationWell', true)}"/>
+					
 					<mx:AdvancedDataGridColumn id="assay1Col" visible="false" editable="false" headerText="Assay 1" width="100" resizable="false" 
 											   dataField="@hasAssay1" rendererIsEditor="true" editorDataField="selected">
 						<mx:itemRenderer>
@@ -1957,6 +2019,12 @@
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
+			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
+			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+		</mx:State>
+		<mx:State name="CherryPickState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>

@@ -110,7 +110,7 @@
 				if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
 					this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
 				}				
-				if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
+				if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState()) {
 					this.sampleDropOffLocationVbox.visible = true;
 					this.vbox4.visible = false;
 				} else {
@@ -136,7 +136,8 @@
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
 				&& !parentDocument.isCapSeqState()
 				&& !parentDocument.isFragAnalState()
-				&& !parentDocument.isMitSeqState();
+				&& !parentDocument.isMitSeqState()
+				&& !parentDocument.isCherryPickState();
 			
 			wellNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
@@ -157,6 +158,14 @@
 				this.hasAssay2.visible = false;
 				this.hasAssay3.visible = false;
 				this.hasAssay4.visible = false;
+			}
+			
+			if (parentDocument.isCherryPickState()) {
+				this.sourceWell.visible = true;
+				this.destinationWell.visible = true;
+			} else {
+				this.sourceWell.visible = false;
+				this.destinationWell.visible = false;
 			}
 			
         	if (parentDocument.isSolexaState()) {
@@ -235,6 +244,18 @@
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
 				
+			} else if (parentDocument.isCherryPickState()) {
+				concentrationUnitConfirmColumn.visible = false;
+				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
+				chipTypeConfirmColumn.visible = false; 
+				otherSamplePrepMethodConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = true;
+				
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
@@ -251,7 +272,7 @@
 
 			}
 			// If this is a QC request, hide the annotation columns 
-			if (parentDocument.currentState == 'QCState' || parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() ) {
+			if (parentDocument.currentState == 'QCState' || parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState() ) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -420,6 +441,11 @@
 						<mx:DataGridColumn id="hasAssay3" visible="false" editable="false" headerText="Assay 3?" width="100" resizable="false" dataField="@hasAssay3">
 						</mx:DataGridColumn>
 						<mx:DataGridColumn id="hasAssay4" visible="false" editable="false" headerText="Assay 4?" width="100" resizable="false" dataField="@hasAssay4">
+						</mx:DataGridColumn>
+						
+						<mx:DataGridColumn id="sourceWell" visible="false" editable="false" headerText="Source Well" width="75" resizable="false" dataField="@sourceWell">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="destinationWell" visible="false" editable="false" headerText="Destination Well" width="75" resizable="false" dataField="@destinationWell">
 						</mx:DataGridColumn>
 
 						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>

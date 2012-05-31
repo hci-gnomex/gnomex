@@ -6,7 +6,7 @@
     xmlns:experiment="views.experiment.*"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	width="100%" height="100%"  
-	creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*">
+	creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*" xmlns:mx1="library://ns.adobe.com/flex/mx">
 
      
    <mx:HTTPService  
@@ -564,6 +564,14 @@
 				return false;
 			}
 		}
+			
+		public function isCherryPickState():Boolean {
+			if (currentState == 'CherryPickState' || currentState == 'CherryPickEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		
 				
 		public function isMicroarrayState():Boolean {
@@ -1017,6 +1025,19 @@
 				this.sampleSetupView.currentState = 'MitSeqState';
 				
 				this.samplesView.currentState = 'MitSeqState';				
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
+				
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_CHERRY_PICK) {
+				this.currentState = "CherryPickState";
+				this.sampleSetupView.currentState = 'CherryPickState';
+				
+				this.samplesView.currentState = 'CherryPickState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
@@ -2335,10 +2356,14 @@
 				}
 			}
 			
-			// Check for duplicate sampleNames
+			// Check for duplicate sampleNames / wells
 			var sampleNames:Dictionary = new Dictionary();
+			var sourceWells:Dictionary = new Dictionary();
+			var destinationWells:Dictionary = new Dictionary();
 			for each(var s:Object in samples) {
 				var sampleCount:int = 0;
+				var sourceWellCount:int = 0;
+				var destinationWellCount:int = 0;
 				for each(var s1:Object in samples) {
 					if (s.@name == s1.@name) {
 						// Same name on different plates ok.
@@ -2349,8 +2374,18 @@
 						}
 						sampleCount++;
 					}
+					if (this.isCherryPickState()) {
+						if (s.@sourceWell == s1.@sourceWell) {
+							sourceWellCount++;
+						}
+						if (s.@destinationWell == s1.@destinationWell) {
+							destinationWellCount++;
+						}
+					}
 				}
 				sampleNames[s.@name.toString()] = sampleCount;
+				sourceWells[s.@sourceWell.toString()] = sourceWellCount;
+				destinationWells[s.@destinationWell.toString()] = destinationWellCount;
 			}
 			var dupSampleNames:String = '';
 			for (var key:Object in sampleNames) {
@@ -2368,7 +2403,38 @@
 				}
 				errorMessage += '\n\n';					
 			}
-
+			var dupSourceWells:String = '';
+			for (var keysw:Object in sourceWells) {
+				if (sourceWells[keysw] > 1) {
+					if (dupSourceWells != '') {
+						dupSourceWells += ',';
+					}
+					dupSourceWells += keysw;
+				}
+			}
+			if (dupSourceWells != '') {
+				errorMessage += 'Some of the source wells (' + dupSourceWells + ') are the same.  ';
+				if (!isEditState()) {
+					errorMessage += 'Please provide unique source wells.';
+				}
+				errorMessage += '\n\n';					
+			}
+			var dupDestinationWells:String = '';
+			for (var keydw:Object in destinationWells) {
+				if (destinationWells[keydw] > 1) {
+					if (dupDestinationWells != '') {
+						dupDestinationWells += ',';
+					}
+					dupDestinationWells += keydw;
+				}
+			}
+			if (dupDestinationWells != '') {
+				errorMessage += 'Some of the destination wells (' + dupDestinationWells + ') are the same.  ';
+				if (!isEditState()) {
+					errorMessage += 'Please provide unique destination wells.';
+				}
+				errorMessage += '\n\n';					
+			}
 			// If this is a new request or the request is being changed on
 			// the edit screen, warn if all samples are not used on at least 
 			// one hyb or seq lane
@@ -2377,7 +2443,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isCapSeqState() && !isFragAnalState() && !isMitSeqState()) {
+				if (!isQCState() && !isCapSeqState() && !isFragAnalState() && !isMitSeqState() && !isCherryPickState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -2732,11 +2798,11 @@
 			if (theTab.contains(sampleSetupView)) {
 				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 				
-				if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState()) {
+				if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState() || this.isCherryPickState()) {
 					request.@idSampleDropOffLocation = parentApplication.submitInternalExperiment() ? sampleSetupView.sampleDropOffLocationCombo.selectedItem.@value : '';
 				}
 				
-				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState() && !isMitSeqState()) {
+				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState() && !isMitSeqState() && !isCherryPickState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3020,7 +3086,7 @@
 						message = 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
 						title = "Experiment Registered";			
 						
-					} else if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState()) {
+					} else if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState() || this.isCherryPickState()) {
 						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.';
 						title = "Request Submitted";			
 						
@@ -3044,7 +3110,7 @@
 					externalIdRequest = submittedIdRequest;
 					promptToUpload();
 				} else {
-					if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState()) {
+					if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState()) {
 						showPrintableRequestForm();
 					}
 				}
@@ -3742,7 +3808,7 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				
-			if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState()) {
+			if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState()) {
 				this.annotationView.checkSecurity();		
 			}
 			if (this.isSolexaAmendState()) {
@@ -4270,6 +4336,104 @@
 						minValue="{requestApplication.@avgInsertSizeFrom}"
 						maxValue="{requestApplication.@avgInsertSizeTo}"/>
 
+	<mx:XMLList id="wellList">
+		<well name="A1"/>
+		<well name="A2"/>
+		<well name="A3"/>
+		<well name="A4"/>
+		<well name="A5"/>
+		<well name="A6"/>
+		<well name="A7"/>
+		<well name="A8"/>
+		<well name="A9"/>
+		<well name="A10"/>
+		<well name="A11"/>
+		<well name="A12"/>
+		<well name="B1"/>
+		<well name="B2"/>
+		<well name="B3"/>
+		<well name="B4"/>
+		<well name="B5"/>
+		<well name="B6"/>
+		<well name="B7"/>
+		<well name="B8"/>
+		<well name="B9"/>
+		<well name="B10"/>
+		<well name="B11"/>
+		<well name="B12"/>
+		<well name="C1"/>
+		<well name="C2"/>
+		<well name="C3"/>
+		<well name="C4"/>
+		<well name="C5"/>
+		<well name="C6"/>
+		<well name="C7"/>
+		<well name="C8"/>
+		<well name="C9"/>
+		<well name="C10"/>
+		<well name="C11"/>
+		<well name="C12"/>
+		<well name="D1"/>
+		<well name="D2"/>
+		<well name="D3"/>
+		<well name="D4"/>
+		<well name="D5"/>
+		<well name="D6"/>
+		<well name="D7"/>
+		<well name="D8"/>
+		<well name="D9"/>
+		<well name="D10"/>
+		<well name="D11"/>
+		<well name="D12"/>
+		<well name="E1"/>
+		<well name="E2"/>
+		<well name="E3"/>
+		<well name="E4"/>
+		<well name="E5"/>
+		<well name="E6"/>
+		<well name="E7"/>
+		<well name="E8"/>
+		<well name="E9"/>
+		<well name="E10"/>
+		<well name="E11"/>
+		<well name="E12"/>
+		<well name="F1"/>
+		<well name="F2"/>
+		<well name="F3"/>
+		<well name="F4"/>
+		<well name="F5"/>
+		<well name="F6"/>
+		<well name="F7"/>
+		<well name="F8"/>
+		<well name="F9"/>
+		<well name="F10"/>
+		<well name="F11"/>
+		<well name="F12"/>
+		<well name="G1"/>
+		<well name="G2"/>
+		<well name="G3"/>
+		<well name="G4"/>
+		<well name="G5"/>
+		<well name="G6"/>
+		<well name="G7"/>
+		<well name="G8"/>
+		<well name="G9"/>
+		<well name="G10"/>
+		<well name="G11"/>
+		<well name="G12"/>
+		<well name="H1"/>
+		<well name="H2"/>
+		<well name="H3"/>
+		<well name="H4"/>
+		<well name="H5"/>
+		<well name="H6"/>
+		<well name="H7"/>
+		<well name="H8"/>
+		<well name="H9"/>
+		<well name="H10"/>
+		<well name="H11"/>
+		<well name="H12"/>
+	</mx:XMLList>
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}"/>
@@ -4659,6 +4823,26 @@
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="MitSeqEditState" basedOn="EditState">
+			<mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+		</mx:State>
+		<mx:State name="CherryPickState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="CherryPickEditState" basedOn="EditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>

@@ -22,6 +22,7 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -145,6 +146,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private SampleAssaysParser assaysParser;
   private SamplePrimersParser primersParser;
+  
+  private Plate cherryPickSourcePlate;
+  private Plate cherryPickDestinationPlate;
   
   public void validate() {
   }
@@ -1138,6 +1142,51 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       sess.flush();
     }
+    
+    // Cherry pick source and destination wells
+    String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
+    if (cherryPickSourceWell != null && cherryPickSourceWell.length() > 0) {
+      if (this.cherryPickSourcePlate == null) {
+        this.cherryPickSourcePlate = new Plate();
+        this.cherryPickSourcePlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+        this.cherryPickSourcePlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        sess.save(this.cherryPickSourcePlate);
+        sess.flush();
+      }
+      PlateWell sourceWell = new PlateWell();
+      sourceWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+      sourceWell.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
+      sourceWell.setRow(cherryPickSourceWell.substring(0, 1));
+      sourceWell.setPosition(new Integer(sampleCount));
+      sourceWell.setIdPlate(cherryPickSourcePlate.getIdPlate());
+      sourceWell.setPlate(cherryPickSourcePlate);
+      sourceWell.setIdSample(sample.getIdSample());
+      sourceWell.setSample(sample);
+      sess.save(sourceWell);
+    }
+    String cherryPickDestinationWell = requestParser.getCherryPickDestinationWell(idSampleString);
+    if (cherryPickDestinationWell != null && cherryPickDestinationWell.length() > 0) {
+      if (this.cherryPickDestinationPlate == null) {
+        this.cherryPickDestinationPlate = new Plate();
+        this.cherryPickDestinationPlate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
+        this.cherryPickDestinationPlate.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
+        this.cherryPickDestinationPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        sess.save(this.cherryPickDestinationPlate);
+        sess.flush();
+      }
+      PlateWell destinationWell = new PlateWell();
+      destinationWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+      destinationWell.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
+      destinationWell.setRow(cherryPickDestinationWell.substring(0, 1));
+      destinationWell.setPosition(new Integer(sampleCount));
+      destinationWell.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
+      destinationWell.setIdPlate(cherryPickDestinationPlate.getIdPlate());
+      destinationWell.setPlate(cherryPickDestinationPlate);
+      destinationWell.setIdSample(sample.getIdSample());
+      destinationWell.setSample(sample);
+      sess.save(destinationWell);
+    }
+    
   }
 
   
