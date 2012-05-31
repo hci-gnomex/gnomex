@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+         width="100%" height="100%" 
+         xmlns:util="views.util.*" show="init()" >
+  <mx:Label id="titleLabel" styleName="titleLabel" text="{'View Order '+ selectedIdRequest}"/>
+  
+  
+  <mx:HTTPService  
+    id="getRequest" 
+    url="GetRequest.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequest(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request xmlns="">
+      <idRequest>{selectedIdRequest}</idRequest>
+    </mx:request>
+  </mx:HTTPService> 
+  
+  <mx:Script> 
+    <![CDATA[
+      import flash.events.MouseEvent;
+      
+      import hci.flex.controls.DropdownLabel;
+      
+      import mx.charts.ChartItem;
+      import mx.charts.HitData;
+      import mx.charts.chartClasses.IAxis;
+      import mx.charts.chartClasses.Series;
+      import mx.charts.series.items.ColumnSeriesItem;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.controls.Button;
+      import mx.controls.dataGridClasses.DataGridColumn;
+      import mx.controls.sliderClasses.Slider;
+      import mx.core.Container;
+      import mx.core.IDataRenderer;
+      import mx.events.CloseEvent;
+      import mx.events.CollectionEvent;
+      import mx.events.CollectionEventKind;
+      import mx.events.FlexEvent;
+      import mx.events.ItemClickEvent;
+      import mx.events.PropertyChangeEvent;
+      import mx.events.SliderEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
+      import mx.utils.StringUtil;
+      
+      
+      
+      [Bindable]
+      public var selectedIdRequest:int;
+      [Bindable]
+      public var selectedRequest:Object;
+            
+      private function init():void {
+        if (selectedRequest != null){
+          selectedIdRequest = selectedRequest.@idRequest;
+          this.getRequest.send();
+        }
+        
+        // Add event listeners for each accordion's header
+        var head1:Button = Button(accordion1.getHeaderAt(0));
+        head1.addEventListener(MouseEvent.CLICK, headerClickHandler);
+        
+        var head2:Button = Button(accordion2.getHeaderAt(0));
+        head2.addEventListener(MouseEvent.CLICK, headerClickHandler);
+        
+        var head3:Button = Button(accordion3.getHeaderAt(0));
+        head3.addEventListener(MouseEvent.CLICK, headerClickHandler);
+                
+        
+      }
+            
+      // This allows a click on a header to close that section
+      private function headerClickHandler(event:MouseEvent):void
+      {
+        var header:Button = Button(event.target);
+        var headerChild:Container = Container(IDataRenderer(header).data);
+        if (headerChild == accordion1.selectedChild)
+        {
+          accordion1.selectedIndex = 1;
+        }
+        if (headerChild == accordion2.selectedChild)
+        {
+          accordion2.selectedIndex = 1;
+        }
+        if (headerChild == accordion3.selectedChild)
+        {
+          accordion3.selectedIndex = 1;
+        }
+      }
+      
+      private function onGetRequest(event:ResultEvent):void {
+        if (event.result.name() == "OpenRequestList") {
+          
+          
+          
+        } else {
+          Alert.show(event.result..ERROR.@message.toString(), "Error getting request");
+        } 
+      }
+      
+      
+      
+    ]]>
+  </mx:Script>    	
+  
+  <mx:XMLListCollection id="samplesList" source="{getRequest.lastResult..Sample}" />
+	
+  <mx:VBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  minHeight="0" verticalScrollPolicy="auto">
+    <mx:Accordion width="100%"   resizeToContent="true" id="accordion1">
+      <mx:Canvas label="Customer Information" width="100%" id="dataGridAccordion" minHeight="0" >
+        <mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+          
+          <mx:GridRow >
+            <mx:GridItem horizontalAlign="right" paddingRight="5">
+              <mx:Label text="Customer Name" fontWeight="bold"/>
+            </mx:GridItem>
+            <mx:GridItem width="250">
+              <mx:Label text="{getRequest.lastResult.Request.@ownerName}"/>
+            </mx:GridItem>
+            <mx:GridItem horizontalAlign="right" paddingRight="5">
+              <mx:Label text="Institution" fontWeight="bold"/>
+            </mx:GridItem>
+            <mx:GridItem width="250" >
+              <mx:Label text=""/>
+            </mx:GridItem>
+          </mx:GridRow>
+          
+          <mx:GridRow >
+            <mx:GridItem horizontalAlign="right" paddingRight="5">
+              <mx:Label text="Contact Phone" fontWeight="bold"/>
+            </mx:GridItem>
+            <mx:GridItem >
+              <mx:Label text=""/>
+            </mx:GridItem>
+            <mx:GridItem horizontalAlign="right" paddingRight="5">
+              <mx:Label text="Contact Email" fontWeight="bold"/>
+            </mx:GridItem>
+            <mx:GridItem >
+              <mx:Label text=""/>
+            </mx:GridItem>
+          </mx:GridRow>
+          
+          
+        </mx:Grid>
+      </mx:Canvas>
+      
+      <mx:Canvas  width="100%" height="0" minHeight="0" />
+      
+    </mx:Accordion>
+    
+    <mx:Accordion width="100%" resizeToContent="true"  id="accordion2">
+      <mx:Canvas label="Order Information" width="100%" minHeight="0">
+        
+			<mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				
+				<mx:GridRow >
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Label" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem width="250">
+						<mx:Label text="{getRequest.lastResult.Request.@name}"/>
+					</mx:GridItem>
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Date Submitted" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem width="250" >
+						<mx:Label text="{getRequest.lastResult.Request.@createDate}"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				
+				<mx:GridRow >
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Number" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem >
+						<mx:Label text="{getRequest.lastResult.Request.@number}"/>
+					</mx:GridItem>
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Order Type" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem >
+						<mx:Label text="{getRequest.lastResult.Request.@codeRequestCategory}"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				
+				<mx:GridRow  >
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Status" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem >
+						<mx:Label text="{getRequest.lastResult.Request.@codeRequestStatus}"/>
+					</mx:GridItem>
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Lab Group" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem >
+						<mx:Label text="{getRequest.lastResult.Request.@labName}"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				
+				<mx:GridRow >
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Comments" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem >
+						<mx:Label text="{getRequest.lastResult.Request.@notes}"/>
+					</mx:GridItem>
+					<mx:GridItem >
+					</mx:GridItem>
+				</mx:GridRow>
+				
+				
+			</mx:Grid>
+      </mx:Canvas>
+      
+      <mx:Canvas  width="100%" height="0" minHeight="0"/>
+      
+    </mx:Accordion>
+    
+    
+    <mx:Accordion width="100%"   resizeToContent="true" id="accordion3">
+      <mx:Canvas label="Sample Information" width="100%" id="sequenceAccordion" minHeight="0"  >
+      
+			  <mx:DataGrid dataProvider="{samplesList}" rowCount="{samplesList.length}" selectable="false">
+			  	<mx:columns>
+			  		<mx:DataGridColumn headerText="Position" />
+			  		<mx:DataGridColumn headerText="Sample" dataField="@name" />
+			  		<mx:DataGridColumn headerText="Source Plate" />
+					<mx:DataGridColumn headerText="Source Well" />
+					<mx:DataGridColumn headerText="Assay ID" />
+					<mx:DataGridColumn headerText="Comments" />
+			  	</mx:columns>
+			  </mx:DataGrid>
+      </mx:Canvas>
+      
+      <mx:Canvas  width="100%" height="0" minHeight="0" />
+      
+    </mx:Accordion>
+    
+  </mx:VBox>
+  
+  
+</mx:VBox>

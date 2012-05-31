@@ -12,6 +12,8 @@
 	<mx:Script> 
 		<![CDATA[
 			
+			[Bindable]
+			public var selectedRequest:Object;
 			
 			public function checkDirty():void {
 			}
@@ -19,7 +21,9 @@
 			private function init():void {
 			}
 			
-			
+			public function switchToOrderDetailView():void{
+				this.theViews.selectedChild = detailView;
+			}
 			
 			
 		]]>
@@ -34,33 +38,41 @@
 		<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 			
 			
-			<!--<mx:VBox styleName="panelBox"   width="140" height="100%" >
+			<mx:VBox styleName="panelBox"   width="140" height="100%" >
 				
-				<mx:HBox width="100%">
-					<mx:Label id="titleLabel" styleName="titleLabel" text="To Do Box"/>
-					<mx:Label id="messageLabel" styleName="labelSmall" textAlign="right" width="100%"/>
-				</mx:HBox> 
+				<mx:LinkBar dataProvider = "theViews"
+							styleName = "navLinkBar"
+							textDecoration = "underline"
+							direction = "vertical"
+							height = "202"
+							width = "116"
+							paddingTop = "4">
+				</mx:LinkBar>
 				
-				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Orders">
-					
-					<mx:Tree width="100%" height="100%" ></mx:Tree>
-					
-				</mx:VBox>
 				
-				<mx:ControlBar width="100%" verticalAlign="top">
-					
-					
-				</mx:ControlBar> 
 			
 			
-			</mx:VBox>  -->
+			</mx:VBox>  
 			
 			
 			
 			<mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
 				
-				<order:OrderBrowseView id="browseView"  width="100%" height="100%" parentView="{this}">
+				<order:OrderBrowseView id="browseView"
+									   width="100%"
+									   height="100%"
+									   parentView="{this}"
+									   label="Order List"
+									   icon="@Embed('../../assets/application_view_list.png')">
 				</order:OrderBrowseView>
+				<order:OrderDetailView id="detailView"
+									   width="100%"
+									   height="100%"
+									   label="Order Detail"
+									   icon="@Embed(source='../../assets/tv_chart.png')"
+									   selectedRequest="{selectedRequest}">
+				</order:OrderDetailView>
+
 				
 			</mx:ViewStack>
 			
