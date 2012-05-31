@@ -310,6 +310,8 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `submitterEmail` VARCHAR(200) NULL,
   `submitterUID` VARCHAR(50) NULL,
   `totalDollarAmount` DECIMAL(12,2) NULL,
+  `purchaseOrderForm` LONGBLOB NULL,
+  `orderFormFileType` VARCHAR(10) NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -900,7 +902,7 @@ CREATE TABLE `gnomex`.`InstrumentRun` (
   `runDate` DATETIME NULL,
   `createDate` DATETIME NULL,
   `codeInstrumentRunStatus` VARCHAR(10) NULL,
-  `comments VARCHAR(200) NULL,
+  `comments` VARCHAR(200) NULL,
   `label` VARCHAR(100) NULL,
   `codeReactionType` VARCHAR(10) NULL,
   `creator` VARCHAR(50) NULL,
