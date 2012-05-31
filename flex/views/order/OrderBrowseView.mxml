@@ -47,11 +47,18 @@
 			public var parentView:NavOrderView;
 			
 			private function init():void {
-				this.getList();
+//				this.getList();
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
 				
+				if ( orderGrid.selectedItem != null ) {
+					parentView.selectedRequest = orderGrid.selectedItem;
+				}
+				
+				if ( event.columnIndex == 2 ) {
+					parentView.switchToOrderDetailView();
+				}
 				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					orderGrid.selectedIndex = -1;
 				}
@@ -141,7 +148,8 @@
 			
 			private function promptToDelete():void {
 				
-				Alert.show( "Are you sure you want to delete these orders?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+				Alert.show( "Are you sure you want to delete these orders?", 
+					"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
 			}
 			
 			private function onPromptToDelete( event:CloseEvent ):void {
