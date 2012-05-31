@@ -22,7 +22,7 @@ package views.renderers {
 		// being in the upper left corner and 95 being in the
 		// lower right, either counting DOWN the plate first and then
 		// to the right or to the right first, then down.
-		public var index:int;
+		public var position:int;
 		public var row:String;
 		public var col:int;
 		public var sampleName:String;
@@ -136,7 +136,7 @@ package views.renderers {
 			
 			if ( sample != null ) {
 				var tw:TitleWindow = new TitleWindow();
-				tw.title = 'Well ' + ( index + 1 ) + ', ' + row + col;
+				tw.title = 'Well ' + ( position + 1 ) + ', ' + row + col;
 				
 				if ( idPlateWell != 0 ) {
 					tw.title += ', ' + idPlateWell;
@@ -161,7 +161,7 @@ package views.renderers {
 			
 			var str:String = "";
 			if ( sample != null ) {
-				str += 'Well ' + ( index + 1 ) + ', ' + row + col + "";
+				str += 'Well ' + ( position + 1 ) + ', ' + row + col + "";
 				
 				if ( idPlateWell != 0 ) {
 					str += ', ' + idPlateWell;
