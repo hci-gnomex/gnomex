@@ -127,6 +127,7 @@
 			private var tabSamplesView:TabSamplesView;
 			private var numPlates:int;
 			private var startRow:int;
+			private var specifiedFieldList:Dictionary;
 			
 			[Bindable]
 			private var samplesViewState:String = "";
@@ -151,9 +152,10 @@
 				return displayText;
 			}			
 			//public function init(showCCNumberField:Boolean, isSubmitExperiment:Boolean):void {
-			public function init(tabSamplesView:TabSamplesView, numPlates:int):void {
+			public function init(tabSamplesView:TabSamplesView, numPlates:int, specifiedFieldList:Dictionary = null):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
+				this.specifiedFieldList = specifiedFieldList;
 				this.startRow = 0;
 				
 				// We need to know what example sample sheet link to show
@@ -231,7 +233,6 @@
 			private function clickPopulateFieldsButton():void {
 				if (tabSamplesView.hasPlates()) {
 					var plateIdx:int = startRow / 96;
-					tabSamplesView.clearIsControlForPlate(plateIdx);
 				}
 
 				reportText.text = formatColumns("Row", "SS Col", "Grid Col", "Status");			
@@ -487,7 +488,8 @@
 						if (col.headerText == "") {
 							continue;	// This skips row number column
 						}
-						if (col.visible && col.editable && col.dataField != null) {
+						if ((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
+							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))) {
 							var fieldType:String = "TEXT";
 							if(col is AnnotationAdvancedDataGridColumn) {
 								fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
