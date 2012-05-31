@@ -192,6 +192,8 @@
 		<property name="submitterEmail" column="submitterEmail" type="string"/>		
 		<property name="submitterUID" column="submitterUID" type="string"/>		
 		<property name="totalDollarAmount" column="totalDollarAmount" type="big_decimal"/>
+		<property name="orderFormFileType" column="orderFormFileType" type="string"/>
+		<property name="purchaseOrderForm" column="purchaseOrderForm" type="binary"/>
 	</class>
 	
 	<!-- hci.gnomex.model.BillingItem -->
