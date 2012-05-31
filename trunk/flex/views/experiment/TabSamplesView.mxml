@@ -39,6 +39,7 @@
 		import views.util.UploadSampleSheetView;
 
 
+		public  var DEFAULT_CONTROL_NAME:String	  = "Control";
 		            
 		public var sampleGroupingCollection:GroupingCollection = null;
 		
@@ -60,7 +61,23 @@
 			if (hasPlates()) {
 				numPlates = (new Number(parentDocument.sampleSetupView.numberOfSamples.text) / 96) + 1; 
 			}
-			uploadSampleSheetWindow.init(this, numPlates);
+			var fieldList:Dictionary = null;
+			if (hasPlates()) {
+				fieldList = new Dictionary();
+				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
+				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
+				fieldList[this.isControlCol.dataField] = this.isControlCol;
+			}
+			if (parentDocument.isFragAnalState()) {
+				fieldList = new Dictionary();
+				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
+				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
+				fieldList[this.assay1Col.dataField] = this.assay1Col;
+				fieldList[this.assay2Col.dataField] = this.assay2Col;
+				fieldList[this.assay3Col.dataField] = this.assay3Col;
+				fieldList[this.assay4Col.dataField] = this.assay4Col;
+			}
+			uploadSampleSheetWindow.init(this, numPlates, fieldList);
 		}
 		
 		public function copyColumn():void {
@@ -553,20 +570,10 @@
 					if (parentDocument.samples.length > lastSample) {
 						var sample:Object = parentDocument.samples.getItemAt(lastSample);
 						if (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == "") {
-							sample.@name = "Control";
+							sample.@name = this.DEFAULT_CONTROL_NAME;
 							sample.@isControl = "Y";
 						}
 					}
-				}
-			}
-		}
-		
-		public function clearIsControlForPlate(plateIdx:int):void {
-			if (hasPlates()) {
-				var lastSample:int = ((plateIdx + 1) * 96) - 1;
-				if (parentDocument.samples.length > lastSample) {
-					var sample:Object = parentDocument.samples.getItemAt(lastSample);
-					sample.@isControl = "N";
 				}
 			}
 		}
@@ -1603,6 +1610,7 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
 					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+											   id="sampleNameCol"
 											   editable="true" 
 											   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
 											   itemEditor="views.renderers.TextInputSampleName"      />    
