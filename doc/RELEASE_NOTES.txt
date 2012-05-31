@@ -19,6 +19,7 @@
 * Submission of Fragment Analysis request works.  (bspiglejr)
 * Submission of Mitochondrial Sequencing request works.  (bspiglejr)
 * Submission of Cherry Picking request works.  (bspiglejr)
+* Users can now upload purchase order forms for Billing Accounts. (tcourdy)
 
 5.4.4.1 (May 21, 2012)
 ----------------------
