@@ -147,6 +147,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private SampleAssaysParser assaysParser;
   private SamplePrimersParser primersParser;
   
+  private Plate assayPlate;
+  private Plate primerPlate;
   private Plate cherryPickSourcePlate;
   private Plate cherryPickDestinationPlate;
   
@@ -1099,11 +1101,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (assaysParser != null) {
       assaysParser.parse(sess);
 
-      Plate assayPlate = new Plate();
-      assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-      assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-      sess.save(assayPlate);
-      sess.flush();
+      if (this.assayPlate == null) {
+        assayPlate = new Plate();
+        assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+        assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        sess.save(assayPlate);
+        sess.flush();
+      }
       for (Integer assayNumber = 1; assayNumber < 5; assayNumber++) {
         if (requestParser.doesSampleHaveAssay(idSampleString, assayNumber)) {
           PlateWell assayWell = new PlateWell();
@@ -1124,11 +1128,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (primersParser != null) {
       primersParser.parse(sess);
 
-      Plate primerPlate = new Plate();
-      primerPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-      primerPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-      sess.save(primerPlate);
-      sess.flush();
+      if (primerPlate == null) {
+        primerPlate = new Plate();
+        primerPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+        primerPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        sess.save(primerPlate);
+        sess.flush();
+      }
       for (Integer primerNumber = 1; primerNumber < 7; primerNumber++) {
         PlateWell primerWell = new PlateWell();
         primerWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
