@@ -9,6 +9,7 @@
 		 initialize="init()"
 		 defaultButton="{lookupButton}"
 		 xmlns:s="library://ns.adobe.com/flex/spark">
+	
 
 	<mx:Label id="titleLabel" styleName="titleLabel" text="{'Chromatogram List'}" />
 
@@ -20,15 +21,6 @@
 					fault="parentApplication.onFailHttpRequest('Failed to get chromatogram list', event)"
 					method="POST"
 					useProxy="false">
-		<mx:request xmlns="">
-			<requestNumber>{requestNoLookupField.text != null ? requestNoLookupField.text : ''}</requestNumber>
-			<lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
-			<lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
-			<lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
-			<lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
-			<getAll>{allCheckbox.selected ? 'Y' : 'N'}</getAll>
-			<released>{releasedCheckbox.selected ? 'Y' : notReleasedCheckbox.selected ? 'N' : ''}</released>
-		</mx:request>
 	</mx:HTTPService>
 
 	<mx:HTTPService id="saveChromatogramList"
@@ -68,6 +60,9 @@
 			public var parentView:NavDataView;
 
 			public var selectedList:ListCollectionView;
+			
+			[Bindable]
+			public var idRequest:String;
 
 			[Bindable]
 			private var actionDictionary:XMLListCollection = new XMLListCollection();
@@ -77,16 +72,44 @@
 									<action value="REQUEUE"    display="Release and requeue samples" />
 									<action value="DOWNLOAD"  display="Download chromats" />
 								</actionDictionary>;
-			
+			[Bindable]
 			private var dlXML:XML = <actionDictionary>
 									<action value="DOWNLOAD"  display="Download chromats" />
 								</actionDictionary>;
 
 
 			private function init():void {
-				this.getChromatogramList.send();
-
-				actionDictionary.source = dictXML.action;
+				this.getList();
+				if ( currentState == userState.name ) {
+					actionDictionary.source = dlXML.action;
+				} else {
+					actionDictionary.source = dictXML.action;
+				}
+			}
+			
+			private function getList():void {
+				this.getChromatogramList.send( getChromatParameters() );
+			}
+			
+			private function getChromatParameters():Object {
+				var params:Object = new Object;
+				
+				if ( currentState != userState.name ) {
+					params.requestNumber = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
+					params.lastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
+					params.lastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
+					params.lastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
+					params.lastYear = this.lastYearCheckbox.selected ? 'Y' : 'N' ;
+					params.getAll = this.allCheckbox.selected ? 'Y' : 'N';
+					params.released = this.releasedCheckbox.selected ? 'Y' : notReleasedCheckbox.selected ? 'N' : ''
+				}
+				
+				if ( currentState == userState.name ) {
+					params.released = 'Y';
+					params.requestNumber = idRequest;
+				}
+				
+				return params;
 			}
 			
 
@@ -100,17 +123,28 @@
 
 			}
 
-
+			
 			private function gridItemClick( event:ListEvent ):void {
-				if ( chromatogramGrid.selectedItem != null ) {
-					parentView.selectedChromat = chromatogramGrid.selectedItem;
-					parentView.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
+				if ( currentState != userState.name ) {
+					if ( chromatogramGrid.selectedItem != null ) {
+						parentView.selectedChromat = chromatogramGrid.selectedItem;
+						parentView.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
+					}
+					
+					if ( event.columnIndex == 3 ) {
+						parentView.chromatViews.selectedChild = parentView.chromatDetailView;	
+					}
 				}
-
-				if ( event.columnIndex == 3 ) {
-					parentView.switchToChromatDetailView();
+				if ( event.columnIndex == 3 && currentState == userState.name ) {
+					var addWindow:ChromatDetailView;
+					addWindow = ChromatDetailView(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, ChromatDetailView, true));
+					addWindow.selectedChromat = chromatogramGrid.selectedItem;
+					addWindow.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
+					addWindow.currentState = "userState";
+					addWindow.init();
+					mx.managers.PopUpManager.centerPopUp(addWindow);
+					addWindow.setFocus();
 				}
-				
 				if ( event.columnIndex != 0 && event.columnIndex != 3 ) {
 					chromatogramGrid.selectedIndex = -1;
 				}
@@ -129,6 +163,10 @@
 			
 			
 			private function submitAction():void {
+				if ( currentState == userState.name ) {
+					// download
+				}
+				
 				if ( comboBox.selectedItem == null ) {
 					return;
 				}
@@ -147,7 +185,7 @@
 
 			private function onSaveChromatogramList( event:ResultEvent ):void {
 				if ( event.result.name() == "SUCCESS" ) {
-					this.getChromatogramList.send();
+					this.getList();
 					return;
 				}
 				Alert.show( event.result..ERROR.@message.toString(), "Error saving chromatogram list" );
@@ -177,35 +215,37 @@
 
 
 			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
-				this.requestNoLookupField.text = "";
-				if ( checkBoxNumber == 0 ) {
-					actionDictionary.source = dictXML.action;
-					this.notReleasedCheckbox.selected = false;
-					this.releasedCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-				} else if ( checkBoxNumber == 1 ) {
-					this.allCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-				} else if ( checkBoxNumber == 2 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-				} else if ( checkBoxNumber == 3 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-				} else if ( checkBoxNumber == 4 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
+				if ( currentState != userState.name ) {
+					this.requestNoLookupField.text = "";
+					if ( checkBoxNumber == 0 ) {
+						actionDictionary.source = dictXML.action;
+						this.notReleasedCheckbox.selected = false;
+						this.releasedCheckbox.selected = false;
+						this.lastMonthCheckbox.selected = false;
+						this.lastWeekCheckbox.selected = false;
+						this.lastThreeMonthsCheckbox.selected = false;
+						this.lastYearCheckbox.selected = false;
+					} else if ( checkBoxNumber == 1 ) {
+						this.allCheckbox.selected = false;
+						this.lastMonthCheckbox.selected = false;
+						this.lastThreeMonthsCheckbox.selected = false;
+						this.lastYearCheckbox.selected = false;
+					} else if ( checkBoxNumber == 2 ) {
+						this.allCheckbox.selected = false;
+						this.lastWeekCheckbox.selected = false;
+						this.lastThreeMonthsCheckbox.selected = false;
+						this.lastYearCheckbox.selected = false;
+					} else if ( checkBoxNumber == 3 ) {
+						this.allCheckbox.selected = false;
+						this.lastWeekCheckbox.selected = false;
+						this.lastMonthCheckbox.selected = false;
+						this.lastYearCheckbox.selected = false;
+					} else if ( checkBoxNumber == 4 ) {
+						this.allCheckbox.selected = false;
+						this.lastWeekCheckbox.selected = false;
+						this.lastMonthCheckbox.selected = false;
+						this.lastThreeMonthsCheckbox.selected = false;
+					}
 				}
 			}
 
@@ -223,7 +263,9 @@
 
 
 			private function setDefaultButton():void {
-				actionDictionary.source = dictXML.action;
+				if ( currentState != userState.name ) {
+					actionDictionary.source = dictXML.action; 
+				}
 				if ( this.requestNoLookupField.text != '' ) {
 					this.allCheckbox.selected = false;
 					this.lastWeekCheckbox.selected = false;
@@ -251,7 +293,7 @@
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
 
-	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0">
+	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0" id="vbox1">
 		<!--<mx:HRule width="100%" />-->
 
 		<mx:HBox id="filterBar"
@@ -286,7 +328,7 @@
 						   color="#400040"
 						   visible="true"
 						   icon="@Embed('../../assets/arrow_right.png')"
-						   click="{if (requestNoLookupField.text != '') this.getChromatogramList.send();}" />
+						   click="{if (requestNoLookupField.text != '') this.getList();}" />
 
 			</mx:HBox>
 
@@ -303,7 +345,7 @@
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 0 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -325,7 +367,7 @@
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 1 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -337,7 +379,7 @@
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 2 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -349,7 +391,7 @@
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 3 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -361,7 +403,7 @@
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 4 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -384,7 +426,7 @@
 					<mx:click>
 						actionDictionary.source = dlXML.action;
 						toggleReleaseCheckboxes( 0 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -398,7 +440,7 @@
 					<mx:click>
 						actionDictionary.source = dictXML.action;
 						toggleReleaseCheckboxes( 1 );
-						this.getChromatogramList.send();
+						this.getList();
 					</mx:click>
 
 				</mx:CheckBox>
@@ -449,6 +491,7 @@
 					<mx:DataGridColumn id="checkBoxColumn"
 									   textAlign="center"
 									   width="30"
+									   minWidth="30"
 									   resizable="false"
 									   sortable="false"
 									   editable="true"
@@ -463,7 +506,7 @@
 									   headerText="ID"
 									   width="35"
 									   sortCompareFunction="fieldNumericSorter('idChromatogram')" 
-									   draggable="false"/>
+									   draggable="false" id="datagridcolumn1"/>
 
 					<mx:DataGridColumn dataField="@idChromatogram"
 									   headerText=""
@@ -472,11 +515,12 @@
 									   sortable="false"
 									   itemRenderer="views.renderers.LinkButtonFinchTv"
 									   width="35" 
+									   minWidth="35"
 									   draggable="false"/>
 
 					<mx:DataGridColumn dataField="@displayName"
 									   headerText="Label"
-									   width="250"
+									   minWidth="150"
 									   textDecoration="underline"
 									   color="#2017D8"
 									   draggable="false">
@@ -489,31 +533,31 @@
 
 					<mx:DataGridColumn dataField="@releaseDate"
 									   headerText="Released:"
-									   width="90" />
+									   width="90" minWidth="75" id="datagridcolumn2"/>
 
 					<mx:DataGridColumn dataField="@submitter"
-									   headerText="Submitter"
+									   headerText="Submitter" minWidth="75"
 									   width="100" />
 
 					<mx:DataGridColumn dataField="@readLength"
 									   headerText="Length"
 									   width="75"
-									   sortCompareFunction="fieldNumericSorter('readLength')" />
+									   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
 
 					<mx:DataGridColumn dataField="@trimmedLength"
 									   headerText="Trim Len"
 									   width="75"
-									   sortCompareFunction="fieldNumericSorter('trimmedLength')" />
+									   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
 
 					<mx:DataGridColumn dataField="@q20"
 									   headerText="q20"
 									   width="65"
-									   sortCompareFunction="fieldNumericSorter('q20')" />
+									   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
 
 					<mx:DataGridColumn dataField="@q40"
 									   headerText="q40"
 									   width="65"
-									   sortCompareFunction="fieldNumericSorter('q40')" />
+									   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
 
 					<mx:DataGridColumn dataField="@q20_len"
 									   headerText="q20/len"
@@ -544,7 +588,7 @@
 									   headerText="T sig"
 									   width="70"
 									   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
-
+					
 				</mx:columns>
 
 			</mx:DataGrid>
@@ -571,7 +615,7 @@
 					   toolTip="Submit action"
 					   click="{submitAction()}" 
 					   enabled="{selectedChromats.length>0}"
-					   />
+					    id="linkbutton1"/>
 		
 		<mx:LinkButton textDecoration="underline"
 					   label="Delete"
@@ -579,7 +623,7 @@
 					   toolTip="Delete selected chromatograms"
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
-					   enabled="{selectedChromats.length>0}"/>
+					   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
 
 		<mx:Spacer width="100%" height="100%" />
 
@@ -587,9 +631,22 @@
 					   label="Refresh"
 					   icon="@Embed('../../assets/action_refresh.gif')"
 					   toolTip="Refresh chromatogram list"
-					   click="{this.getChromatogramList.send();}" />
+					   click="{this.getList();}" />
 
 	</mx:ControlBar>
 
-
+	<mx:states>
+		<mx:State id="userState" name="userState">
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:RemoveChild target="{linkbutton2}"/>
+			<mx:RemoveChild target="{comboBox}"/>
+			<mx:SetProperty target="{actionDictionary}" name="source" value="{dlXML.action}" />
+			<mx:SetProperty target="{datagridcolumn3}" name="headerText" value="Len"/>
+			<mx:SetStyle target="{linkbutton1}" name="disabledIcon" value="@Embed('../../assets/download_disable.png')"/>
+			<mx:SetStyle target="{linkbutton1}" name="icon" value="@Embed('../../assets/download.png')"/>
+			<mx:SetProperty target="{linkbutton1}" name="label" value="Download Chromatograms"/>
+			<mx:RemoveChild target="{titleLabel}"/>
+		</mx:State>
+	</mx:states>
+	
 </mx:VBox>

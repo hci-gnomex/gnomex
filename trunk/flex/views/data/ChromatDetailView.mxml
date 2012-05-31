@@ -1,362 +1,376 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
-         width="100%" height="100%" 
-         xmlns:util="views.util.*" show="init()" >
-  <mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram '+selectedIdChromatogram}"/>
-  
-  
-  <mx:HTTPService  
-    id="getChromatogram" 
-    url="GetChromatogram.gx"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onGetChromatogram(event)"
-    fault="parentApplication.onFailHttpRequest('Failed to get chromatogram', event)"
-    method="POST"
-    useProxy="false">
-    <mx:request xmlns="">
-      <idChromatogram>{selectedIdChromatogram}</idChromatogram>
-      <includeSeqString>{'Y'}</includeSeqString>
-      <includeQualArray>{'Y'}</includeQualArray>
-      <includeTrace>{'Y'}</includeTrace>
-    </mx:request>
-  </mx:HTTPService> 
-  
-  <mx:Script> 
-    <![CDATA[
-      import flash.events.MouseEvent;
-      
-      import hci.flex.controls.DropdownLabel;
-      
-      import mx.charts.ChartItem;
-      import mx.charts.HitData;
-      import mx.charts.chartClasses.IAxis;
-      import mx.charts.chartClasses.Series;
-      import mx.charts.series.items.ColumnSeriesItem;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
-      import mx.controls.Button;
-      import mx.controls.dataGridClasses.DataGridColumn;
-      import mx.controls.sliderClasses.Slider;
-      import mx.core.Container;
-      import mx.core.IDataRenderer;
-      import mx.events.CloseEvent;
-      import mx.events.CollectionEvent;
-      import mx.events.CollectionEventKind;
-      import mx.events.FlexEvent;
-      import mx.events.ItemClickEvent;
-      import mx.events.PropertyChangeEvent;
-      import mx.events.SliderEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.ResultEvent;
-      import mx.utils.StringUtil;
-      
-      
-      
-      [Bindable]
-      public var selectedIdChromatogram:int;
-      [Bindable]
-      public var selectedChromat:Object;
-      [Bindable]
-      private var qualArray:ArrayCollection = new ArrayCollection();
-      [Bindable]
-      private var q20Array:ArrayCollection;
-      [Bindable]
-      private var aTraceArray:ArrayCollection = new ArrayCollection();
-      [Bindable]
-      private var cTraceArray:ArrayCollection = new ArrayCollection();
-      [Bindable]
-      private var gTraceArray:ArrayCollection = new ArrayCollection();
-      [Bindable]
-      private var tTraceArray:ArrayCollection = new ArrayCollection();
-      [Bindable]
-      private var baseCallArray:ArrayCollection = new ArrayCollection();
-      [Bindable]
-      private var traceMax:int;
-      [Bindable]
-      private var traceXMin:int;
-      [Bindable]
-      private var traceXMax:int;
-      [Bindable]
-      private var sliderSpacing:int;
-      [Bindable]
-      private var vZoomValue:int;
-      [Bindable]
-      private var q20TraceArray:ArrayCollection;
-      [Bindable]
-      private var seqLabel:Label;
-      
-      private function init():void {
-        if (selectedChromat != null){
-          selectedIdChromatogram = selectedChromat.@idChromatogram;
-          this.getChromatogram.send();
-        }
-        
-        // Reset the slider
-        traceSlider.value = 0;
-        traceXMin = 0;
-        sliderSpacing = hZoomSlider.value;
-        traceXMax = sliderSpacing;
-        
-        // Add event listeners for each accordion's header
-        var head1:Button = Button(accordion1.getHeaderAt(0));
-        head1.addEventListener(MouseEvent.CLICK, headerClickHandler);
-        
-        var head2:Button = Button(accordion2.getHeaderAt(0));
-        head2.addEventListener(MouseEvent.CLICK, headerClickHandler);
-        
-        var head3:Button = Button(accordion3.getHeaderAt(0));
-        head3.addEventListener(MouseEvent.CLICK, headerClickHandler);
-        
-        var head4:Button = Button(accordion4.getHeaderAt(0));
-        head4.addEventListener(MouseEvent.CLICK, headerClickHandler);
-        
-        
-      }
-            
-      // This allows a click on a header to close that section
-      private function headerClickHandler(event:MouseEvent):void
-      {
-        var header:Button = Button(event.target);
-        var headerChild:Container = Container(IDataRenderer(header).data);
-        if (headerChild == accordion1.selectedChild)
-        {
-          accordion1.selectedIndex = 1;
-        }
-        if (headerChild == accordion2.selectedChild)
-        {
-          accordion2.selectedIndex = 1;
-        }
-        if (headerChild == accordion3.selectedChild)
-        {
-          accordion3.selectedIndex = 1;
-        }
-        if (headerChild == accordion4.selectedChild)
-        {
-          accordion4.selectedIndex = 1;
-        }
-      }
-      
-      private function onGetChromatogram(event:ResultEvent):void {
-        if (event.result.name() == "ChromatogramList") {
-          
-          // Quality Graph
-          var qualString:String = getChromatogram.lastResult..Quality.@quality;
-          var qArray:Array = qualString.split(",");
-          qualArray = new ArrayCollection();
-          
-          for ( var i:int; i < qArray.length; i++ ) {
-            qualArray.addItem({x:i, y:parseInt(qArray[i])});
-          }
-          
-          var len:int = qualArray.length - 1;
-          q20Array = new ArrayCollection([{x:0, y:20}, {x:len, y:20}]);
-          
-          // Traces
-          traceMax = 0;
-          // A
-          var aTraceString:String = getChromatogram.lastResult..Trace.@aTrace;
-          var aArray:Array = aTraceString.split(",");
-          aTraceArray = new ArrayCollection();
-          
-          for ( i=0; i < aArray.length; i++ ) {
-            if ( parseInt(aArray[i]) > traceMax ) {
-              traceMax = parseInt(aArray[i]);
-            }
-            aTraceArray.addItem({x:i, y:parseInt(aArray[i])});
-          }
-          
-          // C
-          var cTraceString:String = getChromatogram.lastResult..Trace.@cTrace;
-          var cArray:Array = cTraceString.split(",");
-          cTraceArray = new ArrayCollection();
-          
-          for ( i=0; i < cArray.length; i++ ) {
-            if ( parseInt(cArray[i]) > traceMax ) {
-              traceMax = parseInt(cArray[i]);
-            }
-            cTraceArray.addItem({x:i, y:parseInt(cArray[i])});
-          }
-          
-          // G
-          var gTraceString:String = getChromatogram.lastResult..Trace.@gTrace;
-          var gArray:Array = gTraceString.split(",");
-          gTraceArray = new ArrayCollection();
-          
-          for ( i=0; i < gArray.length; i++ ) {
-            if ( parseInt(gArray[i]) > traceMax ) {
-              traceMax = parseInt(gArray[i]);
-            }
-            gTraceArray.addItem({x:i, y:parseInt(gArray[i])});
-          }
-          
-          // T
-          var tTraceString:String = getChromatogram.lastResult..Trace.@tTrace;
-          var tArray:Array = tTraceString.split(",");
-          tTraceArray = new ArrayCollection();
-          
-          for ( i=0; i < tArray.length; i++ ) {
-            if ( parseInt(tArray[i]) > traceMax ) {
-              traceMax = parseInt(tArray[i]);
-            }
-            tTraceArray.addItem({x:i, y:parseInt(tArray[i])});
-          }
-          
-          // Sequence and quality
-          var seqString:String = getChromatogram.lastResult..Sequence.@sequenceString;
-          var seqArray:Array = seqString.split('');
-          
-          var baseCallString:String = getChromatogram.lastResult..Trace.@baseCalls;
-          var bcArray:Array = baseCallString.split(",");
-          baseCallArray = new ArrayCollection();
-          
-          var trimString:String = getChromatogram.lastResult..Trim.@trimPos;
-          var trimPos:Array = trimString.split('-');
-          var trimStart:int = parseInt(trimPos[0]);
-          var trimStop:int = parseInt(trimPos[1]);
-          var sequenceBoxString:String = '<font size="12" color="#CC0000">';
-          
-          for ( i=0; i < bcArray.length; i++ ) {
-            if ( i == trimStart - 1 ) {
-              sequenceBoxString += '<font color="#000000"><B>';
-            }
-            if ( i == trimStop - 1 ) {
-              sequenceBoxString += '</B></font>';
-            }
-            baseCallArray.addItem({x:parseInt(bcArray[i]), base:seqArray[i], qual:parseInt(qArray[i])});
-            sequenceBoxString += seqArray[i];
-            
-          }
-          sequenceBoxString += '</font>';
-          sequenceTextBox.htmlText = sequenceBoxString;
-          
-          
-          q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
-          displaySequence();
-          displayTrimRegion(trimStart,trimStop);
-          
-          sx.labelFunction = baseLabelFunction;
-          
-        } else {
-          Alert.show(event.result..ERROR.@message.toString(), "Error getting chromatogram list");
-        } 
-      }
-      
-      // Draw trim lines for the quality graph
-      private function displayTrimRegion(start:int,stop:int):void{
-        trimCanvas.clear();
-        trimCanvas.lineStyle(.75, 
-            0xCC0000, 
-            .75, 
-            true, 
-            LineScaleMode.NORMAL, 
-            CapsStyle.ROUND, 
-            JointStyle.MITER, 
-            2
-          );
-        trimCanvas.moveTo(start,0);
-        trimCanvas.lineTo(start,60);
-        trimCanvas.moveTo(stop,0);
-        trimCanvas.lineTo(stop,60);
-      }
-      
-      // Display the sequence below the Quality on trace plot
-      private function displaySequence():void{
-        seqLabelCanvas.removeAllChildren();
-        for ( var i:int=0; i < baseCallArray.length; i++ ){
-          if ( baseCallArray[i].x > traceXMin && baseCallArray[i].x < traceXMax) {
-            seqLabel = new Label();
-            seqLabel.width = 8;
-            seqLabel.setStyle("fontSize", "8");
-            seqLabel.setStyle("textAlign", "center");
-            seqLabel.text = baseCallArray[i].base.toString();
-            
-            // This adds any DisplayObject as child to current canvas.        
-            seqLabelCanvas.addDataChild(seqLabel, parseInt(baseCallArray[i].x)-4, 0);
-          }
-          if ( baseCallArray[i].x > traceXMax ) {
-            break;
-          }
-        }
-      }
-      
-      // Display the base, quality and base number for each column in seq/quality column plot
-      private function qualityDataTipFunction(item:HitData):String {
-        var cSI:ColumnSeriesItem = item.chartItem as ColumnSeriesItem;
-        var s:String;
-        s = 'Base: <B>' + cSI.item.base + '</B>\n';
-        s += 'Qual: ' + cSI.item.qual + '\n';
-        s += 'Base No: ' + findNearestBase(cSI.item.x);
-        return s;
-      }
-      
-      // Scroll through the trace plot
-      private function dragTrace(event:SliderEvent):void {
-        var currentSlider:Slider=Slider(event.currentTarget);
-        traceXMin = currentSlider.value;
-        traceXMax = currentSlider.value + sliderSpacing;
-        q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
-        displaySequence();
-      }
-      
-      // Display information about base number instead of trace x coordinate for slider
-      private function traceSliderDataTipFunc(val:String):String {
-        return "Go to base no: " + findNearestBase(parseInt(val));
-      }
-      
-      // Scroll through the trace plot
-      private function dragHZoom(event:SliderEvent):void {
-        var currentSlider:Slider=Slider(event.currentTarget);
-        sliderSpacing = currentSlider.value;
-        
-        traceXMax = traceSlider.value + sliderSpacing;
-        q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
-        displaySequence();
-      }
-      
-      // Display "Zoom in" or "Zoom out" for zoom slider
-      private function hZoomSliderDataTipFunc(val:String):String {
-        return "Zoom " + (parseInt(val) < sliderSpacing ? 'in' : 'out');
-      }
-      
-      // Vertically scroll the trace
-      private function dragVZoom(event:SliderEvent):void {
-        var currentSlider:Slider=Slider(event.currentTarget);
-        vZoomValue = currentSlider.value;
-        ty.maximum = traceMax/vZoomValue;
-      }
-      
-      // Display "Zoom in" or "Zoom out" for zoom slider
-      private function vZoomSliderDataTipFunc(val:String):String {
-        return "Zoom " + (parseInt(val) > vZoomValue ? 'in' : 'out');
-      }
-      
-      // Find the base that is nearest to an x coordinate from the trace plot
-      private function findNearestBase(val:int):int{
-        var minDiff:int = val;
-        var baseNo:int = 1;
-        for ( var i:int = 0; i < baseCallArray.length; i++ ) {
-          var baseCallObject:Object = baseCallArray[i];
-          var diff:int = Math.abs(baseCallObject.x - val);
-          if ( diff < minDiff ) {
-            minDiff = diff;
-            baseNo = i + 1;
-            if ( i < baseCallArray.length - 1 && minDiff < Math.abs(baseCallArray[i+1].x - val) )
-            {
-              break;
-            }
-          }
-        }
-        return baseNo;
-      }
-      
-      // Label the base number below sequence base labels
-      private function baseLabelFunction(val:Object, preVal:Object, axis:IAxis):String {
-        var xPos:int = val as int;
-        return findNearestBase(xPos).toString();
-      }
-      
-    ]]>
+		 width="100%" height="100%" 
+		 xmlns:util="views.util.*" show="init()">
+	
+	<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram '+selectedIdChromatogram}"/>
+	
+	<mx:HTTPService  
+		id="getChromatogram" 
+		url="GetChromatogram.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetChromatogram(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get chromatogram', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request xmlns="">
+			<idChromatogram>{selectedIdChromatogram}</idChromatogram>
+			<includeSeqString>{'Y'}</includeSeqString>
+			<includeQualArray>{'Y'}</includeQualArray>
+			<includeTrace>{'Y'}</includeTrace>
+		</mx:request>
+	</mx:HTTPService> 
+	
+	<mx:Script> 
+		<![CDATA[
+			import flash.events.MouseEvent;
+			
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.charts.ChartItem;
+			import mx.charts.HitData;
+			import mx.charts.chartClasses.IAxis;
+			import mx.charts.chartClasses.Series;
+			import mx.charts.series.items.ColumnSeriesItem;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.sliderClasses.Slider;
+			import mx.core.Container;
+			import mx.core.IDataRenderer;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.FlexEvent;
+			import mx.events.FlexMouseEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.SliderEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			
+			
+			[Bindable]
+			public var selectedIdChromatogram:int;
+			[Bindable]
+			public var selectedChromat:Object;
+			[Bindable]
+			private var qualArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var q20Array:ArrayCollection;
+			[Bindable]
+			private var aTraceArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var cTraceArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var gTraceArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var tTraceArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var baseCallArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var traceMax:int;
+			[Bindable]
+			private var traceXMin:int;
+			[Bindable]
+			private var traceXMax:int;
+			[Bindable]
+			private var sliderSpacing:int;
+			[Bindable]
+			private var vZoomValue:int;
+			[Bindable]
+			private var q20TraceArray:ArrayCollection;
+			[Bindable]
+			private var seqLabel:Label;
+			
+			public function init():void {
+				if (selectedChromat != null){
+					selectedIdChromatogram = selectedChromat.@idChromatogram;
+					this.getChromatogram.send();
+				}
+				
+				// Reset the slider
+				traceSlider.value = 0;
+				traceXMin = 0;
+				sliderSpacing = hZoomSlider.value;
+				traceXMax = sliderSpacing;
+				
+				// Add event listeners for each accordion's header
+				var head1:Button = Button(accordion1.getHeaderAt(0));
+				head1.addEventListener(MouseEvent.CLICK, headerClickHandler);
+				
+				var head2:Button = Button(accordion2.getHeaderAt(0));
+				head2.addEventListener(MouseEvent.CLICK, headerClickHandler);
+				
+				var head3:Button = Button(accordion3.getHeaderAt(0));
+				head3.addEventListener(MouseEvent.CLICK, headerClickHandler);
+				
+				var head4:Button = Button(accordion4.getHeaderAt(0));
+				head4.addEventListener(MouseEvent.CLICK, headerClickHandler);
+				
+			}
+			
+			// This allows a click on a header to close that section
+			private function headerClickHandler(event:MouseEvent):void
+			{
+				var header:Button = Button(event.target);
+				var headerChild:Container = Container(IDataRenderer(header).data);
+				if (headerChild == accordion1.selectedChild)
+				{
+					accordion1.selectedIndex = 1;
+				}
+				if (headerChild == accordion2.selectedChild)
+				{
+					accordion2.selectedIndex = 1;
+				}
+				if (headerChild == accordion3.selectedChild)
+				{
+					accordion3.selectedIndex = 1;
+				}
+				if (headerChild == accordion4.selectedChild)
+				{
+					accordion4.selectedIndex = 1;
+				}
+			}
+			
+			private function onGetChromatogram(event:ResultEvent):void {
+				if (event.result.name() == "ChromatogramList") {
+					
+					getTraces();
+					
+					getQualAndSeq();
+					
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting chromatogram");
+				} 
+			}
+						
+			private function getTraces():void{
+				// Traces
+				traceMax = 0;
+				// A
+				var aTraceString:String = getChromatogram.lastResult..Trace.@aTrace;
+				var aArray:Array = aTraceString.split(",");
+				aTraceArray = new ArrayCollection();
+				
+				for ( var i:int=0; i < aArray.length; i++ ) {
+					if ( parseInt(aArray[i]) > traceMax ) {
+						traceMax = parseInt(aArray[i]);
+					}
+					aTraceArray.addItem({x:i, y:parseInt(aArray[i])});
+				}
+				
+				// C
+				var cTraceString:String = getChromatogram.lastResult..Trace.@cTrace;
+				var cArray:Array = cTraceString.split(",");
+				cTraceArray = new ArrayCollection();
+				
+				for ( i=0; i < cArray.length; i++ ) {
+					if ( parseInt(cArray[i]) > traceMax ) {
+						traceMax = parseInt(cArray[i]);
+					}
+					cTraceArray.addItem({x:i, y:parseInt(cArray[i])});
+				}
+				
+				// G
+				var gTraceString:String = getChromatogram.lastResult..Trace.@gTrace;
+				var gArray:Array = gTraceString.split(",");
+				gTraceArray = new ArrayCollection();
+				
+				for ( i=0; i < gArray.length; i++ ) {
+					if ( parseInt(gArray[i]) > traceMax ) {
+						traceMax = parseInt(gArray[i]);
+					}
+					gTraceArray.addItem({x:i, y:parseInt(gArray[i])});
+				}
+				
+				// T
+				var tTraceString:String = getChromatogram.lastResult..Trace.@tTrace;
+				var tArray:Array = tTraceString.split(",");
+				tTraceArray = new ArrayCollection();
+				
+				for ( i=0; i < tArray.length; i++ ) {
+					if ( parseInt(tArray[i]) > traceMax ) {
+						traceMax = parseInt(tArray[i]);
+					}
+					tTraceArray.addItem({x:i, y:parseInt(tArray[i])});
+				}
+			}
+			
+			private function getQualAndSeq():void{
+				// Quality Graph
+				var qualString:String = getChromatogram.lastResult..Quality.@quality;
+				var qArray:Array = qualString.split(",");
+				qualArray = new ArrayCollection();
+				
+				for ( var i:int = 0; i < qArray.length; i++ ) {
+					qualArray.addItem({x:i, y:parseInt(qArray[i])});
+				}
+				
+				var len:int = qualArray.length - 1;
+				q20Array = new ArrayCollection([{x:0, y:20}, {x:len, y:20}]);
+				
+				// Sequence and quality
+				var seqString:String = getChromatogram.lastResult..Sequence.@sequenceString;
+				var seqArray:Array = seqString.split('');
+				
+				var baseCallString:String = getChromatogram.lastResult..Trace.@baseCalls;
+				var bcArray:Array = baseCallString.split(",");
+				baseCallArray = new ArrayCollection();
+				
+				var trimString:String = getChromatogram.lastResult..Trim.@trimPos;
+				var trimPos:Array = trimString.split('-');
+				var trimStart:int = parseInt(trimPos[0]);
+				var trimStop:int = parseInt(trimPos[1]);
+				var sequenceBoxString:String = '<font size="12" color="#CC0000">';
+				
+				for ( i =0; i < bcArray.length; i++ ) {
+					if ( i == trimStart - 1 ) {
+						sequenceBoxString += '<font color="#000000"><B>';
+					}
+					if ( i == trimStop - 1 ) {
+						sequenceBoxString += '</B></font>';
+					}
+					baseCallArray.addItem({x:parseInt(bcArray[i]), base:seqArray[i], qual:parseInt(qArray[i])});
+					sequenceBoxString += seqArray[i];
+					
+				}
+				sequenceBoxString += '</font>';
+				sequenceTextBox.htmlText = sequenceBoxString;
+				
+				
+				q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
+				displaySequence();
+				displayTrimRegion(trimStart,trimStop);
+				
+				sx.labelFunction = baseLabelFunction;
+			}
+			
+			// Draw trim lines for the quality graph
+			private function displayTrimRegion(start:int,stop:int):void{
+				trimCanvas.clear();
+				trimCanvas.lineStyle(.75, 
+					0xCC0000, 
+					.75, 
+					true, 
+					LineScaleMode.NORMAL, 
+					CapsStyle.ROUND, 
+					JointStyle.MITER, 
+					2
+				);
+				trimCanvas.moveTo(start,0);
+				trimCanvas.lineTo(start,60);
+				trimCanvas.moveTo(stop,0);
+				trimCanvas.lineTo(stop,60);
+			}
+			
+			// Display the sequence below the Quality on trace plot
+			private function displaySequence():void{
+				seqLabelCanvas.removeAllChildren();
+				for ( var i:int=0; i < baseCallArray.length; i++ ){
+					if ( baseCallArray[i].x > traceXMin && baseCallArray[i].x < traceXMax) {
+						seqLabel = new Label();
+						seqLabel.width = 8;
+						seqLabel.setStyle("fontSize", "8");
+						seqLabel.setStyle("textAlign", "center");
+						seqLabel.text = baseCallArray[i].base.toString();
+						
+						// This adds any DisplayObject as child to current canvas.        
+						seqLabelCanvas.addDataChild(seqLabel, parseInt(baseCallArray[i].x)-4, 0);
+					}
+					if ( baseCallArray[i].x > traceXMax ) {
+						break;
+					}
+				}
+			}
+			
+			// Display the base, quality and base number for each column in seq/quality column plot
+			private function qualityDataTipFunction(item:HitData):String {
+				var cSI:ColumnSeriesItem = item.chartItem as ColumnSeriesItem;
+				var s:String;
+				s = 'Base: <B>' + cSI.item.base + '</B>\n';
+				s += 'Qual: ' + cSI.item.qual + '\n';
+				s += 'Base No: ' + findNearestBase(cSI.item.x);
+				return s;
+			}
+			
+			// Scroll through the trace plot
+			private function dragTrace(event:SliderEvent):void {
+				var currentSlider:Slider=Slider(event.currentTarget);
+				traceXMin = currentSlider.value;
+				traceXMax = currentSlider.value + sliderSpacing;
+				q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
+				displaySequence();
+			}
+			
+			// Display information about base number instead of trace x coordinate for slider
+			private function traceSliderDataTipFunc(val:String):String {
+				return "Go to base no: " + findNearestBase(parseInt(val));
+			}
+			
+			// Scroll through the trace plot
+			private function dragHZoom(event:SliderEvent):void {
+				var currentSlider:Slider=Slider(event.currentTarget);
+				sliderSpacing = currentSlider.value;
+				
+				traceXMax = traceSlider.value + sliderSpacing;
+				q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
+				displaySequence();
+			}
+			
+			// Display "Zoom in" or "Zoom out" for zoom slider
+			private function hZoomSliderDataTipFunc(val:String):String {
+				return "Zoom " + (parseInt(val) < sliderSpacing ? 'in' : 'out');
+			}
+			
+			// Vertically scroll the trace
+			private function dragVZoom(event:SliderEvent):void {
+				var currentSlider:Slider=Slider(event.currentTarget);
+				vZoomValue = currentSlider.value;
+				ty.maximum = traceMax/vZoomValue;
+			}
+			
+			// Display "Zoom in" or "Zoom out" for zoom slider
+			private function vZoomSliderDataTipFunc(val:String):String {
+				return "Zoom " + (parseInt(val) > vZoomValue ? 'in' : 'out');
+			}
+			
+			// Find the base that is nearest to an x coordinate from the trace plot
+			private function findNearestBase(val:int):int{
+				var minDiff:int = val;
+				var baseNo:int = 1;
+				for ( var i:int = 0; i < baseCallArray.length; i++ ) {
+					var baseCallObject:Object = baseCallArray[i];
+					var diff:int = Math.abs(baseCallObject.x - val);
+					if ( diff < minDiff ) {
+						minDiff = diff;
+						baseNo = i + 1;
+						if ( i < baseCallArray.length - 1 && minDiff < Math.abs(baseCallArray[i+1].x - val) )
+						{
+							break;
+						}
+					}
+				}
+				return baseNo;
+			}
+			
+			// Label the base number below sequence base labels
+			private function baseLabelFunction(val:Object, preVal:Object, axis:IAxis):String {
+				var xPos:int = val as int;
+				return findNearestBase(xPos).toString();
+			}
+			
+			
+			protected function mouseDownOutsideHandler(event:Object):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
   </mx:Script>    	
   
   
@@ -898,5 +912,12 @@
     
   </mx:VBox>
   
-  
+	<mx:states>
+		<mx:State name="userState">
+			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>
+			<mx:SetProperty name="height" value="600"/>
+			<mx:SetProperty name="width" value="1000"/>
+		</mx:State>
+	</mx:states>
+	
 </mx:VBox>
