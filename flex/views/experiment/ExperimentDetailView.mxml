@@ -3,7 +3,8 @@
     xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"   creationPolicy="all"
-	xmlns:util="views.util.*" xmlns:experiment="views.experiment.*" >
+	xmlns:util="views.util.*" xmlns:experiment="views.experiment.*" 
+	xmlns:data="views.data.*">
    
 	<mx:HTTPService  
     id="getProtocol" 
@@ -1278,10 +1279,15 @@
 		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="CapSeqState">
-		<mx:AddChild relativeTo="{theTab}" position="lastChild">
-			<mx:VBox label="Chromatogram" width="100%" height="100%" verticalGap="6" id="chromoTab" >
-			</mx:VBox>
-		</mx:AddChild>
+			<mx:AddChild relativeTo="{theTab}" position="lastChild">
+				<data:ChromatBrowseView label="Chromatogram"
+										width="100%"
+										height="100%"
+										verticalGap="6"
+										id="chromoTab"
+										currentState="userState"
+										idRequest="500" />
+			</mx:AddChild>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
 	</mx:State>
 	<mx:State name="ExternalQCState">
