@@ -5,6 +5,8 @@ import java.sql.Date;
 import java.text.NumberFormat;
 import java.util.Set;
 
+import org.hsqldb.Binary;
+
 import hci.hibernate3utils.HibernateDetailObject;
 
 
@@ -30,7 +32,25 @@ public class BillingAccount extends HibernateDetailObject {
   private String     submitterEmail;
   private String     submitterUID;
   private BigDecimal totalDollarAmount;
+  private String     orderFormFileType;
+  private byte []     purchaseOrderForm;
   
+  public byte [] getPurchaseOrderForm() {
+    return purchaseOrderForm;
+  }
+
+  public void setPurchaseOrderForm(byte [] purchaseOrderForm) {
+    this.purchaseOrderForm = purchaseOrderForm;
+  }
+
+  public String getOrderFormFileType() {
+    return orderFormFileType;
+  }
+
+  public void setOrderFormFileType(String orderFormFileType) {
+    this.orderFormFileType = orderFormFileType;
+  }
+
   // transient field used to keep track of billing accounts just approved
   private boolean isJustApproved = false;
   
