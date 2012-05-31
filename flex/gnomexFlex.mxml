@@ -669,6 +669,7 @@
 			public  var TYPE_CAP_SEQ:String       = "CAPSEQ";
 			public  var TYPE_FRAG_ANAL:String	  = "FRAGANAL";
 			public  var TYPE_MIT_SEQ:String	      = "MITSEQ";
+			public  var TYPE_CHERRY_PICK:String   = "CHERRYPICK";
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 

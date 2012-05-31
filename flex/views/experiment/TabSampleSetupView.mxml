@@ -266,6 +266,13 @@
 					
 					isComplete = true;
 				}
+			} else if (parentDocument.isCherryPickState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
+					
+					isComplete = true;
+				}
 			} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
@@ -948,6 +955,12 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
+		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
+	   </mx:State>
+	   <mx:State name="CherryPickState" basedOn="DropoffBase">
+		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
+		   <mx:RemoveChild target="{samplePrepContainer}"/>
 		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
 		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
 	   </mx:State>

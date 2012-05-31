@@ -53,7 +53,8 @@
 		var includeBioNote:Boolean = (parentDocument.requestType != parentApplication.TYPE_QC
 			&& parentDocument.requestType != parentApplication.TYPE_CAP_SEQ
 			&& parentDocument.requestType != parentApplication.TYPE_FRAG_ANAL
-			&& parentDocument.requestType != parentApplication.TYPE_MIT_SEQ)
+			&& parentDocument.requestType != parentApplication.TYPE_MIT_SEQ
+			&& parentDocument.requestType != parentApplication.TYPE_CHERRY_PICK)
 		label3.visible = includeBioNote;
 		label3.includeInLayout = includeBioNote;
 		noteToBio.visible = includeBioNote;

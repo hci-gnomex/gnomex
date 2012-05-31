@@ -60,6 +60,8 @@ public class RequestParser implements Serializable {
   private Map<String, PlateWell> wellMap = new HashMap<String, PlateWell>();
   private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
   private Map<String, String> sampleAssays = new HashMap<String, String>();
+  private Map<String, String> cherryPickSourceWells = new HashMap<String, String>();
+  private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestDoc = requestDoc;
@@ -89,6 +91,8 @@ public class RequestParser implements Serializable {
     wellMap = new HashMap<String, PlateWell>();
     sampleToPlateMap = new HashMap<String, SamplePlateWell>();
     sampleAssays = new HashMap<String, String>();
+    cherryPickSourceWells = new HashMap<String, String>();
+    cherryPickDestinationWells = new HashMap<String, String>();
   }
   
   
@@ -625,6 +629,14 @@ public class RequestParser implements Serializable {
         map += "N";
       }
       this.sampleAssays.put(idSampleString, map);
+    }
+    
+    // Cherry picking source and destination wells.
+    if (n.getAttributeValue("sourceWell") != null && n.getAttributeValue("sourceWell").length() > 0) {
+      this.cherryPickSourceWells.put(idSampleString, n.getAttributeValue("sourceWell"));
+    }
+    if (n.getAttributeValue("destinationWell") != null && n.getAttributeValue("destinationWell").length() > 0) {
+      this.cherryPickDestinationWells.put(idSampleString, n.getAttributeValue("destinationWell"));
     }
   }
   
@@ -1653,6 +1665,13 @@ public class RequestParser implements Serializable {
     }
   }
   
+  public String getCherryPickSourceWell(String idSampleString) {
+    return this.cherryPickSourceWells.get(idSampleString);
+  }
+  
+  public String getCherryPickDestinationWell(String idSampleString) {
+    return this.cherryPickDestinationWells.get(idSampleString);
+  }
   private class SamplePlateWell implements Serializable {
     public String plateIdAsString = "";
     public String wellIdAsString = "";

@@ -18,6 +18,7 @@
 * New IGB Browser link on Data Tracks view to launch IGB browser (dnix)
 * Submission of Fragment Analysis request works.  (bspiglejr)
 * Submission of Mitochondrial Sequencing request works.  (bspiglejr)
+* Submission of Cherry Picking request works.  (bspiglejr)
 
 5.4.4.1 (May 21, 2012)
 ----------------------
