@@ -218,6 +218,27 @@
 			hci.gnomex.controller.UploadExperimentURLServlet
 		</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadPurchaseOrder</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadPurchaseOrder
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>GetPurchaseOrderForm</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.GetPurchaseOrderForm
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadPurchaseOrderURL</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadPurchaseOrderURL
+		</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -347,6 +368,21 @@
 	<servlet-mapping>
 		<servlet-name>UploadExperimentURLServlet</servlet-name>
 		<url-pattern>UploadExperimentURLServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadPurchaseOrder</servlet-name>
+		<url-pattern>UploadPurchaseOrder.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadPurchaseOrderURL</servlet-name>
+		<url-pattern>UploadPurchaseOrderURL.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>GetPurchaseOrderForm</servlet-name>
+		<url-pattern>GetPurchaseOrderForm.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
