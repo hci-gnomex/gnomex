@@ -186,6 +186,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
         if ( pw.getCreateDate() == null ) {
           pw.setCreateDate(plate.getCreateDate());
         }
+        pw.setCodeReactionType( codeReactionType );
         
         boolean exists = false;
         for(Iterator i1 = plate.getPlateWells().iterator(); i1.hasNext();) {

@@ -4,21 +4,20 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.InstrumentRun;
+import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PlateReportHTMLFormatter;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,8 +32,6 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 public class CreateRunFile extends GNomExCommand implements Serializable {
@@ -67,8 +64,7 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
 
     try {
 
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(
-          this.getUsername() );
+      Session sess = HibernateSession.currentSession(this.getUsername());
 
       dictionaryHelper = DictionaryHelper.getInstance( sess );
 
@@ -81,6 +77,14 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
       if( this.isValid() ) {
         if( 1==1 ) { //this.getSecAdvisor().canRead( plate ) ) {
 
+          // SHOULD THIS ONLY CHANGE IF THE STATUS IS CURRENTLY PENDING?  
+          // OR IF THERE IS NOT STATUS ASSOCIATED WITH THE RUN YET?
+          // Change run status
+          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.RUNNING );
+          changeRequestsToProcessing( sess, ir );
+          sess.flush();
+          
+          
           String runName = ir.getLabel();
           String dirName = "C:\\temp\\";
           String fileExt = ".plt";
@@ -88,37 +92,58 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
           File runfile = new File( dirName + runName + fileExt);
           FileWriter fwrite = new FileWriter(runfile);
           // Run headers 
-          fwrite.write( "Container Name\tPlate ID\tDescription\tApplication\tContainerType\tOwner\tOperator\tPlateSealing\tSchedulingPref\t" );
+          fwrite.write( "Container Name\tPlate ID\tDescription\tApplication\tContainerType\tOwner\tOperator\tPlateSealing\tSchedulingPref\t\r\n" );
           // Run information
           SealType sealType = ( SealType ) sess.get( SealType.class, ir.getCodeSealType() );
           String sealTypeText = sealType.getSealType();
           
-          fwrite.write("\r\n" + runName + "\t" + runName + "\tSequencingAnalysis\t384-Well\tCore\t3730-1\t" + sealTypeText + "\t1234" );
+          fwrite.write( runName + "\t" + runName + "\tSequencingAnalysis\t384-Well\tCore\t3730-1\t" + sealTypeText + "\t1234\t\r\n" );
           // Well headers
-          fwrite.write( "\r\nWell\tSample Name\tComment\tResults\tGroup" +
+          fwrite.write( "Well\tSample Name\tComment\tResults\tGroup" +
           		"\tInstrument Protocol 1\tAnalysis Protocol 1" +
           		"\tInstrument Protocol 2\tAnalysis Protocol 2" +
           		"\tInstrument Protocol 3\tAnalysis Protocol 3" +
           		"\tInstrument Protocol 4\tAnalysis Protocol 4" +
-          		"\tInstrument Protocol 5\tAnalysis Protocol 5" );
+          		"\tInstrument Protocol 5\tAnalysis Protocol 5\t\r\n" );
           
-          char plateRow = 'A';
-          int plateInd = 0;
+          Element runNode = getRunWells( sess );
           
-          for ( char row = 'A'; row <= 'P'; row++ ) {
-            for ( int col = 1; col <= 23; col=col+2 ) {
-              
-              // This inner loop will actually go through all cols, not just the odd ones.
-              // For the odd ones, it will use plates 0 or 1, for the even cols, it will
-              // use plates 2 or 3.
-              
-              fwrite.write( "\r\n" + row + String.format( "%02d", col ) + "\t" );
-            }
+          if( runNode != null ) {
+            Iterator i = runNode.getChildren("PlateWell").iterator();
+          
+            for ( char row = 'A'; row <= 'P'; row++ ) {
+              for ( int col = 1; col <= 23; col++ ) {
 
-            // Every other time a row is filled up => plateRow++;
+                if( i.hasNext() ) {
+                  Element well = (Element) i.next();
+                  
+                  String idPlateWellString = well.getAttributeValue("idPlateWell") != null ? well.getAttributeValue("idPlateWell") : "0";
+                  String sampleName = well.getAttributeValue( "sampleName" ) != null ? well.getAttributeValue("sampleName") : "";
+                  String idSample = well.getAttributeValue( "idSample" ) != null ? well.getAttributeValue("idSample") : "";
+                  String idPlate = well.getAttributeValue( "idPlate" ) != null ? well.getAttributeValue("idPlate") : "";
+                  String wellRow = well.getAttributeValue( "row" ) != null ? well.getAttributeValue("row") : "";
+                  int wellCol = well.getAttributeValue( "col" ) != null ? Integer.valueOf( well.getAttributeValue("col") ) : 0;
+
+                  // Add request number to list of request numbers
+                  if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
+                    
+                    fwrite.write( row + String.format( "%02d", col ) + "\t" );
+                    
+                    String fileName = idSample + "?" + sampleName + "?" + idPlate;
+                    fwrite.write( fileName + "\t" );
+                    
+                    String comments = "<ID:" + idPlateWellString + "><WELL:" + wellRow + String.format( "%02d", wellCol ) + ">";
+                    fwrite.write( comments + "\t" );
+                    
+                    fwrite.write( "Finch\tLongSeq50\tSeq_A\t\r\n");
+                  }
+                  
+                  
+                  
+                }
+              }
+            }
           }
-          
-          
           
           
           fwrite.flush();
@@ -146,12 +171,7 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
         setResponsePage( this.ERROR_JSP );
       }
 
-    } catch( UnknownPermissionException e ) {
-      log.error( "An exception has occurred in ShowRequestForm ", e );
-      e.printStackTrace();
-      throw new RollBackCommandException( e.getMessage() );
-
-    } catch( NamingException e ) {
+    }  catch( NamingException e ) {
       log.error( "An exception has occurred in ShowRequestForm ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
@@ -178,6 +198,81 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
     return this;
   }
 
+  private Element getRunWells(Session sess) {
+
+    try { 
+      Element irNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+      for( char row = 'A'; row <= 'H'; row ++ ) {
+        for ( int i = 0; i < 4; i++) {
+          for ( int col = 1; col <= 12; col++ ) {
+
+            int quadrant = i; 
+            if ( i == 1 ) {
+              quadrant = 2;
+            } else if ( i==2 ) {
+              quadrant = 1; 
+            } 
+
+            String plateQuery = "SELECT p from Plate as p where p.idInstrumentRun=" + ir.getIdInstrumentRun() + "       AND p.quadrant=" + quadrant;
+            Plate plate = (Plate) sess.createQuery( plateQuery ).uniqueResult();
+
+            Element wellNode = new Element("PlateWell");
+
+            if ( plate != null ) {
+
+              String wellQuery = "SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate() + "        AND pw.row='" + row + "'       AND pw.col=" + col;
+              PlateWell plateWell = (PlateWell) sess.createQuery( wellQuery ).uniqueResult();
+
+              if ( plateWell != null ) {
+                plateWell.excludeMethodFromXML("getPlate");
+
+                wellNode = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+              } else {
+                wellNode.setAttribute( "idPlateWell", "0" );
+              }
+
+            } else {
+              wellNode.setAttribute( "idPlateWell", "0" );
+            }
+            irNode.addContent(wellNode);
+
+          }
+        }
+      }
+      
+      return irNode;
+
+    } catch( Exception e ) {
+      log.error( "An exception has occurred in ShowRequestForm ", e );
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  private void changeRequestsToProcessing(Session sess, InstrumentRun ir) {
+    
+    // Get any requests on that run
+    Map requests = new HashMap();
+    List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
+        " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+    for(Iterator i1 = wells.iterator(); i1.hasNext();) {
+      PlateWell well = (PlateWell)i1.next();
+      if ( !requests.containsKey( well.getIdRequest() ) ) {
+        Request req = (Request) sess.get(Request.class, well.getIdRequest());
+        requests.put( req.getIdRequest(), req );
+      }
+    }
+    
+    // Change request Status 
+    for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
+      int idReq = (Integer) i.next();
+      Request req = (Request) sess.get(Request.class, idReq );
+      req.setCodeRequestStatus( RequestStatus.PROCESSING );
+    }
+    sess.flush();
+  }
 
   /**
    * The callback method called after the loadCommand, and execute methods, this

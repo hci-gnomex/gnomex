@@ -7,9 +7,16 @@ import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -138,6 +145,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
         if ( ir!=null ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+          changeRequestsToComplete( sess, ir );
         }
       }
       if (releaseDateStr != null) {
@@ -145,6 +153,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         ch.setReleaseDate(releaseDate);
         if ( ir!=null ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+          changeRequestsToComplete( sess, ir );
         }
       }
       
@@ -184,5 +193,26 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
     return this;
   }
   
-  
+  private void changeRequestsToComplete(Session sess, InstrumentRun ir) {
+ 
+    // Get any requests on that run
+    Map requests = new HashMap();
+    List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
+        " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+    for(Iterator i1 = wells.iterator(); i1.hasNext();) {
+      PlateWell well = (PlateWell)i1.next();
+      if ( !requests.containsKey( well.getIdRequest() ) ) {
+        Request req = (Request) sess.get(Request.class, well.getIdRequest());
+        requests.put( req.getIdRequest(), req );
+      }
+    }
+    
+    // Change request Status 
+    for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
+      int idReq = (Integer) i.next();
+      Request req = (Request) sess.get(Request.class, idReq );
+      req.setCodeRequestStatus( RequestStatus.COMPLETED );
+    }
+    sess.flush();
+  }
 }
