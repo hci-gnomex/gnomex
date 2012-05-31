@@ -114,7 +114,7 @@
 					for ( col = 1; col < 13; col++ ) {
 						gi = gr.getChildAt( col ) as GridItem;
 						well = gi.getChildAt( 0 ) as WellContainer;
-						well.setLabel(( well.index + 1 ).toString());
+						well.setLabel(( well.position + 1 ).toString());
 					}
 				}
 			}
@@ -181,7 +181,7 @@
 							gi.removeAllChildren();
 							well = new WellContainer( '' );
 //							well.plateView = this.parentDocument as NavPlateView;
-							well.index = index;
+							well.position = index;
 							well.setLabel(( index + 1 ).toString());
 							gi.addChild( well );
 							index++;
@@ -196,7 +196,7 @@
 							gi.removeAllChildren();
 							well = new WellContainer( index.toString());
 //							well.plateView = this.parentDocument as NavPlateView;
-							well.index = index;
+							well.position = index;
 							well.setLabel(( index + 1 ).toString());
 							gi.addChild( well );
 							index++;
@@ -244,7 +244,7 @@
 			public function getWell( index:int ):WellContainer {
 				
 				for each ( var well:WellContainer in getWells()) {
-					if ( well.index == index ) {
+					if ( well.position == index ) {
 						return well;
 					}
 				}
@@ -271,7 +271,7 @@
 							well = gi.getChildAt( 0 ) as WellContainer;
 							
 							if ( well.hasSample ) {
-								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.index + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
+								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.position + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
 							}
 						}
 					}
@@ -284,7 +284,7 @@
 							well = gi.getChildAt( 0 ) as WellContainer;
 							
 							if ( well.hasSample ) {
-								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.index + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
+								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.position + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
 							}
 						}
 					}
@@ -329,7 +329,7 @@
 					if ( indices.length <= 0 ) {
 						gi.setStyle( 'borderColor', 'white' );
 						well.setStyle( 'backgroundAlpha', 1 );
-					} else if ( indices.lastIndexOf( well.index ) != -1 ) {
+					} else if ( indices.lastIndexOf( well.position ) != -1 ) {
 						gi.setStyle( 'borderColor', 'black' );
 						well.setStyle( 'backgroundAlpha', 1 );
 					} else {
@@ -345,7 +345,7 @@
 			public function colorWells( startIndex:int, endIndex:int, color:uint ):void {
 				
 				for each ( var well:WellContainer in getWells()) {
-					if ( well.index >= startIndex && well.index <= endIndex ) {
+					if ( well.position >= startIndex && well.position <= endIndex ) {
 						well.setColor( color );
 					}
 				}
@@ -356,7 +356,7 @@
 			public function addSampleToWell( index:int, sample:Object ):void {
 				
 				for each ( var well:WellContainer in getWells()) {
-					if ( well.index == index ) {
+					if ( well.position == index ) {
 						well.setSample( sample );
 						well.plateView = this.parentDocument as NavPlateView;
 					}
@@ -427,7 +427,7 @@
 			public function setWellsGroupId( indices:Array, id:String ):void {
 				
 				for each ( var well:WellContainer in getWells()) {
-					if ( indices.lastIndexOf( well.index ) != -1 ) {
+					if ( indices.lastIndexOf( well.position ) != -1 ) {
 						well.setGroupId( id );
 					}
 				}
@@ -452,8 +452,8 @@
 							gr = grid.getChildAt( row ) as GridRow;
 							gi = gr.getChildAt( col ) as GridItem;
 							well = gi.getChildAt( 0 ) as WellContainer;
-							well.index = ind;
-							well.setLabel(( well.index + 1 ).toString());
+							well.position = ind;
+							well.setLabel(( well.position + 1 ).toString());
 							well.row = alph.charAt( row - 1 );
 							well.col = col;
 							ind++;
@@ -465,8 +465,8 @@
 							gr = grid.getChildAt( row ) as GridRow;
 							gi = gr.getChildAt( col ) as GridItem;
 							well = gi.getChildAt( 0 ) as WellContainer;
-							well.index = ind;
-							well.setLabel(( well.index + 1 ).toString());
+							well.position = ind;
+							well.setLabel(( well.position + 1 ).toString());
 							well.row = alph.charAt( row - 1 );
 							well.col = col;
 							ind++;
