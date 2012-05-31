@@ -147,7 +147,7 @@
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:LinkButton label="Review Instrument Runs"  click="reviewRuns()"  
-							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/genome_build1.png')"/>
+							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{button11}" position="before">
 				<mx:LinkButton label="Review Orders"  click="reviewOrders()"  
@@ -182,7 +182,7 @@
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox5}" position="before">
 				<mx:LinkButton label="Review Instrument Runs"  click="reviewRuns()"  
-							   styleName="dashboardButton" id="button24"  toolTip="View instrument runs" icon="@Embed(source='../../assets/genome_build1.png')"/>
+							   styleName="dashboardButton" id="button24"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox5}" position="before">
 				<mx:LinkButton label="Review Results"  click="reviewResults()"  
@@ -254,6 +254,7 @@
 			}
 			
 			private function reviewOrders():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navOrderView;
 			}
 			
 			private function fillPlates():void {
@@ -261,6 +262,7 @@
 			}
 			
 			private function reviewRuns():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navRunView;
 			}
 			
 			private function reviewResults():void {
