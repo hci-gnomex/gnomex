@@ -60,3 +60,7 @@ alter table gnomex.Sample drop column redoFlag;
 
 -- new isControl for Sample
 alter table Sample add column isControl char(1) NULL;
+
+-- new purchaseOrderForm and orderFormFileType for BillingAccount
+alter table BillingAccount add column purchaseOrderForm LONGBLOB NULL;
+alter table BillingAccount add column orderFormFileType VARCHAR(10) NULL;
