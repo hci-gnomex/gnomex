@@ -220,7 +220,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
                 fd.setComments(af.getComments());
                 fd.setIdAnalysis(a.getIdAnalysis());
               } else {
-                fd.setIdAnalysisFileString("AnalysisFile-" + fd.getDisplayName());
+                fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());
                 fd.setIdAnalysis(a.getIdAnalysis());
               }
               fd.setQualifiedFilePath(directoryName);
@@ -386,7 +386,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
             fd.setComments(af.getComments());
           } else {
-            fd.setIdAnalysisFileString("AnalysisFile-" + fd.getDisplayName());
+            fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());
           }
           
           fd.setQualifiedFilePath(directoryName);
@@ -446,7 +446,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         childFd.setComments(af.getComments());
         childFd.setIdAnalysis(af.getIdAnalysis());
       } else {
-        childFd.setIdAnalysisFileString("AnalysisFile-" + childFd.getDisplayName());
+        childFd.setIdAnalysisFileString("AnalysisFile-" + childFd.getFilePathName());
         childFd.setIdAnalysis(fd.getIdAnalysis());
       }
       
