@@ -101,6 +101,12 @@
 					}
 				}
 				
+				if (sampleAnnotationGrid.selectedItem.@isRequired == "true") {
+					// Don't toggle a required field.
+					return;		
+				}
+
+				
 				if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
 					
 					sampleAnnotationGrid.selectedItem.@isSelected = "false";

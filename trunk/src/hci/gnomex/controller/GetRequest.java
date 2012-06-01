@@ -258,6 +258,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("name", prop.getName());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null ? "true" : "false");
+            peNode.setAttribute("isRequired", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) ? "true" : "false");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
                 
             scParentNode.addContent(peNode);
