@@ -313,7 +313,22 @@ public class RegisterFiles extends TimerTask {
         // If we don't find the file on the file system, delete it from the db.
         if (fd == null) {
           System.out.println("WARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
-          sess.delete(af);
+          // make sure the analysis file isn't linked to data track(s).  if it is, just
+          // log a message and leave the analysis file alone.
+          StringBuffer queryBuf = new StringBuffer();
+          queryBuf.append("SELECT COUNT(*) FROM DataTrack dt ");
+          queryBuf.append("JOIN dt.dataTrackFiles dtf ");
+          queryBuf.append("WHERE dtf.idAnalysisFile = " +  af.getIdAnalysisFile().toString());
+          Integer count = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
+          if (count != null && count > 0) {
+            System.out.println("WARNING - Bypassing delete of  analysis file " + analysis.getNumber() + " " + af.getIdAnalysisFile() + " "+ af.getQualifiedFileName() + " because at least one data track is linked to it.");
+            newAnalysisFiles.add(af);
+          } else if (af.getComments() != null && !af.getComments().trim().equals("")) {
+            System.out.println("WARNING - Bypassing delete of  analysis file " + analysis.getNumber() + " " + af.getIdAnalysisFile() + " "+ af.getQualifiedFileName() + " because there are comments stored in the db for this file.");
+            newAnalysisFiles.add(af);            
+          } else {
+            // By not adding to newAnalysisFiles set, we are deleting this analysis file
+          }
         } else {
           // Mark that the file system file has been found
           fd.isFound(true);
@@ -498,7 +513,7 @@ public class RegisterFiles extends TimerTask {
       AnalysisFile ef2 = (AnalysisFile)o2;
       
       if (ef1.getIdAnalysisFile() == null || ef2.getIdAnalysisFile() == null) {
-        return ef1.getFileName().compareTo(ef2.getFileName());
+        return ef1.getQualifiedFileName().compareTo(ef2.getQualifiedFileName());
       } else {
         return ef1.getIdAnalysisFile().compareTo(ef2.getIdAnalysisFile());
       }
