@@ -101,27 +101,17 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
 
 
       //
-      // Get the pending samples (in tubes) and then get the pending samples
-      // in wells. Now let's stick this into a tree map so that this is order by 
-      // request number (requests for tubes and requests for plates intermixed)
-      // Organize under a status xml node, and then by request, then well.  
-      // Tubes don't have wells, so we just have a well with a blank row and col
-      // for the well address.
+      // Get the pending samples under a status xml node, and then assay or
+      // primer (if applicable), then by request, then well.  
+      // Tubes have wells that don't belong to a source plate.
       //
-      buf = filter.getPendingTubesQuery();
+      buf = filter.getPendingSamplesQuery();
       log.info("Pending tube query for GetPendingSampleList: " + buf.toString());
       query = sess.createQuery(buf.toString());
-      List pendingTubes = (List)query.list();
+      List pendingSamples = (List)query.list();
       
-      // Get the pending samples (in plates)
-      buf = filter.getPendingWellsQuery();
-      log.info("Pending plate wells query for GetPendingSampleList: " + buf.toString());
-      query = sess.createQuery(buf.toString());
-      List pendingWells = (List)query.list();
-
       assayMap = new  TreeMap<String, TreeMap<Integer, List<Object[]>>>();
-      hashResults(pendingTubes);
-      hashResults(pendingWells);
+      hashResults(pendingSamples);
       fillNodes(pendingNode, dictionaryHelper);
       
        

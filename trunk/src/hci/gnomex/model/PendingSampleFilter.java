@@ -62,7 +62,7 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append(" JOIN       req.appUser as appUser ");
     
     queryBuf.append(" WHERE well.redoFlag = 'Y' ");
-    queryBuf.append(" AND   plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
+    queryBuf.append(" AND   plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
     
 
     addWhere = false;
@@ -75,11 +75,11 @@ public class PendingSampleFilter extends DetailObject {
     
   }
   
-  public StringBuffer getPendingTubesQuery() {
+  public StringBuffer getPendingSamplesQuery() {
     addWhere = true;
     queryBuf = new StringBuffer();
     
-    // Get all samples that are NOT in a well
+    // Get all samples that are in tubes (well with no idPlate)
     queryBuf.append(" SELECT     req.idRequest, ");
     queryBuf.append("            req.number, ");
     queryBuf.append("            req.codeRequestStatus, ");
@@ -90,20 +90,21 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            lab.firstName, ");
     queryBuf.append("            appUser, ");
     queryBuf.append("            sample, ");
-    queryBuf.append("            '', ");  // well row
-    queryBuf.append("            -1, ");  // well col
-    queryBuf.append("            -1, ");  // well position
-    queryBuf.append("            -1, ");  // well idassay
-    queryBuf.append("            -1  ");  // well idprimer
+    queryBuf.append("            well.row, ");  // well row
+    queryBuf.append("            well.col, ");  // well col
+    queryBuf.append("            well.position, ");  // well position
+    queryBuf.append("            well.idAssay, ");  // well idassay
+    queryBuf.append("            well.idPrimer  ");  // well idprimer
     
-    queryBuf.append(" FROM      Request as req ");
-    queryBuf.append(" JOIN      req.lab as lab ");
-    queryBuf.append(" JOIN      req.appUser as appUser ");
-    queryBuf.append(" JOIN      req.samples as sample ");
-    queryBuf.append(" LEFT JOIN sample.wells as well ");
+    queryBuf.append(" FROM       Request as req ");
+    queryBuf.append(" JOIN       req.lab as lab ");
+    queryBuf.append(" JOIN       req.appUser as appUser ");
+    queryBuf.append(" JOIN       req.samples as sample ");
+    queryBuf.append(" JOIN       sample.wells as well ");
+    queryBuf.append(" LEFT JOIN  well.plate plate ");
     
     queryBuf.append(" WHERE req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "' ");
-    queryBuf.append(" AND   well.idPlateWell is NULL ");  // this will get all request samples NOT in a well
+    queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
     
 
     addWhere = false;
@@ -112,48 +113,6 @@ public class PendingSampleFilter extends DetailObject {
     
     queryBuf.append(" ORDER BY req.createDate, req.idRequest ");
    
-
-    return queryBuf;
-    
-  }
-
-  public StringBuffer getPendingWellsQuery() {
-    addWhere = true;
-    queryBuf = new StringBuffer();
-    
-    queryBuf.append(" SELECT     req.idRequest, ");
-    queryBuf.append("            req.number, ");
-    queryBuf.append("            req.codeRequestStatus, ");
-    queryBuf.append("            req.codeRequestCategory, ");
-    queryBuf.append("            req.createDate, ");
-    queryBuf.append("            lab.idLab, ");
-    queryBuf.append("            lab.lastName, ");
-    queryBuf.append("            lab.firstName, ");
-    queryBuf.append("            appUser, ");
-    queryBuf.append("            sample, ");
-    queryBuf.append("            well.row, ");
-    queryBuf.append("            well.col, ");
-    queryBuf.append("            well.position, ");
-    queryBuf.append("            well.idAssay, ");
-    queryBuf.append("            well.idPrimer ");
-    
-    
-    queryBuf.append(" FROM       Plate as plate ");
-    queryBuf.append(" JOIN       plate.plateWells as well ");
-    queryBuf.append(" JOIN       well.sample as sample ");
-    queryBuf.append(" JOIN       sample.request as req ");
-    queryBuf.append(" JOIN       req.lab as lab ");
-    queryBuf.append(" JOIN       req.appUser as appUser ");
-    
-    queryBuf.append(" WHERE req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "' ");
-    queryBuf.append(" AND   plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
-    
-
-    addWhere = false;
-    
-    addRequestCriteria();
-    
-    queryBuf.append(" ORDER BY well.idAssay, well.idPrimer, req.createDate, req.idRequest, well.position ");
 
     return queryBuf;
     
