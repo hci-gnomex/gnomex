@@ -23,6 +23,8 @@
 * Fixed bug that caused error when trying to link an analysis file to a data track.  Problem caused by not considering fully qualified file path when hashing file. (tdisera)
 * Fixed Register files to bypass delete on Analysis files not present on file system when entry has comments or is linked to at least one data track. (tdisera)
 * Added isRequired flag to PropertyEntry nodes returned from GetRequest.java, disabled checkboxes for req'd annotations so they cannot be unchecked (rcundick)
+* Fixed bug that was not saving changes to a slide's applications on the slide management view properly.(tcourdy)
+* Fixed bug that was causing the slide management view to not refresh its display properly as changes were being made.(tcourdy)
 
 5.4.4.1 (May 21, 2012)
 ----------------------
