@@ -2341,6 +2341,25 @@
 				if (samples.length < 30 && sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
 					errorMessage += "You may not have less than 30 samples in a Plate container.\n\n";
 				}
+				if (sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+					for(var idx:int = 0; idx < 4; idx++) {
+						var lastSample:int = ((idx + 1) * 96) - 1;
+						var firstSample:int = idx * 96;
+						if (samples.length <= firstSample) {
+							// nothing on this or subsequent plates.
+							break;
+						}
+						var controlSample:Object = null;
+						if (samples.length > lastSample) {
+							controlSample = samples.getItemAt(lastSample);
+						}
+						if (controlSample == null || !controlSample.hasOwnProperty("@name") || controlSample.@name == null || controlSample.@name == "" 
+							|| !controlSample.hasOwnProperty("@isControl") || controlSample.@isControl == null || controlSample.@isControl != 'Y') {
+							warningMessage += "All plates do not have controls.\n\n";
+							break;
+						}
+					}
+				}
 			}				
 			// Make sure lab and billing account filled in
 			if (isEditState()) {
