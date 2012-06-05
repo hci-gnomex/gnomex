@@ -249,6 +249,9 @@ public class Request extends HibernateDetailObject {
     return samples;
   }
 
+  public int getNumberOfSamples() {
+    return samples.size();
+  }
   
   public void setSamples(Set samples) {
     this.samples = samples;
@@ -324,6 +327,9 @@ public class Request extends HibernateDetailObject {
       doc.getRootElement().setAttribute(PropertyEntry.OTHER_LABEL, otherLabel);
     }
     
+    if ( samples != null ) {
+      doc.getRootElement().setAttribute( "numberOfSamples", String.valueOf(getNumberOfSamples()) );
+    }
 
     return doc;
   }

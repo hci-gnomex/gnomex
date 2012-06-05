@@ -359,6 +359,7 @@
 					if ( well.position == index ) {
 						well.setSample( sample );
 						well.plateView = this.parentDocument as NavPlateView;
+						break;
 					}
 				}
 			}

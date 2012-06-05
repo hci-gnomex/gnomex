@@ -50,10 +50,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     
     StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
     log.info("Query for GetRequestList: " + buf.toString());
-    List labs = sess.createQuery(buf.toString()).list();
+    List reqs = sess.createQuery(buf.toString()).list();
     
     Document doc = new Document(new Element("RequestList"));
-    for(Iterator i = labs.iterator(); i.hasNext();) {
+    for(Iterator i = reqs.iterator(); i.hasNext();) {
       Request req = (Request)i.next();
       doc.getRootElement().addContent(req.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
       

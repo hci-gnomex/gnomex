@@ -8,6 +8,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.InstrumentRunFilter;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Request;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -121,6 +122,20 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
               Element pwNode = well.toXMLDocument( null,
                   DetailObject.DATE_OUTPUT_SQL ).getRootElement();
 
+              pwNode.setAttribute("requestSubmitDate", "");
+              pwNode.setAttribute("requestSubmitter", "");
+              
+              if ( well.getIdRequest() != null ) {
+                String idRequestString = well.getIdRequest().toString();
+                if ( idRequestString != null && !idRequestString.equals("")) {
+                  Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+                  if ( request != null ) {
+                    pwNode.setAttribute("requestSubmitDate", request.getCreateDate().toString());
+                    pwNode.setAttribute("requestSubmitter", request.getOwnerName());
+                  }
+                }
+              }
+              
               pNode.addContent( pwNode );
             }
 

@@ -116,10 +116,21 @@ package views.renderers {
 			this.idSample = sample.@idSample != null ? sample.@idSample : 0;
 			this.sampleName = sample.@name != null ? sample.@name : '';
 			this.groupId = sample.@idRequest != null ? sample.@idRequest : '';
-			this.toolTip = getToolTip();
+			this.setToolTip();
 			this.hasSample = true;
 		}
 		
+		public function loadWellObject( pw:Object ):void {
+			
+			this.idPlateWell = pw.@idPlateWell;
+			this.groupId = pw.@idRequest;
+			this.idSample = pw.@idSample;
+			this.sampleName = pw.@sampleName;
+			this.submitter = pw.@requestSubmitter;
+			this.submitDate = pw.@requestSubmitDate;
+			this.setToolTip();
+			this.hasSample = true;
+		}
 		
 		public function onClick( event:Event ):void {
 			
@@ -155,6 +166,10 @@ package views.renderers {
 				PopUpManager.addPopUp( tw, this, true );
 				PopUpManager.centerPopUp( tw );
 			}
+		}
+		
+		public function setToolTip():void {
+			this.toolTip = getToolTip();
 		}
 		
 		private function getToolTip():String {

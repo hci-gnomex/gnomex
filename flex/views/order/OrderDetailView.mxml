@@ -2,6 +2,7 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
          width="100%" height="100%" 
          xmlns:util="views.util.*" show="init()" >
+  
   <mx:Label id="titleLabel" styleName="titleLabel" text="{'View Order '+ selectedIdRequest}"/>
   
   
@@ -95,7 +96,16 @@
       
       private function onGetRequest(event:ResultEvent):void {
         if (event.result.name() == "OpenRequestList") {
-          
+			var reqCat:String = getRequest.lastResult.Request.@codeRequestCategory;
+			if ( reqCat == 'CAPSEQ' ) {
+				currentState = stateCapSeq.name;
+			} else if ( reqCat == 'FRAGANAL' ) {
+				currentState = stateFrag.name;
+			} else if ( reqCat == 'MITSEQ' ) {
+				currentState = stateMito.name;
+			} else if ( reqCat == 'CHERRYPICK' ) {
+				currentState = stateCherry.name;
+			}
           
           
         } else {
@@ -244,5 +254,21 @@
     
   </mx:VBox>
   
-  
+	
+	<mx:states>
+		<mx:State name="stateFrag" id="stateFrag">
+			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Fragment Analysis Order '+ selectedIdRequest}"/>
+		</mx:State>
+		<mx:State name="stateCapSeq" id="stateCapSeq">
+			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Cap Seq Order '+ selectedIdRequest}"/>
+		</mx:State>
+		<mx:State name="stateCherry" id="stateCherry">
+			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Cherry Pick Order '+ selectedIdRequest}"/>
+		</mx:State>
+		<mx:State name="stateMito" id="stateMito">
+			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Mitochondrial Dloop Seq Order '+ selectedIdRequest}"/>
+		</mx:State>
+	</mx:states>
+	
+	
 </mx:VBox>

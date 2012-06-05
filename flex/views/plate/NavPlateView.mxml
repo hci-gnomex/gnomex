@@ -4,6 +4,7 @@
 		   xmlns:renderers="views.renderers.*"
 		   xmlns:util="views.util.*"
 		   show="init()"
+		   initialize="init()"
 		   creationPolicy="all"
 		   showEffect="{parentApplication.fadeIn}"
 		   hideEffect="{parentApplication.fadeOut}"
@@ -196,20 +197,22 @@
 			// add one plate, add listener to the color picker, list the total sample number
 			private function init():void {
 				
-				
-				allPlates = new Array( P1R1, P2R1, P3R1, P4R1, P1R2, P2R2, P3R2, P4R2, P1R3, P2R3, P3R3, P4R3, P1R4, P2R4, P3R4, P4R4 );
-				addPlate(); // Add one starting plate
-				colorPick.addEventListener( FlexEvent.VALUE_COMMIT, requestIdPicked );
-				
-				// Add one starting run
-				var run1:Object = new Object();
-				run1.idRun = 0;
-				runs = new Array();
-				runs.push( run1 );
-				numberOfRuns = 1;
-				refreshRunLists();
-				
-				plateAndRunInfoViews.selectedChild = runInfoBox;
+				if ( !isInitialized ) {
+					allPlates = new Array( P1R1, P2R1, P3R1, P4R1, P1R2, P2R2, P3R2, P4R2, P1R3, P2R3, P3R3, P4R3, P1R4, P2R4, P3R4, P4R4 );
+					addPlate(); // Add one starting plate
+					colorPick.addEventListener( FlexEvent.VALUE_COMMIT, requestIdPicked );
+					
+					// Add one starting run
+					var run1:Object = new Object();
+					run1.idRun = 0;
+					runs = new Array();
+					runs.push( run1 );
+					numberOfRuns = 1;
+					refreshRunLists();
+					
+					switchActivePlate();
+//					plateAndRunInfoViews.selectedChild = runInfoBox;
+				}
 				
 				isInitialized = true;
 			}
@@ -452,8 +455,8 @@
 				runNameText.text = runs[ currentRun ].label != null ? runs[ currentRun ].label : "";
 				runCommentsText.text = runs[ currentRun ].comments != null ? runs[ currentRun ].comments : "";
 				runCreatorText.text = runs[ currentRun ].creator != null ? runs[ currentRun ].creator : "";
-				runCreateDateText.text = runs[ currentRun ].createDate != null ? ( runs[ currentRun ].createDate ).substr( 0, 10 ) : "";
-				runRunDateText.text = runs[ currentRun ].runDate != null ? ( runs[ currentRun ].runDate ).substr( 0, 10 ) : "";
+				runCreateDateText.text = runs[ currentRun ].createDate != null && runs[ currentRun ].createDate != "" ? ( runs[ currentRun ].createDate ).substr( 0, 10 ) : "";
+				runRunDateText.text = runs[ currentRun ].runDate != null && runs[ currentRun ].runDate != "" ? ( runs[ currentRun ].runDate ).substr( 0, 10 ) : "";
 				
 				// Seal Type
 				if ( currentState != newState.name ) {
@@ -1419,13 +1422,7 @@
 					var ind:int = pw.@position;
 					activePlate.addSampleToWell( ind, pw..Well );
 					var wc:WellContainer = activePlate.getWell( ind ) as WellContainer;
-					wc.idPlateWell = pw.@idPlateWell;
-					wc.groupId = pw.@idRequest;
-					wc.idSample = pw.@idSample;
-					wc.hasSample = true;
-					wc.sampleName = pw.@sampleName;
-					wc.submitter = pw.@requestSubmitter;
-					wc.submitDate = pw.@requestSubmitDate;
+					wc.loadWellObject(pw);
 					wc.plateView = this;
 					if ( ind == 1 ) {
 						if ( wc.col != pw.@col ) {
@@ -1644,12 +1641,8 @@
 						var ind:int = pw.@position;
 						plate.addSampleToWell( ind, pw..Well );
 						var wc:WellContainer = plate.getWell( ind ) as WellContainer;
-						wc.idPlateWell = pw.@idPlateWell;
-						wc.idSample = pw.@idSample;
-						wc.sampleName = pw.@sampleName;
-						wc.groupId = pw.@idRequest;
-						wc.submitDate = pw.@requestSubmitDate;
-						wc.submitter = pw.@requestSubmitter;
+						wc.loadWellObject(pw);
+						wc.plateView = this;
 					}
 					refreshRunLists();
 				} else {
@@ -1723,7 +1716,10 @@
 
 			// Function to remove all the samples from the plate
 			private function removeAll():void {
-
+				if ( activePlate == null ) {
+					return;
+				}
+				
 				for each ( var well:WellContainer in activePlate.getWells()) {
 					if ( well != null && well.getSample() != null ) {
 						var sample:Object = well.getSample();
@@ -1982,7 +1978,7 @@
 				var req:Object;
 				var s:Object;
 
-				// SAMPLE
+				// PENDING SAMPLE TEMPLATE
 				if ( selection.name() == "Well" ) {
 					if ( selection.@isOnPlate != null && selection.@isOnPlate == true ) {
 						for each ( well in activePlate.getWells()) {
@@ -2034,7 +2030,7 @@
 					displayStatusInfo( selection );
 				}
 
-				// LAB
+				// ASSAY
 				if ( selection.name() == "Assay" ) {
 					colorPick.selectNone();
 
@@ -3366,6 +3362,7 @@
 			<mx:RemoveChild target="{reactionTypeLabelText}"/>
 			<mx:RemoveChild target="{runTitleLabel1}"/>
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:"/>
+			<mx:SetProperty target="{runNumberLabel}" name="width" value="5"/>
 			
 		</mx:State>
 		

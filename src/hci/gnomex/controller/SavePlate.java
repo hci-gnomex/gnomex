@@ -201,7 +201,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
           wellsToAdd.add(pw);
         }
       }
-      plate.getPlateWells().addAll(wellsToAdd);
+      plate.setPlateWells(wellsToAdd);
         
       sess.flush();
         
@@ -246,7 +246,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
     public int compare(Object o1, Object o2) {
       PlateWell u1 = (PlateWell) o1;
       PlateWell u2 = (PlateWell) o2;
-      
+      if (u1.getIdPlateWell() == null || u2.getIdPlateWell() == null) {
+        
+      }
       return u1.getIdPlateWell().compareTo(u2.getIdPlateWell());
     }
   }
