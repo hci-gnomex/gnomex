@@ -28,6 +28,17 @@
 		useProxy="false">
 	</mx:HTTPService >
 	
+	<mx:HTTPService  
+		id="deleteRequest" 
+		url="DeleteRequest.gx"
+		destination="deleteRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onDeleteRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
 	
 	<mx:Script> 
 		<![CDATA[
@@ -142,14 +153,43 @@
 					params.status = 'FAILED' ;
 				}
 				
+				if ( this.capSeqCheckbox.selected ) {
+					params.codeRequestCategory = 'CAPSEQ' ;
+				}
+				if ( this.fragCheckbox.selected ) {
+					params.codeRequestCategory = 'FRAGANAL' ;
+				}
+				if ( this.mitoCheckbox.selected ) {
+					params.codeRequestCategory = 'MITSEQ' ;
+				}
+				if ( this.cherryCheckbox.selected ) {
+					params.codeRequestCategory = 'CHERRYPICK' ;
+				}
+
 				return params;
 			}
 			
 			
 			private function promptToDelete():void {
 				
-				Alert.show( "Are you sure you want to delete these orders?", 
-					"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+				var hasRun:Boolean = false
+				for each ( var req:Object in selectedOrders ) {
+					if ( req.@codeRequestStatus != "NEW" && req.codeReqestStatus != "SUBMITTED" ) {
+						hasRun = true;
+						break;
+					}
+				}
+				
+				if ( hasRun ) {
+					Alert.show("One or more of the selected orders has already been added to an instrument run."
+							+ " The order(s) cannot be deleted.");
+					
+				} else {
+					Alert.show( "Are you sure you want to delete these orders?", 
+						"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+				}
+				
+				
 			}
 			
 			private function onPromptToDelete( event:CloseEvent ):void {
@@ -160,10 +200,22 @@
 			}
 			
 			private function deleteOrders():void {
+				for each ( var req:Object in selectedOrders ) {
+					var params:Object = new Object;
+					params.idRequest = req.@idRequest;					
+					deleteRequest.send( params );
+				}
+			}
+			
+			private function onDeleteRequest(event:ResultEvent): void {
+				if (deleteRequest.lastResult.name() == "SUCCESS") {
+					getList();
+				} else {
+					Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
+				}
 			}
 			
 			private function checkEmptyFilter():Boolean {
-				var empty:Boolean = true;
 				
 				if ( requestNoLookupField.text != null ? requestNoLookupField.text : '' ) {
 					return false;
@@ -195,8 +247,20 @@
 				if ( this.failedCheckbox.selected ) {
 					return false ;
 				}
-				
-				return empty;
+				if ( this.capSeqCheckbox.selected ) {
+					return false;
+				}
+				if ( this.fragCheckbox.selected ) {
+					return false;
+				}
+				if ( this.mitoCheckbox.selected ) {
+					return false;
+				}
+				if ( this.cherryCheckbox.selected ) {
+					return false;
+				}
+					
+				return true;
 			}
 			
 			private function selectedFilterFunc(item:XML):Boolean {
@@ -279,6 +343,32 @@
 				}   
 			} 	
 			
+			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
+				this.requestNoLookupField.text = "";
+				
+				if (checkBoxNumber == 1) {
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.capSeqCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.cherryCheckbox.selected = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					
+				}     
+			} 	
+			
 			private function setDefaultButton():void {
 				if ( this.requestNoLookupField.text != '' ) {
 					
@@ -292,6 +382,11 @@
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
+					
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false
 				}
 			}
 
@@ -304,7 +399,6 @@
 						  filterFunction="selectedFilterFunc"/>
 	
 	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0">
-		<!--<mx:HRule width = "100%" />-->
 		
 		<mx:HBox id = "filterBar"
 				 horizontalGap = "0"
@@ -314,15 +408,13 @@
 				 horizontalAlign = "left"
 				 verticalAlign = "middle">
 			
-			<mx:Label text = "Filter by:" paddingRight = "20" />
-			
+			<mx:Label text = "Filter by:" width="65"  />
 			<mx:HBox horizontalGap="0"
 					 height="100%"
 					 verticalAlign="middle"
 					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="15">
+					 width="150" >
+				
 				<mx:Label text="Order #" />
 				
 				<mx:TextInput id="requestNoLookupField"
@@ -480,6 +572,71 @@
 			
 		</mx:HBox>
 		
+		<mx:HBox id = "requestTypeCheckboxBar"
+				 horizontalGap = "0"
+				 verticalAlign = "middle"
+				 verticalGap = "0"
+				 horizontalAlign = "right">
+			<mx:Spacer width="215" height="100%"/>
+			<mx:HBox id = "typeCheckboxBar"
+					 horizontalGap = "0"
+					 height = "100%"
+					 verticalAlign = "middle"
+					 verticalGap = "0"
+					 horizontalAlign = "right"
+					 paddingLeft = "5"
+					 paddingRight = "5">
+				
+				<mx:CheckBox label = "Cap Seq"
+							 id = "capSeqCheckbox"
+							 horizontalGap = "0"
+							 styleName = "labelSmall"
+							 paddingLeft = "2">
+					<mx:click>
+						toggleTypeCheckboxes( 1 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Frag Anal"
+							 id = "fragCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleTypeCheckboxes( 2 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Mito DLoop"
+							 id = "mitoCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleTypeCheckboxes( 3 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Cherry Pick"
+							 id = "cherryCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleTypeCheckboxes( 4 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+			</mx:HBox>
+		</mx:HBox>
+		
 	</mx:VBox>
 	
 	<mx:VDividedBox width = "100%"
@@ -555,7 +712,9 @@
 					
 					<mx:DataGridColumn dataField = "@codeRequestStatus" headerText = "Status" width = "70" />
 					
-					<mx:DataGridColumn  headerText = "Samples" width = "100" />
+					<mx:DataGridColumn dataField = "@codeRequestCategory" headerText = "Type" width = "70" />
+					
+					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "100" />
 					
 					<mx:DataGridColumn dataField = "@notes" headerText = "Notes" width = "250" />
 					

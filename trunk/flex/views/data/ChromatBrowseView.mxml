@@ -304,15 +304,13 @@
 				 horizontalAlign="left"
 				 verticalAlign="middle">
 
-			<mx:Label text="Filter by:" paddingRight="20" />
+			<mx:Label text="Filter by:" width="65"/>
 
 			<mx:HBox horizontalGap="0"
 					 height="100%"
 					 verticalAlign="middle"
 					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="15">
+ 					 width="150">
 				<mx:Label text="Order #" />
 
 				<mx:TextInput id="requestNoLookupField"
@@ -340,8 +338,6 @@
 					 paddingRight="5">
 				<mx:CheckBox id="allCheckbox"
 							 label="All"
-							 paddingRight="0"
-							 paddingLeft="0"
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 0 );
@@ -417,7 +413,7 @@
 					 verticalGap="0"
 					 horizontalAlign="right"
 					 paddingLeft="5"
-					 paddingRight="0">
+					 paddingRight="5">
 				<mx:CheckBox id="releasedCheckbox"
 							 label="released to user"
 							 paddingRight="0"
@@ -450,6 +446,7 @@
 		</mx:HBox>
 			
 		<mx:HBox>
+			<mx:Spacer width="215" height="100%"/>
 			<mx:Label text="instrument run:" />
 		</mx:HBox>
 	</mx:VBox>

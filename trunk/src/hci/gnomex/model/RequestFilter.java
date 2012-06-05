@@ -23,7 +23,7 @@ public class RequestFilter extends DetailObject {
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
 
-  
+  private String                codeRequestCategory;
   private String                status;
   
   private StringBuffer          queryBuf;
@@ -146,6 +146,12 @@ public class RequestFilter extends DetailObject {
       queryBuf.append(status);
       queryBuf.append("%'");
     } 
+    if (codeRequestCategory != null && !codeRequestCategory.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory like '");
+      queryBuf.append(codeRequestCategory);
+      queryBuf.append("%'");
+    } 
   }
   
   private void addSecurityCriteria() {
@@ -253,6 +259,16 @@ public class RequestFilter extends DetailObject {
   
   public void setLastYear( String lastYear ) {
     this.lastYear = lastYear;
+  }
+
+  
+  public String getCodeRequestCategory() {
+    return codeRequestCategory;
+  }
+
+  
+  public void setCodeRequestCategory( String codeRequestCategory ) {
+    this.codeRequestCategory = codeRequestCategory;
   }
 
   public String getStatus() {

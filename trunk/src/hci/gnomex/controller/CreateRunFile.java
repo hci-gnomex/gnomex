@@ -77,10 +77,12 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
       if( this.isValid() ) {
         if( 1==1 ) { //this.getSecAdvisor().canRead( plate ) ) {
 
-          // SHOULD THIS ONLY CHANGE IF THE STATUS IS CURRENTLY PENDING?  
-          // OR IF THERE IS NOT STATUS ASSOCIATED WITH THE RUN YET?
           // Change run status
-          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.RUNNING );
+          if ( ir.getCodeInstrumentRunStatus() == null || 
+               ir.getCodeInstrumentRunStatus().equals( InstrumentRunStatus.PENDING ) ) {
+            ir.setCodeInstrumentRunStatus( InstrumentRunStatus.RUNNING );
+          }
+          
           changeRequestsToProcessing( sess, ir );
           sess.flush();
           
@@ -269,7 +271,12 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
     for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
-      req.setCodeRequestStatus( RequestStatus.PROCESSING );
+      if ( req.getCodeRequestStatus() == null ) {
+        req.setCodeRequestStatus( RequestStatus.PROCESSING );
+      } else if ( req.getCodeRequestStatus().equals( RequestStatus.NEW ) || 
+                  req.getCodeRequestStatus().equals( RequestStatus.SUBMITTED ) ) {
+        req.setCodeRequestStatus( RequestStatus.PROCESSING );
+      }
     }
     sess.flush();
   }

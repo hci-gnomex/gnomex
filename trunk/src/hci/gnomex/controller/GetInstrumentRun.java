@@ -92,8 +92,8 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
             if ( idRequestString != null && !idRequestString.equals("")) {
               Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
               if ( request != null ) {
-                node.setAttribute("RequestSubmitDate", request.getCreateDate().toString());
-                node.setAttribute("RequestSubmitter", request.getOwnerName());
+                node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
+                node.setAttribute("requestSubmitter", request.getOwnerName());
 
               }
             }

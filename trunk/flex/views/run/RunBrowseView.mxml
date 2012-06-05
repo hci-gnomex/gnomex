@@ -155,12 +155,24 @@
 					params.status = 'FAILED' ;
 				}
 				
+				if ( this.capSeqCheckbox.selected ) {
+					params.codeReactionType = 'SEQ' ;
+				}
+				if ( this.fragCheckbox.selected ) {
+					params.codeReactionType = 'FRAG' ;
+				}
+				if ( this.mitoCheckbox.selected ) {
+					params.codeReactionType = 'MIT' ;
+				}
+				if ( this.cherryCheckbox.selected ) {
+					params.codeReactionType = 'CHERRY' ;
+				}
+				
 				return params;
 			}
 			
 			private function checkEmptyFilter():Boolean {
-				var empty:Boolean = true;
-				
+								
 				if ( this.createdLastWeekCheckbox.selected ) {
 					return false ;
 				}
@@ -197,8 +209,20 @@
 				if ( this.failedCheckbox.selected ) {
 					return false ;
 				}
+				if ( this.capSeqCheckbox.selected ) {
+					return false;
+				}
+				if ( this.fragCheckbox.selected ) {
+					return false;
+				}
+				if ( this.mitoCheckbox.selected ) {
+					return false;
+				}
+				if ( this.cherryCheckbox.selected ) {
+					return false;
+				}
 				
-				return empty;
+				return true;
 			}
 			
 			private function selectedFilterFunc(item:XML):Boolean {
@@ -221,6 +245,11 @@
 					this.runningCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
+					
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
@@ -303,6 +332,31 @@
 					this.completeCheckbox.selected  = false;
 					
 				} 
+			}
+			
+			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
+				
+				if (checkBoxNumber == 1) {
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.capSeqCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.cherryCheckbox.selected = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					
+				}     
 			} 	
 			
 		]]>
@@ -526,6 +580,64 @@
 					
 				</mx:CheckBox>
 				
+				<mx:VRule height="20" />
+				
+				<mx:HBox id = "typeCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
+					<mx:CheckBox label = "Cap Seq"
+								 id = "capSeqCheckbox"
+								 horizontalGap = "0"
+								 styleName = "labelSmall"
+								 paddingLeft = "2">
+						<mx:click>
+							toggleTypeCheckboxes( 1 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Frag Anal"
+								 id = "fragCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleTypeCheckboxes( 2 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Mito DLoop"
+								 id = "mitoCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleTypeCheckboxes( 3 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Cherry Pick"
+								 id = "cherryCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleTypeCheckboxes( 4 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+				</mx:HBox>
 			</mx:HBox>
 		
 	</mx:VBox>

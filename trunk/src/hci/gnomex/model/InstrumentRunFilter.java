@@ -15,6 +15,7 @@ public class InstrumentRunFilter extends DetailObject {
   private String                getAll = "N";
 
   private String                status;
+  private String                codeReactionType;
 
   private String                runLastWeek = "N";
   private String                runLastMonth = "N";
@@ -57,6 +58,7 @@ public class InstrumentRunFilter extends DetailObject {
     boolean hasLimitingCriteria = false;
     if (idInstrumentRun != null ||
         (status != null && !status.equals("")) ||
+        (codeReactionType != null && !codeReactionType.equals("")) ||
         (runLastWeek != null && runLastWeek.equals("Y")) ||
         (runLastMonth != null && runLastMonth.equals("Y")) ||
         (runLastThreeMonths != null && runLastThreeMonths.equals("Y")) ||
@@ -104,6 +106,13 @@ public class InstrumentRunFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append("(");
       queryBuf.append(" ir.codeInstrumentRunStatus like '%" + status + "%'");
+      queryBuf.append(")");
+    }
+    
+    if (codeReactionType != null && !codeReactionType.equals("")) {
+      this.addWhereOrAnd();
+      queryBuf.append("(");
+      queryBuf.append(" ir.codeReactionType like '%" + codeReactionType + "%'");
       queryBuf.append(")");
     }
 
@@ -255,6 +264,16 @@ public class InstrumentRunFilter extends DetailObject {
     this.status = status;
   }
 
+
+  
+  public String getCodeReactionType() {
+    return codeReactionType;
+  }
+
+  
+  public void setCodeReactionType( String codeReactionType ) {
+    this.codeReactionType = codeReactionType;
+  }
 
   public String getGetAll()
   {

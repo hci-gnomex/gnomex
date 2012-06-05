@@ -121,6 +121,8 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         // Change request status...
         if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) ) {
           changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
+        } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.PENDING ) ) {
+          changeRequestStatus( sess, ir, RequestStatus.SUBMITTED );
         } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.COMPLETE ) ){
           changeRequestStatus( sess, ir, RequestStatus.COMPLETED );
         } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.FAILED ) ){
