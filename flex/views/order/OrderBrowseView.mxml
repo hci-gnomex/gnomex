@@ -18,12 +18,12 @@
 	</mx:HTTPService >
 	
 	<mx:HTTPService 
-		id="saveRequest" 
-		url="SaveRequest.gx"
+		id="changeRequestStatus" 
+		url="ChangeRequestStatus.gx"
 		resultFormat="e4x"
-		result="onSaveRequest(event)"
+		result="onChangeRequestStatus(event)"
 		showBusyCursor="true"
-		fault="parentApplication.onFailHttpRequest('Unable to save order', event)"
+		fault="parentApplication.onFailHttpRequest('Unable to save order(s)', event)"
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService >
@@ -58,7 +58,6 @@
 			public var parentView:NavOrderView;
 			
 			private function init():void {
-//				this.getList();
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
@@ -91,20 +90,19 @@
 					return;
 				}
 				for each ( var req:Object in selectedOrders ) {
-					req.@codeRequestStatus = comboBox.selectedItem.@codeRequestStatus;
-					
 					var params:Object = new Object;
-					params.requestXMLString = req.toXMLString();
-					saveRequest.send( params );
+					params.idRequest = req.@idRequest;
+					params.codeRequestStatus = comboBox.selectedItem.@codeRequestStatus;
+					changeRequestStatus.send( params );
 				}
 			}
 
-			private function onSaveRequest( event:ResultEvent ):void {
+			private function onChangeRequestStatus( event:ResultEvent ):void {
 				if ( event.result.name() == "SUCCESS" ) {
 					this.getList();
 					return;
 				}
-				Alert.show( event.result..ERROR.@message.toString(), "Error saving orders" );
+				Alert.show( event.result..ERROR.@message.toString(), "Error saving order(s)" );
 				
 			}
 
@@ -125,6 +123,8 @@
 			
 			private function getOrderParameters():Object {
 				var params:Object = new Object;
+				
+				params.includeSampleInfo = 'Y';
 				
 				if ( checkEmptyFilter() ) {
 					params.number = 0;
