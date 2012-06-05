@@ -192,9 +192,11 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
         parentNode = statusNode;
       } else if (filter.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
         parentNode = new Element("Assay");
+        parentNode.setAttribute("label", assayKey);
         statusNode.addContent(parentNode);
-      } if (filter.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+      } else if (filter.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
         parentNode = new Element("Primer");
+        parentNode.setAttribute("label", assayKey);
         statusNode.addContent(parentNode);
       } else {
         parentNode = statusNode;
