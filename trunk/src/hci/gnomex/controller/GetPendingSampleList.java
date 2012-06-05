@@ -55,6 +55,8 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
   TreeMap<Integer, List<Object[]>> requestMap = null;
 
   
+  private static final String DELIM = ",,,";
+  
   public void validate() {
   }
   
@@ -157,9 +159,12 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       String assayKey = " ";
       if (idAssay != null && idAssay.intValue() != -1) {
         assayKey = DictionaryManager.getDisplay("hci.gnomex.model.Assay", idAssay.toString());
+        assayKey += DELIM + idAssay;
       } else if (idPrimer != null && idPrimer.intValue() != -1){
         assayKey = DictionaryManager.getDisplay("hci.gnomex.model.Primer", idPrimer.toString());
+        assayKey += DELIM + idPrimer;
       }
+      
       
       requestMap = assayMap.get(assayKey);
       if (requestMap == null) {
@@ -186,17 +191,30 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     // for every row associated with the request.
     for(Iterator i = assayMap.keySet().iterator(); i.hasNext();) {
       String assayKey = (String)i.next();
+      
+      String assay = null;
+      Integer id = null;
+      if (assayKey.equals(" ")) {
+        assay = " ";
+      } else {
+        String[] tokens = assayKey.split(DELIM);
+        assay = tokens[0];
+        id = Integer.valueOf(tokens[1]);
+      }
+      
       requestMap = assayMap.get(assayKey);
       
       if (filter.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
         parentNode = statusNode;
       } else if (filter.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
         parentNode = new Element("Assay");
-        parentNode.setAttribute("label", assayKey);
+        parentNode.setAttribute("label", assay);
+        parentNode.setAttribute("idAssay", id.toString());
         statusNode.addContent(parentNode);
       } else if (filter.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
         parentNode = new Element("Primer");
-        parentNode.setAttribute("label", assayKey);
+        parentNode.setAttribute("label", assay);
+        parentNode.setAttribute("idPrimer", id.toString());
         statusNode.addContent(parentNode);
       } else {
         parentNode = statusNode;
