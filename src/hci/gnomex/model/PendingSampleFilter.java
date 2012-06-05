@@ -79,7 +79,7 @@ public class PendingSampleFilter extends DetailObject {
     addWhere = true;
     queryBuf = new StringBuffer();
     
-    // Get all samples that are in tubes (well with no idPlate)
+    // Get all samples that are in tubes (well with no idPlate) or plates
     queryBuf.append(" SELECT     req.idRequest, ");
     queryBuf.append("            req.number, ");
     queryBuf.append("            req.codeRequestStatus, ");
