@@ -54,16 +54,16 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            well.idPrimer ");
     
     
-    queryBuf.append(" FROM       Plate as plate ");
-    queryBuf.append(" JOIN       plate.plateWells as well ");
-    queryBuf.append(" JOIN       well.sample as sample ");
-    queryBuf.append(" JOIN       sample.request as req ");
+    queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
     queryBuf.append(" JOIN       req.appUser as appUser ");
+    queryBuf.append(" JOIN       req.samples as sample ");
+    queryBuf.append(" JOIN       sample.wells as well ");
+    queryBuf.append(" LEFT JOIN  well.plate plate ");
     
     queryBuf.append(" WHERE well.redoFlag = 'Y' ");
-    queryBuf.append(" AND   plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
-    
+    queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
+
 
     addWhere = false;
     
