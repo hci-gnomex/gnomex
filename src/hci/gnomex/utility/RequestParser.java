@@ -274,21 +274,29 @@ public class RequestParser implements Serializable {
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 
-    for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
-      Element scNode = (Element)i1.next();
-      if (scNode.getAttributeValue("isSelected").equals("true")) {
-        this.propertiesToApplyMap.put(scNode.getAttributeValue("idProperty"), null);        
+    
+    if (n.getChild("PropertiesEntries") != null) {
+      for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
+        Element scNode = (Element)i1.next();
+        if (scNode.getAttributeValue("isSelected").equals("true")) {
+          this.propertiesToApplyMap.put(scNode.getAttributeValue("idProperty"), null);        
+        }
       }
     }
     
-    for (Iterator i1 = n.getChild("SeqLibTreatmentEntries").getChildren("SeqLibTreatment").iterator(); i1.hasNext();) {
+    
+    if (n.getChild("SeqLibTreatmentEntries") != null) {
+      for (Iterator i1 = n.getChild("SeqLibTreatmentEntries").getChildren("SeqLibTreatment").iterator(); i1.hasNext();) {
       Element sltNode = (Element)i1.next();
       this.seqLibTreatmentMap.put(sltNode.getAttributeValue("value"), null);        
+      }
     }
     
-    for (Iterator i1 = n.getChild("collaborators").getChildren("ExperimentCollaborator").iterator(); i1.hasNext();) {
-      Element collaboratorNode = (Element)i1.next();
-      this.collaboratorMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUploadData"));        
+    if (n.getChild("collaborators") != null) {
+      for (Iterator i1 = n.getChild("collaborators").getChildren("ExperimentCollaborator").iterator(); i1.hasNext();) {
+        Element collaboratorNode = (Element)i1.next();
+        this.collaboratorMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUploadData"));        
+      }
     }
     
     // Figure out if the user intended to save sample treatments
