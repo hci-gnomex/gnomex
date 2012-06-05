@@ -544,6 +544,9 @@
 					<item label="" icon="assets/microarray_small_single_color.png" />
 					<item label="" icon="assets/chart_line.png" />
 					<item label="" icon="assets/dna-helix-icon.png" />
+					<item label="" icon="assets/cherrypick.png" />
+					<item label="" icon="assets/fraganal.png" />
+					<item label="" icon="assets/mitseq.png" />
 				</items>    
 			);
 			
