@@ -1058,45 +1058,54 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       samplesAdded.add(sample);
     }
     
-    // create plates and plate wells.
-    Plate plate = requestParser.getPlate(idSampleString);
-    PlateWell well = requestParser.getWell(idSampleString);
-    if (plate != null && well != null) {
-      String idAsString = requestParser.getPlateIdAsString(idSampleString);
-      Plate realPlate = this.storePlateMap.get(idAsString);
-      if (realPlate == null) {
-        realPlate = plate;
-        if (plate.getIdPlate() != null) {
-          realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
-          realPlate.setLabel(plate.getLabel());
-        } else {
-          realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+    // create plates and plate wells for Cap Seq
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+      Plate plate = requestParser.getPlate(idSampleString);
+      PlateWell well = requestParser.getWell(idSampleString);
+      if (plate != null && well != null) {
+        // this means it was Plate container type.
+        String idAsString = requestParser.getPlateIdAsString(idSampleString);
+        Plate realPlate = this.storePlateMap.get(idAsString);
+        if (realPlate == null) {
+          realPlate = plate;
+          if (plate.getIdPlate() != null) {
+            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+            realPlate.setLabel(plate.getLabel());
+          } else {
+            realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          }
+          realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+          sess.save(realPlate);
+          sess.flush();
+          this.storePlateMap.put(idAsString, realPlate);
         }
-        realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-        sess.save(realPlate);
+        PlateWell realWell = well;
+        if (well.getIdPlateWell() != null) {
+          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlate());
+          realWell.setRow(well.getRow());
+          realWell.setCol(well.getCol());
+        } else {
+          // If this is a new well, we will assume that the samples are being saved
+          // in the order they are listed, so set the well position based on
+          // to sample count which is incremented as we iterate through the
+          // list of samples.
+          realWell.setPosition(new Integer(sampleCount));
+        }
+        realWell.setSample(sample);
+        realWell.setIdSample(sample.getIdSample());
+        realWell.setPlate(realPlate);
+        realWell.setIdPlate(realPlate.getIdPlate());
+        sess.save(realWell);
         sess.flush();
-        this.storePlateMap.put(idAsString, realPlate);
-      }
-      PlateWell realWell = well;
-      if (well.getIdPlateWell() != null) {
-        realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlate());
-        realWell.setRow(well.getRow());
-        realWell.setCol(well.getCol());
       } else {
-        // If this is a new well, we will assume that the samples are being saved
-        // in the order they are listed, so set the well position based on
-        // to sample count which is incremented as we iterate through the
-        // list of samples.
-        realWell.setPosition(new Integer(sampleCount));
+        well = new PlateWell();
+        well.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        well.setIdSample(sample.getIdSample());
+        well.setPosition(new Integer(sampleCount));
+        well.setSample(sample);
+        sess.save(well);
       }
-      realWell.setSample(sample);
-      realWell.setIdSample(sample.getIdSample());
-      realWell.setPlate(realPlate);
-      realWell.setIdPlate(realPlate.getIdPlate());
-      sess.save(realWell);
-      sess.flush();
     }
-    
     // create plate and plate wells for fragment analysis, if applicable
     if (assaysParser != null) {
       assaysParser.parse(sess);
