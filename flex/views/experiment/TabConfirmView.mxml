@@ -341,6 +341,16 @@
 				return item[column.dataField].toString();
 			}
 		}
+		
+		public function getSamplesConfirmGridRowNumber(item:Object,col:int):String
+		{
+			if (filteredSamples!= null) {
+				var x:int = filteredSamples.getItemIndex(item) + 1;
+				return String(x);     		
+			} else {
+				return "";
+			}
+		}
 	]]>
 	
 </mx:Script>
@@ -481,7 +491,7 @@
 					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{filteredSamples.length + longDescriptionRowCount}"
 					sortableColumns="false" alpha="0.8" fontSize="9" variableRowHeight="true" >
 					<mx:columns>
-						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="getSamplesConfirmGridRowNumber"/>
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
 						<mx:DataGridColumn id="plateNameCol" visible="false" headerText="Plate" width="80" dataField="@plateName"/>
 						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
