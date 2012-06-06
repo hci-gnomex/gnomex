@@ -166,5 +166,7 @@ public class PlateWell extends HibernateDetailObject {
     this.idPrimer = idPrimer;
   }
   
-    
+  public String getWellName() {
+    return this.row + this.col.toString();
+  }
 }

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.Document;
@@ -39,6 +40,7 @@ import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
@@ -402,6 +404,41 @@ public class GetRequest extends GNomExCommand implements Serializable {
             GetRequestDownloadList.addExpandedFileNodes(baseDir, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh);
           }
 
+          // Default to not breaking otu samples by plates.
+          requestNode.setAttribute("hasPlates", "N");
+          
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)
+              && request.getSamples().size() > 0) {
+            ArrayList<Integer> sampleIds = new ArrayList<Integer>();
+            for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
+              Sample sample = (Sample)i1.next();
+              sampleIds.add(sample.getIdSample());
+            }
+            String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
+            Query plateQuery = sess.createQuery(plateQueryString);
+            plateQuery.setParameterList("ids", sampleIds);
+            List wells = plateQuery.list();
+            if (wells.size() > 0) {
+              // has plates, so it's not tubes.
+              requestNode.setAttribute("hasPlates", "Y");
+            
+              // augment samples for plates.
+              List samples = requestNode.getChild("samples").getChildren("Sample");
+              for (Iterator i1 = samples.iterator(); i1.hasNext();) {
+                Element sampleNode = (Element)i1.next();
+                for (Iterator i2 = wells.iterator(); i2.hasNext();) {
+                  PlateWell pw = (PlateWell)i2.next();
+                  if (pw.getIdSample().toString().equals(sampleNode.getAttributeValue("idSample"))) {
+                    sampleNode.setAttribute("wellName", pw.getWellName());
+                    sampleNode.setAttribute("idPlateWell", pw.getIdPlateWell().toString());
+                    sampleNode.setAttribute("idPlate", pw.getIdPlate().toString());
+                    sampleNode.setAttribute("plateName", pw.getPlate().getLabel());
+                  }
+                }
+              }
+            }
+         }
+          
           doc.getRootElement().addContent(requestNode);
         
           XMLOutputter out = new org.jdom.output.XMLOutputter();
