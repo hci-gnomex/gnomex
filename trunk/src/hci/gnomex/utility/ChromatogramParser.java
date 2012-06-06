@@ -6,6 +6,7 @@ import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 
 import java.io.Serializable;
@@ -15,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -91,6 +93,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     int                   idRequest = 0;
     String                released = "N";
     String                releaseDateStr = null;
+    String                requeue = "N";
     String                fileName = null;
     String                qualifiedFilePath = null;
     String                displayName = null;
@@ -108,6 +111,9 @@ public class ChromatogramParser extends DetailObject implements Serializable
     }
     if (n.getAttributeValue("released") != null && n.getAttributeValue("released").equals("Y")) {
       released = "Y";
+    }
+    if (n.getAttributeValue("requeue") != null && n.getAttributeValue("requeue").equals("Y")) {
+      requeue = "Y";
     }
     
     if (n.getAttributeValue("idPlateWell") != null && !n.getAttributeValue("idPlateWell").equals("")) {
@@ -174,6 +180,10 @@ public class ChromatogramParser extends DetailObject implements Serializable
     if ( cSignalStrength != 0 )  {ch.setcSignalStrength( cSignalStrength );}
     if ( gSignalStrength != 0 ) {ch.setgSignalStrength( gSignalStrength );}
     if ( tSignalStrength != 0 ) {ch.settSignalStrength( tSignalStrength );}
+    
+    if ( requeue.equals( "Y" )) {
+      requeueSourceWells( idPlateWell, sess );
+    }
   }
 
   public void setChMap( Map chMap ) {
@@ -194,5 +204,49 @@ public class ChromatogramParser extends DetailObject implements Serializable
     this.chromatList = chromatList;
   }
 
+  private void requeueSourceWells( int idReactionWell, Session sess ) {
+      PlateWell reactionWell = (PlateWell) sess.get( PlateWell.class, idReactionWell );
+      StringBuffer buf = getRedoQuery( reactionWell );
+      Query query = sess.createQuery(buf.toString());
+      List redoWells = query.list();
+      
+      // If source redo wells are found, mark the reaction well as a redo, and
+      // remove redo flag from the source wells.
+      for ( Iterator i2 = redoWells.iterator(); i2.hasNext();) {
+        PlateWell redoWell = (PlateWell) i2.next();
+        redoWell.setRedoFlag( "Y" );
+      }
+    }
+  
+  private StringBuffer getRedoQuery( PlateWell reactionWell ) {
+    StringBuffer    queryBuf = new StringBuffer();
+    queryBuf.append(" SELECT     well FROM PlateWell as well ");
+    queryBuf.append(" LEFT JOIN  well.plate plate ");
+    
+    // Filter to get source wells with redo flags
+    queryBuf.append(" WHERE well.redoFlag = 'N' ");
+    queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
+    // with sample, request, assay, and primer matching the reaction well
+    if ( reactionWell.getIdSample() != null ) {
+      queryBuf.append(" AND   (well.idSample = '" + reactionWell.getIdSample() + "') ");
+    }
+    if ( reactionWell.getIdRequest() != null ) {
+      queryBuf.append(" AND   (well.idRequest = '" + reactionWell.getIdRequest() + "') ");
+    }
+    if ( reactionWell.getIdAssay() != null ) {
+      queryBuf.append(" AND   (well.idAssay = '" + reactionWell.getIdAssay() + "') "); 
+    }
+    if ( reactionWell.getIdPrimer() != null ) {
+      queryBuf.append(" AND   (well.idPrimer = '" + reactionWell.getIdPrimer() + "') ");
+    }
+    if ( reactionWell.getCodeReactionType() != null ) {
+      queryBuf.append(" AND   (well.codeReactionType = '" + reactionWell.getCodeReactionType() + "') ");
+    } else {
+      queryBuf.append(" AND   (well.codeReactionType is null) ");
+    }
 
+    return queryBuf;
+    
+  }
+  
 }

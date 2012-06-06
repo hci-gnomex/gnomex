@@ -271,7 +271,15 @@
 							well = gi.getChildAt( 0 ) as WellContainer;
 							
 							if ( well.hasSample ) {
-								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.position + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
+								wellXMLString += "<PlateWell " + 
+									" row ='" + well.row + "'" + 
+									" col ='" + well.col + "'" + 
+									" index ='" + well.position + "'" + 
+									" idSample ='" + well.idSample + "'" + 
+									" idRequest ='" + well.getGroupId() + "'" + 
+									" idPlateWell ='" + well.idPlateWell + "'" + 
+									" idAssay ='" + well.idAssay + "'" + 
+									" idPrimer ='" + well.idPrimer + "'" +  "/>";
 							}
 						}
 					}
@@ -284,7 +292,15 @@
 							well = gi.getChildAt( 0 ) as WellContainer;
 							
 							if ( well.hasSample ) {
-								wellXMLString += "<PlateWell " + " row ='" + well.row + "'" + " col ='" + well.col + "'" + " index ='" + well.position + "'" + " idSample ='" + well.idSample + "'" + " idRequest ='" + well.getGroupId() + "'" + " idPlateWell ='" + well.idPlateWell + "'" + "/>";
+								wellXMLString += "<PlateWell " + 
+									" row ='" + well.row + "'" + 
+									" col ='" + well.col + "'" + 
+									" index ='" + well.position + "'" + 
+									" idSample ='" + well.idSample + "'" + 
+									" idRequest ='" + well.getGroupId() + "'" + 
+									" idPlateWell ='" + well.idPlateWell + "'" + 
+									" idAssay ='" + well.idAssay + "'" + 
+									" idPrimer ='" + well.idPrimer + "'" + "/>";
 							}
 						}
 					}
@@ -358,6 +374,17 @@
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
 						well.setSample( sample );
+						well.plateView = this.parentDocument as NavPlateView;
+						break;
+					}
+				}
+			}
+			
+			public function addWellObject( index:int, wo:Object ):void {
+				
+				for each ( var well:WellContainer in getWells()) {
+					if ( well.position == index ) {
+						well.loadWellObject( wo );
 						well.plateView = this.parentDocument as NavPlateView;
 						break;
 					}

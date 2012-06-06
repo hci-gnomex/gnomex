@@ -602,7 +602,7 @@
 						
 					</mx:CheckBox>
 					
-					<mx:CheckBox label = "Frag Anal"
+					<mx:CheckBox label = "Frag Analysis"
 								 id = "fragCheckbox"
 								 paddingLeft = "2"
 								 horizontalGap = "0"

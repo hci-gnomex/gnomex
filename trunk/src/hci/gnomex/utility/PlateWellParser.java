@@ -39,10 +39,10 @@ public class PlateWellParser extends DetailObject implements Serializable
       String idPlateWellString = node.getAttributeValue("idPlateWell");
 
       if (idPlateWellString.equals(null) || idPlateWellString.equals("0")) {
-        
+
         isNewWell = true;
         well = new PlateWell();
-        
+
       } else {
         isNewWell = false;
         well = (PlateWell) sess.get(PlateWell.class,
@@ -62,22 +62,20 @@ public class PlateWellParser extends DetailObject implements Serializable
 
   protected void initializePlateWell(Session sess, Element n,
       PlateWell well) throws Exception {
-    
-    // Can't do this unless we use samples from the DB - foreign key!
+
+    // Sample 
     if (n.getAttributeValue("idSample") != null
-        && !n.getAttributeValue("idSample").equals("")) {
-      
+        && !n.getAttributeValue("idSample").equals("0")) {
+
       Sample samp = (Sample) sess.get(Sample.class,
           new Integer(n.getAttributeValue("idSample")));
-      
+
       if (samp!=null) {
         well.setIdSample(new Integer(n.getAttributeValue("idSample")));
-        
         well.setSample(samp);
       }
-      
     } 
-    
+    // Request
     if (n.getAttributeValue("idRequest") != null
         && !n.getAttributeValue("idRequest").equals("----")) {
       try {
@@ -88,28 +86,45 @@ public class PlateWellParser extends DetailObject implements Serializable
     } else {
       well.setIdRequest(null);
     }
-    
+    // Assay
+    if (n.getAttributeValue("idAssay") != null
+        && !n.getAttributeValue("idAssay").equals("0")) {
+      try {
+        well.setIdAssay(new Integer(n.getAttributeValue("idAssay"))); 
+      } catch (NumberFormatException e) {
+        well.setIdAssay(null);
+      }
+    } 
+    // Primer
+    if (n.getAttributeValue("idPrimer") != null
+        && !n.getAttributeValue("idPrimer").equals("0")) {
+      try {
+        well.setIdPrimer(new Integer(n.getAttributeValue("idPrimer"))); 
+      } catch (NumberFormatException e) {
+        well.setIdPrimer(null);
+      }
+    } 
+    // Redo
+    if (n.getAttributeValue("redoFlag") != null
+        && !n.getAttributeValue("redoFlag").equals("")) {
+      well.setRedoFlag(n.getAttributeValue("redoFlag"));
+    }
+    // Row
     if (n.getAttributeValue("row") != null
         && !n.getAttributeValue("row").equals("")) {
       well.setRow(n.getAttributeValue("row"));
-    } else {
-      well.setIdRequest(null);
-    }
-    
+    } 
+    // Col
     if (n.getAttributeValue("col") != null
         && !n.getAttributeValue("col").equals("")) {
       well.setCol(new Integer(n.getAttributeValue("col")));
-    } else {
-      well.setCol(null);
-    }
-    
+    } 
+    // Index
     if (n.getAttributeValue("index") != null
         && !n.getAttributeValue("index").equals("")) {
       well.setPosition(new Integer(n.getAttributeValue("index")));
-    } else {
-      well.setPosition(null);
-    }
-    
+    } 
+
   }
 
   public Map getWellMap() {

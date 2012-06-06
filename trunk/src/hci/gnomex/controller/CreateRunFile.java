@@ -261,7 +261,10 @@ public class CreateRunFile extends GNomExCommand implements Serializable {
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
-      if ( !requests.containsKey( well.getIdRequest() ) ) {
+      if ( well.getIdRequest() == null ) {
+        break;
+      }
+      if ( !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
         Request req = (Request) sess.get(Request.class, well.getIdRequest());
         requests.put( req.getIdRequest(), req );
       }

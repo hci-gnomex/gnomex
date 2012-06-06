@@ -180,6 +180,16 @@
 					params.chromatogramXMLString = selectedChromats.toXMLString();
 					saveChromatogramList.send( params );
 				}
+				// Release and Requeue
+				if ( comboBox.selectedItem.@value == "REQUEUE" ) {
+					for each ( var ch:Object in selectedChromats ) {
+						ch.@released = "Y";
+						ch.@requeue = "Y";
+					}
+					var params:Object = new Object;
+					params.chromatogramXMLString = selectedChromats.toXMLString();
+					saveChromatogramList.send( params );
+				}
 			}
 
 

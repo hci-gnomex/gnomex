@@ -1420,7 +1420,9 @@
 
 				for each ( var pw:Object in plateObject..PlateWell ) {
 					var ind:int = pw.@position;
-					activePlate.addSampleToWell( ind, pw..Well );
+					
+					activePlate.addSampleToWell( ind, pw..Sample );
+					
 					var wc:WellContainer = activePlate.getWell( ind ) as WellContainer;
 					wc.loadWellObject(pw);
 					wc.plateView = this;
@@ -1494,6 +1496,7 @@
 						if ( statusComboBox.selectedIndex != -1 ) {
 							params.codeInstrumentRunStatus = statusComboBox.selectedItem.@codeInstrumentRunStatus;
 						}
+						params.disassociatePlates = 'Y';
 						saveInstrumentRun.send( params );
 						
 					} else {
@@ -1512,6 +1515,7 @@
 						if ( statusComboBox.selectedIndex != -1 ) {
 							param.codeInstrumentRunStatus = statusComboBox.selectedItem.@codeInstrumentRunStatus;
 						}
+						param.disassociatePlates = 'Y';
 						saveInstrumentRun.send( param );
 					}
 				}
@@ -1536,9 +1540,9 @@
 					
 					runNumberLabel.text = "" + runs[ currentRun ].idRun;
 					savePlates( runNumber );
-					// NEEED TO RELOAD THE RUN OR AT LEAST REFRESH INFO BOX DISPLAY;
+					// NEED TO RELOAD THE RUN OR AT LEAST REFRESH INFO BOX DISPLAY;
 //					removeRun();
-//					refreshRunLists();
+					refreshRunLists();
 					switchToViewState();
 					loadRunById(idInstrumentRun.toString());
 				} else {
@@ -1639,7 +1643,8 @@
 
 					for each ( var pw:Object in savePlate.lastResult.Plate.PlateWell ) {
 						var ind:int = pw.@position;
-						plate.addSampleToWell( ind, pw..Well );
+						plate.addSampleToWell( ind, pw..Sample );
+						
 						var wc:WellContainer = plate.getWell( ind ) as WellContainer;
 						wc.loadWellObject(pw);
 						wc.plateView = this;
@@ -1748,7 +1753,7 @@
 					removePlate();
 					return;
 				}
-				Alert.show( "Are you sure you want to remove all samples and remove this plate?", "Confirm Remove Plate", ( Alert.YES | Alert.NO ), this, onPromptToRemovePlate, iconWarning );
+				Alert.show( "Are you sure you want to remove this plate?", "Confirm Remove Plate", ( Alert.YES | Alert.NO ), this, onPromptToRemovePlate, iconWarning );
 			}
 
 
@@ -3277,6 +3282,7 @@
 			<mx:RemoveChild target="{statusTextHBox}" />
 			<mx:RemoveChild target="{reactComboBox}"/>
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit"/>
+			<mx:RemoveChild target="{button2}"/>
 			
 		</mx:State>
 		
@@ -3363,6 +3369,8 @@
 			<mx:RemoveChild target="{runTitleLabel1}"/>
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:"/>
 			<mx:SetProperty target="{runNumberLabel}" name="width" value="5"/>
+			<mx:SetProperty target="{button2}" name="label" value="Clear Run"/>
+			<mx:SetProperty target="{button1}" name="label" value="Clear Plate"/>
 			
 		</mx:State>
 		

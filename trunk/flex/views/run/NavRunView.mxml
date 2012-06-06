@@ -28,48 +28,48 @@
 	
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
-	<mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
-		
-		
 		<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 			
 			
-			<!--<mx:VBox styleName="panelBox"   width="140" height="100%" >
+			<mx:VBox styleName="panelBox"   width="140" height="100%" >
 				
-				<mx:HBox width="100%">
-					<mx:Label id="titleLabel" styleName="titleLabel" text="To Do Box"/>
-					<mx:Label id="messageLabel" styleName="labelSmall" textAlign="right" width="100%"/>
-				</mx:HBox> 
-				
-				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
-					
-					<mx:Tree width="100%" height="100%" ></mx:Tree>
-					
-				</mx:VBox>
-				
-				<mx:ControlBar width="100%" verticalAlign="top">
-					
-					
-				</mx:ControlBar> 
+				<mx:LinkBar dataProvider="theViews"
+							styleName="navLinkBar"
+							textDecoration="underline"
+							direction="vertical"
+							height="202"
+							width="116"
+							paddingTop="4">
+				</mx:LinkBar>
 			
 			
-			</mx:VBox>-->  
+			</mx:VBox>  
 			
 			
 			
 			<mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
 				
-				<run:RunBrowseView id="browseView"  width="100%" height="100%" parentView="{this}">
+				<run:RunBrowseView label="Run List" 
+								   icon="@Embed('../../assets/run.png')"
+								   id="browseView"  
+								   width="100%" 
+								   height="100%" 
+								   parentView="{this}">
 				</run:RunBrowseView>
+				
+				<mx:VBox label="Plate List" 
+								   icon="@Embed('../../assets/plate.png')"
+								   id="plateBrowseView"  
+								   width="100%" 
+								   height="100%"  >
+				</mx:VBox>
 				
 			</mx:ViewStack>
 			
 			
 			
 		</mx:HDividedBox>
-	</mx:VBox>
-	
-	
+
 	
 	
 </mx:Canvas>
