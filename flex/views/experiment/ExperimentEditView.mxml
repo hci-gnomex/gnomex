@@ -2355,7 +2355,7 @@
 						}
 						if (controlSample == null || !controlSample.hasOwnProperty("@name") || controlSample.@name == null || controlSample.@name == "" 
 							|| !controlSample.hasOwnProperty("@isControl") || controlSample.@isControl == null || controlSample.@isControl != 'Y') {
-							warningMessage += "All plates do not have controls.\n\n";
+							warningMessage += "If you replace the control and the run fails, the results cannot be verified and we will not repeat the run.\n\n";
 							break;
 						}
 					}
