@@ -883,6 +883,15 @@
 				return "";
 			}
 		}
+		
+		public function plateNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+		{
+			if (item is XML) {
+				return "";
+			} else {
+				return item.groupLabel;
+			}
+		}
 
 	]]>
 </mx:Script>
@@ -993,7 +1002,7 @@
 									</mx:Component> 
 								</mx:headerRenderer> 
 						    </mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
+							<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
 							<mx:AdvancedDataGridColumn headerText="ID" width="60" dataField="@number"/>
 							<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"

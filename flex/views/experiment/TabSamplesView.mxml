@@ -1592,6 +1592,15 @@
 			}
 
 		}
+		
+		public function plateNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+		{
+			if (item is XML) {
+				return "";
+			} else {
+				return item.groupLabel;
+			}
+		}
 	]]>
 </mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1648,7 +1657,7 @@
 							</mx:Component> 
 						</mx:headerRenderer> 
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
+					<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" 
