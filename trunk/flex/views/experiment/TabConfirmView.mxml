@@ -188,7 +188,7 @@
 							newCol.resizable = false;
 							newCol.visible = true;
 							newCol.editable = false;
-							newCol.labelFunction = assayLabelFunction;
+							newCol.labelFunction = blankNLabelFunction;
 							var newColumns:Array = new Array();
 							var pushed:Boolean = false;
 							for each (var col0:DataGridColumn in samplesGridConfirm.columns) {
@@ -333,7 +333,7 @@
 			return null; 
 		} 
 		
-		public function assayLabelFunction(item:Object, column:DataGridColumn):String
+		public function blankNLabelFunction(item:Object, column:DataGridColumn):String
 		{
 			if (item[column.dataField].toString() == "N") {
 				return ""
@@ -495,7 +495,8 @@
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
 						<mx:DataGridColumn id="plateNameCol" visible="false" headerText="Plate" width="80" dataField="@plateName"/>
 						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-						<mx:DataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" dataField="@isControl">
+						<mx:DataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" dataField="@isControl"
+										    labelFunction="blankNLabelFunction">
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
 						</mx:DataGridColumn>

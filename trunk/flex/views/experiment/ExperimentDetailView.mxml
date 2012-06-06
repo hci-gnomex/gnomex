@@ -870,6 +870,19 @@
 				}
 			}
 		}
+		
+		public function isControlLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+		{
+			if (item is XML) {
+				if (item.@isControl == "N") {
+					return "";
+				} else {
+					return item.@isControl;
+				}
+			} else {
+				return "";
+			}
+		}
 
 	]]>
 </mx:Script>
@@ -983,7 +996,8 @@
 							<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
 							<mx:AdvancedDataGridColumn headerText="ID" width="60" dataField="@number"/>
 							<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"/>
+							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"
+													    labelFunction="isControlLabelFunction"/>
 							<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
