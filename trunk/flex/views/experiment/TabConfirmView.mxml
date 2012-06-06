@@ -188,6 +188,7 @@
 							newCol.resizable = false;
 							newCol.visible = true;
 							newCol.editable = false;
+							newCol.labelFunction = assayLabelFunction;
 							var newColumns:Array = new Array();
 							var pushed:Boolean = false;
 							for each (var col0:DataGridColumn in samplesGridConfirm.columns) {
@@ -331,7 +332,17 @@
 		public function getEmptyTreeIcon(item:Object):Class {
 			return null; 
 		} 
+		
+		public function assayLabelFunction(item:Object, column:DataGridColumn):String
+		{
+			if (item[column.dataField].toString() == "N") {
+				return ""
+			} else {
+				return item[column.dataField].toString();
+			}
+		}
 	]]>
+	
 </mx:Script>
 	<mx:XMLListCollection id="filteredSamples"/>
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
@@ -582,7 +593,7 @@
       						<mx:HierarchicalData source="{parentDocument.multiplexLanes}"/> 
     					</mx:dataProvider> 						
 					<mx:columns>
-					    <mx:AdvancedDataGridColumn  headerText=""  width="20" id="multiplexGroupNumberCol" dataField="@number" editable="false"/>
+					    <mx:AdvancedDataGridColumn  headerText=""  width="20" id="multiplexGroupNumberCol" dataField="@number" editable="false" />
 					    <mx:AdvancedDataGridColumn  headerText="Sample"  width="100" dataField="@sampleName" editable="false"/>
 			            <mx:AdvancedDataGridColumn  width="200" id="seqRunTypeCol" headerText="Seq Run Type"  dataField="@idSeqRunType" 						             						             
                   		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
