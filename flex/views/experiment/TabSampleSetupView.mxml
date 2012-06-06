@@ -264,8 +264,91 @@
 					this.primer4Combo.selectedItem  != null && this.primer4Combo.selectedItem.@value != '' &&
 					this.primer5Combo.selectedItem  != null && this.primer5Combo.selectedItem.@value != '' &&
 					this.primer6Combo.selectedItem  != null && this.primer6Combo.selectedItem.@value != '') {
-					
-					isComplete = true;
+					this.primer1Combo.setStyle("fillColors", ["white", "white"]);
+					this.primer2Combo.setStyle("fillColors", ["white", "white"]);
+					this.primer3Combo.setStyle("fillColors", ["white", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["white", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["white", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["white", "white"]);
+					var foundDupe:Boolean = false;
+					if (this.primer1Combo.selectedItem.@value == primer2Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer1Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer1Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer1Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer1Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer2Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer2Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer2Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer2Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer3Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer3Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer3Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer4Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer4Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (this.primer5Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+						foundDupe = true;
+						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+					}
+					if (!foundDupe) {
+						isComplete = true;
+					}
 				}
 			} else if (parentDocument.isCherryPickState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -870,7 +953,7 @@
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:VBox width="100%" horizontalGap="0">
 				   <mx:Label text="(2) Choose the Assays to be used." width="310"  id="labelAssayHeader"/>
-				   <mx:Tile id="assayTile" direction="horizontal" borderStyle="none"
+				   <mx:Tile id="assayTile" direction="vertical" borderStyle="none"
 							paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
 							verticalGap="0" horizontalGap="0" tileWidth="200"> 
 					   <mx:Repeater id="assayRepeater" dataProvider="{parentDocument.assayCollection}">
