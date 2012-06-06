@@ -215,9 +215,13 @@
 			var showSampleMultiplexGroup:Boolean = false;
 			var showSampleBarcode:Boolean = false;
 			var showSampleCustomBarcode:Boolean = false;
+			var showPlates:Boolean = false;
 			for each (var s:Object in samples) {
 				if (s.@multiplexGroupNumber != '') {
 					showSampleMultiplexGroup = true;
+				}
+				if (isCapSeqState() && s.hasOwnProperty("@plateName") && s.@plateName != '') {
+					showPlates = true;
 				}
 				if (s.@idOligoBarcode != '' ) {
 					showSampleBarcode = true;
@@ -226,7 +230,30 @@
 				}
 			}
 			
-        	if (showSampleMultiplexGroup) {
+			if (showPlates) {
+				
+				this.samplesGridConfirm.dataProvider = null;
+				sampleGroupingCollection = new GroupingCollection();
+				sampleGroupingCollection.source = this.samples;
+				var groupCapSeq:Grouping = new Grouping();
+				var gfCapSeq:GroupingField = new GroupingField();
+				gfCapSeq.name = "@plateName";
+				groupCapSeq.fields = [gfCapSeq];
+				gfCapSeq.compareFunction = sampleCompareFunction;
+				sampleGroupingCollection.grouping  = groupCapSeq;
+				sampleGroupingCollection.refresh(); 
+				this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
+				
+				this.samplesGridConfirm.dragMoveEnabled = false;
+				this.samplesGridConfirm.dropEnabled = false;
+				this.samplesGridConfirm.dragEnabled = false;
+				
+				
+				this.switchFirstSampleGridColumns(this.plateNameCol, this.multiplexGroupNumberColumn);
+				this.plateNameCol.visible = true;
+				this.multiplexGroupNumberColumn.visible = false;
+
+			} else if (showSampleMultiplexGroup) {
 
         		this.samplesGridConfirm.dataProvider = null;
         		sampleGroupingCollection = new GroupingCollection();
@@ -240,7 +267,9 @@
         		sampleGroupingCollection.refresh();
         		this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
        
-        		this.multiplexGroupNumberColumn.visible = true;
+				this.multiplexGroupNumberColumn.visible = true;
+				switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
+				this.plateNameCol.visible = false;
 
         	} else {
         		sampleGroupingCollection = null;
@@ -261,6 +290,16 @@
 			this.samplesGridConfirm.validateNow();
 		}
 		
+		private function switchFirstSampleGridColumns (col1:AdvancedDataGridColumn, col2:AdvancedDataGridColumn):void {
+			var columns:Array = [];
+			columns[0] = col1;
+			columns[1] = col2;
+			for(var i:int = 2;i < this.samplesGridConfirm.columns.length;i++) {
+				columns[i] = this.samplesGridConfirm.columns[i];
+			}
+			this.samplesGridConfirm.columns = columns;
+		}
+
 		private function sampleCompareFunction(a:XML, b:XML):int
 		{
 			var aPersistFlag:Number = 0;
@@ -472,6 +511,13 @@
 				chipTypeCol.visible = false;
 				concentrationUnitCol.visible = false;
 				barcodeCol.visible = false;
+				plateNameCol.visible = false;
+				wellNameCol.visible = false;
+				isControlCol.visible = false;
+				this.qc260Col.visible = false;
+				this.qcConcCol.visible = false;
+				this.qcRINCol.visible = false;
+				this.qcStatusCol.visible = true;
 				
 			} else if (currentState == 'ExternalMicroarrayState') {
 				sampleTypeCol.visible = true;
@@ -484,7 +530,14 @@
 				chipTypeCol.visible = false;
 				concentrationUnitCol.visible = false;        		
 				barcodeCol.visible = false;
-				
+				plateNameCol.visible = false;
+				wellNameCol.visible = false;
+				isControlCol.visible = false;
+				this.qc260Col.visible = false;
+				this.qcConcCol.visible = false;
+				this.qcRINCol.visible = false;
+				this.qcStatusCol.visible = true;
+
 			} else {
   
 				descriptionCol.visible = true;   
@@ -497,6 +550,13 @@
 					otherSamplePrepMethodCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
+					plateNameCol.visible = false;
+					wellNameCol.visible = false;
+					isControlCol.visible = false;
+					this.qc260Col.visible = true;
+					this.qcConcCol.visible = true;
+					this.qcRINCol.visible = true;
+					this.qcStatusCol.visible = true;
 	        		
 	        	} else if (currentState == 'QCState') {
 					concentrationCol.visible = false; 
@@ -506,7 +566,28 @@
 					otherSamplePrepMethodCol.visible = true;
 					chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
 					concentrationUnitCol.visible = true;
-	        		
+					plateNameCol.visible = false;
+					wellNameCol.visible = false;
+					isControlCol.visible = false;
+					this.qc260Col.visible = true;
+					this.qcConcCol.visible = true;
+					this.qcRINCol.visible = true;
+					this.qcStatusCol.visible = true;
+				} else if (isCapSeqState()) {
+					concentrationCol.visible = false; 
+					sampleTypeCol.visible = false;
+					organismCol.visible = false;
+					preppedByLabCol.visible = false;
+					otherSamplePrepMethodCol.visible = false;
+					chipTypeCol.visible = false
+					concentrationUnitCol.visible = false;
+					plateNameCol.visible = (this.selectedExperiment.@hasPlates == 'Y' ? true : false);
+					wellNameCol.visible = (this.selectedExperiment.@hasPlates == 'Y' ? true : false);
+					isControlCol.visible = (this.selectedExperiment.@hasPlates == 'Y' ? true : false);
+					this.qc260Col.visible = false;
+					this.qcConcCol.visible = false;
+					this.qcRINCol.visible = false;
+					this.qcStatusCol.visible = false;
 	        	} else {
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
@@ -515,6 +596,13 @@
 					otherSamplePrepMethodCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
+					plateNameCol.visible = false;
+					wellNameCol.visible = false;
+					isControlCol.visible = false;
+					this.qc260Col.visible = true;
+					this.qcConcCol.visible = true;
+					this.qcRINCol.visible = true;
+					this.qcStatusCol.visible = true;
         		}
         	} 
         	this.initializeBarcoding();
@@ -534,71 +622,80 @@
        		var annotation:Object;
        		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
-       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
-				if(annotation.@idProperty == "-1") {
-					continue;
-				}
-				
-				var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
-				var headerName:String = "";
-				if (property.@name == "Other" && annotation.@otherLabel != "" ) {
-					headerName = annotation.@otherLabel;
-					annotation.@isSelected = "true";
-				} else {
-					headerName = annotation.@name;
-				}
 
-				exists = false;
-				
-       			for each(col in samplesGridConfirm.columns) {
-					if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
-						exists = true;
-						col.visible    = annotation.@isSelected == "true" ? true : false;       				
-						col.headerText = headerName;
-						break;
-					}    				
-       			}
-				
-				// We already have this column.  Just set the header and visible and move on.
-				if (exists) {
-					continue;
-				}
-   				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
-   				newCol.dataField  = "@ANNOT" + annotation.@idProperty;
-   				newCol.headerText = headerName;
-   				newCol.visible    = (annotation.@isSelected == "true" ? true : false);
-				
-				if (property.@codePropertyType == 'MOPTION') {
-					newCol.itemRenderer =  MultiselectRenderer.create(false);
-				} else if (property.@codePropertyType == 'URL') {
-					newCol.itemRenderer = URLRenderer.create(false);
-				} else if (property.@codePropertyType == 'CHECK') {
-					// checkbox is just normal label renderer
-				} else if (property.@codePropertyType == 'OPTION') {
-					             
-					newCol.itemRenderer = views.renderers.DropdownLabel.create(
-						parentApplication.getPropertyOptions(annotation.@idProperty), 
-						'@option', 
-						'@idPropertyOption', 
-						"@ANNOT" + annotation.@idProperty,
-						false);                
-				} 
-				
+			// Make all annotation columns not visible
+			for each(col in samplesGridConfirm.columns) {
+				if (col.dataField != null && col.dataField.substr(0, 6) == "@ANNOT") {
+					col.visible    = false;       				
+				}    				
+			}
 
-				// Place the new column right after the description column
-				var columns:Array = samplesGridConfirm.columns;
-				var newColumns:Array = new Array();
-				for each(var column:AdvancedDataGridColumn in columns) {
-					if (column.dataField == "@description") {
-						newColumns.push(newCol);
+			if (!isCapSeqState()) {
+	       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
+					if(annotation.@idProperty == "-1") {
+						continue;
 					}
-					newColumns.push(column);
-				}
-				samplesGridConfirm.columns = newColumns;
-
-				samplesGridConfirm.validateNow();
-   			} 
-   		
+					
+					var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
+					var headerName:String = "";
+					if (property.@name == "Other" && annotation.@otherLabel != "" ) {
+						headerName = annotation.@otherLabel;
+						annotation.@isSelected = "true";
+					} else {
+						headerName = annotation.@name;
+					}
+	
+					exists = false;
+					
+	       			for each(col in samplesGridConfirm.columns) {
+						if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
+							exists = true;
+							col.visible    = annotation.@isSelected == "true" ? true : false;       				
+							col.headerText = headerName;
+							break;
+						}    				
+	       			}
+					
+					// We already have this column.  Just set the header and visible and move on.
+					if (exists) {
+						continue;
+					}
+	   				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
+	   				newCol.dataField  = "@ANNOT" + annotation.@idProperty;
+	   				newCol.headerText = headerName;
+	   				newCol.visible    = (annotation.@isSelected == "true" ? true : false);
+					
+					if (property.@codePropertyType == 'MOPTION') {
+						newCol.itemRenderer =  MultiselectRenderer.create(false);
+					} else if (property.@codePropertyType == 'URL') {
+						newCol.itemRenderer = URLRenderer.create(false);
+					} else if (property.@codePropertyType == 'CHECK') {
+						// checkbox is just normal label renderer
+					} else if (property.@codePropertyType == 'OPTION') {
+						             
+						newCol.itemRenderer = views.renderers.DropdownLabel.create(
+							parentApplication.getPropertyOptions(annotation.@idProperty), 
+							'@option', 
+							'@idPropertyOption', 
+							"@ANNOT" + annotation.@idProperty,
+							false);                
+					} 
+					
+	
+					// Place the new column right after the description column
+					var columns:Array = samplesGridConfirm.columns;
+					var newColumns:Array = new Array();
+					for each(var column:AdvancedDataGridColumn in columns) {
+						if (column.dataField == "@description") {
+							newColumns.push(newCol);
+						}
+						newColumns.push(column);
+					}
+					samplesGridConfirm.columns = newColumns;
+	
+					samplesGridConfirm.validateNow();
+	   			} 
+			}   		
         }
 
         private function showProtocol(idProtocol:Object, protocolClassName:String):void {
@@ -858,7 +955,10 @@
 									</mx:Component> 
 								</mx:headerRenderer> 
 						    </mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" />
 							<mx:AdvancedDataGridColumn headerText="ID" width="60" dataField="@number"/>
+							<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
+							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"/>
 							<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
@@ -899,14 +999,14 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 							
 	
-							<mx:AdvancedDataGridColumn visible="{currentState != 'ExternalSeqState' &amp;&amp; currentState != 'ExternalMicroarrayState'}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
-							<mx:AdvancedDataGridColumn visible="{currentState != 'ExternalSeqState' &amp;&amp; currentState != 'ExternalMicroarrayState'}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-							<mx:AdvancedDataGridColumn visible="{currentState != 'ExternalSeqState' &amp;&amp; currentState != 'ExternalMicroarrayState'}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+							<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
+							<mx:AdvancedDataGridColumn id="qc260Col" visible="false" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+							<mx:AdvancedDataGridColumn id="qcRINCol" visible="false" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
 			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 				 			<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
 							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
-							<mx:AdvancedDataGridColumn visible="true" headerText="QC Status" width="90" dataField="@qualStatus"/>
+							<mx:AdvancedDataGridColumn id='qcStatusCol' visible="true" headerText="QC Status" width="90" dataField="@qualStatus"/>
 	
 			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
