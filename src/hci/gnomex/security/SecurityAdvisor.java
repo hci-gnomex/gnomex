@@ -1559,7 +1559,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean isCoreFacilityIManage(Integer idCoreFacility) {
     boolean isMyCoreFacility = false;
     if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
-      for (Iterator i = this.getCoreFacilities().iterator(); i.hasNext();) {
+      for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
         CoreFacility coreFacility = (CoreFacility)i.next();
         if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
           isMyCoreFacility = true;
@@ -1568,24 +1568,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }
     return isMyCoreFacility;
-  }
-  
-  
-  public boolean isLabOfMyCoreFacility(Lab lab) {
-    boolean isLabOfMyCoreFacility = false;
-    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
-      for (Iterator i = this.getCoreFacilities().iterator(); i.hasNext();) {
-        CoreFacility coreFacility = (CoreFacility)i.next();
-        for (Iterator i1 = lab.getCoreFacilities().iterator(); i1.hasNext(); ) {
-          CoreFacility cf = (CoreFacility)i1.next();
-          if (coreFacility.getIdCoreFacility().equals(cf.getIdCoreFacility())) {
-            isLabOfMyCoreFacility = true;
-            break;
-          }
-        }
-      }
-    }
-    return isLabOfMyCoreFacility;
   }
 
   public boolean isInstitutionIAmMemberOf(Integer idInstitution) {
@@ -2016,7 +1998,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   
   private boolean appendCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
-    if (this.getCoreFacilities().isEmpty()) {
+    if (this.getCoreFacilitiesIManage().isEmpty()) {
       throw new RuntimeException("Unable to filter admin by core facilties -- no core facilities have been assiged to this user");
     }
     
@@ -2025,7 +2007,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // req.idLab in (....)
     queryBuf.append(classShortName);
     queryBuf.append(".idCoreFacility in ( ");
-    for(Iterator i = this.getCoreFacilities().iterator(); i.hasNext();) {
+    for(Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
       CoreFacility coreFacility = (CoreFacility)i.next();
       queryBuf.append(coreFacility.getIdCoreFacility());
       if (i.hasNext()) {
@@ -2507,7 +2489,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.version = version;
   }
 
-  public Set getCoreFacilities() {
+  public Set getCoreFacilitiesIManage() {
     if (appUser != null && appUser.getManagingCoreFacilities() != null) {
       return appUser.getManagingCoreFacilities();
     } else {
@@ -2515,8 +2497,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
   }
   
- 
+  public Set getCoreFacilitiesForMyLab() {
+    
+    TreeSet coreFacilities = new TreeSet();
+    if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      for(Iterator i = this.getAllMyGroups().iterator(); i.hasNext();) {
+        Lab l = (Lab)i.next();
+        coreFacilities.addAll(l.getCoreFacilities());
+      }
+    } 
+    return coreFacilities;
 
-  
-  
+  } 
 }
