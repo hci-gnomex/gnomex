@@ -1107,32 +1107,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
     // create plate and plate wells for fragment analysis, if applicable
-    if (assaysParser != null) {
-      assaysParser.parse(sess);
-
-      if (this.assayPlate == null) {
-        assayPlate = new Plate();
-        assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-        assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        sess.save(assayPlate);
-        sess.flush();
-      }
-      for (Integer assayNumber = 1; assayNumber < 5; assayNumber++) {
-        if (requestParser.doesSampleHaveAssay(idSampleString, assayNumber)) {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+      if (assaysParser != null) {
+        assaysParser.parse(sess);
+  
+        if (this.assayPlate == null) {
+          assayPlate = new Plate();
+          assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+          assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          sess.save(assayPlate);
+          sess.flush();
+        }
+        for (Integer assayNumber:requestParser.getAssays(idSampleString)) {
           PlateWell assayWell = new PlateWell();
           assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
           assayWell.setIdAssay(assaysParser.getID(assayNumber));
           assayWell.setIdPlate(assayPlate.getIdPlate());
           assayWell.setIdSample(sample.getIdSample());
           assayWell.setPlate(assayPlate);
-          assayWell.setPosition((new Integer(sampleCount) - 1) * 4 + assayNumber);
+          assayWell.setPosition(new Integer(sampleCount));
           assayWell.setSample(sample);
           sess.save(assayWell);
         }
+        sess.flush();
       }
-      sess.flush();
     }
-    
     // create plate and plate wells for mitochondrial sequencing, if applicable
     if (primersParser != null) {
       primersParser.parse(sess);

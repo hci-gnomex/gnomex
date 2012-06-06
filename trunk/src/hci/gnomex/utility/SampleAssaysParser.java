@@ -39,4 +39,8 @@ public class SampleAssaysParser implements Serializable {
   public Integer getID(Integer number) {
     return assayMap.get(number);
   }
+  
+  public Integer getNumAssays() {
+    return assayMap.keySet().size();
+  }
 }

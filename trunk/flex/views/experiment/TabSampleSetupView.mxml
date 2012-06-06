@@ -245,13 +245,14 @@
 			} else if (parentDocument.isFragAnalState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '' &&
-					this.assay1Combo.selectedItem != null && this.assay1Combo.selectedItem.@value != '' && 
-					this.assay2Combo.selectedItem != null && this.assay2Combo.selectedItem.@value != '' && 
-					this.assay3Combo.selectedItem != null && this.assay3Combo.selectedItem.@value != '' && 
-					this.assay4Combo.selectedItem != null && this.assay4Combo.selectedItem.@value != '') {
+					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
 					
-					isComplete = true;
+					for (var x:int = 0; x < assayCheckBox.length; x++) {
+						if (assayCheckBox[x].selected) {
+							isComplete = true;
+							break;
+						}
+					}
 				}
 			} else if (parentDocument.isMitSeqState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -587,7 +588,6 @@
 		}
 	]]>
 </mx:Script>
-
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
          required="true" allowNegative="false" domain="int" maxValue="384" />
     <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
@@ -868,36 +868,13 @@
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:VBox width="100%" horizontalGap="0">
 				   <mx:Label text="(2) Choose the Assays to be used." width="310"  id="labelAssayHeader"/>
-				   <mx:HBox width="100%" horizontalGap="5">
-						<mx:VBox>
-							<mx:Label text="Assay 1" id="labelAssay1"/>
-							<mx:ComboBox labelField="@display" width="150" id="assay1Combo" 
-										 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
-						</mx:VBox>					   
-					   <mx:VBox>
-						   <mx:Label text="Assay 2" id="labelAssay2"/>
-						   <mx:ComboBox labelField="@display" width="150" id="assay2Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
-										change="checkSampleSetupCompleteness()">							
-						   </mx:ComboBox>
-					   </mx:VBox>					   
-					   <mx:VBox>
-						   <mx:Label text="Assay 3" id="labelAssay3"/>
-						   <mx:ComboBox labelField="@display" width="150" id="assay3Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
-										change="checkSampleSetupCompleteness()">							
-						   </mx:ComboBox>
-					   </mx:VBox>					   
-					   <mx:VBox>
-						   <mx:Label text="Assay 4" id="labelAssay4"/>
-						   <mx:ComboBox labelField="@display" width="150" id="assay4Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry}" 
-										change="checkSampleSetupCompleteness()">							
-						   </mx:ComboBox>
-					   </mx:VBox>					   
-				   </mx:HBox>
+				   <mx:Tile id="assayTile" direction="horizontal" borderStyle="none"
+							paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
+							verticalGap="0" horizontalGap="0" tileWidth="200"> 
+					   <mx:Repeater id="assayRepeater" dataProvider="{parentDocument.assayCollection}">
+							<mx:CheckBox label="{assayRepeater.currentItem.@display}" id="assayCheckBox" change="checkSampleSetupCompleteness()" width="100%"/>
+					   </mx:Repeater>
+				   </mx:Tile>
 			   </mx:VBox>
 		   </mx:AddChild>
 		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
