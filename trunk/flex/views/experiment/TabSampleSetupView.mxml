@@ -548,7 +548,9 @@
 				} else if (sampleCount > 96) {
 					this.containerTypeRadioGroup.selectedValue = "PLATE";
 					this.containerTypeTube.enabled = false;
+					containerTypePlate.enabled = true;
 				} else {
+					this.containerTypeRadioGroup.selectedValue = "PLATE";
 					this.containerTypePlate.enabled = true;
 					this.containerTypeTube.enabled = true;
 				}
