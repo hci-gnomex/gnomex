@@ -1095,6 +1095,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         realWell.setIdSample(sample.getIdSample());
         realWell.setPlate(realPlate);
         realWell.setIdPlate(realPlate.getIdPlate());
+        realWell.setIdRequest(requestParser.getRequest().getIdRequest());
         sess.save(realWell);
         sess.flush();
       } else {
@@ -1103,6 +1104,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         well.setIdSample(sample.getIdSample());
         well.setPosition(new Integer(sampleCount));
         well.setSample(sample);
+        well.setIdRequest(requestParser.getRequest().getIdRequest());
         sess.save(well);
       }
     }
