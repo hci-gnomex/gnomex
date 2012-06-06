@@ -6,19 +6,24 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PlateWellParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -172,6 +177,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
         PlateWell wellToDelete = (PlateWell)i.next();
         plate.getPlateWells().remove(wellToDelete);
       }
+      
+      sess.flush();
+      
       //
       // Save wells
       //
@@ -188,28 +196,24 @@ public class SavePlate extends GNomExCommand implements Serializable {
         }
         pw.setCodeReactionType( codeReactionType );
         
-        boolean exists = false;
-        for(Iterator i1 = plate.getPlateWells().iterator(); i1.hasNext();) {
-          PlateWell existingWell = (PlateWell)i1.next();
-          if (existingWell.getIdPlateWell() == pw.getIdPlateWell() ) {
-            exists = true;
-          }
-        }
-        
-        // New PlateWell -- add it to the list
-        if (!exists) {
-          wellsToAdd.add(pw);
-        }
+        wellsToAdd.add( pw );
       }
       plate.setPlateWells(wellsToAdd);
         
       sess.flush();
         
+      
+      
+      // Results
       Document doc = new Document(new Element("SUCCESS"));
       Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       
       List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
 
+      // Remove redo flags for any wells that might be redos
+      removeRedoFlags( plateWells, sess );
+      
+      Map requests = new HashMap();
       for(Iterator i = plateWells.iterator(); i.hasNext();) {
         PlateWell plateWell = (PlateWell)i.next();
         plateWell.excludeMethodFromXML("getPlate");
@@ -217,9 +221,25 @@ public class SavePlate extends GNomExCommand implements Serializable {
         Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         
         pNode.addContent(node);
+        if ( plateWell.getIdRequest()==null ) {
+          break;
+        }
+        if ( !plateWell.getIdRequest().equals( "" ) && !requests.containsKey( plateWell.getIdRequest() ) ) {
+          Request req = (Request) sess.get(Request.class, plateWell.getIdRequest());
+          requests.put( req.getIdRequest(), req );
+        }
+      }
+      // Change request status for any requests on the plate
+      for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
+        int idReq = (Integer) i.next();
+        Request req = (Request) sess.get(Request.class, idReq );
+        req.setCodeRequestStatus( RequestStatus.PROCESSING );
       }
       
+      sess.flush();
       doc.getRootElement().addContent(pNode);
+      
+      
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -240,6 +260,55 @@ public class SavePlate extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void removeRedoFlags( List plateWells, Session sess ) {
+    for(Iterator i = plateWells.iterator(); i.hasNext();) {
+      PlateWell reactionWell = (PlateWell)i.next();
+      
+      StringBuffer buf = getRedoQuery( reactionWell );
+      Query query = sess.createQuery(buf.toString());
+      List redoWells = query.list();
+      
+      // If source redo wells are found, mark the reaction well as a redo, and
+      // remove redo flag from the source wells.
+      for ( Iterator i2 = redoWells.iterator(); i2.hasNext();) {
+        PlateWell redoWell = (PlateWell) i2.next();
+        reactionWell.setRedoFlag( "Y" );
+        redoWell.setRedoFlag( "N" );
+      }
+    }
+  }
+  
+  public StringBuffer getRedoQuery( PlateWell reactionWell ) {
+    StringBuffer    queryBuf = new StringBuffer();
+    queryBuf.append(" SELECT     well FROM PlateWell as well ");
+    queryBuf.append(" LEFT JOIN  well.plate plate ");
+    
+    // Filter to get source wells with redo flags
+    queryBuf.append(" WHERE well.redoFlag = 'Y' ");
+    queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
+    // with sample, request, assay, and primer matching the reaction well
+    if ( reactionWell.getIdSample() != null ) {
+      queryBuf.append(" AND   (well.idSample = '" + reactionWell.getIdSample() + "') ");
+    }
+    if ( reactionWell.getIdRequest() != null ) {
+      queryBuf.append(" AND   (well.idRequest = '" + reactionWell.getIdRequest() + "') ");
+    }
+    if ( reactionWell.getIdAssay() != null ) {
+      queryBuf.append(" AND   (well.idAssay = '" + reactionWell.getIdAssay() + "') "); 
+    }
+    if ( reactionWell.getIdPrimer() != null ) {
+      queryBuf.append(" AND   (well.idPrimer = '" + reactionWell.getIdPrimer() + "') ");
+    }
+    if ( reactionWell.getCodeReactionType() != null ) {
+      queryBuf.append(" AND   (well.codeReactionType = '" + reactionWell.getCodeReactionType() + "') ");
+    } else {
+      queryBuf.append(" AND   (well.codeReactionType is null) ");
+    }
+
+    return queryBuf;
+    
   }
   
   private class WellComparator implements Comparator, Serializable {

@@ -18,78 +18,57 @@ package views.renderers {
 	
 	public class WellContainer extends mx.containers.Box {
 		public var plateView:NavPlateView;
-		// This is the well's position on the plate, with 0
-		// being in the upper left corner and 95 being in the
-		// lower right, either counting DOWN the plate first and then
-		// to the right or to the right first, then down.
+		
+		// PlateWell Fields
+		public var idPlateWell:int;
 		public var position:int;
 		public var row:String;
 		public var col:int;
-		public var sampleName:String;
 		public var idSample:int;
-		public var color:uint;
-		public var groupId:String;
-		public var idPlateWell:int;
+		public var sampleName:String;
+		public var idRequest:int;
+		public var codeReactionType:String;
+		public var idAssay:int;
+		public var idPrimer:int;
+		public var redoFlag:String;
+		
 		public var submitter:String;
 		public var submitDate:String;
+		
+		// Renderer Fields
+		public var color:uint;
+		public var groupId:String;
+		
 		// Sample object
 		public var sample:Object;
 		public var hasSample:Boolean = false;
 		
+		// Sample object
+		public var wellObject:Object;
+		
 		
 		// Temporary constructor - just takes a 'sample name'
 		// Later, the constructor will take a well object
-		public function WellContainer( sampleName:String ):void {
+		public function WellContainer( label:String ):void {
 			
-			// For the constructor that takes a well object:
-			// this.well = well
 			super();
+			this.sampleName = label;
+			
 			height = 26;
 			width = height;
 			verticalScrollPolicy = 'off';
 			horizontalScrollPolicy = 'off';
-			toolTip = getToolTip();
 			setStyle( 'cornerRadius', height / 2 );
 			setStyle( 'horizontalAlign', 'center' );
 			setStyle( 'verticalAlign', 'middle' );
 			setStyle( 'borderColor', 0x010000 );
 			setStyle( 'borderStyle', 'solid' );
-			this.sampleName = sampleName;
-
-			addChild( new WellLabel( sampleName ));
+			
+			toolTip = getToolTip();
+			addChild( new WellLabel( label ));
 			addEventListener( MouseEvent.CLICK, onClick );
 		}
-		
-		
-		// function to change the size of the circle
-		public function setRadius( radius:int ):void {
-			
-			height = radius * 2;
-			width = radius * 2;
-			setStyle( 'cornerRadius', radius );
-		}
-		
-		
-		public function setLabel( label:String ):void {
-			
-			removeAllChildren();
-			addChild( new WellLabel( label ));
-		}
-		
-		
-		public function setColor( newColor:uint ):void {
-			
-			setStyle( 'backgroundColor', newColor );
-			color = newColor;
-		}
-		
-		
-		public function getColor():uint {
-			
-			return color;
-		}
-		
-		
+				
 		public function getGroupId():String {
 			
 			return groupId;
@@ -121,17 +100,30 @@ package views.renderers {
 		}
 		
 		public function loadWellObject( pw:Object ):void {
+			this.wellObject = pw;
 			
-			this.idPlateWell = pw.@idPlateWell;
-			this.groupId = pw.@idRequest;
-			this.idSample = pw.@idSample;
-			this.sampleName = pw.@sampleName;
-			this.submitter = pw.@requestSubmitter;
-			this.submitDate = pw.@requestSubmitDate;
-			this.setToolTip();
+			this.groupId = pw.@idRequest!= null ? pw.@idRequest : '';
+			
+			this.idPlateWell = pw.@idPlateWell != null ? pw.@idPlateWell : 0;
+			this.position = pw.@position != null ? pw.@position : 0;
+			this.row = pw.@row != null ? pw.@row : '';
+			this.col = pw.@col != null ? pw.@col : 0;
+			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
+			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
+			this.idRequest = pw.@idRequest != null ? pw.@idRequest : 0;
+			this.codeReactionType = pw.@codeReactionType != null ? pw.@codeReactionType : '' ;
+			this.idAssay = pw.@idAssay != null ? pw.@idAssay : 0;
+			this.idPrimer = pw.@idPrimer != null ? pw.@idPrimer : 0;
+			this.redoFlag = pw.@redoFlag != null ? pw.@redoFlag : '';
+			
+			this.submitter = pw.@requestSubmitter != null ? pw.@requestSubmitter : '';
+			this.submitDate = pw.@requestSubmitDate != null ?pw.@requestSubmitDate : '';
+			
 			this.hasSample = true;
+			this.setToolTip();
 		}
 		
+		// Click to highlight wells in same grouping on plate
 		public function onClick( event:Event ):void {
 			
 			if ( plateView != null ) {
@@ -142,7 +134,7 @@ package views.renderers {
 			}
 		}
 		
-		
+		// OLD
 		private function displayWellInfo():void {
 			
 			if ( sample != null ) {
@@ -167,6 +159,11 @@ package views.renderers {
 				PopUpManager.centerPopUp( tw );
 			}
 		}
+		// OLD
+		public function closeWellInfo( event:FlexMouseEvent ):void {
+			
+			PopUpManager.removePopUp( TitleWindow( event.target ));
+		}
 		
 		public function setToolTip():void {
 			this.toolTip = getToolTip();
@@ -175,7 +172,7 @@ package views.renderers {
 		private function getToolTip():String {
 			
 			var str:String = "";
-			if ( sample != null ) {
+			if ( wellObject != null ) {
 				str += 'Well ' + ( position + 1 ) + ', ' + row + col + "";
 				
 				if ( idPlateWell != 0 ) {
@@ -184,14 +181,39 @@ package views.renderers {
 				
 				str += '\rSample: ' + sampleName;
 				str += '\rRequest #: ' + groupId;
-				str += '\rSample Desc: ' + sample.@description;
+				if ( sample != null && sample.@description != null ){
+					str += '\rSample Desc: ' + sample.@description;
+				}
 			}
 			return str;
 		}
 		
-		public function closeWellInfo( event:FlexMouseEvent ):void {
+		// function to change the size of the circle
+		public function setRadius( radius:int ):void {
 			
-			PopUpManager.removePopUp( TitleWindow( event.target ));
+			height = radius * 2;
+			width = radius * 2;
+			setStyle( 'cornerRadius', radius );
+		}
+		
+		
+		public function setLabel( label:String ):void {
+			
+			removeAllChildren();
+			addChild( new WellLabel( label ));
+		}
+		
+		
+		public function setColor( newColor:uint ):void {
+			
+			setStyle( 'backgroundColor', newColor );
+			color = newColor;
+		}
+		
+		
+		public function getColor():uint {
+			
+			return color;
 		}
 	}
 }

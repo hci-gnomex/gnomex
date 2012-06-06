@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
+import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
@@ -40,6 +41,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   
   //Variable to indicate which run from the plate editor page (up to 4 runs can be submitted at a time)
   private int                   runNumber = 0;
+  private String                disassociatePlates = null;
   
   public void validate() {
   }
@@ -52,11 +54,9 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     if (request.getParameter("createDate") != null && !request.getParameter("createDate").equals("")) {
       createDateStr = request.getParameter("createDate");
     }
-    
     if (request.getParameter("runNumber") != null && !request.getParameter("runNumber").equals("")) {
       runNumber = Integer.parseInt(request.getParameter("runNumber"));
     }
-    
     if (request.getParameter("comments") != null && !request.getParameter("comments").equals("")) {
       comments = request.getParameter("comments");
     } 
@@ -78,6 +78,9 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     if (request.getParameter("runDate") != null && !request.getParameter("runDate").equals("")) {
       runDateStr = request.getParameter("runDate");
     }
+    if (request.getParameter("disassociatePlates") != null && !request.getParameter("disassociatePlates").equals("")) {
+      disassociatePlates = request.getParameter("disassociatePlates");
+    } 
   }
 
   public Command execute() throws RollBackCommandException {
@@ -112,12 +115,12 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         ir.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
       }
       if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
+      
       if ( codeInstrumentRunStatus != null )  {
         ir.setCodeInstrumentRunStatus(codeInstrumentRunStatus);
         if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) && ir.getRunDate() == null ) {
           ir.setRunDate( new java.util.Date(System.currentTimeMillis()) ); 
-        }
-        
+        }  
         // Change request status...
         if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) ) {
           changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
@@ -131,6 +134,11 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         
       }
       
+      // Disassociate any plates currently on run.
+      if (  disassociatePlates != null && disassociatePlates.equals( "Y" ) ) {
+        this.disassociatePlates( sess, ir );
+      }
+            
       sess.flush();
         
       this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\" runNumber=\"" + runNumber + "\"/>";
@@ -153,7 +161,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void changeRequestStatus( Session sess, InstrumentRun ir, String status ) {
+  public void changeRequestStatus( Session sess, InstrumentRun ir, String status ) {
     
     // Get any requests on that run
     Map requests = new HashMap();
@@ -161,7 +169,10 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
-      if ( !requests.containsKey( well.getIdRequest() ) ) {
+      if ( well.getIdRequest()==null ) {
+        break;
+      }
+      if ( !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
         Request req = (Request) sess.get(Request.class, well.getIdRequest());
         requests.put( req.getIdRequest(), req );
       }
@@ -174,6 +185,19 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       req.setCodeRequestStatus( status );
     }
     sess.flush();
+  }
+  
+  private void disassociatePlates( Session sess, InstrumentRun ir ) {
+    
+    List plates = sess.createQuery( "SELECT p from Plate as p where p.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+    
+    for(Iterator i1 = plates.iterator(); i1.hasNext();) {
+      Plate plate = (Plate)i1.next();
+      plate.setIdInstrumentRun( null );
+      sess.flush();
+    }
+   
+    
   }
   
 }
