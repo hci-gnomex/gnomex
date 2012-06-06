@@ -193,6 +193,10 @@
 				}				
 				
 			} else if (currentState != null && (currentState.indexOf('FragAnal') >= 0)) {
+				var fragWellName:String = "ABCDEFGH".substr(parentDocument.samples.length / 12, 1);
+				var fragColNumber:int = parentDocument.samples.length % 12 + 1;
+				fragWellName += fragColNumber.toString();
+				
 				var fragXMLString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
@@ -211,7 +215,9 @@
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
-					" treatment=''";
+					" treatment=''" +
+					" plateName='Plate 1'" +
+					" wellName='" + fragWellName + "'";
 				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
 					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
 						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
@@ -221,6 +227,7 @@
 				fragXMLString += "/>";
 				emptyNode = new XML(fragXMLString);
 			} else if (currentState != null && (currentState.indexOf('MitSeq') >= 0)) {
+				var mitWellName:String = getWellName(parentDocument.samples.length);
 				emptyNode = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
@@ -240,6 +247,8 @@
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +
+					" plateName='Plate 1'" +
+					" wellName='" + mitWellName + "'" +
 					"/>");
 			} else if (currentState != null && (currentState.indexOf('CherryPick') >= 0)) {
 				emptyNode = new XML("<Sample " +
@@ -333,10 +342,8 @@
 		
 		private function getWellName(idx:int):String {
 			var wellName:String = "";
-			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
-				var y:int = idx % 96;
-				wellName = parentApplication.wellNamesByColumn[y];
-			}
+			var y:int = idx % 96;
+			wellName = parentApplication.wellNamesByColumn[y];
 			return wellName;
 		}
 		
@@ -1220,10 +1227,10 @@
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 			
 			
-			wellNameCol.visible = (hasPlates()) ? true : false;
-			isControlCol.visible = wellNameCol.visible;
-			plateNameCol.editable = !wellNameCol.visible;
-			wellNameCol.editable = !wellNameCol.visible;
+			wellNameCol.visible = (hasPlates() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) ? true : false;
+			isControlCol.visible = (hasPlates()) ? true : false;
+			plateNameCol.editable = false;
+			wellNameCol.editable = false;
 			
 			this.sourceWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 			this.destinationWellCol.visible = parentDocument.isCherryPickState() ? true : false;
