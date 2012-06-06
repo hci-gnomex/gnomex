@@ -59,7 +59,7 @@ public class RequestParser implements Serializable {
   private Map<String, Plate> plateMap = new HashMap<String, Plate>();
   private Map<String, PlateWell> wellMap = new HashMap<String, PlateWell>();
   private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
-  private Map<String, String> sampleAssays = new HashMap<String, String>();
+  private Map<String, ArrayList<Integer>> sampleAssays = new HashMap<String, ArrayList<Integer>>();
   private Map<String, String> cherryPickSourceWells = new HashMap<String, String>();
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
   
@@ -90,7 +90,7 @@ public class RequestParser implements Serializable {
     plateMap = new HashMap<String, Plate>();
     wellMap = new HashMap<String, PlateWell>();
     sampleToPlateMap = new HashMap<String, SamplePlateWell>();
-    sampleAssays = new HashMap<String, String>();
+    sampleAssays = new HashMap<String, ArrayList<Integer>>();
     cherryPickSourceWells = new HashMap<String, String>();
     cherryPickDestinationWells = new HashMap<String, String>();
   }
@@ -614,30 +614,15 @@ public class RequestParser implements Serializable {
     }
     
     // Have map of assays chosen.  Build up the map
-    if (n.getAttributeValue("hasAssay1") != null && n.getAttributeValue("hasAssay1").length() > 0) {
-      String map = "";
-      if (n.getAttributeValue("hasAssay1").equals("Y")) {
-        map += "Y";
-      } else {
-        map += "N";
+    ArrayList<Integer> assays = new ArrayList<Integer>();
+    for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
+      Attribute attr = (Attribute)i.next();
+      if (attr.getName().startsWith("hasAssay") && attr.getValue() != null && attr.getValue().equals("Y")) {
+        Integer number = Integer.parseInt(attr.getName().substring(9));
+        assays.add(number);
       }
-      if (n.getAttributeValue("hasAssay2").equals("Y")) {
-        map += "Y";
-      } else {
-        map += "N";
-      }
-      if (n.getAttributeValue("hasAssay3").equals("Y")) {
-        map += "Y";
-      } else {
-        map += "N";
-      }
-      if (n.getAttributeValue("hasAssay4").equals("Y")) {
-        map += "Y";
-      } else {
-        map += "N";
-      }
-      this.sampleAssays.put(idSampleString, map);
     }
+    this.sampleAssays.put(idSampleString, assays);
     
     // Cherry picking source and destination wells.
     if (n.getAttributeValue("sourceWell") != null && n.getAttributeValue("sourceWell").length() > 0) {
@@ -1664,13 +1649,8 @@ public class RequestParser implements Serializable {
     }
   }
   
-  public Boolean doesSampleHaveAssay(String idSampleString, Integer assayNumber) {
-    String aMap = this.sampleAssays.get(idSampleString);
-    if (aMap != null && aMap.length() == 4 && assayNumber > 0 && assayNumber < 5) {
-      return (aMap.substring(assayNumber-1, assayNumber).equals("Y"));
-    } else {
-      return false;
-    }
+  public ArrayList<Integer> getAssays(String idSampleString) {
+    return sampleAssays.get(idSampleString);
   }
   
   public String getCherryPickSourceWell(String idSampleString) {

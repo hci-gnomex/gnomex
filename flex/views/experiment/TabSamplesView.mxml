@@ -73,10 +73,11 @@
 				fieldList = new Dictionary();
 				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
 				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
-				fieldList[this.assay1Col.dataField] = this.assay1Col;
-				fieldList[this.assay2Col.dataField] = this.assay2Col;
-				fieldList[this.assay3Col.dataField] = this.assay3Col;
-				fieldList[this.assay4Col.dataField] = this.assay4Col;
+				for each (var col:AdvancedDataGridColumn in samplesGrid.columns) {
+					if (col.dataField != null && col.dataField.substr(0,9) == "@hasAssay" && col.visible) {
+						fieldList[col.dataField] = col;
+					}
+				}
 			}
 			uploadSampleSheetWindow.init(this, numPlates, fieldList);
 		}
@@ -192,7 +193,7 @@
 				}				
 				
 			} else if (currentState != null && (currentState.indexOf('FragAnal') >= 0)) {
-				emptyNode = new XML("<Sample " +
+				var fragXMLString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
 					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
@@ -210,12 +211,15 @@
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
-					" treatment=''" +
-					" hasAssay1 = 'Y'" +
-					" hasAssay2 = 'Y'" +
-					" hasAssay3 = 'Y'" +
-					" hasAssay4 = 'Y'" +
-					"/>");
+					" treatment=''";
+				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
+					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
+						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+						fragXMLString += " " + parentDocument.getAssayDataField(x).substr(1) + "='Y'";
+					}
+				}
+				fragXMLString += "/>";
+				emptyNode = new XML(fragXMLString);
 			} else if (currentState != null && (currentState.indexOf('MitSeq') >= 0)) {
 				emptyNode = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -725,10 +729,15 @@
 						completeCount++;
 					}
 				} else if (currentState == 'FragAnalState') {
-					if (isEntered(sample, "@name") &&
-						(isEntered(sample, "@hasAssay1") || isEntered(sample, "@hasAssay2") || isEntered(sample, "@hasAssay3") || isEntered(sample, "@hasAssay4"))) {
-						
-						completeCount++;
+					if (isEntered(sample, "@name")) {
+						for each(var col:AdvancedDataGridColumn in samplesGrid.columns) {
+							if (col.dataField != null && col.dataField.substr(0,9) == "@hasAssay" && col.visible) {
+								if (isEntered(sample, col.dataField) && sample[col.dataField] == 'Y') {
+									completeCount++;
+									break;
+								}
+							}
+						}
 					}
 				} else if (currentState == 'MitSeqState') {
 					if (isEntered(sample, "@name")) {
@@ -1076,25 +1085,77 @@
         	this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 			this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-			
-			if (parentDocument.isFragAnalState()) {
-				if (parentDocument.sampleSetupView.assay1Combo.selectedItem != null) {
-					this.assay1Col.headerText = parentDocument.sampleSetupView.assay1Combo.selectedItem.@display;
-				}
-				if (parentDocument.sampleSetupView.assay2Combo.selectedItem != null) {
-					this.assay2Col.headerText = parentDocument.sampleSetupView.assay2Combo.selectedItem.@display;
-				}
-				if (parentDocument.sampleSetupView.assay3Combo.selectedItem != null) {
-					this.assay3Col.headerText = parentDocument.sampleSetupView.assay3Combo.selectedItem.@display;
-				}
-				if (parentDocument.sampleSetupView.assay4Combo.selectedItem != null) {
-					this.assay4Col.headerText = parentDocument.sampleSetupView.assay4Combo.selectedItem.@display;
-				}
-			}
+
+			// handle assay columns for fragment analysis
+			manageFragAnalAssayColumns();
         	
 			this.samplesGrid.validateNow();
         	callLater(this.checkSamplesCompleteness);
 
+		}
+		
+		private function manageFragAnalAssayColumns():void {
+			// set all assay columns to not visible.
+			for each(var colRemove:AdvancedDataGridColumn in samplesGrid.columns) {
+				if (colRemove.dataField != null && colRemove.dataField.substr(0, 9) == "@hasAssay") {
+					colRemove.visible = false;
+				}
+			}
+
+			// reset selected ones to visible -- creating them if necessary.
+			if (parentDocument.isFragAnalState()) {
+				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
+					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
+						var dataField:String = parentDocument.getAssayDataField(x);
+						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+						var exists:Boolean = false;
+						var assayCol:AdvancedDataGridColumn = null;
+						for each(var col:AdvancedDataGridColumn in samplesGrid.columns) {
+							if (col.dataField != null && col.dataField == dataField) {
+								assayCol = col;
+								exists = true;
+								break;
+							}
+						}
+						if (exists) {
+							assayCol.visible = true;
+						} else {
+							var newCol:AdvancedDataGridColumnWithType = new AdvancedDataGridColumnWithType();
+							newCol.dataField = dataField;
+							newCol.headerText = assayObject.@display;
+							newCol.itemRenderer = views.renderers.CheckBoxRenderer.create(null, true);
+							newCol.propertyType="CHECK";
+							newCol.width = 60;
+							newCol.resizable = false;
+							newCol.rendererIsEditor = true;
+							newCol.editorDataField = "selected";
+							newCol.visible = true;
+							newCol.editable = false;
+							var newColumns:Array = new Array();
+							var pushed:Boolean = false;
+							for each (var col0:AdvancedDataGridColumn in samplesGrid.columns) {
+								if (!pushed && col0.dataField != null && (col0.dataField == "@description" || (col0.dataField.substr(0, 9) == "@hasAssay" && col0.dataField > newCol.dataField))) {
+									newColumns.push(newCol);
+									pushed = true;
+								}
+								newColumns.push(col0);
+							}
+							samplesGrid.columns = newColumns;
+							this.samplesGrid.validateNow();
+						}
+						
+						// Set value in any samples where it doesn't exist
+						for each (var sample:Object in parentDocument.samples) {
+							
+							if (!sample.hasOwnProperty(dataField)) {
+								sample[dataField] = "Y";
+							}
+						}
+						parentDocument.samples.refresh();
+					}
+				}
+				
+			}
 		}
 		
 		private function switchFirstSampleGridColumns (col1:AdvancedDataGridColumn, col2:AdvancedDataGridColumn):void {
@@ -1164,11 +1225,6 @@
 			plateNameCol.editable = !wellNameCol.visible;
 			wellNameCol.editable = !wellNameCol.visible;
 			
-			this.assay1Col.visible = parentDocument.isFragAnalState() ? true : false;
-			this.assay2Col.visible = parentDocument.isFragAnalState() ? true : false;
-			this.assay3Col.visible = parentDocument.isFragAnalState() ? true : false;
-			this.assay4Col.visible = parentDocument.isFragAnalState() ? true : false;
-
 			this.sourceWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 			this.destinationWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 
@@ -1716,95 +1772,6 @@
 											   dataField="@destinationWell" rendererIsEditor="false" editorDataField="value" sortable="false"
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@destinationWell')}"                
 											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@destinationWell', true)}"/>
-					
-					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay1Col" visible="false" editable="false" headerText="Assay 1" width="100" resizable="false" 
-											   dataField="@hasAssay1" rendererIsEditor="true" editorDataField="selected">
-						<util:itemRenderer>
-							<mx:Component>
-								<mx:CheckBox change="onChangeAssay1(event)" selected="{data.hasOwnProperty('@hasAssay1') &amp;&amp; data.@hasAssay1 == 'Y'}">
-									<mx:Script>
-										<![CDATA[
-											private function onChangeAssay1(evt:Event):void {
-												if (data.hasOwnProperty("@hasAssay1")) {
-													if (data.@hasAssay1 == 'Y') {
-														data.@hasAssay1 = 'N';
-													} else {
-														data.@hasAssay1 = 'Y';
-													}
-												}
-											}
-										]]>
-									</mx:Script>
-								</mx:CheckBox>
-							</mx:Component>
-						</util:itemRenderer>
-					</util:AdvancedDataGridColumnWithType>
-					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay2Col" visible="false" editable="false" headerText="Assay 2" width="100" resizable="false" 
-											   dataField="@hasAssay2" rendererIsEditor="true" editorDataField="selected">
-						<util:itemRenderer>
-							<mx:Component>
-								<mx:CheckBox change="onChangeAssay2(event)" selected="{data.hasOwnProperty('@hasAssay2') &amp;&amp; data.@hasAssay2 == 'Y'}">
-									<mx:Script>
-										<![CDATA[
-											private function onChangeAssay2(evt:Event):void {
-												if (data.hasOwnProperty("@hasAssay2")) {
-													if (data.@hasAssay2 == 'Y') {
-														data.@hasAssay2 = 'N';
-													} else {
-														data.@hasAssay2 = 'Y';
-													}
-												}
-											}
-										]]>
-									</mx:Script>
-								</mx:CheckBox>
-							</mx:Component>
-						</util:itemRenderer>
-					</util:AdvancedDataGridColumnWithType>
-					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay3Col" visible="false" editable="false" headerText="Assay 3" width="100" resizable="false" 
-											   dataField="@hasAssay3" rendererIsEditor="true" editorDataField="selected">
-						<util:itemRenderer>
-							<mx:Component>
-								<mx:CheckBox change="onChangeAssay3(event)" selected="{data.hasOwnProperty('@hasAssay3') &amp;&amp; data.@hasAssay3 == 'Y'}">
-									<mx:Script>
-										<![CDATA[
-											private function onChangeAssay3(evt:Event):void {
-												if (data.hasOwnProperty("@hasAssay3")) {
-													if (data.@hasAssay3 == 'Y') {
-														data.@hasAssay3 = 'N';
-													} else {
-														data.@hasAssay3 = 'Y';
-													}
-												}
-											}
-										]]>
-									</mx:Script>
-								</mx:CheckBox>
-							</mx:Component>
-						</util:itemRenderer>
-					</util:AdvancedDataGridColumnWithType>
-					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="assay4Col" visible="false" editable="false" headerText="Assay 4" width="100" resizable="false" 
-											   dataField="@hasAssay4" rendererIsEditor="true" editorDataField="selected">
-						<util:itemRenderer>
-							<mx:Component>
-								<mx:CheckBox change="onChangeAssay4(event)" selected="{data.hasOwnProperty('@hasAssay4') &amp;&amp; data.@hasAssay4 == 'Y'}">
-									<mx:Script>
-										<![CDATA[
-											private function onChangeAssay4(evt:Event):void {
-												if (data.hasOwnProperty("@hasAssay4")) {
-													if (data.@hasAssay4 == 'Y') {
-														data.@hasAssay4 = 'N';
-													} else {
-														data.@hasAssay4 = 'Y';
-													}
-												}
-											}
-										]]>
-									</mx:Script>
-								</mx:CheckBox>
-							</mx:Component>
-						</util:itemRenderer>
-					</util:AdvancedDataGridColumnWithType>
 
 					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					 

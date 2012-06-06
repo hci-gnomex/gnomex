@@ -150,20 +150,52 @@
 			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
+			// set all assay columns to not visible.
+			for each(var colRemove:DataGridColumn in samplesGridConfirm.columns) {
+				if (colRemove.dataField != null && colRemove.dataField.substr(0, 9) == "@hasAssay") {
+					colRemove.visible = false;
+				}
+			}
+			
+			// reset selected ones to visible -- creating them if necessary.
 			if (parentDocument.isFragAnalState()) {
-				this.hasAssay1.visible = true;
-				this.hasAssay1.headerText = parentDocument.sampleSetupView.assay1Combo.selectedItem.@display;
-				this.hasAssay2.visible = true;
-				this.hasAssay2.headerText = parentDocument.sampleSetupView.assay2Combo.selectedItem.@display;
-				this.hasAssay3.visible = true;
-				this.hasAssay3.headerText = parentDocument.sampleSetupView.assay3Combo.selectedItem.@display;
-				this.hasAssay4.visible = true;
-				this.hasAssay4.headerText = parentDocument.sampleSetupView.assay4Combo.selectedItem.@display;
-			} else {
-				this.hasAssay1.visible = false;
-				this.hasAssay2.visible = false;
-				this.hasAssay3.visible = false;
-				this.hasAssay4.visible = false;
+				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
+					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
+						var dataField:String = parentDocument.getAssayDataField(x);
+						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+						var exists:Boolean = false;
+						var assayCol:DataGridColumn = null;
+						for each(var colSearch:DataGridColumn in samplesGridConfirm.columns) {
+							if (colSearch.dataField != null && colSearch.dataField == dataField) {
+								assayCol = colSearch;
+								exists = true;
+								break;
+							}
+						}
+						if (exists) {
+							assayCol.visible = true;
+						} else {
+							var newCol:DataGridColumn = new DataGridColumn();
+							newCol.dataField = dataField;
+							newCol.headerText = assayObject.@display;
+							newCol.width = 60;
+							newCol.resizable = false;
+							newCol.visible = true;
+							newCol.editable = false;
+							var newColumns:Array = new Array();
+							var pushed:Boolean = false;
+							for each (var col0:DataGridColumn in samplesGridConfirm.columns) {
+								if (!pushed && col0.dataField != null && (col0.dataField == "@description" || (col0.dataField.substr(0, 9) == "@hasAssay" && col0.dataField > newCol.dataField))) {
+									newColumns.push(newCol);
+									pushed = true;
+								}
+								newColumns.push(col0);
+							}
+							samplesGridConfirm.columns = newColumns;
+							this.samplesGridConfirm.validateNow();
+						}
+					}
+				}
 			}
 			
 			if (parentDocument.isCherryPickState()) {
