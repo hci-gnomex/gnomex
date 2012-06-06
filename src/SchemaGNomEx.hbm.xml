@@ -599,6 +599,8 @@
 		<property name="idAssay" column="idAssay" type="integer"/>
 		<property name="idPrimer" column="idPrimer" type="integer"/>
 		<property name="redoFlag" column="redoFlag" type="string"/>
+    <many-to-one name="primer" column="idPrimer" class="hci.gnomex.model.Primer" cascade="none" insert="false" update="false" />
+    <many-to-one name="assay" column="idAssay" class="hci.gnomex.model.Assay" cascade="none" insert="false" update="false" />
 	</class>
 	  
    <!-- hci.gnomex.model.PlateType -->

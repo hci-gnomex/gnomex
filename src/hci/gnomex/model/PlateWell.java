@@ -21,6 +21,8 @@ public class PlateWell extends HibernateDetailObject {
   private String   redoFlag = "N";
   private Integer  idAssay;
   private Integer  idPrimer;
+  private Primer   primer;
+  private Assay    assay;
   
   public Integer getIdPlateWell() {
     return idPlateWell;
@@ -164,6 +166,22 @@ public class PlateWell extends HibernateDetailObject {
 
   public void setIdPrimer(Integer idPrimer) {
     this.idPrimer = idPrimer;
+  }
+  
+  public Primer getPrimer() {
+    return primer;
+  }
+  
+  public void setPrimer(Primer primer) {
+    this.primer = primer;
+  }
+  
+  public Assay getAssay() {
+    return assay;
+  }
+  
+  public void setAssay(Assay assay) {
+    this.assay = assay;
   }
   
   public String getWellName() {
