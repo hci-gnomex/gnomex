@@ -10,9 +10,6 @@
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{button1}"/>
-			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
-			<mx:RemoveChild target="{alignmentProfileButton0}"/>
-			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
@@ -28,46 +25,55 @@
 					</mx:HBox> 
 					<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
 								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
-					<mx:LinkButton id="alignmentProfileButton"  label="Configure Alignment Profiles" styleName="dashboardButton" includeInLayout="{parentApplication.isSequenceAlignmentSupported}" 
-								   click="showAlignmentProfileWindow()" visible="{parentApplication.isSequenceAlignmentSupported}" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>									
+					<mx:LinkButton id="alignmentProfileButton"  label="Configure Alignment Profiles" styleName="dashboardButton"  
+								   click="showAlignmentProfileWindow()" 
+								   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isSuperAdmin}"
+								   includeInLayout="{parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isSuperAdmin}"
+								   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>									
 					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
-								   click="showPropertyWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+								   click="showPropertyWindow()" 
+								   visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
+								   includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+								   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platforms" styleName="dashboardButton" 
-								   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+								   click="showExperimentPlatformWindow()" 
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
-								   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-					<mx:LinkButton label="Manage microarray catalog" click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   click="showOrganismWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton label="Manage microarray catalog" 
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
 					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
 					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
 				</mx:VBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
-			<mx:RemoveChild target="{alignmentProfileButton0}"/>
-			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:RemoveChild target="{vbox1}"/>
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (admin privileges)'}"/>
 			<mx:RemoveChild target="{label3}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label3}"/>
 			<mx:RemoveChild target="{button4}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button4}"/>
-			<mx:RemoveChild target="{button5}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button5}"/>
 			<mx:SetStyle target="{label3}" name="paddingTop" value="8"/>
 			<mx:SetStyle target="{vbox9}" name="verticalGap" value="1"/>
 			<mx:SetStyle target="{vbox12}" name="verticalGap" value="1"/>
 			<mx:SetStyle target="{vbox10}" name="verticalGap"/>
 			<mx:SetStyle target="{hbox8}" name="horizontalGap" value="20"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild">
-				<mx:Label text="Data Tracks" id="label5" styleName="welcomeLabel" visible="{parentApplication.dataTrackSupported}" includeInLayout="{parentApplication.dataTrackSupported}" paddingTop="8"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild">
-				<mx:LinkButton label="Browse Data Tracks" click="showDataTracks()" styleName="dashboardButton"  id="button19"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')"  visible="{parentApplication.dataTrackSupported}" includeInLayout="{parentApplication.dataTrackSupported}"/>
+				<mx:LinkButton label="Browse Data Tracks" 
+					visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
+					includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+					click="showDataTracks()" styleName="dashboardButton"  id="button19"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')" />
 			</mx:AddChild>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
-				<mx:Label text="Billing" id="label7" styleName="welcomeLabel" paddingTop="42"/>
+				<mx:Label text="Billing" id="label7" styleName="welcomeLabel" paddingTop="10"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
 				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button20"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}"/>
@@ -75,14 +81,13 @@
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
 				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button21"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:AddChild>
+			<mx:RemoveChild target="{button3}"/>
+			<mx:RemoveChild target="{button5}"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
-			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
-			<mx:RemoveChild target="{alignmentProfileButton0}"/>
-			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label4}"/>
@@ -92,6 +97,7 @@
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
 		</mx:State>
 		<mx:State name="ExternalUserState">
+			<mx:SetStyle target="{vbox1}" name="borderStyle" value="none"/>
 		</mx:State>
 		<mx:State name="AdminESState" basedOn="AdminState">
 			<mx:RemoveChild target="{button1}"/>
@@ -101,10 +107,10 @@
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label3}"/>
 			<mx:RemoveChild target="{button4}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button4}"/>
-			<mx:RemoveChild target="{button5}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button5}"/>
 			<mx:SetProperty target="{submitExternalExperimentButton}" name="label" value="Register Experiment"/>
 			<mx:SetStyle target="{label7}" name="paddingTop" value="8"/>
+			<mx:RemoveChild target="{button19}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button19}"/>
 		</mx:State>
 		<mx:State name="UserESState">
 			<mx:RemoveChild target="{button1}"/>
@@ -132,12 +138,6 @@
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
 		</mx:State>
 		<mx:State name="AdminDNASeqState" basedOn="AdminState">
-			<mx:RemoveChild target="{alignmentProfileButton}"/>
-			<mx:RemoveChild target="{button0}"/> 
-			<mx:RemoveChild target="{organismButton}"/>
-			<mx:RemoveChild target="{platformConfigButton}"/>
-			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
-			<mx:RemoveChild target="{amendButton}"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:Label text="DNA Sequencing Core" id="label0" styleName="welcomeLabel"/>
 			</mx:AddChild>
@@ -157,45 +157,8 @@
 				<mx:LinkButton label="Review Results"  click="reviewResults()"  
 							   styleName="dashboardButton" id="button17"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart.png')"/>
 			</mx:AddChild>
-			<mx:SetStyle target="{label2}" name="paddingTop" value="8"/>
-			<mx:SetStyle target="{vbox9}" name="verticalGap" value="0"/>
-			<mx:SetStyle target="{vbox12}" name="verticalGap" value="0"/>
-			<mx:SetStyle target="{vbox13}" name="verticalGap" value="0"/>
-			<mx:SetStyle target="{label7}" name="paddingTop" value="8"/>
-			<mx:RemoveChild target="{label3}"/>
-			<mx:RemoveChild target="{button4}"/>
-			<mx:RemoveChild target="{button5}"/>
-			<mx:RemoveChild target="{label5}"/>
-			<mx:RemoveChild target="{button19}"/>
-		</mx:State>
-		<mx:State name="SuperAdminDNASeqState" basedOn="AdminState">
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:Label text="DNA Sequencing Core" id="label8" styleName="welcomeLabel"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:LinkButton label="Review Orders"  click="reviewOrders()"  
-							   styleName="dashboardButton" id="button22"  toolTip="Review pending orders" icon="@Embed(source='../../assets/page.png')"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:LinkButton label="Fill Plates"  click="fillPlates()"  
-							   styleName="dashboardButton" id="button23"  toolTip="Fill plates" icon="@Embed(source='../../assets/plate_add.png')"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:LinkButton label="Review Instrument Runs"  click="reviewRuns()"  
-							   styleName="dashboardButton" id="button24"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run.png')"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:LinkButton label="Review Results"  click="reviewResults()"  
-							   styleName="dashboardButton" id="button25"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart.png')"/>
-			</mx:AddChild>
-			<mx:RemoveChild target="{label7}"/>
-			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{label7}"/>
-			<mx:RemoveChild target="{button20}"/>
-			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{button20}"/>
-			<mx:RemoveChild target="{button21}"/>
-			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{button21}"/>
-			<mx:SetStyle target="{label7}" name="paddingTop" value="8"/>
-			<mx:SetStyle target="{label6}" name="paddingTop" value="8"/>
+			<mx:SetStyle target="{label2}" name="paddingTop" value="10"/>
+			<mx:SetStyle target="{label7}" name="paddingTop" value="10"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -225,11 +188,7 @@
 					if (parentApplication.isExternalDataSharingSite) {
 						currentState = "AdminESState";
 					} else if (parentApplication.isCoreDNASeq) {
-						if (parentApplication.hasPermission(parentApplication.PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-							currentState = "SuperAdminDNASeqState"
-						} else {
-							currentState = "AdminDNASeqState"
-						}
+						currentState = "AdminDNASeqState"
 					} else {
 						currentState = "AdminState";
 					}
@@ -395,28 +354,39 @@
 				</mx:HBox>
 				<mx:LinkButton label="Submit Experiment Request"  click="submitRequest()"  
 							   styleName="dashboardButton" id="button1"  toolTip="Submit new work requests for Microarray, Next generation sequencing or quality control services" icon="@Embed(source='../../assets/flask_add.png')"/>
-				<mx:LinkButton label="Add services to Experiment Request"  click="amendRequest()" 
+				<mx:LinkButton label="Add services to Experiment Request"  
+							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+							   click="amendRequest()" 
 							   styleName="dashboardButton" id="amendButton"  toolTip="Add microarray or next gen sequencing services to an existing experiment request" icon="@Embed(source='../../assets/flask_edit.png')"/>
 				<mx:LinkButton label="Register External Experiment"  click="submitExternalExperiment()"  
+							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
 							   styleName="dashboardButton" id="submitExternalExperimentButton"  toolTip="Submit an experiment to the GNomEx repository and upload associated raw data files" icon="@Embed(source='../../assets/experiment_register.png')"/>
 				<mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
 				<mx:LinkButton label="Download Experiment Results" click="showExperimentDownloads()" styleName="dashboardButton"  id="button3"  toolTip="Download experiment raw data files" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:LinkButton id="alignmentProfileButton0"  label="Configure Alignment Profiles" styleName="dashboardButton" includeInLayout="{parentApplication.isSequenceAlignmentSupported}" 
-							   click="showAlignmentProfileWindow()" visible="{parentApplication.isSequenceAlignmentSupported}" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
-				<mx:LinkButton id="sampleCharacteristicButton0"  label="Configure Annotations" styleName="dashboardButton" 
-							   click="showPropertyWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-				<mx:LinkButton id="organismButton0"  label="Configure Organisms" styleName="dashboardButton" 
-							   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
 			</mx:VBox> 
-			<mx:VBox height="100%" verticalAlign="top" horizontalAlign="left" id="vbox1" verticalGap="2" width="268" label="View experiment protocol descriptions">
-				<mx:HBox id="hbox7" horizontalGap="2" verticalAlign="middle">
-					<mx:Label text="Analysis" id="label3" styleName="welcomeLabel"/>
-				</mx:HBox> 
-				<mx:LinkButton label="Browse Analyses" click="showAnalysis()" styleName="dashboardButton"  id="button4"  verticalGap="4" toolTip="Browse analysis entries, view analysis annotations" icon="@Embed(source='../../assets/map.png')"/>
-				<mx:LinkButton label="Download Analyzed data files" click="showAnalysisDownloads()" styleName="dashboardButton"  id="button5"  toolTip="Download analysis data files" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:Label text="Data Tracks" id="label1" styleName="welcomeLabel" paddingTop="12"  visible="{parentApplication.dataTrackSupported}" includeInLayout="{parentApplication.dataTrackSupported}"/>
-				<mx:LinkButton label="Browse Data Tracks" click="showDataTracks()" styleName="dashboardButton"  id="button18"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')"  visible="{parentApplication.dataTrackSupported}" includeInLayout="{parentApplication.dataTrackSupported}"/>
-				<mx:Label text="Billing" id="label4" styleName="welcomeLabel" paddingTop="20"/>
+			<mx:VBox height="100%" verticalAlign="top"  horizontalAlign="left" id="vbox1" verticalGap="2" width="268"  borderStyle="solid">
+				<mx:HBox id="hbox7" 
+						 visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+						 horizontalGap="2" verticalAlign="middle">
+					<mx:Label text="Analysis" 
+							  visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+							  id="label3" styleName="welcomeLabel"/>
+				</mx:HBox>
+				<mx:LinkButton label="Browse Analyses" 
+							   visible="{parentApplication.showBioinformaticsLinks}"  includeInLayout="{parentApplication.showBioinformaticsLinks}"
+							   click="showAnalysis()" styleName="dashboardButton"  id="button4"  verticalGap="4" 
+							   toolTip="Browse analysis entries, view analysis annotations" icon="@Embed(source='../../assets/map.png')"/>
+				<mx:LinkButton label="Download Analyzed data files" click="showAnalysisDownloads()" 
+							   visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+							   styleName="dashboardButton"  id="button5"  toolTip="Download analysis data files" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:LinkButton label="Browse Data Tracks"
+						  visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+						  click="showDataTracks()" styleName="dashboardButton"  id="button18"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')"  />
+							
+				<mx:Spacer
+					visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+					height="20"/>
+				<mx:Label text="Billing" id="label4" styleName="welcomeLabel"/>
 				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}"/>
 				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:VBox>
@@ -427,8 +397,12 @@
 				<mx:LinkButton label="Perform advanced search" click="showAdvancedSearch()" styleName="dashboardButton"  id="button7"  toolTip="Perform advanced search on experiments, analysis, and protocols" icon="@Embed(source='../../assets/magnifier.png')"/>
 				<mx:LinkButton label="Change password" click="changePassword()" styleName="dashboardButton"  id="button13"  icon="@Embed(source='../../assets/user.png')"/>
 				<mx:LinkButton label="Change user account settings" click="showUserPublicView()" styleName="dashboardButton"  id="button14"  icon="@Embed(source='../../assets/user.png')"/>
-				<mx:LinkButton label="View experiment protocol descriptions" click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
-				<mx:LinkButton id="usageButton"  label="Track Usage" styleName="dashboardButton" 
+				<mx:LinkButton label="View experiment protocol descriptions" 
+							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+							   click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
+				<mx:LinkButton id="usageButton"   
+							   visible="{parentApplication.showBioinformaticsLinks}"  includeInLayout="{parentApplication.showBioinformaticsLinks}" 
+							   label="Track Usage" styleName="dashboardButton" 
 							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
 				<mx:LinkButton label="Upload and Download Help" click="parentApplication.showUploadDownloadHints()" styleName="dashboardButton"  id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
 			</mx:VBox>

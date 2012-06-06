@@ -144,12 +144,12 @@ public class LabFilter extends DetailObject {
         secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
  
     // Filter to show only labs associated with core facilities this admin manages
-    if (secAdvisor.getCoreFacilities().isEmpty()) {
+    if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
       throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
     }
     this.addWhereOrAnd();
     queryBuf.append(" coreFacility.idCoreFacility in ( ");
-    for(Iterator i = secAdvisor.getCoreFacilities().iterator(); i.hasNext();) {
+    for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
       CoreFacility cf = (CoreFacility)i.next();
       queryBuf.append(cf.getIdCoreFacility());
       if (i.hasNext()) {
@@ -168,12 +168,12 @@ public class LabFilter extends DetailObject {
     } if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       
       // Filter to show only labs associated with core facilities this admin manages
-      if (secAdvisor.getCoreFacilities().isEmpty()) {
+      if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
         throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
       }
       this.addWhereOrAnd();
       queryBuf.append(" coreFacility.idCoreFacility in ( ");
-      for(Iterator i = secAdvisor.getCoreFacilities().iterator(); i.hasNext();) {
+      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
         CoreFacility cf = (CoreFacility)i.next();
         queryBuf.append(cf.getIdCoreFacility());
         if (i.hasNext()) {

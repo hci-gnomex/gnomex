@@ -134,7 +134,7 @@ public class AppUserFilter extends DetailObject {
       // Admins can see users belong to labs that are associated with the core facilties
       // this admin manages.
       
-      if (secAdvisor.getCoreFacilities().isEmpty()) {
+      if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
         throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to user query.");
       }
       this.addWhereOrAnd();
@@ -227,7 +227,7 @@ public class AppUserFilter extends DetailObject {
   }
   
   private void appendCoreFacilityInClause() {
-    for(Iterator i = secAdvisor.getCoreFacilities().iterator(); i.hasNext();) {
+    for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
       CoreFacility cf = (CoreFacility)i.next();
       queryBuf.append(cf.getIdCoreFacility());
       if (i.hasNext()) {
