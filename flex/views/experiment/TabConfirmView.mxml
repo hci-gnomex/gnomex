@@ -145,7 +145,13 @@
 				&& !parentDocument.isMitSeqState()
 				&& !parentDocument.isCherryPickState();
 			
-			wellNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
+			wellNameCol.visible = false;
+			if (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+				wellNameCol.visible = true;
+			}
+			if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
+				wellNameCol.visible = true;
+			}
 			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;

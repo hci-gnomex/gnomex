@@ -1118,6 +1118,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.save(assayPlate);
           sess.flush();
         }
+        PlateWell parsedWell = requestParser.getWell(idSampleString);
         for (Integer assayNumber:requestParser.getAssays(idSampleString)) {
           PlateWell assayWell = new PlateWell();
           assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
@@ -1126,6 +1127,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           assayWell.setIdSample(sample.getIdSample());
           assayWell.setPlate(assayPlate);
           assayWell.setPosition(new Integer(sampleCount));
+          assayWell.setCol(parsedWell.getCol());
+          assayWell.setRow(parsedWell.getRow());
           assayWell.setSample(sample);
           sess.save(assayWell);
         }
@@ -1143,6 +1146,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.save(primerPlate);
         sess.flush();
       }
+      PlateWell parsedWell = requestParser.getWell(idSampleString);
       for (Integer primerNumber = 1; primerNumber < 7; primerNumber++) {
         PlateWell primerWell = new PlateWell();
         primerWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
@@ -1150,7 +1154,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         primerWell.setIdPlate(primerPlate.getIdPlate());
         primerWell.setIdSample(sample.getIdSample());
         primerWell.setPlate(primerPlate);
-        primerWell.setPosition((new Integer(sampleCount) - 1) * 6 + primerNumber);
+        primerWell.setPosition(new Integer(sampleCount));
+        primerWell.setCol(parsedWell.getCol());
+        primerWell.setRow(parsedWell.getRow());
         primerWell.setSample(sample);
         sess.save(primerWell);
       }
