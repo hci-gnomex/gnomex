@@ -32,15 +32,18 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
+import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Primer;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
@@ -406,14 +409,16 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           // Default to not breaking otu samples by plates.
           requestNode.setAttribute("hasPlates", "N");
+
+          // get list of samlpe ids for the request.  Used in querying PlateWell.
+          ArrayList<Integer> sampleIds = new ArrayList<Integer>();
+          for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
+            Sample sample = (Sample)i1.next();
+            sampleIds.add(sample.getIdSample());
+          }
           
           if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)
               && request.getSamples().size() > 0) {
-            ArrayList<Integer> sampleIds = new ArrayList<Integer>();
-            for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
-              Sample sample = (Sample)i1.next();
-              sampleIds.add(sample.getIdSample());
-            }
             String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
             Query plateQuery = sess.createQuery(plateQueryString);
             plateQuery.setParameterList("ids", sampleIds);
@@ -437,7 +442,37 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 }
               }
             }
-         }
+          }
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+            // biuld the primer list and well names for the samples
+            HashMap<String, String> primerList = new HashMap<String, String>();
+            HashMap<Integer, String> sampleWellMap = new HashMap<Integer, String>();
+            String primerQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE'";
+            Query primerQuery = sess.createQuery(primerQueryString);
+            primerQuery.setParameterList("ids", sampleIds);
+            List primers = primerQuery.list();
+            for(Iterator i = primers.iterator();i.hasNext();) {
+              PlateWell pw = (PlateWell)i.next();
+              primerList.put(pw.getPrimer().getName(), pw.getPrimer().getName());
+              sampleWellMap.put(pw.getIdSample(), pw.getWellName());
+            }
+            
+            String primerListString = "";
+            for(String pName:primerList.keySet()) {
+              if (primerListString.length() > 0) {
+                primerListString += ", ";
+              }
+              primerListString += pName;
+            }
+            requestNode.setAttribute("primerList", primerListString);
+            
+            // add well names to samples
+            List samples = requestNode.getChild("samples").getChildren("Sample");
+            for (Iterator i1 = samples.iterator(); i1.hasNext();) {
+              Element sampleNode = (Element)i1.next();
+              sampleNode.setAttribute("wellName", sampleWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+            }
+          }
           
           doc.getRootElement().addContent(requestNode);
         
