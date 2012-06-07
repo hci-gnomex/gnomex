@@ -25,6 +25,7 @@
 * Added isRequired flag to PropertyEntry nodes returned from GetRequest.java, disabled checkboxes for req'd annotations so they cannot be unchecked (rcundick)
 * Fixed bug that was not saving changes to a slide's applications on the slide management view properly.(tcourdy)
 * Fixed bug that was causing the slide management view to not refresh its display properly as changes were being made.(tcourdy)
+* Fixed problem where experiment submit screen lab dropdown wasn't being refreshed after lab added. (rcundick)
 
 5.4.4.1 (May 21, 2012)
 ----------------------

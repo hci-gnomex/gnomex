@@ -57,6 +57,7 @@
 				var params:Object = new Object();
 				params.idLab = savedIdLab;
 	 			getLab.send(params);
+				parentApplication.getLabList.send();
 				PopUpManager.removePopUp(this);
 			} else {
 				Alert.show(saveLab.lastResult..ACTMESSAGE.@TEXT);;
