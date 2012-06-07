@@ -26,6 +26,8 @@
 * Fixed bug that was not saving changes to a slide's applications on the slide management view properly.(tcourdy)
 * Fixed bug that was causing the slide management view to not refresh its display properly as changes were being made.(tcourdy)
 * Fixed problem where experiment submit screen lab dropdown wasn't being refreshed after lab added. (rcundick)
+* Added core facility comboBox and new request category platform type radio buttons on the configure experiment platform window.(tcourdy)
+* Added request category platform type combo box to the experiment platform add window.(tcourdy) 
 
 5.4.4.1 (May 21, 2012)
 ----------------------
