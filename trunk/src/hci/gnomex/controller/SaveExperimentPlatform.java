@@ -70,6 +70,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       isNewRequestCategory = true;
     }
     
+    if(request.getParameter("type") == null || request.getParameter("type") == ""){
+      setResponsePage(this.ERROR_JSP);
+      this.addInvalidField("Null Platform Type", "The Experiment Platform type cannot be null");
+    }
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
       sampleTypesXMLString = request.getParameter("sampleTypesXMLString");
@@ -125,12 +129,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         if (isNewRequestCategory) {
           rc = rcScreen;
           rc.setCodeRequestCategory("EXP" + this.getNextAssignedRequestCategoryNumber(sess));
-          
           sess.save(rc);
         } else {
-          
           rc = (RequestCategory)sess.load(RequestCategory.class, rcScreen.getCodeRequestCategory());
-          
           initializeRequestCategory(rc);
         }
         
@@ -140,9 +141,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSampleTypes(sess, rc);
         saveSequencingOptions(sess, rc);
 
-
-
-        
         sess.flush();
 
 
@@ -173,6 +171,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   }
   
   private void initializeRequestCategory(RequestCategory rc) {
+    rc.setIdCoreFacility(rcScreen.getIdCoreFacility());
     rc.setRequestCategory(rcScreen.getRequestCategory());
     rc.setIsActive(rcScreen.getIsActive());
     rc.setType(rcScreen.getType());
