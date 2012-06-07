@@ -1722,6 +1722,7 @@
 	        	promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 	        	submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
 	        	promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
+				promptedSubmitRequestLabList.refresh();
 	        	manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
 	        	
 	       		// For submitting work auth forms online, a non-gnomex university user will
