@@ -136,6 +136,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String coreSubject      = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " pending";    
     
     boolean send = false;
+    boolean testEmail = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
     String coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (coreEmail == null || coreEmail.equals("")) {
@@ -146,6 +147,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     } else {
       if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
+        testEmail = true;
         submitterSubject = "TEST - " + submitterSubject;
         coreSubject = "TEST - " + coreSubject;
         coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
@@ -187,6 +189,21 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
         log.warn("Unable to send email notification to work authorization submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
+      }
+      
+      // Email lab contact email address(es)
+      if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
+        String contactEmail = lab.getContactEmail();
+        if (testEmail) {
+          contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+        }
+        MailUtil.send(submitterEmail, 
+            null,
+            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+            submitterSubject, 
+            submitterNote.toString() + body.toString(),
+            false);   
+
       }
 
       
