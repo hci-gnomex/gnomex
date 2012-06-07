@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="absolute" width="920" height="474"  creationPolicy="all"
+				layout="absolute" width="920" height="530"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform">
@@ -103,12 +103,18 @@
 			}
 			
 			private function save():void {
+				if(coreFacilities.length >= 2 && coreFacilityCombo.selectedLabel == ""){
+					Alert.show("You must select a core facility");
+					return;
+				}
+				
 				var params:Object = new Object();
 				
 				params.codeRequestCategory = this.requestCategory.@codeRequestCategory;
 				params.requestCategory = this.platformName.text;
 				params.notes = this.notes.text;
 				params.type = this.typeRadioGroup.selectedValue != null ? this.typeRadioGroup.selectedValue : '';
+				params.idCoreFacility = coreFacilities.getItemAt(coreFacilityCombo.selectedIndex).@idCoreFacility;
 				params.sortOrder = this.sortOrder.text;
 				params.isActive = this.isActiveCheckbox.selected ? 'Y' : 'N';
 				params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
@@ -143,6 +149,18 @@
 					dirty.setDirty();
 				} else if (this.typeRadioGroup.selectedValue == 'ILLUMINA') {
 					iconToCheck = "assets/DNA_diag.png";				
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'CHERRYPICK') {
+					iconToCheck = "assets/cherrypick.png";
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'FRAGANAL') {
+					iconToCheck = "assets/fraganal.png";				
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'MITSEQ') {
+					iconToCheck = "assets/mitseq.png";
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'CAPSEQ') {
+					iconToCheck = "assets/dna-helix-icon.png";				
 					dirty.setDirty();
 				}
 				
@@ -223,7 +241,7 @@
 					
 					vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
 					organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
-					
+					coreFacilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',requestCategory.@idCoreFacility);
 					var expIconLst:XMLList = parentApplication.expIcons.item; 
 					iconCombo.selectedIndex = 0;
 					for(var i:Number = 0; i < expIconLst.length(); i++) {
@@ -489,6 +507,7 @@
 	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
 	<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
 	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody">
 		<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
@@ -531,20 +550,32 @@
 											  close="{this.dirty.setDirty();}"
 											  id="vendorCombo"/>
 							</mx:HBox>
-							<mx:HBox width="100%" horizontalGap="1" verticalAlign="top">
-								<mx:Label text="Type" width="80"/>
-								<mx:VBox verticalGap="0" verticalAlign="middle" >
-									<mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
-									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:HBox horizontalGap="110">
-										<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()"/>
-										<mx:HBox visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
-											<mx:Label text="Number of channels" width="120"/>
-											<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
-										</mx:HBox>									  
-									</mx:HBox>
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Core Facility" width="80"/>
+								<mx:ComboBox width="100%"
+											 dataProvider="{coreFacilities}"
+											 labelField="@display" 
+											 close="{this.dirty.setDirty();}"
+											 id="coreFacilityCombo"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalGap="8" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0">
+								<mx:Label text="Type" width="73"/>
+								<mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
+								<mx:VBox verticalGap="1" paddingLeft="0">
 									<mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()"/>
 								</mx:VBox>
+								<mx:VBox verticalGap="1" paddingLeft="0">
+									<mx:RadioButton label="Capillary Sequencing" value="CAPSEQ" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()"/>
+								</mx:VBox>
+							</mx:HBox>
+							<mx:HBox visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+								<mx:Label text="Number of channels" width="120"/>
+								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
 								<mx:Label text="Show for" width="80"/>
