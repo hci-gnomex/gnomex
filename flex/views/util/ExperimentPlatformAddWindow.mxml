@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add Experiment Platform" width="366" height="92" defaultButton="{saveButton}" paddingTop="4">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="366" height="120" defaultButton="{saveButton}" paddingTop="4">
     <mx:HTTPService 
     id="saveExperimentPlatform" 
     url="SaveExperimentPlatform.gx"
@@ -13,19 +13,31 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.controls.Alert;
+		
+		[Bindable]
+		private var platformTypes:XMLList;
+		
+		private var platformTypeCode:String = null;
 		
 		public var parentWindow:views.util.ExperimentPlatformWindow = null;
+		
+		private function init():void{
+			var platformTypeString:String = "<label></label><label>Sample Quality</label><label>Microarray</label><label>Next Generation Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label><label>Capillary Sequencing</label>"
+			platformTypes = new XMLList(platformTypeString);
+		}
 		
 		private function save():void {
 			var params:Object = new Object();
 			
 			params.requestCategory = this.platformName.text;
 			params.idAppUser = (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser());
-
+			params.type = platformTypeCode;
 			params.sampleTypesXMLString = "<sampleTypes/>";
 			params.applicationsXMLString = "<applications/>";
 			params.sequencingOptionsXMLString = "<sequencingOptions/>";
@@ -44,15 +56,37 @@
 			}			
 		}
 		
+		public function updatePlatform():void{
+			if(typeCombo.selectedLabel == "Sample Quality"){
+				platformTypeCode = "QC";
+			} else if(typeCombo.selectedLabel == "Microarray"){
+				platformTypeCode = "MICROARRAY";	
+			} else if(typeCombo.selectedLabel == "Next Generation Sequencing"){
+				platformTypeCode = "ILLUMINA";
+			} else if(typeCombo.selectedLabel == "Mitochondrial D-Loop Sequencing"){
+				platformTypeCode = "MITSEQ";
+			} else if(typeCombo.selectedLabel == "Fragment Analysis Panels"){
+				platformTypeCode = "FRAGANAL";
+			} else if(typeCombo.selectedLabel == "Cherry Picking"){
+				platformTypeCode = "CHERRYPICK";
+			} else if(typeCombo.selectedLabel == "Capillary Sequencing"){
+				platformTypeCode = "CAPSEQ";
+			}
+		}
+		
 	]]>
 </mx:Script>
-
+	<mx:XMLListCollection id="platformTypeCollection" source="{platformTypes}"/>
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
 		    <mx:Text text="Name"/>
 			<mx:TextInput id="platformName" width="100%"/>
 	</mx:HBox>
+	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+		<mx:Text text="Type"/>
+		<mx:ComboBox id="typeCombo" dataProvider="{platformTypes}" labelField="@label" width="100%" change="{updatePlatform()}"/>
+	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{platformName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{platformName.text != '' &amp;&amp; typeCombo.selectedIndex != 0}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
