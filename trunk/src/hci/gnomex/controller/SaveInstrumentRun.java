@@ -161,7 +161,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     return this;
   }
   
-  public void changeRequestStatus( Session sess, InstrumentRun ir, String status ) {
+  private void changeRequestStatus( Session sess, InstrumentRun ir, String status ) {
     
     // Get any requests on that run
     Map requests = new HashMap();
