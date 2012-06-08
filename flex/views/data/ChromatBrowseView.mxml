@@ -32,6 +32,16 @@
 					method="POST"
 					useProxy="false">
 	</mx:HTTPService>
+	
+	<mx:HTTPService id="deleteChromatograms"
+					url="DeleteChromatograms.gx"
+					resultFormat="e4x"
+					showBusyCursor="true"
+					result="onDeleteChromatograms(event)"
+					fault="parentApplication.onFailHttpRequest('Failed to delete chromatogram list', event)"
+					method="POST"
+					useProxy="false">
+	</mx:HTTPService>
 
 	<mx:Script>
 		<![CDATA[
@@ -216,6 +226,18 @@
 			}
 			
 			private function deleteChromats():void {
+				var params:Object = new Object;
+				params.chromatsToDeleteXMLString = "<chromatograms>" +  selectedChromats.toXMLString() + "</chromatograms>";
+				deleteChromatograms.send(params);
+			}
+			
+			private function onDeleteChromatograms(event:ResultEvent):void{
+				if ( event.result.name() == "SUCCESS" ) {
+					this.getList();
+					return;
+				}
+				Alert.show( event.result..ERROR.@message.toString(), "Error deleting chromatogram list" );
+				
 			}
 			
 
