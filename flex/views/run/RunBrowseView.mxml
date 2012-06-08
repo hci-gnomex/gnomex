@@ -17,6 +17,17 @@
 	</mx:HTTPService >
 	
 	<mx:HTTPService 
+		id="deleteInstrumentRuns" 
+		url="DeleteInstrumentRuns.gx"
+		resultFormat="e4x"
+		result="onDeleteInstrumentRuns(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to delete Instrument Runs', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
 		id="saveInstrumentRun" 
 		url="SaveInstrumentRun.gx"
 		resultFormat="e4x"
@@ -122,6 +133,25 @@
 			}
 			
 			private function deleteRuns():void {
+				var params:Object = new Object;
+				var runsToDelete:String = "<InstrumentRuns>";
+				
+				for each(var node:XML in selectedRuns){
+					runsToDelete += "<idInstrumentRun>" + node[0].@idInstrumentRun + "</idInstrumentRun>";
+				} 
+				runsToDelete += "</InstrumentRuns>";
+				params.runsToDeleteXMLString = new XML(runsToDelete);
+				deleteInstrumentRuns.send(params);
+				
+			}
+			
+			private function onDeleteInstrumentRuns(event:ResultEvent):void{
+				if ( event.result.name() == "SUCCESS" ) {
+					this.getList();
+					return;
+				}
+				Alert.show( event.result..ERROR.@message.toString(), "Error deleting runs" );
+				
 			}
 			
 			private function getRunParameters():Object {
