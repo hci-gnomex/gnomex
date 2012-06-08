@@ -28,7 +28,7 @@
 		public var parentWindow:views.util.ExperimentPlatformWindow = null;
 		
 		private function init():void{
-			var platformTypeString:String = "<label></label><label>Sample Quality</label><label>Microarray</label><label>Next Generation Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label><label>Capillary Sequencing</label>"
+			var platformTypeString:String = "<label></label><label>Next Generation Sequencing</label><label>Microarray</label><label>Sample Quality</label><label>Capillary Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label>"
 			platformTypes = new XMLList(platformTypeString);
 		}
 		
