@@ -1,14 +1,12 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.HybProtocol;
+
 import hci.gnomex.model.InstrumentRun;
-import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.dictionary.model.DictionaryEntry;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -61,6 +59,7 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
+    //Change this conditional to check for this.getSecurityAdvisor().hasPermission(SecurityAdvisor.canDelete())
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
         for(Iterator i = this.runsToDeleteDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element node = (Element)i.next();
