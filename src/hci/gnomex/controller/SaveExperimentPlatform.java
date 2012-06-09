@@ -599,7 +599,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   
   private Integer getNextAssignedAppNumber(Session sess) {
     int lastNumber = 0;
-    List apps = sess.createQuery("SELECT a.codeApplication from Application a where a.codeApplication like 'APP[0-9]'").list();
+    List apps = sess.createQuery("SELECT a.codeApplication from Application a where a.codeApplication like 'APP%'").list();
     for(Iterator i = apps.iterator(); i.hasNext();) {
       String codeApplication = (String)i.next();
       String theNumber = codeApplication.substring(3);
@@ -616,7 +616,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   
   private Integer getNextAssignedRequestCategoryNumber(Session sess) {
     int lastNumber = 0;
-    List requestCategories = sess.createQuery("SELECT rc.codeRequestCategory from RequestCategory rc where rc.codeRequestCategory like 'EXP[0-9]'").list();
+    List requestCategories = sess.createQuery("SELECT rc.codeRequestCategory from RequestCategory rc where rc.codeRequestCategory like 'EXP%'").list();
     for(Iterator i = requestCategories.iterator(); i.hasNext();) {
       String codeRequestCategory = (String)i.next();
       String theNumber = codeRequestCategory.substring(3);
