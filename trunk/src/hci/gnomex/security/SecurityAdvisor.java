@@ -293,7 +293,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canRead = true;
       } // Admins - restrict to core facility
-      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+      else if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
         Request req = (Request)object;
         canRead = isCoreFacilityIManage(req.getIdCoreFacility());
       }
