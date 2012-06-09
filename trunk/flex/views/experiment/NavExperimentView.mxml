@@ -1299,7 +1299,7 @@
 				</mx:CheckBox>			
 			</mx:HBox>
 			<mx:VRule height="20" id="vrule1a"/>
-			<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments only"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
+			<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall" toolTip="External experiments (only)">
 				<mx:click>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 			</mx:CheckBox>
 			<mx:VRule height="20" id="vrule2"/>
@@ -1321,7 +1321,7 @@
 		    		</mx:CheckBox>
 		    		<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" 
 						visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
-						paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						paddingLeft="2" horizontalGap="0" styleName="labelSmall" paddingRight="16">
 		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 					<mx:CheckBox label="Capillary Seq" id="CapSeqCheckbox" 
@@ -1334,12 +1334,12 @@
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
-					<mx:CheckBox label="Fragment Analysis"  id="FragAnalCheckbox" 
+					<mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox" 
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
-					<mx:CheckBox label="Cherry Picking"  id="CherryPickingCheckbox" 
+					<mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox" 
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
