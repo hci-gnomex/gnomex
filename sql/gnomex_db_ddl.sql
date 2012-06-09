@@ -483,7 +483,7 @@ DROP TABLE IF EXISTS `gnomex`.`PriceCategory`;
 CREATE TABLE `gnomex`.`PriceCategory` (
   `idPriceCategory` INT(10) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NOT NULL,
-  `description` VARCHAR(500) NOT NULL,
+  `description` VARCHAR(500) NULL,
   `codeBillingChargeKind` VARCHAR(10) NULL,
   `pluginClassName` VARCHAR(500) NULL,
   `dictionaryClassNameFilter1` VARCHAR(500) NULL,
