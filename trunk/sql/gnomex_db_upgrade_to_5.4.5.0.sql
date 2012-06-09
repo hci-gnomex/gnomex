@@ -64,3 +64,7 @@ alter table Sample add column isControl char(1) NULL;
 -- new purchaseOrderForm and orderFormFileType for BillingAccount
 alter table BillingAccount add column purchaseOrderForm LONGBLOB NULL;
 alter table BillingAccount add column orderFormFileType VARCHAR(10) NULL;
+
+
+-- PriceCategory description is null
+alter table gnomex.PriceCategory change column description description varchar(5000) null;
