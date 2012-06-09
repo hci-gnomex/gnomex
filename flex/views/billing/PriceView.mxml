@@ -39,31 +39,45 @@
 			this.price = price;
 			this.priceCategory = priceCategory;
 			this.criteriaList = new XMLListCollection(price..PriceCriteria);
-
-			var filter1Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1).@displayName;
-			var filter1Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter1);
-			if (filter1Name != null) {
-				this.filter1Col.headerText = filter1Name.toString();
-				this.filter1Col.rendererIsEditor = false;
-				this.filter1Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
-				this.filter1Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
+			
+			if (priceCategory.@dictionaryClassNameFilter1 == 'text') {
+				filter1TextCol.visible = true;
+				filter1Col.visible = false;
 			} else {
-				this.filter1Col.visible = false;
-			}
-			
-			
-			if (priceCategory.@dictionaryClassNameFilter2 != "") {
-				var filter2Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter2).@displayName;
-				var filter2Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter2);
-				if (filter2Name != null && filter2Name != "") {
-					this.filter2Col.headerText = filter2Name.toString();
-					this.filter2Col.rendererIsEditor = false;
-					this.filter2Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
-					this.filter2Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
+				var filter1Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1).@displayName;
+				var filter1Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter1);
+				if (filter1Name != null) {
+					this.filter1Col.headerText = filter1Name.toString();
+					this.filter1Col.rendererIsEditor = false;
+					this.filter1Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
+					this.filter1Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
+				} else {
+					this.filter1Col.visible = false;
 				}
-			} else {
-				this.filter2Col.visible = false;
+
 			}
+			
+			if (priceCategory.@dictionaryClassNameFilter2 == 'text') {
+				filter2TextCol.visible = true;
+				filter2Col.visible = false;
+			} else {
+				if (priceCategory.@dictionaryClassNameFilter2 != "") {
+					var filter2Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter2).@displayName;
+					var filter2Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter2);
+					if (filter2Name != null && filter2Name != "") {
+						this.filter2Col.headerText = filter2Name.toString();
+						this.filter2Col.rendererIsEditor = false;
+						this.filter2Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
+						this.filter2Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
+					}
+				} else {
+					this.filter2Col.visible = false;
+				}
+
+			}
+
+			
+			
 			
 		}
 	    private function save():void {
@@ -142,6 +156,8 @@
 				<mx:columns>
 					<mx:DataGridColumn id="filter1Col" headerText="filter1"  editorDataField="value" dataField="@filter1"/>
 					<mx:DataGridColumn id="filter2Col" headerText="filter2"  editorDataField="value" dataField="@filter2"/>
+					<mx:DataGridColumn id="filter1TextCol" headerText="filter1" visible="false" dataField="@filter1"/>
+					<mx:DataGridColumn id="filter2TextCol" headerText="filter2" visible="false" dataField="@filter2"/>
 				</mx:columns>
 			</mx:DataGrid>
 
