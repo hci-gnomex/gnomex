@@ -319,6 +319,8 @@
 				if (parentDocument != null) {
 					this.checkSetupCompleteness();
 				}
+				
+				requestCategories.refresh();
 			}
 			
 			public function selectDefaultLab():void {
@@ -839,14 +841,37 @@
 				
 			}
 			
-			
+			private function filterRequestCategory(item:Object):Boolean {
+				var keep:Boolean = false;
+				if (item.@idCoreFacility == null) {
+					// If a request category is not associated with a core facility,
+					// include it in the list.
+					keep = true;
+				} else if (parentApplication.hasPermission(parentApplication.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					// Don't filter the list for super admins
+					keep = true;
+				} else {
+					// If the user is an admin, filter by the core facilities he/she manages; if
+					// the user is a normal user, filter by the core facilities associated with
+					// the labs he/she is a member of.
+					for each(var cf:Object in parentApplication.myCoreFacilities) {
+						if (cf.@idCoreFacility == item.@idCoreFacility) {
+							keep = true;
+							break;
+						}
+					}
+				}
+				return keep;
+				
+			}
+
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.billingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
 	
 	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
 	
-	<mx:XMLListCollection id="requestCategories"   sort="{requestCategorySorter}"
+	<mx:XMLListCollection id="requestCategories"   sort="{requestCategorySorter}" filterFunction="filterRequestCategory"
 						  source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y')}"/>
 	<mx:XMLListCollection id="requestCategoriesExternal"   sort="{requestCategorySorter}"
 						  source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isExternal == 'Y')}"/>
