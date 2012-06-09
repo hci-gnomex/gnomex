@@ -269,7 +269,7 @@ public class RequestParser implements Serializable {
     }
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));      
-    } else if (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+    } else if (RequestCategory.isDNASeqRequestCategory(request.getCodeRequestCategory())) {
       request.setCodeRequestStatus(RequestStatus.NEW);
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
