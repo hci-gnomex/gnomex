@@ -192,13 +192,13 @@
 				}
 				// Release and Requeue
 				if ( comboBox.selectedItem.@value == "REQUEUE" ) {
-					for each ( var ch:Object in selectedChromats ) {
-						ch.@released = "Y";
-						ch.@requeue = "Y";
+					for each ( var ch1:Object in selectedChromats ) {
+						ch1.@released = "Y";
+						ch1.@requeue = "Y";
 					}
-					var params:Object = new Object;
-					params.chromatogramXMLString = selectedChromats.toXMLString();
-					saveChromatogramList.send( params );
+					var params1:Object = new Object;
+					params1.chromatogramXMLString = selectedChromats.toXMLString();
+					saveChromatogramList.send( params1 );
 				}
 			}
 
