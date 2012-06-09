@@ -165,43 +165,46 @@
 			
 			// reset selected ones to visible -- creating them if necessary.
 			if (parentDocument.isFragAnalState()) {
-				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
-					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
-						var dataField:String = parentDocument.getAssayDataField(x);
-						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
-						var exists:Boolean = false;
-						var assayCol:DataGridColumn = null;
-						for each(var colSearch:DataGridColumn in samplesGridConfirm.columns) {
-							if (colSearch.dataField != null && colSearch.dataField == dataField) {
-								assayCol = colSearch;
-								exists = true;
-								break;
-							}
-						}
-						if (exists) {
-							assayCol.visible = true;
-						} else {
-							var newCol:DataGridColumn = new DataGridColumn();
-							newCol.dataField = dataField;
-							newCol.headerText = assayObject.@display;
-							newCol.width = 60;
-							newCol.resizable = false;
-							newCol.visible = true;
-							newCol.editable = false;
-							newCol.labelFunction = blankNLabelFunction;
-							var newColumns:Array = new Array();
-							var pushed:Boolean = false;
-							for each (var col0:DataGridColumn in samplesGridConfirm.columns) {
-								if (!pushed && col0.dataField != null && (col0.dataField == "@description" || (col0.dataField.substr(0, 9) == "@hasAssay" && col0.dataField > newCol.dataField))) {
-									newColumns.push(newCol);
-									pushed = true;
+				if (parentDocument.sampleSetupView.assayCheckBox != null) {
+					for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
+						if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
+							var dataField:String = parentDocument.getAssayDataField(x);
+							var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+							var exists:Boolean = false;
+							var assayCol:DataGridColumn = null;
+							for each(var colSearch:DataGridColumn in samplesGridConfirm.columns) {
+								if (colSearch.dataField != null && colSearch.dataField == dataField) {
+									assayCol = colSearch;
+									exists = true;
+									break;
 								}
-								newColumns.push(col0);
 							}
-							samplesGridConfirm.columns = newColumns;
-							this.samplesGridConfirm.validateNow();
+							if (exists) {
+								assayCol.visible = true;
+							} else {
+								var newCol:DataGridColumn = new DataGridColumn();
+								newCol.dataField = dataField;
+								newCol.headerText = assayObject.@display;
+								newCol.width = 60;
+								newCol.resizable = false;
+								newCol.visible = true;
+								newCol.editable = false;
+								newCol.labelFunction = blankNLabelFunction;
+								var newColumns:Array = new Array();
+								var pushed:Boolean = false;
+								for each (var col0:DataGridColumn in samplesGridConfirm.columns) {
+									if (!pushed && col0.dataField != null && (col0.dataField == "@description" || (col0.dataField.substr(0, 9) == "@hasAssay" && col0.dataField > newCol.dataField))) {
+										newColumns.push(newCol);
+										pushed = true;
+									}
+									newColumns.push(col0);
+								}
+								samplesGridConfirm.columns = newColumns;
+								this.samplesGridConfirm.validateNow();
+							}
 						}
 					}
+					
 				}
 			}
 			
