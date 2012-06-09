@@ -15,6 +15,8 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
@@ -213,6 +215,14 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
             if (sample.getIdSample() == null) {
               sample.setIdSample(new Integer(x++));
+            }
+            PlateWell well = requestParser.getWell(idSampleString);
+            if (well != null) {
+              Plate plate = requestParser.getPlate(idSampleString);
+              well.setPlate(plate);
+              Set<PlateWell> wells = new TreeSet<PlateWell>();
+              wells.add(well);
+              sample.setWells(wells);
             }
             samples.add(sample);
           }          

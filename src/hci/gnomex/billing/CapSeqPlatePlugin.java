@@ -31,7 +31,7 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class CapSeqPlugin implements BillingPlugin {
+public class CapSeqPlatePlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) {
@@ -43,6 +43,7 @@ public class CapSeqPlugin implements BillingPlugin {
       return billingItems;
     }
     
+
     // Count number of samples. exclude any controls the
     // count.
     int qty = 0;
@@ -98,6 +99,9 @@ public class CapSeqPlugin implements BillingPlugin {
       }
     }
     
+    // Unit price is for 4 plates. 
+    qty = 1;
+
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
       BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
@@ -106,7 +110,7 @@ public class CapSeqPlugin implements BillingPlugin {
       billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
       billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
       billingItem.setDescription(price.getName());
-      billingItem.setQty(qty);
+      billingItem.setQty(qty); 
       billingItem.setUnitPrice(theUnitPrice);
       billingItem.setPercentagePrice(new BigDecimal(1));        
       if (qty > 0 && theUnitPrice != null) {      
