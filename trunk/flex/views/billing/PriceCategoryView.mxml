@@ -19,14 +19,17 @@
 
 <mx:Script>
 	<![CDATA[
-		import mx.rpc.events.FaultEvent;
-		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
+		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
-		import mx.collections.XMLListCollection;   
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;   
 		
 		[Bindable]
 		private var priceCategory:Object;
+		
+		[Bindable]
+		private var filterTypes:XMLListCollection = null;
 		
 		
 		private var priceSheet:Object;
@@ -34,6 +37,17 @@
 		public function init(priceCategory:Object, priceSheet:Object):void {
 			this.priceCategory = priceCategory;
 			this.priceSheet = priceSheet;
+			
+			filterTypes = new XMLListCollection();
+			var node:XML = new XML("<Dictionary displayName='Qty (range)' className='text'/>");
+			filterTypes.addItem(node);
+			
+			for each(var dict:XML in parentApplication.dictionaryManager.xml.Dictionary) {
+				filterTypes.addItem(dict.copy());
+			}
+			
+			dictionaryFilter1Combo.dataProvider = filterTypes;
+			dictionaryFilter2Combo.dataProvider = filterTypes;
 
 			if (priceCategory.@dictionaryClassNameFilter1 != '') {
 				var filter1Dictionary:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1);
@@ -116,14 +130,14 @@
     	    </mx:Spacer>
 	    	<hci:ComboBox id="dictionaryFilter1Combo" width="100%"
 	    		appendBlankRow="true" 
-	    		labelField="@displayName" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary}"/>
+	    		labelField="@displayName" dataProvider="{filterTypes}"/>
     	</mx:HBox>
     	<mx:HBox width="100%">
     	    <mx:Spacer width="80">
     	    </mx:Spacer>
 	    	<hci:ComboBox id="dictionaryFilter2Combo" width="100%"
 	    		appendBlankRow="true" 
-	    		labelField="@displayName" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary}"/>
+	    		labelField="@displayName" dataProvider="{filterTypes}"/>
     	</mx:HBox>
     </mx:VBox>
 
