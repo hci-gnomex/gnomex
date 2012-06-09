@@ -588,6 +588,8 @@
 			[Bindable]
 			public var isCoreGenomics:Boolean = false;
 			
+			public var myCoreFacilities:XMLList = null;
+			
 			[Bindable]
 			public var isSuperAdmin:Boolean = false;
 			
@@ -722,7 +724,8 @@
 			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
-			public var PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES:String = "canAdministerAllCoreFacilities";
+			
+			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
@@ -1496,16 +1499,8 @@
 				
 				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
 				isGuest = createSecurityAdvisor.lastResult.@isGuest == 'Y' ? true : false;
-				var coreFacilityDNASeq:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_DNA_SEQ);	
-				if (coreFacilityDNASeq is XMLList && XMLList(coreFacilityDNASeq).length() > 0) {
-					isCoreDNASeq = true;
-				}
-				var coreFacilityGenomics:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_GENOMICS);
-				if (coreFacilityGenomics is XMLList && XMLList(coreFacilityGenomics).length() > 0) {
-					isCoreGenomics = true;
-				}
-				
-			    this.appProgressBar.currentState = "LoadingState";
+
+				this.appProgressBar.currentState = "LoadingState";
 			    this.showProgress(10);
 			    
 			    userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
@@ -1639,6 +1634,53 @@
 					dataTrackSupported = false;
 				}
 				
+				// Determine if there are any core facilities configured for this site
+				var coreFacilities:XMLList = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
+				var coreGenomicsConfigured:Boolean = false;
+				var coreDNASeqConfigured:Boolean = false;
+				for each (var cf:Object in coreFacilities) {
+					if (cf.@facilityName == this.CORE_FACILITY_GENOMICS) {
+						coreGenomicsConfigured = true;
+					} else if (cf.@facilityName == this.CORE_FACILITY_DNA_SEQ) {
+						coreDNASeqConfigured = true;
+					}  
+				}
+				
+				// Keep a list of core facilities associated with this user.  We will use
+				// this to filter the request categories on the Submit Request window.
+				myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
+				
+				
+				//
+				// Determine which core facilities the user is associated with.
+				//
+				if (isGuest) {
+					// Only presume the guest needs Core DNA Seq specific behavior if the core facility
+					// for DNA Seq is in the core facilities dictionary.
+					isCoreDNASeq = coreDNASeqConfigured;
+				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					// Only presume the super admin needs Core DNA Seq specific behavior if the core facility
+					// for DNA Seq is in the core facilities dictionary.
+					isCoreDNASeq = coreDNASeqConfigured;
+				} else {
+					var coreFacilityDNASeq:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_DNA_SEQ);
+					if (coreFacilityDNASeq is XMLList && XMLList(coreFacilityDNASeq).length() > 0) {
+						isCoreDNASeq = true;
+					} 					
+				}
+				
+				
+				if (isGuest) {
+					isCoreGenomics = true;
+				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					isCoreGenomics = true;
+				} else {
+					var coreFacilityGenomics:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_GENOMICS);
+					if (coreFacilityGenomics is XMLList && XMLList(coreFacilityGenomics).length() > 0) {
+						isCoreGenomics = true;
+					} 
+				}
+				
 				
 				//  If the user's lab only belongs to DNA Seq Core facility, we hide
 				//  the bioinformatics links by default (analysis, data tracks, topics)
@@ -1647,7 +1689,7 @@
 				// an external data sharing site -- the state takes care of that
 				if (!isExternalDataSharingSite) {
 					// We will show all of the links for a super admin
-					if (!hasPermission(this.PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					if (!hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 						if (isCoreDNASeq && !isCoreGenomics) {
 							showBioinformaticsLinks = false;
 							showCoreGenomicsLinks = false;
@@ -1655,7 +1697,7 @@
 					}
 				}
 				
-				if (this.hasPermission(this.PROPERTY_CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+				if (this.hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					isSuperAdmin = true;
 				}
 

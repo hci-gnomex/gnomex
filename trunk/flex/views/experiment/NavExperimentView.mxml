@@ -1296,29 +1296,55 @@
 			</mx:CheckBox>		    		
 				<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
 					<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
-				</mx:CheckBox>
+				</mx:CheckBox>			
 			</mx:HBox>
-		</mx:HBox>
-		
-	</mx:HBox>
-		<mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1a" >
-		    	<mx:HBox horizontalGap="0" id="hbox5">
-		    		<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0" styleName="labelSmall" paddingLeft="2">
-		    			<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
-		    		</mx:CheckBox>
-		    		<mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"  paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-		    			<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
-		    		</mx:CheckBox>
-		    		<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
-		    		</mx:CheckBox>
-		    	</mx:HBox>
 			<mx:VRule height="20" id="vrule1a"/>
 			<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments only"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
 				<mx:click>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 			</mx:CheckBox>
 			<mx:VRule height="20" id="vrule2"/>
 			<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline" paddingRight="0" id="linkbutton2" paddingLeft="0"/>
+		</mx:HBox>
+		
+	</mx:HBox>
+		<mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1a" >
+		    	<mx:HBox horizontalGap="0" id="hbox5">
+					<mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"
+						visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
+						paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+		    		<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" 
+						 visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
+						 horizontalGap="0" styleName="labelSmall" paddingLeft="2">
+		    			<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		</mx:CheckBox>
+		    		<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" 
+						visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
+						paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		</mx:CheckBox>
+					<mx:CheckBox label="Capillary Seq" id="CapSeqCheckbox" 
+						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 horizontalGap="0" styleName="labelSmall" paddingLeft="2">
+						<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+					<mx:CheckBox label="Mitochondrial Seq"  id="MitSeqCheckbox"  
+						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+					<mx:CheckBox label="Fragment Analysis"  id="FragAnalCheckbox" 
+						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+					<mx:CheckBox label="Cherry Picking"  id="CherryPickingCheckbox" 
+						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+		    	</mx:HBox>
 	    	
 	    </mx:HBox>
 	
@@ -1424,15 +1450,6 @@
 		<mx:State name="GuestState">
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:RemoveChild target="{vrule1}"/>
-			<mx:RemoveChild target="{hbox3}"/>
-			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before" target="{hbox3}"/>
-			<mx:RemoveChild target="{hbox1}"/>
-			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
-				<mx:VRule height="18" id="vrule0" width="0"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before">
-				<mx:VRule height="20" id="vrule3"/>
-			</mx:AddChild>
 		</mx:State>
 		
 		<mx:State name="AdminState">
@@ -1468,6 +1485,14 @@
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:VRule height="20" id="vrule4"/>
 			</mx:AddChild>
+			<mx:RemoveChild target="{vrule1a}"/>
+			<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{vrule1a}"/>
+			<mx:RemoveChild target="{externalExperimentsOnlyCheckbox}"/>
+			<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{externalExperimentsOnlyCheckbox}"/>
+			<mx:AddChild relativeTo="{vrule1a}" position="before">
+				<mx:Spacer width="14"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{externalExperimentsOnlyCheckbox}" name="paddingLeft" value="6"/>
 
 
 		</mx:State>
