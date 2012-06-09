@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -171,18 +172,24 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           
+          
+          String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
+          requestNode.setAttribute("requestStatus", requestStatus);
+          
           String accountNumberDisplay = "";
           
           if(request.getBillingAccount() != null) {
             accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
+          
 
           // Initialize attributes from request category
           if (request.getCodeRequestCategory() != null && !request.getCodeRequestCategory().equals("")) {
             RequestCategory requestCategory = dh.getRequestCategoryObject(request.getCodeRequestCategory());
             requestNode.setAttribute("icon", requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
             requestNode.setAttribute("type", requestCategory.getType() != null ? requestCategory.getType() : "");            
+            requestNode.setAttribute("requestCategory", requestCategory.getRequestCategory());
           }
           
           // Show prepInstructions and analysisInstructions.  Although

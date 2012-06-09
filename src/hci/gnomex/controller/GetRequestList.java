@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -21,6 +22,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 
@@ -47,6 +49,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
     StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
     log.info("Query for GetRequestList: " + buf.toString());
@@ -55,7 +58,15 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     Document doc = new Document(new Element("RequestList"));
     for(Iterator i = reqs.iterator(); i.hasNext();) {
       Request req = (Request)i.next();
-      doc.getRootElement().addContent(req.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+      
+      Element node = req.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      
+      RequestCategory requestCategory = dh.getRequestCategoryObject(req.getCodeRequestCategory());
+      String requestStatus = dh.getRequestStatus(req.getCodeRequestStatus());
+      
+      node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+      
+      doc.getRootElement().addContent(node);
       
     }
     

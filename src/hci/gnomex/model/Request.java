@@ -889,6 +889,31 @@ public class Request extends HibernateDetailObject {
   public void setRequestStatus( RequestStatus requestStatus ) {
     this.requestStatus = requestStatus;
   }
+  
+  public String getSubmitterEmail() {
+    if (getAppUser() != null) {
+      return getAppUser().getEmail();
+    } else {
+      return null;
+    }
+  }
+  
+  public String getSubmitterPhone() {
+    if (getAppUser() != null) {
+      return getAppUser().getPhone();
+    } else {
+      return null;
+    }
+  }
+  
+  
+  public String getSubmitterInstitution() {
+    if (getAppUser() != null) {
+      return getAppUser().getInstitute();
+    } else {
+      return null;
+    }
+  }
 
   @SuppressWarnings("unchecked")
   public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {

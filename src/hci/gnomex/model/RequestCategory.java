@@ -71,6 +71,16 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
       return false;
     }
   }
+  public static boolean isDNASeqRequestCategory(String codeRequestCategory) {
+    if (codeRequestCategory.equals(CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(FRAGMENT_ANALYSIS_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(CHERRY_PICKING_REQUEST_CATEGORY)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   
   public boolean isMicroarrayRequestCategory() {
     if (this.type != null && !this.type.equals("")) {

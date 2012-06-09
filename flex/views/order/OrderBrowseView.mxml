@@ -1,10 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
-		 xmlns:util="views.util.*"  show="init()"
-		 defaultButton="{lookupButton}">
-	<mx:Label id="titleLabel" styleName="titleLabel" text="{'Order List'}"/>
+		 xmlns:util="views.util.*"  
+		 defaultButton="{lookupButton}" verticalGap="0">
+<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="1">
+	<mx:Image source="assets/page.png"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text="Review Orders"/>	
 	
+	<mx:Spacer width="100%"/>
+
+	<mx:HBox horizontalGap="0"
+			 height="100%"
+			 verticalAlign="middle"
+			 verticalGap="0"
+			 width="150" >
+		
+		<mx:Label text="Order #" />
+		
+		<mx:TextInput id="requestNoLookupField"
+					  fontSize="9"
+					  height="19"
+					  width="60"
+					  change="{setDefaultButton()}" />
+		
+		<mx:Button id="lookupButton"
+				   fontFamily="Arial"
+				   height="18"
+				   width="30"
+				   color="#400040"
+				   visible="true"
+				   icon="@Embed('../../assets/arrow_right.png')"
+				   click="{if (requestNoLookupField.text != '') this.getList()}" />
+		
+	</mx:HBox>
+
+	<mx:LinkButton textDecoration = "underline"
+				   label = "Refresh"
+				   click = "{this.getList();}"
+				   icon = "@Embed('../../assets/action_refresh.gif')"
+				   toolTip = "Refresh order list"  styleName="labelSmall"/>
+</mx:HBox>
+	 
 	
 	<mx:HTTPService 
 		id="getRequestList" 
@@ -47,6 +83,7 @@
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			import hci.flex.controls.DropdownLabel;
 			
 			
 			// Warning Icon
@@ -57,7 +94,8 @@
 			[Bindable]
 			public var parentView:NavOrderView;
 			
-			private function init():void {
+			public function init():void {
+				getList();
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
@@ -389,6 +427,38 @@
 					this.cherryCheckbox.selected = false
 				}
 			}
+			
+			
+			public function sortRequestNumber(item1:Object, item2:Object):int {
+				var n1:String  = item1.@requestNumber;
+				var n2:String  = item2.@requestNumber;
+				
+				var number1:Number = -1;
+				var number2:Number = -1;
+				
+				var tokens:Array = n1.split("R");
+				if (tokens.length > 0) {
+					number1 = tokens[0];	
+				} else {
+					number1 = Number(n1);
+				}
+				tokens = n2.split("R");
+				if (tokens.length > 0) {
+					number2 = tokens[0];	
+				} else {
+					number2 = Number(n2);
+				}
+				
+				
+				if (number1 > number2) {
+					return 1;
+				} else if (number2 > number1) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+
 
 			
 		]]>
@@ -398,41 +468,148 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0">
+	<mx:VBox  width="100%" verticalGap="0">
 		
 		<mx:HBox id = "filterBar"
-				 horizontalGap = "0"
-				 paddingTop = "4"
+				 horizontalGap = "20"
+				 paddingTop = "0"
 				 paddingBottom = "4"
 				 paddingLeft = "0"
 				 horizontalAlign = "left"
 				 verticalAlign = "middle">
 			
-			<mx:Label text = "Filter by:" width="65"  />
-			<mx:HBox horizontalGap="0"
-					 height="100%"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 width="150" >
+			<mx:HBox id = "statusCheckboxBar"
+					 horizontalGap = "0"
+					 height = "100%"
+					 verticalAlign = "middle"
+					 verticalGap = "0"
+					 horizontalAlign = "right"
+					 paddingLeft = "5">
+				<mx:CheckBox label = "New"
+							 id = "newCheckbox"
+							 horizontalGap = "0"
+							 styleName = "labelSmall"
+							 paddingLeft = "2" selected="true">
+					<mx:click>
+						toggleStatusCheckboxes( 1 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
 				
-				<mx:Label text="Order #" />
+				<mx:CheckBox label = "Submitted"
+							 id = "submittedCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleStatusCheckboxes( 3 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
 				
-				<mx:TextInput id="requestNoLookupField"
-							  fontSize="9"
-							  height="19"
-							  width="60"
-							  change="{setDefaultButton()}" />
+				<mx:CheckBox label = "Processing"
+							 id = "processingCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleStatusCheckboxes( 2 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
 				
-				<mx:Button id="lookupButton"
-						   fontFamily="Arial"
-						   height="18"
-						   width="30"
-						   color="#400040"
-						   visible="true"
-						   icon="@Embed('../../assets/arrow_right.png')"
-						   click="{if (requestNoLookupField.text != '') this.getList()}" />
+				<mx:CheckBox label = "Complete"
+							 id = "completeCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleStatusCheckboxes( 4 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Failed"
+							 id = "failedCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleStatusCheckboxes( 5 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
 				
 			</mx:HBox>
+			
+			<mx:VRule height = "20" />
+
+			<mx:HBox id = "typeCheckboxBar"
+					 horizontalGap = "0"
+					 height = "100%"
+					 verticalAlign = "middle"
+					 verticalGap = "0"
+					 horizontalAlign = "right"
+					 paddingLeft = "5"
+					 paddingRight = "5">
+				
+				<mx:CheckBox label = "Cap Seq"
+							 id = "capSeqCheckbox"
+							 horizontalGap = "0"
+							 styleName = "labelSmall"
+							 paddingLeft = "2">
+					<mx:click>
+						toggleTypeCheckboxes( 1 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Frag Analysis"
+							 id = "fragCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleTypeCheckboxes( 2 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Mit Seq"
+							 id = "mitoCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleTypeCheckboxes( 3 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Cherry Pick"
+							 id = "cherryCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleTypeCheckboxes( 4 );
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+			</mx:HBox>
+			
+			
+			<mx:VRule height = "20" />
+
 			
 			<mx:HBox id = "dateCheckboxBar"
 					 horizontalGap = "0"
@@ -497,167 +674,20 @@
 				</mx:CheckBox>
 				
 			</mx:HBox>
-			
-			<mx:VRule height = "20" />
-			
-			<mx:HBox id = "statusCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5">
-				<mx:CheckBox label = "New"
-							 id = "newCheckbox"
-							 horizontalGap = "0"
-							 styleName = "labelSmall"
-							 paddingLeft = "2">
-					<mx:click>
-						toggleStatusCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Submitted"
-							 id = "submittedCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 3 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Processing"
-							 id = "processingCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 2 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Complete"
-							 id = "completeCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 4 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Failed"
-							 id = "failedCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 5 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-			</mx:HBox>
-			
+
 			
 		</mx:HBox>
 		
-		<mx:HBox id = "requestTypeCheckboxBar"
-				 horizontalGap = "0"
-				 verticalAlign = "middle"
-				 verticalGap = "0"
-				 horizontalAlign = "right">
-			<mx:Spacer width="215" height="100%"/>
-			<mx:HBox id = "typeCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5"
-					 paddingRight = "5">
-				
-				<mx:CheckBox label = "Cap Seq"
-							 id = "capSeqCheckbox"
-							 horizontalGap = "0"
-							 styleName = "labelSmall"
-							 paddingLeft = "2">
-					<mx:click>
-						toggleTypeCheckboxes( 1 );
-						getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Frag Anal"
-							 id = "fragCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleTypeCheckboxes( 2 );
-						getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Mito DLoop"
-							 id = "mitoCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleTypeCheckboxes( 3 );
-						getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Cherry Pick"
-							 id = "cherryCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleTypeCheckboxes( 4 );
-						getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-			</mx:HBox>
-		</mx:HBox>
+		
 		
 	</mx:VBox>
 	
-	<mx:VDividedBox width = "100%"
-					height = "100%"
-					styleName = "form"
-					paddingBottom = "4"
-					paddingLeft = "4"
-					paddingRight = "4"
-					paddingTop = "4">
+	
 		
 		<mx:VBox width = "100%" height = "100%" verticalGap = "1">
 			
 			<mx:HBox width = "100%" verticalAlign = "bottom">
-				<mx:HBox width = "100%" verticalAlign = "middle" paddingTop = "8">
-					<mx:Label text = "{'Order ' + orderGrid.selectedItem.@idRequest}" fontWeight = "bold" />
-					
-				</mx:HBox>
-				
 				<mx:Spacer width = "100%" />
-				
-				<mx:Label text = "{'(' + orderList.length + ' orders)'}" fontWeight = "normal" textAlign = "right" />
 				
 			</mx:HBox>
 			
@@ -685,14 +715,24 @@
 									   headerRenderer = "views.renderers.CheckBoxHeader"
 									   draggable="false"/>
 					
-					<mx:DataGridColumn dataField="@idRequest"
-									   headerText="ID"
-									   width="50"
-									   draggable="false" />
+					<mx:DataGridColumn   minWidth="28" width="85" headerText="#"  sortCompareFunction="sortRequestNumber">
+						<mx:itemRenderer>
+							<mx:Component >
+								<mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
+									<mx:Image id="experimentImage"  
+											  source="{data.@icon}" >
+									</mx:Image> 
+									<mx:Label id="requestNumber" text="{data.@number}">
+									</mx:Label>
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn> 
+
 					
 					<mx:DataGridColumn dataField = "@name"
 									   headerText = "Label"
-									   width = "175"
+									   width = "160"
 									   textDecoration = "underline"
 									   color = "#2017D8"
 									   draggable="false">
@@ -705,16 +745,19 @@
 						</mx:headerRenderer>
 						
 					</mx:DataGridColumn>
+					<mx:DataGridColumn dataField = "@codeRequestStatus" 
+									   headerText = "Status" width = "70"
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry, '@display', '@value', '@codeRequestStatus')}"/>
 					
-					<mx:DataGridColumn dataField = "@lab" headerText = "Lab" width = "75" />
+					<mx:DataGridColumn dataField = "@codeRequestCategory" 
+									   headerText = "Type" width = "80" 
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry, '@display', '@value', '@codeRequestCategory')}"/>
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
+
+					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "110" />
 					
-					<mx:DataGridColumn dataField = "@codeRequestStatus" headerText = "Status" width = "70" />
-					
-					<mx:DataGridColumn dataField = "@codeRequestCategory" headerText = "Type" width = "70" />
-					
-					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "100" />
+					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "65" />
 					
 					<mx:DataGridColumn dataField = "@notes" headerText = "Notes" width = "250" />
 					
@@ -723,11 +766,9 @@
 			</mx:DataGrid>
 			
 		</mx:VBox>
-		
-	</mx:VDividedBox>
 	
 	
-	<mx:ControlBar horizontalAlign = "left" width = "100%">
+	<mx:ControlBar horizontalAlign = "left" width = "100%" paddingTop="0" paddingBottom="2">
 		<mx:Label id = "nSelectedOrders" text="{selectedOrders.length + ' selected'}" />
 		
 		<mx:ComboBox id = "comboBox" 
@@ -750,14 +791,11 @@
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
 					   enabled="{selectedOrders.length>0}"/>
+		<mx:Spacer width="100%"/>
 		
-		<mx:Spacer width="100%" height="100%" />
+		<mx:Label text = "{'(' + orderList.length + ' orders)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		
-		<mx:LinkButton textDecoration = "underline"
-					   label = "Refresh"
-					   click = "{this.getList();}"
-					   icon = "@Embed('../../assets/action_refresh.gif')"
-					   toolTip = "Refresh order list" />
+		
 		
 	</mx:ControlBar>
 	

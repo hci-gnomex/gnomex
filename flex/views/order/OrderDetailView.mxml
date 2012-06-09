@@ -2,8 +2,13 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
          width="100%" height="100%" 
          xmlns:util="views.util.*" show="init()" >
-  
-  <mx:Label id="titleLabel" styleName="titleLabel" text="{'View Order '+ selectedIdRequest}"/>
+	<mx:HBox verticalAlign="middle" id="hbox1">
+		<mx:HBox horizontalGap="0">
+			<mx:Image source="{iconName}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{getRequest.lastResult.Request.@number}"/>
+		</mx:HBox>
+		<mx:LinkButton label="Back" click="{parentDocument.theViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>
+	</mx:HBox>
   
   
   <mx:HTTPService  
@@ -55,6 +60,9 @@
       public var selectedIdRequest:int;
       [Bindable]
       public var selectedRequest:Object;
+		
+	  [Bindable]
+	  private var iconName:String;
             
       private function init():void {
         if (selectedRequest != null){
@@ -97,6 +105,7 @@
       private function onGetRequest(event:ResultEvent):void {
         if (event.result.name() == "OpenRequestList") {
 			var reqCat:String = getRequest.lastResult.Request.@codeRequestCategory;
+			iconName = getRequest.lastResult.Request.@icon;
 			if ( reqCat == 'CAPSEQ' ) {
 				currentState = stateCapSeq.name;
 			} else if ( reqCat == 'FRAGANAL' ) {
@@ -113,17 +122,26 @@
         } 
       }
       
-      
+	  public function getSamplesGridRowNumber(item:Object,col:int):String
+	  {
+		  if (samplesList!= null) {
+			  var x:int = samplesList.getItemIndex(item) + 1;
+			  return String(x);     		
+		  } else {
+			  return "";
+		  }
+	  }
+
       
     ]]>
   </mx:Script>    	
   
   <mx:XMLListCollection id="samplesList" source="{getRequest.lastResult..Sample}" />
 	
-  <mx:VBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  minHeight="0" verticalScrollPolicy="auto">
+  <mx:VBox width="100%" height="100%" styleName="form" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  minHeight="0" verticalScrollPolicy="auto">
     <mx:Accordion width="100%"   resizeToContent="true" id="accordion1">
-      <mx:Canvas label="Customer Information" width="100%" id="dataGridAccordion" minHeight="0" >
-        <mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+      <mx:Canvas label="Client" width="100%" id="dataGridAccordion" minHeight="0" >
+        <mx:Grid  horizontalGap="1" verticalGap="1" minHeight="0"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" id="grid1">
           
           <mx:GridRow >
             <mx:GridItem horizontalAlign="right" paddingRight="5">
@@ -136,7 +154,7 @@
               <mx:Label text="Institution" fontWeight="bold"/>
             </mx:GridItem>
             <mx:GridItem width="250" >
-              <mx:Label text=""/>
+              <mx:Label text="{getRequest.lastResult.Request.@submitterInstitution}"/>
             </mx:GridItem>
           </mx:GridRow>
           
@@ -145,13 +163,13 @@
               <mx:Label text="Contact Phone" fontWeight="bold"/>
             </mx:GridItem>
             <mx:GridItem >
-              <mx:Label text=""/>
+              <mx:Label text="{getRequest.lastResult.Request.@submitterPhone}"/>
             </mx:GridItem>
             <mx:GridItem horizontalAlign="right" paddingRight="5">
               <mx:Label text="Contact Email" fontWeight="bold"/>
             </mx:GridItem>
             <mx:GridItem >
-              <mx:Label text=""/>
+              <mx:Label text="{getRequest.lastResult.Request.@submitterEmail}"/>
             </mx:GridItem>
           </mx:GridRow>
           
@@ -164,16 +182,16 @@
     </mx:Accordion>
     
     <mx:Accordion width="100%" resizeToContent="true"  id="accordion2">
-      <mx:Canvas label="Order Information" width="100%" minHeight="0">
+      <mx:Canvas label="Order" width="100%" minHeight="0">
         
-			<mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+			<mx:Grid  minHeight="0"  horizontalGap="1" verticalGap="1" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" id="grid2">
 				
 				<mx:GridRow >
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
-						<mx:Label text="Label" fontWeight="bold"/>
+						<mx:Label text="Number" fontWeight="bold"/>
 					</mx:GridItem>
-					<mx:GridItem width="250">
-						<mx:Label text="{getRequest.lastResult.Request.@name}"/>
+					<mx:GridItem >
+						<mx:Label text="{getRequest.lastResult.Request.@number}"/>
 					</mx:GridItem>
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
 						<mx:Label text="Date Submitted" fontWeight="bold"/>
@@ -185,25 +203,25 @@
 				
 				<mx:GridRow >
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
-						<mx:Label text="Number" fontWeight="bold"/>
+						<mx:Label text="Label" fontWeight="bold"/>
 					</mx:GridItem>
-					<mx:GridItem >
-						<mx:Label text="{getRequest.lastResult.Request.@number}"/>
+					<mx:GridItem width="250">
+						<mx:Label text="{getRequest.lastResult.Request.@name}"/>
 					</mx:GridItem>
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
 						<mx:Label text="Order Type" fontWeight="bold"/>
 					</mx:GridItem>
 					<mx:GridItem >
-						<mx:Label text="{getRequest.lastResult.Request.@codeRequestCategory}"/>
+						<mx:Label text="{getRequest.lastResult.Request.@requestCategory}"/>
 					</mx:GridItem>
 				</mx:GridRow>
 				
-				<mx:GridRow  >
+				<mx:GridRow  > 
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
 						<mx:Label text="Status" fontWeight="bold"/>
 					</mx:GridItem>
 					<mx:GridItem >
-						<mx:Label text="{getRequest.lastResult.Request.@codeRequestStatus}"/>
+						<mx:Label text="{getRequest.lastResult.Request.@requestStatus}"/>
 					</mx:GridItem>
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
 						<mx:Label text="Lab Group" fontWeight="bold"/>
@@ -215,12 +233,16 @@
 				
 				<mx:GridRow >
 					<mx:GridItem horizontalAlign="right" paddingRight="5">
-						<mx:Label text="Comments" fontWeight="bold"/>
+						<mx:Label text="Description" fontWeight="bold"/>
 					</mx:GridItem>
 					<mx:GridItem >
-						<mx:Label text="{getRequest.lastResult.Request.@notes}"/>
+						<mx:Label text="{getRequest.lastResult.Request.@description}"/>
 					</mx:GridItem>
-					<mx:GridItem >
+					<mx:GridItem horizontalAlign="right" paddingRight="5">
+						<mx:Label text="Core Instructions" fontWeight="bold"/>
+					</mx:GridItem>
+					<mx:GridItem  >
+						<mx:Label text="{getRequest.lastResult.Request.@corePrepInstructions}"/>
 					</mx:GridItem>
 				</mx:GridRow>
 				
@@ -234,12 +256,13 @@
     
     
     <mx:Accordion width="100%"   resizeToContent="true" id="accordion3">
-      <mx:Canvas label="Sample Information" width="100%" id="sequenceAccordion" minHeight="0"  >
+      <mx:Canvas label="Samples" width="100%" id="sequenceAccordion" minHeight="0"  >
       
-			  <mx:DataGrid dataProvider="{samplesList}" rowCount="{samplesList.length}" selectable="false">
+			  <mx:DataGrid dataProvider="{samplesList}" rowCount="{samplesList.length}" selectable="false" width="100%">
 			  	<mx:columns>
-			  		<mx:DataGridColumn headerText="Position" />
-			  		<mx:DataGridColumn headerText="Sample" dataField="@name" />
+					<mx:DataGridColumn width="40" labelFunction="getSamplesGridRowNumber"/>
+			  		<mx:DataGridColumn headerText="Sample" width="100" dataField="@name" />
+					<mx:DataGridColumn headerText="Source Position" />
 			  		<mx:DataGridColumn headerText="Source Plate" />
 					<mx:DataGridColumn headerText="Source Well" />
 					<mx:DataGridColumn headerText="Assay ID" />
@@ -257,16 +280,27 @@
 	
 	<mx:states>
 		<mx:State name="stateFrag" id="stateFrag">
-			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Fragment Analysis Order '+ selectedIdRequest}"/>
 		</mx:State>
 		<mx:State name="stateCapSeq" id="stateCapSeq">
-			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Cap Seq Order '+ selectedIdRequest}"/>
 		</mx:State>
 		<mx:State name="stateCherry" id="stateCherry">
-			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Cherry Pick Order '+ selectedIdRequest}"/>
 		</mx:State>
 		<mx:State name="stateMito" id="stateMito">
-			<mx:SetProperty target="{titleLabel}" name="text" value="{'View Mitochondrial Dloop Seq Order '+ selectedIdRequest}"/>
+			<mx:SetStyle target="{hbox1}" name="horizontalGap" value="20"/>
+			<mx:SetStyle name="verticalGap" value="0"/>
+			<mx:SetStyle target="{grid1}" name="paddingBottom" value="0"/>
+			<mx:SetStyle target="{grid1}" name="paddingLeft" value="4"/>
+			<mx:SetStyle target="{grid1}" name="paddingRight" value="4"/>
+			<mx:SetStyle target="{grid1}" name="paddingTop" value="0"/>
+			<mx:SetStyle target="{grid2}" name="paddingBottom" value="0"/>
+			<mx:SetStyle target="{grid2}" name="paddingLeft" value="4"/>
+			<mx:SetStyle target="{grid2}" name="paddingRight" value="4"/>
+			<mx:SetStyle target="{grid2}" name="paddingTop" value="0"/>
+			<mx:SetStyle target="{grid1}" name="verticalGap" value="1"/>
+			<mx:SetStyle target="{grid1}" name="horizontalGap" value="1"/>
+			<mx:SetStyle target="{grid2}" name="horizontalGap" value="1"/>
+			<mx:SetStyle target="{grid2}" name="verticalGap" value="1"/>
+			<mx:SetStyle name="paddingTop" value="1"/>
 		</mx:State>
 	</mx:states>
 	
