@@ -51,7 +51,7 @@ public class RequestFilter extends DetailObject {
     addRequestCriteria();
     addSecurityCriteria();
     
-    queryBuf.append(" order by req.number");
+    queryBuf.append(" order by req.idRequest");
   
   }
   
