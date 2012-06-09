@@ -46,10 +46,6 @@
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
   	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
 	</Dictionary>
-  <Dictionary displayName="Sample Drop Off Location" className="hci.gnomex.model.SampleDropOffLocation" />
-	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
-	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType"  editable="N">
-  </Dictionary>
   <Dictionary displayName="Sample Type (Request defaults)" className="hci.gnomex.model.SampleTypeRequestCategory"  editable="N">
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
@@ -141,11 +137,16 @@
 
 
 
-  <Dictionary displayName="DNA Seq Core - Plate Type" className="hci.gnomex.model.PlateType" editable="N" />
   <Dictionary displayName="DNA Seq Core - Primer" className="hci.gnomex.model.Primer"  />
   <Dictionary displayName="DNA Seq Core - Assay" className="hci.gnomex.model.Assay" />
+  <Dictionary displayName="DNA Seq Core - Sample Drop Off Location" className="hci.gnomex.model.SampleDropOffLocation" />
+	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
+	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType"  editable="N">
+  </Dictionary>
+  
   <Dictionary displayName="DNA Seq Core - Run Status" className="hci.gnomex.model.InstrumentRunStatus" editable="N" />
   <Dictionary displayName="DNA Seq Core - Order Status" className="hci.gnomex.model.RequestStatus" editable="N" />
+  <Dictionary displayName="DNA Seq Core - Plate Type" className="hci.gnomex.model.PlateType" editable="N" />
   <Dictionary displayName="DNA Seq Core - Seal Type" className="hci.gnomex.model.SealType" editable="N" />
   <Dictionary displayName="DNA Seq Core - Reaction Type" className="hci.gnomex.model.ReactionType" editable="N" />
   
