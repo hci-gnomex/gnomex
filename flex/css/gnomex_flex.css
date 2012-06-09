@@ -220,25 +220,13 @@ ApplicationControlBar {
 .accordion {
 
 	headerStyleName: accordionHeader;
-	headerHeight: 24;
+	headerHeight: 18;
 	dropShadowEnabled: true;
 	cornerRadius: 6;
 	focusAlpha: .5; 
 	backgroundColor: #CBCAC1;
 	
 
-}
-.accordionHeader
-{
-	fillColors: #87999D, #E3E8EB;
-	fillAlphas: 1.0, 1.0, 1.0, 1.0;
-	selectedFillColors: #548db8, #97b8d2;
-	fontWeight: normal;
-	cornerRadius: 6;
-	borderColor: #B7BABC;
-	color: #FFFFFF;
-	textRollOverColor: #FFFFFF;
-	disabledColor: #FFFFFF;
 }
 
 
@@ -808,4 +796,27 @@ Text.progressLabel
 	paddingTop: 4;
 	verticalGap: 2; 
 	
+}
+Accordion {
+	headerStyleName: accordionHeader;
+	paddingTop: 0;
+	paddingBottom: 0;
+	
+	headerHeight: 18;
+	dropShadowEnabled: true;
+	focusAlpha: .5; 
+	backgroundColor: #CBCAC1;
+	
+}
+.accordionHeader
+{
+	fillColors: #87999D, #E3E8EB;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	selectedFillColors: #548db8, #97b8d2;
+	fontWeight: normal;
+	cornerRadius: 6;
+	borderColor: #B7BABC;
+	color: #FFFFFF;
+	textRollOverColor: #FFFFFF;
+	disabledColor: #FFFFFF;
 }
