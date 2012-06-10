@@ -45,6 +45,10 @@ public class ProjectRequestFilter extends DetailObject {
   private String                isMicroarray = "N";
   private String                isNextGenSeq = "N";
   private String                isBioanalyzer = "N";
+  private String                isCapSeq = "N";
+  private String                isMitSeq = "N";
+  private String                isFragAnal = "N";
+  private String                isCherryPick = "N";
   private String                isExternalOnly = "N";
   
   
@@ -77,6 +81,10 @@ public class ProjectRequestFilter extends DetailObject {
         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
         (isNextGenSeq != null && isNextGenSeq.equalsIgnoreCase("Y")) ||
         (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
+        (isCapSeq != null && isCapSeq.equalsIgnoreCase("Y")) ||
+        (isMitSeq != null && isMitSeq.equalsIgnoreCase("Y")) ||
+        (isFragAnal != null && isFragAnal.equalsIgnoreCase("Y")) ||
+        (isCherryPick != null && isCherryPick.equalsIgnoreCase("Y")) ||
         (projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
         (projectDescriptionText2 != null && !projectDescriptionText2.equals("")) ||
         (projectDescriptionText3 != null && !projectDescriptionText3.equals("")) ||
@@ -454,7 +462,31 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append("'");
       queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("') ");
-    }    
+    }  else if (isCapSeq.equals("Y")) {
+      // Search for capillary sequencing requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isMitSeq.equals("Y")) {
+      // Search for mitochondrial sequencing requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isFragAnal.equals("Y")) {
+      // Search for fragment analysis requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isCherryPick.equals("Y")) {
+      // Search for cherry picking requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    }   
     queryBuf.append(" ) )");
   }
   
@@ -820,6 +852,46 @@ public class ProjectRequestFilter extends DetailObject {
 
 
   
+  public String getIsCapSeq() {
+    return isCapSeq;
+  }
+
+
+  public void setIsCapSeq(String isCapSeq) {
+    this.isCapSeq = isCapSeq;
+  }
+
+
+  public String getIsMitSeq() {
+    return isMitSeq;
+  }
+
+
+  public void setIsMitSeq(String isMitSeq) {
+    this.isMitSeq = isMitSeq;
+  }
+
+
+  public String getIsFragAnal() {
+    return isFragAnal;
+  }
+
+
+  public void setIsFragAnal(String isFragAnal) {
+    this.isFragAnal = isFragAnal;
+  }
+
+
+  public String getIsCherryPick() {
+    return isCherryPick;
+  }
+
+
+  public void setIsCherryPick(String isCherryPick) {
+    this.isCherryPick = isCherryPick;
+  }
+
+
   public String getLastThreeMonths() {
     return lastThreeMonths;
   }
