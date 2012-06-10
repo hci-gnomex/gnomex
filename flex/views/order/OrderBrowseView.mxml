@@ -718,7 +718,7 @@
 					<mx:DataGridColumn   minWidth="28" width="85" headerText="#"  sortCompareFunction="sortRequestNumber">
 						<mx:itemRenderer>
 							<mx:Component >
-								<mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
+								<mx:HBox paddingLeft="1" horizontalGap="0"   horizontalScrollPolicy="off">
 									<mx:Image id="experimentImage"  
 											  source="{data.@icon}" >
 									</mx:Image> 
@@ -745,6 +745,7 @@
 						</mx:headerRenderer>
 						
 					</mx:DataGridColumn>
+					
 					<mx:DataGridColumn dataField = "@codeRequestStatus" 
 									   headerText = "Status" width = "70"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry, '@display', '@value', '@codeRequestStatus')}"/>
