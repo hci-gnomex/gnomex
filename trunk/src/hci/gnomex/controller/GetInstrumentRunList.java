@@ -8,6 +8,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.InstrumentRunFilter;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 
 import java.io.Serializable;
@@ -90,7 +91,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
           Element irNode = new Element( "InstrumentRun" );
           irNode.setAttribute( "idInstrumentRun", idInstrumentRun.toString() );
           irNode.setAttribute( "runDate", runDate );
-          irNode.setAttribute( "createDate", createDate );
+          irNode.setAttribute( "createDate", this.formatDate(createDate, this.DATE_OUTPUT_SQL));
           irNode.setAttribute( "codeInstrumentRunStatus",
               codeInstrumentRunStatus.toString() );
           irNode.setAttribute( "comments", comments );
@@ -98,6 +99,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
           irNode.setAttribute( "codeReactionType", codeReactionType );
           irNode.setAttribute( "creator", creator );
           irNode.setAttribute( "codeSealType", codeSealType );
+          irNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
 
           List plates = sess.createQuery(
               "SELECT p from Plate as p where p.idInstrumentRun="

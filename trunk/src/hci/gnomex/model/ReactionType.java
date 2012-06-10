@@ -61,6 +61,20 @@ public class ReactionType extends DictionaryEntry implements Comparable, Seriali
     return -1;
 
   }
+  
+  public static String getIcon(String codeReactionType) {
+    if (codeReactionType.equals(SEQUENCING_REACTION_TYPE)) {
+      return "assets/dna-helix-icon.png";
+    } else if (codeReactionType.equals(MITO_DLOOP_REACTION_TYPE)) {
+      return "assets/mitseq.png";
+    } else if (codeReactionType.equals(FRAGMENT_ANALYSIS_REACTION_TYPE)) {
+      return "assets/fraganal.png";
+    } else if (codeReactionType.equals(CHERRY_PICKING_REACTION_TYPE)) {
+      return "assets/cherrypick.png";
+    } else {
+      return "";
+    }
+  }
 
 
 
