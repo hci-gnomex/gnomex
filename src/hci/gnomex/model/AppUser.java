@@ -30,6 +30,23 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private Set     managingLabs;
   private Set     managingCoreFacilities;
   
+  
+  public static String formatAppUserName(String lastName, String firstName) {
+    
+    String name = "";
+    if (lastName != null && !lastName.equals("")) {
+      name = lastName;
+    }
+    if (firstName != null && !firstName.equals("")) {
+      if (name.length() > 0) {
+        name += ", ";
+      }
+      name += firstName;
+    }
+    
+    return name;
+  }
+  
   public String getDepartment() {
     return department;
   }

@@ -567,6 +567,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="idInstrumentRun" column="idInstrumentRun" type="integer"/>
+		<many-to-one name="instrumentRun" column="idInstrumentRun" class="hci.gnomex.model.InstrumentRun" cascade="none" update="false" insert="false"/>
 		<set name="plateWells" table="PlateWell" lazy="false" cascade="none">
 			<key column="idPlate"/>
 			<one-to-many class="hci.gnomex.model.PlateWell" />
