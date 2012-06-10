@@ -17,6 +17,9 @@
 			}
 			
 			private function init():void {
+				if (theViews.selectedChild == browseView) {
+					this.browseView.init();
+				}
 			}
 			
 			
@@ -28,23 +31,6 @@
 	
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
-		<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
-			
-			
-			<mx:VBox styleName="panelBox"   width="140" height="100%" >
-				
-				<mx:LinkBar dataProvider="theViews"
-							styleName="navLinkBar"
-							textDecoration="underline"
-							direction="vertical"
-							height="202"
-							width="116"
-							paddingTop="4">
-				</mx:LinkBar>
-			
-			
-			</mx:VBox>  
-			
 			
 			
 			<mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
@@ -67,9 +53,7 @@
 			</mx:ViewStack>
 			
 			
-			
-		</mx:HDividedBox>
-
+		
 	
 	
 </mx:Canvas>
