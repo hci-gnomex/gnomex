@@ -20,6 +20,7 @@ public class Plate extends HibernateDetailObject {
   private String         creator;
   private String         codeSealType;
   private String         codePlateType;
+  private InstrumentRun  instrumentRun;
   
   
   public Integer getIdPlate()
@@ -130,6 +131,14 @@ public class Plate extends HibernateDetailObject {
   public String getCodePlateType()
   {
     return codePlateType;
+  }
+
+  public InstrumentRun getInstrumentRun() {
+    return instrumentRun;
+  }
+
+  public void setInstrumentRun(InstrumentRun instrumentRun) {
+    this.instrumentRun = instrumentRun;
   }
 
   

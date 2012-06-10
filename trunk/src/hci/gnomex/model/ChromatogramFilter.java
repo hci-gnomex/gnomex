@@ -47,7 +47,15 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        c.cSignalStrength, ");
     queryBuf.append("        c.gSignalStrength, ");
     queryBuf.append("        c.tSignalStrength, ");
-    queryBuf.append("        c.releaseDate ");
+    queryBuf.append("        c.releaseDate, ");
+    queryBuf.append("        pw.row, ");
+    queryBuf.append("        pw.col, ");
+    queryBuf.append("        req.number, ");
+    queryBuf.append("        sample.name, ");
+    queryBuf.append("        submitter.firstName, ");
+    queryBuf.append("        submitter.lastName, ");
+    queryBuf.append("        run.idInstrumentRun, ");
+    queryBuf.append("        run.label ");
     
     getQueryBody(queryBuf);
 
@@ -83,17 +91,16 @@ public class ChromatogramFilter extends DetailObject {
 
     queryBuf.append(" FROM                Chromatogram as c ");
     
-    if (getAll.equals("Y")) {
-      queryBuf.append(" order by c.idRequest");
-      return;
-    }
-    
-    queryBuf.append("JOIN    c.plateWell as pw ");
-    queryBuf.append("JOIN    c.request as req ");
+    queryBuf.append("LEFT JOIN    c.plateWell as pw ");
+    queryBuf.append("LEFT JOIN    pw.plate as plate ");
+    queryBuf.append("LEFT JOIN    plate.instrumentRun as run ");
+    queryBuf.append("LEFT JOIN    pw.sample as sample ");
+    queryBuf.append("LEFT JOIN    c.request as req ");
+    queryBuf.append("LEFT JOIN    req.appUser as submitter ");
 
     addCriteria();
     
-    queryBuf.append(" order by c.idRequest");
+    queryBuf.append(" order by run.idInstrumentRun, plate.idPlate, pw.position, c.idRequest");
   }
 
   private void addCriteria() {

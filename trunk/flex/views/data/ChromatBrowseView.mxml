@@ -388,6 +388,40 @@
 			</mx:HBox>
 
 			<mx:VRule height="20" />
+			<mx:HBox horizontalGap="3"
+					 verticalAlign="middle"
+					 verticalGap="0"
+					 horizontalAlign="right"
+					 paddingLeft="5"
+					 paddingRight="5">
+				<mx:CheckBox id="notReleasedCheckbox"
+							 label="Not released"
+							 paddingRight="0"
+							 paddingLeft="2"
+							 horizontalGap="0"
+							 selected="true" >
+					<mx:click>
+						actionDictionary.source = dictXML.action;
+						toggleReleaseCheckboxes( 1 );
+						this.getList();
+					</mx:click>
+				
+				</mx:CheckBox>
+				<mx:CheckBox id="releasedCheckbox"
+							 label="Released to user"
+							 paddingRight="0"
+							 paddingLeft="2"
+							 horizontalGap="0">
+					<mx:click>
+						actionDictionary.source = dlXML.action;
+						toggleReleaseCheckboxes( 0 );
+						this.getList();
+					</mx:click>
+				
+				</mx:CheckBox>
+			
+			</mx:HBox>
+			<mx:VRule height="20" />
 
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
@@ -438,43 +472,6 @@
 							 horizontalGap="0">
 					<mx:click>
 						toggleDateCheckboxes( 4 );
-						this.getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-			</mx:HBox>
-
-			<mx:VRule height="20" />
-
-			<mx:HBox horizontalGap="3"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="5">
-				<mx:CheckBox id="releasedCheckbox"
-							 label="Released to user"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0">
-					<mx:click>
-						actionDictionary.source = dlXML.action;
-						toggleReleaseCheckboxes( 0 );
-						this.getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-				<mx:CheckBox id="notReleasedCheckbox"
-							 label="Not released"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0"
-							 selected="true" >
-					<mx:click>
-						actionDictionary.source = dictXML.action;
-						toggleReleaseCheckboxes( 1 );
 						this.getList();
 					</mx:click>
 
@@ -544,6 +541,25 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
+
+					<mx:DataGridColumn dataField="@runNumber"
+									   headerText="Run #"
+									   width="50" minWidth="20" />
+					<mx:DataGridColumn dataField="@runName"
+									   headerText="Run name"
+									   width="60" minWidth="20" />
+					<mx:DataGridColumn dataField="@wellRow"
+									   headerText="Row"
+									   width="30" minWidth="20" />
+					<mx:DataGridColumn dataField="@wellCol"
+									   headerText="Col"
+									   width="30" minWidth="20" />
+					<mx:DataGridColumn dataField="@requestNumber"
+									   headerText="Order #"
+									   width="90" minWidth="75" />
+					<mx:DataGridColumn dataField="@sampleName"
+									   headerText="Sample"
+									   width="90" minWidth="75" />
 
 					<mx:DataGridColumn dataField="@releaseDate"
 									   headerText="Released"

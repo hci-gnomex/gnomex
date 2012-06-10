@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ChromatogramFilter;
 import hci.gnomex.model.Request;
 
@@ -86,6 +87,14 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           Integer gSignalStrength = row[11] == null ? new Integer(0) : (Integer)row[11];
           Integer tSignalStrength = row[12] == null ? new Integer(0) : (Integer)row[12];
           String  releaseDate = this.formatDate( ( java.sql.Timestamp ) row[13] );
+          String wellRow = row[14] != null ? (String)row[14] : "";
+          String wellCol = row[15] != null ? ((Integer)row[15]).toString() : "";
+          String requestNumber = row[16] != null ? (String)row[16] : "";
+          String sampleName = row[17] != null ? (String)row[17] : "";
+          String submitterFirstName = row[18] != null ? (String)row[18] : "";
+          String submitterLastName = row[19] != null ? (String)row[19] : "";
+          String runNumber = row[20] != null ? ((Integer)row[20]).toString() : "";
+          String runName = row[21] != null ? (String)row[21] : "";
           
           double q20_len;
           double q40_len;
@@ -100,9 +109,9 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
             q20_len = new Integer(0);
             q40_len =  new Integer(0);
           }
+          
+          String submitter = AppUser.formatAppUserName(submitterLastName, submitterFirstName);
 
-          Request request = (Request) sess.createQuery("SELECT req from Request as req where req.idRequest=" + idRequest).uniqueResult();
-          String submitter = request!=null ? request.getOwnerName() : "";
           
           Element cNode = new Element("Chromatogram");
           cNode.setAttribute("idChromatogram", idChromatogram.toString());
@@ -123,6 +132,12 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute("viewURL", getViewURL());
           cNode.setAttribute( "releaseDate", releaseDate );
           cNode.setAttribute( "submitter", submitter );
+          cNode.setAttribute( "wellRow", wellRow );
+          cNode.setAttribute( "wellCol", wellCol );
+          cNode.setAttribute( "requestNumber", requestNumber );
+          cNode.setAttribute( "sampleName", sampleName );
+          cNode.setAttribute( "runNumber", runNumber );
+          cNode.setAttribute( "runName", runName );
           
           doc.getRootElement().addContent(cNode);
 
