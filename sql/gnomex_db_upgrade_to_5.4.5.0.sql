@@ -68,3 +68,6 @@ alter table BillingAccount add column orderFormFileType VARCHAR(10) NULL;
 
 -- PriceCategory description is null
 alter table gnomex.PriceCategory change column description description varchar(5000) null;
+
+-- Plate label is varchar(50), not varchar(10)
+alter table gnomex.Plate change column label label varchar(50) null;

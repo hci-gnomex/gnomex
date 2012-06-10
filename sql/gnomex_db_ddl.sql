@@ -1228,7 +1228,7 @@ CREATE TABLE `gnomex`.`Plate` (
   `quadrant` INT(10) NULL,
   `createDate` DATETIME NULL,
   `comments` VARCHAR(200) NULL,
-  `label` VARCHAR(10) NULL,
+  `label` VARCHAR(50) NULL,
   `codeReactionType` VARCHAR(10) NULL,
   `creator` VARCHAR(50) NULL,
   `codeSealType` VARCHAR(10) NULL,
