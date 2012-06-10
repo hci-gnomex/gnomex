@@ -8,10 +8,43 @@
 		 show="init()"
 		 initialize="init()"
 		 defaultButton="{lookupButton}"
-		 xmlns:s="library://ns.adobe.com/flex/spark">
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0">
 	
+	<mx:HBox width="100%" paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2">
+		<mx:Image source="assets/tv_chart.png"/>
+		<mx:Label id="titleLabel" styleName="titleLabel" text="Chromatograms" />
+		<mx:Spacer width="100%"/>
+		<mx:HBox horizontalGap="0"
+				 height="100%"
+				 verticalAlign="middle"
+				 verticalGap="0"
+				 width="150" id="hbox1">
+			<mx:Label text="Order #" />
+			
+			<mx:TextInput id="requestNoLookupField"
+						  fontSize="9"
+						  height="19"
+						  width="60"
+						  change="{setDefaultButton()}" />
+			
+			<mx:Button id="lookupButton"
+					   fontFamily="Arial"
+					   height="18"
+					   width="30"
+					   color="#400040"
+					   visible="true"
+					   icon="@Embed('../../assets/arrow_right.png')"
+					   click="{if (requestNoLookupField.text != '') this.getList();}" />
+		
+		</mx:HBox>
+		<mx:LinkButton textDecoration="underline"
+					   label="Refresh"
+					   icon="@Embed('../../assets/action_refresh.gif')"
+					   toolTip="Refresh chromatogram list"
+					   click="{this.getList();}"  paddingLeft="8" id="linkbutton3"/>
+		
+	</mx:HBox>
 
-	<mx:Label id="titleLabel" styleName="titleLabel" text="{'Chromatogram List'}" />
 
 	<mx:HTTPService id="getChromatogramList"
 					url="GetChromatogramList.gx"
@@ -325,42 +358,16 @@
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
 
-	<mx:VBox styleName="panelBox"   backgroundSize="100%" width="100%" verticalGap="0" id="vbox1">
-		<!--<mx:HRule width="100%" />-->
+	<mx:VBox paddingLeft="2" width="100%" verticalGap="0" id="vbox1">
+		
 
 		<mx:HBox id="filterBar"
-				 horizontalGap="0"
+				 horizontalGap="12"
 				 paddingTop="4"
 				 paddingBottom="4"
 				 paddingLeft="0"
 				 horizontalAlign="left"
 				 verticalAlign="middle">
-
-			<mx:Label text="Filter by:" width="65"/>
-
-			<mx:HBox horizontalGap="0"
-					 height="100%"
-					 verticalAlign="middle"
-					 verticalGap="0"
- 					 width="150">
-				<mx:Label text="Order #" />
-
-				<mx:TextInput id="requestNoLookupField"
-							  fontSize="9"
-							  height="19"
-							  width="60"
-							  change="{setDefaultButton()}" />
-
-				<mx:Button id="lookupButton"
-						   fontFamily="Arial"
-						   height="18"
-						   width="30"
-						   color="#400040"
-						   visible="true"
-						   icon="@Embed('../../assets/arrow_right.png')"
-						   click="{if (requestNoLookupField.text != '') this.getList();}" />
-
-			</mx:HBox>
 
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
@@ -389,7 +396,7 @@
 					 paddingRight="5"
 					 paddingLeft="5">
 				<mx:CheckBox id="lastWeekCheckbox"
-							 label="In last week"
+							 label="Created in last week"
 							 paddingRight="0"
 							 paddingLeft="0"
 							 horizontalGap="0">
@@ -440,14 +447,14 @@
 
 			<mx:VRule height="20" />
 
-			<mx:HBox horizontalGap="0"
+			<mx:HBox horizontalGap="3"
 					 verticalAlign="middle"
 					 verticalGap="0"
 					 horizontalAlign="right"
 					 paddingLeft="5"
 					 paddingRight="5">
 				<mx:CheckBox id="releasedCheckbox"
-							 label="released to user"
+							 label="Released to user"
 							 paddingRight="0"
 							 paddingLeft="2"
 							 horizontalGap="0">
@@ -460,7 +467,7 @@
 				</mx:CheckBox>
 
 				<mx:CheckBox id="notReleasedCheckbox"
-							 label="not released"
+							 label="Not released"
 							 paddingRight="0"
 							 paddingLeft="2"
 							 horizontalGap="0"
@@ -476,34 +483,12 @@
 			</mx:HBox>
 
 		</mx:HBox>
-			
-		<mx:HBox>
-			<mx:Spacer width="215" height="100%"/>
-			<mx:Label text="instrument run:" />
-		</mx:HBox>
 	</mx:VBox>
 
-	<mx:VDividedBox width="100%"
-					height="100%"
-					styleName="form"
-					paddingBottom="4"
-					paddingLeft="4"
-					paddingRight="4"
-					paddingTop="4">
+	
 
 		<mx:VBox width="100%" height="100%" verticalGap="1">
 
-			<mx:HBox width="100%" verticalAlign="bottom">
-				<mx:HBox width="100%" verticalAlign="middle" paddingTop="8">
-					<mx:Label text="{'Chromatogram ' + chromatogramGrid.selectedItem.@displayName}" fontWeight="bold" />
-
-				</mx:HBox>
-
-				<mx:Spacer width="100%" />
-
-				<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right" />
-
-			</mx:HBox>
 
 			<mx:DataGrid id="chromatogramGrid"
 						 allowMultipleSelection="true"
@@ -532,7 +517,7 @@
 									   draggable="false"/>
 
 					<mx:DataGridColumn dataField="@idChromatogram"
-									   headerText="ID"
+									   headerText="#"
 									   width="35"
 									   sortCompareFunction="fieldNumericSorter('idChromatogram')" 
 									   draggable="false" id="datagridcolumn1"/>
@@ -561,7 +546,7 @@
 					</mx:DataGridColumn>
 
 					<mx:DataGridColumn dataField="@releaseDate"
-									   headerText="Released:"
+									   headerText="Released"
 									   width="90" minWidth="75" id="datagridcolumn2"/>
 
 					<mx:DataGridColumn dataField="@submitter"
@@ -626,10 +611,7 @@
 		</mx:VBox>
 
 
-	</mx:VDividedBox>
-
-
-	<mx:ControlBar horizontalAlign="left" width="100%">
+	<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
 		<mx:Label id="nSelectedChromats" text="{selectedChromats.length + ' selected'}" />
 
 		<mx:ComboBox id="comboBox"
@@ -653,14 +635,8 @@
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
 					   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
-
-		<mx:Spacer width="100%" height="100%" />
-
-		<mx:LinkButton textDecoration="underline"
-					   label="Refresh"
-					   icon="@Embed('../../assets/action_refresh.gif')"
-					   toolTip="Refresh chromatogram list"
-					   click="{this.getList();}" />
+		<mx:Spacer width="100%"/>
+		<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"  fontStyle="italic"/>
 
 	</mx:ControlBar>
 
@@ -674,7 +650,10 @@
 			<mx:SetStyle target="{linkbutton1}" name="disabledIcon" value="@Embed('../../assets/download_disable.png')"/>
 			<mx:SetStyle target="{linkbutton1}" name="icon" value="@Embed('../../assets/download.png')"/>
 			<mx:SetProperty target="{linkbutton1}" name="label" value="Download Chromatograms"/>
-			<mx:RemoveChild target="{titleLabel}"/>
+			<mx:RemoveChild target="{hbox1}"/>
+			<mx:RemoveChild target="{linkbutton3}"/>
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:SetProperty name="styleName"/>
 		</mx:State>
 	</mx:states>
 	

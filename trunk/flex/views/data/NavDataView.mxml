@@ -27,20 +27,6 @@
 			
 		]]>
 	</mx:Script>
-	<mx:HDividedBox width="100%" height="100%">
-
-		<mx:VBox styleName="panelBox" width="140" height="100%">
-
-			<mx:LinkBar dataProvider="chromatViews"
-						styleName="navLinkBar"
-						textDecoration="underline"
-						direction="vertical"
-						height="202"
-						width="116"
-						paddingTop="4">
-			</mx:LinkBar>
-
-		</mx:VBox>
 		<mx:ViewStack id="chromatViews"
 					  visible="true"
 					  height="100%"
@@ -58,6 +44,5 @@
 
 		</mx:ViewStack>
 
-	</mx:HDividedBox>
 
 </mx:Canvas>
