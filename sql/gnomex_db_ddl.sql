@@ -551,7 +551,6 @@ CREATE TABLE `gnomex`.`Chromatogram` (
   `idChromatogram` int(10) NOT NULL AUTO_INCREMENT,
   `idPlateWell` int(10) NULL,
   `idRequest` int(10) NULL,
-  `fileName` varchar(2000) NULL,
   `displayName` varchar(200) NULL,
   `readLength` int(10) NULL,
   `trimmedLength` int NULL,
@@ -562,6 +561,7 @@ CREATE TABLE `gnomex`.`Chromatogram` (
   `gSignalStrength` int(10) NULL,
   `tSignalStrength` int(10) NULL,
   `releaseDate` DATETIME NULL,
+  `qualifiedFilePath` varchar(500) null,
   PRIMARY KEY (`idChromatogram`),
   CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
     REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
