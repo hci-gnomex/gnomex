@@ -64,6 +64,15 @@
 			hci.gnomex.controller.DownloadResultsServlet
 		</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.DownloadChromatogramFileServlet
+		</servlet-class>
+	</servlet>
+	
+	
 
 	<servlet>
 		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
@@ -223,6 +232,27 @@
 			hci.gnomex.controller.UploadExperimentURLServlet
 		</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadPurchaseOrder</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadPurchaseOrder
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>GetPurchaseOrderForm</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.GetPurchaseOrderForm
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadPurchaseOrderURL</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadPurchaseOrderURL
+		</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -238,10 +268,20 @@
 		<servlet-name>ExperimentQueue</servlet-name>
 		<url-pattern>/ExperimentQueue.gx</url-pattern>
 	</servlet-mapping>	
+	
+	<servlet-mapping>
+		<servlet-name>DownloadResultsServlet</servlet-name>
+		<url-pattern>DownloadResultsServlet.gx</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>/DownloadResultsServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DownloadChromatogramServlet</servlet-name>
+		<url-pattern>/DownloadChromatogramServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

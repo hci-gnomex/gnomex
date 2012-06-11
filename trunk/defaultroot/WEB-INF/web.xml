@@ -59,6 +59,15 @@
 			hci.gnomex.controller.DownloadResultsServlet
 		</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.DownloadChromatogramFileServlet
+		</servlet-class>
+	</servlet>
+	
+	
 
 	<servlet>
 		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
@@ -259,6 +268,13 @@
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>DownloadResultsServlet.gx</url-pattern>
 	</servlet-mapping>
+
+	
+	<servlet-mapping>
+		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
+		<url-pattern>DownloadChromatogramFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
 
 	<servlet-mapping>
 		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>

@@ -1,14 +1,14 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.TransferLog;
+import hci.gnomex.model.Chromatogram;
 import hci.gnomex.security.SecurityAdvisor;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.net.InetAddress;
 
 import javax.servlet.ServletException;
@@ -23,8 +23,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadChromatogramFileServlet.class);
   
-  private String                          fileName = null;
-  private String                          dir = null;
+  private Integer     idChromatogram = null;
   
   
   public void init() {
@@ -34,15 +33,12 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
     
-    fileName = null;
-    dir = null;
-    
+
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
       if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
           || req.getRemoteAddr().equals("127.0.0.1")
           || InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
-        log.debug("Requested from local host");
       }
       else {
         log.error("Accessing secure command over non-secure line from remote host is not allowed");
@@ -62,24 +58,19 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
     
     
     // Get the fileName parameter
-    if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
-      fileName = req.getParameter("fileName");
+    if (req.getParameter("idChromatogram") != null && !req.getParameter("idChromatogram").equals("")) {
+      idChromatogram = Integer.valueOf(req.getParameter("idChromatogram"));
     }
     
-    // Get the dir parameter
-    if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
-      dir = req.getParameter("dir");
-    } 
-    
-    if (fileName == null) {
-      log.error("fileName required");
+    if (idChromatogram == null) {
+      log.error("idChromatogram required");
       
       response.setContentType("text/html");
       response.getOutputStream().println(
           "<html><head><title>Error</title></head>");
       response.getOutputStream().println("<body><b>");
       response.getOutputStream().println(
-          "Missing parameter:  fileName required"
+          "Missing parameter:  idChromatogram required"
               + "<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
@@ -89,69 +80,61 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
 
     InputStream in = null;
     SecurityAdvisor secAdvisor = null;
+    
     try {
       
 
       // Get security advisor
      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
+     
       if (secAdvisor != null) {
 
-        response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);          
-        response.setHeader("Cache-Control", "max-age=0, must-revalidate");
-
-
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Chromatogram chromatogram = (Chromatogram)sess.load(Chromatogram.class, idChromatogram);
 
         
         // Check permissions - bypass this file if the user 
         // does not have  permission to read it.
-        
-        
-        
-        
-        if (fileName != null) {
-          
-          
-          // Insert a transfer log entry
-          TransferLog xferLog = new TransferLog();
-          
-          xferLog.setFileName(fileName);
-          
-          xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
-          xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
-          xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
-          xferLog.setPerformCompression("Y");
-          
-          
-          
-          in = new FileInputStream(fileName);
-          OutputStream out = response.getOutputStream();
-          byte b[] = new byte[102400];
-          int numRead = 0;
-          int size = 0;
-          while (numRead != -1) {
-            numRead = in.read(b);
-            if (numRead != -1) {
-              out.write(b, 0, numRead);                                    
-              size += numRead;
-            }
-          }
-          
-          // Save transfer log 
-          xferLog.setFileSize(new BigDecimal(size));
-          xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
-          sess.save(xferLog);
-          
-          in.close();
-          out.close();
-          out.flush();
-          in = null;
+        if (!secAdvisor.canRead(chromatogram.getRequest())) {
+          response.setContentType("text/html");
+          response.getOutputStream().println(
+              "<html><head><title>Error</title></head>");
+          response.getOutputStream().println("<body><b>");
+          response.getOutputStream().println(
+              "DownloadChromatogramFileServlet: Insufficient permission to read this chromatogram."
+                  + "<br>");
+          response.getOutputStream().println("</body>");
+          response.getOutputStream().println("</html>");
+          System.out.println( "DownloadChromatogramFileServlet: Insufficient permission to read chromatogram.");
+          return;
         }
-
-//        sess.flush();
         
+        
+        response.setContentType("application/x-download");
+        response.setHeader("Content-Disposition", "attachment;filename=" + chromatogram.getDisplayName());          
+        response.setHeader("Cache-Control", "max-age=0, must-revalidate");
+
+
+        String fileName = chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getDisplayName();
+        
+        in = new FileInputStream(fileName);
+        OutputStream out = response.getOutputStream();
+        byte b[] = new byte[102400];
+        int numRead = 0;
+        int size = 0;
+        while (numRead != -1) {
+          numRead = in.read(b);
+          if (numRead != -1) {
+            out.write(b, 0, numRead);                                    
+            size += numRead;
+          }
+        }
+        in.close();
+        out.close();
+        out.flush();
+        in = null;
+
 
       } else {
         response.setContentType("text/html");
