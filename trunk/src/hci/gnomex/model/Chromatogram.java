@@ -12,7 +12,6 @@ public class Chromatogram extends HibernateDetailObject {
   private PlateWell  plateWell;
   private Integer    idRequest;
   private Request    request;
-  private String     fileName;
   private String     qualifiedFilePath;
   private String     displayName;
   private Integer    readLength;
@@ -75,16 +74,6 @@ public class Chromatogram extends HibernateDetailObject {
   public void setRequest(Request request)
   {
     this.request = request;
-  }
-
-  public String getFileName()
-  {
-    return fileName;
-  }
-
-  public void setFileName(String fileName)
-  {
-    this.fileName = fileName;
   }
 
   public void setQualifiedFilePath(String qualifiedFilePath)
