@@ -384,32 +384,33 @@
           
           <mx:GridRow >
             <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Label" fontWeight="bold"/>
+              <mx:Label text="File name" fontWeight="bold"/>
             </mx:GridItem>
             <mx:GridItem width="250">
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@label}"/>
+              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@displayName}"/>
             </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="fileName" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem width="250" >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@fileName}"/>
-            </mx:GridItem>
+			  
+			  <mx:GridItem horizontalAlign="right" paddingRight="5">
+				  <mx:Label text="Order #" fontWeight="bold"/>
+			  </mx:GridItem>
+			  <mx:GridItem >
+				  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@requestNumber}"/>
+			  </mx:GridItem>
           </mx:GridRow>
           
           <mx:GridRow >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Request" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@idRequest}"/>
-            </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="User" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@user}"/>
-            </mx:GridItem>
+			  <mx:GridItem horizontalAlign="right" paddingRight="5">
+				  <mx:Label text="Submitter" fontWeight="bold"/>
+			  </mx:GridItem>
+			  <mx:GridItem >
+				  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@user}"/>
+			  </mx:GridItem>
+			  <mx:GridItem horizontalAlign="right" paddingRight="5">
+				  <mx:Label text="Plate Well" fontWeight="bold"/>
+			  </mx:GridItem>
+			  <mx:GridItem  horizontalScrollPolicy="off" >
+				  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@wellRowCol}"/>
+			  </mx:GridItem>
           </mx:GridRow>
           
           <mx:GridRow  >

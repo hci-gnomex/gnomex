@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Chromatogram;
+import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ChromatTrimUtil;
 
@@ -64,8 +65,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
     try {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
-      baseDir = "C:/temp/";
+
       
       // Get the chromatogram from the db
       Chromatogram c = null;
@@ -94,7 +94,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
             
       idChromatogram =  c!=null ? c.getIdChromatogram():0;
       
-      File abiFile = new File(baseDir, fileName);
+      File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getDisplayName());
 
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
       
@@ -120,6 +120,16 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       
       String idRequest = c!=null && c.getIdRequest()!=null ? new Integer(c.getIdRequest()).toString() : "0";
       
+      Request request = null;
+      if (c.getIdRequest() != null) {
+         request = (Request)sess.load(Request.class, c.getIdRequest());
+      }
+      
+      String wellRowCol = "";
+      if (c.getPlateWell() != null) {
+        wellRowCol = c.getPlateWell().getRow() != null ? c.getPlateWell().getRow() : "";
+        wellRowCol += c.getPlateWell().getCol() != null ? c.getPlateWell().getCol().toString() : "";
+      }
       
       if (isValid())  {
 
@@ -129,10 +139,10 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         Element chromNode = new Element("Chromatogram");
         
         chromNode.setAttribute("idChromatogram", new Integer(idChromatogram).toString());
-        chromNode.setAttribute("fileName", abiFile.getCanonicalPath());
-        chromNode.setAttribute("label", abiFile.getName());
-        chromNode.setAttribute("idRequest", idRequest);
-        chromNode.setAttribute("idPlateWell", idPlateWellString);
+        chromNode.setAttribute("displayName", abiFile.getName());
+        chromNode.setAttribute("requestNumber", request != null ? request.getNumber() : "");
+        chromNode.setAttribute("wellRowCol", wellRowCol);
+        chromNode.setAttribute("idPlateWell", c.getIdPlateWell() != null ? c.getIdPlateWell().toString() : "");
         chromNode.setAttribute("comments", chromatReader.getComments());
         chromNode.setAttribute("readLength", new Integer(chromatReader.getSeq().toString().length()).toString());
         chromNode.setAttribute("signalStrengths", signalStrengths);

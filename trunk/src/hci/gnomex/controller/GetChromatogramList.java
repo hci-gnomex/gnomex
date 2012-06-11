@@ -8,6 +8,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ChromatogramFilter;
 import hci.gnomex.model.Request;
 
+import java.io.File;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -75,8 +76,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           Integer idChromatogram = row[0] == null ? new Integer(0) : (Integer)row[0];
           Integer idPlateWell = row[1] == null ? new Integer(0) : (Integer)row[1];
           Integer idRequest = row[2] == null ? new Integer(0) : (Integer)row[2];
-          String  fileName    = row[3] == null ? "" : (String)row[3];
-          abiFileName = fileName;
+          String  qualifiedFilePath    = row[3] == null ? "" : (String)row[3];
           String  displayName    = row[4] == null ? "" : (String)row[4];
           Integer readLength = row[5] == null ? new Integer(0) : (Integer)row[5];
           Integer trimmedLength = row[6] == null ? new Integer(0) : (Integer)row[6];
@@ -95,6 +95,9 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           String submitterLastName = row[19] != null ? (String)row[19] : "";
           String runNumber = row[20] != null ? ((Integer)row[20]).toString() : "";
           String runName = row[21] != null ? (String)row[21] : "";
+          
+          abiFileName = qualifiedFilePath + File.separator + displayName;
+
           
           double q20_len;
           double q40_len;
@@ -117,7 +120,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute("idChromatogram", idChromatogram.toString());
           cNode.setAttribute("idPlateWell", idPlateWell.toString());
           cNode.setAttribute("idRequest", idRequest.toString());
-          cNode.setAttribute("fileName", fileName);
+          cNode.setAttribute("qualifiedFilePath", qualifiedFilePath);
           cNode.setAttribute("displayName", displayName);
           cNode.setAttribute("readLength", readLength.toString());
           cNode.setAttribute("trimmedLength", trimmedLength.toString());
@@ -129,7 +132,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute("tSignalStrength", tSignalStrength.toString());
           cNode.setAttribute("q20_len", "" + q20_len);
           cNode.setAttribute("q40_len", "" + q40_len);
-          cNode.setAttribute("viewURL", getViewURL());
+          cNode.setAttribute("viewURL", getViewURL(idChromatogram));
           cNode.setAttribute( "releaseDate", releaseDate );
           cNode.setAttribute( "submitter", submitter );
           cNode.setAttribute( "wellRow", wellRow );
@@ -177,18 +180,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
     return this;
   }
   
-  public String getViewURL() {
-    String viewURL = "";
-    // Only allow viewing on supported browser mime types
-    // TODO:  Use standard way of supported mime types instead of hardcoded list
-    if (abiFileName.toLowerCase().endsWith(".abi") ||
-        abiFileName.toLowerCase().endsWith(".ab1")  ) {
-      // Only allow viewing for files under 50 MB
-//      if (this.fileSize < Math.pow(2, 20) * 50) {
-//        String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
-        viewURL = Constants.DOWNLOAD_CHROMATOGRAM_FILE_SERVLET + "?fileName=" + this.abiFileName;    
-//      }
-    }
+  public String getViewURL(Integer idChromatogram) {
+    String viewURL = Constants.DOWNLOAD_CHROMATOGRAM_FILE_SERVLET + "?idChromatogram=" + idChromatogram;    
     return viewURL;
   }
 

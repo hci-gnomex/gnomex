@@ -174,6 +174,8 @@
 				
 			} else if (requestCategory.@type == 'CAPSEQ') {
 				currentState = 'CapSeqState';
+				this.chromoTab.idRequest = this.selectedExperiment.@idRequest;
+				this.chromoTab.getList();
 			} else if (requestCategory.@type == 'MITSEQ') {
 				currentState = 'MitSeqState';
 			}
@@ -1433,8 +1435,7 @@
 									height="100%"
 									verticalGap="6"
 									id="chromoTab"
-									currentState="userState"
-									idRequest="500" />
+									currentState="userState" />
 		</mx:AddChild>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
 	</mx:State>
