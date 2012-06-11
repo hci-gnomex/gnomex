@@ -761,7 +761,7 @@
 					
 
 					<mx:DataGridColumn dataField = "@codeReactionType" 
-									   headerText = "Status" width = "100"
+									   headerText = "Reaction Type" width = "100"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ReactionType').DictionaryEntry, '@display', '@value', '@codeReactionType')}"/>
 					
 					<mx:DataGridColumn dataField = "@codeSealType" 
