@@ -66,6 +66,10 @@ package views.util
 				compressionRatio = 2.8;
 			} else if (item.@type.toString().toUpperCase() == 'ZIP') {
 				compressionRatio = 1;
+			} else if (item.@type.toString().toUpperCase() == 'AB1') {
+				compressionRatio = 2;
+			} else if (item.@type.toString().toUpperCase() == 'ABI') {
+				compressionRatio = 2;
 			}
 			
 			return (item.@fileSize / compressionRatio);

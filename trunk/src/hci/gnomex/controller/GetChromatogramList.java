@@ -97,6 +97,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           String runName = row[21] != null ? (String)row[21] : "";
           
           abiFileName = qualifiedFilePath + File.separator + displayName;
+          File abiFile = new File(qualifiedFilePath, displayName);
 
           
           double q20_len;
@@ -141,6 +142,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute( "sampleName", sampleName );
           cNode.setAttribute( "runNumber", runNumber );
           cNode.setAttribute( "runName", runName );
+          cNode.setAttribute( "fileSize", Long.valueOf(abiFile.length()).toString() );
           
           doc.getRootElement().addContent(cNode);
 
