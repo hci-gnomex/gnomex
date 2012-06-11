@@ -159,7 +159,6 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       
       if ( idPlateWell != 0 ) {ch.setIdPlateWell( idPlateWell );}
       if ( idRequest != 0 ) {ch.setIdRequest( idRequest );}
-      if ( fileName != null ) {ch.setFileName( fileName );}
       if ( qualifiedFilePath != null )  {ch.setQualifiedFilePath( qualifiedFilePath );}
       if ( displayName != null ) {ch.setDisplayName( displayName );}
       if ( readLength != 0 ) {ch.setReadLength( readLength );}

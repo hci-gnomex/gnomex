@@ -235,7 +235,6 @@
 		<many-to-one name="plateWell" column="idPlateWell" class="hci.gnomex.model.PlateWell" cascade="none" insert="false" update="false" />
 		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" update="false" insert="false"/>
     	<property name="idRequest" column="idRequest" type="integer"/>
-		<property name="fileName" column="fileName" type="string"/>
         <property name="qualifiedFilePath" column="qualifiedFilePath" type="string"/>
 		<property name="displayName" column="displayName" type="string"/>
 		<property name="readLength" column="readLength" type="integer"/>
