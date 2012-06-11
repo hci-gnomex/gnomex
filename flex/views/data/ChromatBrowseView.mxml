@@ -76,6 +76,30 @@
 					useProxy="false">
 	</mx:HTTPService>
 
+	<mx:HTTPService  
+		id="cacheFileDownloadList" 
+		url="CacheFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onCacheFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="cacheFDTFileDownloadList" 
+		url="CacheFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onCacheFDTFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
@@ -93,7 +117,9 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
-
+			
+			import views.experiment.DownloadProgressView;
+			import views.util.FileUtil;
 
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -120,6 +146,23 @@
 									<action value="DOWNLOAD"  display="Download chromats" />
 								</actionDictionary>;
 
+			
+			[Bindable]
+			public var selectedFiles:XMLListCollection;
+			
+			private var estimatedDownloadSize:Number;
+			
+			private const DOWNLOAD_FOLDERS_URL:String  = "DownloadResultsServlet.gx"; 
+			private const DOWNLOAD_FILES_URL:String    = "DownloadFileServlet.gx"; 
+			private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-data";  
+			
+			private var filesExceedingMaxMessage:String = "";
+			
+			public var downloadProgressWindow:DownloadProgressView;
+			
+			
+			public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
+			
 
 			private function init():void {
 				
@@ -355,7 +398,139 @@
 			}
 			
 			
+			private function downloadFiles():void {
+				selectedFiles = new XMLListCollection();
+				for each (var c:Object in chromats) {
+					if (c.@isSelected == 'true') {
+						var node:XML = new XML("<FileDescriptor " +
+							" fileName ='" + c.@qualifiedFilePath + "/" + c.@displayName + "'" +
+							" zipEntryName='" + c.@requestNumber + "/" + c.@displayName + "'" +
+							" type='ab1'"  +
+							" fileSize='" + c.@fileSize + "'" +
+							" requestNumber='" + c.@requestNumber + "'" + "/>");
+						selectedFiles.addItem(node);
+					}
+				}
+				
+				filesExceedingMaxMessage = "";
+				if (selectedFiles.length == 0) {
+					Alert.show("Please select the files to download.");
+				} else {
+					estimatedDownloadSize = 0;
+					for each (var item:Object in selectedFiles) {
+						var size:Number = FileUtil.getEstimatedCompressedSize(item);
+						if (size > parentApplication.MAX_DOWNLOAD_SIZE) {
+							if (filesExceedingMaxMessage.length > 0) {
+								filesExceedingMaxMessage += ", ";
+							}
+							filesExceedingMaxMessage += item.@displayName;
+						}
+						estimatedDownloadSize += size;
+					}
+					
+					var params:Object = new Object();
+					params.fileDescriptorXMLString = selectedFiles.toXMLString();
+					var call:Object = cacheFileDownloadList.send(params);
+					call.marker = estimatedDownloadSize;    		
+				}
+			}
+			private function onCacheFileDownloadList(event:ResultEvent):void {
+				var call:Object = event.token;
+				var message:String = "";
+				var title:String = "";
+				var estimatedSize:Number = call.marker;
+				if (filesExceedingMaxMessage != "") {
+					message = "The following files exceed the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\n";
+					if (parentApplication.isFDTSupported) {
+						message += "Do you want to be download using FDT instead?";
+					} else {
+						message += "Please select a smaller number of files to download.";
+						return;
+					}
+					title = "Download file exceeds maximum size"; 
+					Alert.show( message,
+						title,
+						(Alert.OK | Alert.CANCEL), this, 
+						onAlternateDownloadFiles,						
+						parentApplication.iconWarning);
+					
+				} else if (estimatedSize >= parentApplication.MAX_DOWNLOAD_SIZE) {
+					message =  
+						"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+					title = "Total download size exceeds maximum size"; 
+					Alert.show( message, title);
+					
+				} else {
+					message = "Ready to download approximately " + FileUtil.getFileSizeText(call.marker) + " of data.  Proceed?";
+					Alert.show( message,
+						title,
+						(Alert.YES | Alert.NO), this, 
+						onDownloadFiles,						
+						parentApplication.iconWarning);
+				}
+				
+				
+			}
+			private function onDownloadFiles(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					var parms:URLVariables = new URLVariables();
+					parms.mode =  "zip";
+					var progressWindow:DownloadProgressView = new DownloadProgressView();
+					progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+				}
+			}    
 			
+			private function onAlternateDownloadFiles(event:CloseEvent):void {
+				if (event.detail==Alert.OK) {
+					if (parentApplication.isFDTSupported) {
+						downloadFilesUsingFDT();
+					} else {
+						Alert.show("Please select a smaller number of files to download.");	
+					}
+				} 		
+			}
+			public function downloadFilesUsingFDT():void {
+				selectedFiles= new XMLListCollection();					
+				for each (var c:Object in chromats) {
+					if (c.@isSelected == 'true') {
+						var node:XML = new XML("<FileDescriptor " +
+							" fileName ='" + c.@qualifiedFilePath + "/" + c.@displayName + "'" +
+							" zipEntryName='" + c.@requestNumber + "/" + c.@displayName + "'" +
+							" type='ab1'"  +
+							" fileSize='" + c.@fileSize + "'" +
+							" requestNumber='" + c.@requestNumber + "'" + "/>");
+						selectedFiles.addItem(node);
+					}
+				}
+
+				if (selectedFiles.length == 0) {
+					mx.controls.Alert.show("Please select the files to download.");
+				} else {
+					var params:Object = new Object();
+					params.fileDescriptorXMLString = selectedFiles.toXMLString();
+					cacheFDTFileDownloadList.send(params);
+				}
+			}
+			
+			private function onCacheFDTFileDownloadList(event:ResultEvent):void {
+				// We have cached the selected analysis files
+				// Now call the URL to start the FDT app using webstart
+				showFastDataTransferDownloadPage();
+			}
+			
+			
+			public function showFastDataTransferDownloadPage():void {
+				
+				var paramStr:String =  selectedFiles.toXMLString();			
+				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
+				url.contentType = "text/xml";
+				url.method = URLRequestMethod.GET;
+				navigateToURL(url, '_self');					
+				
+			}
+
+
+
 		]]>
 	</mx:Script>
 
@@ -622,7 +797,7 @@
 		</mx:VBox>
 
 
-	<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+	<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" id="controlbar1">
 		<mx:Label id="nSelectedChromats" text="{selectedChromats.length + ' selected'}" />
 
 		<mx:ComboBox id="comboBox"
@@ -646,7 +821,7 @@
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
 					   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
-		<mx:Spacer width="100%"/>
+		<mx:Spacer width="100%" id="spacer1"/>
 		<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"  fontStyle="italic"/>
 
 	</mx:ControlBar>
@@ -658,13 +833,24 @@
 			<mx:RemoveChild target="{comboBox}"/>
 			<mx:SetProperty target="{actionDictionary}" name="source" value="{dlXML.action}" />
 			<mx:SetProperty target="{datagridcolumn3}" name="headerText" value="Len"/>
-			<mx:SetStyle target="{linkbutton1}" name="disabledIcon" value="@Embed('../../assets/download_disable.png')"/>
-			<mx:SetStyle target="{linkbutton1}" name="icon" value="@Embed('../../assets/download.png')"/>
-			<mx:SetProperty target="{linkbutton1}" name="label" value="Download Chromatograms"/>
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:RemoveChild target="{linkbutton3}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:SetProperty name="styleName"/>
+			<mx:AddChild relativeTo="{spacer1}" position="before">
+				<mx:Button id="downloadButton" 
+				 	click="downloadFiles()" 
+				 	icon="@Embed('../../assets/download.png')" 
+				 	toolTip="Download selected files"
+				 	label="Download"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{spacer1}" position="before">
+				<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
+						   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+						   label="FDT Download"  
+						   click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{linkbutton1}"/>
 		</mx:State>
 	</mx:states>
 	
