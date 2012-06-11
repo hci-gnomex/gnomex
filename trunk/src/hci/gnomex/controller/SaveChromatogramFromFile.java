@@ -3,9 +3,11 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ChromatTrimUtil;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -21,7 +23,9 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveChromatogramFromFile.class);
 
+  private String  serverName;
   private String  fileName;
+  private String  filePath;
   private String  baseDir;
 
 
@@ -32,10 +36,19 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
     
     // fileName parameter should not contain the path... 
     // Will look in some default path for the file with this name.
-    if (request.getParameter("fileName") != null) {
+    if (request.getParameter("fileName") != null && !request.getParameter("fileName").equals("")) {
       fileName = request.getParameter("fileName");
+    } else {
+      this.addInvalidField("fileName", "fileName is a required parameter");
     } 
     
+    if (request.getParameter("filePath") != null  && !request.getParameter("filePath").equals("")) {
+      filePath = request.getParameter("filePath");
+    } else {
+      this.addInvalidField("filePath", "filePath is a required parameter");
+    }
+    
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -43,10 +56,9 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
-      // This should be in a dictionary?  
-      baseDir = "C:/temp/";
-
-      File abiFile = new File(baseDir, fileName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
+      
+      File abiFile = new File(filePath, fileName);
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
       
       // CreateDB  chromatogram object
@@ -63,9 +75,11 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
         sess.save(chromatogram);
       }
       
-      // Biojava CHROMATOGRAM
-//      Chromatogram chrom = ChromatogramFactory.create(abiFile);
-      
+
+      // Figure out the experiment directory the file is to go to.
+      Request request = (Request)sess.load(Request.class, chromatogram.getIdRequest());
+      String destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
+
       int idPlateWell = 0;
       // Get PlateWell id from the db or file comments:
       if ( chromatogram.getIdPlateWell() != null ) {
@@ -113,7 +127,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       chromatogram.setPlateWell(well);
       // idRequest could be parsed from ABI file itself too?
       chromatogram.setIdRequest(well.getIdRequest());
-      chromatogram.setFileName(abiFile.getCanonicalPath());
+      chromatogram.setQualifiedFilePath(destDir);
       chromatogram.setDisplayName(abiFile.getName());
       chromatogram.setReadLength(chromatReader.getChrom().getSequenceLength());
       chromatogram.setTrimmedLength(trimLength);
@@ -128,7 +142,10 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       
       
       if (isValid())  {
-        this.xmlResult = "<SUCCESS idChromatogram=\"" + chromatogram.getIdChromatogram() + "\" />";
+        this.xmlResult = "<SUCCESS idChromatogram=\"" + chromatogram.getIdChromatogram() + "\"" +
+        " idRequest=\"" + chromatogram.getIdRequest() + "\"" +
+        " destDir=\"" + destDir + "\"" +
+        " />";
         setResponsePage(this.SUCCESS_JSP);
       }
       setResponsePage(this.SUCCESS_JSP);
@@ -147,6 +164,6 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
 
     return this;
   }
-
   
+ 
 }
