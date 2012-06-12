@@ -132,7 +132,13 @@
 		  }
 	  }
 
-      
+	  public function createCherryPickingFile():void {	
+		  var runWindow:CherryPickingFileWindow = CherryPickingFileWindow(mx.managers.PopUpManager.createPopUp(this, CherryPickingFileWindow, true));
+		  mx.managers.PopUpManager.centerPopUp(runWindow);
+		  runWindow.transferVol.setFocus();
+		  runWindow.idRequest = getRequest.lastResult.Request.@idRequest;
+	  }
+		      
     ]]>
   </mx:Script>    	
   
@@ -284,6 +290,11 @@
 		<mx:State name="stateCapSeq" id="stateCapSeq">
 		</mx:State>
 		<mx:State name="stateCherry" id="stateCherry">
+			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
+				<mx:LinkButton label="Create Cherry Picking File" 
+					id="cherryPickLink" 
+					click="{createCherryPickingFile()}" textDecoration="underline" icon="@Embed(source='../../assets/cog.png')"/>
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="stateMito" id="stateMito">
 			<mx:SetStyle target="{hbox1}" name="horizontalGap" value="20"/>
