@@ -139,11 +139,6 @@
 			private var dictXML:XML = <actionDictionary>
 									<action value="RELEASE"   display="Release data to user" />
 									<action value="REQUEUE"    display="Release and requeue samples" />
-									<action value="DOWNLOAD"  display="Download chromats" />
-								</actionDictionary>;
-			[Bindable]
-			private var dlXML:XML = <actionDictionary>
-									<action value="DOWNLOAD"  display="Download chromats" />
 								</actionDictionary>;
 
 			
@@ -169,7 +164,7 @@
 				if ( currentState == userState.name ) {
 					// Don't get the chromatogram list here because the idRequest
 					// isn't initialized yet.
-					actionDictionary.source = dlXML.action;
+					
 				} else {
 					
 					actionDictionary.source = dictXML.action;
@@ -592,7 +587,6 @@
 							 paddingLeft="2"
 							 horizontalGap="0">
 					<mx:click>
-						actionDictionary.source = dlXML.action;
 						toggleReleaseCheckboxes( 0 );
 						this.getList();
 					</mx:click>
@@ -831,7 +825,6 @@
 			<mx:RemoveChild target="{vbox1}"/>
 			<mx:RemoveChild target="{linkbutton2}"/>
 			<mx:RemoveChild target="{comboBox}"/>
-			<mx:SetProperty target="{actionDictionary}" name="source" value="{dlXML.action}" />
 			<mx:SetProperty target="{datagridcolumn3}" name="headerText" value="Len"/>
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:RemoveChild target="{linkbutton3}"/>
