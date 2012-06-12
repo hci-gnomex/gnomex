@@ -394,8 +394,8 @@
 					if (isValid) {
 					
 						if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
-							if (parentDocument.samples.length <= 30 && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
-								Alert.show("You may not have less than 30 samples in a Plate container.  Delete ignored.");
+							if (parentDocument.samples.length <= 32 && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+								Alert.show("You may not have less than 32 samples in a Plate container.  Delete ignored.");
 								isValid = false;
 							}
 						}

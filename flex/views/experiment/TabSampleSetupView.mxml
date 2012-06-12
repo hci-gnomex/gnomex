@@ -624,7 +624,7 @@
 			} else {
 				var sampleCount:int = parseInt(numberOfSamples.text);
 				
-				if (sampleCount < 30) {
+				if (sampleCount < 32) {
 					this.containerTypeRadioGroup.selectedValue = "TUBE";
 					this.containerTypeTube.enabled = true;
 					this.containerTypePlate.enabled = false;

@@ -2338,8 +2338,8 @@
 				if (samples.length > 96 && sampleSetupView.containerTypeRadioGroup.selectedValue != 'PLATE') {
 					errorMessage += "You may not have more than 96 samples in a Tube container.\n\n";
 				}
-				if (samples.length < 30 && sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
-					errorMessage += "You may not have less than 30 samples in a Plate container.\n\n";
+				if (samples.length < 32 && sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+					errorMessage += "You may not have less than 32 samples in a Plate container.\n\n";
 				}
 				if (sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
 					for(var idx:int = 0; idx < 4; idx++) {
