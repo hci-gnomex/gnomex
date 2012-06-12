@@ -1,9 +1,7 @@
-<%@ page language="java" import="java.util.Iterator,hci.report.model.ReportRow,hci.report.model.Column"  contentType="text/csv"%>
-<jsp:useBean id="tray" class="hci.report.model.ReportTray" scope="request"/>
-<%
-response.setHeader("Content-type","text/csv");
+<%@ page language="java" import="java.util.Iterator,hci.report.model.ReportRow,hci.report.model.Column"  contentType="text/csv"
+%><jsp:useBean id="tray" class="hci.report.model.ReportTray" scope="request"
+/><%response.setHeader("Content-type","text/csv");
 response.setHeader("Content-Disposition","attachment; filename=\""+tray.getFileName()+".csv\"");
-
 Iterator cIter = tray.getColumns().iterator();
 while (cIter.hasNext()) {
 	Column col = (Column) cIter.next();
@@ -14,7 +12,6 @@ while (cIter.hasNext()) {
 	  out.println();
 	}
 }
-
  if (tray.getRows().size() > 0) {
 	 Iterator iter = tray.getRows().iterator();
 	 while (iter.hasNext()) {
@@ -33,5 +30,4 @@ while (cIter.hasNext()) {
 } 
  else {
    out.println("No results");
- }
- %>
+ }%>
