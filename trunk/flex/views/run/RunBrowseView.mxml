@@ -398,7 +398,14 @@
 					
 				}     
 			} 	
-			
+			public function createRunFile(event:MouseEvent):void {
+				var idRun:int = (int)(runList[runGrid.selectedIndex].@idInstrumentRun);
+				
+				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
+					'?idInstrumentRun=' + idRun);
+				navigateToURL(url, '_blank');
+			}
+
 		]]>
 	</mx:Script>    	
 	
@@ -754,6 +761,14 @@
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
 
 					<mx:DataGridColumn dataField = "@runDate" headerText = "Run on" width = "80" />
+					
+					<mx:DataGridColumn headerText="Create PLT" headerWordWrap="true" editable="false">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:LinkButton label="Create PLT" click="outerDocument.createRunFile(event)" color="#0000FF" textDecoration = "underline"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
 
 					<mx:DataGridColumn dataField = "@codeInstrumentRunStatus" 
 									   headerText = "Status" width = "70"
