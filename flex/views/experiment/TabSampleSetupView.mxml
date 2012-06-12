@@ -265,15 +265,12 @@
 	        	}
         	} else if (parentDocument.isCapSeqState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
 					
 					isComplete = true;
 				}
 			} else if (parentDocument.isFragAnalState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
 					
 					for (var x:int = 0; x < assayCheckBox.length; x++) {
 						if (assayCheckBox[x].selected) {
@@ -366,8 +363,6 @@
 					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
 				}
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '' &&
 					this.primer1Combo.selectedItem  != null && this.primer1Combo.selectedItem.@value != '' &&
 					this.primer2Combo.selectedItem  != null && this.primer2Combo.selectedItem.@value != '' &&
 					this.primer3Combo.selectedItem  != null && this.primer3Combo.selectedItem.@value != '' &&
@@ -379,9 +374,7 @@
 					}
 				}
 			} else if (parentDocument.isCherryPickState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
 					
 					isComplete = true;
 				}
@@ -955,7 +948,7 @@
 	    <mx:State name="DropoffBase">
 			<mx:AddChild relativeTo="{hbox6}" position="after">
 				<mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
-					<mx:Label text="(4) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
+					<mx:Label text="(3) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
 					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
 								 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
 					</mx:ComboBox>
@@ -965,6 +958,8 @@
         <mx:State name="CapSeqState" basedOn="DropoffBase">
              <mx:RemoveChild target="{sampleOrganismContainer}"/>
              <mx:RemoveChild target="{samplePrepContainer}"/>
+			 <mx:RemoveChild target="{label8}"/>
+			 <mx:RemoveChild target="{sampleTypeCombo}"/>
              <mx:AddChild relativeTo="{hbox6}" position="before">
                   <mx:HBox width="100%" horizontalGap="0">
                        <mx:Label text="(2) The samples will be delivered in what container?" width="310"  id="label0"/>
@@ -976,9 +971,11 @@
              <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
         </mx:State>
-	   <mx:State name="FragAnalState" basedOn="DropoffBase">
+	   <mx:State name="FragAnalState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
+		   <mx:RemoveChild target="{label8}"/>
+		   <mx:RemoveChild target="{sampleTypeCombo}"/>
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:VBox width="100%" horizontalGap="0">
 				   <mx:Label text="(2) Choose the Assays to be used." width="310"  id="labelAssayHeader"/>
@@ -991,12 +988,13 @@
 				   </mx:Tile>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
 		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
 	   </mx:State>
-	   <mx:State name="MitSeqState" basedOn="DropoffBase">
+	   <mx:State name="MitSeqState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
+		   <mx:RemoveChild target="{label8}"/>
+		   <mx:RemoveChild target="{sampleTypeCombo}"/>
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:VBox width="100%" horizontalGap="0">
 				   <mx:Label text="(2) Choose the Primers to be used." width="310"  id="labelPrimerHeader"/>
@@ -1046,13 +1044,13 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
 		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
 	   </mx:State>
-	   <mx:State name="CherryPickState" basedOn="DropoffBase">
+	   <mx:State name="CherryPickState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
-		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   <mx:RemoveChild target="{label8}"/>
+		   <mx:RemoveChild target="{sampleTypeCombo}"/>
 		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
 	   </mx:State>
    </mx:states>

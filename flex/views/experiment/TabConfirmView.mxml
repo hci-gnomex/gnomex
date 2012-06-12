@@ -132,6 +132,7 @@
 		} 
 
         public function showHideColumns():void {
+			this.sampleTypeColumn.visible = true;
 			this.filteredSamples.removeAll();
 			for each(var sample:Object in parentDocument.samples) {
 				if (sample.@name != null && sample.@name != '') {
@@ -267,7 +268,8 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
-				
+				this.sampleTypeColumn.visible = false;
+
 			} else if (parentDocument.isFragAnalState()) {
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
@@ -279,6 +281,7 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
+				this.sampleTypeColumn.visible = false;
 				
 			} else if (parentDocument.isMitSeqState()) {
 				concentrationUnitConfirmColumn.visible = false;
@@ -291,6 +294,7 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
+				this.sampleTypeColumn.visible = false;
 				
 			} else if (parentDocument.isCherryPickState()) {
 				concentrationUnitConfirmColumn.visible = false;
@@ -303,6 +307,7 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
+				this.sampleTypeColumn.visible = false;
 				
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
@@ -553,7 +558,7 @@
 			            <mx:DataGridColumn headerText="Seq Lib Protocol" id="seqLibProtocolConfirmCol" width="160" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 						<mx:DataGridColumn id="otherSamplePrepMethodConfirmCol" headerText="Nucl. acid extraction method" width="200" dataField="@otherSamplePrepMethod"/>
-			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
+			            <mx:DataGridColumn id="sampleTypeColumn" headerText="Sample Type"  width="130"
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>

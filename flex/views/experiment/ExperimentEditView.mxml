@@ -2825,10 +2825,19 @@
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
-				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
+				if (sampleSetupView.contains(sampleSetupView.sampleTypeCombo)) {
+					request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
+				}
 				
-				if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState() || this.isCherryPickState()) {
+				if (this.isCapSeqState()) {
 					request.@idSampleDropOffLocation = parentApplication.submitInternalExperiment() ? sampleSetupView.sampleDropOffLocationCombo.selectedItem.@value : '';
+				}
+				if (this.isFragAnalState() || this.isMitSeqState() || this.isCherryPickState()) {
+					for each(var doff:Object in this.filterSampleDropOffLocation) {
+						if (doff.@display == 'Core Lab') {
+							request.@idSampleDropOffLocation = doff.@value;
+						}
+					}	
 				}
 				
 				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState() && !isMitSeqState() && !isCherryPickState()) {
