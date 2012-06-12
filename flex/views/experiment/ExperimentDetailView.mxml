@@ -469,6 +469,22 @@
 			parentDocument.parentDocument.deleteExperiment();
 		}
 		
+		public function promptToSubmitExperiment():void {
+			Alert.show("Submit experiment " + this.selectedExperiment.@number + "?  After submission only facility personnel will be able to make changes.", 
+				"Confirm", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToSubmitExperiment);
+		}
+		
+		private function onPromptToSubmitExperiment(event:CloseEvent):void {
+			if (event.detail==Alert.YES) {
+				submitExperiment();
+			}
+		}
+		private function submitExperiment():void {
+			parentDocument.parentDocument.submitExperiment();
+		}
+		
 		public function showPrintableRequestForm():void {
 			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
 			navigateToURL(url, '_blank');			
