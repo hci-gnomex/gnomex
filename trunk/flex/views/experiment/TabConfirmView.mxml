@@ -140,6 +140,12 @@
 				}
 			}
 
+			if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState()) {
+				this.parentDocument.submitButton.label = 'Save';
+			} else {
+				this.parentDocument.submitButton.label = 'Submit';
+			}
+			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
 				&& !parentDocument.isCapSeqState()
 				&& !parentDocument.isFragAnalState()

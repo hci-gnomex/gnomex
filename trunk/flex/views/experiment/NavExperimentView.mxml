@@ -70,6 +70,18 @@
     useProxy="false">
   </mx:HTTPService>
 
+	
+  <mx:HTTPService  
+		id="submitRequest" 
+		url="ChangeRequestStatus.gx"
+		destination="submitRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSubmitRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to submit request', event)"
+		method="POST"
+		useProxy="false">
+   </mx:HTTPService>
    
    <mx:HTTPService  
     id="getProject" 
@@ -1110,6 +1122,13 @@
 	    	params.idRequest = selectedExperiment.@idRequest;
 	    	deleteRequest.send(params);
 	    }
+			
+		public function submitExperiment():void {
+			var params:Object = new Object();
+			params.idRequest = selectedExperiment.@idRequest;
+			params.codeRequestStatus = 'SUBMITTED'
+			submitRequest.send(params);
+		}
 	    
 	    private function onDeleteRequest(event:ResultEvent): void {
 	    	if (deleteRequest.lastResult.name() == "SUCCESS") {
@@ -1119,6 +1138,15 @@
 	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
 	    	}
 	    }
+			
+		private function onSubmitRequest(event:ResultEvent): void {
+			if (submitRequest.lastResult.name() == "SUCCESS") {
+				this.refreshExperiments();
+				theViews.selectedChild = browseView;
+			} else {
+				Alert.show(submitRequest.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
 	    
 	    private function getMembersOfLab():void {
 			if (this.browseLabCombo.selectedItem.@idLab != null) {
@@ -1465,10 +1493,15 @@
 															
 							</mx:HBox>
 							<mx:HBox>
-								<mx:LinkButton  label="Delete experiment" id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
+								<mx:LinkButton  label="Delete exp." id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
 												click="detailView.detail.promptToDeleteExperiment()"
 												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
 									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
+								</mx:LinkButton>
+								<mx:LinkButton  label="Submit exp." id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
+												click="detailView.detail.promptToSubmitExperiment()"
+												toolTip="Submit experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@codeRequestStatus == &quot;NEW&quot; ? true : false}" textDecoration="underline">
+									<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
 								</mx:LinkButton>
 							</mx:HBox>
 							
