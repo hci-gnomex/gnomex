@@ -16,6 +16,34 @@
 		[Bindable]
 		public var barcodeQuestionVisible:Boolean = true;
 	
+		public function setPrimerDefaults():void {
+			if (parentDocument.isMitSeqState()) {
+				// Set defaults for primers				
+				var idx:int = 0;
+				for each(var primer:Object in this.primerCollection) {
+					if (primer.@display == '15819F') {
+						primer1Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '16213F') {
+						primer2Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '48F') {
+						primer3Combo.selectedIndex = idx;
+					}
+					if (primer.@display == 'S4') {
+						primer4Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '58R') {
+						primer5Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '653R') {
+						primer6Combo.selectedIndex = idx;
+					}
+					idx++;
+				} 
+			}
+		}
+		
 		public function getSelectedCodeBioanalyzerChipType():String {
 			var selectedCode:String = '';
 			if (this.currentState == 'QCSetupBioanalyzerState') {
@@ -255,6 +283,88 @@
 					}
 				}
 			} else if (parentDocument.isMitSeqState()) {
+				this.primer1Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer2Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer3Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer4Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer5Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer6Combo.setStyle("fillColors", ["white", "white"]);
+				var foundDupe:Boolean = false;
+				if (this.primer1Combo.selectedItem.@value == primer2Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer3Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer3Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer3Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer4Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer4Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer5Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '' &&
@@ -264,88 +374,6 @@
 					this.primer4Combo.selectedItem  != null && this.primer4Combo.selectedItem.@value != '' &&
 					this.primer5Combo.selectedItem  != null && this.primer5Combo.selectedItem.@value != '' &&
 					this.primer6Combo.selectedItem  != null && this.primer6Combo.selectedItem.@value != '') {
-					this.primer1Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer2Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer3Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer4Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer5Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer6Combo.setStyle("fillColors", ["white", "white"]);
-					var foundDupe:Boolean = false;
-					if (this.primer1Combo.selectedItem.@value == primer2Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer3Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer3Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer3Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer4Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer4Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer5Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
 					if (!foundDupe) {
 						isComplete = true;
 					}
@@ -673,6 +701,7 @@
 		}
 	]]>
 </mx:Script>
+	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
          required="true" allowNegative="false" domain="int" maxValue="384" />
     <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
@@ -975,42 +1004,42 @@
 					   <mx:VBox>
 						   <mx:Label text="Primer 1" id="labelPrimer1"/>
 						   <mx:ComboBox labelField="@display" width="150" id="primer1Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										dataProvider="{primerCollection}" 
 										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Primer 2" id="labelPrimer2"/>
 						   <mx:ComboBox labelField="@display" width="150" id="primer2Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										dataProvider="{primerCollection}" 
 										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Primer 3" id="labelPrimer3"/>
 						   <mx:ComboBox labelField="@display" width="150" id="primer3Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										dataProvider="{primerCollection}" 
 										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Primer 4" id="labelPrimer4"/>
 						   <mx:ComboBox labelField="@display" width="150" id="primer4Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										dataProvider="{primerCollection}" 
 										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Primer 5" id="labelPrimer5"/>
 						   <mx:ComboBox labelField="@display" width="150" id="primer5Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										dataProvider="{primerCollection}" 
 										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   
 					   <mx:VBox>
 						   <mx:Label text="Primer 6" id="labelPrimer6"/>
 						   <mx:ComboBox labelField="@display" width="150" id="primer6Combo" 
-										dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry}" 
+										dataProvider="{primerCollection}" 
 										change="checkSampleSetupCompleteness()">							
 						   </mx:ComboBox>
 					   </mx:VBox>					   

@@ -1023,6 +1023,7 @@
 			} else if (requestCategory.@type == parentApplication.TYPE_MIT_SEQ) {
 				this.currentState = "MitSeqState";
 				this.sampleSetupView.currentState = 'MitSeqState';
+				this.sampleSetupView.setPrimerDefaults();
 				
 				this.samplesView.currentState = 'MitSeqState';				
 				this.samplesView.showHideColumns();						
