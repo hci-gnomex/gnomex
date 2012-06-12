@@ -213,7 +213,6 @@
 					" barcodeSequence = ''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +
 					" plateName='Plate 1'" +
@@ -244,7 +243,6 @@
 					" barcodeSequence = ''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +
 					" plateName='Plate 1'" +
@@ -267,7 +265,6 @@
 					" barcodeSequence = ''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +
 					" sourceWell=''" +
@@ -321,7 +318,6 @@
 				" barcodeSequence = ''" +
 				" codeConcentrationUnit='ng/ul'" + 
 				" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 				" otherSamplePrepMethod=''" + 				
 				" treatment=''" +	
 				" plateName='" + plateName + "'" +
@@ -732,9 +728,7 @@
 					if (isEntered(sample, "@name")) {
 						nameCompleteCount++;
 					}
-					if (isEntered(sample, "@idSampleType")) {
-						completeCount++;
-					}
+					completeCount++;
 				} else if (currentState == 'FragAnalState') {
 					if (isEntered(sample, "@name")) {
 						for each(var col:AdvancedDataGridColumn in samplesGrid.columns) {
