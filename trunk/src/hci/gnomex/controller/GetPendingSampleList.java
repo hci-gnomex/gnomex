@@ -252,9 +252,11 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String label = "";
     if (idAssay != null && idAssay.intValue() != -1) {
       n = new Element("Assay");
+      n.setAttribute( "idAssay", idAssay.toString() );
       label = DictionaryManager.getDisplay("hci.gnomex.model.Assay", idAssay.toString());
     } else if (idPrimer != null && idPrimer.intValue() != -1){
       n = new Element("Primer");
+      n.setAttribute( "idPrimer", idPrimer.toString() );
       label = DictionaryManager.getDisplay("hci.gnomex.model.Primer", idPrimer.toString());
     }
     n.setAttribute("label", label);
@@ -295,11 +297,15 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("index",          wellIndex != null ? wellIndex.toString() : "");
     n.setAttribute("idPlate",        "");
     
-    if ( idAssay != null && idAssay != 0 ) {
+    if ( idAssay != null && idAssay.intValue() != -1 ) {
       n.setAttribute( "idAssay", idAssay.toString() );
+      String assayLabel = DictionaryManager.getDisplay("hci.gnomex.model.Assay", idAssay.toString());
+      n.setAttribute("label", assayLabel);
     }
-    if ( idPrimer != null && idPrimer != 0 ) {
+    if ( idPrimer != null && idPrimer.intValue() != -1 ) {
       n.setAttribute( "idPrimer", idPrimer.toString() );
+      String primerLabel = DictionaryManager.getDisplay("hci.gnomex.model.Primer", idPrimer.toString());
+      n.setAttribute("label", primerLabel);
     }
     
     return n;      
