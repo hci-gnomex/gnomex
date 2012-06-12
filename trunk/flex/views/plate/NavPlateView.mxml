@@ -132,8 +132,7 @@
 			private var isInitialized:Boolean = false;
 			// The selected group id - as in what group is picked in the
 			// color picker.
-			// 'group' is currently referring to request
-			private var selectedRequestId:String;
+			private var selectedGroupId:String;
 
 			// The active or displayed plate
 			[Bindable]
@@ -200,7 +199,7 @@
 				if ( !isInitialized ) {
 					allPlates = new Array( P1R1, P2R1, P3R1, P4R1, P1R2, P2R2, P3R2, P4R2, P1R3, P2R3, P3R3, P4R3, P1R4, P2R4, P3R4, P4R4 );
 					addPlate(); // Add one starting plate
-					colorPick.addEventListener( FlexEvent.VALUE_COMMIT, requestIdPicked );
+					colorPick.addEventListener( FlexEvent.VALUE_COMMIT, groupPicked );
 					
 					// Add one starting run
 					var run1:Object = new Object();
@@ -211,7 +210,7 @@
 					refreshRunLists();
 					
 					switchActivePlate();
-//					plateAndRunInfoViews.selectedChild = runInfoBox;
+					callLater( toggleReactionType, [SEQ] );
 				}
 				
 				isInitialized = true;
@@ -225,7 +224,7 @@
 				params1.plateType = "REACTION";
 				getPlateList.send( params1 );
 				var params2:Object = new Object();
-				params2.createdLastYear = "Y";
+				params2.createdLastWeek = "Y";
 				getInstrumentRunList.send( params2 );
 			}
 
@@ -279,7 +278,7 @@
 
 			// Color the different groups on the plate
 			// Currently colors by request
-			private function colorPlateByRequest():void {
+			private function colorPlateByGroup():void {
 
 				var indices:Array = new Array();
 
@@ -364,7 +363,7 @@
 
 
 			// This the function that is activated when a request is selected for highlighting
-			private function requestIdPicked( event:Event ):void {
+			private function groupPicked( event:Event ):void {
 
 				if ( colorPick.selectedIndex == 0 ) {
 					activePlate.highlightGroup([]);
@@ -372,12 +371,12 @@
 					return;
 				}
 				infoViews.selectedChild = orderInfoBox;
-				selectedRequestId = event.currentTarget.selectedItem.label;
+				selectedGroupId = event.currentTarget.selectedItem.label;
 				var indices:Array        = new Array();
 				var samplesOnPlate:Array = new Array();
 
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getGroupId() == selectedRequestId ) {
+					if ( well.getGroupId() == selectedGroupId ) {
 						indices.push( well.position );
 						samplesOnPlate.push( well.sample );
 					}
@@ -388,7 +387,17 @@
 				} else {
 					activePlate.highlightGroup( indices );
 				}
-				displayOrderInfo( selectedRequestId );
+				if ( reactionState == SEQ ) {
+					displayOrderInfo( selectedGroupId );
+				} else {
+					var group:Object = event.currentTarget.selectedItem;
+					if ( reactionState == MIT ) {
+						group.name = "Primer";
+					} else if ( reactionState == SEQ ) {
+						group.name = "Assay";
+					}
+					displayInfo( group );
+				}
 			}
 			
 			
@@ -400,7 +409,7 @@
 				plateCommentsText.text = '';
 				plateCreatorText.text = '';
 				plateCreateDateText.text = '';
-				groupName.text = colorPick.getNoSelectionText();
+				orderNum.text = colorPick.getNoSelectionText();
 				infoViews.selectedChild = plateAndRunInfoViews;
 				
 				// Get plate object from active plate
@@ -451,12 +460,18 @@
 				}
 				
 				// Run information
-				runNumberText.text = runs[ currentRun ].idRun != null ? runs[ currentRun ].idRun : "";
-				runNameText.text = runs[ currentRun ].label != null ? runs[ currentRun ].label : "";
-				runCommentsText.text = runs[ currentRun ].comments != null ? runs[ currentRun ].comments : "";
-				runCreatorText.text = runs[ currentRun ].creator != null ? runs[ currentRun ].creator : "";
-				runCreateDateText.text = runs[ currentRun ].createDate != null && runs[ currentRun ].createDate != "" ? ( runs[ currentRun ].createDate ).substr( 0, 10 ) : "";
-				runRunDateText.text = runs[ currentRun ].runDate != null && runs[ currentRun ].runDate != "" ? ( runs[ currentRun ].runDate ).substr( 0, 10 ) : "";
+				var run:Object = runs[ currentRun ];
+				if ( run != null ) {
+					runNumberText.text = run.idRun != null ? run.idRun : "";
+					runNameText.text = run.label != null ? run.label : "";
+					runCommentsText.text = run.comments != null ? run.comments : "";
+					if ( run.idRun!= null && run.idRun != '0' ) {
+						runCreatorText.text = run.creator != null ? run.creator : "";
+//						runCreateDateText.text = run.createDate != null && run.createDate != "" ? ( run.createDate ).substr( 0, 10 ) : "";
+//						runRunDateText.text = run.runDate != null && run.runDate != "" ? ( run.runDate ).substr( 0, 10 ) : "";
+					}
+				}
+				
 				
 				// Seal Type
 				if ( currentState != newState.name ) {
@@ -508,12 +523,12 @@
 			private function displayOrderInfo( group:String ):void {
 
 				infoViews.selectedChild = orderInfoBox;
-				selectedRequestId = group;
+				selectedGroupId = group;
 				var indices:Array        = new Array();
 				var samplesOnPlate:Array = new Array();
 
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getGroupId() == selectedRequestId ) {
+					if ( well.getGroupId() == selectedGroupId ) {
 						indices.push( well.position );
 						samplesOnPlate.push( well.sample );
 						submitDate.text = well.submitDate;
@@ -521,11 +536,11 @@
 					}
 				}
 				// Label the information box with details from that group:
-				groupName.text = selectedRequestId;
+				orderNum.text = selectedGroupId;
 				numberSamples.text = indices.length != 0 ? indices.length.toString() : '';
 				// TODO: if request isn't on the pending samples list - need to get information elsewhere
 				// getRequest??
-				var request:Object = getPendingSampleList.lastResult..Request.( @idRequest == selectedRequestId );
+				var request:Object = getPendingSampleList.lastResult..Request.( @idRequest == selectedGroupId );
 
 				if ( submitDate.text == null || submitDate.text == '' ) {
 					submitDate.text = request != null ? request.@submitDate : '';
@@ -536,7 +551,7 @@
 				}
 				sampleDisplayTree.dataProvider = samplesOnPlate;
 
-				if ( colorPick.getLabelIndex( selectedRequestId ) == 0 ) {
+				if ( colorPick.getLabelIndex( selectedGroupId ) == 0 ) {
 					sampleTree.selectedIndex = -1;
 					sampleTree.scrollToIndex( 0 );
 					return;
@@ -544,46 +559,17 @@
 				
 			}
 
-
-			// Display assay information in information box on right
-			private function displayAssayInfo( assay:Object ):void {
-
-				groupName.text = colorPick.getNoSelectionText();
-				infoViews.selectedChild = assayInfoBox;
-
-				if ( assay == null ) {
+			// Display assay, primer, or redo status information in information box
+			private function displayGroupInfo( group:XML ):void {
+				
+				infoViews.selectedChild = sampleInfoBox;
+				
+				if ( group == null ) {
 					return;
 				}
 				var samplesOnPlate:Array = new Array();
-
-				for each ( var s:Object in assay..Well ) {
-					if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
-						for each ( var well:WellContainer in activePlate.getWells()) {
-							if ( well.getSample() != null ) {
-								if ( well.getSample().@name == s.@name ) {
-									samplesOnPlate.push( well.sample );
-								}
-							}
-						}
-					}
-				}
 				
-				assayName.text = assay.@label;
-				assayNumberSamples.text = samplesOnPlate.length != 0 ? samplesOnPlate.length.toString() : '';
-				assaySampleDisplayTree.dataProvider = samplesOnPlate;
-			}
-
-			// Display status information in information box - meaning redo versus pending
-			private function displayStatusInfo( status:Object ):void {
-				
-				infoViews.selectedChild = statusInfoBox;
-
-				if ( status == null ) {
-					return;
-				}
-				var samplesOnPlate:Array = new Array();
-
-				for each ( var s:Object in status..Sample ) {
+				for each ( var s:Object in group..Well ) {
 					if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
 						for each ( var well:WellContainer in activePlate.getWells()) {
 							if ( well.getSample() != null ) {
@@ -595,12 +581,36 @@
 					}
 				}
 				// Label the information box with details from that lab:
-				statusName.text = status.@label;
-				labNumberSamples.text = samplesOnPlate.length != 0 ? samplesOnPlate.length.toString() : '';
-				labSampleDisplayTree.dataProvider = samplesOnPlate;
+				groupLabel.text = group.name();
+				grName.text = group.@label;
+				groupNumSamp.text = samplesOnPlate.length != 0 ? samplesOnPlate.length.toString() : '';
+				groupSampList.dataProvider = samplesOnPlate;
 			}
 
-
+			// Display assay, primer, or redo status information in information box
+			private function displayInfo( group:Object ):void {
+				var selectedGroupId:String = group.label;
+				infoViews.selectedChild = sampleInfoBox;
+				
+				if ( group == null ) {
+					return;
+				}
+				var samplesOnPlate:Array = new Array();
+				
+				for each ( var well:WellContainer in activePlate.getWells()) {
+					if ( well.getGroupId() == selectedGroupId ) {
+						
+						samplesOnPlate.push( well.sample );
+					}
+				}
+				
+				// Label the information box with details from that lab:
+				groupLabel.text = group.name;
+				grName.text = selectedGroupId;
+				groupNumSamp.text = samplesOnPlate.length != 0 ? samplesOnPlate.length.toString() : '';
+				groupSampList.dataProvider = samplesOnPlate;
+			}
+			
 			// Create and show a printable plate report - color coded
 			// Should prohibit this if the plate hasn't been save to db yet... ?
 			private function createPlateReport():void {
@@ -740,18 +750,21 @@
 			private function toggleReactionType(reaction:String):void{
 				if ( reaction == MIT ) {
 					reactionState = MIT;
+					colorPickLabel.text = "Select a primer by color."
 					reactionTypeRadioGroup.selection = radioMit;
 					fillColWise = true;
 					toggleFillOrientation();
 				} else if ( reaction == FRAG ) {
 					reactionState = FRAG;
+					colorPickLabel.text = "Select an assay by color.";
 					reactionTypeLabelText.text = "Fragment Analysis";
 					reactionTypeRadioGroup.selection = radioFrag;
 					fillColWise = false;
 					toggleFillOrientation();
 				} else if ( reaction == SEQ ) {
 					reactionState = SEQ;
-					reactionTypeLabelText.text = "Capillary Sequencing";;
+					colorPickLabel.text = "Select an order by color.";
+					reactionTypeLabelText.text = "Capillary Sequencing";
 					reactionTypeRadioGroup.selection = radioSEQ;
 					fillColWise = true;
 					toggleFillOrientation();
@@ -814,9 +827,14 @@
 				for each ( var group:Object in getPendingSampleList.lastResult..Status ) {
 					sampleTree.expandItem( group, false );
 				}
-
 				for each ( var r:Object in getPendingSampleList.lastResult..Request ) {
 					sampleTree.expandItem( r, false );
+				}
+				for each ( var r2:Object in getPendingSampleList.lastResult..Assay ) {
+					sampleTree.expandItem( r2, false );
+				}
+				for each ( var r3:Object in getPendingSampleList.lastResult..Primer ) {
+					sampleTree.expandItem( r3, false );
 				}
 				sampleTree.validateNow();
 				treeContainer.validateNow();
@@ -874,8 +892,14 @@
 					if ( sampleTree.dataDescriptor.hasChildren( item )) {
 						for each ( var child:Object in item.children()) {
 							if ( sampleTree.dataDescriptor.hasChildren( child )) {
-								for each ( var child2:Object in child.children()) {
-									if ( child2.@isOnPlate == null || child2.@isOnPlate != true ) {
+								for each ( var child1:Object in child.children()) {
+									if ( sampleTree.dataDescriptor.hasChildren( child1 )) {
+										for each ( var child2:Object in child.children()) {
+											if ( child2.@isOnPlate == null || child2.@isOnPlate != true ) {
+												return false;
+											}
+										}
+									} else if ( child1.@isOnPlate == null || child1.@isOnPlate != true ) {
 										return false;
 									}
 								}
@@ -914,35 +938,26 @@
 
 			// Function to reorder selected samples in the order they appear in the
 			// tree regardless of the order highlighted
-			// This might be able to be more efficiently written - recursive?
-			private function getSelectedItemsInOrder( selectedItems:Array ):Array {
+			private function getSelectedWellsInOrder( selectedItems:Array ):Array {
 
 				var sortedItemList:Array = new Array();
 
-				for each ( var sampleTreeItem:Object in sampleTree.dataProvider ) {
+				for each ( var sampleTreeItem:Object in getPendingSampleList.lastResult..Well ) {
 					for each ( var selectedItem:Object in selectedItems ) {
-						if ( sampleTreeItem == selectedItem ) {
-							sortedItemList.push( selectedItem );
-							break;
-						}
-					}
-
-					for each ( var child1:Object in sampleTreeItem..Request ) {
-						for each ( var selectedItem1:Object in selectedItems ) {
-							if ( child1 == selectedItem1 ) {
-								sortedItemList.push( selectedItem1 );
+						if ( selectedItem.name() == "Well" ) {
+							if ( sampleTreeItem == selectedItem ) {
+								sortedItemList.push( selectedItem );
 								break;
 							}
-						}
-
-						for each ( var child2:Object in child1..Well ) {
-							for each ( var selectedItem2:Object in selectedItems ) {
-								if ( child2 == selectedItem2 ) {
-									sortedItemList.push( selectedItem2 );
+						} else {
+							for each ( var s:Object in selectedItem..Well ) {
+								if ( sampleTreeItem == s ) {
+									sortedItemList.push( s );
 									break;
 								}
 							}
 						}
+						
 					}
 				}
 				return sortedItemList;
@@ -954,37 +969,26 @@
 
 				var source:DragSource = new DragSource;
 				source.addData( sampleTree.selectedItems, "treeItems" );
-//				dropOnPlate( new DragEvent( 'DRAG_DROP', false, true, null, source ));
-//				
-//				var ds:DragSource = event.dragSource;
-//				source.addData( sampleTree.selectedItems, "treeItems" );
 				
 				// Get the selected or dragged items in order as seen in tree
 				var items:Array = source.dataForFormat( "treeItems" ) as Array;
-				items = getSelectedItemsInOrder( items );
+				items = getSelectedWellsInOrder( items );
 				var samples:Array = new Array();
-
-				//TODO - add capability to drag assay
+				
+				
 				for each ( var item:Object in items ) {
 					if ( item.name() == "Well" ) {
 						if ( item.@isOnPlate != true ) {
 							samples.push( item );
 						}
-					} else if ( item.name() == "Request" ) {
+					} else {
 						for each ( var sample:Object in item..Well ) {
 							if ( sample.@isOnPlate != true ) {
 								samples.push( sample );
 							}
 						}
-					} else if ( item.name() == "Status" ) {
-						for each ( var r:Object in item..Request ) {
-							for each ( var s:Object in r..Well ) {
-								if ( s.@isOnPlate != true ) {
-									samples.push( s );
-								}
-							}
-						}
 					}
+					
 				}
 				addSamplesToPlate( samples, 0 );
 			}
@@ -1072,21 +1076,14 @@
 						if ( item.@isOnPlate != true ) {
 							samples.push( item );
 						}
-					} else if ( item.name() == "Request" ) {
+					} else {
 						for each ( var sample:Object in item..Well ) {
 							if ( sample.@isOnPlate != true ) {
 								samples.push( sample );
 							}
 						}
-					} else if ( item.name() == "Status" ) {
-						for each ( var r:Object in item..Request ) {
-							for each ( var s:Object in r..Well ) {
-								if ( s.@isOnPlate != true ) {
-									samples.push( s );
-								}
-							}
-						}
 					}
+					
 				}
 				addSamplesToPlate( samples, 0 );
 				sampleTree.selectedItem = null;
@@ -1123,6 +1120,13 @@
 						if ( item.name() == "Well" && item.@isOnPlate != true ) {
 							// TODO: check if that well is empty first.  If not, move to next well?
 							activePlate.addSampleToWell( index, item );
+							item.@groupId = item.@idRequest;
+							if ( reactionState==MIT ) {
+								item.@groupId = item.@idPrimer;
+							} else if ( reactionState==FRAG ) {
+								item.@groupId = item.@idAssay;
+							}
+							activePlate.addWellObject( index, item );
 							// Tag the sample when it's added to a plate
 							item.@isOnPlate = true;
 							itemsToSplice++;
@@ -1136,7 +1140,7 @@
 						activePlate.nowFillByCol = fillColWise;
 						activePlate.repopulatePlate();
 						switchActivePlate();
-						callLater( colorPlateByRequest );
+						callLater( colorPlateByGroup );
 
 						// TODO: THIS WILL DISALLOW THE FILLING OF THE END PLATES IF THEY ARE
 						// NOT FILLED ALREADY...
@@ -1163,7 +1167,7 @@
 				switchActivePlate();
 				sampleTree.selectedItem = null;
 				callLater( function():void {
-					colorPlateByRequest();
+					colorPlateByGroup();
 					numSamples.text = getSamplesCount();
 				});
 			}
@@ -1235,11 +1239,13 @@
 					for each ( var p:Object in getInstrumentRun.lastResult..Plate ) {
 						plates.push( p );
 					}
-
-					if ( currentState == viewState.name || currentState == editState.name ) {
-						for ( var i:int = 0; i < 4; i++ ) {
-							removeRun();
-						}
+					
+					for ( var i:int = 0; i < 4; i++ ) {
+						removeRun();
+					}
+					
+					if ( currentState != viewState.name && currentState != editState.name ) {
+						currentState = editState.name;
 					}
 
 					if ( getNextEmptyRun( currentRun + 1 )) {
@@ -1266,6 +1272,7 @@
 			// Should set up the next empty run as current selected plate before calling...
 			private function loadRun( plateList:Array ):void {
 
+				runs[ currentRun ] = new Object();
 				runs[ currentRun ].idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
 				runs[ currentRun ].runDate = getInstrumentRun.lastResult.InstrumentRun.@runDate;
 				runs[ currentRun ].createDate = getInstrumentRun.lastResult.InstrumentRun.@createDate;
@@ -1422,10 +1429,17 @@
 					var ind:int = pw.@position;
 					
 					activePlate.addSampleToWell( ind, pw..Sample );
+					pw.@groupId = pw.@idRequest;
+					if ( reactionState==MIT ) {
+						pw.@groupId = pw.@idPrimer;
+					} else if ( reactionState==FRAG ) {
+						pw.@groupID = pw.@idAssay;
+					}
+					activePlate.addWellObject( ind, pw );
 					
 					var wc:WellContainer = activePlate.getWell( ind ) as WellContainer;
-					wc.loadWellObject(pw);
-					wc.plateView = this;
+//					wc.loadWellObject(pw);
+//					wc.plateView = this;
 					if ( ind == 1 ) {
 						if ( wc.col != pw.@col ) {
 							orient = true;
@@ -1441,7 +1455,7 @@
 				switchActivePlate();
 				sampleTree.selectedItem = null;
 				callLater( function():void {
-					colorPlateByRequest();
+					colorPlateByGroup();
 					numSamples.text = getSamplesCount();
 					displayPlateInfo();
 				});
@@ -1540,11 +1554,19 @@
 					
 					runNumberLabel.text = "" + runs[ currentRun ].idRun;
 					savePlates( runNumber );
+					
 					// NEED TO RELOAD THE RUN OR AT LEAST REFRESH INFO BOX DISPLAY;
-//					removeRun();
-					refreshRunLists();
-					switchToViewState();
-					loadRunById(idInstrumentRun.toString());
+//					refreshRunLists();
+//					for ( var i:int = 0; i < numberOfRuns; i++ ) {
+//						removeRun();
+//					}
+//					currentState = editState.name;
+//					switchToEditState();
+//					callLater( loadRunById, [idInstrumentRun.toString()] );
+					callLater( function():void {
+						switchToEditState();
+						loadRunById(idInstrumentRun.toString() );
+					});
 				} else {
 					Alert.show( "An error occurred while saving the instrument run." );
 				}
@@ -1605,6 +1627,7 @@
 						}
 					}
 				}
+				
 			}
 
 
@@ -1644,10 +1667,14 @@
 					for each ( var pw:Object in savePlate.lastResult.Plate.PlateWell ) {
 						var ind:int = pw.@position;
 						plate.addSampleToWell( ind, pw..Sample );
+						pw.@groupId = pw.@idRequest;
+						if ( reactionState==MIT ) {
+							pw.@groupId = pw.@idPrimer;
+						} else if ( reactionState==FRAG ) {
+							pw.@groupID = pw.@idAssay;
+						}
+						plate.addWellObject( ind, pw );
 						
-						var wc:WellContainer = plate.getWell( ind ) as WellContainer;
-						wc.loadWellObject(pw);
-						wc.plateView = this;
 					}
 					refreshRunLists();
 				} else {
@@ -1677,7 +1704,6 @@
 
 
 			// Function to remove a specific group's samples from the plate
-			// i.e. a specific request
 			private function removeGroup():void {
 
 				var samples:Array = new Array();
@@ -1689,7 +1715,7 @@
 						sample.@isOnPlate = false;
 					}
 
-					if ( well.getGroupId() != selectedRequestId ) {
+					if ( well.getGroupId() != selectedGroupId ) {
 						wells.push( well );
 					}
 				}
@@ -1698,7 +1724,7 @@
 				switchActivePlate();
 				sampleTree.selectedItem = null;
 				callLater( function():void {
-					colorPlateByRequest();
+					colorPlateByGroup();
 					numSamples.text = getSamplesCount();
 					displayPlateInfo();
 				});
@@ -1826,7 +1852,7 @@
 					removeRun();
 					return;
 				}
-				Alert.show( "Are you sure you want to remove this run?", "Confirm Remove Run", ( Alert.YES | Alert.NO ), this, onPromptToRemoveRun, iconWarning );
+				Alert.show( "Are you sure you want to clear this run?", "Confirm Clear Run", ( Alert.YES | Alert.NO ), this, onPromptToRemoveRun, iconWarning );
 			}
 
 
@@ -1853,7 +1879,7 @@
 					runs.push( run1 );
 					runNumberLabel.text = "Run 1";
 					currentRun = 0;
-					activePlate.resetPlate();
+//					activePlate.resetPlate();
 					return;
 				}
 
@@ -1932,21 +1958,8 @@
 				var onPlate:Boolean  = false;
 				colorPick.selectNone();
 
-				/* if ( selection.name() == "Sample") {
-					if ( selection.@isOnPlate != null && selection.@isOnPlate == true) {
-						// Display the sample well information
-						for each (var well:WellContainer in activePlate.getWells()) {
-							if (well.getSample() != null) {
-								if (well.getSample().@name == selection.@name){
-									well.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-									break;
-								}
-							}
-						}
-					}
 
-				} */
-				if ( selection.name() == "Request" ) {
+				if ( selection.name() != "Status" ) {
 					for each ( var sample:Object in selection..Well ) {
 						if ( sample.@isOnPlate != null && sample.@isOnPlate == true ) {
 							onPlate = true;
@@ -1955,8 +1968,14 @@
 					}
 
 					if ( onPlate ) {
-						selectedRequestId = selection.@idRequest;
-						colorPick.selectedColor = colorPick.getColorAt( colorPick.getLabelIndex( selectedRequestId ));
+						if (  selection.name() == "Request" ) {
+							selectedGroupId = selection.@idRequest;
+						} else if (  selection.name() == "Assay" ){
+							selectedGroupId = selection.@idAssay; 
+						} else if (  selection.name() == "Primer" ) {
+							selectedGroupId = selection.@idPrimer;
+						}
+						colorPick.selectedColor = colorPick.getColorAt( colorPick.getLabelIndex( selectedGroupId ));
 					}
 				}
 
@@ -1983,7 +2002,6 @@
 				var req:Object;
 				var s:Object;
 
-				// PENDING SAMPLE TEMPLATE
 				if ( selection.name() == "Well" ) {
 					if ( selection.@isOnPlate != null && selection.@isOnPlate == true ) {
 						for each ( well in activePlate.getWells()) {
@@ -1995,9 +2013,7 @@
 							}
 						}
 					}
-				}
-
-				// REQUEST
+				} else 
 				if ( selection.name() == "Request" ) {
 					for each ( var sample:Object in selection..Well ) {
 						if ( sample.@isOnPlate != null && sample.@isOnPlate == true ) {
@@ -2012,49 +2028,23 @@
 						}
 					}
 					displayOrderInfo( selection.@idRequest );
-				}
-
-				// STATUS
-				if ( selection.name() == "Status" ) {
+				} else {
 					colorPick.selectNone();
-
-					for each ( req in selection..Request ) {
-						for each ( s in req..Well ) {
-							if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
-								for each ( well in activePlate.getWells()) {
-									if ( well.getSample() != null ) {
-										if ( well.getSample().@name == s.@name ) {
-											indices.push( well.position );
-											samplesOnPlate.push( well.sample );
-										}
+					for each ( var sample1:Object in selection..Well ) {
+						if ( sample1.@isOnPlate != null && sample1.@isOnPlate == true ) {
+							for each ( well in activePlate.getWells()) {
+								if ( well.getSample() != null ) {
+									if ( well.getSample().@name == sample1.@name ) {
+										indices.push( well.position );
+										samplesOnPlate.push( well.sample );
 									}
 								}
 							}
 						}
 					}
-					displayStatusInfo( selection );
+					displayGroupInfo( selection as XML );
 				}
 
-				// ASSAY
-				if ( selection.name() == "Assay" ) {
-					colorPick.selectNone();
-
-					for each ( req in selection..Request ) {
-						for each ( s in req..Well ) {
-							if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
-								for each ( well in activePlate.getWells()) {
-									if ( well.getSample() != null ) {
-										if ( well.getSample().@name == s.@name ) {
-											indices.push( well.position );
-											samplesOnPlate.push( well.sample );
-										}
-									}
-								}
-							}
-						}
-					}
-					displayAssayInfo( selection );
-				}
 
 				if ( indices.length == 0 ) {
 					colorPick.selectNone();
@@ -2096,13 +2086,13 @@
 				var index:int = 0;
 
 				// Display the sample well information
-				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getSample().@name == sampleName ) {
-						well.dispatchEvent( new MouseEvent( MouseEvent.CLICK ));
-						index = well.position;
-						break;
-					}
-				}
+//				for each ( var well:WellContainer in activePlate.getWells()) {
+//					if ( well.getSample().@name == sampleName ) {
+//						well.dispatchEvent( new MouseEvent( MouseEvent.CLICK ));
+//						index = well.position;
+//						break;
+//					}
+//				}
 				var indices:Array = new Array();
 				indices.push( index );
 				activePlate.highlightGroup( indices );
@@ -2214,6 +2204,10 @@
 
 
 			public function switchToViewState():void {
+				if ( currentState == viewState.name ) {
+					return;
+				}
+				
 				// CHECK and warn if DIRTY 
 				if ( currentState == newState.name ) {
 					
@@ -2227,6 +2221,9 @@
 			}
 			
 			public function switchToNewState():void {
+				if ( currentState == newState.name ) {
+					return;
+				}
 				// CHECK and warn if DIRTY 
 				for ( var i:int = 0; i < numberOfRuns; i++ ) {
 					removeRun();
@@ -2248,6 +2245,9 @@
 			}	
 			
 			public function switchToEditState():void {
+				if ( currentState == editState.name ) {
+					return;
+				}
 				// CHECK and warn if DIRTY 
 				if ( currentState == newState.name ) {
 					for ( var i:int = 0; i < numberOfRuns; i++ ) {
@@ -2315,7 +2315,7 @@
 							   textDecoration="underline"
 							   id="editButton"
 							   textAlign="left" />
-				<mx:LinkButton label="Create a new run"
+				<mx:LinkButton label="Create new"
 							   id="fillNewButton"
 							   click="{switchToNewState()}"
 							   color="#000000"
@@ -3081,6 +3081,7 @@
 						</mx:VBox>
 
 					</mx:TabNavigator>
+					
 					<mx:VBox width="100%"
 							 height="100%"
 							 backgroundColor="#ffffff"
@@ -3099,7 +3100,7 @@
 						<mx:HBox width="100%">
 
 							<mx:Label text="Order #:" fontWeight="bold" id="label2" />
-							<mx:Text id="groupName" width="100%" />
+							<mx:Text id="orderNum" width="100%" />
 							<mx:Spacer width="5" height="100%" />
 
 						</mx:HBox>
@@ -3138,10 +3139,11 @@
 						</mx:List>
 
 					</mx:VBox>
+					
 					<mx:VBox width="100%"
 							 height="100%"
 							 backgroundColor="#ffffff"
-							 id="statusInfoBox">
+							 id="sampleInfoBox">
 
 						<mx:HBox width="100%"
 								 verticalAlign="middle"
@@ -3149,28 +3151,28 @@
 								 paddingRight="3"
 								 paddingTop="2">
 
-							<mx:Label text="Sample Information" id="statusInfoBoxLabel" styleName="titleLabel" />
+							<mx:Label text="Sample Information" id="sampleInfoBoxLabel" styleName="titleLabel" />
 
 						</mx:HBox>
 						<mx:HRule width="100%" />
 						<mx:HBox width="100%">
 
 							<mx:Label text="Status:" fontWeight="bold" id="groupLabel" />
-							<mx:Text id="statusName" width="100%" />
+							<mx:Text id="grName" width="100%"  />
 							<mx:Spacer width="5" height="100%" />
 
 						</mx:HBox>
 						<mx:HBox width="100%">
 
 							<mx:Label text="Number of Samples:" fontWeight="bold" />
-							<mx:Text id="labNumberSamples" width="100%" />
+							<mx:Text id="groupNumSamp" width="100%" />
 							<mx:Spacer width="5" height="100%" />
 
 						</mx:HBox>
 						<mx:Label text="  Samples:" fontWeight="bold" />
 						<mx:List width="100%"
 								 height="100%"
-								 id="labSampleDisplayTree"
+								 id="groupSampList"
 								 dataTipField="@description"
 								 doubleClickEnabled="false"
 								 borderStyle="solid"
@@ -3182,62 +3184,19 @@
 
 					</mx:VBox>
 
-					<mx:VBox width="100%"
-							 height="100%"
-							 backgroundColor="#ffffff"
-							 id="assayInfoBox">
-						
-						<mx:HBox width="100%"
-								 verticalAlign="middle"
-								 paddingLeft="3"
-								 paddingRight="3"
-								 paddingTop="2">
-							
-							<mx:Label text="Sample Information" id="assayInfoBoxLabel" styleName="titleLabel" />
-							
-						</mx:HBox>
-						<mx:HRule width="100%" />
-						<mx:HBox width="100%">
-							
-							<mx:Label text="Assay:" fontWeight="bold"/>
-							<mx:Text id="assayName" width="100%" />
-							<mx:Spacer width="5" height="100%" />
-							
-						</mx:HBox>
-						<mx:HBox width="100%">
-							
-							<mx:Label text="Number of Samples:" fontWeight="bold" />
-							<mx:Text id="assayNumberSamples" width="100%" />
-							<mx:Spacer width="5" height="100%" />
-							
-						</mx:HBox>
-						<mx:Label text="  Samples:" fontWeight="bold" />
-						<mx:List width="100%"
-								 height="100%"
-								 id="assaySampleDisplayTree"
-								 dataTipField="@description"
-								 doubleClickEnabled="false"
-								 borderStyle="solid"
-								 labelField="@name"
-								 backgroundAlpha="1"
-								 dropShadowEnabled="true"
-								 itemClick="sampleItemClick(event)">
-						</mx:List>
-						
-					</mx:VBox>
 					
 				</mx:ViewStack>
 				<mx:Label text="Select an order by color:" width="100%" id="colorPickLabel" />
 				<util:PlateColorPicker id="colorPick" width="100%" height="50" />
 				<mx:Button label="Remove order from plate"
-						   visible="{groupName.text!=colorPick.getNoSelectionText()}"
-						   includeInLayout="{groupName.text!=colorPick.getNoSelectionText()}"
+						   visible="{orderNum.text!=colorPick.getNoSelectionText()}"
+						   includeInLayout="{orderNum.text!=colorPick.getNoSelectionText()}"
 						   width="100%"
 						   click="promptToRemoveGroup()"
 						   id="button3" />
 				<mx:Button label="Clear all samples from plate"
-						   visible="{groupName.text==colorPick.getNoSelectionText()}"
-						   includeInLayout="{groupName.text==colorPick.getNoSelectionText()}"
+						   visible="{orderNum.text==colorPick.getNoSelectionText()}"
+						   includeInLayout="{orderNum.text==colorPick.getNoSelectionText()}"
 						   width="100%"
 						   click="promptToRemoveAllSamples()"
 						   id="button4" />
@@ -3269,14 +3228,12 @@
 			<mx:RemoveChild target="{sealComboHBox}" />
 			<mx:RemoveChild target="{runSealComboHBox}" />
 			<mx:RemoveChild target="{statusComboHBox}" />
-			<mx:RemoveChild target="{viewButton}" />
 			<mx:RemoveChild target="{reactComboBox}"/>
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="View"/>
 			<mx:SetProperty target="{numPlates}" name="visible" value="false"/>
 		</mx:State>
 		
 		<mx:State id="editState" name="editState">
-			<mx:RemoveChild target="{editButton}" />
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
@@ -3318,19 +3275,16 @@
 								   textDecoration="underline" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{plateTab}" />
+			<!--<mx:RemoveChild target="{plateTab}" />-->
 			<mx:RemoveChild target="{runTab}" />
-			<mx:SetStyle target="{tabNav}" name="borderVisible" value="true" />
-			<mx:SetStyle target="{tabNav}" name="tabHeight" value="0" />
-			<mx:SetProperty target="{editButton}" name="label" value="Edit existing" />
-			<mx:RemoveChild target="{fillNewButton}" />
+			<!--<mx:SetStyle target="{tabNav}" name="borderVisible" value="true" />
+			<mx:SetStyle target="{tabNav}" name="tabHeight" value="0" />-->
 			<mx:AddChild relativeTo="{hbox1}" position="before">
 				<mx:HRule width="100%" />
 			</mx:AddChild>
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
-			<mx:SetProperty target="{viewButton}" name="label" value="View existing" />
 			<mx:RemoveChild target="{reactTextBox}"/>
 			<mx:RemoveChild target="{printButton}"/>
 			<mx:RemoveChild target="{pltButton}"/>

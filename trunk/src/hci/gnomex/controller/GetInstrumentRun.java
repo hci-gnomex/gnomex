@@ -75,6 +75,7 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
         Plate plate = (Plate)i.next();
 
         plate.excludeMethodFromXML("getPlateWells");
+        plate.excludeMethodFromXML("getInstrumentRun");
         Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
         Element pwNode = new Element("plateWells");

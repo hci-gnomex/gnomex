@@ -102,14 +102,18 @@ package views.renderers {
 		public function loadWellObject( pw:Object ):void {
 			this.wellObject = pw;
 			
-			this.groupId = pw.@idRequest!= null ? pw.@idRequest : '';
+			if ( pw.@groupId != null && pw.@groupId != '' ) {
+				this.groupId = pw.@groupId;
+			} else {
+				this.groupId = pw.@idRequest!= null ? pw.@idRequest : '';
+			}
 			
 			this.idPlateWell = pw.@idPlateWell != null ? pw.@idPlateWell : 0;
-			this.position = pw.@position != null ? pw.@position : 0;
-			this.row = pw.@row != null ? pw.@row : '';
-			this.col = pw.@col != null ? pw.@col : 0;
-			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
-			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
+//			this.position = pw.@position != null ? pw.@position : 0;
+//			this.row = pw.@row != null ? pw.@row : '';
+//			this.col = pw.@col != null ? pw.@col : 0;
+//			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
+//			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
 			this.idRequest = pw.@idRequest != null ? pw.@idRequest : 0;
 			this.codeReactionType = pw.@codeReactionType != null ? pw.@codeReactionType : '' ;
 			this.idAssay = pw.@idAssay != null ? pw.@idAssay : 0;
@@ -150,7 +154,7 @@ package views.renderers {
 				var requestLabel:mx.controls.Label = new mx.controls.Label();
 				var notesLabel:Text                = new mx.controls.Text();
 				sampleLabel.text = 'Sample: ' + sampleName;
-				requestLabel.text = 'Request #: ' + groupId;
+				requestLabel.text = 'Request #: ' + idRequest;
 				notesLabel.text = 'Sample Desc: ' + sample.@description;
 				tw.addChild( sampleLabel );
 				tw.addChild( requestLabel );

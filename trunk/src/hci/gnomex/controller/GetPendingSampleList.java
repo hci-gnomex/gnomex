@@ -278,6 +278,9 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     Integer wellCol             = (Integer)row[11];
     Integer wellIndex           = (Integer)row[12];
     
+    Integer idAssay             = (Integer)row[13];
+    Integer idPrimer            = (Integer)row[14];
+    
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
       
     Element n = new Element("Well");
@@ -291,6 +294,13 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("col",            wellCol != null ? wellCol.toString() : "");
     n.setAttribute("index",          wellIndex != null ? wellIndex.toString() : "");
     n.setAttribute("idPlate",        "");
+    
+    if ( idAssay != null && idAssay != 0 ) {
+      n.setAttribute( "idAssay", idAssay.toString() );
+    }
+    if ( idPrimer != null && idPrimer != 0 ) {
+      n.setAttribute( "idPrimer", idPrimer.toString() );
+    }
     
     return n;      
   

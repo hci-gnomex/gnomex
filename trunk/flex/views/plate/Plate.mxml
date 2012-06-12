@@ -381,6 +381,7 @@
 			}
 			
 			public function addWellObject( index:int, wo:Object ):void {
+//				var wc:WellContainer = plate.getWell( ind ) as WellContainer;
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
