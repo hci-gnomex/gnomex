@@ -619,9 +619,15 @@
 			
 			
 			private function createPltFiles():void {
+				/*
 				var params:Object = new Object();
 				params.idInstrumentRun = runs[currentRun].idRun;
 				createRunFile.send( params );
+				*/
+				
+				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
+					'?idInstrumentRun=' + runs[currentRun].idRun);
+				navigateToURL(url, '_blank');
 			}
 
 
