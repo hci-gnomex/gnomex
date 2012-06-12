@@ -67,6 +67,12 @@
 		</servlet-class>
 	</servlet>
 	
+	<servlet>
+		<servlet-name>DownloadABIRunFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.DownloadABIRunFileServlet
+		</servlet-class>
+	</servlet>
 	
 
 	<servlet>
@@ -273,6 +279,12 @@
 	<servlet-mapping>
 		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
 		<url-pattern>DownloadChromatogramFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	
+	<servlet-mapping>
+		<servlet-name>DownloadABIRunFileServlet</servlet-name>
+		<url-pattern>DownloadABIRunFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
 
