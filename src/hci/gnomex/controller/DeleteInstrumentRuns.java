@@ -7,6 +7,7 @@ import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -101,12 +102,17 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
     
     // Get any requests on that run
     Map requests = new HashMap();
+    ChromatogramParser cp = new ChromatogramParser();
     List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
       Plate delPlate = (Plate) sess.load(Plate.class, well.getIdPlate());
       
+      if(well.getRedoFlag().equals("Y")){
+        cp.requeueSourceWells(well.getIdPlateWell(), sess);
+      }
+
       if (well.getIdRequest() != null && !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
         Request req = (Request) sess.get(Request.class, well.getIdRequest());
         requests.put( req.getIdRequest(), req );
