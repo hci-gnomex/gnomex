@@ -4551,7 +4551,10 @@
 								
 							<mx:HBox height="100%" width="100%"  verticalAlign="middle" horizontalAlign="left" horizontalScrollPolicy="off" horizontalGap="10">
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true" disabledIcon="@Embed(source='../../assets/tick_disable.png')"/>
-								<mx:CheckBox label="I authorize" id="agreeCheckbox" color="#307B0B" width="100%" click="agreeCheckbox_clickHandler(event)" fontWeight="bold" textAlign="left" fontSize="11" letterSpacing=".5" textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0" fontStyle="italic" errorColor="#307B0B" disabledColor="#307B0B" horizontalGap="1" textSelectedColor="#307B0B"/>
+								<mx:HBox id="agreeBox">
+									<mx:CheckBox label="I authorize" id="agreeCheckbox" 
+												 color="#307B0B" width="100%" click="agreeCheckbox_clickHandler(event)" fontWeight="bold" textAlign="left" fontSize="11" letterSpacing=".5" textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0" fontStyle="italic" errorColor="#307B0B" disabledColor="#307B0B" horizontalGap="1" textSelectedColor="#307B0B"/>
+								</mx:HBox>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
 							</mx:HBox>
