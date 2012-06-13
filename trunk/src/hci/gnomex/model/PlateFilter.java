@@ -16,6 +16,7 @@ public class PlateFilter extends DetailObject {
 
   private String                status;
   private String                plateType;
+  private String                codeReactionType;
 
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -51,6 +52,7 @@ public class PlateFilter extends DetailObject {
         idInstrumentRun != null ||
        (status != null && !status.equals("")) ||
        (plateType != null && !plateType.equals("")) ||
+       (codeReactionType != null && !codeReactionType.equals("")) ||
         getAll.equals("Y") ||
         notAddedToARun.equals("Y")) {
       hasLimitingCriteria = true;
@@ -104,6 +106,14 @@ public class PlateFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append("(");
       queryBuf.append(" p.codePlateType like '%" + plateType + "%'");
+      queryBuf.append(")");
+    }
+    
+    // Search by reaction type
+    if (codeReactionType != null && !codeReactionType.equals("")) {
+      this.addWhereOrAnd();
+      queryBuf.append("(");
+      queryBuf.append(" p.codeReactionType like '%" + codeReactionType + "%'");
       queryBuf.append(")");
     }
     
@@ -185,6 +195,16 @@ public class PlateFilter extends DetailObject {
   
   public void setPlateType( String plateType ) {
     this.plateType = plateType;
+  }
+
+  
+  public String getCodeReactionType() {
+    return codeReactionType;
+  }
+
+  
+  public void setCodeReactionType( String codeReactionType ) {
+    this.codeReactionType = codeReactionType;
   }
 
   public String getNotAddedToARun()
