@@ -90,11 +90,12 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       InstrumentRun ir;
       
       if(isNew) {
-        // Should set creator to the current user
+
         ir = new InstrumentRun();
         sess.save(ir);
-        creator = this.getUsername();
+        creator = this.getSecAdvisor().getIdAppUser().toString();
         ir.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+
       } else {
         ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
       }
@@ -112,7 +113,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       if ( creator != null ) {
         ir.setCreator(creator);
       } else if ( ir.getCreator()==null || ir.getCreator().equals("") ) {
-        ir.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
+        ir.setCreator( this.getSecAdvisor().getIdAppUser() != null ? this.getSecAdvisor().getIdAppUser().toString() : "" ); 
       }
       if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
       

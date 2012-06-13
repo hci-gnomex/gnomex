@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
@@ -119,12 +120,13 @@ public class SavePlate extends GNomExCommand implements Serializable {
       Plate plate;
       
       if(isNew) {
-        // Should set creator to current user.
+        
         plate = new Plate();
         plate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
         sess.save(plate);
-        creator = this.getUsername();
+        creator = this.getSecAdvisor().getIdAppUser().toString();
         plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+      
       } else {
         plate = (Plate) sess.get(Plate.class, idPlate);
         if ( plate.getCreateDate() == null ) {
@@ -150,7 +152,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       if ( creator != null ) {
         plate.setCreator(creator);
       } else if ( plate.getCreator()==null || plate.getCreator().equals("") ) {
-        plate.setCreator( this.getUsername() != null ? this.getUsername() : "" ); 
+        plate.setCreator( this.getSecAdvisor().getIdAppUser() != null ? this.getSecAdvisor().getIdAppUser().toString() : "" ); 
       }
       if ( codeSealType != null )  {plate.setCodeSealType(codeSealType);}
       
@@ -207,6 +209,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
       // Results
       Document doc = new Document(new Element("SUCCESS"));
       Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      
+      AppUser creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( plate.getCreator() ));
+      pNode.setAttribute( "creator", creator != null ? creator.getDisplayName() : plate.getCreator() );
       
       List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
 

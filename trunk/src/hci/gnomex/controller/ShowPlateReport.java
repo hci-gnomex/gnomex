@@ -99,7 +99,7 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
 
           // Get instrument run
           if( plate.getIdInstrumentRun() != null ) {
-            ir = ( InstrumentRun ) sess.get( InstrumentRun.class, plate.getIdInstrumentRun() );
+            ir = ( InstrumentRun ) sess.get( InstrumentRun.class, Integer.valueOf( plate.getIdInstrumentRun() ) );
           }
 
           plate.excludeMethodFromXML("getPlateWells");

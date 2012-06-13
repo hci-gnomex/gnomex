@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
@@ -68,6 +69,9 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("RunList"));
 
       Element iNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      
+      AppUser creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( ir.getCreator() ));
+      iNode.setAttribute( "creator", creator != null?  creator.getDisplayName() : ir.getCreator() );
 
       List plates = sess.createQuery("SELECT p from Plate as p where p.idInstrumentRun=" + idInstrumentRun).list();
 
@@ -77,7 +81,10 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
         plate.excludeMethodFromXML("getPlateWells");
         plate.excludeMethodFromXML("getInstrumentRun");
         Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-
+        
+        creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( plate.getCreator() ));
+        pNode.setAttribute( "creator", creator != null ? creator.getDisplayName() : plate.getCreator() );
+        
         Element pwNode = new Element("plateWells");
 
         List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate()).list();

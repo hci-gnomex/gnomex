@@ -5,6 +5,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.InstrumentRunFilter;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
@@ -97,7 +98,9 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
           irNode.setAttribute( "comments", comments );
           irNode.setAttribute( "label", label );
           irNode.setAttribute( "codeReactionType", codeReactionType );
-          irNode.setAttribute( "creator", creator );
+          AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf( creator ) );
+          irNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator );
+          
           irNode.setAttribute( "codeSealType", codeSealType );
           irNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
 
