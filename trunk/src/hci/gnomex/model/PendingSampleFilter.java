@@ -103,9 +103,9 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append(" JOIN       sample.wells as well ");
     queryBuf.append(" LEFT JOIN  well.plate plate ");
     
-    queryBuf.append(" WHERE req.codeRequestStatus = '" + RequestStatus.SUBMITTED + "' ");
+    queryBuf.append(" WHERE (well.redoFlag != 'Y' OR well.redoFlag is NULL) ");
+    queryBuf.append(" AND   (req.codeRequestStatus = '" + RequestStatus.PROCESSING + "') ");
     queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
-    
 
     addWhere = false;
     
