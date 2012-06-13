@@ -1044,7 +1044,7 @@
 							paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
 							verticalGap="0" horizontalGap="0" tileWidth="200"> 
 					   <mx:Repeater id="assayRepeater" dataProvider="{parentDocument.assayCollection}">
-							<mx:CheckBox label="{assayRepeater.currentItem.@display}" id="assayCheckBox" change="checkSampleSetupCompleteness()" width="100%"/>
+							<mx:CheckBox label="{assayRepeater.currentItem.@display}" id="assayCheckBox" change="checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid()" width="100%"/>
 					   </mx:Repeater>
 				   </mx:Tile>
 			   </mx:VBox>
