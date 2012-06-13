@@ -107,13 +107,7 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
       PlateWell well = (PlateWell)i1.next();
       Plate delPlate = (Plate) sess.load(Plate.class, well.getIdPlate());
       
-      if ( well.getIdRequest()==null ) {
-        sess.delete(well);
-        sess.delete(delPlate);
-        break;
-      }
-      
-      if ( !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
+      if (well.getIdRequest() != null && !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
         Request req = (Request) sess.get(Request.class, well.getIdRequest());
         requests.put( req.getIdRequest(), req );
       }
