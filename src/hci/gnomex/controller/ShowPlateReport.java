@@ -254,22 +254,22 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
       }
 
     } catch( UnknownPermissionException e ) {
-      log.error( "An exception has occurred in ShowRequestForm ", e );
+      log.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( NamingException e ) {
-      log.error( "An exception has occurred in ShowRequestForm ", e );
+      log.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
-      log.error( "An exception has occurred in ShowRequestForm ", e );
+      log.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in ShowRequestForm ", e );
+      log.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
     } finally {
