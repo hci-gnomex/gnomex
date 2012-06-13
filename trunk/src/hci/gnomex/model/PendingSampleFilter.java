@@ -119,6 +119,30 @@ public class PendingSampleFilter extends DetailObject {
   }
 
 
+  public StringBuffer getPendingSamplesAlreadyOnPlateQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    // Get all samples that are in tubes (well with no idPlate) or plates
+    queryBuf.append(" SELECT     sample ");
+    
+    queryBuf.append(" FROM       Request as req ");
+    queryBuf.append(" JOIN       req.lab as lab ");
+    queryBuf.append(" JOIN       req.appUser as appUser ");
+    queryBuf.append(" JOIN       req.samples as sample ");
+    queryBuf.append(" JOIN       sample.wells as well ");
+    queryBuf.append(" JOIN       well.plate plate ");
+    
+    queryBuf.append(" WHERE (req.codeRequestStatus = '" + RequestStatus.PROCESSING + "') ");
+    queryBuf.append(" AND   (plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "') "); 
+
+    addWhere = false;
+    
+    addRequestCriteria();
+
+    return queryBuf;
+    
+  }
   private void addRequestCriteria() {
 
     // Search by lab 
