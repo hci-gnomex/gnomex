@@ -740,7 +740,7 @@
 					} 
 	        		 
         		} else if (currentState == 'CapSeqState') {
-					if (isEntered(sample, "@name")) {
+					if (isEntered(sample, "@name")  && (!isEntered(sample, "@isControl") || sample.@isControl != 'Y')) {
 						nameCompleteCount++;
 					}
 					completeCount++;
