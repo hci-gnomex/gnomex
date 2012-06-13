@@ -14,6 +14,7 @@ public class ChromatogramFilter extends DetailObject {
   private Integer               idRequest;
   
   private String                requestNumber;
+  private Integer               idInstrumentRun;
   
   private String                getAll = "N";
 
@@ -23,6 +24,9 @@ public class ChromatogramFilter extends DetailObject {
   private String                lastYear = "N";
   
   private String                released = "";
+  
+  private String                capSeq = "";
+  private String                mitSeq = "";
   
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -55,7 +59,9 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        submitter.firstName, ");
     queryBuf.append("        submitter.lastName, ");
     queryBuf.append("        run.idInstrumentRun, ");
-    queryBuf.append("        run.label ");
+    queryBuf.append("        run.label, ");
+    queryBuf.append("        plate.idPlate, ");
+    queryBuf.append("        plate.label ");
     
     getQueryBody(queryBuf);
 
@@ -69,6 +75,9 @@ public class ChromatogramFilter extends DetailObject {
     if (idChromatogram != null ||
         idRequest != null ||
         requestNumber != null ||
+        idInstrumentRun != null ||
+        (capSeq != null && capSeq.equals("Y")) ||
+        (mitSeq != null && mitSeq.equals("Y")) ||
         (lastWeek != null && lastWeek.equals("Y")) ||
         (lastMonth != null && lastMonth.equals("Y")) ||
         (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
@@ -166,7 +175,28 @@ public class ChromatogramFilter extends DetailObject {
       queryBuf.append(" c.idChromatogram = ");
       queryBuf.append(idChromatogram);
     } 
-
+    
+    if (idInstrumentRun != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" run.idInstrumentRun = ");
+      queryBuf.append(idInstrumentRun);
+    }
+    
+    // Cap seq
+    if (capSeq.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" run.codeReactionType = '");
+      queryBuf.append(ReactionType.SEQUENCING_REACTION_TYPE);
+      queryBuf.append("' ");
+    }
+    // Mit seq
+    if (mitSeq.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" run.codeReactionType = '");
+      queryBuf.append(ReactionType.MITO_DLOOP_REACTION_TYPE);
+      queryBuf.append("' ");
+    }
+    
     if (idRequest != null){
       this.addWhereOrAnd();
       queryBuf.append(" c.idRequest = ");
@@ -277,6 +307,14 @@ public class ChromatogramFilter extends DetailObject {
   }
 
 
+  public Integer getIdInstrumentRun() {
+    return idInstrumentRun;
+  }
+
+  public void setIdInstrumentRun(Integer idInstrumentRun) {
+    this.idInstrumentRun = idInstrumentRun;
+  }
+
   public String getLastYear() {
     return lastYear;
   }
@@ -289,6 +327,22 @@ public class ChromatogramFilter extends DetailObject {
   public String getReleased()
   {
     return released;
+  }
+
+  public String getCapSeq() {
+    return capSeq;
+  }
+
+  public void setCapSeq(String capSeq) {
+    this.capSeq = capSeq;
+  }
+
+  public String getMitSeq() {
+    return mitSeq;
+  }
+
+  public void setMitSeq(String mitSeq) {
+    this.mitSeq = mitSeq;
   }
 
   public void setReleased(String released)

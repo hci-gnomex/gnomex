@@ -14,6 +14,32 @@
 		<mx:Image source="assets/tv_chart.png"/>
 		<mx:Label id="titleLabel" styleName="titleLabel" text="Chromatograms" />
 		<mx:Spacer width="100%"/>
+		
+		<mx:HBox horizontalGap="0"
+				 height="100%"
+				 verticalAlign="middle"
+				 verticalGap="0"
+				 width="140" id="hbox1a">
+			<mx:Label text="Run #" />
+			
+			<mx:TextInput id="runNoLookupField"
+						  fontSize="9"
+						  height="19"
+						  width="40"
+						  change="{setRunDefaultButton()}" />
+			
+			<mx:Button id="runLookupButton"
+					   fontFamily="Arial"
+					   height="18"
+					   width="30"
+					   color="#400040"
+					   visible="true"
+					   icon="@Embed('../../assets/arrow_right.png')"
+					   click="{if (runNoLookupField.text != '') this.getList();}" />
+			
+		</mx:HBox>
+		
+		
 		<mx:HBox horizontalGap="0"
 				 height="100%"
 				 verticalAlign="middle"
@@ -24,7 +50,7 @@
 			<mx:TextInput id="requestNoLookupField"
 						  fontSize="9"
 						  height="19"
-						  width="60"
+						  width="40"
 						  change="{setDefaultButton()}" />
 			
 			<mx:Button id="lookupButton"
@@ -107,7 +133,6 @@
 			import mx.collections.ListCollectionView;
 			import mx.controls.Alert;
 			import mx.controls.List;
-			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
@@ -180,7 +205,10 @@
 				var params:Object = new Object;
 				
 				if ( currentState != userState.name ) {
+					params.idInstrumentRun = runNoLookupField.text != null ? runNoLookupField.text : '' ;
 					params.requestNumber = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
+					params.capSeq = this.capSeqCheckbox.selected ? 'Y' : 'N' ;
+					params.mitSeq = this.mitSeqCheckbox.selected ? 'Y' : 'N' ;
 					params.lastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
 					params.lastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
 					params.lastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
@@ -323,6 +351,7 @@
 
 			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
 				if ( currentState != userState.name ) {
+					this.runNoLookupField.text = "";
 					this.requestNoLookupField.text = "";
 					if ( checkBoxNumber == 0 ) {
 						actionDictionary.source = dictXML.action;
@@ -358,6 +387,7 @@
 
 
 			public function toggleReleaseCheckboxes( checkBoxNumber:int ):void {
+				this.runNoLookupField.text = "";
 				this.requestNoLookupField.text = "";
 				if ( checkBoxNumber == 0 ) {
 					this.allCheckbox.selected = false;
@@ -368,6 +398,17 @@
 				}
 			}
 
+			public function toggleReactionCheckboxes( checkBoxNumber:int ):void {
+				this.runNoLookupField.text = "";
+				this.requestNoLookupField.text = "";
+				if ( checkBoxNumber == 0 ) {
+					this.allCheckbox.selected = false;
+					this.mitSeqCheckbox.selected = false;
+				} else if ( checkBoxNumber == 1 ) {
+					this.allCheckbox.selected = false;
+					this.capSeqCheckbox.selected = false;
+				}
+			}
 
 			private function setDefaultButton():void {
 				if ( currentState != userState.name ) {
@@ -384,6 +425,21 @@
 				}
 			}
 
+			
+			private function setRunDefaultButton():void {
+				if ( currentState != userState.name ) {
+					actionDictionary.source = dictXML.action; 
+				}
+				if ( this.runNoLookupField.text != '' ) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected = false;
+					this.notReleasedCheckbox.selected = false;
+					this.releasedCheckbox.selected = false;
+				}
+			}
 
 			private function fieldNumericSorter( field:String ):Function {
 				return function( obj1:Object, obj2:Object ):int {
@@ -536,7 +592,7 @@
 		
 
 		<mx:HBox id="filterBar"
-				 horizontalGap="12"
+				 horizontalGap="8"
 				 paddingTop="4"
 				 paddingBottom="4"
 				 paddingLeft="0"
@@ -560,9 +616,43 @@
 				</mx:CheckBox>
 
 			</mx:HBox>
-
+			
 			<mx:VRule height="20" />
-			<mx:HBox horizontalGap="3"
+
+			<mx:HBox horizontalGap="0"
+					 verticalAlign="middle"
+					 verticalGap="0"
+					 horizontalAlign="right"
+					 paddingLeft="5"
+					 paddingRight="5">
+				<mx:CheckBox id="capSeqCheckbox"
+							 label="Cap seq"
+							 paddingRight="0"
+							 paddingLeft="2"
+							 horizontalGap="0"
+							 selected="true" >
+					<mx:click>
+						actionDictionary.source = dictXML.action;
+						toggleReactionCheckboxes( 0 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				<mx:CheckBox id="mitSeqCheckbox"
+							 label="Mitochondrial seq"
+							 paddingRight="0"
+							 paddingLeft="2"
+							 horizontalGap="0">
+					<mx:click>
+						toggleReactionCheckboxes( 1 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				
+			</mx:HBox>
+			<mx:VRule height="20" />
+			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
 					 verticalGap="0"
 					 horizontalAlign="right"
@@ -658,18 +748,19 @@
 	
 
 		<mx:VBox width="100%" height="100%" verticalGap="1">
-
-
-			<mx:DataGrid id="chromatogramGrid"
+				
+			   <util:DataGridAlternatingGroup id="chromatogramGrid"
 						 allowMultipleSelection="true"
 						 itemClick="gridItemClick(event)"
 						 click="{selectedChromats.refresh()}"
 						 change="selectionChange(event)"
 						 width="100%"
 						 height="100%"
+						 horizontalScrollPolicy="auto"
 						 dataProvider="{chromats}"
 						 sortArrowSkin="mx.skins.ProgrammaticSkin">
-				<mx:columns>
+				   <util:columns>
+
 
 
 					<mx:DataGridColumn id="checkBoxColumn"
@@ -685,13 +776,7 @@
 									   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
 									   headerRenderer="views.renderers.CheckBoxHeader"
 									   draggable="false"/>
-
-					<mx:DataGridColumn dataField="@idChromatogram"
-									   headerText="#"
-									   width="35"
-									   sortCompareFunction="fieldNumericSorter('idChromatogram')" 
-									   draggable="false" id="datagridcolumn1"/>
-
+					   
 					<mx:DataGridColumn dataField="@idChromatogram"
 									   headerText=""
 									   textAlign="center"
@@ -701,7 +786,14 @@
 									   width="35" 
 									   minWidth="35"
 									   draggable="false"/>
-
+					   
+					   <mx:DataGridColumn dataField="@runNumber"
+										  headerText="Run #"
+										  width="50" minWidth="20" />
+					   <mx:DataGridColumn dataField="@plateLabel"
+										  headerText="Plate"
+										  width="50" minWidth="20" />
+					   
 					<mx:DataGridColumn dataField="@displayName"
 									   headerText="File"
 									   minWidth="150"
@@ -715,77 +807,76 @@
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
 
-					<mx:DataGridColumn dataField="@runNumber"
-									   headerText="Run #"
-									   width="50" minWidth="20" />
+
 					<mx:DataGridColumn dataField="@requestNumber"
 									   headerText="Order #"  visible="{currentState != 'userState'}"
-									   width="50" minWidth="15" />
+									   width="40" minWidth="15" />
 					<mx:DataGridColumn dataField="@sampleName" visible="{currentState == 'userState'}"
 									   headerText="Sample"
 									   width="60" minWidth="15" />
 
 					<mx:DataGridColumn dataField="@releaseDate"
 									   headerText="Released"
-									   width="90" minWidth="75" id="datagridcolumn2"/>
+									   width="80" minWidth="75" id="datagridcolumn2"/>
 
 					<mx:DataGridColumn dataField="@submitter"
 									   headerText="Submitter" minWidth="75"
-									   width="100" />
+									   width="60" />
 
 					<mx:DataGridColumn dataField="@readLength"
 									   headerText="Length"
-									   width="75"
+									   width="55"
 									   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
 
 					<mx:DataGridColumn dataField="@trimmedLength"
 									   headerText="Trim Len"
-									   width="75"
+									   width="55"
 									   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
 
 					<mx:DataGridColumn dataField="@q20"
 									   headerText="q20"
-									   width="65"
+									   width="45"
 									   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
 
 					<mx:DataGridColumn dataField="@q40"
 									   headerText="q40"
-									   width="65"
+									   width="45"
 									   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
 
 					<mx:DataGridColumn dataField="@q20_len"
 									   headerText="q20/len"
-									   width="70"
+									   width="50"
 									   sortCompareFunction="fieldNumericSorter('q20_len')" />
 
 					<mx:DataGridColumn dataField="@q40_len"
 									   headerText="q40/len"
-									   width="70"
+									   width="50"
 									   sortCompareFunction="fieldNumericSorter('q40_len')" />
 
 					<mx:DataGridColumn dataField="@aSignalStrength"
 									   headerText="A sig"
-									   width="70"
+									   width="50"
 									   sortCompareFunction="fieldNumericSorter('aSignalStrength')" />
 
 					<mx:DataGridColumn dataField="@cSignalStrength"
 									   headerText="C sig"
-									   width="70"
+									   width="45"
 									   sortCompareFunction="fieldNumericSorter('cSignalStrength')" />
 
 					<mx:DataGridColumn dataField="@gSignalStrength"
 									   headerText="G sig"
-									   width="70"
+									   width="45"
 									   sortCompareFunction="fieldNumericSorter('gSignalStrength')" />
 
 					<mx:DataGridColumn dataField="@tSignalStrength"
 									   headerText="T sig"
-									   width="70"
+									   width="45"
 									   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
 					
-				</mx:columns>
+					   </util:columns>
 
-			</mx:DataGrid>
+
+			</util:DataGridAlternatingGroup>
 
 
 		</mx:VBox>

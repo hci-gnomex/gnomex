@@ -69,6 +69,9 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         log.info("Query for GetChromatogramList: " + buf.toString());
         List chromats = sess.createQuery(buf.toString()).list();
 
+        boolean alt = false;
+        String runNumberPrev = "";
+        Integer idPlatePrev = new Integer(-1);
         for(Iterator i = chromats.iterator(); i.hasNext();) {
 
           Object[] row = (Object[])i.next();
@@ -95,6 +98,14 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           String submitterLastName = row[19] != null ? (String)row[19] : "";
           String runNumber = row[20] != null ? ((Integer)row[20]).toString() : "";
           String runName = row[21] != null ? (String)row[21] : "";
+          Integer idPlate = row[22] == null ? new Integer(0) : (Integer)row[22];
+          String plateLabel = row[23] != null ? (String)row[23] : "";
+          
+          if (!runNumber.equals(runNumberPrev)) {
+            alt = !alt;
+          } else if (!idPlate.equals(idPlatePrev)) {
+            alt = !alt;
+          }
           
           abiFileName = qualifiedFilePath + File.separator + displayName;
           File abiFile = new File(qualifiedFilePath, displayName);
@@ -143,9 +154,13 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute( "runNumber", runNumber );
           cNode.setAttribute( "runName", runName );
           cNode.setAttribute( "fileSize", Long.valueOf(abiFile.length()).toString() );
+          cNode.setAttribute("altColor",  new Boolean(alt).toString());
+          cNode.setAttribute("plateLabel",  plateLabel != null && !plateLabel.equals("") ? plateLabel : idPlate.toString());
           
           doc.getRootElement().addContent(cNode);
 
+          runNumberPrev = runNumber;
+          idPlatePrev = idPlate;
         }
       }
 
