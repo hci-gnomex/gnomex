@@ -34,6 +34,7 @@ import org.jdom.output.XMLOutputter;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PendingSampleFilter;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.ProjectRequestFilter;
 import hci.gnomex.model.RequestCategory;
