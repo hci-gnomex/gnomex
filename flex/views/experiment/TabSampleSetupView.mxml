@@ -374,20 +374,27 @@
 					}
 				}
 			} else if (parentDocument.isCherryPickState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
-					
-					isComplete = true;
-				}
-			} else {
-	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    hasOrganism()) {
+				var cherryNumPlates:int = Number(this.cherryNumSourcePlates.text);
+				if (cherryNumPlates > 0 && cherryNumPlates < 13
+					&& this.cherryNumDestinationWellsRadioGroup.selectedValue != null && this.cherryNumDestinationWellsRadioGroup.selectedValue != ''
+					&& (cherryNumPlates < 1 || (cherryPlate1Name.text != null && cherryPlate1Name.text != ''))
+					&& (cherryNumPlates < 2 || (cherryPlate2Name.text != null && cherryPlate2Name.text != ''))
+					&& (cherryNumPlates < 3 || (cherryPlate3Name.text != null && cherryPlate3Name.text != ''))
+					&& (cherryNumPlates < 4 || (cherryPlate4Name.text != null && cherryPlate4Name.text != ''))
+					&& (cherryNumPlates < 5 || (cherryPlate5Name.text != null && cherryPlate5Name.text != ''))
+					&& (cherryNumPlates < 6 || (cherryPlate6Name.text != null && cherryPlate6Name.text != ''))
+					&& (cherryNumPlates < 7 || (cherryPlate7Name.text != null && cherryPlate7Name.text != ''))
+					&& (cherryNumPlates < 8 || (cherryPlate8Name.text != null && cherryPlate8Name.text != ''))
+					&& (cherryNumPlates < 9 || (cherryPlate9Name.text != null && cherryPlate9Name.text != ''))
+					&& (cherryNumPlates < 10 || (cherryPlate10Name.text != null && cherryPlate10Name.text != ''))
+					&& (cherryNumPlates < 11 || (cherryPlate11Name.text != null && cherryPlate11Name.text != ''))
+					&& (cherryNumPlates < 12 || (cherryPlate12Name.text != null && cherryPlate12Name.text != ''))) {
 					isComplete = true;	        	    	
 	        	}
         	}
         	
-        	if (!this.validNumberOfSamples ||
-        	    !this.validConcentration) {
+        	if (!this.parentDocument.isCherryPickState() && 
+				(!this.validNumberOfSamples || !this.validConcentration)) {
         		isComplete = false;    	
         	}
         	
@@ -691,6 +698,60 @@
 				list += combo.selectedItem.@display;
 			}
 			return list;
+		}
+		
+		private function getPlateName(idx:int):String {
+			if (idx == 1) return this.cherryPlate1Name.text
+			if (idx == 2) return this.cherryPlate2Name.text
+			if (idx == 3) return this.cherryPlate3Name.text
+			if (idx == 4) return this.cherryPlate4Name.text
+			if (idx == 5) return this.cherryPlate5Name.text
+			if (idx == 6) return this.cherryPlate6Name.text
+			if (idx == 7) return this.cherryPlate7Name.text
+			if (idx == 8) return this.cherryPlate8Name.text
+			if (idx == 9) return this.cherryPlate9Name.text
+			if (idx == 10) return this.cherryPlate10Name.text
+			if (idx == 11) return this.cherryPlate11Name.text
+			if (idx == 12) return this.cherryPlate12Name.text
+			return '';
+		}
+		
+		public function onCherryNumSourcePlatesChanged():void {
+			var numPlates:int = Number(this.cherryNumSourcePlates.text);
+			this.cherryPlate1Box.visible = (numPlates > 0);
+			this.cherryPlate2Box.visible = (numPlates > 1);
+			this.cherryPlate3Box.visible = (numPlates > 2);
+			this.cherryPlate4Box.visible = (numPlates > 3);
+			this.cherryPlate5Box.visible = (numPlates > 4);
+			this.cherryPlate6Box.visible = (numPlates > 5);
+			this.cherryPlate7Box.visible = (numPlates > 6);
+			this.cherryPlate8Box.visible = (numPlates > 7);
+			this.cherryPlate9Box.visible = (numPlates > 8);
+			this.cherryPlate10Box.visible = (numPlates > 9);
+			this.cherryPlate11Box.visible = (numPlates > 10);
+			this.cherryPlate12Box.visible = (numPlates > 11);
+			parentDocument.samplesView.initializeSamplesGrid();
+			while (parentDocument.cherryPlateListCollection.length > numPlates) {
+				parentDocument.cherryPlateListCollection.removeItemAt(parentDocument.cherryPlateListCollection.length-1);
+			}
+			var startIdx:int = parentDocument.cherryPlateListCollection.length;
+			for(var idx:int=startIdx; idx < numPlates+1; idx++) {
+				var node:XML = new XML("<plate name='" + getPlateName(idx) + "'/>");
+				parentDocument.cherryPlateListCollection.addItem(node);
+			}
+			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
+		}
+		
+		private function onCherryPlateNameChanged():void {
+			var numPlates:int = Number(this.cherryNumSourcePlates.text);
+			var idx:int=0;
+			for each (var plate:Object in parentDocument.cherryPlateListCollection) {
+				plate.@name = getPlateName(idx);
+				idx++;
+			}
+			checkSampleSetupCompleteness();
+			parentDocument.samplesView.initializeSamplesGrid();		
+			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
 		}
 	]]>
 </mx:Script>
@@ -1051,7 +1112,92 @@
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
 		   <mx:RemoveChild target="{label8}"/>
 		   <mx:RemoveChild target="{sampleTypeCombo}"/>
-		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
+		   <mx:RemoveChild target="{hbox3}"/>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:HBox width="100%" horizontalGap="0">
+				   <mx:Label text="(1) How many wells does the destination plate contain?" width="334"  id="cherryNumDestinationWells"/>
+				   <mx:RadioButtonGroup id="cherryNumDestinationWellsRadioGroup" change="parentDocument.samples.removeAll();parentDocument.samplesView.initializeSamplesGrid()"/>
+				   <mx:RadioButton id="cherryNumDestinationWells96" label="96" click="{callLater(checkSampleSetupCompleteness)}" value="96" groupName="cherryNumDestinationWellsRadioGroup"/>
+				   <mx:RadioButton id="cherryNumDestinationWells384" label="384" click="{callLater(checkSampleSetupCompleteness)}" value="384" groupName="cherryNumDestinationWellsRadioGroup"/>
+			   </mx:HBox>
+		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:HBox horizontalGap="0" id="cherryNumSourcePlatesBox" verticalAlign="middle">
+				   <mx:Label text="(2) How many source plates will you be submitting?" width="334"  id="cherryNumSourcePlatesLabel"/>
+				   <mx:TextInput width="40" id="cherryNumSourcePlates" 
+								 change="onCherryNumSourcePlatesChanged()">
+				   </mx:TextInput>							
+			   </mx:HBox>
+		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:VBox horizontalGap="0" id="cherryPlateNamesBox" verticalAlign="middle">
+				   <mx:Label text="(3) Name your plates." width="334"/>
+				   <mx:HBox horizontalGap="10" verticalAlign="middle">
+					   	<mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate1Box" visible="false">
+							<mx:Label text="Plate 1:"/>
+							<mx:TextInput width="100" id="cherryPlate1Name" text="Plate 1"
+										  change="onCherryPlateNameChanged()"/>
+						</mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate2Box" visible="false">
+						   <mx:Label text="Plate 2:"/>
+						   <mx:TextInput width="100" id="cherryPlate2Name" text="Plate 2"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate3Box" visible="false">
+						   <mx:Label text="Plate 3:"/>
+						   <mx:TextInput width="100" id="cherryPlate3Name" text="Plate 3"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate4Box" visible="false">
+						   <mx:Label text="Plate 4:"/>
+						   <mx:TextInput width="100" id="cherryPlate4Name" text="Plate 4"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate5Box" visible="false">
+						   <mx:Label text="Plate 5:"/>
+						   <mx:TextInput width="100" id="cherryPlate5Name" text="Plate 5"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate6Box" visible="false">
+						   <mx:Label text="Plate 6:"/>
+						   <mx:TextInput width="100" id="cherryPlate6Name" text="Plate 6"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+				   </mx:HBox>
+				   <mx:HBox horizontalGap="10" verticalAlign="middle">
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate7Box" visible="false">
+						   <mx:Label text="Plate 7:"/>
+						   <mx:TextInput width="100" id="cherryPlate7Name" text="Plate 7"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate8Box" visible="false">
+						   <mx:Label text="Plate 8:"/>
+						   <mx:TextInput width="100" id="cherryPlate8Name" text="Plate 8"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate9Box" visible="false">
+						   <mx:Label text="Plate 9:"/>
+						   <mx:TextInput width="100" id="cherryPlate9Name" text="Plate 9"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate10Box" visible="false">
+						   <mx:Label text="Plate 10:"/>
+						   <mx:TextInput width="100" id="cherryPlate10Name" text="Plate 10"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate11Box" visible="false">
+						   <mx:Label text="Plate 11:"/>
+						   <mx:TextInput width="100" id="cherryPlate11Name" text="Plate 11"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate12Box" visible="false">
+						   <mx:Label text="Plate 12:"/>
+						   <mx:TextInput width="100" id="cherryPlate12Name" text="Plate 12"
+										  change="onCherryPlateNameChanged()"/>
+					   </mx:HBox>
+				   </mx:HBox>
+			   </mx:VBox>
+		   </mx:AddChild>
 	   </mx:State>
    </mx:states>
    	 

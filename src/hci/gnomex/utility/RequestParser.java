@@ -61,6 +61,7 @@ public class RequestParser implements Serializable {
   private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
   private Map<String, ArrayList<Integer>> sampleAssays = new HashMap<String, ArrayList<Integer>>();
   private Map<String, String> cherryPickSourceWells = new HashMap<String, String>();
+  private Map<String, String> cherryPickSourcePlates = new HashMap<String, String>();
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
@@ -91,6 +92,7 @@ public class RequestParser implements Serializable {
     wellMap = new HashMap<String, PlateWell>();
     sampleToPlateMap = new HashMap<String, SamplePlateWell>();
     sampleAssays = new HashMap<String, ArrayList<Integer>>();
+    cherryPickSourcePlates = new HashMap<String, String>();
     cherryPickSourceWells = new HashMap<String, String>();
     cherryPickDestinationWells = new HashMap<String, String>();
   }
@@ -630,6 +632,9 @@ public class RequestParser implements Serializable {
     this.sampleAssays.put(idSampleString, assays);
     
     // Cherry picking source and destination wells.
+    if (n.getAttributeValue("sourcePlate") != null && n.getAttributeValue("sourcePlate").length() > 0) {
+      this.cherryPickSourcePlates.put(idSampleString, n.getAttributeValue("sourcePlate"));
+    }
     if (n.getAttributeValue("sourceWell") != null && n.getAttributeValue("sourceWell").length() > 0) {
       this.cherryPickSourceWells.put(idSampleString, n.getAttributeValue("sourceWell"));
     }
@@ -1656,6 +1661,10 @@ public class RequestParser implements Serializable {
   
   public ArrayList<Integer> getAssays(String idSampleString) {
     return sampleAssays.get(idSampleString);
+  }
+  
+  public String getCherryPickSourcePlate(String idSampleString) {
+    return this.cherryPickSourcePlates.get(idSampleString);
   }
   
   public String getCherryPickSourceWell(String idSampleString) {

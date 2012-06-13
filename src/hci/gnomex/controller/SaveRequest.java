@@ -149,7 +149,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private Plate assayPlate;
   private Plate primerPlate;
-  private Plate cherryPickSourcePlate;
+  private Map<String, Plate> cherrySourcePlateMap = new HashMap<String, Plate>();
   private Plate cherryPickDestinationPlate;
   
   public void validate() {
@@ -1170,20 +1170,24 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // Cherry pick source and destination wells
     String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
     if (cherryPickSourceWell != null && cherryPickSourceWell.length() > 0) {
-      if (this.cherryPickSourcePlate == null) {
-        this.cherryPickSourcePlate = new Plate();
-        this.cherryPickSourcePlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-        this.cherryPickSourcePlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        sess.save(this.cherryPickSourcePlate);
+      String sourcePlateName = requestParser.getCherryPickSourcePlate(idSampleString);
+      Plate cherrySourcePlate = this.cherrySourcePlateMap.get(sourcePlateName);
+      if (cherrySourcePlate == null) {
+        cherrySourcePlate = new Plate();
+        cherrySourcePlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+        cherrySourcePlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        cherrySourcePlate.setLabel(sourcePlateName);
+        sess.save(cherrySourcePlate);
         sess.flush();
+        this.cherrySourcePlateMap.put(sourcePlateName, cherrySourcePlate);
       }
       PlateWell sourceWell = new PlateWell();
       sourceWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
       sourceWell.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
       sourceWell.setRow(cherryPickSourceWell.substring(0, 1));
       sourceWell.setPosition(new Integer(sampleCount));
-      sourceWell.setIdPlate(cherryPickSourcePlate.getIdPlate());
-      sourceWell.setPlate(cherryPickSourcePlate);
+      sourceWell.setIdPlate(cherrySourcePlate.getIdPlate());
+      sourceWell.setPlate(cherrySourcePlate);
       sourceWell.setIdSample(sample.getIdSample());
       sourceWell.setSample(sample);
       sourceWell.setIdRequest(requestParser.getRequest().getIdRequest());

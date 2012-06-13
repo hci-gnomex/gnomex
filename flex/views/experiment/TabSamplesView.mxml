@@ -249,6 +249,16 @@
 					" wellName='" + mitWellName + "'" +
 					"/>");
 			} else if (currentState != null && (currentState.indexOf('CherryPick') >= 0)) {
+				var cherryWellName:String;
+				var cherryColNumber:int;
+				if (parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue == "384") {
+					cherryWellName = "ABCDEFGHIJKLMNOP".substr(parentDocument.samples.length / 24, 1);
+					cherryColNumber = parentDocument.samples.length % 24 + 1;
+				} else {
+					cherryWellName = "ABCDEFGHIJKLMNOP".substr(parentDocument.samples.length / 12, 1);
+					cherryColNumber = parentDocument.samples.length % 12 + 1;
+				}
+				cherryWellName += cherryColNumber.toString();
 				emptyNode = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
@@ -267,8 +277,9 @@
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +
+					" sourcePlate=''" +
 					" sourceWell=''" +
-					" destinationWell=''" +
+					" destinationWell='" + cherryWellName + "'" +
 					"/>");
 			} else {
 				var xmlString:String = "<Sample " +
@@ -540,7 +551,11 @@
 				if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
 					return;
 				}
-				numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+				if (parentDocument.isCherryPickState()) {
+					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
+				} else {
+					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+				}
 			} else {
 				numberOfSamplesToAdd = 1;
 			}
@@ -746,8 +761,16 @@
 						completeCount++;
 					}
 				} else if (currentState == 'CherryPickState') {
-					if (isEntered(sample, "@name") && isEntered(sample, "@sourceWell") && isEntered(sample, "@destinationWell")) {
-						
+					if (isEntered(sample, "@name") || isEntered(sample, "@sourcePlate") || isEntered(sample, "@sourceWell")) {
+						var cherryNumPlates:int = Number(parentDocument.sampleSetupView.cherryNumSourcePlates.text);
+						if (cherryNumPlates == 1) {
+							sample.@sourcePlate = parentDocument.sampleSetupView.cherryPlate1Name.text;
+						}
+						if (isEntered(sample, "@name") && isEntered(sample, "@sourcePlate") && isEntered(sample, "@sourceWell") && isEntered(sample, "@destinationWell")) {
+							completeCount++;
+							nameCompleteCount++;
+						}
+					} else {
 						completeCount++;
 					}
 				} else {
@@ -775,6 +798,12 @@
         	if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
 				if (currentState == 'CapSeqState') {
 					if (nameCompleteCount >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
+						isComplete = true;
+					} else {
+						isComplete = false;
+					}
+				} else if (currentState == 'CherryPickState') {
+					if (nameCompleteCount > 1) {
 						isComplete = true;
 					} else {
 						isComplete = false;
@@ -1228,8 +1257,9 @@
 			
 			this.sourceWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 			this.destinationWellCol.visible = parentDocument.isCherryPickState() ? true : false;
+			this.sourcePlateCol.visible = parentDocument.isCherryPickState() ? true : false;
 
-			if (hasPlates()) {
+			if (hasPlates() || parentDocument.isCherryPickState()) {
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
 				this.copySampleButton.visible = false;
@@ -1362,7 +1392,6 @@
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
-
 				
 			}else {
         		numberSequencingLanesCol.visible = false;
@@ -1746,14 +1775,16 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
 					
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sourcePlateCol" visible="false" editable="true" headerText="Source Plate" width="150" resizable="false"
+														 dataField="@sourcePlate" rendererIsEditor="false" editorDataField="value" sortable="false"
+														 itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.cherryPlateList, '@name', '@name', '@sourcePlate')}"                
+														 itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.cherryPlateList, '@name', '@name', '@sourcePlate', true)}"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sourceWellCol" visible="false" editable="true" headerText="Source Well" width="75" resizable="false"
 											   dataField="@sourceWell" rendererIsEditor="false" editorDataField="value" sortable="false"
 											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@sourceWell')}"                
 											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@sourceWell', true)}"/>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="destinationWellCol" visible="false" editable="true" headerText="Dest. Well" width="75" resizable="false"
-											   dataField="@destinationWell" rendererIsEditor="false" editorDataField="value" sortable="false"
-											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@destinationWell')}"                
-											   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@destinationWell', true)}"/>
+					<mx:AdvancedDataGridColumn id="destinationWellCol" visible="false" editable="false" headerText="Dest. Well" width="75" resizable="false"
+											   dataField="@destinationWell" sortable="false"/>
 
 					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					 

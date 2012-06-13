@@ -1037,7 +1037,21 @@
 			} else if (requestCategory.@type == parentApplication.TYPE_CHERRY_PICK) {
 				this.currentState = "CherryPickState";
 				this.sampleSetupView.currentState = 'CherryPickState';
-				
+				this.sampleSetupView.cherryNumDestinationWellsRadioGroup.selection = null;
+				this.sampleSetupView.cherryNumSourcePlates.text = '';
+				this.sampleSetupView.cherryPlate1Name.text = "Plate 1";
+				this.sampleSetupView.cherryPlate2Name.text = "Plate 2";
+				this.sampleSetupView.cherryPlate3Name.text = "Plate 3";
+				this.sampleSetupView.cherryPlate4Name.text = "Plate 4";
+				this.sampleSetupView.cherryPlate5Name.text = "Plate 5";
+				this.sampleSetupView.cherryPlate6Name.text = "Plate 6";
+				this.sampleSetupView.cherryPlate7Name.text = "Plate 7";
+				this.sampleSetupView.cherryPlate8Name.text = "Plate 8";
+				this.sampleSetupView.cherryPlate9Name.text = "Plate 9";
+				this.sampleSetupView.cherryPlate10Name.text = "Plate 10";
+				this.sampleSetupView.cherryPlate11Name.text = "Plate 11";
+				this.sampleSetupView.cherryPlate12Name.text = "Plate 12";
+				this.sampleSetupView.onCherryNumSourcePlatesChanged();
 				this.samplesView.currentState = 'CherryPickState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
@@ -2383,7 +2397,6 @@
 			for each(var s:Object in samples) {
 				var sampleCount:int = 0;
 				var sourceWellCount:int = 0;
-				var destinationWellCount:int = 0;
 				for each(var s1:Object in samples) {
 					if (s.@name == s1.@name) {
 						// Same name on different plates ok.
@@ -2395,17 +2408,13 @@
 						sampleCount++;
 					}
 					if (this.isCherryPickState()) {
-						if (s.@sourceWell == s1.@sourceWell) {
+						if (s.@sourceWell == s1.@sourceWell && s.@sourcePlate == s1.@sourcePlate) {
 							sourceWellCount++;
-						}
-						if (s.@destinationWell == s1.@destinationWell) {
-							destinationWellCount++;
 						}
 					}
 				}
 				sampleNames[s.@name.toString()] = sampleCount;
 				sourceWells[s.@sourceWell.toString()] = sourceWellCount;
-				destinationWells[s.@destinationWell.toString()] = destinationWellCount;
 			}
 			var dupSampleNames:String = '';
 			for (var key:Object in sampleNames) {
@@ -2433,28 +2442,13 @@
 				}
 			}
 			if (dupSourceWells != '') {
-				errorMessage += 'Some of the source wells (' + dupSourceWells + ') are the same.  ';
+				warningMessage += 'Some of the source wells (' + dupSourceWells + ') are the same.  ';
 				if (!isEditState()) {
-					errorMessage += 'Please provide unique source wells.';
+					warningMessage += 'Please provide unique source wells.';
 				}
-				errorMessage += '\n\n';					
+				warningMessage += '\n\n';					
 			}
-			var dupDestinationWells:String = '';
-			for (var keydw:Object in destinationWells) {
-				if (destinationWells[keydw] > 1) {
-					if (dupDestinationWells != '') {
-						dupDestinationWells += ',';
-					}
-					dupDestinationWells += keydw;
-				}
-			}
-			if (dupDestinationWells != '') {
-				errorMessage += 'Some of the destination wells (' + dupDestinationWells + ') are the same.  ';
-				if (!isEditState()) {
-					errorMessage += 'Please provide unique destination wells.';
-				}
-				errorMessage += '\n\n';					
-			}
+
 			// If this is a new request or the request is being changed on
 			// the edit screen, warn if all samples are not used on at least 
 			// one hyb or seq lane
@@ -4376,8 +4370,11 @@
 						property="text"
 						minValue="{requestApplication.@avgInsertSizeFrom}"
 						maxValue="{requestApplication.@avgInsertSizeTo}"/>
-
+	
+	<mx:XMLListCollection id="cherryPlateListCollection"/>
+	<mx:XMLList id="cherryPlateList"/>
 	<mx:XMLList id="wellList">
+		<well name=""/>
 		<well name="A1"/>
 		<well name="A2"/>
 		<well name="A3"/>
