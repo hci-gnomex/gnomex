@@ -151,10 +151,17 @@
 
 			if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState()) {
 				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeCheckbox.selected = true;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeBox.visible = false;
+				
 			} else {
 				this.parentDocument.submitButton.label = 'Submit';
-			}
-			
+				this.parentDocument.agreeBox.visible = true;
+				this.parentDocument.agreeBox.includeInLayout = true;
+				this.parentDocument.agreeCheckbox.selected = false;
+			}			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
 				&& !parentDocument.isCapSeqState()
 				&& !parentDocument.isFragAnalState()

@@ -1461,6 +1461,15 @@
 		</mx:AddChild>
 		<mx:RemoveChild target="{filesView}"/>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
+		<mx:AddChild relativeTo="{parentDocument.linkBox}" position="firstChild">
+			<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
+							click="promptToSubmitExperiment()"
+							enabled="{selectedExperiment.@codeRequestStatus == &quot;NEW&quot; ? true : false}"
+							toolTip="Submit experiment" 
+							textDecoration="underline">
+				<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
+			</mx:LinkButton>
+		</mx:AddChild>
 	</mx:State>
 	<mx:State name="CapSeqState" basedOn="BaseSeqState">
 	</mx:State>
