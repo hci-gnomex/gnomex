@@ -39,7 +39,6 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
-			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.sliderClasses.Slider;
 			import mx.core.Container;
 			import mx.core.IDataRenderer;
