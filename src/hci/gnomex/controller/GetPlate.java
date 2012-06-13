@@ -79,6 +79,12 @@ public class GetPlate extends GNomExCommand implements Serializable {
         
         Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         
+        if ( plateWell.getAssay() != null ) {
+          node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+        } else if ( plateWell.getPrimer() != null ) {
+          node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+        }
+        
         node.setAttribute("requestSubmitDate", "");
         node.setAttribute("requestSubmitter", "");
         

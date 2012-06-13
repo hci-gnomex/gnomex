@@ -103,6 +103,7 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
           }
 
           plate.excludeMethodFromXML("getPlateWells");
+          plate.excludeMethodFromXML( "getInstrumentRun" );
           Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           
           // Get the wells in row order

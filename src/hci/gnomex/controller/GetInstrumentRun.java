@@ -87,7 +87,13 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
           plateWell.excludeMethodFromXML("getPlate");
 
           Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-
+          
+          if ( plateWell.getAssay() != null ) {
+            node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+          } else if ( plateWell.getPrimer() != null ) {
+            node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+          }
+          
           if ( plateWell.getIdRequest() != null ) {
             String idRequestString = plateWell.getIdRequest().toString();
             if ( idRequestString != null && !idRequestString.equals("")) {

@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
@@ -60,6 +61,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         
         Request req = (Request) sess.get( Request.class,idRequest );
         req.setCodeRequestStatus( codeRequestStatus );
+        if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
+          if ( req.getCompletedDate() == null ) {
+            req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
+          }
+        }
         sess.flush();
         
         XMLOutputter out = new org.jdom.output.XMLOutputter();

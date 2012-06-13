@@ -268,7 +268,12 @@ public class RequestParser implements Serializable {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
-      request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));      
+      request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));  
+      if ( n.getAttributeValue("codeRequestStatus").equals( RequestStatus.COMPLETED ) ) {
+        if ( request.getCompletedDate() == null ) {
+          request.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+        }
+      }
     } else if (RequestCategory.isDNASeqRequestCategory(request.getCodeRequestCategory())) {
       request.setCodeRequestStatus(RequestStatus.NEW);
     }
