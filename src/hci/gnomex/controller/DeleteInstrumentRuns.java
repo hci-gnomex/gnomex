@@ -5,6 +5,7 @@ import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
@@ -65,7 +66,7 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
           Element node = (Element)i.next();
           Integer idInstrumentRun = Integer.parseInt(node.getText());
           InstrumentRun ir = (InstrumentRun) sess.load(InstrumentRun.class, idInstrumentRun);
-          changeStatusDeletePlates(sess, ir, "SUBMITTED");
+          changeStatusDeletePlates(sess, ir, RequestStatus.PROCESSING);
           sess.delete(ir); //delete the instrument run after all associations to it have been removed(ie:plate, plate wells)
           
         }       
@@ -104,18 +105,21 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
+      Plate delPlate = (Plate) sess.load(Plate.class, well.getIdPlate());
+      
       if ( well.getIdRequest()==null ) {
+        sess.delete(well);
+        sess.delete(delPlate);
         break;
       }
+      
       if ( !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
         Request req = (Request) sess.get(Request.class, well.getIdRequest());
         requests.put( req.getIdRequest(), req );
       }
       
-      if(sess.load(Plate.class, well.getIdPlate()) != null){
-        sess.delete(sess.load(Plate.class, well.getIdPlate()));
-      }
-      sess.delete(sess.load(PlateWell.class, well.getIdPlateWell()));
+      sess.delete(delPlate);
+      sess.delete(well);
     }
     
     // Change request Status 
