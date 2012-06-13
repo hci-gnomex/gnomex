@@ -121,13 +121,13 @@
 			
 			import views.renderers.WellContainer;
 
+			
+			[Bindable]
+			private var reactionState:String;
 			static public const MIT:String 		= "MIT";
 			static public const SEQ:String		= "SEQ";
 			static public const FRAG:String 	= "FRAG";
 			static public const CHERRY:String 	= "CHERRY";
-			
-			[Bindable]
-			private var reactionState:String;
 			
 			private var isInitialized:Boolean = false;
 			// The selected group id - as in what group is picked in the
@@ -141,19 +141,17 @@
 			// Array of all the 'active' plates, number of 'active' plates
 			[Bindable]
 			private var plateArray:Array    = new Array();
-
 			[Bindable]
 			private var numberOfPlates:int  = 0;
-
-			// Array of all the possible plate objects - start out empty
+			// Array of all the possible plate objects
 			private var allPlates:Array;
 
 			// Array of runs, current displayed run index
 			[Bindable]
 			private var runs:Array;
-
 			[Bindable]
-			private var currentRun:int      = 0; // Zero-based.  Can be 0-3
+			// Index of currently displayed run
+			private var currentRun:int      = 0; // Zero-based
 			[Bindable]
 			private var numberOfRuns:int    = 1;
 
@@ -162,28 +160,7 @@
 			[Bindable]
 			private var fillColWise:Boolean = true;
 
-			// Icons for the 4 quadrants:
-			[Embed( source = '../../assets/Q1.png' )]
-			[Bindable]
-			public var q1Icon:Class;
-
-			[Embed( source = '../../assets/Q2.png' )]
-			[Bindable]
-			public var q2Icon:Class;
-
-			[Embed( source = '../../assets/Q3.png' )]
-			[Bindable]
-			public var q3Icon:Class;
-
-			[Embed( source = '../../assets/Q4.png' )]
-			[Bindable]
-			public var q4Icon:Class;
-
-			// Warning Icon
-			[Embed( source = '../../assets/error.png' )]
-			[Bindable]
-			public var iconWarning:Class;
-
+			
 
 			public function checkDirty():void {
 			}
@@ -222,15 +199,17 @@
 			}
 			
 			private function refreshPlateList():void {
-				var params1:Object = new Object();
-				params1.notAddedToARun = "Y";
-				params1.plateType = "REACTION";
-				getPlateList.send( params1 );
+				var params:Object = new Object();
+				params.notAddedToARun = "Y";
+				params.plateType = "REACTION";
+				params.codeReactionType = reactionState;
+				getPlateList.send( params );
 			}
 			private function refreshRunList():void {
-				var params2:Object = new Object();
-				params2.createdLastWeek = "Y";
-				getInstrumentRunList.send( params2 );
+				var params:Object = new Object();
+				params.createdLastWeek = "Y";
+				params.codeReactionType = reactionState;
+				getInstrumentRunList.send( params );
 			}
 
 			private function getSampleList():void {
@@ -418,6 +397,8 @@
 				plateCommentsText.text = '';
 				plateCreatorText.text = '';
 				plateCreateDateText.text = '';
+				runCreateDateText.text = '';
+				runCreatorText.text = '';
 				orderNum.text = colorPick.getNoSelectionText();
 				infoViews.selectedChild = plateAndRunInfoViews;
 				
@@ -742,55 +723,7 @@
 			}
 
 
-			// Function to fill the selected plate by the selected fill orientation
-			// Right now this only functions as a toggle between column- and row-wise
-			// well ordering.
-			private function toggleFillOrientation():void {
-
-				activePlate.nowFillByCol = fillColWise;
-				activePlate.repopulatePlate();
-				// Dispatch colorPick change event
-				colorPick.dispatchEvent( new FlexEvent( FlexEvent.VALUE_COMMIT ));
-			}
 			
-			private function toggleReactionType(reaction:String):void{
-				if ( reaction == MIT ) {
-					reactionState = MIT;
-					colorPickLabel.text = "Select a primer by color."
-					reactionTypeLabelText.text = "Mito DLoop Sequencing";
-					reactionTypeRadioGroup.selection = radioMit;
-					fillColWise = true;
-					toggleFillOrientation();
-				} else if ( reaction == FRAG ) {
-					reactionState = FRAG;
-					colorPickLabel.text = "Select an assay by color.";
-					reactionTypeLabelText.text = "Fragment Analysis";
-					reactionTypeRadioGroup.selection = radioFrag;
-					fillColWise = false;
-					toggleFillOrientation();
-				} else if ( reaction == SEQ ) {
-					reactionState = SEQ;
-					colorPickLabel.text = "Select an order by color.";
-					reactionTypeLabelText.text = "Capillary Sequencing";
-					reactionTypeRadioGroup.selection = radioSEQ;
-					fillColWise = true;
-					toggleFillOrientation();
-				} else if ( reaction == CHERRY ) {
-					reactionState = CHERRY;
-					reactionTypeLabelText.text = "Cherry Picking";
-					fillColWise = false;
-					toggleFillOrientation();
-				}
-				for each ( var obj:Object in reactTypeComboBox.dataProvider ) {
-					if ( obj.@codeReactionType == reaction ) {
-						reactTypeComboBox.selectedItem = obj;
-						break;
-					}
-					reactTypeComboBox.selectedIndex = -1;
-				}
-				getSampleList();
-			}
-
 
 			// -------------------------------------
 			// Sample tree view functions
@@ -917,8 +850,14 @@
 				plateBox.drawFocus( true );
 				DragManager.acceptDragDrop( event.target as UIComponent );
 			}
-
-
+			
+			private function onDragOverPlate( event:DragEvent ):void {
+				
+				event.preventDefault();
+				plateBox.drawFocus( true );
+				DragManager.acceptDragDrop( event.target as UIComponent );
+			}
+			
 			private function onDragExitPlate( event:DragEvent ):void {
 
 				event.preventDefault();
@@ -1218,7 +1157,7 @@
 			}
 
 
-			// THIS DOESN'T NECESSARILY NEED TO AUTOMATICALLY LOAD THE RUN!!
+
 			private function onGetInstrumentRun( event:ResultEvent ):void {
 
 				if ( getInstrumentRun.lastResult.name() == "RunList" ) {
@@ -1229,25 +1168,26 @@
 						plates.push( p );
 					}
 					
-					for ( var i:int = 0; i < 4; i++ ) {
-						removeRun();
-					}
+					clearAll();
 					
 					if ( currentState != viewState.name && currentState != editState.name ) {
 						currentState = editState.name;
 					}
 
-					if ( getNextEmptyRun( currentRun + 1 )) {
+					// don't need if clearing all beforehand.
+					/* if ( getNextEmptyRun( currentRun + 1 )) {
 						callLater( loadRun, new Array( plates ));
 					} else {
 						if ( numberOfRuns < 4 ) {
 							addRun();
 							callLater( loadRun, new Array( plates ));
 						}
-					}
+					} */
 
+					callLater( loadRun, new Array( plates ));
+					
 					if ( currentState != viewState.name ) {
-						tabNav.selectedChild = orderTab;
+						tabNav.selectedChild = samplesTab;
 					}
 					
 					toggleReactionType( getInstrumentRun.lastResult.InstrumentRun.@codeReactionType );
@@ -1286,8 +1226,8 @@
 				}
 
 				if ( plateList == null || plateList.length == 0 ) {
-					setUpColorPicker();
-					colorPlateByGroup();
+//					setUpColorPicker();
+//					colorPlateByGroup();
 					return;
 				}
 
@@ -1296,10 +1236,11 @@
 					callLater( loadRun, new Array( plateList ));
 					return;
 				}
+				
 				loadPlateObject( plateList.shift());
 
 				if ( plateList.length == 0 ) {
-					setUpColorPicker();
+//					setUpColorPicker();
 					colorPlateByGroup();
 					return;
 				}
@@ -1335,13 +1276,9 @@
 			}
 
 
-			private function loadRunOrPlate( event:Event ):void {
+			private function loadFromRunTree( event:Event ):void {
 
 				var selection:Object = runTree.selectedItem;
-
-				if ( selection == null ) {
-					selection = plateTree.selectedItem;
-				}
 
 				if ( selection == null ) {
 					return;
@@ -1358,32 +1295,40 @@
 							return;
 						}
 					}
-					if ( currentState == viewState.name || currentState == editState.name ) {
-						for ( var i:int = 0; i < 4; i++ ) {
-							removeRun();
-						}
+					if ( currentState == newState.name ) {
+						switchToEditState();
+						loadSelectedRun();
+					} else  {
+						clearAll();
+						loadSelectedRun();
 					}
-					loadSelectedRun();
 					
 				}
 
+				runTree.selectedIndex = -1;
+				plateTree.selectedIndex = -1;
+			}
+
+			private function loadFromPlateTree( event:Event ):void {
+				
+				var selection:Object = plateTree.selectedItem;
+				
+				if ( selection == null ) {
+					return;
+				}
+				
 				if ( selection.name() == "Plate" ) {
 					if ( currentState == viewState.name ) {
-						for ( var j:int = 0; j < 4; j++ ) {
-							removeRun();
-						}
+						clearAll();
 						textRun1.text = "";
 					}
 					loadPlateObject( selection );
 				}
 				runTree.selectedIndex = -1;
 				plateTree.selectedIndex = -1;
-			/* if ( selection.name() == "PlateWell") {
-
-			} */
 			}
 
-
+			
 			/////////////////////
 			// Loading Plates
 			////////////////////
@@ -1393,7 +1338,7 @@
 					plateAndRunInfoViews.selectedChild = plateInfoBox;
 
 					if ( currentState != viewState.name ) {
-						tabNav.selectedChild = orderTab;
+						tabNav.selectedChild = samplesTab;
 					}
 				} else {
 					Alert.show( "An error occurred while getting the plate." );
@@ -1535,7 +1480,7 @@
 				}
 			}
 
-
+			private var loadRunAfterSave:Boolean = false;
 			private function onSaveInstrumentRun( event:ResultEvent ):void {
 
 				if ( saveInstrumentRun.lastResult.name() == "SUCCESS" ) {
@@ -1554,11 +1499,11 @@
 					
 					runNumberLabel.text = "" + runs[ currentRun ].idRun;
 					savePlates( runNumber );
+					refreshRunLists();
+					getSampleList();
 					
-					callLater( function():void {
-						switchToEditState();
-						loadRunById(idInstrumentRun.toString() );
-					});
+					switchToEditState();
+//					callLater( loadRunById, [idInstrumentRun.toString()] );
 				} else {
 					Alert.show( "An error occurred while saving the instrument run." );
 				}
@@ -1619,10 +1564,10 @@
 						}
 					}
 				}
-				
+				loadRunAfterSave = true;
 			}
 
-
+			private var loadPlateAfterSave:Boolean = false;
 			private function saveSinglePlate():void {
 
 				var plate:Plate = activePlate;
@@ -1643,6 +1588,7 @@
 					
 					savePlate.send( params );
 				}
+				loadPlateAfterSave = true;
 			}
 
 
@@ -1667,6 +1613,12 @@
 						
 					}
 					refreshRunLists();
+					if ( loadRunAfterSave ) {
+						callLater( loadRunById, [savePlate.lastResult.Plate.@idInstrumentRun] );
+					} else if ( loadPlateAfterSave ) {
+						switchToEditState();
+						callLater( loadPlateObject, [savePlate.lastResult.Plate] );
+					}
 				} else {
 					Alert.show( "An error occurred while saving the plate." );
 				}
@@ -1933,6 +1885,11 @@
 				});
 			}
 
+			private function clearAll():void {
+				for ( var i:int = 0; i < numberOfRuns; i++ ) {
+					removeRun();
+				}
+			}
 
 			//------------------------------------------------
 			// Highlighting wells and displaying information
@@ -2086,14 +2043,148 @@
 			}
 
 			//-------------------------------
-			// Label and icon function
+			// Switching States and Views
+			//-------------------------------
+			public function switchToViewState():void {
+				if ( currentState == viewState.name ) {
+					return;
+				}
+				
+				// CHECK and warn if DIRTY 
+				if ( currentState == newState.name ) {
+					clearAll();
+				} 
+				currentState = viewState.name;
+				tabNav.selectedChild = runTab;
+			}
+			
+			public function switchToNewState():void {
+				if ( currentState == newState.name ) {
+					return;
+				}
+				// CHECK and warn if DIRTY 
+				clearAll();
+				textRun1.text = "Run 1";
+				currentState = newState.name;
+				callLater( function():void {
+					for each ( var obj:Object in statusComboBox.dataProvider ) {
+						if ( obj.@codeInstrumentRunStatus == "PENDING" ) {
+							statusComboBox.selectedItem = obj;
+							break;
+						}
+						statusComboBox.selectedIndex = -1;
+					} 
+					for each ( var rt:Object in reactTypeComboBox.dataProvider ) {
+						if ( rt.@codeReactionType == reactionState ) {
+							reactTypeComboBox.selectedItem = rt;
+							break;
+						}
+						reactTypeComboBox.selectedIndex = -1;
+					} 
+					for each ( var st:Object in sealComboBox.dataProvider ) {
+						if ( st.@codeSealType == "HEATSEAL" ) {
+							sealComboBox.selectedItem = st;
+							break;
+						}
+						reactTypeComboBox.selectedIndex = -1;
+					}
+					for each ( var st1:Object in runSealComboBox.dataProvider ) {
+						if ( st1.@codeSealType == "HEATSEAL" ) {
+							runSealComboBox.selectedItem = st1;
+							break;
+						}
+						reactTypeComboBox.selectedIndex = -1;
+					}					
+					
+					tabNav.selectedChild = samplesTab;
+				});
+			}	
+			
+			public function switchToEditState():void {
+				if ( currentState == editState.name ) {
+					return;
+				}
+				getSampleList();
+				// CHECK and warn if DIRTY 
+				if ( currentState == newState.name ) {
+					clearAll();
+					callLater( function():void {
+						
+						refreshComboBoxes();
+						currentState = editState.name;
+						tabNav.selectedChild = runTab;
+					});
+				} else {
+					currentState = editState.name;
+					tabNav.selectedChild = runTab;
+				}
+			}
+			
+			private function refreshComboBoxes():void {
+				statusComboBox.selectedIndex = -1;
+				sealComboBox.selectedIndex = -1;
+				runSealComboBox.selectedIndex = -1;
+			}
+			
+			// Function to fill the selected plate by the selected fill orientation
+			// Right now this only functions as a toggle between column- and row-wise
+			// well ordering.
+			private function toggleFillOrientation():void {
+				
+				activePlate.nowFillByCol = fillColWise;
+				activePlate.repopulatePlate();
+				// Dispatch colorPick change event
+				colorPick.dispatchEvent( new FlexEvent( FlexEvent.VALUE_COMMIT ));
+			}
+			
+			private function toggleReactionType(reaction:String):void{
+				if ( reactionState == reaction ) {
+					return;
+				}
+				if ( currentState == viewState.name || currentState == editState.name ) {
+					clearAll();
+				}
+				if ( reaction == MIT ) {
+					reactionState = MIT;
+					colorPickLabel.text = "Select a primer by color."
+					reactionTypeRadioGroup.selection = radioMit;
+					fillColWise = true;
+					toggleFillOrientation();
+				} else if ( reaction == FRAG ) {
+					reactionState = FRAG;
+					colorPickLabel.text = "Select an assay by color.";
+					reactionTypeRadioGroup.selection = radioFrag;
+					fillColWise = false;
+					toggleFillOrientation();
+				} else if ( reaction == SEQ ) {
+					reactionState = SEQ;
+					colorPickLabel.text = "Select an order by color.";
+					reactionTypeRadioGroup.selection = radioSEQ;
+					fillColWise = true;
+					toggleFillOrientation();
+				} else if ( reaction == CHERRY ) {
+					reactionState = CHERRY;
+					fillColWise = false;
+					toggleFillOrientation();
+				}
+				for each ( var obj:Object in reactTypeComboBox.dataProvider ) {
+					if ( obj.@codeReactionType == reaction ) {
+						reactTypeComboBox.selectedItem = obj;
+						break;
+					}
+					reactTypeComboBox.selectedIndex = -1;
+				}
+				getSampleList();
+				refreshRunLists();
+			}
+
+			
+			//-------------------------------
+			// Label functions
 			//-------------------------------
 			// Method for labeling the samples in the sample tree - depending on whether
 			//certain samples are already on a plate or not
-			[Embed( source = '../../assets/exclamation_small.png' )] // Yellow asterisk option: '../../assets/yellow_asterisk_small.png'
-			private var notifyIcon:Class;
-
-
+			
 			private function isSampleAdded( item:XML ):Class {
 
 				if ( sampleTree.dataDescriptor.hasChildren( item )) {
@@ -2117,13 +2208,6 @@
 				}
 				return null; // should never be reached
 			}
-
-			[Embed( source = '../../assets/plate.png' )]
-			private var plateIcon:Class;
-
-			[Embed( source = '../../assets/run.png' )]
-			private var runIcon:Class;
-
 
 			private function treeIconFunction( item:XML ):Class {
 
@@ -2190,71 +2274,39 @@
 			}
 
 
-			public function switchToViewState():void {
-				if ( currentState == viewState.name ) {
-					return;
-				}
-				
-				// CHECK and warn if DIRTY 
-				if ( currentState == newState.name ) {
-					
-					for ( var i:int = 0; i < numberOfRuns; i++ ) {
-						removeRun();
-					}
-					
-				} 
-				currentState = viewState.name;
-				tabNav.selectedChild = runTab;
-			}
+			//---------
+			// Icons
+			//---------
+			// Icons for the 4 quadrants:
+			[Embed( source = '../../assets/Q1.png' )]
+			[Bindable]
+			public var q1Icon:Class;
+			[Embed( source = '../../assets/Q2.png' )]
+			[Bindable]
+			public var q2Icon:Class;
+			[Embed( source = '../../assets/Q3.png' )]
+			[Bindable]
+			public var q3Icon:Class;
+			[Embed( source = '../../assets/Q4.png' )]
+			[Bindable]
+			public var q4Icon:Class;
 			
-			public function switchToNewState():void {
-				if ( currentState == newState.name ) {
-					return;
-				}
-				// CHECK and warn if DIRTY 
-				for ( var i:int = 0; i < numberOfRuns; i++ ) {
-					removeRun();
-				}
-				callLater( function():void {
-					for each ( var obj:Object in statusComboBox.dataProvider ) {
-						if ( obj.@codeInstrumentRunStatus == "PENDING" ) {
-							statusComboBox.selectedItem = obj;
-							break;
-						}
-						statusComboBox.selectedIndex = -1;
-					}
-					sealComboBox.selectedIndex = -1;
-					runSealComboBox.selectedIndex = -1;
-					reactTypeComboBox.selectedIndex = -1;
-//					plateAndRunInfoViews.selectedChild = runInfoBox;
-					currentState = newState.name;
-				});
-			}	
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
 			
-			public function switchToEditState():void {
-				if ( currentState == editState.name ) {
-					return;
-				}
-				// CHECK and warn if DIRTY 
-				if ( currentState == newState.name ) {
-					for ( var i:int = 0; i < numberOfRuns; i++ ) {
-						removeRun();
-					}	
-					callLater( function():void {
-						
-						statusComboBox.selectedIndex = -1;
-						sealComboBox.selectedIndex = -1;
-						runSealComboBox.selectedIndex = -1;
-//						reactTypeComboBox.selectedIndex = -1;
-						currentState = editState.name;
-						tabNav.selectedChild = runTab;
-					});
-				} else {
-					currentState = editState.name;
-					tabNav.selectedChild = runTab;
-				}
-			}
+			[Embed( source = '../../assets/exclamation_small.png' )] // Yellow asterisk option: '../../assets/yellow_asterisk_small.png'
+			private var notifyIcon:Class;
 			
+			// Plate and run icons
+			[Embed( source = '../../assets/plate.png' )]
+			private var plateIcon:Class;
+			[Embed( source = '../../assets/run.png' )]
+			private var runIcon:Class;
+			
+
+
 		]]>
 	</mx:Script>
 	
@@ -2274,19 +2326,32 @@
 
 			<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 
-				<mx:Label
-						  fontSize="13"
+				<mx:Label fontSize="13"
 						  fontWeight="bold"
-						  id="runTitleLabel" />
-				<mx:Label
-						  fontSize="13"
-						  fontWeight="bold"
-						  id="reactionTypeLabelText" />
-				<mx:Label text="Run:"
-						  fontSize="13"
-						  fontWeight="bold"
-						  id="runTitleLabel1" />
-				<mx:Label id="runNumberLabel" />
+						  id="runTitleLabel"
+						  text="Run"
+						  paddingRight="5"/>
+				<mx:HBox verticalAlign="middle" horizontalGap="4" paddingLeft="5">
+					
+					<mx:RadioButtonGroup id="reactionTypeRadioGroup" />
+					<mx:RadioButton id="radioSEQ"
+									label="Capillary Sequencing"
+									groupName="reactionTypeRadioGroup" 
+									click="{toggleReactionType(SEQ)}"
+									selected="{reactionState==SEQ}"/>
+					<mx:RadioButton id="radioMit"
+									label="Mitochondrial Sequencing"
+									groupName="reactionTypeRadioGroup"
+									click="{toggleReactionType(MIT)}"
+									selected="{reactionState==MIT}"/>
+					<mx:RadioButton id="radioFrag"
+									label="Fragment Analysis"
+									groupName="reactionTypeRadioGroup" 
+									click="{toggleReactionType(FRAG)}"
+									selected="{reactionState==FRAG}"/>
+					<mx:Spacer width="100%" height="100%" />
+					
+				</mx:HBox>
 				<mx:Spacer width="100%" height="100%"  id="spacer1"/>
 				<mx:LinkButton label="View"
 							   fontSize="9"
@@ -2302,7 +2367,7 @@
 							   textDecoration="underline"
 							   id="editButton"
 							   textAlign="left" />
-				<mx:LinkButton label="Create new"
+				<mx:LinkButton label="New"
 							   id="fillNewButton"
 							   click="{switchToNewState()}"
 							   color="#000000"
@@ -2323,12 +2388,11 @@
 				 height="100%"
 				 horizontalGap="2">
 
-			<mx:TabNavigator height="100%" styleName="navTabNavigator" id="tabNav">
+			<mx:TabNavigator height="100%" width="220" styleName="navTabNavigator" id="tabNav">
 
 				<mx:VBox styleName="panelBox"
-						 minWidth="220"
-						 height="100%"
-						 id="orderTab"
+						 height="100%" width="100%"
+						 id="samplesTab"
 						 label="Samples"
 						 horizontalAlign="center">
 
@@ -2450,26 +2514,13 @@
 						 height="100%"
 						 id="plateTab"
 						 horizontalAlign="center"
-						 label="Plates"
-						 maxWidth="200">
+						 label="Plates" 
+						 width="100%">
 
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 
 						<mx:Label styleName="titleLabel" text="Plates:" />
 						<mx:Spacer width="100%" height="100%" />
-						<mx:LinkButton label="New plate"
-									   id="newPlateButton1"
-									   click="{addPlate()}"
-									   color="#000000"
-									   icon="@Embed('../../assets/plate_add.png')"
-									   enabled="{numberOfPlates!=16}"
-									   paddingLeft="1"
-									   paddingRight="0"
-									   horizontalGap="0"
-									   letterSpacing=".3"
-									   toolTip="New plate..."
-									   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-									   textDecoration="underline" />
 
 					</mx:HBox>
 					<mx:VBox id="plateTreeContainer"
@@ -2490,7 +2541,7 @@
 								 dropShadowEnabled="true"
 								 dataProvider="{plateList}"
 								 allowMultipleSelection="false"
-								 itemClick="loadRunOrPlate(event)"
+								 itemClick="loadFromPlateTree(event)"
 								 dragEnabled="false"
 								 iconFunction="treeIconFunction"
 								 variableRowHeight="true"
@@ -2516,25 +2567,12 @@
 						 id="runTab"
 						 horizontalAlign="center"
 						 label="Runs"
-						 maxWidth="200">
+						 width="100%">
 
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 
 						<mx:Label styleName="titleLabel" text="Runs:" />
 						<mx:Spacer width="100%" height="100%" />
-						<mx:LinkButton label="New run"
-									   id="newRunButton1"
-									   click="{addRun()}"
-									   color="#000000"
-									   icon="@Embed('../../assets/run_add.png')"
-									   enabled="{numberOfPlates &lt; 13}"
-									   paddingLeft="1"
-									   paddingRight="0"
-									   horizontalGap="0"
-									   letterSpacing=".3"
-									   toolTip="New run..."
-									   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-									   textDecoration="underline" />
 
 					</mx:HBox>
 					<mx:VBox id="runTreeContainer"
@@ -2555,7 +2593,7 @@
 								 dropShadowEnabled="true"
 								 dataProvider="{runList}"
 								 allowMultipleSelection="false"
-								 itemClick="loadRunOrPlate(event)"
+								 itemClick="loadFromRunTree(event)"
 								 dragEnabled="false"
 								 iconFunction="treeIconFunction"
 								 variableRowHeight="true"
@@ -2587,7 +2625,9 @@
 				<mx:VBox styleName="panelBox" width="100%" verticalAlign="middle">
 
 					<mx:HBox verticalAlign="middle" width="100%">
-
+						<mx:Label text="Run:" fontWeight="bold" fontSize="12" />
+						<mx:Label id="runNumberLabel" />
+						<mx:Spacer width="5" height="100%" />
 						<mx:Label text="Plate:" fontWeight="bold" fontSize="12" />
 						<mx:Label id="plateIdLabel" text="{activePlate.idPlate}" />
 						<mx:Spacer width="100%" height="100%" />
@@ -2633,10 +2673,11 @@
 							 verticalAlign="middle"
 							 dropShadowEnabled="true"
 							 dragEnter="onDragEnterPlate(event)"
+							 dragOver="onDragOverPlate(event)"
 							 dragDrop="dropOnPlate(event)"
 							 dragExit="onDragExitPlate(event)"
 							 dragComplete="dragComplete(event)"
-							 click="sampleTree.selectedIndex = -1;colorPick.selectNone();"
+							 click="{sampleTree.selectedIndex = -1;colorPick.selectNone();}"
 							 borderStyle="solid"
 							 backgroundColor="#FFFFFF">
 
@@ -2852,6 +2893,19 @@
 
 							</mx:HBox>
 							<mx:Spacer width="100%" height="100%" />
+							<mx:LinkButton label="New plate"
+										   id="newPlateButton1"
+										   click="{addPlate()}"
+										   color="#000000"
+										   icon="@Embed('../../assets/plate_add.png')"
+										   enabled="{numberOfPlates!=16}"
+										   paddingLeft="1"
+										   paddingRight="0"
+										   horizontalGap="0"
+										   letterSpacing=".3"
+										   toolTip="New plate..."
+										   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
+										   textDecoration="underline" />
 							<mx:Button label="Remove Plate"
 									   click="{promptToRemovePlate()}"
 									   icon="@Embed('../../assets/delete.png')"
@@ -2897,105 +2951,117 @@
 								 id="runInfoBox"
 								 label="Run Information">
 
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 
 								<mx:Label text="Run #:" fontWeight="bold" />
-								<mx:Text id="runNumberText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="runNumberText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 
 								<mx:Label text="Run Name:" fontWeight="bold" />
-								<mx:TextInput id="runNameText" editable="true" width="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:TextInput id="runNameText" editable="true" width="140" height="100%"  />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="top">
 
 								<mx:Label text="Comments:" fontWeight="bold" />
-								<mx:TextArea id="runCommentsText" editable="true" width="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:TextArea id="runCommentsText" editable="true" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%" id="reactComboBox">
+							<mx:HBox width="100%" id="reactComboBox" verticalAlign="middle">
 
 								<mx:Label text="Reaction:" fontWeight="bold" />
+								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="reactTypeComboBox" selectedIndex="-1"
 											 prompt="- Select Reaction Type -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ReactionType').DictionaryEntry}"
 											 labelField="@reactionType"
 											 toolTip="Select reaction type"
 											 change="(reactTypeComboBox.selectedItem==null) ? reactTypeComboBox.selectedIndex = -1 : toggleReactionType(reactTypeComboBox.selectedItem.@codeReactionType)"
-											 width="100%" />
+											 width="140" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%" id="reactTextBox">
+							<mx:HBox width="100%" id="reactTextBox" verticalAlign="middle">
 
 								<mx:Label text="Reaction:" fontWeight="bold" />
-								<mx:Text id="reactTypeText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="reactTypeText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%" id="runSealComboHBox">
+							<mx:HBox width="100%" id="runSealComboHBox" verticalAlign="middle">
 
 								<mx:Label text="Sealing:" fontWeight="bold" />
+								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="runSealComboBox" selectedIndex="-1"
 											 prompt="- Select Sealing -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry}"
 											 labelField="@sealType"
 											 toolTip="Select seal type"
 											 change="(runSealComboBox.selectedIndex==0) ?  runSealComboBox.selectedIndex=-1  : runSealComboBox.selectedIndex=runSealComboBox.selectedIndex ; sealComboBox.selectedItem=runSealComboBox.selectedItem;"
-											 width="100%" />
+											 width="140" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%" id="runSealTextHBox">
+							<mx:HBox width="100%" id="runSealTextHBox" verticalAlign="middle">
 
 								<mx:Label text="Sealing:" fontWeight="bold" />
-								<mx:Text id="runSealText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="runSealText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%" id="statusComboHBox">
+							<mx:HBox width="100%" id="statusComboHBox" verticalAlign="middle">
 
 								<mx:Label text="Status:" fontWeight="bold" />
+								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="statusComboBox" selectedIndex="-1"
 											 prompt="- Select Status -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.InstrumentRunStatus').DictionaryEntry}"
 											 labelField="@instrumentRunStatus"
 											 toolTip="Select status"
 											 change="(statusComboBox.selectedIndex==0) ?  statusComboBox.selectedIndex=-1 : statusComboBox.selectedIndex=statusComboBox.selectedIndex; "
-											 width="100%" />
+											 width="140" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%" id="statusTextHBox">
+							<mx:HBox width="100%" id="statusTextHBox" verticalAlign="middle">
 
 								<mx:Label text="Status:" fontWeight="bold" />
-								<mx:Text id="statusText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="statusText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 
 								<mx:Label text="Creator:" fontWeight="bold" />
-								<mx:Text id="runCreatorText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="runCreatorText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 
 								<mx:Label text="Date Created:" fontWeight="bold" />
-								<mx:Text id="runCreateDateText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="runCreateDateText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 
 								<mx:Label text="Run Date:" fontWeight="bold" />
-								<mx:Text id="runRunDateText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="runRunDateText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
@@ -3003,85 +3069,99 @@
 						</mx:VBox>
 
 						
-						<mx:VBox width="100%"
+						<mx:VBox width="{runInfoBox.width}"
 								 height="100%"
 								 backgroundColor="#ffffff"
 								 id="plateInfoBox"
 								 label="Plate Information">
 							
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 								
 								<mx:Label text="Plate #:" fontWeight="bold" />
-								<mx:Text id="plateNumberText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="plateNumberText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 								
 								<mx:Label text="Plate Name:" fontWeight="bold" />
-								<mx:TextInput id="plateNameText" editable="true" width="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:TextInput id="plateNameText" editable="true" width="140" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="top">
 								
 								<mx:Label text="Comments:" fontWeight="bold" />
-								<mx:TextArea id="plateCommentsText" editable="true" width="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:TextArea id="plateCommentsText" editable="true" width="140" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%" id="sealComboHBox">
+							<mx:HBox width="100%" id="sealComboHBox" verticalAlign="middle">
 								
 								<mx:Label text="Sealing:" fontWeight="bold" />
+								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="sealComboBox"
 											 prompt="- Select Sealing -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry}"
 											 labelField="@sealType"
 											 change="(sealComboBox.selectedIndex==0) ? sealComboBox.selectedIndex = -1  : sealComboBox.selectedIndex=sealComboBox.selectedIndex; runSealComboBox.selectedItem=sealComboBox.selectedItem;"
 											 toolTip="Select seal type"
-											 width="100%" />
+											 width="140" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%" id="sealTextHBox">
+							<mx:HBox width="100%" id="sealTextHBox" verticalAlign="middle">
 								
 								<mx:Label text="Sealing:" fontWeight="bold" />
-								<mx:Text id="sealText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="sealText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 								
 								<mx:Label text="Creator:" fontWeight="bold" />
-								<mx:Text id="plateCreatorText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="plateCreatorText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 								
 								<mx:Label text="Date Created:" fontWeight="bold" />
-								<mx:Text id="plateCreateDateText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="plateCreateDateText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%">
+							<mx:HBox width="100%" verticalAlign="middle">
 								
 								<mx:Label text="Number of Wells:" fontWeight="bold" />
-								<mx:Text id="numberWellsText" width="100%" height="100%" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="numberWellsText" width="140" height="100%" />
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
 							<mx:Label text="  Wells:" fontWeight="bold" />
-							<mx:List width="100%"
-									 height="100%"
-									 id="wellDisplayTree"
-									 dataTipField="@idSample"
-									 doubleClickEnabled="false"
-									 borderStyle="solid"
-									 labelField="@sampleName"
-									 backgroundAlpha="1"
-									 dropShadowEnabled="true">
-							</mx:List>
+							<!--<mx:HBox width="100%" horizontalAlign="center">
+								<mx:Spacer width="4" />-->
+								<mx:List width="100%"	
+										 height="100%"
+										 id="wellDisplayTree"
+										 dataTipField="@idSample"
+										 doubleClickEnabled="false"
+										 borderStyle="solid"
+										 labelField="@sampleName"
+										 backgroundAlpha="1"
+										 dropShadowEnabled="true">
+								</mx:List>
+							
+								<!--<mx:Spacer width="4" />
+							</mx:HBox>-->
+							
 							
 						</mx:VBox>
 						
@@ -3217,7 +3297,7 @@
 	<mx:states>
 		
 		<mx:State id="viewState" name="viewState">
-			<mx:RemoveChild target="{orderTab}" />
+			<mx:RemoveChild target="{samplesTab}" />
 			<mx:RemoveChild target="{button1}" />
 			<mx:RemoveChild target="{button2}" />
 			<mx:RemoveChild target="{savePlateButton}" />
@@ -3228,14 +3308,13 @@
 			<mx:SetProperty target="{runCommentsText}" name="editable" value="false" />
 			<mx:RemoveChild target="{button3}" />
 			<mx:RemoveChild target="{button4}" />
-			<mx:RemoveChild target="{newPlateButton1}" />
-			<mx:RemoveChild target="{newRunButton1}" />
 			<mx:RemoveChild target="{sealComboHBox}" />
 			<mx:RemoveChild target="{runSealComboHBox}" />
 			<mx:RemoveChild target="{statusComboHBox}" />
 			<mx:RemoveChild target="{reactComboBox}"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="View"/>
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="View Run"/>
 			<mx:SetProperty target="{numPlates}" name="visible" value="false"/>
+			<mx:RemoveChild target="{newPlateButton1}"/>
 		</mx:State>
 		
 		<mx:State id="editState" name="editState">
@@ -3243,91 +3322,20 @@
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
 			<mx:RemoveChild target="{reactComboBox}"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit"/>
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit Run"/>
 			<mx:RemoveChild target="{button2}"/>
 			
 		</mx:State>
 		
 		<mx:State id="newState" name="newState">
-			<mx:AddChild relativeTo="{hbox1}" position="before">
-				<mx:HBox width="100%" verticalAlign="middle">
-					<mx:LinkButton label="New plate"
-								   id="newPlateButton0"
-								   click="{addPlate()}"
-								   color="#000000"
-								   icon="@Embed('../../assets/plate_add.png')"
-								   enabled="{numberOfPlates!=16}"
-								   paddingLeft="1"
-								   paddingRight="0"
-								   horizontalGap="0"
-								   letterSpacing=".3"
-								   toolTip="New plate..."
-								   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-								   textDecoration="underline" />
-					<mx:Spacer width="100%" height="100%" />
-					<mx:LinkButton label="New run"
-								   id="newRunButton0"
-								   click="{addRun()}"
-								   color="#000000"
-								   icon="@Embed('../../assets/run_add.png')"
-								   enabled="{numberOfPlates &lt; 13}"
-								   paddingLeft="1"
-								   paddingRight="0"
-								   horizontalGap="0"
-								   letterSpacing=".3"
-								   toolTip="New run..."
-								   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-								   textDecoration="underline" />
-				</mx:HBox>
-			</mx:AddChild>
-			<!--<mx:RemoveChild target="{plateTab}" />-->
-			<mx:RemoveChild target="{runTab}" />
-			<!--<mx:SetStyle target="{tabNav}" name="borderVisible" value="true" />
-			<mx:SetStyle target="{tabNav}" name="tabHeight" value="0" />-->
-			<mx:AddChild relativeTo="{hbox1}" position="before">
-				<mx:HRule width="100%" />
-			</mx:AddChild>
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
 			<mx:RemoveChild target="{reactTextBox}"/>
 			<mx:RemoveChild target="{printButton}"/>
 			<mx:RemoveChild target="{pltButton}"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Create New"/>
-			<mx:SetProperty target="{runNumberLabel}" name="visible" value="false"/>
-			<mx:AddChild relativeTo="{spacer1}" position="before">
-				<mx:HBox verticalAlign="middle" horizontalGap="4">
-					
-					<mx:RadioButtonGroup id="reactionTypeRadioGroup" />
-					<mx:RadioButton id="radioSEQ"
-									label="Capillary Sequencing"
-									groupName="reactionTypeRadioGroup" 
-									click="{toggleReactionType(SEQ)}"
-									selected="{reactionState==SEQ}"/>
-					<mx:RadioButton id="radioMit"
-									label="Mitochondrial Sequencing"
-									groupName="reactionTypeRadioGroup"
-									click="{toggleReactionType(MIT)}"
-									selected="{reactionState==MIT}"/>
-					<mx:RadioButton id="radioFrag"
-									label="Fragment Analysis"
-									groupName="reactionTypeRadioGroup" 
-									click="{toggleReactionType(FRAG)}"
-									selected="{reactionState==FRAG}"/>
-					<mx:Spacer width="100%" height="100%" />
-				
-				</mx:HBox>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{spacer1}" position="before">
-				<mx:Label text="Run"
-						  fontSize="13"
-						  fontWeight="bold"
-						  id="runTitleLabel0" />
-			</mx:AddChild>
-			<mx:RemoveChild target="{reactionTypeLabelText}"/>
-			<mx:RemoveChild target="{runTitleLabel1}"/>
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Create New Run"/>
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:"/>
-			<mx:SetProperty target="{runNumberLabel}" name="width" value="5"/>
 			<mx:SetProperty target="{button2}" name="label" value="Clear Run"/>
 			<mx:SetProperty target="{button1}" name="label" value="Clear Plate"/>
 			

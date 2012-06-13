@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
@@ -67,7 +68,11 @@ public class GetPlate extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("PlateList"));
 
       p.excludeMethodFromXML("getPlateWells");
+      p.excludeMethodFromXML( "getInstrumentRun" );
       Element pNode = p.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      
+      AppUser creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( p.getCreator() ));
+      pNode.setAttribute( "creator", creator != null ? creator.getDisplayName() : p.getCreator() );
       
       Element pwNode = new Element("plateWells");
       

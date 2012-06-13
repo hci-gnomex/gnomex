@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -10,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.jdom.Element;
 
 
@@ -44,10 +46,17 @@ public class PlateReportHTMLFormatter {
 
 
   public Element makeRunTable() {
-
+    
     String creator = "";
-    if (ir.getCreator() != null) {
-      creator = ir.getCreator();
+    try {
+      Session sess = this.secAdvisor.getReadOnlyHibernateSession( secAdvisor.getIdAppUser().toString() );
+      AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf( ir.getCreator() ));
+      creator = user != null ? user.getDisplayName() : ir.getCreator();
+    } 
+    catch ( Exception e ) {
+      if (ir.getCreator() != null) {
+        creator = ir.getCreator();
+      } 
     }
 
     String runId = "";

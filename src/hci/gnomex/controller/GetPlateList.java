@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PlateFilter;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
@@ -88,7 +89,8 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           pNode.setAttribute("comments", comments);
           pNode.setAttribute("label", label);
           pNode.setAttribute("codeReactionType", codeReactionType);
-          pNode.setAttribute("creator", creator);
+          AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+          pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
           pNode.setAttribute("codeSealType", codeSealType);
           
           
