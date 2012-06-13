@@ -1453,12 +1453,19 @@
 									id="chromoTab"
 									currentState="userState" />
 		</mx:AddChild>
+		<mx:AddChild relativeTo="{this.visibilityBox}" position="after">
+			<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
+				<mx:Text  width="100" text="Status" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="400" />
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:RemoveChild target="{filesView}"/>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
 	</mx:State>
 	<mx:State name="CapSeqState" basedOn="BaseSeqState">
 	</mx:State>
 	<mx:State name="MitSeqState" basedOn="BaseSeqState">
-		<mx:AddChild relativeTo="{this.visibilityBox}" position="after">
+		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Primers" />
 				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@primerList}" width="400" />
