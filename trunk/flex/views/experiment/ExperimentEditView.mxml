@@ -3127,8 +3127,8 @@
 						title = "Experiment Registered";			
 						
 					} else if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState() || this.isCherryPickState()) {
-						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.';
-						title = "Request Submitted";			
+						message = 'Experiment request #  ' + submittedRequestNumber + ' has been saved.  When you are ready to deliver your samples, please submit the experiment by clicking on the Submit link on the Experiment detail page.';
+						title = "Experiment request saved";			
 						
 					} else {
 						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
