@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.naming.NamingException;
@@ -100,9 +101,22 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       Query query = sess.createQuery(buf.toString());
       List redoResults = (List)query.list();
       requestMap = new  TreeMap<Integer, TreeMap<String, List<Object[]>>>();
-      hashResults(redoResults, dictionaryHelper);
+      hashResults(redoResults, dictionaryHelper, null);
       fillNodes(redoNode, dictionaryHelper);
 
+      // Get the pending samples that are already on a reaction plate.
+      // We hash these so that they will be excluded from the
+      // pending sample list
+      //
+      HashMap<Integer, Sample> samplesToFilter = new HashMap<Integer, Sample>(); 
+      buf = filter.getPendingSamplesAlreadyOnPlateQuery();
+      log.info("Pending samples alrady on plate GetPendingSampleList: " + buf.toString());
+      query = sess.createQuery(buf.toString());
+      List pendingSamplesAlreadyOnPlate = (List)query.list();
+      for (Iterator i = pendingSamplesAlreadyOnPlate.iterator(); i.hasNext();) {
+        Sample s = (Sample)i.next();
+        samplesToFilter.put(s.getIdSample(), s);
+      }
 
       //
       // Get the pending samples under a status xml node, and then assay or
@@ -115,7 +129,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       List pendingSamples = (List)query.list();
       
       requestMap = new  TreeMap<Integer, TreeMap<String, List<Object[]>>>();
-      hashResults(pendingSamples, dictionaryHelper);
+      hashResults(pendingSamples, dictionaryHelper, samplesToFilter);
       fillNodes(pendingNode, dictionaryHelper);
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -146,14 +160,22 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     return this;
   }
   
-  private void hashResults(List rows, DictionaryHelper dictionaryHelper) {
+  private void hashResults(List rows, DictionaryHelper dictionaryHelper, Map<Integer, Sample>samplesToFilter) {
     // Hash the pending tubes
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idRequest           = (Integer)row[0];
       Integer idAssay             = (Integer)row[13];
       Integer idPrimer            = (Integer)row[14];
+      Sample sample               = (Sample)row[9];
       
+      // Filter out rows for samples already on reaction plate
+      if (samplesToFilter != null) {
+        if (samplesToFilter.containsKey(sample.getIdSample())) {
+          continue;
+        }
+      }
+
       String assayKey = " ";
       if (idAssay != null && idAssay.intValue() != -1) {
         assayKey = DictionaryManager.getDisplay("hci.gnomex.model.Assay", idAssay.toString());
