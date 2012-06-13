@@ -32,6 +32,10 @@ public class ChromatogramParser extends DetailObject implements Serializable
   public ChromatogramParser(Document doc) {
     this.doc = doc;
   }
+  
+  public ChromatogramParser(){
+    
+  }
 
   public void init() {
     setChMap( new HashMap() );
@@ -203,7 +207,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     this.chromatList = chromatList;
   }
 
-  private void requeueSourceWells( int idReactionWell, Session sess ) {
+  public void requeueSourceWells( int idReactionWell, Session sess ) {
       PlateWell reactionWell = (PlateWell) sess.get( PlateWell.class, idReactionWell );
       StringBuffer buf = getRedoQuery( reactionWell );
       Query query = sess.createQuery(buf.toString());
