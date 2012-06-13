@@ -110,13 +110,12 @@
 				if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
 					this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
 				}				
-				if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState()) {
+				if (parentDocument.isCapSeqState()) {
 					this.sampleDropOffLocationVbox.visible = true;
-					this.vbox4.visible = false;
 				} else {
 					this.sampleDropOffLocationVbox.visible = false;	
-					this.vbox4.visible = true;
 				}
+				this.vbox4.visible = !parentDocument.isCapSeqState && !parentDocument.isMitSeqState() && !parentDocument.isFragAnalState() && !parentDocument.isCherryPickState();
 				if (parentDocument.isMitSeqState()) {
 					this.primerVbox.visible = true;
 					this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
@@ -216,9 +215,11 @@
 			}
 			
 			if (parentDocument.isCherryPickState()) {
+				this.sourcePlate.visible = true;
 				this.sourceWell.visible = true;
 				this.destinationWell.visible = true;
 			} else {
+				this.sourcePlate.visible = false;
 				this.sourceWell.visible = false;
 				this.destinationWell.visible = false;
 			}
@@ -524,6 +525,8 @@
 						<mx:DataGridColumn id="hasAssay4" visible="false" editable="false" headerText="Assay 4?" width="100" resizable="false" dataField="@hasAssay4">
 						</mx:DataGridColumn>
 						
+						<mx:DataGridColumn id="sourcePlate" visible="false" editable="false" headerText="Source Plate" width="150" resizable="false" dataField="@sourcePlate">
+						</mx:DataGridColumn>
 						<mx:DataGridColumn id="sourceWell" visible="false" editable="false" headerText="Source Well" width="75" resizable="false" dataField="@sourceWell">
 						</mx:DataGridColumn>
 						<mx:DataGridColumn id="destinationWell" visible="false" editable="false" headerText="Destination Well" width="75" resizable="false" dataField="@destinationWell">
