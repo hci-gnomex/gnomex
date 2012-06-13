@@ -125,7 +125,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) ) {
           changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
         } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.PENDING ) ) {
-          changeRequestStatus( sess, ir, RequestStatus.SUBMITTED );
+          changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
         } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.COMPLETE ) ){
           changeRequestStatus( sess, ir, RequestStatus.COMPLETED );
         } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.FAILED ) ){
@@ -183,6 +183,11 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
       req.setCodeRequestStatus( status );
+      if ( status.equals( RequestStatus.COMPLETED ) ) {
+        if ( req.getCompletedDate() == null ) {
+          req.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+        }
+      }
     }
     sess.flush();
   }

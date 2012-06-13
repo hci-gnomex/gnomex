@@ -109,6 +109,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
             Plate plate = ( Plate ) i2.next();
             plate.excludeMethodFromXML( "getPlateWells" );
             plate.excludeMethodFromXML( "getcreateDate" );
+            plate.excludeMethodFromXML( "getInstrumentRun" );
             Element pNode = plate.toXMLDocument( null,
                 DetailObject.DATE_OUTPUT_SQL ).getRootElement();
             pNode.setAttribute( "createDate",

@@ -272,14 +272,15 @@
 							
 							if ( well.hasSample ) {
 								wellXMLString += "<PlateWell " + 
-									" row ='" + well.row + "'" + 
-									" col ='" + well.col + "'" + 
-									" index ='" + well.position + "'" + 
-									" idSample ='" + well.idSample + "'" + 
-									" idRequest ='" + well.getGroupId() + "'" + 
-									" idPlateWell ='" + well.idPlateWell + "'" + 
-									" idAssay ='" + well.idAssay + "'" + 
-									" idPrimer ='" + well.idPrimer + "'" +  "/>";
+									" row='" + well.row + "'" + 
+									" col='" + well.col + "'" + 
+									" index='" + well.position + "'" + 
+									" idSample='" + well.idSample + "'" +
+									" sampleName='" + well.sampleName + "'" +
+									" idRequest='" + well.getGroupId() + "'" + 
+									" idPlateWell='" + well.idPlateWell + "'" + 
+									" idAssay='" + well.idAssay + "'" + 
+									" idPrimer='" + well.idPrimer + "'" +  "/>";
 							}
 						}
 					}

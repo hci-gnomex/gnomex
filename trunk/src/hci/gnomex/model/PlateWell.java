@@ -185,6 +185,9 @@ public class PlateWell extends HibernateDetailObject {
   }
   
   public String getWellName() {
-    return this.row + this.col.toString();
+    if ( col != null ) {
+      return this.row + this.col.toString();
+    }
+    return "";
   }
 }

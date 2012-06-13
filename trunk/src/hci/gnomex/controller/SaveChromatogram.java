@@ -210,7 +210,10 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
     for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
-      req.setCodeRequestStatus( RequestStatus.COMPLETED );
+      if ( req.getCompletedDate() == null ) {
+        req.setCodeRequestStatus( RequestStatus.COMPLETED );
+      }
+      req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
     }
     sess.flush();
   }
