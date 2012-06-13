@@ -1132,6 +1132,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           assayWell.setCol(parsedWell.getCol());
           assayWell.setRow(parsedWell.getRow());
           assayWell.setSample(sample);
+          assayWell.setIdRequest(requestParser.getRequest().getIdRequest());
           sess.save(assayWell);
         }
         sess.flush();
@@ -1160,6 +1161,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         primerWell.setCol(parsedWell.getCol());
         primerWell.setRow(parsedWell.getRow());
         primerWell.setSample(sample);
+        primerWell.setIdRequest(requestParser.getRequest().getIdRequest());
         sess.save(primerWell);
       }
       sess.flush();
@@ -1184,6 +1186,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sourceWell.setPlate(cherryPickSourcePlate);
       sourceWell.setIdSample(sample.getIdSample());
       sourceWell.setSample(sample);
+      sourceWell.setIdRequest(requestParser.getRequest().getIdRequest());
       sess.save(sourceWell);
     }
     String cherryPickDestinationWell = requestParser.getCherryPickDestinationWell(idSampleString);
@@ -1206,6 +1209,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       destinationWell.setPlate(cherryPickDestinationPlate);
       destinationWell.setIdSample(sample.getIdSample());
       destinationWell.setSample(sample);
+      destinationWell.setIdRequest(requestParser.getRequest().getIdRequest());
       sess.save(destinationWell);
     }
     
