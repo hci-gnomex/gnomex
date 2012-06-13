@@ -1024,5 +1024,10 @@ public class Request extends HibernateDetailObject {
     }
     return doc;
   }  
+  
+  public String isDNASeqExperiment() {
+    return RequestCategory.isDNASeqRequestCategory(this.getCodeRequestCategory()) == true ? "Y" : "N";
+  }
+
 
 }
