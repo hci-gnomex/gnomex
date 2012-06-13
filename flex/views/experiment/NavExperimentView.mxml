@@ -1498,11 +1498,6 @@
 												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
 									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 								</mx:LinkButton>
-								<mx:LinkButton  label="Submit exp." id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
-												click="detailView.detail.promptToSubmitExperiment()"
-												toolTip="Submit experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@codeRequestStatus == &quot;NEW&quot; ? true : false}" textDecoration="underline">
-									<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
-								</mx:LinkButton>
 							</mx:HBox>
 							
 			  			</mx:VBox>
