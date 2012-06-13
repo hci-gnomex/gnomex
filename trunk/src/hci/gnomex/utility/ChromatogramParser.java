@@ -238,11 +238,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     if ( reactionWell.getIdPrimer() != null ) {
       queryBuf.append(" AND   (well.idPrimer = '" + reactionWell.getIdPrimer() + "') ");
     }
-    if ( reactionWell.getCodeReactionType() != null ) {
-      queryBuf.append(" AND   (well.codeReactionType = '" + reactionWell.getCodeReactionType() + "') ");
-    } else {
-      queryBuf.append(" AND   (well.codeReactionType is null) ");
-    }
+    
 
     return queryBuf;
     
