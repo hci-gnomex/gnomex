@@ -226,6 +226,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // case of capillary sequencing).
       parentNode = requestNode;
       
+      int totalSampleCount = 0;
       for (Iterator i1 = assayMap.keySet().iterator(); i1.hasNext();) {
         String assayKey = (String)i1.next();
         List<Object[]> results = assayMap.get(assayKey);
@@ -235,12 +236,17 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
           if (firstTime && !assayKey.equals(" ")) {
             parentNode = createAssayNode(row, dictionaryHelper); 
             requestNode.addContent(parentNode);
+          }
+          if (firstTime) {
             firstTime = false;
+            parentNode.setAttribute("sampleCount", Integer.valueOf(results.size()).toString());
           }
           Element wellNode = createWellNode(row, dictionaryHelper);
           parentNode.addContent(wellNode);
+          totalSampleCount++;
         }
       }
+      requestNode.setAttribute("sampleCount", Integer.valueOf(totalSampleCount).toString());
       
     }
     
