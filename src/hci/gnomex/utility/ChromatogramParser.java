@@ -221,7 +221,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
     }
   
-  private StringBuffer getRedoQuery( PlateWell reactionWell ) {
+  public static StringBuffer getRedoQuery( PlateWell reactionWell ) {
     StringBuffer    queryBuf = new StringBuffer();
     queryBuf.append(" SELECT     well FROM PlateWell as well ");
     queryBuf.append(" LEFT JOIN  well.plate plate ");
