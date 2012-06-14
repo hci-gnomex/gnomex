@@ -115,7 +115,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       query = sess.createQuery(buf.toString());
       List redoResults = (List)query.list();
       requestMap = new  TreeMap<Integer, TreeMap<String, List<Object[]>>>();
-      hashResults(redoResults, dictionaryHelper, samplesToFilter);
+      hashResults(redoResults, dictionaryHelper, null);
       fillNodes(redoNode, dictionaryHelper);
 
 
