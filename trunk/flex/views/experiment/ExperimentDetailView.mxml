@@ -548,6 +548,10 @@
 	
         private function showHideColumns():void {
 			descriptionCol.visible = (this.selectedExperiment[0].@hasSampleDescription=="Y");
+			this.cherryDestinationWellCol.visible = false;
+			this.cherrySourcePlateCol.visible = false;
+			this.cherrySourceWellCol.visible = false;
+			
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
 				organismCol.visible = true;
@@ -666,6 +670,24 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+				} else if (isCherryPickState()) {
+					concentrationCol.visible = false; 
+					sampleTypeCol.visible = false;
+					organismCol.visible = false;
+					preppedByLabCol.visible = false;
+					otherSamplePrepMethodCol.visible = false;
+					chipTypeCol.visible = false
+					concentrationUnitCol.visible = false;
+					plateNameCol.visible = false;
+					wellNameCol.visible = false;
+					isControlCol.visible = false;
+					this.qc260Col.visible = false;
+					this.qcConcCol.visible = false;
+					this.qcRINCol.visible = false;
+					this.qcStatusCol.visible = false;
+					this.cherryDestinationWellCol.visible = true;
+					this.cherrySourcePlateCol.visible = true;
+					this.cherrySourceWellCol.visible = true;
 	        	} else {
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
@@ -1099,6 +1121,9 @@
 						    </mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
 							<mx:AdvancedDataGridColumn headerText="ID" width="60" dataField="@number"/>
+							<mx:AdvancedDataGridColumn  headerText="Source Plate" width="150" dataField="@cherrySourcePlate" editable="false" id="cherrySourcePlateCol"/>
+							<mx:AdvancedDataGridColumn  headerText="Source Well"  width="75" dataField="@cherrySourceWell" editable="false" id="cherrySourceWellCol"/>
+							<mx:AdvancedDataGridColumn  headerText="Dest. Well" width="75" dataField="@cherryDestinationWell" editable="false" id="cherryDestinationWellCol"/>
 							<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"
 													    labelFunction="isControlLabelFunction"/>

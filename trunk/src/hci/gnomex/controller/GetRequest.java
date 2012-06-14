@@ -541,6 +541,41 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             requestNode.addContent(assaysNode);
           }
+          
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+            // build source well and plate names for the samples
+            HashMap<Integer, String> sampleSourceWellMap = new HashMap<Integer, String>();
+            HashMap<Integer, String> sampleSourcePlateMap = new HashMap<Integer, String>();
+            String sourceQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE'";
+            Query sourceQuery = sess.createQuery(sourceQueryString);
+            sourceQuery.setParameterList("ids", sampleIds);
+            List sourceWells = sourceQuery.list();
+            for(Iterator srcIter = sourceWells.iterator();srcIter.hasNext();) {
+              PlateWell pw = (PlateWell)srcIter.next();
+              sampleSourceWellMap.put(pw.getIdSample(), pw.getWellName());
+              sampleSourcePlateMap.put(pw.getIdSample(), pw.getPlate().getLabel());
+            }
+            
+            // build destination well names for the samples
+            HashMap<Integer, String> sampleDestinationWellMap = new HashMap<Integer, String>();
+            String destinationQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='REACTION' and pw.redoFlag='N'";
+            Query destinationQuery = sess.createQuery(destinationQueryString);
+            destinationQuery.setParameterList("ids", sampleIds);
+            List destinationWells = sourceQuery.list();
+            for(Iterator destIter = destinationWells.iterator();destIter.hasNext();) {
+              PlateWell pw = (PlateWell)destIter.next();
+              sampleDestinationWellMap.put(pw.getIdSample(), pw.getWellName());
+            }
+            
+            // add well plate names to samples
+            List samples = requestNode.getChild("samples").getChildren("Sample");
+            for (Iterator i1 = samples.iterator(); i1.hasNext();) {
+              Element sampleNode = (Element)i1.next();
+              sampleNode.setAttribute("cherrySourceWell", sampleSourceWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("cherrySourcePlate", sampleSourcePlateMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("cherryDestinationWell", sampleDestinationWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+            }
+          }
         
         doc.getRootElement().addContent(requestNode);
       
