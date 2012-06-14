@@ -748,21 +748,17 @@
 	
 
 		<mx:VBox width="100%" height="100%" verticalGap="1">
-				
-			   <util:DataGridAlternatingGroup id="chromatogramGrid"
-						 allowMultipleSelection="true"
-						 itemClick="gridItemClick(event)"
-						 click="{selectedChromats.refresh()}"
-						 change="selectionChange(event)"
-						 width="100%"
-						 height="100%"
-						 horizontalScrollPolicy="auto"
-						 dataProvider="{chromats}"
-						 sortArrowSkin="mx.skins.ProgrammaticSkin">
-				   <util:columns>
-
-
-
+			<util:DataGridAlternatingGroup id="chromatogramGrid"
+							 allowMultipleSelection="true"
+							 itemClick="gridItemClick(event)"
+							 click="{selectedChromats.refresh()}"
+							 change="selectionChange(event)"
+							 width="100%"
+							 height="100%"
+							 dataProvider="{chromats}"
+							 sortArrowSkin="mx.skins.ProgrammaticSkin">
+					<util:columns>
+						
 					<mx:DataGridColumn id="checkBoxColumn"
 									   textAlign="center"
 									   width="30"
@@ -776,7 +772,13 @@
 									   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
 									   headerRenderer="views.renderers.CheckBoxHeader"
 									   draggable="false"/>
-					   
+					
+					<mx:DataGridColumn dataField="@idChromatogram"
+									   headerText="#"
+									   width="35"
+									   sortCompareFunction="fieldNumericSorter('idChromatogram')" 
+									   draggable="false" id="datagridcolumn1"/>
+					
 					<mx:DataGridColumn dataField="@idChromatogram"
 									   headerText=""
 									   textAlign="center"
@@ -786,14 +788,7 @@
 									   width="35" 
 									   minWidth="35"
 									   draggable="false"/>
-					   
-					   <mx:DataGridColumn dataField="@runNumber"
-										  headerText="Run #"
-										  width="50" minWidth="20" />
-					   <mx:DataGridColumn dataField="@plateLabel"
-										  headerText="Plate"
-										  width="50" minWidth="20" />
-					   
+					
 					<mx:DataGridColumn dataField="@displayName"
 									   headerText="File"
 									   minWidth="150"
@@ -806,78 +801,82 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-
-
+					
+					<mx:DataGridColumn dataField="@runNumber"
+									   headerText="Run #"
+									   width="50" minWidth="20" />
+						<mx:DataGridColumn dataField="@plateLabel"
+										   headerText="Plate"
+										   width="50" minWidth="20" />
 					<mx:DataGridColumn dataField="@requestNumber"
 									   headerText="Order #"  visible="{currentState != 'userState'}"
-									   width="40" minWidth="15" />
+									   width="50" minWidth="15" />
 					<mx:DataGridColumn dataField="@sampleName" visible="{currentState == 'userState'}"
 									   headerText="Sample"
 									   width="60" minWidth="15" />
-
-					<mx:DataGridColumn dataField="@releaseDate"
+					
+					<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
 									   headerText="Released"
-									   width="80" minWidth="75" id="datagridcolumn2"/>
-
+									   width="90" minWidth="75" id="datagridcolumn2"/>
+					
 					<mx:DataGridColumn dataField="@submitter"
 									   headerText="Submitter" minWidth="75"
-									   width="60" />
-
+									   width="100" />
+					
 					<mx:DataGridColumn dataField="@readLength"
 									   headerText="Length"
-									   width="55"
+									   width="75"
 									   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
-
+					
 					<mx:DataGridColumn dataField="@trimmedLength"
 									   headerText="Trim Len"
-									   width="55"
+									   width="75"
 									   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
-
+					
 					<mx:DataGridColumn dataField="@q20"
 									   headerText="q20"
-									   width="45"
+									   width="65"
 									   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
-
+					
 					<mx:DataGridColumn dataField="@q40"
 									   headerText="q40"
-									   width="45"
+									   width="65"
 									   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
-
+					
 					<mx:DataGridColumn dataField="@q20_len"
 									   headerText="q20/len"
-									   width="50"
+									   width="70"
 									   sortCompareFunction="fieldNumericSorter('q20_len')" />
-
+					
 					<mx:DataGridColumn dataField="@q40_len"
 									   headerText="q40/len"
-									   width="50"
+									   width="70"
 									   sortCompareFunction="fieldNumericSorter('q40_len')" />
-
+					
 					<mx:DataGridColumn dataField="@aSignalStrength"
 									   headerText="A sig"
-									   width="50"
+									   width="70"
 									   sortCompareFunction="fieldNumericSorter('aSignalStrength')" />
-
+					
 					<mx:DataGridColumn dataField="@cSignalStrength"
 									   headerText="C sig"
-									   width="45"
+									   width="70"
 									   sortCompareFunction="fieldNumericSorter('cSignalStrength')" />
-
+					
 					<mx:DataGridColumn dataField="@gSignalStrength"
 									   headerText="G sig"
-									   width="45"
+									   width="70"
 									   sortCompareFunction="fieldNumericSorter('gSignalStrength')" />
-
+					
 					<mx:DataGridColumn dataField="@tSignalStrength"
 									   headerText="T sig"
-									   width="45"
+									   width="70"
 									   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
 					
-					   </util:columns>
-
-
-			</util:DataGridAlternatingGroup>
-
+	  	   		</util:columns>
+			
+			
+			</util:DataGridAlternatingGroup>		
 
 		</mx:VBox>
 
