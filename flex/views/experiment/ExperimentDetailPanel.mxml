@@ -8,8 +8,14 @@
 			<mx:Image source="{detail.selectedExperiment.@icon}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" />
 			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8" width="100%">
-				<mx:HBox width="100%" id="linkBox" horizontalGap="2" horizontalAlign="left" verticalAlign="middle">
-						
+				<mx:HBox width="100%"  horizontalGap="2" horizontalAlign="left" verticalAlign="middle">
+						<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
+									click="detail.promptToSubmitExperiment()"
+									visible="false"
+									includeInLayout="false"
+									toolTip="Submit experiment" enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@codeRequestStatus == &quot;NEW&quot; ? true : false}" textDecoration="underline">
+							<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
+						</mx:LinkButton>
 							
 						<mx:LinkButton label="Edit" fontSize="9" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton" textAlign="left" paddingLeft="0">
 							<mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>

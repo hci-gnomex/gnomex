@@ -481,11 +481,72 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
           }
           
-          doc.getRootElement().addContent(requestNode);
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+            // biuld the assay list and well names for the samples
+            TreeMap<String, String> assayList = new TreeMap<String, String>();
+            HashMap<Integer, String> sampleWellMap = new HashMap<Integer, String>();
+            String assayQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE'";
+            Query assayQuery = sess.createQuery(assayQueryString);
+            assayQuery.setParameterList("ids", sampleIds);
+            List assays = assayQuery.list();
+            HashMap<Integer, ArrayList<String>> sampleAssayMap = new HashMap<Integer, ArrayList<String>>();
+            for(Iterator i = assays.iterator();i.hasNext();) {
+              PlateWell pw = (PlateWell)i.next();
+              assayList.put(pw.getAssay().getName(), pw.getAssay().getName());
+              sampleWellMap.put(pw.getIdSample(), pw.getWellName());
+              ArrayList<String> sampleAssays = sampleAssayMap.get(pw.getIdSample());
+              if (sampleAssays == null) {
+                sampleAssays = new ArrayList<String>();
+              }
+              sampleAssays.add(pw.getAssay().getName());
+              sampleAssayMap.put(pw.getIdSample(), sampleAssays);
+            }
+            
+            String assayListString = "";
+            for(String aName:assayList.keySet()) {
+              if (assayListString.length() > 0) {
+                assayListString += ", ";
+              }
+              assayListString += aName;
+            }
+            requestNode.setAttribute("assayList", assayListString);
+            
+            // add well names and assays to samples
+            List samples = requestNode.getChild("samples").getChildren("Sample");
+            for (Iterator i1 = samples.iterator(); i1.hasNext();) {
+              Element sampleNode = (Element)i1.next();
+              sampleNode.setAttribute("wellName", sampleWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              ArrayList<String> sampleAssays = sampleAssayMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample")));
+              for (Iterator assayIter = assayList.keySet().iterator(); assayIter.hasNext();) {
+                String assay = (String)assayIter.next();
+                String assayValue = "";
+                for (Iterator saIter = sampleAssays.iterator(); saIter.hasNext();) {
+                  String sampAssay = (String)saIter.next();
+                  if (sampAssay.equals(assay)) {
+                    assayValue = "Y";
+                    break;
+                  }
+                }
+                sampleNode.setAttribute("ASSAY_" + assay, assayValue);
+              }
+            }
+            
+            // Add assays to request
+            Element assaysNode = new Element("assays");
+            for (Iterator assayIter = assayList.keySet().iterator(); assayIter.hasNext();) {
+              String assay = (String)assayIter.next();
+              Element assayNode = new Element("assay");
+              assayNode.setAttribute("name", assay);
+              assaysNode.addContent(assayNode);
+            }
+            requestNode.addContent(assaysNode);
+          }
         
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-          this.xmlResult = out.outputString(doc);
-        } 
+        doc.getRootElement().addContent(requestNode);
+      
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        this.xmlResult = out.outputString(doc);
+      } 
         
       }
     

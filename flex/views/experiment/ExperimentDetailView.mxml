@@ -86,6 +86,22 @@
 			}
 		}
 		
+		public function isFragAnalState():Boolean {
+			if (currentState == 'FragAnalState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		public function isCherryPickState():Boolean {
+			if (currentState == 'CherryPickState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
 		public function checkSecurity():void {
 			
 			if (parentApplication.isGuestMode()) {
@@ -178,6 +194,10 @@
 				this.chromoTab.getList();
 			} else if (requestCategory.@type == 'MITSEQ') {
 				currentState = 'MitSeqState';
+			} else if (requestCategory.@type == 'FRAGANAL') {
+				currentState = 'FragAnalState';
+			} else if (requestCategory.@type == 'CHERRYPICK') {
+				currentState = 'CherryPickState';
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -631,6 +651,21 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+				} else if (isFragAnalState()) {
+					concentrationCol.visible = false; 
+					sampleTypeCol.visible = false;
+					organismCol.visible = false;
+					preppedByLabCol.visible = false;
+					otherSamplePrepMethodCol.visible = false;
+					chipTypeCol.visible = false
+					concentrationUnitCol.visible = false;
+					plateNameCol.visible = false;
+					wellNameCol.visible = true;
+					isControlCol.visible = false;
+					this.qc260Col.visible = false;
+					this.qcConcCol.visible = false;
+					this.qcRINCol.visible = false;
+					this.qcStatusCol.visible = false;
 	        	} else {
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
@@ -661,11 +696,52 @@
 			return parentApplication.getPropertyOptions(idProperty, true);
 		}
         
+		private function addAssayColumns():void {
+			var columns:Array = samplesGridConfirm.columns;
+			var newColumns:Array = new Array();
+			
+			// remove any existing assay columns
+			var colRemoved:Boolean = false;
+			for each(var remCol:AdvancedDataGridColumn in columns) {
+				if (remCol.dataField == null || remCol.dataField.substr(0, 7) != "@ASSAY_") {
+					newColumns.push(remCol);
+				} else {
+					colRemoved = true;
+				}
+			}
+			if (colRemoved) {
+				samplesGridConfirm.columns = newColumns;
+				samplesGridConfirm.validateNow();
+			}
+			
+			if (isFragAnalState()) {
+				columns = samplesGridConfirm.columns;
+				newColumns = new Array();
+				for each(var addCol:AdvancedDataGridColumn in columns) {
+					if (addCol.dataField == "@description") {
+						for each (var assay:Object in assays) {
+							var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
+							newCol.dataField  = "@ASSAY_" + assay.@name;
+							newCol.headerText = assay.@name;
+							newCol.visible    = true;
+							newCol.width	  = 40;
+							newColumns.push(newCol);
+						}
+					}
+					newColumns.push(addCol);
+				}
+				samplesGridConfirm.columns = newColumns;
+				samplesGridConfirm.validateNow();
+			}
+		}
+		
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
        		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
 
+			addAssayColumns();
+			
 			// Make all annotation columns not visible
 			for each(col in samplesGridConfirm.columns) {
 				if (col.dataField != null && col.dataField.substr(0, 6) == "@ANNOT") {
@@ -673,7 +749,7 @@
 				}    				
 			}
 
-			if (!isCapSeqState() && !isMitSeqState()) {
+			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
 	       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 					if(annotation.@idProperty == "-1") {
 						continue;
@@ -916,6 +992,7 @@
 
 <mx:XMLListCollection id="billingItems" source="{selectedExperiment.billingItems.BillingLab}"/>
 <mx:XMLListCollection id="samples" source="{selectedExperiment.samples.Sample}"/>
+<mx:XMLListCollection id="assays" source="{selectedExperiment.assays.assay}"/>
 <mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 
         
@@ -986,9 +1063,9 @@
 	  							<mx:Label text="Notes for Core Facility" />
 								<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 							</mx:VBox>
-							<mx:VBox verticalGap="0" width="100%" height="100%"  
-									 visible="{currentState != 'QCState' &amp;&amp; currentState != 'CapSeqState' &amp;&amp; currentState != 'MitSeqState'}"  
-									 includeInLayout="{currentState != 'QCState' &amp;&amp; currentState != 'CapSeqState' &amp;&amp; currentState != 'MitSeqState'}">
+							<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
+									 visible="true"  
+									 includeInLayout="true">
 								<mx:Label text="Notes for Bioinformatics Group"  />
 								<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
 							</mx:VBox>
@@ -1344,6 +1421,8 @@
 		</mx:AddChild>
 	</mx:State>
 	<mx:State name="QCState">		
+		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{noteToBioBox}" name="includeInLayout" value="false"/>
 	</mx:State>
 	<mx:State name="SolexaState">
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
@@ -1445,6 +1524,19 @@
 		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="BaseSeqState">
+		<mx:AddChild relativeTo="{this.visibilityBox}" position="after">
+			<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
+				<mx:Text  width="100" text="Status" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="400" />
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
+		<mx:SetProperty target="{parentDocument.submitExperimentButton}" name="includeInLayout" value="true"/>
+		<mx:SetProperty target="{parentDocument.submitExperimentButton}" name="visible" value="true"/>
+		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{noteToBioBox}" name="includeInLayout" value="false"/>
+	</mx:State>
+	<mx:State name="BaseSeqChromoState" basedOn="BaseSeqState">
 		<mx:AddChild relativeTo="{theTab}" position="lastChild">
 			<data:ChromatBrowseView label="Chromatogram"
 									width="100%"
@@ -1453,33 +1545,27 @@
 									id="chromoTab"
 									currentState="userState" />
 		</mx:AddChild>
-		<mx:AddChild relativeTo="{this.visibilityBox}" position="after">
-			<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
-				<mx:Text  width="100" text="Status" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="400" />
-			</mx:HBox>
-		</mx:AddChild>
 		<mx:RemoveChild target="{filesView}"/>
-		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
-		<mx:AddChild relativeTo="{parentDocument.linkBox}" position="firstChild">
-			<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
-							click="promptToSubmitExperiment()"
-							enabled="{selectedExperiment.@codeRequestStatus == &quot;NEW&quot; ? true : false}"
-							toolTip="Submit experiment" 
-							textDecoration="underline">
-				<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
-			</mx:LinkButton>
-		</mx:AddChild>
 	</mx:State>
-	<mx:State name="CapSeqState" basedOn="BaseSeqState">
+	<mx:State name="CapSeqState" basedOn="BaseSeqChromoState">
 	</mx:State>
-	<mx:State name="MitSeqState" basedOn="BaseSeqState">
+	<mx:State name="MitSeqState" basedOn="BaseSeqChromoState">
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Primers" />
 				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@primerList}" width="400" />
 			</mx:HBox>
 		</mx:AddChild>
+	</mx:State>
+	<mx:State name="FragAnalState" basedOn="BaseSeqState">
+		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
+			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+				<mx:Text  width="100" text="Assays" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@assayList}" width="400" />
+			</mx:HBox>
+		</mx:AddChild>
+	</mx:State>
+	<mx:State name="CherryPickState" basedOn="BaseSeqState">
 	</mx:State>
 	<mx:State name="ExternalQCState">
 		<mx:RemoveChild target="{hbox2}"/>
