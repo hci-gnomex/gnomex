@@ -50,8 +50,13 @@ public class PlateReportHTMLFormatter {
     String creator = "";
     try {
       Session sess = this.secAdvisor.getReadOnlyHibernateSession( secAdvisor.getIdAppUser().toString() );
-      AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf( ir.getCreator() ));
-      creator = user != null ? user.getDisplayName() : ir.getCreator();
+      String create = ir.getCreator();
+      if ( create != null && !create.equals( "" ) ) {
+        AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(create));
+        creator = user != null ? user.getDisplayName() : create;
+      } else {
+        creator = create;
+      }
     } 
     catch ( Exception e ) {
       if (ir.getCreator() != null) {

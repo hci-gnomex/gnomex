@@ -71,8 +71,13 @@ public class GetPlate extends GNomExCommand implements Serializable {
       p.excludeMethodFromXML( "getInstrumentRun" );
       Element pNode = p.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       
-      AppUser creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( p.getCreator() ));
-      pNode.setAttribute( "creator", creator != null ? creator.getDisplayName() : p.getCreator() );
+      String creator = p.getCreator();
+      if ( creator != null && !creator.equals( "" ) ) {
+        AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+        pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+      } else {
+        pNode.setAttribute( "creator", creator);
+      }
       
       Element pwNode = new Element("plateWells");
       

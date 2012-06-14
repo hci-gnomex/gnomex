@@ -210,8 +210,13 @@ public class SavePlate extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("SUCCESS"));
       Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       
-      AppUser creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( plate.getCreator() ));
-      pNode.setAttribute( "creator", creator != null ? creator.getDisplayName() : plate.getCreator() );
+      String creator = plate.getCreator();
+      if ( creator != null && !creator.equals( "" ) ) {
+        AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+        pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+      } else {
+        pNode.setAttribute( "creator", creator);
+      }
       
       List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
 

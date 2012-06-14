@@ -89,8 +89,13 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           pNode.setAttribute("comments", comments);
           pNode.setAttribute("label", label);
           pNode.setAttribute("codeReactionType", codeReactionType);
-          AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
-          pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+          if ( creator != null && !creator.equals( "" ) ) {
+            AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+            pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+          } else {
+            pNode.setAttribute( "creator", creator);
+          }
+          
           pNode.setAttribute("codeSealType", codeSealType);
           
           
