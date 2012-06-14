@@ -8,7 +8,9 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.TransferLog;
@@ -137,7 +139,41 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
             sess.flush();
           }
         }
+        
         //
+        // If Cherry Picking - delete dest plate well too
+        //
+        //
+        if (req.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+          if (req.getSamples().size() > 0) {
+            String rxnPlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.codeReactionType='" + ReactionType.CHERRY_PICKING_REACTION_TYPE +  "' and pw.idSample in (";
+            Boolean firstSample = true;
+            for(Iterator i = req.getSamples().iterator();i.hasNext();) {
+              Sample s = (Sample)i.next();
+              if (!firstSample) {
+                rxnPlateQuery += ", ";
+              }
+              rxnPlateQuery += s.getIdSample().toString();
+              firstSample = false;
+            }
+            rxnPlateQuery += ")";
+            List rxnPlates = sess.createQuery(rxnPlateQuery).list();
+            Integer idRxnPlate = null;
+            for(Iterator i = rxnPlates.iterator();i.hasNext();) {
+              PlateWell well = (PlateWell)i.next();
+              idRxnPlate = well.getIdPlate();
+              sess.delete(well);
+            }
+            if (idRxnPlate != null) {
+              Plate rxnPlate = (Plate)sess.load(Plate.class, idRxnPlate);
+              if (rxnPlate != null) {
+                sess.delete(rxnPlate);
+              }
+              sess.flush();
+            }
+          }
+          
+        }
         // Delete (unlink) collaborators
         //
         for (Iterator i1 = req.getCollaborators().iterator(); i1.hasNext();) {
