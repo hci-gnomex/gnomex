@@ -92,12 +92,16 @@
 			private var analysisEditView:AnalysisEditView;
 			private var analysisDetailView:AnalysisDetailView;
 			
+			private var isInitialized:Boolean = false;
 			
 			
-			public function init(analysis:Object):void{
+			
+			public function init(analysis:Object):void {
 				this.analysis = analysis;
 				this.idAnalysis = analysis.@idAnalysis as Object;
 				this.analysisNumber = analysis.@analysisNumber as Object;
+				
+				isInitialized = true;
 				
 				fdtStartButton.enabled = true;
 				saveUUID.text = "";
@@ -339,7 +343,8 @@
 				this.downloadTree.expandItem(parent, true);
 				this.downloadTree.selectedItem = null;
 				this.downloadTree.selectedItem = folder;
-				this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 	                          
+				this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 
+				this.downloadTree.selectedItem = null;
 			}
 			
 			
@@ -364,7 +369,7 @@
 			}
 			
 			private function onTabChange():void {
-				if (theTab.selectedIndex == 1) {
+				if (isInitialized && theTab.selectedIndex == 1) {
 					refreshFiles();
         		}
 			}
@@ -387,11 +392,11 @@
 				var dropNode:XML = null;
 				var dropFolderNode:XML = null;
 				var siblingDropNode:XML = null;
-				var r:int = downloadTree.calculateDropIndex(event);
-				if (r > 0) { 
-					r--;
-				}
-				downloadTree.selectedIndex = r;
+				//var r:int = downloadTree.calculateDropIndex(event);
+				//if (r > 0) { 
+				//	r--;
+				//}
+				//downloadTree.selectedIndex = r;
 				dropNode = downloadTree.selectedItem as XML;
 				
 				// Don't allow drag operation if nothing no drop node
@@ -603,7 +608,7 @@
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
-					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Remove file"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
+					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.children().length() == 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()" paddingLeft="0"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 					

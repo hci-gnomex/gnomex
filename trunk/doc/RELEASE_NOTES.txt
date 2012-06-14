@@ -30,6 +30,7 @@
 * Added core facility comboBox and new request category platform type radio buttons on the configure experiment platform window.(tcourdy)
 * Added request category platform type combo box to the experiment platform add window.(tcourdy) 
 * Implemented billing plugins for Capillary Sequencing requests. (tdisera)
+* Fixes for file copy problems in Organize Files feature for Experiments, Analyses (rcundick)
 
 deploy notes 
 --------------------

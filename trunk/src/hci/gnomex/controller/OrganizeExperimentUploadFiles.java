@@ -14,6 +14,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -94,13 +95,14 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
   public Command execute() throws RollBackCommandException {
 
     Session sess = null;
+    ArrayList tryLater = null;
     if (filesXMLString != null) {
       try {
         sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
 
         Request request = (Request)sess.load(Request.class, idRequest);
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
-        baseDir += "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
+        baseDir += File.separator + request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
 
         if (this.getSecAdvisor().canUploadData(request)) {
 
@@ -109,7 +111,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
           // Add new directories to the file system
           for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
             String directoryName = (String)i.next();
-            File dir = new File(baseDir + "/" + directoryName);
+            File dir = new File(baseDir + File.separator + directoryName);
             if (!dir.exists()) {
               boolean success = dir.mkdirs();
               if (!success) { 
@@ -122,6 +124,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
 
           // Move files to designated folder
+          tryLater = new ArrayList();
           for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
             String directoryName = (String)i.next();
             List fileNames = (List)parser.getFileNameMap().get(directoryName);
@@ -130,7 +133,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               String fileName = (String)i1.next();
 
               File sourceFile = new File(fileName);
-              String targetDirName = baseDir + "/" + directoryName;
+              String targetDirName = baseDir + File.separator + directoryName;
               File targetDir = new File(targetDirName);
 
               if (!targetDir.exists()) {
@@ -157,8 +160,13 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               if (!success) {
                 if ( destFile.exists() ) {
                   if ( sourceFile.exists() ) {
-                    if ( !sourceFile.delete() ) {
-                      throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                    if (!sourceFile.delete() ) {
+                      if(sourceFile.isDirectory()) {
+                        // If can't delete directory then try again after everything has been moved
+                        tryLater.add(sourceFile.getAbsolutePath());
+                      } else {
+                        throw new Exception("Unable to move file " + fileName + " to " + targetDirName);                        
+                      }
                     }
                   }
                 } else {
@@ -197,6 +205,20 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             }
             sess.flush();
           }
+          
+          if(tryLater != null) {
+            for (Iterator i = tryLater.iterator(); i.hasNext();) {
+              String fileName = (String)i.next();
+              File deleteFile = new File(fileName);
+              if ( deleteFile.exists() ) {
+                // Try to delete but don't throw error if unsuccessful.
+                // Just leave it to user to sort out the problem.
+                deleteFile.delete();
+              }
+            }
+          }
+          
+          
           
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();
