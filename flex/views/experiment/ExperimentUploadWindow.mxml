@@ -298,7 +298,8 @@
         this.downloadTree.expandItem(parent, true);
         this.downloadTree.selectedItem = null;
         this.downloadTree.selectedItem = folder;
-        this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 	                          
+        this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 
+		this.downloadTree.selectedItem = null;
       }
       
       
@@ -345,95 +346,97 @@
         var dropNode:XML = null;
         var dropFolderNode:XML = null;
         var siblingDropNode:XML = null;
-        var r:int = downloadTree.calculateDropIndex(event);
-        if (r > 0) { 
-          r--;
-        }
-        downloadTree.selectedIndex = r;
-        dropNode = downloadTree.selectedItem as XML;
-        
-        // Don't allow drag operation if nothing no drop node
-        // found
-        if (dropNode == null) {
-          event.preventDefault();
-          event.target.hideDropFeedback(event);
-          DragManager.showFeedback(DragManager.NONE);
-          return;
-        }
-        
-        dropFolderNode = dropNode;
-        if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
-          dropFolderNode = dropNode.parent();
-          siblingDropNode = dropNode;
-        }
-        // Don't allow drag operation if nothing no drop folder node
-        // found
-        if (dropFolderNode == null) {
-          event.preventDefault();
-          event.target.hideDropFeedback(event);
-          DragManager.showFeedback(DragManager.NONE);
-          return;
-        }
-        
-        // get the drag format (its always items in our case
-        // Get the dragged items
-        var draggedItems:Array = null;		    
-        if (event.dragInitiator.name == "downloadTree") {
-          // For some reason, if we are dragging within the tree, the dragged
-          // items has to be detected on the dragEnter event.  By the time
-          // with get to the dragDrop event, the event.draggedItems contains
-          // the drop target, not the dragged items.
-          draggedItems = this.downloadDraggedItems;	    
-        } else {
-          var draggedFormat:String = event.dragSource.formats[0];
-          draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
-        }
-        for(var i:int = 0; i < draggedItems.length; i++) {
-          var dragItem:XML = XML(draggedItems[i]);
-          if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
-            var fileNode:XML;
-            if (dragItem.name() == "FileDescriptor" ){
-              fileNode = new XML("<FileDescriptor " +
-                " displayName='" +  dragItem.@displayName + "'" + 
-                " fileName='" +  dragItem.@fileName + "'" + 
-                " type='" + dragItem.@type + "'" +
-                " directoryName='" + dragItem.@directoryName + "'/>");
-            }
-            if (dragItem.name() == "RequestDownload" ){
-              fileNode = new XML("<FileDescriptor " +
-                " displayName='" +  dragItem.@itemNumber + "'" + 
-                " fileName='" +  dragItem.@fileName + "'" + 
-                " type='dir'" +
-                " directoryName='" + dragItem.@directoryName + "'/>");
-            }
-            
-            
-            for each ( var child:Object in dragItem.children() ) {
-              fileNode.appendChild(child);	
-            }
-            
-            // Don't allow dropping on yourself (causes a cyclical error)
-            if ( fileNode.@fileName == dropFolderNode.@fileName ){
-              return;
-            }
-            
-            if (siblingDropNode != null) {
-              dropFolderNode.insertChildAfter(siblingDropNode, fileNode);	       				
-            } else {
-              dropFolderNode.appendChild(fileNode);
-            }
-            downloadTree.expandItem(dropFolderNode, true);
-            
-            // We have to manually remove the file when we are
-            // dragging within the download tree.
-            if (event.dragInitiator.name == "downloadTree") {
-              deleteNode(dragItem);
-              downloadTree.selectedItem = null;
-            }
-            
-            this.dirty.setDirty();
-          } 
-        }
+        //var r:int = downloadTree.calculateDropIndex(event);
+        //if (r > 0) { 
+        //  r--;
+        //}
+        //downloadTree.selectedIndex = r;
+		if(downloadTree.selectedItem != null) {
+	        dropNode = downloadTree.selectedItem as XML;
+	        
+	        // Don't allow drag operation if nothing no drop node
+	        // found
+	        if (dropNode == null) {
+	          event.preventDefault();
+	          event.target.hideDropFeedback(event);
+	          DragManager.showFeedback(DragManager.NONE);
+	          return;
+	        }
+	        
+	        dropFolderNode = dropNode;
+	        if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
+	          dropFolderNode = dropNode.parent();
+	          siblingDropNode = dropNode;
+	        }
+	        // Don't allow drag operation if nothing no drop folder node
+	        // found
+	        if (dropFolderNode == null) {
+	          event.preventDefault();
+	          event.target.hideDropFeedback(event);
+	          DragManager.showFeedback(DragManager.NONE);
+	          return;
+	        }
+	        
+	        // get the drag format (its always items in our case
+	        // Get the dragged items
+	        var draggedItems:Array = null;		    
+	        if (event.dragInitiator.name == "downloadTree") {
+	          // For some reason, if we are dragging within the tree, the dragged
+	          // items has to be detected on the dragEnter event.  By the time
+	          // with get to the dragDrop event, the event.draggedItems contains
+	          // the drop target, not the dragged items.
+	          draggedItems = this.downloadDraggedItems;	    
+	        } else {
+	          var draggedFormat:String = event.dragSource.formats[0];
+	          draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
+	        }
+	        for(var i:int = 0; i < draggedItems.length; i++) {
+	          var dragItem:XML = XML(draggedItems[i]);
+	          if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
+	            var fileNode:XML;
+	            if (dragItem.name() == "FileDescriptor" ){
+	              fileNode = new XML("<FileDescriptor " +
+	                " displayName='" +  dragItem.@displayName + "'" + 
+	                " fileName='" +  dragItem.@fileName + "'" + 
+	                " type='" + dragItem.@type + "'" +
+	                " directoryName='" + dragItem.@directoryName + "'/>");
+	            }
+	            if (dragItem.name() == "RequestDownload" ){
+	              fileNode = new XML("<FileDescriptor " +
+	                " displayName='" +  dragItem.@itemNumber + "'" + 
+	                " fileName='" +  dragItem.@fileName + "'" + 
+	                " type='dir'" +
+	                " directoryName='" + dragItem.@directoryName + "'/>");
+	            }
+	            
+	            
+	            for each ( var child:Object in dragItem.children() ) {
+	              fileNode.appendChild(child);	
+	            }
+	            
+	            // Don't allow dropping on yourself (causes a cyclical error)
+	            if ( fileNode.@fileName == dropFolderNode.@fileName ){
+	              return;
+	            }
+	            
+	            if (siblingDropNode != null) {
+	              dropFolderNode.insertChildAfter(siblingDropNode, fileNode);	       				
+	            } else {
+	              dropFolderNode.appendChild(fileNode);
+	            }
+	            downloadTree.expandItem(dropFolderNode, true);
+	            
+	            // We have to manually remove the file when we are
+	            // dragging within the download tree.
+	            if (event.dragInitiator.name == "downloadTree") {
+	              deleteNode(dragItem);
+	              downloadTree.selectedItem = null;
+	            }
+	            
+	            this.dirty.setDirty();
+	          } 
+	        }
+		}
       }
       
       private function deleteNode(xmlToDelete:XML):Boolean {
@@ -479,7 +482,7 @@
         var dropFolderNode:XML = dropNode;
         if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
           dropFolderNode = dropNode.parent();
-        }  else if (dropNode.name() == "Request") {
+        }  else if (dropNode.name() == "Request" && r != 0) {
           if (dropNode.children().length() > 0) {
             dropFolderNode = dropNode.children()[0];
           } else {
@@ -558,7 +561,7 @@
       </mx:VBox>
       <mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
         <mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
-          <mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Remove file"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
+          <mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
           <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.children().length() == 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
           <mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
           

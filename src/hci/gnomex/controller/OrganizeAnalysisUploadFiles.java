@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -95,6 +96,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
   public Command execute() throws RollBackCommandException {
 
     Session sess = null;
+    ArrayList tryLater = null;
     if (filesXMLString != null) {
       try {
         sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
@@ -110,7 +112,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
           // Add new directories to the file system
           for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
             String directoryName = (String)i.next();
-            File dir = new File(baseDir + "/" + directoryName);
+            File dir = new File(baseDir + File.separator + directoryName);
             if (!dir.exists()) {
               boolean success = dir.mkdirs();
               if (!success) { 
@@ -121,6 +123,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
           }
 
           // Move files to designated folder
+          tryLater = new ArrayList();
           for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
             
             String directoryName = (String)i.next();
@@ -132,7 +135,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               qualifiedFilePath = pathTokens[1];
             }
             for (int i2 = 2; i2 < pathTokens.length; i2++ ) {
-              qualifiedFilePath += "/" + pathTokens[i2];
+              qualifiedFilePath += File.separator + pathTokens[i2];
             }
             
             List fileNames = (List)parser.getFileNameMap().get(directoryName);
@@ -154,7 +157,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setIdAnalysis(Integer.valueOf(idAnalysis));
                     af.setFileName(new File(fileName).getName());
-                    af.setBaseFilePath(baseDir + "/" + analysis.getNumber());
+                    af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
                   }
                   af.setFileSize(new BigDecimal(new File(fileName).length()));
                   af.setQualifiedFilePath(qualifiedFilePath);
@@ -167,7 +170,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               
               File sourceFile = new File(fileName);
               sourceFile = sourceFile.getCanonicalFile();
-              String targetDirName = baseDir + "/" + analysis.getNumber() + "/" + qualifiedFilePath;
+              String targetDirName = baseDir + File.separator + analysis.getNumber() + File.separator + qualifiedFilePath;
               File targetDir = new File(targetDirName);
               targetDir = targetDir.getCanonicalFile();
 
@@ -195,14 +198,19 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               if (!success) {
                 if ( destFile.exists() ) {
                   if ( sourceFile.exists() ) {
-                    if ( !sourceFile.delete() ) {
-                      throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                    if (!sourceFile.delete() ) {
+                      if(sourceFile.isDirectory()) {
+                        // If can't delete directory then try again after everything has been moved
+                        tryLater.add(sourceFile.getAbsolutePath());
+                      } else {
+                        throw new Exception("Unable to move file " + fileName + " to " + targetDirName);                        
+                      }
                     }
                   }
                 } else {
                   throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
                 }
-              }
+              }            
             }
           }
 
@@ -271,6 +279,19 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
             }
           }
+          
+          if(tryLater != null) {
+            for (Iterator i = tryLater.iterator(); i.hasNext();) {
+              String fileName = (String)i.next();
+              File deleteFile = new File(fileName);
+              if ( deleteFile.exists() ) {
+                // Try to delete but don't throw error if unsuccessful.
+                // Just leave it to user to sort out the problem.
+                deleteFile.delete();
+              }
+            }
+          }
+          
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = "<SUCCESS/>";
           setResponsePage(this.SUCCESS_JSP);          

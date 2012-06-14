@@ -301,7 +301,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
         n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
         
-        String directoryName =  baseDir  + createYear + "/" + Request.getBaseRequestNumber(requestNumber) + "/" + resultDir;
+        String directoryName =  baseDir  + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + File.separator + resultDir;
         n.setAttribute("fileName", directoryName);
         
         boolean isSolexaRequest = false;
@@ -326,7 +326,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String)row[30];
         
         if (idSlideDesign == null && (hybNumber == null || hybNumber.equals(""))) {
-            n.setAttribute("results", "sample quality");
+          n.setAttribute("results", "sample quality");
+          n.setAttribute("type", "dir");
         } else {
           if (idSlideDesign != null) {
             n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
@@ -573,13 +574,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   public static Set getRequestDownloadFolders(String baseDir, String requestNumber, String createYear, String codeRequestCategory) {
 
     TreeSet folders = new TreeSet<String>(new FolderComparator(codeRequestCategory));
-    String directoryName = baseDir + createYear + "/" + requestNumber;
+    String directoryName = baseDir + createYear + File.separator + requestNumber;
     File fd = new File(directoryName);
 
     if (fd.isDirectory()) {
       String[] fileList = fd.list();
       for (int x = 0; x < fileList.length; x++) {
-        String fileName = directoryName + "/" + fileList[x];
+        String fileName = directoryName + File.separator + fileList[x];
         File f1 = new File(fileName);
         if (f1.isDirectory()) {
           folders.add(fileList[x]);          
@@ -595,13 +596,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     String dirTokens[] = createDate.split("/");
     String createYear  = dirTokens[2];
     
-    String directoryName = baseDir + "/" + createYear + "/" + Request.getBaseRequestNumber(requestNumber) + 
-                           (subDirectory != null ? "/" + Constants.UPLOAD_STAGING_DIR : "");
+    String directoryName = baseDir + File.separator + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + 
+                           (subDirectory != null ? File.separator + Constants.UPLOAD_STAGING_DIR : "");
     File fd = new File(directoryName);
     if (fd.exists() && fd.isDirectory()) {
       String[] fileList = fd.list();
       for (int x = 0; x < fileList.length; x++) {
-        String fileName = directoryName + "/" + fileList[x];
+        String fileName = directoryName + File.separator + fileList[x];
         File f1 = new File(fileName);
        
         // bypass temp files
@@ -615,7 +616,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
         
         // Hide that the files are in the upload staging directory.  Show them in the root experiment directory instead.
-        String zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + f1.getName();
+        String zipEntryName = Request.getBaseRequestNumber(requestNumber) + File.separator + f1.getName();
 
         FileDescriptor fdesc = new FileDescriptor(Request.getBaseRequestNumber(requestNumber), f1.getName(), f1, zipEntryName);
         fdesc.setDirectoryName("");
