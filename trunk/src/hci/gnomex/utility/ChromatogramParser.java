@@ -64,6 +64,8 @@ public class ChromatogramParser extends DetailObject implements Serializable
 
       this.initializeChromat(sess, node, ch);
       
+      sess.flush();
+      
       PlateWell pw = null;
       Plate p = null;
       InstrumentRun ir=null;
@@ -209,7 +211,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
 
   public void requeueSourceWells( int idReactionWell, Session sess ) {
       PlateWell reactionWell = (PlateWell) sess.get( PlateWell.class, idReactionWell );
-      StringBuffer buf = getRedoQuery( reactionWell );
+      StringBuffer buf = getRedoQuery( reactionWell, false );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();
       
@@ -221,14 +223,16 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
     }
   
-  public static StringBuffer getRedoQuery( PlateWell reactionWell ) {
+  public static StringBuffer getRedoQuery( PlateWell reactionWell, boolean toToggleBack ) {
     StringBuffer    queryBuf = new StringBuffer();
     queryBuf.append(" SELECT     well FROM PlateWell as well ");
     queryBuf.append(" LEFT JOIN  well.plate plate ");
     
+    queryBuf.append(" WHERE   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
     // Filter to get source wells with redo flags
-    queryBuf.append(" WHERE well.redoFlag = 'N' ");
-    queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
+    if (!toToggleBack) {
+      queryBuf.append(" AND well.redoFlag = 'N' ");
+    }
     // with sample, request, assay, and primer matching the reaction well
     if ( reactionWell.getIdSample() != null ) {
       queryBuf.append(" AND   (well.idSample = '" + reactionWell.getIdSample() + "') ");

@@ -277,7 +277,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
     for(Iterator i = plateWells.iterator(); i.hasNext();) {
       PlateWell reactionWell = (PlateWell)i.next();
       
-      StringBuffer buf = ChromatogramParser.getRedoQuery( reactionWell );
+      StringBuffer buf = ChromatogramParser.getRedoQuery( reactionWell, true );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();
       
