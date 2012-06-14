@@ -7,6 +7,7 @@ import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
@@ -113,7 +114,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         
         // Delete source plates
         if (req.getSamples().size() > 0) {
-          String sourcePlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (";
+          String sourcePlateQuery = "SELECT pw from PlateWell pw left join pw.plate p where (p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' or p.idPlate is NULL) and pw.idSample in (";
           Boolean firstSample = true;
           for(Iterator i = req.getSamples().iterator();i.hasNext();) {
             Sample s = (Sample)i.next();
