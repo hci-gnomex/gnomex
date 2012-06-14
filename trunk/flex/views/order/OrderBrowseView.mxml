@@ -489,7 +489,7 @@
 							 id = "newCheckbox"
 							 horizontalGap = "0"
 							 styleName = "labelSmall"
-							 paddingLeft = "2" selected="true">
+							 paddingLeft = "2" selected="false">
 					<mx:click>
 						toggleStatusCheckboxes( 1 );
 						this.getList();
@@ -501,7 +501,7 @@
 							 id = "submittedCheckbox"
 							 paddingLeft = "2"
 							 horizontalGap = "0"
-							 styleName = "labelSmall">
+							 styleName = "labelSmall" selected="true">
 					<mx:click>
 						toggleStatusCheckboxes( 3 );
 						this.getList();
