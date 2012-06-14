@@ -70,8 +70,13 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
 
       Element iNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       
-      AppUser creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( ir.getCreator() ));
-      iNode.setAttribute( "creator", creator != null?  creator.getDisplayName() : ir.getCreator() );
+      String creator = ir.getCreator();
+      if ( creator != null && !creator.equals( "" ) ) {
+        AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+        iNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+      } else {
+        iNode.setAttribute( "creator", creator);
+      }
 
       List plates = sess.createQuery("SELECT p from Plate as p where p.idInstrumentRun=" + idInstrumentRun).list();
 
@@ -82,8 +87,13 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
         plate.excludeMethodFromXML("getInstrumentRun");
         Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         
-        creator = (AppUser)sess.get(AppUser.class, Integer.valueOf( plate.getCreator() ));
-        pNode.setAttribute( "creator", creator != null ? creator.getDisplayName() : plate.getCreator() );
+        creator = plate.getCreator();
+        if ( creator != null && !creator.equals( "" ) ) {
+          AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+          pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+        } else {
+          pNode.setAttribute( "creator", creator);
+        }
         
         Element pwNode = new Element("plateWells");
 

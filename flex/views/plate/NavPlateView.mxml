@@ -188,7 +188,8 @@
 					switchActivePlate();
 					callLater( toggleReactionType, [SEQ] );
 				}
-				
+				refreshRunLists();
+				getSampleList();
 				isInitialized = true;
 			}
 			
@@ -1503,7 +1504,6 @@
 					getSampleList();
 					
 					switchToEditState();
-//					callLater( loadRunById, [idInstrumentRun.toString()] );
 				} else {
 					Alert.show( "An error occurred while saving the instrument run." );
 				}
@@ -1613,6 +1613,7 @@
 						
 					}
 					refreshRunLists();
+					getSampleList();
 					if ( loadRunAfterSave ) {
 						callLater( loadRunById, [savePlate.lastResult.Plate.@idInstrumentRun] );
 					} else if ( loadPlateAfterSave ) {
