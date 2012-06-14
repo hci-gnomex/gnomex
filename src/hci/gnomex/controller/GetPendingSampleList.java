@@ -92,31 +92,33 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-
-      //
-      // Get the 'redo' samples. Organize by primer or assay, then request, then well
-      //
-      StringBuffer buf = filter.getRedoQuery();
-      log.info("Redo sample query for GetPendingSampleList: " + buf.toString());
-      Query query = sess.createQuery(buf.toString());
-      List redoResults = (List)query.list();
-      requestMap = new  TreeMap<Integer, TreeMap<String, List<Object[]>>>();
-      hashResults(redoResults, dictionaryHelper, null);
-      fillNodes(redoNode, dictionaryHelper);
-
+      
       // Get the pending samples that are already on a reaction plate.
       // We hash these so that they will be excluded from the
       // pending sample list
       //
       HashMap<Integer, Sample> samplesToFilter = new HashMap<Integer, Sample>(); 
-      buf = filter.getPendingSamplesAlreadyOnPlateQuery();
+      StringBuffer buf = filter.getPendingSamplesAlreadyOnPlateQuery();
       log.info("Pending samples alrady on plate GetPendingSampleList: " + buf.toString());
-      query = sess.createQuery(buf.toString());
+      Query query = sess.createQuery(buf.toString());
       List pendingSamplesAlreadyOnPlate = (List)query.list();
       for (Iterator i = pendingSamplesAlreadyOnPlate.iterator(); i.hasNext();) {
         Sample s = (Sample)i.next();
         samplesToFilter.put(s.getIdSample(), s);
       }
+
+      //
+      // Get the 'redo' samples. Organize by primer or assay, then request, then well
+      //
+      buf = filter.getRedoQuery();
+      log.info("Redo sample query for GetPendingSampleList: " + buf.toString());
+      query = sess.createQuery(buf.toString());
+      List redoResults = (List)query.list();
+      requestMap = new  TreeMap<Integer, TreeMap<String, List<Object[]>>>();
+      hashResults(redoResults, dictionaryHelper, samplesToFilter);
+      fillNodes(redoNode, dictionaryHelper);
+
+
 
       //
       // Get the pending samples under a status xml node, and then assay or
