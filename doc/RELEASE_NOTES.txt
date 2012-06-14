@@ -31,6 +31,10 @@
 * Added request category platform type combo box to the experiment platform add window.(tcourdy) 
 * Implemented billing plugins for Capillary Sequencing requests. (tdisera)
 
+deploy notes 
+--------------------
+* Run  update script to set codeRequestStatus to "" on all requests.  (Only new request types get status).  (tdisera)
+
 5.4.4.1 (May 21, 2012)
 ----------------------
 * Change style of Alert (message box). (tdisera)
