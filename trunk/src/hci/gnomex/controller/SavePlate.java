@@ -9,6 +9,7 @@ import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PlateWellParser;
 
@@ -276,7 +277,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
     for(Iterator i = plateWells.iterator(); i.hasNext();) {
       PlateWell reactionWell = (PlateWell)i.next();
       
-      StringBuffer buf = getRedoQuery( reactionWell );
+      StringBuffer buf = ChromatogramParser.getRedoQuery( reactionWell );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();
       
@@ -290,36 +291,6 @@ public class SavePlate extends GNomExCommand implements Serializable {
     }
   }
   
-  public StringBuffer getRedoQuery( PlateWell reactionWell ) {
-    StringBuffer    queryBuf = new StringBuffer();
-    queryBuf.append(" SELECT     well FROM PlateWell as well ");
-    queryBuf.append(" LEFT JOIN  well.plate plate ");
-    
-    // Filter to get source wells with redo flags
-    queryBuf.append(" WHERE well.redoFlag = 'Y' ");
-    queryBuf.append(" AND   (well.idPlate is NULL or plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') "); 
-    // with sample, request, assay, and primer matching the reaction well
-    if ( reactionWell.getIdSample() != null ) {
-      queryBuf.append(" AND   (well.idSample = '" + reactionWell.getIdSample() + "') ");
-    }
-    if ( reactionWell.getIdRequest() != null ) {
-      queryBuf.append(" AND   (well.idRequest = '" + reactionWell.getIdRequest() + "') ");
-    }
-    if ( reactionWell.getIdAssay() != null ) {
-      queryBuf.append(" AND   (well.idAssay = '" + reactionWell.getIdAssay() + "') "); 
-    }
-    if ( reactionWell.getIdPrimer() != null ) {
-      queryBuf.append(" AND   (well.idPrimer = '" + reactionWell.getIdPrimer() + "') ");
-    }
-    if ( reactionWell.getCodeReactionType() != null ) {
-      queryBuf.append(" AND   (well.codeReactionType = '" + reactionWell.getCodeReactionType() + "') ");
-    } else {
-      queryBuf.append(" AND   (well.codeReactionType is null) ");
-    }
-
-    return queryBuf;
-    
-  }
   
   private class WellComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
