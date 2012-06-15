@@ -1,6 +1,8 @@
 package hci.gnomex.model;
 
 
+import java.util.Calendar;
+
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
@@ -21,6 +23,11 @@ public class PlateFilter extends DetailObject {
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
+  
+  private String                createdLastWeek = "N";
+  private String                createdLastMonth = "N";
+  private String                createdLastThreeMonths = "N";
+  private String                createdLastYear = "N";
 
 
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
@@ -50,11 +57,15 @@ public class PlateFilter extends DetailObject {
     boolean hasLimitingCriteria = false;
     if (idPlate != null ||
         idInstrumentRun != null ||
-       (status != null && !status.equals("")) ||
-       (plateType != null && !plateType.equals("")) ||
-       (codeReactionType != null && !codeReactionType.equals("")) ||
-        getAll.equals("Y") ||
-        notAddedToARun.equals("Y")) {
+        (status != null && !status.equals("")) ||
+        (plateType != null && !plateType.equals("")) ||
+        (codeReactionType != null && !codeReactionType.equals("")) ||
+        (getAll != null && getAll.equals("Y")) ||
+        (createdLastWeek != null && createdLastWeek.equals("Y")) ||
+        (createdLastMonth != null && createdLastMonth.equals("Y")) ||
+        (createdLastThreeMonths != null && createdLastThreeMonths.equals("Y")) ||
+        (createdLastYear != null && createdLastYear.equals("Y"))  ||
+        (notAddedToARun != null && notAddedToARun.equals("Y"))) {
       hasLimitingCriteria = true;
     } else {
       hasLimitingCriteria = false;
@@ -93,14 +104,6 @@ public class PlateFilter extends DetailObject {
       queryBuf.append(idInstrumentRun);
     } 
 
-    // Search by status
-    if (status != null && !status.equals("")) {
-      this.addWhereOrAnd();
-      queryBuf.append("(");
-      queryBuf.append(" p.status like '%" + status + "%'");
-      queryBuf.append(")");
-    }
-    
     // Search by plate type
     if (plateType != null && !plateType.equals("")) {
       this.addWhereOrAnd();
@@ -124,6 +127,54 @@ public class PlateFilter extends DetailObject {
       queryBuf.append(" p.idInstrumentRun is null");
       queryBuf.append(")");
     }
+    
+    if (createdLastWeek.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DAY_OF_YEAR, -7);
+      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" p.createDate >= '");
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for instrument run created in last month
+    if (createdLastMonth.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -1);
+      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" p.createDate >= '");
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for instrument run created in last 3 months
+    if (createdLastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" p.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for instrument run created in last year
+    if (createdLastYear.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.YEAR, -1);
+      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" p.createDate >= '");
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }    
 
   }
 
@@ -216,6 +267,45 @@ public class PlateFilter extends DetailObject {
   {
     this.notAddedToARun = notAddedToARun;
   }
+  
+  public String getCreatedLastWeek() {
+    return createdLastWeek;
+  }
 
+  public void setCreatedLastWeek(String createdLastWeek) {
+    this.createdLastWeek = createdLastWeek;
+  }
+
+  public String getCreatedLastMonth() {
+    return createdLastMonth;
+  }
+
+  public void setCreatedLastMonth(String createdLastMonth) {
+    this.createdLastMonth = createdLastMonth;
+  }
+
+  public String getCreatedLastThreeMonths() {
+    return createdLastThreeMonths;
+  }
+
+  public void setCreatedLastThreeMonths(String createdLastThreeMonths) {
+    this.createdLastThreeMonths = createdLastThreeMonths;
+  }
+
+  public String getCreatedLastYear() {
+    return createdLastYear;
+  }
+
+  public void setCreatedLastYear(String createdLastYear) {
+    this.createdLastYear = createdLastYear;
+  }
+  
+  public String getCodePlateType() {
+    return plateType;
+  }
+
+  public void setCodePlateType(String codePlateType) {
+    this.plateType = codePlateType;
+  }
 
 }
