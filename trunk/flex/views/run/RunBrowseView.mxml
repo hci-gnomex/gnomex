@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
-		 xmlns:util="views.util.*"  show="init()"  paddingTop="1" verticalGap="0">
-	
-	<mx:HBox verticalAlign="middle" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
-		<mx:LinkButton label="Instrument runs" textDecoration="underline" icon="@Embed(source='../../assets/run.png')" paddingBottom="0" paddingTop="0"/>
-		<mx:LinkButton label="Plates" textDecoration="underline" icon="@Embed(source='../../assets/application_view_icons.png')" paddingBottom="0"/>
-		<mx:Spacer width="100%"/>
-		<mx:LinkButton textDecoration = "underline"
-					   label = "Refresh"
-					   click = "{getList();}"
-					   icon = "@Embed('../../assets/action_refresh.gif')"
-					   toolTip = "Refresh run list"  paddingBottom="0" paddingTop="0"/>
-	</mx:HBox>
-	
+		 xmlns:util="views.util.*" xmlns:run="views.run.*"  show="init()"  paddingTop="1" verticalGap="0">
 	
 	<mx:HTTPService 
 		id="getInstrumentRunList" 
@@ -52,11 +40,13 @@
 		<![CDATA[
 			
 			import mx.controls.Alert;
+			
+			import hci.flex.controls.DropdownLabel;
+			
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
-			import hci.flex.controls.DropdownLabel;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -109,14 +99,14 @@
 			
 			private function onSaveInstrumentRun( event:ResultEvent ):void {
 				if ( event.result.name() == "SUCCESS" ) {
-					this.getList();
+					parentDocument.getList();
 					return;
 				}
 				Alert.show( event.result..ERROR.@message.toString(), "Error saving runs" );
 				
 			}
 			
-			private function getList():void {
+			public function getList():void {
 				getInstrumentRunList.send(getRunParameters());
 			}
 			
@@ -157,7 +147,7 @@
 			
 			private function onDeleteInstrumentRuns(event:ResultEvent):void{
 				if ( event.result.name() == "SUCCESS" ) {
-					this.getList();
+					getList();
 					return;
 				}
 				Alert.show( event.result..ERROR.@message.toString(), "Error deleting runs" );
@@ -167,44 +157,44 @@
 			private function getRunParameters():Object {
 				var params:Object = new Object;
 				
-				if ( this.allCheckbox.selected ) {
+				if ( parentDocument.allCheckbox.selected ) {
 					params.getAll = 'Y';
 					return params;
 				}
 				
-				params.createdLastWeek = this.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastMonth = this.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastThreeMonths = this.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastYear = this.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastYear = parentDocument.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
 				
-				params.runLastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
-				params.runLastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
-				params.runLastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
-				params.runLastYear = this.lastYearCheckbox.selected ? 'Y' : 'N' ;
+				params.runLastWeek = parentDocument.lastWeekCheckbox.selected ? 'Y' : 'N' ;
+				params.runLastMonth = parentDocument.lastMonthCheckbox.selected ? 'Y' : 'N' ;
+				params.runLastThreeMonths = parentDocument.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
+				params.runLastYear = parentDocument.lastYearCheckbox.selected ? 'Y' : 'N' ;
 				
-				if ( this.pendingCheckbox.selected ) {
+				if ( parentDocument.pendingCheckbox.selected ) {
 					params.status = 'PENDING' ;
 				}
-				if ( this.runningCheckbox.selected ) {
+				if ( parentDocument.runningCheckbox.selected ) {
 					params.status = 'RUNNING' ;
 				}
-				if ( this.completeCheckbox.selected ) {
+				if ( parentDocument.completeCheckbox.selected ) {
 					params.status = 'COMPLETE' ;
 				}
-				if ( this.failedCheckbox.selected ) {
+				if ( parentDocument.failedCheckbox.selected ) {
 					params.status = 'FAILED' ;
 				}
 				
-				if ( this.capSeqCheckbox.selected ) {
+				if ( parentDocument.capSeqCheckbox.selected ) {
 					params.codeReactionType = 'SEQ' ;
 				}
-				if ( this.fragCheckbox.selected ) {
+				if ( parentDocument.fragCheckbox.selected ) {
 					params.codeReactionType = 'FRAG' ;
 				}
-				if ( this.mitoCheckbox.selected ) {
+				if ( parentDocument.mitoCheckbox.selected ) {
 					params.codeReactionType = 'MIT' ;
 				}
-				if ( this.cherryCheckbox.selected ) {
+				if ( parentDocument.cherryCheckbox.selected ) {
 					params.codeReactionType = 'CHERRY' ;
 				}
 				
@@ -213,52 +203,52 @@
 			
 			private function checkEmptyFilter():Boolean {
 								
-				if ( this.lastWeekCheckbox.selected ) {
+				if ( parentDocument.lastWeekCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.lastMonthCheckbox.selected ) {
+				if ( parentDocument.lastMonthCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.lastThreeMonthsCheckbox.selected ) {
+				if ( parentDocument.lastThreeMonthsCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.lastYearCheckbox.selected ) {
+				if ( parentDocument.lastYearCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.lastWeekCheckboxCreated.selected ) {
+				if ( parentDocument.lastWeekCheckboxCreated.selected ) {
 					return false ;
 				}
-				if ( this.lastMonthCheckboxCreated.selected ) {
+				if ( parentDocument.lastMonthCheckboxCreated.selected ) {
 					return false ;
 				}
-				if ( this.lastThreeMonthsCheckboxCreated.selected ) {
+				if ( parentDocument.lastThreeMonthsCheckboxCreated.selected ) {
 					return false ;
 				}
-				if ( this.lastYearCheckboxCreated.selected ) {
+				if ( parentDocument.lastYearCheckboxCreated.selected ) {
 					return false ;
 				}
-				if ( this.pendingCheckbox.selected ) {
+				if ( parentDocument.pendingCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.runningCheckbox.selected ) {
+				if ( parentDocument.runningCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.completeCheckbox.selected ) {
+				if ( parentDocument.completeCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.failedCheckbox.selected ) {
+				if ( parentDocument.failedCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.capSeqCheckbox.selected ) {
+				if ( parentDocument.capSeqCheckbox.selected ) {
 					return false;
 				}
-				if ( this.fragCheckbox.selected ) {
+				if ( parentDocument.fragCheckbox.selected ) {
 					return false;
 				}
-				if ( this.mitoCheckbox.selected ) {
+				if ( parentDocument.mitoCheckbox.selected ) {
 					return false;
 				}
-				if ( this.cherryCheckbox.selected ) {
+				if ( parentDocument.cherryCheckbox.selected ) {
 					return false;
 				}
 				
@@ -269,135 +259,6 @@
 				return item.@isSelected == true;
 			}
 			
-			private function toggleDateCheckboxes(checkBoxNumber:int):void {
-				if (checkBoxNumber == 0) {
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected  = false;
-					
-					this.lastWeekCheckboxCreated.selected  = false;
-					this.lastMonthCheckboxCreated.selected = false;
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					this.lastYearCheckboxCreated.selected  = false;
-					
-					this.pendingCheckbox.selected = false;
-					this.runningCheckbox.selected  = false;
-					this.completeCheckbox.selected = false;
-					this.failedCheckbox.selected  = false;
-					
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
-					
-				} else if (checkBoxNumber == 1) {
-					this.allCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 2) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 3) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected  = false;
-					this.lastMonthCheckbox.selected = false; 
-					this.lastYearCheckbox.selected  = false;
-					
-				}  else if (checkBoxNumber == 4) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected  = false;
-					this.lastMonthCheckbox.selected = false; 
-					this.lastThreeMonthsCheckbox.selected = false;
-					
-				}   
-			} 		 
-			
-			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
-				if (checkBoxNumber == 1) {
-					this.allCheckbox.selected = false;
-					this.lastMonthCheckboxCreated.selected = false;
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					this.lastYearCheckboxCreated.selected  = false;
-					
-				} else if (checkBoxNumber == 2) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckboxCreated.selected = false;
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					this.lastYearCheckboxCreated.selected  = false;
-					
-				} else if (checkBoxNumber == 3) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckboxCreated.selected  = false;
-					this.lastMonthCheckboxCreated.selected = false; 
-					this.lastYearCheckboxCreated.selected  = false;
-					
-				}  else if (checkBoxNumber == 4) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckboxCreated.selected  = false;
-					this.lastMonthCheckboxCreated.selected = false; 
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					
-				}   
-			} 		 
-			
-			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
-				if (checkBoxNumber == 1) {
-					this.allCheckbox.selected = false;
-					this.runningCheckbox.selected  = false;
-					this.completeCheckbox.selected = false;
-					this.failedCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 2) {
-					this.allCheckbox.selected = false;
-					this.pendingCheckbox.selected = false;
-					this.completeCheckbox.selected = false;
-					this.failedCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 3) {
-					this.allCheckbox.selected = false;
-					this.pendingCheckbox.selected = false;
-					this.runningCheckbox.selected = false;
-					this.failedCheckbox.selected  = false;
-					
-				}  else if (checkBoxNumber == 4) {
-					this.allCheckbox.selected = false;
-					this.pendingCheckbox.selected = false;
-					this.runningCheckbox.selected  = false;
-					this.completeCheckbox.selected  = false;
-					
-				} 
-			}
-			
-			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
-				
-				if (checkBoxNumber == 1) {
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
-					
-				} else if (checkBoxNumber == 2) {
-					this.capSeqCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
-					
-				} else if (checkBoxNumber == 3) {
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.cherryCheckbox.selected = false;
-					
-				}  else if (checkBoxNumber == 4) {
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					
-				}     
-			} 	
 			public function createRunFile(event:MouseEvent):void {
 				var idRun:int = (int)(runList[runGrid.selectedIndex].@idInstrumentRun);
 				
@@ -412,288 +273,6 @@
 	<mx:XMLListCollection id = "runList" source = "{getInstrumentRunList.lastResult.InstrumentRun}" />
 	<mx:XMLListCollection id = "selectedRuns" source="{getInstrumentRunList.lastResult.InstrumentRun}" 
 						  filterFunction="selectedFilterFunc"/>
-
-	<mx:VBox  width="100%" verticalGap="0" >
-			<mx:HBox id = "filterBar"
-					 horizontalGap = "10"
-					 paddingTop = "0"
-					 paddingBottom = "0"
-					 paddingLeft = "2"
-					 horizontalAlign = "left"
-					 verticalAlign = "middle" paddingRight="2">
-				
-				<mx:HBox horizontalGap="0" height="100%"
-						 verticalAlign="middle"
-						 verticalGap="0"
-						 horizontalAlign="right"
-						 paddingLeft="5"
-						 paddingRight="5">
-					<mx:CheckBox id="allCheckbox"
-								 label="Show all"
-								 paddingRight="0"
-								 paddingLeft="0"
-								 horizontalGap="0" styleName="labelSmall">
-						<mx:click>
-							toggleDateCheckboxes( 0 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-				</mx:HBox>
-				
-				<mx:VRule height="20" />
-				<mx:HBox id = "statusCheckboxBar"
-						 horizontalGap = "0"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right">
-					<mx:CheckBox label = "Pending"
-								 id = "pendingCheckbox"
-								 horizontalGap = "0"
-								 styleName = "labelSmall"
-								 paddingLeft = "2" selected="true">
-						<mx:click>
-							toggleStatusCheckboxes( 1 );
-							getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox label = "Running"
-								 id = "runningCheckbox"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleStatusCheckboxes( 2 );
-							getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox label = "Complete"
-								 id = "completeCheckbox"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleStatusCheckboxes( 3 );
-							getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox label = "Failed"
-								 id = "failedCheckbox"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleStatusCheckboxes( 4 );
-							getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-				</mx:HBox>
-				
-				<mx:VRule height = "20" />
-
-				<mx:HBox id = "typeCheckboxBar"
-						 horizontalGap = "0"
-						 height = "100%"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5"
-						 paddingRight = "5">
-					<mx:VBox verticalGap="0">
-						<mx:CheckBox label = "Cap Seq"
-									 id = "capSeqCheckbox"
-									 horizontalGap = "0"
-									 styleName = "labelSmall"
-									 paddingLeft = "2" paddingRight="0" paddingTop="0" paddingBottom="0">
-							<mx:click>
-								toggleTypeCheckboxes( 1 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Frag Analysis"
-									 id = "fragCheckbox"
-									 paddingLeft = "2"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" paddingBottom="0" paddingRight="0" paddingTop="0">
-							<mx:click>
-								toggleTypeCheckboxes( 2 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:CheckBox label = "Mit Seq"
-									 id = "mitoCheckbox"
-									 paddingLeft = "0"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" paddingBottom="0" paddingTop="0" paddingRight="0">
-							<mx:click>
-								toggleTypeCheckboxes( 3 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Cherry Pick"
-									 id = "cherryCheckbox"
-									 paddingLeft = "0"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" paddingBottom="0"  paddingRight="0">
-							<mx:click>
-								toggleTypeCheckboxes( 4 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-					</mx:VBox>	
-				</mx:HBox>
-
-				<mx:VRule height = "20" />
-
-				<mx:HBox id = "createDateCheckboxBar"
-						 horizontalGap = "0" height="100%"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5"
-						 paddingRight = "5">
-					<mx:VBox verticalGap="0">
-						<mx:HBox horizontalGap="0">
-							<mx:CheckBox id = "lastWeekCheckboxCreated"
-										 label = "Created in last week"
-										 paddingRight = "0"
-										 horizontalGap = "0"
-										 paddingLeft = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 1 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id = "lastMonthCheckboxCreated"
-										 label = "month"
-										 paddingRight = "0"
-										 paddingLeft = "2"
-										 horizontalGap = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 2 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id = "lastThreeMonthsCheckboxCreated"
-										 label = "3 months"
-										 paddingRight = "0"
-										 paddingLeft = "2"
-										 horizontalGap = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 3 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id = "lastYearCheckboxCreated"
-										 label = "year"
-										 paddingLeft = "2"
-										 paddingRight = "0"
-										 horizontalGap = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 4 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-						</mx:HBox>
-						<mx:HBox horizontalGap="0">
-							<mx:CheckBox id = "lastWeekCheckbox"
-										 label = "Run in last week"
-										 paddingRight = "0"
-										 horizontalGap = "0"
-										 paddingLeft = "0"
-										 styleName = "labelSmall" width="122">
-								<mx:click>
-									toggleCreateDateCheckboxes( 1 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id = "lastMonthCheckbox"
-										 label = "month"
-										 paddingRight = "0"
-										 paddingLeft = "2"
-										 horizontalGap = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 2 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id = "lastThreeMonthsCheckbox"
-										 label = "3 months"
-										 paddingRight = "0"
-										 paddingLeft = "2"
-										 horizontalGap = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 3 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id = "lastYearCheckbox"
-										 label = "year"
-										 paddingLeft = "2"
-										 paddingRight = "0"
-										 horizontalGap = "0"
-										 styleName = "labelSmall" paddingTop="0">
-								<mx:click>
-									toggleCreateDateCheckboxes( 4 );
-									getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-						</mx:HBox>
-					</mx:VBox>
-					
-				</mx:HBox>
-				
-				
-			</mx:HBox>
-
-		
-	</mx:VBox>
-	<mx:VDividedBox width = "100%"
-					height = "100%"
-					styleName = "form"
-					paddingBottom = "4"
-					paddingLeft = "4"
-					paddingRight = "4"
-					paddingTop = "4">
 
 		<mx:VBox width = "100%" height = "100%" verticalGap = "1">
 
@@ -790,9 +369,6 @@
 			</mx:DataGrid>
 
 		</mx:VBox>
-
-	</mx:VDividedBox>
-
 
 	<mx:ControlBar horizontalAlign = "left" width = "100%" paddingTop="2" paddingBottom="2">
 		<mx:Label id = "nSelectedRuns" text="{selectedRuns.length + ' selected'}" />
