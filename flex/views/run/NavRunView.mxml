@@ -4,8 +4,8 @@
 			 paddingTop="1" verticalGap="0" show="getList()"  xmlns:util="views.util.*" xmlns:run="views.run.*">
 	
 	<mx:HBox verticalAlign="middle" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
-		<mx:LinkButton label="Instrument runs" textDecoration="underline" icon="@Embed(source='../../assets/run.png')" click="{theViews.selectedChild = runBrowseView}" paddingBottom="0" paddingTop="0"/>
-		<mx:LinkButton label="Plates" textDecoration="underline" click="{theViews.selectedChild = plateBrowseView}" icon="@Embed(source='../../assets/application_view_icons.png')" paddingBottom="0"/>
+		<mx:LinkButton label="Instrument runs" textDecoration="underline" icon="@Embed(source='../../assets/run.png')" click="{toggleDateCheckboxes(0);(allCheckbox.selected = false); (theViews.selectedChild = runBrowseView);}" paddingBottom="0" paddingTop="0"/>
+		<mx:LinkButton label="Plates" textDecoration="underline" click="{toggleDateCheckboxes(0); (allCheckbox.selected = false); (theViews.selectedChild = plateBrowseView);}" icon="@Embed(source='../../assets/application_view_icons.png')" paddingBottom="0"/>
 		<mx:Spacer width="100%"/>
 		<mx:LinkButton textDecoration = "underline"
 					   label = "Refresh"
@@ -210,7 +210,7 @@
 								 id = "pendingCheckbox"
 								 horizontalGap = "0"
 								 styleName = "labelSmall"
-								 paddingLeft = "2" selected="true">
+								 paddingLeft = "2" selected="{theViews.selectedChild == runBrowseView}">
 						<mx:click>
 							toggleStatusCheckboxes( 1 );
 							getList();
