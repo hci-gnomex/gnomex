@@ -9,6 +9,8 @@ import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -32,6 +34,10 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
   
   private int                   idChromatogram;
   private boolean               isNew = true;
+  
+  private String                serverName = null;
+  private String                launchAppURL;
+  private String                appURL;
   
   private int                   idPlateWell = 0;
   private int                   idRequest = 0;
@@ -107,6 +113,16 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
     if (request.getParameter("gSignalStrength") != null && !request.getParameter("gSignalStrength").equals("")) {
       gSignalStrength = Integer.parseInt(request.getParameter("gSignalStrength"));
     }
+    
+    serverName = request.getServerName();
+    
+    try {
+      launchAppURL = this.getLaunchAppURL(request);      
+      appURL = this.getAppURL(request);      
+    } catch (Exception e) {
+      log.warn("Cannot get launch app URL in SaveChromatogram", e);
+    }
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -145,7 +161,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
         if ( ir!=null ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
-          changeRequestsToComplete( sess, ir );
+          changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
         }
       }
       if (releaseDateStr != null) {
@@ -153,7 +169,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         ch.setReleaseDate(releaseDate);
         if ( ir!=null ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
-          changeRequestsToComplete( sess, ir );
+          changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
         }
       }
       
@@ -192,7 +208,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void changeRequestsToComplete(Session sess, InstrumentRun ir) {
+  public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) {
  
     // Get any requests on that run
     Map requests = new HashMap();
@@ -212,6 +228,14 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       Request req = (Request) sess.get(Request.class, idReq );
       if ( req.getCompletedDate() == null ) {
         req.setCodeRequestStatus( RequestStatus.COMPLETED );
+        
+        // We need to email the submitter that the experiment results
+        // are ready to download
+        try {
+          EmailHelper.sendConfirmationEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
+        } catch (Exception e) {
+          log.warn("Cannot send confirmation email for request " + req.getNumber());
+        }
       }
       req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
     }
