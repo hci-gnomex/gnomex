@@ -7,6 +7,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
@@ -80,7 +81,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      log.warn("Cannot get launch app URL in SaveWorkItemExtraction", e);
     }
     
     serverName = request.getServerName();
@@ -131,7 +132,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
                   request.getAppUser().getEmail() != null &&
                   !request.getAppUser().getEmail().equals("")) {
                 try {
-                  this.sendConfirmationEmail(sess, request);                  
+                  EmailHelper.sendConfirmationEmail(sess, request, this.getSecAdvisor(), launchAppURL, appURL, serverName);                  
                 } catch (Exception e) {
                   log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
                   " is complete. " + e.toString());
@@ -185,41 +186,6 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
   
 
   
-  private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
-    
-    dictionaryHelper = DictionaryHelper.getInstance(sess);
-    
-    StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
-    introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
-    introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
-    
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
-    emailFormatter.setIncludeMicroarrayCoreNotes(false);
-        
-    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
-    
-    boolean send = false;
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
-    }
-    
-    if (send) {
-      MailUtil.send(request.getAppUser().getEmail(), 
-          null,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
-          subject, 
-          emailFormatter.format(),
-          true);
-      
-    }
-    
-  }
 
   
 

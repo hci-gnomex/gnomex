@@ -2,12 +2,14 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.controller.SaveChromatogram;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,6 +30,10 @@ public class ChromatogramParser extends DetailObject implements Serializable
   private Map      chMap = new HashMap();
   private List<Chromatogram>       chromatList = new ArrayList<Chromatogram>();
   
+  private SecurityAdvisor secAdvisor = null;
+  private String launchAppURL = null;
+  private String appURL = null;
+  private String serverName = null;
   
   public ChromatogramParser(Document doc) {
     this.doc = doc;
@@ -41,10 +47,15 @@ public class ChromatogramParser extends DetailObject implements Serializable
     setChMap( new HashMap() );
   }
 
-  public void parse(Session sess) throws Exception {
+  public void parse(Session sess, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws Exception {
     Chromatogram ch = new Chromatogram();
     Element root = this.doc.getRootElement();
 
+    this.secAdvisor = secAdvisor;
+    this.launchAppURL = launchAppURL;
+    this.appURL = appURL;
+    this.serverName = serverName;
+    
     for (Iterator i = root.getChildren("Chromatogram").iterator(); i.hasNext();) {
       Element node = (Element) i.next();
 
@@ -82,6 +93,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       if ( ch.getReleaseDate() != null ) {
         if ( ir!=null ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+          SaveChromatogram.changeRequestsToComplete(sess, ir, secAdvisor, launchAppURL, appURL, serverName);
         }
       }
       

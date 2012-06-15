@@ -27,6 +27,10 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
   private ChromatogramParser           parser;
   
   
+  private String                serverName = null;
+  private String                launchAppURL;
+  private String                appURL;
+  
   public void validate() {
   }
   
@@ -46,6 +50,17 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
       }
     }
 
+    
+    serverName = request.getServerName();
+    
+    try {
+      launchAppURL = this.getLaunchAppURL(request);      
+      appURL = this.getAppURL(request);      
+    } catch (Exception e) {
+      log.warn("Cannot get launch app URL in SaveChromatogram", e);
+    }
+
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -55,7 +70,7 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
         Session sess = HibernateSession.currentSession(this.getUsername());
 
 
-        parser.parse(sess);
+        parser.parse(sess, this.getSecAdvisor(), launchAppURL, appURL, serverName);
 
         sess.flush();
 
