@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 
+import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
@@ -103,23 +104,35 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
     // Get any requests on that run
     Map requests = new HashMap();
     ChromatogramParser cp = new ChromatogramParser();
-    List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
-        " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
-    for(Iterator i1 = wells.iterator(); i1.hasNext();) {
-      PlateWell well = (PlateWell)i1.next();
-      Plate delPlate = (Plate) sess.load(Plate.class, well.getIdPlate());
-      
-      if(well.getRedoFlag().equals("Y")){
-        cp.requeueSourceWells(well.getIdPlateWell(), sess);
-      }
+    List plates = sess.createQuery( "SELECT p from Plate as p " +
+        " where p.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+    for(Iterator i1 = plates.iterator(); i1.hasNext();) {
+      Plate plate = (Plate)i1.next();
+      List wells = sess.createQuery("SELECT pw from PlateWell as pw " +
+          " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+      for(Iterator i2 = wells.iterator(); i2.hasNext();){
+        PlateWell well = (PlateWell)i2.next();
+        Chromatogram chroma = null;
+        List chromaList =  sess.createQuery("Select c from Chromatogram as c where c.idPlateWell=" + well.getIdPlateWell()).list();
+        if(chromaList.size() == 1){
+          chroma = (Chromatogram) chromaList.get(0);
+        }
+        
+        if(well.getRedoFlag().equals("Y")){
+          cp.requeueSourceWells(well.getIdPlateWell(), sess);
+        }
 
-      if (well.getIdRequest() != null && !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
-        Request req = (Request) sess.get(Request.class, well.getIdRequest());
-        requests.put( req.getIdRequest(), req );
+        if (well.getIdRequest() != null && !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
+          Request req = (Request) sess.get(Request.class, well.getIdRequest());
+          requests.put( req.getIdRequest(), req );
+        }
+        
+        if(chroma != null){
+          sess.delete(chroma);
+        }
+        sess.delete(well);
       }
-      
-      sess.delete(delPlate);
-      sess.delete(well);
+      sess.delete(plate);
     }
     
     // Change request Status 
