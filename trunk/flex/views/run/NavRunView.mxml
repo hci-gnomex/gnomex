@@ -19,7 +19,7 @@
 	<mx:Script> 
 		<![CDATA[
 			
-			private function getList():void{
+			public function getList():void{
 				if(theViews.selectedChild == null){
 					return;
 				}
