@@ -7,6 +7,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PlateFilter;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 
 import java.io.Serializable;
@@ -58,8 +59,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
       
       if (!plateFilter.hasSufficientCriteria(this.getSecAdvisor())) {
         message = "Please select a filter";
-        rootNode.setAttribute("message", message);
-
+//      rootNode.setAttribute( "message", message );
       } else {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
@@ -97,6 +97,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           }
           
           pNode.setAttribute("codeSealType", codeSealType);
+          pNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
           
           
           
@@ -136,20 +137,20 @@ public class GetPlateList extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetRunList ", e);
+      log.error("An exception has occurred in GetPlateList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetRunList ", e);
+      log.error("An exception has occurred in GetPlateList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetRunList ", e);
+      log.error("An exception has occurred in GetPlateList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetRunList ", e);
+      log.error("An exception has occurred in GetPlateList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
