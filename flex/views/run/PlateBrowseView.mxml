@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="100%" height="100%" 
+		 xmlns:util="views.util.*" xmlns:run="views.run.*"  show="init()"  paddingTop="1" verticalGap="0">
+	
+	<mx:HTTPService 
+		id="getPlateList" 
+		url="GetPlateList.gx"
+		resultFormat="e4x"
+		result="onGetPlateList(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to get plate list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="deletePlates" 
+		url="DeletePlates.gx"
+		resultFormat="e4x"
+		result="onDeletePlates(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to delete plates', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+
+	<mx:Script> 
+		<![CDATA[
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.rpc.events.ResultEvent;
+			import hci.flex.controls.DropdownLabel;
+			
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
+			
+			[Bindable]
+			public var parentView:NavRunView;
+			
+			public function init():void {
+				getList();
+			}
+			
+			private function selectionChange( event:ListEvent ):void {
+				for each ( var obj:Object in plateGrid ) {
+					obj.@isSelected = false;
+				}
+				for each ( var obj1:Object in plateGrid.selectedItems ) {
+					obj1.@isSelected = true;
+				}
+			}
+			
+			private function gridItemClick(event:ListEvent):void {
+				var idRun:String = plateGrid.selectedItem.@idInstrumentRun;
+				
+				if ( event.columnIndex == 2 ) {
+					parentApplication.showInstrumentRun(idRun);
+				}
+				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
+					plateGrid.selectedIndex = -1;
+				}
+				selectedPlates.refresh();
+			}
+			
+			public function getList():void {
+				getPlateList.send(getPlateParameters());
+			}
+			
+			private function onGetPlateList(event:ResultEvent):void{
+				if ( getPlateList.lastResult.name() == "PlateList"){
+					selectedPlates.refresh();
+				}
+				else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error getting plate list" );
+				}
+				
+			}
+			
+			private function promptToDelete():void {
+				
+				Alert.show( "Are you sure you want to delete these plates?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+			}
+			
+			private function onPromptToDelete( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					deleteSelectedPlates();
+				}
+			}
+			
+			private function deleteSelectedPlates():void {
+				var params:Object = new Object;
+				var platesToDelete:String = "<Plates>";
+				
+				for each(var node:XML in selectedPlates){
+					platesToDelete += "<idPlate>" + node[0].@idPlate + "</idPlate>";
+				} 
+				platesToDelete += "</Plates>";
+				params.platesToDeleteXMLString = new XML(platesToDelete);
+				deletePlates.send(params);
+				
+			}
+			
+			private function onDeletePlates(event:ResultEvent):void{
+				if ( event.result.name() == "SUCCESS" ) {
+					getList();
+					return;
+				}
+				Alert.show( event.result..ERROR.@message.toString(), "Error deleting plates" );
+				
+			}
+			
+			private function getPlateParameters():Object {
+				var params:Object = new Object;
+				params.plateType = "REACTION";
+				params.notAddedToARun = "Y";
+				
+				if ( parentDocument.allCheckbox.selected ) {
+					return params;
+				}
+
+				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastYear = parentDocument.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
+				
+				if ( parentDocument.capSeqCheckbox.selected ) {
+					params.codeReactionType = 'SEQ' ;
+				}
+				if ( parentDocument.fragCheckbox.selected ) {
+					params.codeReactionType = 'FRAG' ;
+				}
+				if ( parentDocument.mitoCheckbox.selected ) {
+					params.codeReactionType = 'MIT' ;
+				}
+				if ( parentDocument.cherryCheckbox.selected ) {
+					params.codeReactionType = 'CHERRY' ;
+				}
+				
+				return params;
+			}
+			
+			private function checkEmptyFilter():Boolean {
+								
+				if ( parentDocument.lastWeekCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastMonthCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastThreeMonthsCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastYearCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastWeekCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastMonthCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastThreeMonthsCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastYearCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.pendingCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.runningCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.completeCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.failedCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.capSeqCheckbox.selected ) {
+					return false;
+				}
+				if ( parentDocument.fragCheckbox.selected ) {
+					return false;
+				}
+				if ( parentDocument.mitoCheckbox.selected ) {
+					return false;
+				}
+				if ( parentDocument.cherryCheckbox.selected ) {
+					return false;
+				}
+				
+				return true;
+			}
+			
+			private function selectedFilterFunc(item:XML):Boolean {
+				return item.@isSelected == true;
+			} 	
+		]]>
+	</mx:Script>    	
+	
+	<mx:XMLListCollection id = "plateList" source = "{getPlateList.lastResult..Plate}" />
+	<mx:XMLListCollection id = "selectedPlates" source="{getPlateList.lastResult..Plate}" filterFunction="selectedFilterFunc"/>
+
+	<mx:VDividedBox width = "100%"
+					height = "100%"
+					styleName = "form"
+					paddingBottom = "4"
+					paddingLeft = "4"
+					paddingRight = "4"
+					paddingTop = "4">
+
+		<mx:VBox width = "100%" height = "100%" verticalGap = "1">
+
+			<mx:HBox width = "100%" verticalAlign = "bottom">
+				<mx:Spacer width = "100%" />
+
+			</mx:HBox>
+
+			<mx:DataGrid id = "plateGrid"
+						 allowMultipleSelection="true"
+						 click="{selectedPlates.refresh()}"
+						 change="selectionChange(event)"
+						 width = "100%"
+						 height = "100%"
+						 dataProvider = "{plateList}"
+						 sortArrowSkin="mx.skins.ProgrammaticSkin">
+				<mx:columns>
+					
+					<mx:DataGridColumn id = "checkBoxColumn"
+									   textAlign = "center"
+									   width = "100"
+									   resizable = "false"
+									   sortable = "false"
+									   editable = "true"
+									   rendererIsEditor = "true"
+									   dataField = "@isSelected"
+									   editorDataField = "selected"
+									   itemRenderer = "views.renderers.CheckBoxIsSelectedToggle"
+									   headerRenderer = "views.renderers.CheckBoxHeader"
+									   draggable="false"/>
+					
+					<mx:DataGridColumn   minWidth="28" width="85" headerText="#">
+						<mx:itemRenderer>
+							<mx:Component >
+								<mx:HBox paddingLeft="1" horizontalGap="0"   horizontalScrollPolicy="off">
+									<mx:Image id="experimentImage"  
+											  source="{data.@icon}" >
+									</mx:Image> 
+									<mx:Label id="requestNumber" text="{data.@idPlate}">
+									</mx:Label>
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn> 
+					
+					
+					<mx:DataGridColumn dataField = "@label"
+									   headerText = "Label"
+									   width = "175"
+									   textDecoration = "underline"
+									   color = "#2017D8"
+									   draggable="false">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Label text = "Label" textDecoration = "none" color = "#000000" />
+								
+							</mx:Component>
+							
+						</mx:headerRenderer>
+						
+					</mx:DataGridColumn>
+
+					<mx:DataGridColumn dataField = "@creator" headerText = "Created by" width = "75" />
+
+					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
+
+					<mx:DataGridColumn dataField = "@codeReactionType" 
+									   headerText = "Reaction Type" width = "100"
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ReactionType').DictionaryEntry, '@display', '@value', '@codeReactionType')}"/>
+					
+					<mx:DataGridColumn dataField = "@codeSealType" 
+									   headerText = "Type" width = "80" 
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry, '@display', '@value', '@codeSealType')}"/>
+
+					<mx:DataGridColumn dataField = "@comments" headerText = "Comments" width = "250" />
+
+				</mx:columns>
+
+			</mx:DataGrid>
+
+		</mx:VBox>
+
+	</mx:VDividedBox>
+
+	<mx:ControlBar horizontalAlign = "left" width = "100%" paddingTop="2" paddingBottom="2">
+		<mx:Label id = "nSelectedRuns" text="{selectedPlates.length + ' selected'}" />
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Delete"
+					   icon="@Embed('../../assets/delete.png')"
+					   toolTip="Delete selected runs"
+					   click="{promptToDelete()}" 
+					   disabledIcon="@Embed('../../assets/delete_disable.png')"
+					   enabled="{selectedPlates.length>0}"/>
+		<mx:Spacer width="100%" height="100%" />
+		<mx:Label text = "{'(' + plateList.length + ' runs)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
+		
+
+	</mx:ControlBar>
+
+</mx:VBox>
