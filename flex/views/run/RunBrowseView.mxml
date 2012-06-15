@@ -39,10 +39,9 @@
 	<mx:Script> 
 		<![CDATA[
 			
-			import mx.controls.Alert;
-			
 			import hci.flex.controls.DropdownLabel;
 			
+			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
@@ -121,8 +120,18 @@
 			}
 			
 			private function promptToDelete():void {
-				
-				Alert.show( "Are you sure you want to delete these runs?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+				var canDel:Boolean = true;
+				for each ( var run:Object in selectedRuns ) {
+					if ( run.@codeInstrumentRunStatus != "PENDING" ) {
+						canDel = false;
+					}
+				}
+				if ( canDel ) {
+					Alert.show( "Are you sure you want to delete these runs?", "Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+					
+				} else {
+					Alert.show( "Only pending runs can be deleted.", "Cannot Delete Runs" );
+				}
 			}
 			
 			private function onPromptToDelete( event:CloseEvent ):void {

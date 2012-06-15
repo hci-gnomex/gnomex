@@ -4,18 +4,22 @@
 	<mx:Script>
 		<![CDATA[
 			import flash.sampler.NewObjectSample;
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.containers.GridItem;
 			import mx.containers.GridRow;
 			import mx.controls.Label;
 			import mx.controls.Text;
+			
 			import views.renderers.WellContainer;
 			
 			[Bindable]
 			public var idPlate:int              = 0;
 			[Bindable]
 			public var plateObject:Object;
+			public var plateName:String			= "";
+			public var comments:String			= "";
 			// Variable to designate if the plate's wells will be indexed
 			// column-wise or row-wise. Default is column-wise.
 			public var currentFillByCol:Boolean = true;
@@ -38,6 +42,8 @@
 				
 				removeAllWells();
 				idPlate = 0;
+				plateName = "";
+				comments = "";
 				plateObject = null;
 			}
 			
