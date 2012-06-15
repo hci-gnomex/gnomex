@@ -144,6 +144,9 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         if ( ir.getCodeInstrumentRunStatus() == null || 
              ir.getCodeInstrumentRunStatus().equals( InstrumentRunStatus.PENDING ) ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.RUNNING );
+          if ( ir.getRunDate() == null ) {
+            ir.setRunDate( new java.util.Date(System.currentTimeMillis()) ); 
+          }  
         }
         
         changeRequestsToProcessing( sess, ir );
@@ -187,7 +190,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                   
                   response.getOutputStream().print( row + String.format( "%02d", col ) + "\t" );
                   
-                  String fileName = idSample + "?" + sampleName + "?" + idPlate;
+                  String fileName = idSample + "#" + sampleName + "#" + idPlate;
                   response.getOutputStream().print( fileName + "\t" );
                   
                   String comments = "<ID:" + idPlateWellString + "><WELL:" + wellRow + String.format( "%02d", wellCol ) + ">";
