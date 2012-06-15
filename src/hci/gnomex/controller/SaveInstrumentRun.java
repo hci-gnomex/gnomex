@@ -39,8 +39,6 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   private String                codeSealType = null;
   private String                codeInstrumentRunStatus = null;
   
-  //Variable to indicate which run from the plate editor page (up to 4 runs can be submitted at a time)
-  private int                   runNumber = 0;
   private String                disassociatePlates = null;
   
   public void validate() {
@@ -53,9 +51,6 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("createDate") != null && !request.getParameter("createDate").equals("")) {
       createDateStr = request.getParameter("createDate");
-    }
-    if (request.getParameter("runNumber") != null && !request.getParameter("runNumber").equals("")) {
-      runNumber = Integer.parseInt(request.getParameter("runNumber"));
     }
     if (request.getParameter("comments") != null && !request.getParameter("comments").equals("")) {
       comments = request.getParameter("comments");
@@ -142,7 +137,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
             
       sess.flush();
         
-      this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\" runNumber=\"" + runNumber + "\"/>";
+      this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\"/>";
       
       setResponsePage(this.SUCCESS_JSP);
       
