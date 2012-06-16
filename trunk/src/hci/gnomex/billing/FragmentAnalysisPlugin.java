@@ -31,12 +31,12 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class CapSeqPlatePlugin implements BillingPlugin {
+public class FragmentAnalysisPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<Integer>> sampleToAssaysMap) {
     
-    
+
     List billingItems = new ArrayList<BillingItem>();
     
     if (samples == null || samples.size() == 0) {
@@ -44,16 +44,22 @@ public class CapSeqPlatePlugin implements BillingPlugin {
     }
     
 
-    // Count number of samples. exclude any controls the
-    // count.
+
+    // Count number of genotypes while
+    // hashing the assay of wells to figure out how many markers we have.
     int qty = 0;
-    HashMap<String, Integer> plateMap = new HashMap<String, Integer>();
+    //HashMap<Integer, Integer> assayMap = new HashMap<Integer, Integer>();
     for (Sample s : samples) {
-      if (s.getIsControl() != null && s.getIsControl().equals("Y")) {
-        continue;
+      ArrayList<Integer> assays = sampleToAssaysMap.get(s.getIdSampleString());
+      if (assays != null) {
+        qty += assays.size();
       }
-      qty++;
     }
+  
+    
+  
+    //int numberOfAssays = assayMap.size();
+    int numberOfAssays = 4;
     
     // Find the price for capillary sequencing
     Price price = null;
@@ -61,12 +67,16 @@ public class CapSeqPlatePlugin implements BillingPlugin {
       Price p = (Price)i1.next();
       if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
         // Pricing for capillary sequencing is tiered.  Look at filter 1
-        // on the prices to find the one where the qty range applies.
+        // on the prices to find the one where the assayCount range applies.
         for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
           PriceCriteria criteria = (PriceCriteria)i2.next();
           
-          Integer qty1 = null;
-          Integer qty2 = null;
+          if (criteria.getFilter1() == null || criteria.getFilter1().equals("")) {
+            continue;
+          }
+          
+          Integer assayCount1 = null;
+          Integer assayCount2 = null;
           
           // Range check
           if (criteria.getFilter1().contains("-")) {
@@ -75,11 +85,11 @@ public class CapSeqPlatePlugin implements BillingPlugin {
               continue;
             }
             
-            qty1 = Integer.valueOf(tokens[0]);
-            qty2 = Integer.valueOf(tokens[1]);
+            assayCount1 = Integer.valueOf(tokens[0]);
+            assayCount2 = Integer.valueOf(tokens[1]);
 
-            // If the qty falls within the range, this is the price that applies
-            if (qty >= qty1.intValue() && qty <= qty2.intValue()) {
+            // If the assayCount falls within the range, this is the price that applies
+            if (numberOfAssays >= assayCount1.intValue() && numberOfAssays <= assayCount2.intValue()) {
               price = p;
               break;
             }
@@ -87,20 +97,25 @@ public class CapSeqPlatePlugin implements BillingPlugin {
             // Lower limit check
             String tokens[] =  criteria.getFilter1().split("\\+");
 
-            qty1 = Integer.valueOf(tokens[0]);
+            assayCount1 = Integer.valueOf(tokens[0]);
             
-            if (qty >= qty1.intValue()) {
+            if (numberOfAssays == assayCount1.intValue()) {
               price = p;
               break;
-            }
+            } 
+          } else  {
+              // Just one number was provided so filter has to equal the value
+              Integer assayCount = Integer.valueOf(criteria.getFilter1());
+              
+              if (numberOfAssays == assayCount.intValue()) {
+                price = p;
+                break;
+              }
           }
-          
         }
       }
     }
-    
-    // Unit price is for 4 plates. 
-    qty = 1;
+
 
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {

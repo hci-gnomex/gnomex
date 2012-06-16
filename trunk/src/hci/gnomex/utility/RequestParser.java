@@ -337,6 +337,7 @@ public class RequestParser implements Serializable {
     } else {
       sample = (Sample)sess.load(Sample.class, new Integer(idSampleString));
     }
+    sample.setIdSampleString(idSampleString);
     
     PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
     initializeSample(n, sample, idSampleString, isNewSample, propertyHelper);
@@ -1674,6 +1675,13 @@ public class RequestParser implements Serializable {
   public String getCherryPickDestinationWell(String idSampleString) {
     return this.cherryPickDestinationWells.get(idSampleString);
   }
+  public Map<String, ArrayList<Integer>> getSampleAssays() {
+    return sampleAssays;
+  }
+
+
+
+
   private class SamplePlateWell implements Serializable {
     public String plateIdAsString = "";
     public String wellIdAsString = "";

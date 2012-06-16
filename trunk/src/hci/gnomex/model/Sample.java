@@ -74,6 +74,9 @@ public class Sample extends HibernateDetailObject {
   private String      isControl;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
+  
+  private String      idSampleString;  // a non-persistent variable used for estimated billing charges
+                                       // before sample has been saved.
 
 
   public String getDescription() {
@@ -660,5 +663,13 @@ public class Sample extends HibernateDetailObject {
 
   public void setWells(Set wells) {
     this.wells = wells;
+  }
+
+  public String getIdSampleString() {
+    return idSampleString;
+  }
+
+  public void setIdSampleString(String idSampleString) {
+    this.idSampleString = idSampleString;
   }
 }
