@@ -177,7 +177,7 @@ public class ReassignIlluminaRequestCategory extends GNomExCommand implements Se
           BillingPeriod billingPeriod = DictionaryHelper.getInstance(sess).getCurrentBillingPeriod();
 
           // Create the new billing items
-          SaveRequest.createBillingItems(sess, request, Constants.AMEND_ADD_SEQ_LANES, billingPeriod, DictionaryHelper.getInstance(sess), null, null, null, seqLanesAdded);
+          SaveRequest.createBillingItems(sess, request, Constants.AMEND_ADD_SEQ_LANES, billingPeriod, DictionaryHelper.getInstance(sess), null, null, null, seqLanesAdded, null);
           message = "Experiment " + request.getNumber() + " experiment category has been changed.  Sequence lanes have been modified, work items have been moved to the appropriate workflow, and new billing items for sequencing have been created.";
           if (undeletedCount > 0) {
             message += "\n\nWarning: Unable to remove " + undeletedCount + " billing item(s) due to approved status.  Please correct billing accordingly.";

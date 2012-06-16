@@ -710,7 +710,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
             samplesAdded.addAll(requestParser.getRequest().getSamples());
           }
-          createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
+          createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays());
           sess.flush();
 
           
@@ -1659,7 +1659,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, 
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) throws Exception {
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<Integer>> sampleToAssaysMap) throws Exception {
     
     List billingItems = new ArrayList<BillingItem>();
 
@@ -1707,7 +1707,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Get the billing items
         if (plugin != null) {
-          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);    
+          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap);    
           
           billingItems.addAll(billingItemsForCategory);                
         }

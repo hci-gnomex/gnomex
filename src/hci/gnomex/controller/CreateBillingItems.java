@@ -213,6 +213,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
             String idSampleString = (String)i.next();
             Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+            sample.setIdSampleString(idSampleString);
             if (sample.getIdSample() == null) {
               sample.setIdSample(new Integer(x++));
             }
@@ -338,7 +339,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Get the billing items
           if (plugin != null) {
-            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);
+            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser.getSampleAssays());
             billingItems.addAll(billingItemsForCategory);                
           }
         }
