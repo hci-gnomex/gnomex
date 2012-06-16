@@ -31,6 +31,7 @@
 * Added request category platform type combo box to the experiment platform add window.(tcourdy) 
 * Implemented billing plugins for Capillary Sequencing requests. (tdisera)
 * Fixes for file copy problems in Organize Files feature for Experiments, Analyses (rcundick)
+* Added billing plug-ins for fragment analysis and mit seq experiment types.  changed billing plugin function, adding arugment for assay map. (tdisera)
 
 deploy notes 
 --------------------
