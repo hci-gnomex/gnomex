@@ -259,6 +259,8 @@
 		[Bindable]
 		public var request:Object;
 			
+		public var saveDescription:String = "";
+			
 		[Bindable]
 		public var requestCategory:Object;
 		
@@ -2584,6 +2586,7 @@
 
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
+			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
 			
 			if (!isAmendState()) {
 				params.idProject = setupView.projectCombo.selectedItem.@idProject;				
@@ -3026,6 +3029,7 @@
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
 			params.idProject = request.@idProject;
+			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
 			
 			if (downloadView.getFilesToDelete().length > 0) {
 				params.filesToRemoveXMLString = downloadView.getFilesToDelete().toXMLString();			

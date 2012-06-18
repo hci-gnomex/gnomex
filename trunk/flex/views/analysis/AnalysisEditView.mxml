@@ -137,6 +137,7 @@
 			import views.experiment.ExperimentDetailWindow;
 			import views.protocol.ProtocolsView;
 			import views.util.FileUtil;
+			import views.util.StringUtil;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 
@@ -449,7 +450,7 @@
 				
 				params.idAnalysis         = analysis.@idAnalysis;
 				params.name               = this.analysisName.text;
-				params.description        = this.description.text;
+				params.description        = StringUtil.cleanRichTextHTML(this.description.htmlText);
 				
 				// If the analysis was assigned to a new lab (through
 				// the drap operation, set the lab on the lab to
@@ -944,6 +945,11 @@
 				parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
 			}
 
+			private function removeRichTextButtons():void {
+				this.description.toolbar.removeChild(description.colorPicker);
+				this.description.toolbar.removeChild(description.fontFamilyCombo);
+				this.description.toolbar.removeChild(description.fontSizeCombo);
+			}
 			
 		]]>
 	</mx:Script>
@@ -1095,7 +1101,17 @@
 		</mx:VBox>
 
 		<mx:VBox label="Description" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10" width="100%" height="100%">
-				<util:TextAreaWorkaround text="{analysis.@description}" width="100%" height="100%" change="dirty.setDirty()" id="description" />
+			<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+								id="description" width="100%" 
+								htmlText="{analysis.@description}" 
+								showControlBar="true"
+								change="dirty.setDirty()"
+								creationComplete="removeRichTextButtons();"
+								paddingLeft="0" paddingRight="0" paddingTop="0" 
+								roundedBottomCorners="false" paddingBottom="0" 
+								borderThicknessRight="0" borderThicknessLeft="0" 
+								borderThicknessBottom="0" borderThickness="0" 
+								borderThicknessTop="0" height="100%" minHeight="50"/>					
 		</mx:VBox>
 		
 

@@ -576,20 +576,6 @@
 		}			
 	}
 	
-	
-	public function cleanRichTextHTML(htmlText:String):String {
-		var pattern:RegExp = /<TEXTFORMAT.*?>/g;
-		var str:String = htmlText.replace(pattern, "");
-		pattern = /<FONT.*?>/g;
-		str = str.replace(pattern, "");
-		pattern = /<\/FONT.*?>/g;
-		str = str.replace(pattern, "");
-		pattern = /<\/TEXTFORMAT.*?>/g;
-		str = str.replace(pattern, "");
-		
-		return str;		    
-	}
-	
 	private function promptToRemoveSelectedItems():void {
 		itemsToRemove = new Array();
 		for each(var item:Object in topicsBrowseTree.selectedItems) {

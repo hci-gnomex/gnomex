@@ -99,6 +99,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveRequest.class);
   
   private String           requestXMLString;
+  private String           description;
   private Document         requestDoc;
   private RequestParser    requestParser;
   
@@ -162,6 +163,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
       this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
+    }
+    
+    if (request.getParameter("description") != null) {
+      description = request.getParameter("description");
     }
     
     if (request.getParameter("filesToRemoveXMLString") != null && !request.getParameter("filesToRemoveXMLString").equals("")) {
@@ -933,7 +938,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private void saveRequest(Request request, Session sess) throws Exception {
     
-
+    request.setDescription(description);
     sess.save(request);
     
     if (requestParser.isNewRequest()) {

@@ -16,10 +16,12 @@
 	<![CDATA[
 		
 	import mx.controls.Alert;
+	import views.util.StringUtil;
 		
 		
-	private function propagateDescript():void{
-		parentDocument.request.@description = overallDescript.text;
+	private function propagateDescript(e:FocusEvent):void{
+		parentDocument.request.@description = "";  // Description will be saved differently to avoid problems sending with XML encoding.
+		parentDocument.saveDescription = StringUtil.cleanRichTextHTML(overallDescript.htmlText);
 		parentDocument.confirmView.expDescriptArea.text = overallDescript.text;
 	}
 	
@@ -61,6 +63,12 @@
 		noteToBio.includeInLayout = includeBioNote;
 	}
 		
+	private function removeRichTextButtons():void {
+		this.overallDescript.toolbar.removeChild(overallDescript.colorPicker);
+		this.overallDescript.toolbar.removeChild(overallDescript.fontFamilyCombo);
+		this.overallDescript.toolbar.removeChild(overallDescript.fontSizeCombo);
+	}
+		
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
@@ -73,7 +81,17 @@
 		</mx:HBox>	
 		<mx:Spacer height="10" />
 		<mx:Label text="(2) Provide an experiment description. (optional)" id="label1"/>
-		<util:TextAreaWorkaround id="overallDescript" text="{parentDocument.request.@description}" focusOut="propagateDescript()" width="100%" height="100%"/>
+		<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+							id="overallDescript" width="100%" 
+							htmlText="{parentDocument.request.@description}" 
+							showControlBar="true"
+							change="parentDocument.dirty.setDirty();"
+							creationComplete="removeRichTextButtons(); this.addEventListener(FocusEvent.FOCUS_OUT,propagateDescript); "
+							paddingLeft="0" paddingRight="0" paddingTop="0" 
+							roundedBottomCorners="false" paddingBottom="0" 
+							borderThicknessRight="0" borderThicknessLeft="0" 
+							borderThicknessBottom="0" borderThickness="0" 
+							borderThicknessTop="0" height="100%" minHeight="50"/>		
         <mx:Spacer height="10" />
 		<mx:Label text="(3) Enter a note for the Core Facility. (optional)"  id="label2"/>
 		<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 

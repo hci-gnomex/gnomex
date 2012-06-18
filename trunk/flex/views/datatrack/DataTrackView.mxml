@@ -61,6 +61,7 @@
 	
 	import views.admin.PropertyWindow;
 	import views.datatrack.FolderInfoWindow;
+	import views.util.StringUtil;
 
 	private function onGetDataTrack(event:ResultEvent):void {
 		if (getDataTrack.lastResult.name() == "DataTrack") {
@@ -115,7 +116,7 @@
 		var params:Object = new Object();
 		params.idDataTrack            = parentDocument.browseTree.selectedItem.@idDataTrack;
 		params.name                   = this.dataTrackName.text;
-		params.description            = parentDocument.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.summary                = this.dataTrackSummary.text;
 		params.codeVisibility         = this.visibilityRadioGroup.selectedValue != null ? visibilityRadioGroup.selectedValue : "";
 		if (params.codeVisibility == 'INST') {
