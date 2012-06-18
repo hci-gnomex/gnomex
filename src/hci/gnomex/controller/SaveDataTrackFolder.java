@@ -65,7 +65,6 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
       if (this.getSecAdvisor().canUpdate(dataTrackFolder)) {
 
         this.dataTrackFolder.setName(RequestParser.unEscape(dataTrackFolder.getName()));
-        this.dataTrackFolder.setDescription(RequestParser.unEscapeBasic(dataTrackFolder.getDescription()));
         
         sess.save(dataTrackFolder);
         sess.flush();
@@ -110,7 +109,7 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
     }
     
     dataTrackFolder.setName(RequestParser.unEscape(load.getName()));
-    dataTrackFolder.setDescription(RequestParser.unEscapeBasic(load.getDescription()));
+    dataTrackFolder.setDescription(load.getDescription());
     dataTrackFolder.setIdLab(load.getIdLab());
 
     // If this is a root annotation grouping, find the default root annotation

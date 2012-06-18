@@ -31,6 +31,7 @@
 <![CDATA[
 	import mx.rpc.events.ResultEvent;
 	import mx.controls.Alert;
+	import views.util.StringUtil;
 	
 	public function init():void {
 		if (parentDocument.browseTree.selectedItem.@canWrite == "Y") {
@@ -50,7 +51,7 @@
 		var params:Object = new Object();
 		params.idDataTrackFolder      = parentDocument.browseTree.selectedItem.@idDataTrackFolder;
 		params.name                   = this.folderName.text;
-		params.description            = parentDocument.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		
 		updateDataTrackFolder.send(params);

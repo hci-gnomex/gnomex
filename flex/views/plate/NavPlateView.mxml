@@ -3033,7 +3033,7 @@
 			<mx:RemoveChild target="{reactComboBox}"/>
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="View Run"/>
 			<mx:SetProperty target="{numPlates}" name="visible" value="false"/>
-			<mx:RemoveChild target="{newPlatedeletePlateLink}"/>
+			<!--mx:RemoveChild target="{newPlatedeletePlateLink}"/-->
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{radioRow}"/>
 			<mx:RemoveChild target="{radioCol}"/>

@@ -30,9 +30,11 @@
 <mx:Script>
 <![CDATA[
 	import mx.controls.Alert;
-	import mx.rpc.events.ResultEvent;
-	import views.util.WebLinksView;
 	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.util.StringUtil;
+	import views.util.WebLinksView;
 	
 	public function init():void {
 		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.topicsBrowseTree.selectedItem.@idLab);
@@ -63,7 +65,7 @@
 		params.idTopic      		  = parentDocument.topicsBrowseTree.selectedItem.@idTopic;
 		params.idParentTopic      	  = parentDocument.topicsBrowseTree.selectedItem.@idParentTopic;
 		params.name                   = this.topicName.text;
-		params.description            = parentDocument.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		
 		updateTopic.send(params);

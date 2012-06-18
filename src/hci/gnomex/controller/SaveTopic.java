@@ -82,7 +82,7 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         }
 
         this.topic.setName(topicName);
-        this.topic.setDescription(RequestParser.unEscapeBasic(topic.getDescription()));
+        //this.topic.setDescription(RequestParser.unEscapeBasic(topic.getDescription()));
         this.topic.setIdParentTopic(idParentTopic);
         
         sess.save(topic);
@@ -129,7 +129,8 @@ public class SaveTopic extends GNomExCommand implements Serializable {
     }
     
     topic.setName(RequestParser.unEscape(load.getName()));
-    topic.setDescription(RequestParser.unEscapeBasic(load.getDescription()));
+    //topic.setDescription(RequestParser.unEscapeBasic(load.getDescription()));
+    topic.setDescription(load.getDescription());
     topic.setIdLab(load.getIdLab());
 
     // If parent annotation grouping is owned by a user group, this

@@ -245,8 +245,9 @@ public class RequestParser implements Serializable {
       request.setIdBillingAccount(new Integer(n.getAttributeValue("idBillingAccount")));      
     }
     
-    if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals(""))
-      request.setDescription(n.getAttributeValue("description"));
+    if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals("")) {
+      request.setDescription(n.getAttributeValue("description"));      
+    }
     
     if (n.getAttributeValue("captureLibDesignId") != null && !n.getAttributeValue("captureLibDesignId").equals(""))
       request.setCaptureLibDesignId(n.getAttributeValue("captureLibDesignId"));
@@ -1586,6 +1587,7 @@ public class RequestParser implements Serializable {
     text = text.replaceAll("&gt;",     ">");
     text = text.replaceAll("&lt;",     "<");
     text = text.replaceAll("&#181;",   "�");
+    text = text.replaceAll("&#xD;",   "\r");
 
     return text;
   }
@@ -1595,8 +1597,8 @@ public class RequestParser implements Serializable {
       return text;
     }
     
-    text = unEscapeBasic(text);
     text = text.replaceAll("&#xD;",   "         ");
+    text = unEscapeBasic(text);
     text = text.replaceAll("&#xA;",   "         ");
     text = text.replaceAll("&#x10;",  "         ");
     text = text.replaceAll("&#13;",   "         ");

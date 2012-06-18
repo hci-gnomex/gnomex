@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox  
     xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%" 
+	width="100%" height="100%" initialize="overallDescript.textArea.editable=false;"
 	xmlns:views="views.*"   creationPolicy="all"
 	xmlns:util="views.util.*" xmlns:experiment="views.experiment.*" 
 	xmlns:data="views.data.*">
@@ -1078,7 +1078,15 @@
 							</mx:HBox>
 						<mx:Spacer height="4"/>
 						<mx:Label text="Description"/>
-						<util:TextAreaWorkaround  backgroundColor="0xffffff" id="overallDescript" editable="false" text="{this.selectedExperiment.@description}" width="100%" height="100%"/>
+						<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+											id="overallDescript" width="100%" 
+											htmlText="{this.selectedExperiment.@description}" 
+											showControlBar="false" 
+											paddingLeft="0" paddingRight="0" paddingTop="0" 
+											roundedBottomCorners="false" paddingBottom="0" 
+											borderThicknessRight="0" borderThicknessLeft="0" 
+											borderThicknessBottom="0" borderThickness="0" 
+											borderThicknessTop="0" height="100%" minHeight="50"/>
 						<mx:Spacer height="4" />
 						<mx:HBox width="100%" height="100%" >
 		  					<mx:VBox verticalGap="0" width="100%" height="100%">

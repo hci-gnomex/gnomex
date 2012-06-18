@@ -747,7 +747,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
   private void initializeAnalysis(Session sess, Analysis analysis) throws Exception {
     analysis.setName(RequestParser.unEscape(analysisScreen.getName()));
-    analysis.setDescription(RequestParser.unEscapeBasic(analysisScreen.getDescription()));
+    analysis.setDescription(analysisScreen.getDescription());
     analysis.setIdLab(analysisScreen.getIdLab());
     analysis.setIdAnalysisProtocol(analysisScreen.getIdAnalysisProtocol());
     analysis.setIdAnalysisType(analysisScreen.getIdAnalysisType());
