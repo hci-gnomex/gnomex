@@ -4,6 +4,7 @@ package hci.gnomex.controller;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
@@ -108,8 +109,7 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
         " where p.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = plates.iterator(); i1.hasNext();) {
       Plate plate = (Plate)i1.next();
-      List wells = sess.createQuery("SELECT pw from PlateWell as pw " +
-          " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+      List wells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate()).list();
       for(Iterator i2 = wells.iterator(); i2.hasNext();){
         PlateWell well = (PlateWell)i2.next();
         Chromatogram chroma = null;
