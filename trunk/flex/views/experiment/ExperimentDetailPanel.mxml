@@ -26,8 +26,8 @@
 						<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 									   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
 						</mx:LinkButton>
-					    <mx:Spacer width="10"/>
-						<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
+					    <mx:Spacer width="5"/>
+						<mx:Label text="Last mod. " visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
 						<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
 				</mx:HBox>
 			</mx:HBox>

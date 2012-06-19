@@ -63,6 +63,7 @@ public class RequestParser implements Serializable {
   private Map<String, String> cherryPickSourceWells = new HashMap<String, String>();
   private Map<String, String> cherryPickSourcePlates = new HashMap<String, String>();
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
+  private Boolean hasPlates = false;
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestDoc = requestDoc;
@@ -593,11 +594,12 @@ public class RequestParser implements Serializable {
     // Have well and plate names so create well and plate rows
     if (n.getAttributeValue("wellName") != null && n.getAttributeValue("wellName").length() > 0
         && n.getAttributeValue("plateName") != null && n.getAttributeValue("plateName").length() > 0) {
+      this.hasPlates = true;
       Plate plate = new Plate();
       String plateIdAsString = "";
-      if (n.getAttributeValue("plateId") != null && n.getAttributeValue("plateId").length() > 0) {
-        plateIdAsString = n.getAttributeValue("plateId");
-        plate.setIdPlate(Integer.parseInt(n.getAttributeValue("plateId")));
+      if (n.getAttributeValue("idPlate") != null && n.getAttributeValue("idPlate").length() > 0) {
+        plateIdAsString = n.getAttributeValue("idPlate");
+        plate.setIdPlate(Integer.parseInt(n.getAttributeValue("idPlate")));
       } else {
         plateIdAsString = n.getAttributeValue("plateName");
       }
@@ -606,9 +608,9 @@ public class RequestParser implements Serializable {
       
       PlateWell well = new PlateWell();
       String wellIdAsString = "";
-      if (n.getAttributeValue("wellId") != null && n.getAttributeValue("wellId").length() > 0) {
-        wellIdAsString = n.getAttributeValue("wellId");
-        well.setIdPlateWell(Integer.parseInt(n.getAttributeValue("wellId")));
+      if (n.getAttributeValue("idPlateWell") != null && n.getAttributeValue("idPlateWell").length() > 0) {
+        wellIdAsString = n.getAttributeValue("idPlateWell");
+        well.setIdPlateWell(Integer.parseInt(n.getAttributeValue("idPlateWell")));
       } else {
         wellIdAsString = plateIdAsString + "&" + n.getAttributeValue("wellName");
       }
@@ -1681,6 +1683,9 @@ public class RequestParser implements Serializable {
     return sampleAssays;
   }
 
+  public Boolean hasPlates() {
+    return this.hasPlates;
+  }
 
 
 

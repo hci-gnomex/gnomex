@@ -169,14 +169,14 @@
 				&& !parentDocument.isCherryPickState();
 			
 			wellNameCol.visible = false;
-			if (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+			if (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') {
 				wellNameCol.visible = true;
 			}
 			if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
 				wellNameCol.visible = true;
 			}
-			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
-			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') ? true : false;
+			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') ? true : false;
+			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
 			// set all assay columns to not visible.

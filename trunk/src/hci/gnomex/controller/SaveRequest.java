@@ -82,6 +82,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -152,6 +153,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Plate primerPlate;
   private Map<String, Plate> cherrySourcePlateMap = new HashMap<String, Plate>();
   private Plate cherryPickDestinationPlate;
+  
+  private Integer nextSampleNumber;
   
   public void validate() {
   }
@@ -344,6 +347,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
         }
 
+        // delete wells for deleted samples
+        deleteWellsForDeletedSamples(sess);
+
+        getStartingNextSampleNumber();
         
         // save samples
         int sampleCount = 1;
@@ -397,15 +404,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 workItem.setSample(sample);
                 workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                 sess.save(workItem);
-                
               }
             }            
           }
           
           sampleCount++;
         }
-        requestParser.getRequest().setSamples(samples);
         
+        requestParser.getRequest().setSamples(samples);
+
         // If we are editting a request, figure out which hybs will be deleted
         if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
           
@@ -960,7 +967,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
     
     if (isNewSample) {
-      sample.setNumber(requestParser.getRequest().getIdRequest().toString() + "X" + sampleCount);
+      sample.setNumber(requestParser.getRequest().getIdRequest().toString() + "X" + nextSampleNumber);
+      nextSampleNumber++;
       sess.save(sample);
     }  
     
@@ -1063,56 +1071,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       samplesAdded.add(sample);
     }
     
-    // create plates and plate wells for Cap Seq
-    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
-      Plate plate = requestParser.getPlate(idSampleString);
-      PlateWell well = requestParser.getWell(idSampleString);
-      if (plate != null && well != null) {
-        // this means it was Plate container type.
-        String idAsString = requestParser.getPlateIdAsString(idSampleString);
-        Plate realPlate = this.storePlateMap.get(idAsString);
-        if (realPlate == null) {
-          realPlate = plate;
-          if (plate.getIdPlate() != null) {
-            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
-            realPlate.setLabel(plate.getLabel());
-          } else {
-            realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-          }
-          realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-          sess.save(realPlate);
-          sess.flush();
-          this.storePlateMap.put(idAsString, realPlate);
-        }
-        PlateWell realWell = well;
-        if (well.getIdPlateWell() != null) {
-          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlate());
-          realWell.setRow(well.getRow());
-          realWell.setCol(well.getCol());
-        } else {
-          // If this is a new well, we will assume that the samples are being saved
-          // in the order they are listed, so set the well position based on
-          // to sample count which is incremented as we iterate through the
-          // list of samples.
-          realWell.setPosition(new Integer(sampleCount));
-        }
-        realWell.setSample(sample);
-        realWell.setIdSample(sample.getIdSample());
-        realWell.setPlate(realPlate);
-        realWell.setIdPlate(realPlate.getIdPlate());
-        realWell.setIdRequest(requestParser.getRequest().getIdRequest());
-        sess.save(realWell);
-        sess.flush();
-      } else {
-        well = new PlateWell();
-        well.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        well.setIdSample(sample.getIdSample());
-        well.setPosition(new Integer(sampleCount));
-        well.setSample(sample);
-        well.setIdRequest(requestParser.getRequest().getIdRequest());
-        sess.save(well);
-      }
-    }
+    // handle plates and plate wells for Cap Seq
+    updateCapSeqPlates(sess, sample, idSampleString, sampleCount);
+    
     // create plate and plate wells for fragment analysis, if applicable
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
       if (assaysParser != null) {
@@ -1224,6 +1185,110 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
 
+  private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString, int sampleCount) {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+      Plate plate = requestParser.getPlate(idSampleString);
+      PlateWell well = requestParser.getWell(idSampleString);
+      if (plate != null && well != null) {
+        // this means it was Plate container type.
+        String idAsString = requestParser.getPlateIdAsString(idSampleString);
+        Plate realPlate = this.storePlateMap.get(idAsString);
+        if (realPlate == null) {
+          realPlate = plate;
+          if (plate.getIdPlate() != null) {
+            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+          } else {
+            realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          }
+          realPlate.setLabel(plate.getLabel());
+          realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+          sess.save(realPlate);
+          sess.flush();
+          this.storePlateMap.put(idAsString, realPlate);
+        }
+        PlateWell realWell = well;
+        if (well.getIdPlateWell() != null) {
+          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlateWell());
+        } else {
+          realWell.setSample(sample);
+          realWell.setIdSample(sample.getIdSample());
+          realWell.setPlate(realPlate);
+          realWell.setIdPlate(realPlate.getIdPlate());
+          realWell.setIdRequest(requestParser.getRequest().getIdRequest());
+        }
+        realWell.setRow(well.getRow());
+        realWell.setCol(well.getCol());
+        // We will assume that the samples are being saved
+        // in the order they are listed, so set the well position based on
+        // to sample count which is incremented as we iterate through the
+        // list of samples.
+        realWell.setPosition(new Integer(sampleCount));
+        sess.save(realWell);
+        sess.flush();
+      } else {
+        well = null;
+        if (sample.getWells() != null && sample.getWells().size() > 0) {
+          // this loop should be unnecessary since there should only be the 1 well with no plate (source well)
+          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell w = (PlateWell)i.next();
+            if (w.getIdPlate() == null) {
+              well = w;
+              break;
+            }
+          }
+        }
+        if (well == null) {
+          well = new PlateWell();
+          well.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          well.setIdSample(sample.getIdSample());
+          well.setSample(sample);
+          well.setIdRequest(requestParser.getRequest().getIdRequest());
+        }
+        well.setPosition(new Integer(sampleCount));
+        sess.save(well);
+      }
+      
+      sess.flush();
+    }
+  }
+  
+  private void deleteWellsForDeletedSamples(Session sess) {
+    if (this.samplesDeleted.size() > 0) {
+      // get wells to delete
+      ArrayList<Integer> sampleIds = new ArrayList<Integer>();
+      for(Iterator i = this.samplesDeleted.iterator();i.hasNext();) {
+        Sample sample = (Sample)i.next();
+        sampleIds.add(sample.getIdSample());
+      }
+      // instrument run check there just to be paranoid.  Should never happen because of edit security around statuses.
+      String queryString = "SELECT pw from PlateWell pw left join pw.plate p where p.idInstrumentRun is null AND pw.idSample in (:ids) Order By pw.idSample";
+      Query query = sess.createQuery(queryString);
+      query.setParameterList("ids", sampleIds);
+      List wells = query.list();
+  
+      //Delete the wells.  Save list of plate ids in case we orphan one or more.
+      HashMap<Integer, Integer> plateIds = new HashMap<Integer, Integer>();
+      for(Iterator i = wells.iterator(); i.hasNext();) {
+        PlateWell well = (PlateWell)i.next();
+        if (well.getIdPlate() != null) {
+          plateIds.put(well.getIdPlate(), well.getIdPlate());
+        }
+        sess.delete(well);
+      }
+      
+      // delete any orphaned plates
+      if (plateIds.keySet().size() > 0) {
+        queryString = "select p from Plate p where p.idPlate in (:ids) and p.idPlate not in (select idPlate from PlateWell)";
+        query = sess.createQuery(queryString);
+        query.setParameterList("ids", plateIds.keySet());
+        List plates = query.list();
+        for(Iterator i = plates.iterator();i.hasNext(); ) {
+          Plate plate = (Plate)i.next();
+          sess.delete(plate);
+        }
+      }
+    }
+  }
   
   private void saveHyb(RequestParser.HybInfo hybInfo, Session sess, int hybCount) throws Exception {
 
@@ -1918,7 +1983,24 @@ public class SaveRequest extends GNomExCommand implements Serializable {
    
   }
   
- 
+  private void getStartingNextSampleNumber() {
+    nextSampleNumber = 0;
+    for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+      String idSampleString = (String)i.next();
+      Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+      String numberAsString = sample.getNumber();
+      if (numberAsString != null && numberAsString.length() != 0 && numberAsString.indexOf("X") > 0) {
+        numberAsString = numberAsString.substring(numberAsString.indexOf("X") + 1);
+        try {
+          Integer number = Integer.parseInt(numberAsString);
+          if (number > nextSampleNumber) {
+            nextSampleNumber = number;
+          }
+        } catch(Exception ex) {}
+      }
+    }
+    nextSampleNumber++;
+  }
   
   public class LabeledSampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {

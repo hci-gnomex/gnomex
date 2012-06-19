@@ -182,7 +182,7 @@
 				if (parentDocument.samples.length >= 384) {
 					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
 					isValid = false;
-				} else if (parentDocument.samples.length >= 96 && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue != 'PLATE') {
+				} else if (parentDocument.samples.length >= 96 && parentDocument.request.@containerType != 'PLATE') {
 					Alert.show("You have selected Tube as your container.  In order to have more than 96 samples please select Plate.  Add Sample ignored.");
 					isValid = false;
 				} else {
@@ -200,7 +200,6 @@
 				var fragXMLString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
-					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +
 					" canChangeSampleType='Y'" +
 					" canChangeSampleDropOffLocation='Y'" +
@@ -230,7 +229,6 @@
 				emptyNode = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
-					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +
 					" canChangeSampleType='Y'" +
 					" canChangeSampleDropOffLocation='Y'" +
@@ -262,7 +260,6 @@
 				emptyNode = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
 					" name='' description='' " +
-					" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +
 					" canChangeSampleType='Y'" +
 					" canChangeSampleDropOffLocation='Y'" +
@@ -316,7 +313,7 @@
 			var emptyNode:XML = new XML("<Sample " +
 				" idSample='" + "Sample" + getNextSampleId() + "'" +
 				" name='' description='' " +
-				" containerType='" + (parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+				" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 				" canChangeSampleName='Y'" +
 				" canChangeSampleType='Y'" +
 				" canChangeSampleDropOffLocation='Y'" +
@@ -339,7 +336,7 @@
 		}
 		private function getPlateName(idx:int):String {
 			var plateName:String = "";
-			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+			if (parentDocument.request.@containerType == 'PLATE') {
 				var y:int = idx / 96;
 				y = y + 1;
 				plateName = "Plate " + String(y);
@@ -356,7 +353,7 @@
 		
 		private function getIsControl(idx:int):String {
 			var isControl:String = "N";
-			if (parentDocument.sampleSetupView.containerTypePlate.selected) {
+			if (parentDocument.request.@containerType == 'PLATE') {
 				if (idx % 96 == 95) {
 					isControl = "Y";
 				}
@@ -401,7 +398,7 @@
 					if (isValid) {
 					
 						if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
-							if (parentDocument.samples.length <= 32 && parentDocument.sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+							if (parentDocument.samples.length <= 32 && parentDocument.request.@containerType == 'PLATE') {
 								Alert.show("You may not have less than 32 samples in a Plate container.  Delete ignored.");
 								isValid = false;
 							}
@@ -555,6 +552,10 @@
 					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
 				} else {
 					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					if (hasPlates()) {
+						// Controls not included in number of samples so we have to adjust.
+						numberOfSamplesToAdd += numberOfSamplesToAdd / 95 + 1;
+					}
 				}
 			} else {
 				numberOfSamplesToAdd = 1;
@@ -573,7 +574,7 @@
 		}
 		
 		public function hasPlates():Boolean {
-			return (parentDocument.isCapSeqState() && parentDocument.sampleSetupView.containerTypePlate.selected);
+			return (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE');
 		}
 		
 		public function fillPlates():void {
@@ -586,8 +587,24 @@
 						break;
 					}
 					if (parentDocument.samples.length >= firstSample && parentDocument.samples.length <= lastSample) {
+						var lastSampleObject:Object = parentDocument.samples.getItemAt(parentDocument.samples.length - 1);
+						var lastSampleIsControl:Boolean = false;
+						if (lastSampleObject.hasOwnProperty("@isControl") && lastSampleObject.@isControl == 'Y') {
+							lastSample--;
+							lastSampleIsControl = true;
+							parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+							lastSampleObject.@movedControl = "Y";
+						}
 						while (parentDocument.samples.length <= lastSample) {
 							addSample();
+						}
+						if (lastSampleIsControl) {
+							// Blank plate and well ids so it is inserted correctly.
+							lastSampleObject.@idSample = "Sample" + getNextSampleId();
+							lastSampleObject.@idPlate = "";
+							lastSampleObject.@idPlateWell = "";
+							parentDocument.samples.addItem(lastSampleObject);
+							lastSample++;
 						}
 					}
 					if (parentDocument.samples.length > lastSample) {
@@ -1644,7 +1661,7 @@
 		</mx:HBox>
 			<mx:Spacer width="8"/>
 		    <mx:HBox width="100%">
-				<mx:HBox id="buttonsContainer">
+				<mx:HBox id="buttonsContainer" horizontalGap="2">
 					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
@@ -1931,12 +1948,12 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus"
+					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
 

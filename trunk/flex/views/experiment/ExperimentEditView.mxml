@@ -575,6 +575,9 @@
 			}
 		}
 		
+		public function isSequencingState():Boolean {
+			return isCapSeqState() || isFragAnalState() || isMitSeqState() || isCherryPickState();
+		}
 				
 		public function isMicroarrayState():Boolean {
 			if (currentState == 'MicroarrayState' ||
@@ -593,7 +596,9 @@
 				currentState == 'SeqExternalEditState' ||
 			    currentState == 'QCEditState' ||
 			    currentState == 'MicroarrayEditState' ||
-				currentState == 'CapSeqEditState') {
+				currentState == 'CapSeqEditState' ||
+				currentState == 'CherryPickEditState' ||
+				currentState == 'FragAnalEditState') {
 				return true;    	
 			} else {
 				return false;
@@ -2021,7 +2026,10 @@
 				this.sampleSetupView.currentState = 'CapSeqState';
 				
 				this.samplesView.currentState = 'CapSeqState';				
-				this.samplesView.showHideColumns();						
+				this.samplesView.showHideColumns();				
+				if (this.samplesView.hasPlates()) {
+					this.samplesView.fillPlates();
+				}
 			} else {
 				
 				currentState = 'MicroarrayEditState';
@@ -2191,6 +2199,14 @@
 						break;
 					}
 				}
+				if (isCapSeqState()) {
+					for each(var d:Object in this.filteredSampleDropOffLocationList) {
+						if (d.@value == request.@idSampleDropOffLocation) {
+							this.sampleDropOffLocationCombo.selectedItem = d;
+							break;
+						}
+					}
+				}
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
@@ -2352,13 +2368,13 @@
 			warningMessage = '';
 			
 			if (isCapSeqState()) {
-				if (samples.length > 96 && sampleSetupView.containerTypeRadioGroup.selectedValue != 'PLATE') {
+				if (samples.length > 96 && this.request.@containerType != 'PLATE') {
 					errorMessage += "You may not have more than 96 samples in a Tube container.\n\n";
 				}
-				if (samples.length < 32 && sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+				if (samples.length < 32 && this.request.@containerType == 'PLATE') {
 					errorMessage += "You may not have less than 32 samples in a Plate container.\n\n";
 				}
-				if (sampleSetupView.containerTypeRadioGroup.selectedValue == 'PLATE') {
+				if (this.request.@containerType == 'PLATE') {
 					for(var idx:int = 0; idx < 4; idx++) {
 						var lastSample:int = ((idx + 1) * 96) - 1;
 						var firstSample:int = idx * 96;
@@ -2396,13 +2412,16 @@
 			var sampleNames:Dictionary = new Dictionary();
 			var sourceWells:Dictionary = new Dictionary();
 			var destinationWells:Dictionary = new Dictionary();
+			var capSeqFoundDeleted:Boolean = false;
+			var sparsePlate:Boolean = false;
+			var prevSample:Object = null;
 			for each(var s:Object in samples) {
 				var sampleCount:int = 0;
 				var sourceWellCount:int = 0;
 				for each(var s1:Object in samples) {
 					if (s.@name == s1.@name) {
 						// Same name on different plates ok.
-						if (isCapSeqState() && sampleSetupView.containerTypePlate.selected) {
+						if (isCapSeqState() && this.request.@containerType == "PLATE") {
 							if (s.@plateName != s1.@plateName) {
 								continue;
 							}
@@ -2417,6 +2436,16 @@
 				}
 				sampleNames[s.@name.toString()] = sampleCount;
 				sourceWells[s.@sourceWell.toString()] = sourceWellCount;
+				// check for sparse plates -- not allowed.
+				if (isCapSeqState() && this.request.@containerType == "PLATE") {
+					if (s.@name != '' && s.@isControl != 'Y' && capSeqFoundDeleted) {
+						sparsePlate = true;
+					}
+					if (s.@name == '') {
+						capSeqFoundDeleted = true;
+					}
+				}
+				prevSample = s;
 			}
 			var dupSampleNames:String = '';
 			for (var key:Object in sampleNames) {
@@ -2451,6 +2480,10 @@
 				warningMessage += '\n\n';					
 			}
 
+			if (sparsePlate) {
+				errorMessage += "Early plates cannot be partial and plates may not be sparse.  Please make sure wells are contiguous and only the last plate is partial.\n\n";
+			}
+			
 			// If this is a new request or the request is being changed on
 			// the edit screen, warn if all samples are not used on at least 
 			// one hyb or seq lane
@@ -2973,9 +3006,15 @@
 								
 			} 			
 			
+			if (this.isCapSeqState()) {
+				request.@idSampleDropOffLocation = this.sampleDropOffLocationCombo.selectedItem.@value; 
+			}
+
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				request.samples.appendChild(sample);
+				if ((!this.isCapSeqState() && !this.isCherryPickState()) || (sample.hasOwnProperty("@name") && sample.@name != null && sample.@name != '')) { 
+					request.samples.appendChild(sample);
+				}
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
 			if (isMicroarrayState()) {
@@ -4157,7 +4196,7 @@
 			if (this.isCapSeqState()) {
 				if (this.isEditState()) {
 					show = false;
-				} else if (sampleSetupView.containerTypePlate.selected) {
+				} else if (this.request.@containerType == "PLATE") {
 					show = true;
 				} else {
 					show = false;
@@ -4727,7 +4766,7 @@
 									 width="400"/>
 					</mx:HBox>
 					
-					<mx:HBox verticalGap="0" horizontalGap="0" id="hbox5">
+					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
 						<mx:Label text="Project"  width="100" fontWeight="normal"/>
 						<mx:ComboBox id="requestEditProjectCombo"
 									 labelField="@name" 
@@ -4747,7 +4786,7 @@
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
 					</mx:HBox>
 						
-					<mx:HBox horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
+					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
 						<mx:Text  text="Completed" width="100"  fontWeight="normal"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
 					</mx:HBox>
@@ -4809,6 +4848,17 @@
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
+		<mx:State name="SequencingEditState" basedOn="EditState">
+			<mx:AddChild relativeTo="{this.completedBox}" position="after">
+				<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
+					<mx:Text  width="100" text="Status" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="400" />
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SequencingChromaEditState" basedOn="SequencingEditState">
+			<mx:RemoveChild target="{downloadView}"/>
+		</mx:State>
 		<mx:State name="CapSeqState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
@@ -4818,25 +4868,29 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
-		<mx:State name="CapSeqAmendState" basedOn="AmendState">
-			<mx:RemoveChild target="{hybSetupView}"/>
-			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
-			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
-		</mx:State>
-		<mx:State name="CapSeqEditState" basedOn="EditState">
+		<mx:State name="CapSeqEditState" basedOn="SequencingChromaEditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
+				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+					<mx:Text  width="100" text="Container" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="400" />
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
+				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+					<mx:Text  width="100" text="Drop Off Loc." />
+					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" dataProvider="{this.filteredSampleDropOffLocationList}"/>							
+				</mx:HBox>
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="FragAnalState">
 			<mx:RemoveChild target="{hybSetupView}"/>
@@ -4847,12 +4901,13 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
-		<mx:State name="FragAnalEditState" basedOn="EditState">
+		<mx:State name="FragAnalEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
@@ -4867,12 +4922,13 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
-		<mx:State name="MitSeqEditState" basedOn="EditState">
+		<mx:State name="MitSeqEditState" basedOn="SequencingChromaEditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
@@ -4887,12 +4943,13 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
-		<mx:State name="CherryPickEditState" basedOn="EditState">
+		<mx:State name="CherryPickEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
