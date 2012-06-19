@@ -74,10 +74,10 @@
 				errorMessage += "- Please select a lab\n";
 			
 			if (this.project.text != '' && this.activity.text != '')
-				errorMessage +="- The chartfield must contain either project or activity, not both.\n";
+				errorMessage +="- The chartfield must contain either project or activity, but not both.\n";
 			
 			if(bus.text.length != 2 || org.text.length != 5 || fund.text.length != 4 || account.text.length != 5 || au.text.length != 1 || year.text.length != 4 || 
-				(activity.text.length != 5 && project.text != "") && (project.text.length != 8 && activity.text != ""))
+				(activity.text.length != 5 && project.text == '') || (project.text.length != 8 && activity.text == ''))
 				errorMessage += "- Please check the length of your account number.\n";
 
 			if(bus.text.search(regEx) != -1 || org.text.search(regEx) != -1 || fund.text.search(regEx) != -1 || account.text.search(regEx) != -1 || au.text.search(regEx) != -1 ||
