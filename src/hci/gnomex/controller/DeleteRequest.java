@@ -147,7 +147,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         //
         if (req.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
           if (req.getSamples().size() > 0) {
-            String rxnPlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.codeReactionType='" + ReactionType.CHERRY_PICKING_REACTION_TYPE +  "' and pw.idSample in (";
+            String rxnPlateQuery = "SELECT pw from PlateWell pw join pw.plate p where p.idInstrumentRun is null and p.codeReactionType='" + ReactionType.CHERRY_PICKING_REACTION_TYPE +  "' and pw.idSample in (";
             Boolean firstSample = true;
             for(Iterator i = req.getSamples().iterator();i.hasNext();) {
               Sample s = (Sample)i.next();

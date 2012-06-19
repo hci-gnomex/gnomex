@@ -192,6 +192,11 @@
 				currentState = 'CapSeqState';
 				this.chromoTab.idRequest = this.selectedExperiment.@idRequest;
 				this.chromoTab.getList();
+				for each(var doff:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleDropOffLocation').DictionaryEntry) {
+					if (doff.@value == this.selectedExperiment.@idSampleDropOffLocation) {
+						this.sampleDropOffLocationText.text = doff.@display;
+					}
+				}
 			} else if (requestCategory.@type == 'MITSEQ') {
 				currentState = 'MitSeqState';
 			} else if (requestCategory.@type == 'FRAGANAL') {
@@ -527,6 +532,10 @@
 				 parentDocument.parentDocument.editView.annotationView.onPropertyRefreshed(null);
 				 parentDocument.parentDocument.editView.annotationView.checkSecurity();
 			 } 
+			 
+			 if (parentDocument.parentDocument.editView.samplesView.hasPlates()) {
+				 parentDocument.parentDocument.editView.samplesView.fillPlates();
+			 }
 			 //parentDocument.editView.removeDataListeners();
            	 //parentDocument.editView.initializeData();
            	 //callLater(parentDocument.editView.setupDataListeners);
@@ -633,9 +642,9 @@
 					otherSamplePrepMethodCol.visible = false;
 					chipTypeCol.visible = false
 					concentrationUnitCol.visible = false;
-					plateNameCol.visible = (this.selectedExperiment.@hasPlates == 'Y' ? true : false);
-					wellNameCol.visible = (this.selectedExperiment.@hasPlates == 'Y' ? true : false);
-					isControlCol.visible = (this.selectedExperiment.@hasPlates == 'Y' ? true : false);
+					plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+					isControlCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 					this.qc260Col.visible = false;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
@@ -1581,6 +1590,20 @@
 		<mx:RemoveChild target="{filesView}"/>
 	</mx:State>
 	<mx:State name="CapSeqState" basedOn="BaseSeqChromoState">
+		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
+			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+				<mx:Text  width="100" text="Container" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@containerType}" width="400" />
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
+			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+				<mx:Text  width="100" text="Drop Off Loc." />
+				<mx:TextInput id="sampleDropOffLocationText" editable="false" backgroundColor="#FFFFFF" 
+							  text="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleDropOffLocation').DictionaryEntry.(@value == this.selectedExperiment.@idSampleDropOffLocation).@display}" 
+							  width="400" />
+			</mx:HBox>
+		</mx:AddChild>
 	</mx:State>
 	<mx:State name="MitSeqState" basedOn="BaseSeqChromoState">
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">

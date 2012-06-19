@@ -439,7 +439,9 @@
 		        	parentDocument.hybsView.enabled = false;
 	        	} 
 	
-	        	parentDocument.confirmView.enabled = false;
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+	        		parentDocument.confirmView.enabled = false;
+				}
     		} else {
     			if (parentDocument.isSolexaState()) {
         			parentDocument.seqSetup1View.checkSeqSetup1Completeness();				
@@ -665,7 +667,6 @@
 					this.containerTypePlate.enabled = true;
 					this.containerTypeTube.enabled = true;
 				}
-				
 			} 
 			callLater(onContainerTypeChange);
 
@@ -673,10 +674,13 @@
 		}
 		
 		private function onContainerTypeChange():void {
+			parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.showHideColumns();
-			parentDocument.confirmView.showHideColumns();
+			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+				parentDocument.confirmView.showHideColumns();
+			}
 		}
 		
 		public function getSamplePrimerList():String {

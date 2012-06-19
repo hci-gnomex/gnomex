@@ -432,7 +432,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             List wells = plateQuery.list();
             if (wells.size() > 0) {
               // has plates, so it's not tubes.
-              requestNode.setAttribute("hasPlates", "Y");
+              requestNode.setAttribute("containerType", "PLATE");
             
               // augment samples for plates.
               List samples = requestNode.getChild("samples").getChildren("Sample");
@@ -448,6 +448,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
                   }
                 }
               }
+            } else {
+              requestNode.setAttribute("containerType", "TUBE");
             }
           }
           if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
