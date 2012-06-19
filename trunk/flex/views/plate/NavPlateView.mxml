@@ -178,29 +178,79 @@
 					switchActivePlate();
 					callLater( toggleReactionType, [SEQ] );
 				}
-				refreshRunLists();
-				getSampleList();
+				refreshLists();
 				isInitialized = true;
 			}
 			
-
+			private function refreshLists():void{
+				refreshRunLists();
+				getSampleList();
+			}
+			
 			private function refreshRunLists():void {
 				refreshPlateList();
 				refreshRunList();
 			}
 			
 			private function refreshPlateList():void {
-				var params:Object = new Object();
-				params.notAddedToARun = "Y";
-				params.plateType = "REACTION";
-				params.codeReactionType = reactionState;
+				var params:Object = getPlateParameters();
 				getPlateList.send( params );
 			}
-			private function refreshRunList():void {
-				var params:Object = new Object();
-				params.createdLastWeek = "Y";
+			
+			private function getPlateParameters():Object {
+				var params:Object = new Object;
+				params.plateType = "REACTION";
+				params.notAddedToARun = "Y";
 				params.codeReactionType = reactionState;
+				
+				if ( allCheckbox.selected ) {
+					return params;
+				}
+				
+				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
+//				params.createdLastYear = lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
+				
+				
+				return params;
+			}
+			private function refreshRunList():void {
+				var params:Object = getRunParameters();
 				getInstrumentRunList.send( params );
+			}
+			private function getRunParameters():Object {
+				var params:Object = new Object;
+				params.codeReactionType = reactionState;
+				
+				if ( allCheckbox.selected ) {
+					return params;
+				}
+				
+				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
+//				params.createdLastYear = lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
+				
+				params.runLastWeek = lastWeekCheckbox.selected ? 'Y' : 'N' ;
+				params.runLastMonth = lastMonthCheckbox.selected ? 'Y' : 'N' ;
+				params.runLastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
+//				params.runLastYear = lastYearCheckbox.selected ? 'Y' : 'N' ;
+				
+				if ( pendingCheckbox.selected ) {
+					params.status = 'PENDING' ;
+				}
+				if ( runningCheckbox.selected ) {
+					params.status = 'RUNNING' ;
+				}
+				if ( completeCheckbox.selected ) {
+					params.status = 'COMPLETE' ;
+				}
+				if ( failedCheckbox.selected ) {
+					params.status = 'FAILED' ;
+				}
+				
+				return params;
 			}
 
 			private function getSampleList():void {
@@ -231,10 +281,116 @@
 				}
 			}
 			
+			private function toggleDateCheckboxes(checkBoxNumber:int):void {
+				if (checkBoxNumber == 0) {
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+//					this.lastYearCheckbox.selected  = false;
+					
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+//					this.lastYearCheckboxCreated.selected  = false;
+					
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected  = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+					
+				} else if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+//					this.lastYearCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+//					this.lastYearCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+//					this.lastYearCheckbox.selected  = false;
+					
+				}  /* else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastThreeMonthsCheckbox.selected = false;
+					
+				}   */ 
+			} 		 
+			
+			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
+				if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.lastMonthCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+//					this.lastYearCheckboxCreated.selected  = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+//					this.lastYearCheckboxCreated.selected  = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false; 
+//					this.lastYearCheckboxCreated.selected  = false;
+					
+				}  /* else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false; 
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					
+				}    */
+			} 		 
+			
+			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
+				if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.runningCheckbox.selected  = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.pendingCheckbox.selected = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected  = false;
+					this.completeCheckbox.selected  = false;
+					
+				} 
+			}
+			
+			
 			private function onCreateRunFile( event:ResultEvent ):void {
 				
 				if ( createRunFile.lastResult.name() == "SUCCESS" ) {
 					Alert.show( "The .plt file has been created and the run status has been updated to running." );
+					refreshRunLists();
+					getSampleList();
+					removeRun();
+					callLater( loadRunById, [run.idRun] );
 				} else {
 					Alert.show( "An error occurred while creating the run file." );
 				}
@@ -284,7 +440,7 @@
 				// Make the newly added plate the one that is selected. And orient
 				// the plate column- or row-wise
 				callLater( function():void {
-					runLinkClickHandler(1);
+					plateLinkChange();
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = ( numberOfPlates - 1 );
 					activePlate = plateStack.selectedChild as Plate;
 					activePlate.nowFillByCol = fillColWise;
@@ -573,25 +729,17 @@
 			// Plate display and change handlers
 			// ------------------------------------
 			// To toggle between which run's plates are being shown
-			 private function runLinkClickHandler( index:int ):void {
+			 private function plateLinkChange():void {
 
 				// Reset plateStack and run button bars
 				plateStack.removeAllChildren();
 
-				// Add the correct plates for that run to the plate stack and
-				// add the plate link bar to that run's button bar
-				var count:int;
-
-				if ( index == 1 ) {
-					for ( count = 0; count < 4; count++ ) {
-						if ( count < numberOfPlates ) {
-							plateStack.addChild( plateArray[ count ]);
-						}
+				// Add the correct plates to the plate stack 
+				for ( var count:int = 0; count < 4; count++ ) {
+					if ( count < numberOfPlates ) {
+						plateStack.addChild( plateArray[ count ]);
 					}
-					run1Button.addChild( plateLinkBar );
-					run1Button.alpha = 1;
-				} 
-				
+				}
 				// Set selected index on link bar, and change selected plate
 				plateLinkBar.selectedIndex = 0;
 				callLater( switchActivePlate );
@@ -1422,32 +1570,38 @@
 			private function onSavePlate( event:ResultEvent ):void {
 
 				if ( savePlate.lastResult.name() == "SUCCESS" ) {
-					var idPlate:int  = savePlate.lastResult.Plate.@idPlate;
-					var quadrant:int = savePlate.lastResult.Plate.@quadrant;
-					var plate:Plate  = plateArray[ quadrant ] as Plate;
-					plate.idPlate = idPlate;
-					plate.plateObject = savePlate.lastResult.Plate;
-					plate.label = savePlate.lastResult.Plate.@label;
-					plate.comments = savePlate.lastResult.Plate.@comments;
-
-					for each ( var pw:Object in savePlate.lastResult.Plate.PlateWell ) {
-						var ind:int = pw.@position;
-						plate.addSampleToWell( ind, pw..Sample );
-						pw.@groupId = pw.@idRequest;
-						if ( reactionState==MIT || reactionState==FRAG ) {
-							pw.@groupId = pw.@label;
-						} 
-						plate.addWellObject( ind, pw );
-						
-					}
 					refreshRunLists();
 					getSampleList();
 					if ( loadRunAfterSave ) {
 						callLater( loadRunById, [savePlate.lastResult.Plate.@idInstrumentRun] );
+						return;
 					} else if ( loadPlateAfterSave ) {
 						switchToEditState();
 						callLater( loadPlateObject, [savePlate.lastResult.Plate] );
+						return;
 					}
+//					var idPlate:int  = savePlate.lastResult.Plate.@idPlate;
+//					var quadrant:int = savePlate.lastResult.Plate.@quadrant;
+//					var plate:Plate  = plateArray[ quadrant ] as Plate;
+//					if ( plate == null ) {
+//						plate = allPlates[ quadrant ];
+//					}
+//					plate.idPlate = idPlate;
+//					plate.plateObject = savePlate.lastResult.Plate;
+//					plate.label = savePlate.lastResult.Plate.@label;
+//					plate.comments = savePlate.lastResult.Plate.@comments;
+//
+//					for each ( var pw:Object in savePlate.lastResult.Plate.PlateWell ) {
+//						var ind:int = pw.@position;
+//						plate.addSampleToWell( ind, pw..Sample );
+//						pw.@groupId = pw.@idRequest;
+//						if ( reactionState==MIT || reactionState==FRAG ) {
+//							pw.@groupId = pw.@label;
+//						} 
+//						plate.addWellObject( ind, pw );
+//						
+//					}
+					
 				} else {
 					Alert.show( "An error occurred while saving the plate." );
 				}
@@ -1581,7 +1735,7 @@
 				numberOfPlates--;
 				
 				callLater( function():void {
-					runLinkClickHandler( 1 );
+					plateLinkChange();
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = ( numberOfPlates - 1 );
 					activePlate = plateStack.selectedChild as Plate;
 					activePlate.nowFillByCol = fillColWise;
@@ -1626,7 +1780,7 @@
 					run.idRun = 0;
 					activePlate.resetPlate();
 					activePlate.label = "Q1";
-					runNumberLabel.text = "Run 1";
+					runNumberLabel.text = "0";
 					return;
 				}
 
@@ -1651,7 +1805,7 @@
 					if ( numberOfPlates == 1 ) {
 						run = new Object();
 						run.idRun = 0;
-						runNumberLabel.text = "Run 1";
+						runNumberLabel.text = "0";
 						var plate1:Object = plateStack.getChildAt( 0 );
 						var p1:Plate      = plate1 as Plate;
 						p1.resetPlate();
@@ -1660,7 +1814,7 @@
 				} 
 
 				callLater( function():void {
-					runLinkClickHandler(1);
+					plateLinkChange();
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
 					activePlate = plateStack.selectedChild as Plate;
 					activePlate.nowFillByCol = fillColWise;
@@ -1729,7 +1883,7 @@
 					if ( selection.@isOnPlate != null && selection.@isOnPlate == true ) {
 						for each ( well in activePlate.getWells()) {
 							if ( well.getSample() != null ) {
-								if ( well.getSample().@name == selection.@name ) {
+								if ( well.getSample().@idSample == selection.@idSample ) {
 									indices.push( well.position );
 									samplesOnPlate.push( well.sample );
 								}
@@ -1742,7 +1896,7 @@
 						if ( sample.@isOnPlate != null && sample.@isOnPlate == true ) {
 							for each ( well in activePlate.getWells()) {
 								if ( well.getSample() != null ) {
-									if ( well.getSample().@name == sample.@name ) {
+									if ( well.getSample().@idSample == sample.@idSample ) {
 										indices.push( well.position );
 										samplesOnPlate.push( well.sample );
 									}
@@ -1757,7 +1911,7 @@
 						if ( sample1.@isOnPlate != null && sample1.@isOnPlate == true ) {
 							for each ( well in activePlate.getWells()) {
 								if ( well.getSample() != null ) {
-									if ( well.getSample().@name == sample1.@name  && well.getGroupId() == sample1.@label ) {
+									if ( well.getSample().@idSample == sample1.@idSample  && well.getGroupId() == sample1.@label ) {
 										indices.push( well.position );
 										samplesOnPlate.push( well.sample );
 									}
@@ -1787,7 +1941,6 @@
 			private function sampleItemClick( event:Event ):void {
 
 				var sample:Object     = event.currentTarget.selectedItem;
-				var sampleName:String = sample.@name;
 
 				// Select that sample in sample tree
 				for each ( var req:Object in getPendingSampleList.lastResult..Request ) {
@@ -2167,6 +2320,214 @@
 							   textDecoration="underline"  fontSize="9"/>
 
 			</mx:HBox>
+			<mx:HRule width="100%" height="10"/>
+			
+			<mx:HBox id = "filterBar"
+					 horizontalGap = "10"
+					 paddingTop = "0"
+					 paddingBottom = "0"
+					 paddingLeft = "2"
+					 horizontalAlign = "left"
+					 verticalAlign = "middle" paddingRight="2">
+				
+				
+					<mx:CheckBox id="allCheckbox"
+								 label="Show all"
+								 paddingRight="5"
+								 paddingLeft="0"
+								 horizontalGap="0" styleName="labelSmall">
+						<mx:click>
+							toggleDateCheckboxes( 0 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:VRule height = "20" />
+				
+				<mx:HBox id = "statusCheckboxBar" 
+						 horizontalGap = "0" paddingLeft="5" paddingRight="5"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right">
+					<mx:CheckBox label = "Pending"
+								 id = "pendingCheckbox"
+								 horizontalGap = "0"
+								 styleName = "labelSmall"
+								 paddingLeft = "2" >
+						<mx:click>
+							toggleStatusCheckboxes( 1 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Running"
+								 id = "runningCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 2 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Complete"
+								 id = "completeCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 3 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Failed"
+								 id = "failedCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 4 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+				</mx:HBox>
+				
+				<mx:VRule height = "20" />
+				
+				<mx:HBox id = "createDateCheckboxBar"
+						 horizontalGap = "0" height="100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
+					<mx:CheckBox id = "lastWeekCheckboxCreated"
+								 label = "Created in last week"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 paddingLeft = "0"
+								 styleName = "labelSmall" paddingTop="0" 
+								 selected="true">
+						<mx:click>
+							toggleCreateDateCheckboxes( 1 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastMonthCheckboxCreated"
+								 label = "month"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" paddingTop="0">
+						<mx:click>
+							toggleCreateDateCheckboxes( 2 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastThreeMonthsCheckboxCreated"
+								 label = "3 months"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" paddingTop="0">
+						<mx:click>
+							toggleCreateDateCheckboxes( 3 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<!--<mx:CheckBox id = "lastYearCheckboxCreated"
+								 label = "year"
+								 paddingLeft = "2"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" paddingTop="0">
+						<mx:click>
+							toggleCreateDateCheckboxes( 4 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>-->
+				</mx:HBox>
+					
+				<mx:VRule height = "20" />
+					
+				<mx:HBox horizontalGap="0" >
+					<mx:CheckBox id = "lastWeekCheckbox"
+								 label = "Run in last week"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 paddingLeft = "0"
+								 styleName = "labelSmall" >
+						<mx:click>
+							toggleCreateDateCheckboxes( 1 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastMonthCheckbox"
+								 label = "month"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" >
+						<mx:click>
+							toggleCreateDateCheckboxes( 2 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "lastThreeMonthsCheckbox"
+								 label = "3 months"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" >
+						<mx:click>
+							toggleCreateDateCheckboxes( 3 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<!--<mx:CheckBox id = "lastYearCheckbox"
+								 label = "year"
+								 paddingLeft = "2"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" paddingTop="0">
+						<mx:click>
+							toggleCreateDateCheckboxes( 4 );
+							refreshRunLists();
+						</mx:click>
+						
+					</mx:CheckBox>-->
+				</mx:HBox>
+					<mx:VRule height = "20" />
+					<mx:LinkButton
+								   textDecoration="underline"
+								   label="Refresh" color="#000000"
+								   icon="@Embed('../../assets/action_refresh.gif')"
+								   toolTip="Refresh sample list"
+								   click="{this.refreshLists();}"  paddingLeft="5" id="refreshSampleButton0"/>
+					
+				
+			
+			</mx:HBox>
 
 		</mx:VBox>
 		<mx:HBox id="hDivBox"
@@ -2181,12 +2542,11 @@
 						 id="samplesTab"
 						 label="Samples"
 						 horizontalAlign="center">
-
+					
 					<mx:HBox width="100%"
 							 verticalAlign="middle"
-							 height="26"
-							 id="hbox1">
-
+							 height="26">
+						
 						<mx:Label id="titleLabel" styleName="titleLabel" text="Add Samples" />
 						<mx:Spacer width="100%" height="100%" />
 						<mx:LinkButton label="Add Selected"
@@ -2204,7 +2564,7 @@
 									   visible="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}"
 									   includeInLayout="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}"
 									   color="#010101" />
-
+						
 					</mx:HBox>
 					<mx:VBox id="treeContainer"
 							 dropShadowEnabled="true"
@@ -2213,7 +2573,7 @@
 							 paddingLeft="2"
 							 verticalGap="0" 
 							 toolTip="Drag and drop samples onto plate">
-
+						
 						<mx:Tree width="100%"
 								 height="100%"
 								 color="#000000"
@@ -2240,43 +2600,37 @@
 								 backgroundAlpha="1"
 								 dropShadowEnabled="true">
 						</mx:Tree>
+					</mx:VBox>
+					
+					<mx:HBox verticalAlign="middle" width="100%">
 						
 						<mx:ViewStack id="treeExpansionStack"
-									  width="100%"
 									  resizeToContent="true"
 									  selectedIndex="0">
-
-							<mx:HBox horizontalAlign="left">
-
+							
+							<mx:HBox horizontalAlign="left" >
+								
 								<mx:LinkButton label="Collapse"
 											   color="#000000"
 											   click="{treeExpansionStack.selectedIndex = 1;this.collapseNodes();}"
 											   textDecoration="underline" />
-
 							</mx:HBox>
 							<mx:HBox horizontalAlign="left">
-
+								
 								<mx:LinkButton label="Expand"
 											   color="#000000"
 											   click="{treeExpansionStack.selectedIndex = 0;this.expandAllNodes();}"
 											   textDecoration="underline" />
-
 							</mx:HBox>
-
 						</mx:ViewStack>
-						<mx:HBox width="100%" verticalAlign="middle">
-							<mx:LinkButton textDecoration="underline"
-										   label="Refresh" color="#000000"
-										   icon="@Embed('../../assets/action_refresh.gif')"
-										   toolTip="Refresh sample list"
-										   click="{this.getSampleList();}"  paddingLeft="8" id="refreshSampleButton"/>
-							<mx:Spacer width="100%" height="100%" />
-							<mx:Label id="numSamples" height="100%" color="#000000" />
-
-						</mx:HBox>
-
-					</mx:VBox>
-
+						
+						<mx:Spacer width="100%" height="100%" />
+						
+						<mx:Label id="numSamples" height="100%" color="#000000" />
+						
+					</mx:HBox>
+					
+					
 				</mx:VBox>
 				<mx:VBox styleName="panelBox"
 						 height="100%"
@@ -2316,11 +2670,6 @@
 								 wordWrap="true">
 						</mx:Tree>
 						<mx:HBox width="100%" verticalAlign="middle">
-							<mx:LinkButton textDecoration="underline"
-										   label="Refresh" color="#000000"
-										   icon="@Embed('../../assets/action_refresh.gif')"
-										   toolTip="Refresh plate list"
-										   click="{this.refreshPlateList();}"  paddingLeft="8" id="refreshPlatesButton"/>
 							<mx:Spacer width="100%" height="100%" />
 							
 							<mx:Label id="numPlates" height="100%" color="#000000" />
@@ -2369,11 +2718,6 @@
 								 paddingTop="5">
 						</mx:Tree>
 						<mx:HBox width="100%" verticalAlign="middle">
-							<mx:LinkButton textDecoration="underline"
-										   label="Refresh" color="#000000"
-										   icon="@Embed('../../assets/action_refresh.gif')"
-										   toolTip="Refresh run list"
-										   click="{this.refreshRunList();}"  paddingLeft="8" id="refreshRunButton"/>
 							<mx:Spacer width="100%" height="100%" />
 							
 							<mx:Label id="numRuns" height="100%" color="#000000" />
@@ -2600,7 +2944,7 @@
 										   letterSpacing=".3"
 										   toolTip="New plate..."
 										   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-										   textDecoration="underline" />
+										   textDecoration="underline"  id="linkbutton1"/>
 							<mx:LinkButton label="Remove Plate"
 									   	   click="{promptToRemovePlate()}"
 									   	   icon="@Embed('../../assets/delete.png')"
@@ -3033,10 +3377,10 @@
 			<mx:RemoveChild target="{reactComboBox}"/>
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="View Run"/>
 			<mx:SetProperty target="{numPlates}" name="visible" value="false"/>
-			<!--mx:RemoveChild target="{newPlatedeletePlateLink}"/-->
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{radioRow}"/>
 			<mx:RemoveChild target="{radioCol}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
 		</mx:State>
 		
 		<mx:State id="editState" name="editState">
