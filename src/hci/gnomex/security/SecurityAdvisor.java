@@ -18,9 +18,13 @@ import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PlateType;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.SlideProduct;
@@ -721,19 +725,24 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Request
     //
     if (object instanceof Request) {
+      Request req = (Request)object;
       
       // Super Admins
       if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canUpdate = true;
+        if (req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+          canUpdate = false;
+        }
       }
       // Admins - Can only update requests from core facility user manages
       else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
-          Request req = (Request)object;
-          canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
+        canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
+        if (req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+          canUpdate = false;
+        }
       }
       // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-        Request req = (Request)object;
         
         // Lab manager
         if (isGroupIManage(req.getIdLab())) {
@@ -743,6 +752,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         else if (isGroupIAmMemberOf(req.getIdLab()) && isOwner(req.getIdAppUser())) {
           canUpdate = true;
         } 
+        if (canUpdate && req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+          canUpdate = false;
+        }
       } 
     }
     //
@@ -1072,22 +1084,46 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Super Admin can delete any request
       if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canDelete = true;
+        if (r.isDNASeqExperiment().equals("Y") && !r.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !r.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+          canDelete = false;
+        }
       } 
       // Admin - can delete experiments from core facility user manages
       else if (hasPermission(this.CAN_DELETE_REQUESTS)) {
         canDelete = true;
+        if (r.isDNASeqExperiment().equals("Y") && !r.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !r.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+          canDelete = false;
+        }
       } 
       // Lab manager or owner can delete experiment if the samples
       // have not proceeded in the workflow
       else if (isGroupIManage(r.getIdLab()) || (isGroupIAmMemberOf(r.getIdLab()) && isOwner(r.getIdAppUser()))) {
-        int deleteSampleCount = 0;
+        if (r.isDNASeqExperiment().equals("Y")) {
+          canDelete = r.getCodeRequestStatus().equals(RequestStatus.NEW);
+        } else {
+          int deleteSampleCount = 0;
+          for (Iterator i = r.getSamples().iterator(); i.hasNext();) {
+            Sample s = (Sample)i.next();
+            if (s.getCanChangeSampleInfo().equals("Y")) {
+              deleteSampleCount++;
+            }
+          }
+          canDelete = r.getSamples().size() == deleteSampleCount;
+        }
+      }
+      if (canDelete && r.isDNASeqExperiment().equals("Y") && !r.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
         for (Iterator i = r.getSamples().iterator(); i.hasNext();) {
           Sample s = (Sample)i.next();
-          if (s.getCanChangeSampleInfo().equals("Y")) {
-            deleteSampleCount++;
+          if (s.getWells() != null) {
+            for(Iterator i1 = s.getWells().iterator(); i1.hasNext();) {
+              PlateWell w = (PlateWell)i1.next();
+              if (w.getPlate() != null && w.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+                canDelete = false;
+                break;
+              }
+            }
           }
         }
-        canDelete = r.getSamples().size() == deleteSampleCount;
       }
     }    
     // 
@@ -1203,6 +1239,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return canDelete;
   }
   
+  public Boolean canDeleteSample(Request req) throws UnknownPermissionException {
+    if (req.isDNASeqExperiment().equals("Y")) {
+      return canDelete(req);
+    } else {
+      return hasPermission(CAN_WRITE_ANY_OBJECT);
+    }
+  }
+  
   public void flagPermissions(DetailObject object) throws UnknownPermissionException {
     object.canRead(this.canRead(object));
     object.canUpdate(this.canUpdate(object));
@@ -1212,6 +1256,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Request req = (Request)object;
       req.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
       req.canUploadData(this.canUploadData(req));
+      req.setCanDeleteSample(this.canDeleteSample(req));
     } else if (object instanceof Analysis) {
       Analysis a = (Analysis)object;
       a.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));

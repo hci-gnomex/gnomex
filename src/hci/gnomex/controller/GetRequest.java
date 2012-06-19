@@ -109,6 +109,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request.canRead(true);
         request.canDelete(true);
         request.canUpdate(true);
+        request.setCanDeleteSample(true);
       } else if (idRequest != null) {
         request = (Request)sess.get(Request.class, idRequest);
       } else {
