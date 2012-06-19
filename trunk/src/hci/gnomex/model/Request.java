@@ -83,6 +83,7 @@ public class Request extends HibernateDetailObject {
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
+  private boolean     canDeleteSample;
  
   public Set getTopics() {
     return topics;
@@ -479,6 +480,17 @@ public class Request extends HibernateDetailObject {
     canUploadData = canDo;
   }
   
+  public void setCanDeleteSample(Boolean canDo) {
+    this.canDeleteSample = canDo;
+  }
+  
+  public String getCanDeleteSample() {
+    if (canDeleteSample) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
   
   
   public AppUser getAppUser() {

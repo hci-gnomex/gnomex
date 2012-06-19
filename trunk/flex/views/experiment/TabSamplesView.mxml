@@ -387,13 +387,11 @@
 				for each(var sample:Object in samplesGrid.selectedItems) {
 					var isValid:Boolean = true;
 					// Only administrators can delete samples
-					if (!parentApplication.hasPermission("canWriteAnyObject")) {
-						if (sample.@idSample.indexOf("Sample") < 0) {
-							Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
-							isValid = false;
-							continue;
-						}
-					}		
+					if (sample.@idSample.indexOf("Sample") < 0 && parentDocument.request.@canDeleteSample != 'Y') {
+						Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
+						isValid = false;
+						continue;
+					}
 					
 					if (isValid) {
 					
