@@ -73,7 +73,11 @@
 		
        	private function propagateSampleType():void {
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
+				if (this.sampleTypeCombo.selectedItem != null) {
+					sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
+				} else {
+					sample.@idSampleType = null;
+				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}

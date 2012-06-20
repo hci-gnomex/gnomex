@@ -2463,7 +2463,7 @@
 					if (s.@name != '' && s.@isControl != 'Y' && capSeqFoundDeleted) {
 						sparsePlate = true;
 					}
-					if (s.@name == '') {
+					if (s.@name == '' && s.@isControl != 'Y') {
 						capSeqFoundDeleted = true;
 					}
 				}
