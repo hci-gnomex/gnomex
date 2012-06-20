@@ -598,10 +598,13 @@ public class RequestParser implements Serializable {
       Plate plate = new Plate();
       String plateIdAsString = "";
       if (n.getAttributeValue("idPlate") != null && n.getAttributeValue("idPlate").length() > 0) {
-        plateIdAsString = n.getAttributeValue("idPlate");
+        plateIdAsString = n.getAttributeValue("plateName");
         plate.setIdPlate(Integer.parseInt(n.getAttributeValue("idPlate")));
       } else {
         plateIdAsString = n.getAttributeValue("plateName");
+        if (plateMap.containsKey(plateIdAsString)) {
+          plate.setIdPlate(plateMap.get(plateIdAsString).getIdPlate());
+        }
       }
       plate.setLabel(n.getAttributeValue("plateName"));
       this.plateMap.put(plateIdAsString, plate);

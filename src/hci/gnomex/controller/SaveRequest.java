@@ -1303,12 +1303,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         sess.delete(well);
       }
+      sess.flush();
       
       // delete any orphaned plates
       if (plateIds.keySet().size() > 0) {
-        queryString = "select p from Plate p where p.idPlate in (:ids) and p.idPlate not in (select idPlate from PlateWell)";
+        queryString = "select p from Plate p where p.idPlate in (:ids) and p.idPlate not in (select idPlate from PlateWell where idSample not in (:sampleIds))";
         query = sess.createQuery(queryString);
         query.setParameterList("ids", plateIds.keySet());
+        query.setParameterList("sampleIds", sampleIds);
         List plates = query.list();
         for(Iterator i = plates.iterator();i.hasNext(); ) {
           Plate plate = (Plate)i.next();

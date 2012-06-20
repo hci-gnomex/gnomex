@@ -587,40 +587,30 @@
 		
 		public function fillPlates():void {
 			if (hasPlates()) {
+				var startOfPlate:int = 0;
 				for(var idx:int = 0; idx < 4; idx++) {
-					var lastSample:int = ((idx + 1) * 96) - 1;
-					var firstSample:int = idx * 96;
-					if (parentDocument.samples.length <= firstSample) {
-						// nothing on this or subsequent plates.
-						break;
-					}
-					if (parentDocument.samples.length >= firstSample && parentDocument.samples.length <= lastSample) {
-						var lastSampleObject:Object = parentDocument.samples.getItemAt(parentDocument.samples.length - 1);
-						var lastSampleIsControl:Boolean = false;
-						if (lastSampleObject.hasOwnProperty("@isControl") && lastSampleObject.@isControl == 'Y') {
-							lastSample--;
-							lastSampleIsControl = true;
-							parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
-							lastSampleObject.@movedControl = "Y";
-						}
-						while (parentDocument.samples.length <= lastSample) {
+					var firstSample:Object = parentDocument.samples.getItemAt(startOfPlate);
+					if (startOfPlate + 95 >= parentDocument.samples.length) {
+						// Ok last plate and it's a partial plate.  Add samples to fill it up.
+						while(parentDocument.samples.length <= startOfPlate + 94) {
 							addSample();
 						}
-						if (lastSampleIsControl) {
-							// Blank plate and well ids so it is inserted correctly.
-							lastSampleObject.@idSample = "Sample" + getNextSampleId();
-							lastSampleObject.@idPlate = "";
-							lastSampleObject.@idPlateWell = "";
-							parentDocument.samples.addItem(lastSampleObject);
-							lastSample++;
+						var emptyNode:XML = this.getEmptyCapSeqNode(firstSample.@plateName, "H12", "Y");
+						emptyNode.@name=this.DEFAULT_CONTROL_NAME;
+						parentDocument.samples.addItem(emptyNode);
+						break;
+					} else {
+						var lastSample:Object = parentDocument.samples.getItemAt(startOfPlate+95);
+						if (lastSample.@plateName != firstSample.@plateName) {
+							// Plate is not full -- insert control at end of plate.
+							var emptyNode1:XML = this.getEmptyCapSeqNode(firstSample.@plateName, "H12", "Y");
+							emptyNode1.@name=this.DEFAULT_CONTROL_NAME;
+							parentDocument.samples.addItemAt(emptyNode1, startOfPlate + 95);
 						}
 					}
-					if (parentDocument.samples.length > lastSample) {
-						var sample:Object = parentDocument.samples.getItemAt(lastSample);
-						if (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == "") {
-							sample.@name = this.DEFAULT_CONTROL_NAME;
-							sample.@isControl = "Y";
-						}
+					startOfPlate += 96;
+					if (startOfPlate >= parentDocument.samples.length) {
+						break;
 					}
 				}
 			}
@@ -1080,7 +1070,7 @@
 				var gfCapSeq:GroupingField = new GroupingField();
 				gfCapSeq.name = "@plateName";
 				groupCapSeq.fields = [gfCapSeq];
-				gfCapSeq.compareFunction = sampleCompareFunction;
+				gfCapSeq.compareFunction = plateSampleCompareFunction;
 				sampleGroupingCollection.grouping  = groupCapSeq;
 				sampleGroupingCollection.refresh(); 
 				this.samplesGrid.dataProvider = sampleGroupingCollection;
@@ -1250,6 +1240,45 @@
 			}
 		}
 
+		private function plateSampleCompareFunction(a:XML, b:XML):int
+		{
+			if (a.hasOwnProperty("@plateName") && a.hasOwnProperty("@wellName") && b.hasOwnProperty("@plateName") && b.hasOwnProperty("@wellName")) {
+				var compVal:int = 0;
+				if (a.@plateName == b.@plateName) {
+					compVal = compVal = ObjectUtil.numericCompare(a.@wellName.toString().substr(1), b.@wellName.toString().substr(1));
+					if (compVal == 0) {
+						compVal = ObjectUtil.stringCompare(a.@wellName.toString(), b.@wellName.toString());
+					}
+				} else {
+					compVal = ObjectUtil.stringCompare(a.@plateName.toString(), b.@plateName.toString());
+				}
+				return compVal;
+			} else {
+				var aPersistFlag:Number = 0;
+				var aPosition:Number = 0;
+				if (a.@idSample.toString().indexOf("Sample") > -1) {
+					aPosition = a.@idSample.toString().substr(6);
+					aPersistFlag = 1;
+				} else {
+					aPosition = a.@idSample;
+				}
+				
+				var bPersistFlag:Number = 0;
+				var bPosition:Number = 0;
+				if (b.@idSample.toString().indexOf("Sample") > -1) {
+					bPosition = b.@idSample.toString().substr(6);
+					bPersistFlag = 1; // non-persistent samples sort after the persistent ones
+				} else {
+					bPosition = b.@idSample;
+				}
+				
+				if (aPersistFlag == bPersistFlag) {
+					return ObjectUtil.numericCompare(aPosition, bPosition);				
+				} else {
+					return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
+				}
+			}
+		}
 		
         public function showHideColumns():void {
 			isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
