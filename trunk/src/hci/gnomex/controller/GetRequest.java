@@ -455,20 +455,36 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
             // biuld the primer list and well names for the samples
-            HashMap<String, String> primerList = new HashMap<String, String>();
+            HashMap<String, Primer> primerList = new HashMap<String, Primer>();
             HashMap<Integer, String> sampleWellMap = new HashMap<Integer, String>();
-            String primerQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE'";
+            TreeMap<Integer, String> primerNumberMap = new TreeMap<Integer, String>();
+            // order by is important to preserve order of primers
+            String primerQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE' order by pw.idPlateWell";
             Query primerQuery = sess.createQuery(primerQueryString);
             primerQuery.setParameterList("ids", sampleIds);
             List primers = primerQuery.list();
+            String plateName = "";
+            Integer nextPrimerNumber = 0;
             for(Iterator i = primers.iterator();i.hasNext();) {
               PlateWell pw = (PlateWell)i.next();
-              primerList.put(pw.getPrimer().getName(), pw.getPrimer().getName());
+              if (pw.getPrimer() != null && !primerList.containsKey(pw.getPrimer().getName())) {
+                primerList.put(pw.getPrimer().getName(), pw.getPrimer());
+                nextPrimerNumber++;
+                primerNumberMap.put(nextPrimerNumber, pw.getPrimer().getName());
+              }
               sampleWellMap.put(pw.getIdSample(), pw.getWellName());
+              if (plateName.length() == 0 && pw.getPlate().getLabel() != null) {
+                plateName = pw.getPlate().getLabel();
+              }
+            }
+            // This shouldn't happen now, but just in case.
+            if (plateName.length() == 0) {
+              plateName = "Plate 1";
             }
             
             String primerListString = "";
-            for(String pName:primerList.keySet()) {
+            for(Integer pNumber:primerNumberMap.keySet()) {
+              String pName = primerNumberMap.get(pNumber);
               if (primerListString.length() > 0) {
                 primerListString += ", ";
               }
@@ -476,11 +492,25 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             requestNode.setAttribute("primerList", primerListString);
             
+            // Add primers to request
+            Element primersNode = new Element("primers");
+            for (Integer pNumber:primerNumberMap.keySet()) {
+              String primerKey = primerNumberMap.get(pNumber);
+              Primer primer = primerList.get(primerKey);
+              Element primerNode = new Element("Primer");
+              primerNode.setAttribute("name", primer.getName());
+              primerNode.setAttribute("id", primer.getIdPrimer().toString());
+              primerNode.setAttribute("number", pNumber.toString());
+              primersNode.addContent(primerNode);
+            }
+            requestNode.addContent(primersNode);
+
             // add well names to samples
             List samples = requestNode.getChild("samples").getChildren("Sample");
             for (Iterator i1 = samples.iterator(); i1.hasNext();) {
               Element sampleNode = (Element)i1.next();
               sampleNode.setAttribute("wellName", sampleWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("plateName", plateName);
             }
           }
           

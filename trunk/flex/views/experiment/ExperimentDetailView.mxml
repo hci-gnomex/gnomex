@@ -1024,6 +1024,7 @@
 <mx:XMLListCollection id="billingItems" source="{selectedExperiment.billingItems.BillingLab}"/>
 <mx:XMLListCollection id="samples" source="{selectedExperiment.samples.Sample}"/>
 <mx:XMLListCollection id="assays" source="{selectedExperiment.assays.assay}"/>
+<mx:XMLListCollection id="primers" source="{selectedExperiment.primers.Primer}"/>
 <mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 
         

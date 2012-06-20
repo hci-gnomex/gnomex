@@ -1083,6 +1083,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           assayPlate = new Plate();
           assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
           assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          assayPlate.setLabel(requestParser.getPlate(idSampleString).getLabel());
           sess.save(assayPlate);
           sess.flush();
         }
@@ -1104,34 +1105,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.flush();
       }
     }
-    // create plate and plate wells for mitochondrial sequencing, if applicable
-    if (primersParser != null) {
-      primersParser.parse(sess);
-
-      if (primerPlate == null) {
-        primerPlate = new Plate();
-        primerPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-        primerPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        sess.save(primerPlate);
-        sess.flush();
-      }
-      PlateWell parsedWell = requestParser.getWell(idSampleString);
-      for (Integer primerNumber = 1; primerNumber < 7; primerNumber++) {
-        PlateWell primerWell = new PlateWell();
-        primerWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        primerWell.setIdPrimer(primersParser.getID(primerNumber));
-        primerWell.setIdPlate(primerPlate.getIdPlate());
-        primerWell.setIdSample(sample.getIdSample());
-        primerWell.setPlate(primerPlate);
-        primerWell.setPosition(new Integer(sampleCount));
-        primerWell.setCol(parsedWell.getCol());
-        primerWell.setRow(parsedWell.getRow());
-        primerWell.setSample(sample);
-        primerWell.setIdRequest(requestParser.getRequest().getIdRequest());
-        sess.save(primerWell);
-      }
-      sess.flush();
-    }
+    
+    updateMitSeqWells(sess, sample, idSampleString, sampleCount);
     
     // Cherry pick source and destination wells
     String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
@@ -1166,6 +1141,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         this.cherryPickDestinationPlate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
         this.cherryPickDestinationPlate.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
         this.cherryPickDestinationPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+        this.cherryPickDestinationPlate.setLabel("Cherry Reaction Plate");
         sess.save(this.cherryPickDestinationPlate);
         sess.flush();
       }
@@ -1248,6 +1224,58 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.save(well);
       }
       
+      sess.flush();
+    }
+  }
+  
+  private void updateMitSeqWells(Session sess, Sample sample, String idSampleString, int sampleCount) throws Exception {
+    // create/update plate and plate wells for mitochondrial sequencing, if applicable
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+      primersParser.parse(sess);
+
+      if (primerPlate == null) {
+        if (requestParser.isNewRequest()) {
+          primerPlate = new Plate();
+          primerPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+          primerPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          primerPlate.setLabel(requestParser.getPlate(idSampleString).getLabel());
+          sess.save(primerPlate);
+          sess.flush();
+        } else {
+          String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
+          primerPlate = (Plate)sess.createQuery(query).uniqueResult();
+        }
+      }
+      
+      PlateWell parsedWell = requestParser.getWell(idSampleString);
+      if (sample.getWells() == null) {
+        for (Integer primerNumber = 1; primerNumber < 7; primerNumber++) {
+          PlateWell primerWell = new PlateWell();
+          primerWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          primerWell.setIdPrimer(primersParser.getID(primerNumber));
+          primerWell.setIdPlate(primerPlate.getIdPlate());
+          primerWell.setIdSample(sample.getIdSample());
+          primerWell.setPlate(primerPlate);
+          primerWell.setPosition(new Integer(sampleCount));
+          primerWell.setCol(parsedWell.getCol());
+          primerWell.setRow(parsedWell.getRow());
+          primerWell.setSample(sample);
+          primerWell.setIdRequest(requestParser.getRequest().getIdRequest());
+          sess.save(primerWell);
+        }
+      } else {
+        for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
+          PlateWell well = (PlateWell)i.next();
+          if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+            if (!well.getCol().equals(parsedWell.getCol()) || !well.getPosition().equals(new Integer(sampleCount)) || !well.getRow().equals(parsedWell.getRow())) {
+              well.setCol(parsedWell.getCol());
+              well.setPosition(new Integer(sampleCount));
+              well.setRow(parsedWell.getRow());
+              sess.save(well);
+            }
+          }
+        }
+      }
       sess.flush();
     }
   }
