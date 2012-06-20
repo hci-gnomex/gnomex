@@ -242,8 +242,8 @@
         
         public function pickBarcodeScheme():void {
 			if (parentApplication.submitInternalExperiment()) {
-				if (parentDocument.sampleSetupView.radioYesBarcoding.selected || 
-					((parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||  parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState")&& parentDocument.sampleSetupView.radioYesCustomBarcoding.selected)) {
+				if (parentDocument.sampleSetupView.radioYesBarcoding != null && (parentDocument.sampleSetupView.radioYesBarcoding.selected || 
+					((parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||  parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState")&& parentDocument.sampleSetupView.radioYesCustomBarcoding.selected))) {
 					currentState = 'BarcodeState';
 					for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
 						var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));

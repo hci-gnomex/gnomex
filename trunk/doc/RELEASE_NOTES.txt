@@ -33,6 +33,7 @@
 * Fixes for file copy problems in Organize Files feature for Experiments, Analyses (rcundick)
 * Added billing plug-ins for fragment analysis and mit seq experiment types.  changed billing plugin function, adding arugment for assay map. (tdisera)
 * Changed definition field edit/display window to RichTextEdit for analyses and experiments. (rcundick)
+* Fixed bug where number stepper that asks how many samples in one lane was missing for add services to missing request. (rcundick)
 
 deploy notes 
 --------------------
