@@ -133,21 +133,15 @@
         public function showHideColumns():void {
 			this.sampleTypeColumn.visible = true;
 			this.filteredSamples.removeAll();
-			var numSamples:int = 0;
 			for each(var sample:Object in parentDocument.samples) {
 				if (sample.@name != null && sample.@name != '') {
-					this.filteredSamples.addItem(sample);
-					if (parentDocument.isCapSeqState()) {
-						if (!sample.hasOwnProperty("@isControl") || sample.@isControl != 'Y') {
-							numSamples++;
-						}
-					} else {
-						numSamples++;
+					if (!parentDocument.isCapSeqState() || sample.@isControl != 'Y') {
+						this.filteredSamples.addItem(sample);
 					}
 				}
 			}
 
-			this.label1.text = 'Samples (' + numSamples + ')';
+			this.label1.text = 'Samples (' + filteredSamples.length + ')';
 
 			if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState()) {
 				this.parentDocument.submitButton.label = 'Save';
