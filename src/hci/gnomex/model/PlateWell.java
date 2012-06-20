@@ -19,6 +19,7 @@ public class PlateWell extends HibernateDetailObject {
   private String   codeReactionType;
   private Date     createDate;
   private String   redoFlag = "N";
+  private String   isControl = "N";
   private Integer  idAssay;
   private Integer  idPrimer;
   private Primer   primer;
@@ -146,6 +147,16 @@ public class PlateWell extends HibernateDetailObject {
 
   public String getRedoFlag() {
     return redoFlag;
+  }
+
+  
+  public String getIsControl() {
+    return isControl;
+  }
+
+  
+  public void setIsControl( String isControl ) {
+    this.isControl = isControl;
   }
 
   public void setRedoFlag(String redoFlag) {
