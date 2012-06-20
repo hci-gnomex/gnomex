@@ -2877,7 +2877,7 @@
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
-				if (sampleSetupView.contains(sampleSetupView.sampleTypeCombo)) {
+				if (sampleSetupView.contains(sampleSetupView.sampleTypeCombo) && sampleSetupView.sampleTypeCombo.selectedItem != null) {
 					request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 				}
 				
@@ -2931,7 +2931,9 @@
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
 				if (sample.@name != null && sample.@name != '') {
-					request.samples.appendChild(sample);
+					if (!this.isCapSeqState() || sample.@isControl != 'Y') { 
+						request.samples.appendChild(sample);
+					}
 				}
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
@@ -3034,9 +3036,13 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if ((!this.isCapSeqState() && !this.isCherryPickState()) || (sample.hasOwnProperty("@name") && sample.@name != null && sample.@name != '')) { 
-					request.samples.appendChild(sample);
+				if ((this.isCapSeqState() || this.isCherryPickState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+					continue;
 				}
+				if (this.isCapSeqState() && sample.@isControl == 'Y') {
+					continue;
+				}
+				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
 			if (isMicroarrayState()) {

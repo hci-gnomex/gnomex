@@ -325,7 +325,7 @@
 				" idOligoBarcode = ''" +
 				" barcodeSequence = ''" +
 				" codeConcentrationUnit='ng/ul'" + 
-				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+				" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeCombo.selectedItem != null ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 				" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 				" otherSamplePrepMethod=''" + 				
 				" treatment=''" +	
