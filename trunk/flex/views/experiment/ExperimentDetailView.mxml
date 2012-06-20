@@ -636,7 +636,7 @@
 					this.qcStatusCol.visible = true;
 				} else if (isCapSeqState()) {
 					concentrationCol.visible = false; 
-					sampleTypeCol.visible = false;
+					sampleTypeCol.visible = true;
 					organismCol.visible = false;
 					preppedByLabCol.visible = false;
 					otherSamplePrepMethodCol.visible = false;

@@ -325,6 +325,7 @@
 				" idOligoBarcode = ''" +
 				" barcodeSequence = ''" +
 				" codeConcentrationUnit='ng/ul'" + 
+				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 				" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 				" otherSamplePrepMethod=''" + 				
 				" treatment=''" +	
@@ -1249,7 +1250,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-            this.sampleTypeCol.visible = currentState != 'CapSeqState' && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() && !parentDocument.isCherryPickState();
+            this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() && !parentDocument.isCherryPickState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;

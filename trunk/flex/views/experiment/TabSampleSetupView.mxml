@@ -1023,8 +1023,6 @@
         <mx:State name="CapSeqState" basedOn="DropoffBase">
              <mx:RemoveChild target="{sampleOrganismContainer}"/>
              <mx:RemoveChild target="{samplePrepContainer}"/>
-			 <mx:RemoveChild target="{label8}"/>
-			 <mx:RemoveChild target="{sampleTypeCombo}"/>
              <mx:AddChild relativeTo="{hbox6}" position="before">
                   <mx:HBox width="100%" horizontalGap="0">
                        <mx:Label text="(2) The samples will be delivered in what container?" width="310"  id="label0"/>
@@ -1033,7 +1031,7 @@
                        <mx:RadioButton id="containerTypePlate" label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
                   </mx:HBox>
              </mx:AddChild>
-             <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label8}" name="text" value="(4) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
         </mx:State>
 	   <mx:State name="FragAnalState">

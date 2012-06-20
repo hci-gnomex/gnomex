@@ -292,7 +292,7 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = false;
+				this.sampleTypeColumn.visible = true;
 
 			} else if (parentDocument.isFragAnalState()) {
 				concentrationUnitConfirmColumn.visible = false;
