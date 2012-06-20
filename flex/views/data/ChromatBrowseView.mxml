@@ -213,7 +213,6 @@
 					params.lastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
 					params.lastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
 					params.lastYear = this.lastYearCheckbox.selected ? 'Y' : 'N' ;
-					params.getAll = this.allCheckbox.selected ? 'Y' : 'N';
 					params.released = this.releasedCheckbox.selected ? 'Y' : notReleasedCheckbox.selected ? 'N' : ''
 				}
 				
@@ -353,31 +352,19 @@
 				if ( currentState != userState.name ) {
 					this.runNoLookupField.text = "";
 					this.requestNoLookupField.text = "";
-					if ( checkBoxNumber == 0 ) {
-						actionDictionary.source = dictXML.action;
-						this.notReleasedCheckbox.selected = false;
-						this.releasedCheckbox.selected = false;
-						this.lastMonthCheckbox.selected = false;
-						this.lastWeekCheckbox.selected = false;
-						this.lastThreeMonthsCheckbox.selected = false;
-						this.lastYearCheckbox.selected = false;
-					} else if ( checkBoxNumber == 1 ) {
-						this.allCheckbox.selected = false;
+					if ( checkBoxNumber == 1 ) {
 						this.lastMonthCheckbox.selected = false;
 						this.lastThreeMonthsCheckbox.selected = false;
 						this.lastYearCheckbox.selected = false;
 					} else if ( checkBoxNumber == 2 ) {
-						this.allCheckbox.selected = false;
 						this.lastWeekCheckbox.selected = false;
 						this.lastThreeMonthsCheckbox.selected = false;
 						this.lastYearCheckbox.selected = false;
 					} else if ( checkBoxNumber == 3 ) {
-						this.allCheckbox.selected = false;
 						this.lastWeekCheckbox.selected = false;
 						this.lastMonthCheckbox.selected = false;
 						this.lastYearCheckbox.selected = false;
 					} else if ( checkBoxNumber == 4 ) {
-						this.allCheckbox.selected = false;
 						this.lastWeekCheckbox.selected = false;
 						this.lastMonthCheckbox.selected = false;
 						this.lastThreeMonthsCheckbox.selected = false;
@@ -390,10 +377,8 @@
 				this.runNoLookupField.text = "";
 				this.requestNoLookupField.text = "";
 				if ( checkBoxNumber == 0 ) {
-					this.allCheckbox.selected = false;
 					this.notReleasedCheckbox.selected = false;
 				} else if ( checkBoxNumber == 1 ) {
-					this.allCheckbox.selected = false;
 					this.releasedCheckbox.selected = false;
 				}
 			}
@@ -402,10 +387,8 @@
 				this.runNoLookupField.text = "";
 				this.requestNoLookupField.text = "";
 				if ( checkBoxNumber == 0 ) {
-					this.allCheckbox.selected = false;
 					this.mitSeqCheckbox.selected = false;
 				} else if ( checkBoxNumber == 1 ) {
-					this.allCheckbox.selected = false;
 					this.capSeqCheckbox.selected = false;
 				}
 			}
@@ -415,7 +398,6 @@
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.requestNoLookupField.text != '' ) {
-					this.allCheckbox.selected = false;
 					this.lastWeekCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
@@ -431,7 +413,6 @@
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.runNoLookupField.text != '' ) {
-					this.allCheckbox.selected = false;
 					this.lastWeekCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
@@ -598,26 +579,6 @@
 				 paddingLeft="0"
 				 horizontalAlign="left"
 				 verticalAlign="middle">
-
-			<mx:HBox horizontalGap="0"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="5">
-				<mx:CheckBox id="allCheckbox"
-							 label="All"
-							 horizontalGap="0">
-					<mx:click>
-						toggleDateCheckboxes( 0 );
-						this.getList();
-					</mx:click>
-
-				</mx:CheckBox>
-
-			</mx:HBox>
-			
-			<mx:VRule height="20" />
 
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
