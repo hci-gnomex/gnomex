@@ -39,7 +39,7 @@ CREATE TABLE gnomex.Assay(
  ) ENGINE = INNODB;
  
  
--- Add idPrimer, idAssay to PlateWell
+-- Add idPrimer, idAssay, isControl to PlateWell
 alter table gnomex.PlateWell add column idAssay int(10) null;
 alter table gnomex.PlateWell add column idPrimer int(10) null;
 alter table gnomex.PlateWell  add
@@ -60,6 +60,9 @@ alter table gnomex.Sample drop column redoFlag;
 
 -- new isControl for Sample
 alter table Sample add column isControl char(1) NULL;
+
+-- new isControl for PlateWell
+alter table gnomex.PlateWell add column isControl char(1) null;
 
 -- new purchaseOrderForm and orderFormFileType for BillingAccount
 alter table BillingAccount add column purchaseOrderForm LONGBLOB NULL;

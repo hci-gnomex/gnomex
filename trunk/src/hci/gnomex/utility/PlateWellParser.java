@@ -109,6 +109,11 @@ public class PlateWellParser extends DetailObject implements Serializable
         && !n.getAttributeValue("redoFlag").equals("")) {
       well.setRedoFlag(n.getAttributeValue("redoFlag"));
     }
+    // Control
+    if (n.getAttributeValue("isControl") != null
+        && !n.getAttributeValue("isControl").equals("")) {
+      well.setIsControl(n.getAttributeValue("isControl"));
+    }
     // Row
     if (n.getAttributeValue("row") != null
         && !n.getAttributeValue("row").equals("")) {

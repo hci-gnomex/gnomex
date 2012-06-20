@@ -1256,6 +1256,7 @@ CREATE TABLE `gnomex`.`PlateWell` (
   `createDate` DATETIME NULL,
   `codeReactionType` VARCHAR(10) NULL,
   `redoFlag` CHAR(1) NULL, 
+  `isControl` CHAR(1) NULL,
   `idAssay` INT(10) NULL,
   `idPrimer` INT(10) NULL,
   PRIMARY KEY (`idPlateWell`),
