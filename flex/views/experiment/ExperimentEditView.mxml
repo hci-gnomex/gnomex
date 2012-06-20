@@ -3623,9 +3623,9 @@
 					setAmendTitle();
 				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_ILLUMINA) {
 					this.filteredAppList.refresh();
-
 					this.currentState = "SolexaBaseAmendState";
 					setAmendTitle();
+					this.seqSetup1View.currentState = "BarcodeState";
 				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_MICROARRAY) {
 					this.currentState = "MicroarrayAmendState"; 
 					setAmendTitle();
