@@ -454,6 +454,15 @@
 				}
 			}
 			
+			// reset wells on samples when one deleted in mit seq.
+			if (deleteHappened && parentDocument.isMitSeqState()) {
+				for (var msIdx:int = 0; msIdx < parentDocument.samples.length; msIdx++) {
+					var mitSample:Object = parentDocument.samples.getItemAt(msIdx);
+					var mitWellName:String = getWellName(msIdx);
+					mitSample.@wellName = mitWellName;
+				}
+			}
+			
 			if (parentDocument.isMicroarrayState()) {
 				parentDocument.hybsView.hybsGrid.invalidateList();
 				parentDocument.hybsView.hybsGrid.invalidateDisplayList();

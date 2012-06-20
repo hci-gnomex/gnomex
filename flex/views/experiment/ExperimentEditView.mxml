@@ -598,7 +598,8 @@
 			    currentState == 'MicroarrayEditState' ||
 				currentState == 'CapSeqEditState' ||
 				currentState == 'CherryPickEditState' ||
-				currentState == 'FragAnalEditState') {
+				currentState == 'FragAnalEditState' ||
+				currentState == 'MitSeqEditState') {
 				return true;    	
 			} else {
 				return false;
@@ -2030,6 +2031,27 @@
 				if (this.samplesView.hasPlates()) {
 					this.samplesView.fillPlates();
 				}
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_MIT_SEQ) {
+				this.currentState = "MitSeqEditState";
+				this.sampleSetupView.currentState = 'MitSeqState';
+				
+				this.samplesView.currentState = 'MitSeqState';				
+				this.samplesView.showHideColumns();				
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_FRAG_ANAL) {
+				this.currentState = "FragAnalEditState";
+				this.sampleSetupView.currentState = 'FragAnalState';
+				
+				this.samplesView.currentState = 'FragAnalState';				
+				this.samplesView.showHideColumns();				
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_CHERRY_PICK) {
+				this.currentState = "CherryPickEditState";
+				this.sampleSetupView.currentState = 'CherryPickState';
+				
+				this.samplesView.currentState = 'CherryPickState';				
+				this.samplesView.showHideColumns();				
 			} else {
 				
 				currentState = 'MicroarrayEditState';
@@ -3009,7 +3031,7 @@
 			if (this.isCapSeqState()) {
 				request.@idSampleDropOffLocation = this.sampleDropOffLocationCombo.selectedItem.@value; 
 			}
-
+			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
 				if ((!this.isCapSeqState() && !this.isCherryPickState()) || (sample.hasOwnProperty("@name") && sample.@name != null && sample.@name != '')) { 
@@ -3069,6 +3091,9 @@
 			params.requestXMLString = request.toXMLString();
 			params.idProject = request.@idProject;
 			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
+			if (this.isMitSeqState()) {
+				params.primersXMLString = parentApplication.navExperimentView.detailView.detail.primers.toXMLString();
+			}
 			
 			if (downloadView.getFilesToDelete().length > 0) {
 				params.filesToRemoveXMLString = downloadView.getFilesToDelete().toXMLString();			
