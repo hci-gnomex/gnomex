@@ -2718,8 +2718,8 @@
 
 		public function getAssayDataField(x:int):String {
 			var fld:String = "@hasAssay";
-			var y:int = x + 1000;
-			fld += y.toString().substr(1,3);
+			var assay:Object = assayCollection.getItemAt(x);
+			fld += assay.@display;
 			return fld;
 		}
 			

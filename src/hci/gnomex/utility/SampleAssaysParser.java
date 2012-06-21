@@ -13,14 +13,14 @@ import org.jdom.Element;
 
 public class SampleAssaysParser implements Serializable {
   private Document          assaysDoc;
-  private HashMap<Integer, Integer>  assayMap;
+  private HashMap<String, Integer>  assayMap;
 
   public SampleAssaysParser(Document assaysDoc) {
     this.assaysDoc = assaysDoc;
   }
 
   public void init() {
-    assayMap = new HashMap<Integer, Integer>();
+    assayMap = new HashMap<String, Integer>();
   }
   
   public void parse(Session sess) throws Exception{
@@ -32,12 +32,13 @@ public class SampleAssaysParser implements Serializable {
       Element assayNode = (Element)i.next();
       Integer id = Integer.parseInt(assayNode.getAttributeValue("id"));
       Integer number = Integer.parseInt(assayNode.getAttributeValue("number"));
-      assayMap.put(number, id);
+      String name = assayNode.getAttributeValue("name");
+      assayMap.put(name, id);
     }
   }
   
-  public Integer getID(Integer number) {
-    return assayMap.get(number);
+  public Integer getID(String name) {
+    return assayMap.get(name);
   }
   
   public Integer getNumAssays() {
