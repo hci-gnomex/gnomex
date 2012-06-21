@@ -333,6 +333,9 @@
 				" wellName='" + wellName + "'" +
 				" isControl='" + isControl + "'" +
 				"/>");
+			if (isControl == "Y") {
+				emptyNode.@name=this.DEFAULT_CONTROL_NAME;
+			}
 			return emptyNode;
 		}
 		private function getPlateName(idx:int):String {
@@ -596,7 +599,6 @@
 							addSample();
 						}
 						var emptyNode:XML = this.getEmptyCapSeqNode(firstSample.@plateName, "H12", "Y");
-						emptyNode.@name=this.DEFAULT_CONTROL_NAME;
 						parentDocument.samples.addItem(emptyNode);
 						break;
 					} else {
@@ -604,7 +606,6 @@
 						if (lastSample.@plateName != firstSample.@plateName) {
 							// Plate is not full -- insert control at end of plate.
 							var emptyNode1:XML = this.getEmptyCapSeqNode(firstSample.@plateName, "H12", "Y");
-							emptyNode1.@name=this.DEFAULT_CONTROL_NAME;
 							parentDocument.samples.addItemAt(emptyNode1, startOfPlate + 95);
 						}
 					}
