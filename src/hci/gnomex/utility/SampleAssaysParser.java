@@ -31,7 +31,6 @@ public class SampleAssaysParser implements Serializable {
     for(Iterator i = assaysNode.getChildren("Assay").iterator(); i.hasNext();) {
       Element assayNode = (Element)i.next();
       Integer id = Integer.parseInt(assayNode.getAttributeValue("id"));
-      Integer number = Integer.parseInt(assayNode.getAttributeValue("number"));
       String name = assayNode.getAttributeValue("name");
       assayMap.put(name, id);
     }

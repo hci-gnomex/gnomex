@@ -182,11 +182,11 @@
 			
 			// reset selected ones to visible -- creating them if necessary.
 			if (parentDocument.isFragAnalState()) {
-				if (parentDocument.sampleSetupView.assayCheckBox != null) {
-					for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
-						if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
+				if (parentDocument.selectedAssaysCollection.length > 0) {
+					for (var x:int = 0; x < parentDocument.assayCollection.length; x++) {
+						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+						if (parentDocument.isAssaySelected(assayObject)) {
 							var dataField:String = parentDocument.getAssayDataField(x);
-							var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
 							var exists:Boolean = false;
 							var assayCol:DataGridColumn = null;
 							for each(var colSearch:DataGridColumn in samplesGridConfirm.columns) {

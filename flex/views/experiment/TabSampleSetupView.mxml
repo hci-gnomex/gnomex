@@ -761,6 +761,19 @@
 			parentDocument.samplesView.initializeSamplesGrid();		
 			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
 		}
+		
+		private function onAssayCheckBoxChanged():void {
+			parentDocument.selectedAssaysCollection.removeAll();
+			for (var x:int = 0; x < assayCheckBox.length; x++) {
+				if (assayCheckBox[x].selected) {
+					var assay:Object = parentDocument.assayCollection.getItemAt(x);
+					var assayXML:XML = new XML("<Assay name='" + assay.@display + "' id='" + assay.@value + "'/>");
+					parentDocument.selectedAssaysCollection.addItem(assayXML);
+				}
+			}
+			checkSampleSetupCompleteness();
+			parentDocument.samplesView.initializeSamplesGrid();
+		}
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
@@ -1048,7 +1061,7 @@
 							paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
 							verticalGap="0" horizontalGap="0" tileWidth="200"> 
 					   <mx:Repeater id="assayRepeater" dataProvider="{parentDocument.assayCollection}">
-							<mx:CheckBox label="{assayRepeater.currentItem.@display}" id="assayCheckBox" change="checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid()" width="100%"/>
+							<mx:CheckBox label="{assayRepeater.currentItem.@display}" id="assayCheckBox" change="onAssayCheckBoxChanged()" width="100%"/>
 					   </mx:Repeater>
 				   </mx:Tile>
 			   </mx:VBox>

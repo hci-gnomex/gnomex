@@ -193,9 +193,7 @@
 				}				
 				
 			} else if (currentState != null && (currentState.indexOf('FragAnal') >= 0)) {
-				var fragWellName:String = "ABCDEFGH".substr(parentDocument.samples.length / 12, 1);
-				var fragColNumber:int = parentDocument.samples.length % 12 + 1;
-				fragWellName += fragColNumber.toString();
+				var fragWellName:String = this.getWellName(parentDocument.samples.length);
 				
 				var fragXMLString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -216,9 +214,9 @@
 					" treatment=''" +
 					" plateName='Plate 1'" +
 					" wellName='" + fragWellName + "'";
-				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
-					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
-						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+				for (var x:int = 0; x < parentDocument.assayCollection.length; x++) {
+					var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+					if (parentDocument.isAssaySelected(assayObject)) {
 						fragXMLString += " " + parentDocument.getAssayDataField(x).substr(1) + "='Y'";
 					}
 				}
@@ -350,8 +348,14 @@
 		
 		private function getWellName(idx:int):String {
 			var wellName:String = "";
-			var y:int = idx % 96;
-			wellName = parentApplication.wellNamesByColumn[y];
+			if (parentDocument.isFragAnalState()) {
+				wellName = "ABCDEFGH".substr(idx / 12, 1);
+				var fragColNumber:int = idx % 12 + 1;
+				wellName += fragColNumber.toString();
+			} else {
+				var y:int = idx % 96;
+				wellName = parentApplication.wellNamesByColumn[y];
+			}
 			return wellName;
 		}
 		
@@ -457,8 +461,8 @@
 				}
 			}
 			
-			// reset wells on samples when one deleted in mit seq.
-			if (deleteHappened && parentDocument.isMitSeqState()) {
+			// reset wells on samples when one deleted in mit seq or frag anal
+			if (deleteHappened && (parentDocument.isMitSeqState() || parentDocument.isFragAnalState())) {
 				for (var msIdx:int = 0; msIdx < parentDocument.samples.length; msIdx++) {
 					var mitSample:Object = parentDocument.samples.getItemAt(msIdx);
 					var mitWellName:String = getWellName(msIdx);
@@ -1151,10 +1155,10 @@
 
 			// reset selected ones to visible -- creating them if necessary.
 			if (parentDocument.isFragAnalState()) {
-				for (var x:int = 0; x < parentDocument.sampleSetupView.assayCheckBox.length; x++) {
-					if (parentDocument.sampleSetupView.assayCheckBox[x].selected) {
+				for (var x:int = 0; x < parentDocument.assayCollection.length; x++) {
+					var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
+					if (parentDocument.isAssaySelected(assayObject)) {
 						var dataField:String = parentDocument.getAssayDataField(x);
-						var assayObject:Object = parentDocument.assayCollection.getItemAt(x);
 						var exists:Boolean = false;
 						var assayCol:AdvancedDataGridColumn = null;
 						for each(var col:AdvancedDataGridColumn in samplesGrid.columns) {
