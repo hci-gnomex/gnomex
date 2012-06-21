@@ -34,6 +34,12 @@
 * Added billing plug-ins for fragment analysis and mit seq experiment types.  changed billing plugin function, adding arugment for assay map. (tdisera)
 * Changed definition field edit/display window to RichTextEdit for analyses and experiments. (rcundick)
 * Fixed bug where number stepper that asks how many samples in one lane was missing for add services to missing request. (rcundick)
+* Added isControl to PlateWell object, added automatic control well to plate editor, updated plate report to show the control well. (mbowler)
+* Added ability to drop samples on to any well in the plate on the plate editor. (mbowler)
+* Fixed action script errors on plate editor. (mbowler)
+* Took out multiple run viewing and editing functionality in plate editor. (mbowler)
+* Redo samples now update correctly when building plates or requeueing from chromatogram screen. (mbowler)
+* Miscellaneous bug fixes on plate editor and other core sequencing views. (mbowler)
 
 deploy notes 
 --------------------
