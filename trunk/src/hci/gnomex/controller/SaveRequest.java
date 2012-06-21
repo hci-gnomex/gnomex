@@ -165,7 +165,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
-      this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
     }
     
     if (request.getParameter("description") != null) {
