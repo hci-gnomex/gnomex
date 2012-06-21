@@ -136,26 +136,34 @@ public class PlateReportHTMLFormatter {
           if( i.hasNext() ) {
             Element well = (Element) i.next();
 
+
             String idPlateWellString = well.getAttributeValue("idPlateWell");
             String sampleName = well.getAttributeValue( "sampleName" );
             String idRequest = well.getAttributeValue( "idRequest" );
 
-            // Add request number to list of request numbers
-            if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
-              if ( !requestNumbers.contains( idRequest ) ) {
-                requestNumbers.add( idRequest );
-                requestSampleNo.add( 1 );
-              } else {
-                int index = requestNumbers.indexOf( idRequest );
-                int val = requestSampleNo.get( index );
-                int newVal = val+1;
-                requestSampleNo.set( index, newVal );
+            if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals( "Y" ) ) {
+              sampleName = "Control";
+              addControlWellCell( row );
+            
+            } else {
+
+              // Add request number to list of request numbers
+              if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
+                if ( !requestNumbers.contains( idRequest ) ) {
+                  requestNumbers.add( idRequest );
+                  requestSampleNo.add( 1 );
+                } else {
+                  int index = requestNumbers.indexOf( idRequest );
+                  int val = requestSampleNo.get( index );
+                  int newVal = val+1;
+                  requestSampleNo.set( index, newVal );
+                }
               }
+              this.addColoredWellCell( row,
+                  idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
+                      sampleName,
+                      idRequest);
             }
-            this.addColoredWellCell( row,
-                idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
-                    sampleName,
-                    idRequest);
           }
         }
       }
@@ -253,6 +261,15 @@ public class PlateReportHTMLFormatter {
     row.addContent(cell);
   }
   
+  private void addControlWellCell(Element row ) {
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "plate " + "coloredC");
+    Element cell2 = new Element("DIV");
+    cell2.setAttribute("CLASS", "ptext " + "colored0");
+    cell2.addContent("Control");
+    cell.addContent( cell2 );
+    row.addContent(cell);
+  } 
   private void addColoredWellCell(Element row, String text1, String text2, String idRequest) {
     int index = requestNumbers.indexOf( idRequest );
 
