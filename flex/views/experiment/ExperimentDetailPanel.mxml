@@ -14,7 +14,7 @@
 									visible="false"
 									includeInLayout="false"
 									toolTip="Submit experiment" 
-									enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@codeRequestStatus == &quot;NEW&quot; &amp;&amp; detail.selectedExperiment.@canEdit==&quot;Y&quot; ? true : false}" 
+									enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@codeRequestStatus == &quot;NEW&quot; &amp;&amp; detail.selectedExperiment.@canUpdate==&quot;Y&quot; ? true : false}" 
 									textDecoration="underline">
 							<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
 						</mx:LinkButton>
