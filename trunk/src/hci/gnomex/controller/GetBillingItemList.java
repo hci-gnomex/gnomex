@@ -41,7 +41,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    billingItemFilter = new BillingItemFilter();
+    billingItemFilter = new BillingItemFilter(this.getSecAdvisor());
     HashMap errors = this.loadDetailObject(request, billingItemFilter);
     this.addInvalidFields(errors);
     

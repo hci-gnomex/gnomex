@@ -246,7 +246,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     TreeMap requestMap = new TreeMap();
     TreeMap billingItemMap = new TreeMap();
     TreeMap relatedBillingItemMap = new TreeMap();
-    ShowBillingInvoiceForm.cacheBillingItemMap(sess, idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), billingItemMap, relatedBillingItemMap, requestMap);
+    ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), billingItemMap, relatedBillingItemMap, requestMap);
     
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();

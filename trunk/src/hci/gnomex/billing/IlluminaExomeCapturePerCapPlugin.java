@@ -111,6 +111,7 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(price.getIdPriceCategory());
       billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
+      billingItem.setIdCoreFacility(request.getIdCoreFacility());
 
       billingItems.add(billingItem);
 
