@@ -212,7 +212,6 @@
 				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
 //				params.createdLastYear = lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
 				
-				
 				return params;
 			}
 			private function refreshRunList():void {
@@ -386,7 +385,7 @@
 			private function onCreateRunFile( event:ResultEvent ):void {
 				
 				if ( createRunFile.lastResult.name() == "SUCCESS" ) {
-					Alert.show( "The .plt file has been created and the run status has been updated to running." );
+					Alert.show( "The .plt file has been created and the status has been updated to running." );
 					refreshRunLists();
 					getSampleList();
 					removeRun();
@@ -415,7 +414,7 @@
 
 				for ( var index:int = 1; index < colorPick.getColorArray().length; index++ ) {
 					for each ( var well:WellContainer in activePlate.getWells()) {
-						if ( well.getGroupId() == colorPick.getLabel( index )) {
+						if ( well.groupId == colorPick.getLabel( index )) {
 							well.setColor( colorPick.getColorAt( index ));
 						}
 					}
@@ -460,12 +459,12 @@
 				infoViews.selectedChild = orderInfoBox;
 				selectedGroupId = event.currentTarget.selectedItem.label;
 				var indices:Array        = new Array();
-				var samplesOnPlate:Array = new Array();
+//				var samplesOnPlate:Array = new Array();
 
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getGroupId() == selectedGroupId ) {
+					if ( well.groupId == selectedGroupId ) {
 						indices.push( well.position );
-						samplesOnPlate.push( well.sample );
+//						samplesOnPlate.push( well.sample );
 					}
 				}
 
@@ -526,8 +525,16 @@
 							}
 							sealComboBox.selectedIndex = -1;
 						}
+					} else if ( sealComboBox.selectedIndex == -1 ) {
+						for each ( var o:Object in sealComboBox.dataProvider ) {
+							if ( o.@codeSealType == "HEATSEAL" ) {
+								sealComboBox.selectedItem = o;
+								break;
+							}
+						}
 					}
 					sealText.text = plateObject.@codeSealType;
+					
 				} 
 				
 				var samplesOnPlate:Array = new Array();
@@ -573,20 +580,15 @@
 						}
 						runSealComboBox.selectedIndex = -1;
 					}
-				}
-				runSealText.text = run.codeSealType;
-				
-				// Reaction Type
-				if ( currentState != newState.name ) {
-					for each ( var obj2:Object in reactTypeComboBox.dataProvider ) {
-						if ( obj2.@codeReactionType == run.codeReactionType ) {
-							reactTypeComboBox.selectedItem = obj2;
+				} else if ( runSealComboBox.selectedIndex == -1 ) {
+					for each ( var obj2:Object in runSealComboBox.dataProvider ) {
+						if ( obj2.@codeSealType == "HEATSEAL" ) {
+							runSealComboBox.selectedItem = obj2;
 							break;
 						}
-						reactTypeComboBox.selectedIndex = -1;
 					}
 				}
-				reactTypeText.text = run.codeReactionType;
+				runSealText.text = run.codeSealType;
 				
 				// Status
 				if ( currentState != newState.name ) {
@@ -597,7 +599,7 @@
 						}
 						statusComboBox.selectedIndex = -1;
 					}
-				} else {
+				} else if ( statusComboBox.selectedIndex == -1 ) {
 					for each ( var obj4:Object in statusComboBox.dataProvider ) {
 						if ( obj4.@codeInstrumentRunStatus == "PENDING" ) {
 							statusComboBox.selectedItem = obj4;
@@ -619,7 +621,7 @@
 				var samplesOnPlate:Array = new Array();
 
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getGroupId() == selectedGroupId ) {
+					if ( well.groupId == selectedGroupId ) {
 						indices.push( well.position );
 						samplesOnPlate.push( well.sample );
 						submitDate.text = well.submitDate;
@@ -661,7 +663,7 @@
 				for each ( var s:Object in group..Well ) {
 					if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
 						for each ( var well:WellContainer in activePlate.getWells()) {
-							if ( well.getSample() != null ) {
+							if ( well.hasSample ) {
 								if ( well.getSample().@name == s.@name ) {
 									samplesOnPlate.push( well.sample );
 								}
@@ -687,7 +689,7 @@
 				var samplesOnPlate:Array = new Array();
 				
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getGroupId() == selectedGroupId ) {
+					if ( well.groupId == selectedGroupId ) {
 						
 						samplesOnPlate.push( well.sample );
 					}
@@ -884,17 +886,17 @@
 			// ---------------------------
 			// For Plate:
 			private function onDragEnterPlate( event:DragEvent ):void {
-
 				event.preventDefault();
 				plateBox.drawFocus( true );
 				DragManager.acceptDragDrop( event.target as UIComponent );
+				DragManager.showFeedback( DragManager.LINK );
 			}
 			
 			private function onDragOverPlate( event:DragEvent ):void {
-				
 				event.preventDefault();
 				plateBox.drawFocus( true );
 				DragManager.acceptDragDrop( event.target as UIComponent );
+				DragManager.showFeedback( DragManager.LINK );
 			}
 			
 			private function onDragExitPlate( event:DragEvent ):void {
@@ -931,7 +933,7 @@
 				return sortedItemList;
 			}
 
-
+			public var plateDropIndex:int = 0;
 			// Drop samples or folders containing samples onto the current plate
 			private function dropOnPlate( event:DragEvent ):void {
 
@@ -946,19 +948,20 @@
 				
 				for each ( var item:Object in items ) {
 					if ( item.name() == "Well" ) {
-						if ( item.@isOnPlate != true ) {
+						if ( item.@isOnPlate == null || item.@isOnPlate != true ) {
 							samples.push( item );
 						}
 					} else {
 						for each ( var sample:Object in item..Well ) {
-							if ( sample.@isOnPlate != true ) {
+							if ( item.@isOnPlate == null || sample.@isOnPlate != true ) {
 								samples.push( sample );
 							}
 						}
 					}
 					
 				}
-				addSamplesToPlate( samples, 0 );
+				addSamplesToPlate( samples, plateDropIndex );
+				plateDropIndex = 0;
 			}
 
 			// For Sample Tree:
@@ -1021,7 +1024,7 @@
 
 			// This function mimics the drag & drop function - This way
 			// folders are treated appropriately without repeat adding of samples.
-			private function addButtonClick():void {
+			public function addButtonClick():void {
 
 				var source:DragSource = new DragSource;
 				source.addData( sampleTree.selectedItems, "treeItems" );
@@ -1041,12 +1044,12 @@
 
 				for each ( var item:Object in items ) {
 					if ( item.name() == "Well" ) {
-						if ( item.@isOnPlate != true ) {
+						if ( item.@isOnPlate == null || item.@isOnPlate != true ) {
 							samples.push( item );
 						}
 					} else {
 						for each ( var sample:Object in item..Well ) {
-							if ( sample.@isOnPlate != true ) {
+							if ( item.@isOnPlate == null || sample.@isOnPlate != true ) {
 								samples.push( sample );
 							}
 						}
@@ -1072,9 +1075,10 @@
 				// we can, we need to cut the added samples (and folders) out of the list.
 				var itemsToSplice:int = 0;
 
-				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well.getSample() != null ) {
-						index++;
+				for ( var x:int = ind; x < activePlate.getWells().length; x++ ) {
+					var well:WellContainer = activePlate.getWell( x );
+					if ( well.hasSample ) {
+						index = x + 1;
 					} else {
 						break;
 					}
@@ -1086,16 +1090,19 @@
 						// Only add sample objects that are not on a plate already
 						// No samples that are already on a plate should make it here.
 						if ( item.name() == "Well" && item.@isOnPlate != true ) {
-							// TODO: check if that well is empty first.  If not, move to next well?
-							activePlate.addSampleToWell( index, item );
-							item.@groupId = item.@idRequest;
-							if ( reactionState==MIT || reactionState==FRAG ) {
-								item.@groupId = item.@label;
-							} 
-							activePlate.addWellObject( index, item );
-							// Tag the sample when it's added to a plate
-							item.@isOnPlate = true;
-							itemsToSplice++;
+
+							if ( !activePlate.getWell( index ).hasSample ) {
+								
+								activePlate.addSampleToWell( index, item );
+								item.@groupId = item.@idRequest;
+								if ( reactionState==MIT || reactionState==FRAG ) {
+									item.@groupId = item.@label;
+								} 
+								activePlate.addSourceWell( index, item );
+								// Tag the sample when it's added to a plate
+								item.@isOnPlate = true;
+								itemsToSplice++;
+							}
 							index++;
 						} else {
 							if ( item.name() != "Well" ) {
@@ -1110,7 +1117,7 @@
 
 						// TODO: THIS WILL DISALLOW THE FILLING OF THE END PLATES IF THEY ARE
 						// NOT FILLED ALREADY...
-						if ( numberOfPlates >= 16 ) {
+						if ( numberOfPlates >= 4 ) {
 							return;
 						}
 
@@ -1330,6 +1337,8 @@
 					if ( currentState != viewState.name ) {
 						tabNav.selectedChild = samplesTab;
 					}
+					toggleReactionType( getPlate.lastResult.Plate.@codeReactionType );
+					
 				} else {
 					Alert.show( "An error occurred while getting the plate." );
 				}
@@ -1362,7 +1371,7 @@
 					if ( reactionState==MIT || reactionState==FRAG  ) {
 						pw.@groupId = pw.@label;
 					} 
-					activePlate.addWellObject( ind, pw );
+					activePlate.addSourceWell( ind, pw );
 					
 					var wc:WellContainer = activePlate.getWell( ind ) as WellContainer;
 					if ( ind == 1 ) {
@@ -1398,16 +1407,13 @@
 					return;
 				}
 				if ( currentState==newState.name && !checkFormComplete() ) {
-					Alert.show( "Please fill in a name and select a reaction type and sealing for this instrument run", "Form not complete" );
+					Alert.show( "Please fill in a name and select a seal type for this instrument run", "Form not complete" );
 					return;
 				}
 				Alert.show( "Are you sure you want to save run?", "Confirm Save Run", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 			}
 
 			private function checkFormComplete():Boolean {
-				if ( reactTypeComboBox.selectedIndex == -1 ) {
-					return false;
-				}
 				if ( sealComboBox.selectedIndex == -1 ) {
 					return false;
 				}
@@ -1434,8 +1440,8 @@
 					
 					params.comments = runCommentsText.text;
 					params.label = runNameText.text;
-					if ( currentState == newState.name && reactTypeComboBox.selectedIndex != -1 ) {
-						params.codeReactionType = reactTypeComboBox.selectedItem.@codeReactionType;
+					if ( currentState == newState.name ) {
+						params.codeReactionType = reactionState;
 					}
 					if ( runSealComboBox.selectedIndex != -1 ) {
 						params.codeSealType = runSealComboBox.selectedItem.@codeSealType;
@@ -1451,8 +1457,8 @@
 					var param:Object = new Object();
 					param.comments = runCommentsText.text;
 					param.label = runNameText.text;
-					if ( currentState == newState.name && reactTypeComboBox.selectedIndex != -1 ) {
-						param.codeReactionType = reactTypeComboBox.selectedItem.@codeReactionType;
+					if ( currentState == newState.name ) {
+						param.codeReactionType = reactionState;
 					}
 					if ( runSealComboBox.selectedIndex != -1 ) {
 						param.codeSealType = runSealComboBox.selectedItem.@codeSealType;
@@ -1485,17 +1491,29 @@
 				}
 			}
 
-
 			private function promptToSavePlate():void {
 
-				// This should check for empty runs and plates, not just the current plate.
 				if ( activePlate.getWellIDs().length == 0 ) {
 					Alert.show( "No samples have been added to the plate", "Plate not filled" );
 					return;
 				}
-				Alert.show( "Are you sure you want to save plate?", "Confirm plate save", ( Alert.YES | Alert.NO ), this, onPromptToSavePlate, iconWarning );
+				if ( currentState==newState.name && !checkPlateFormComplete() ) {
+					Alert.show( "Please fill in a name and select a seal type for this instrument run", "Form not complete" );
+					return;
+				}
+				Alert.show( "Are you sure you want to save the plate?", "Confirm Save Plate", ( Alert.YES | Alert.NO ), this, onPromptToSavePlate, iconWarning );
 			}
-
+			
+			private function checkPlateFormComplete():Boolean {
+				
+				if ( sealComboBox.selectedIndex == -1 ) {
+					return false;
+				}
+				if ( plateNameText.text == null || plateNameText.text == '' ) {
+					return false;
+				}
+				return true;
+			}
 
 			private function onPromptToSavePlate( event:CloseEvent ):void {
 
@@ -1526,9 +1544,8 @@
 							if ( runSealComboBox.selectedIndex != -1 ) {
 								params.codeSealType = runSealComboBox.selectedItem.@codeSealType;
 							}
-							
-							if ( reactTypeComboBox.selectedItem != null ) {
-								params.codeReactionType = reactTypeComboBox.selectedItem.@codeReactionType;
+							if ( currentState == newState.name ) {
+								params.codeReactionType = reactionState;
 							}
 							
 							if ( plate.idPlate != 0 ) {
@@ -1559,6 +1576,9 @@
 					if ( sealComboBox.selectedIndex != -1 ) {
 						params.codeSealType = sealComboBox.selectedItem.@codeSealType;
 					}
+					if ( currentState == newState.name ) {
+						params.codeReactionType = reactionState;
+					}
 					
 					savePlate.send( params );
 				}
@@ -1573,34 +1593,16 @@
 					refreshRunLists();
 					getSampleList();
 					if ( loadRunAfterSave ) {
+						tabNav.selectedChild = runTab;
 						callLater( loadRunById, [savePlate.lastResult.Plate.@idInstrumentRun] );
-						return;
 					} else if ( loadPlateAfterSave ) {
 						switchToEditState();
+						tabNav.selectedChild = plateTab;
+						removeRun();
 						callLater( loadPlateObject, [savePlate.lastResult.Plate] );
-						return;
 					}
-//					var idPlate:int  = savePlate.lastResult.Plate.@idPlate;
-//					var quadrant:int = savePlate.lastResult.Plate.@quadrant;
-//					var plate:Plate  = plateArray[ quadrant ] as Plate;
-//					if ( plate == null ) {
-//						plate = allPlates[ quadrant ];
-//					}
-//					plate.idPlate = idPlate;
-//					plate.plateObject = savePlate.lastResult.Plate;
-//					plate.label = savePlate.lastResult.Plate.@label;
-//					plate.comments = savePlate.lastResult.Plate.@comments;
-//
-//					for each ( var pw:Object in savePlate.lastResult.Plate.PlateWell ) {
-//						var ind:int = pw.@position;
-//						plate.addSampleToWell( ind, pw..Sample );
-//						pw.@groupId = pw.@idRequest;
-//						if ( reactionState==MIT || reactionState==FRAG ) {
-//							pw.@groupId = pw.@label;
-//						} 
-//						plate.addWellObject( ind, pw );
-//						
-//					}
+					loadRunAfterSave = false;
+					loadPlateAfterSave = false;
 					
 				} else {
 					Alert.show( "An error occurred while saving the plate." );
@@ -1636,12 +1638,12 @@
 				var wells:Array   = new Array();
 
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well != null && well.getSample() != null ) {
+					if ( well != null && well.hasSample ) {
 						var sample:Object = well.getSample();
 						sample.@isOnPlate = false;
 					}
 
-					if ( well.getGroupId() != selectedGroupId ) {
+					if ( well.groupId != selectedGroupId && well.isControl != "Y" ) {
 						wells.push( well );
 					}
 				}
@@ -1679,7 +1681,7 @@
 				}
 				
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well != null && well.getSample() != null ) {
+					if ( well != null && well.hasSample ) {
 						var sample:Object = well.getSample();
 						sample.@isOnPlate = false;
 					}
@@ -1791,7 +1793,7 @@
 					var p:Plate      = plate as Plate;
 
 					for each ( var well:WellContainer in p.getWells()) {
-						if ( well != null && well.getSample() != null ) {
+						if ( well != null && well.hasSample ) {
 							var sample:Object = well.getSample();
 							sample.@isOnPlate = false;
 						}
@@ -1882,7 +1884,7 @@
 				if ( selection.name() == "Well" ) {
 					if ( selection.@isOnPlate != null && selection.@isOnPlate == true ) {
 						for each ( well in activePlate.getWells()) {
-							if ( well.getSample() != null ) {
+							if ( well.hasSample ) {
 								if ( well.getSample().@idSample == selection.@idSample ) {
 									indices.push( well.position );
 									samplesOnPlate.push( well.sample );
@@ -1895,7 +1897,7 @@
 					for each ( var sample:Object in selection..Well ) {
 						if ( sample.@isOnPlate != null && sample.@isOnPlate == true ) {
 							for each ( well in activePlate.getWells()) {
-								if ( well.getSample() != null ) {
+								if ( well.hasSample ) {
 									if ( well.getSample().@idSample == sample.@idSample ) {
 										indices.push( well.position );
 										samplesOnPlate.push( well.sample );
@@ -1911,7 +1913,7 @@
 						if ( sample1.@isOnPlate != null && sample1.@isOnPlate == true ) {
 							for each ( well in activePlate.getWells()) {
 								if ( well.getSample() != null ) {
-									if ( well.getSample().@idSample == sample1.@idSample  && well.getGroupId() == sample1.@label ) {
+									if ( well.getSample().@idSample == sample1.@idSample  && well.groupId == sample1.@label ) {
 										indices.push( well.position );
 										samplesOnPlate.push( well.sample );
 									}
@@ -2005,26 +2007,19 @@
 						}
 						statusComboBox.selectedIndex = -1;
 					} 
-					for each ( var rt:Object in reactTypeComboBox.dataProvider ) {
-						if ( rt.@codeReactionType == reactionState ) {
-							reactTypeComboBox.selectedItem = rt;
-							break;
-						}
-						reactTypeComboBox.selectedIndex = -1;
-					} 
 					for each ( var st:Object in sealComboBox.dataProvider ) {
 						if ( st.@codeSealType == "HEATSEAL" ) {
 							sealComboBox.selectedItem = st;
 							break;
 						}
-						reactTypeComboBox.selectedIndex = -1;
+						sealComboBox.selectedIndex = -1;
 					}
 					for each ( var st1:Object in runSealComboBox.dataProvider ) {
 						if ( st1.@codeSealType == "HEATSEAL" ) {
 							runSealComboBox.selectedItem = st1;
 							break;
 						}
-						reactTypeComboBox.selectedIndex = -1;
+						runSealComboBox.selectedIndex = -1;
 					}					
 					
 					tabNav.selectedChild = samplesTab;
@@ -2038,16 +2033,14 @@
 				getSampleList();
 				// CHECK and warn if DIRTY 
 				if ( currentState == newState.name ) {
-					removeRun(); //clearAll();
-					callLater( function():void {
+					removeRun(); 
+//					callLater( function():void {
 						
 						refreshComboBoxes();
 						currentState = editState.name;
-						tabNav.selectedChild = runTab;
-					});
+//					});
 				} else {
 					currentState = editState.name;
-					tabNav.selectedChild = runTab;
 				}
 			}
 			
@@ -2079,29 +2072,26 @@
 					reactionTypeRadioGroup.selection = radioMit;
 					fillColWise = true;
 					toggleFillOrientation();
+					reactTypeText.text = plateReactTypeText.text = "Mito DLoop";
 				} else if ( reaction == FRAG ) {
 					reactionState = FRAG;
 					colorPickLabel.text = "Select an assay by color.";
 					reactionTypeRadioGroup.selection = radioFrag;
 					fillColWise = false;
 					toggleFillOrientation();
+					reactTypeText.text = plateReactTypeText.text = "Fragment Analysis";
 				} else if ( reaction == SEQ ) {
 					reactionState = SEQ;
 					colorPickLabel.text = "Select an order by color.";
 					reactionTypeRadioGroup.selection = radioSEQ;
 					fillColWise = true;
 					toggleFillOrientation();
+					reactTypeText.text = plateReactTypeText.text = "Capillary Seq";
 				} else if ( reaction == CHERRY ) {
 					reactionState = CHERRY;
 					fillColWise = false;
 					toggleFillOrientation();
-				}
-				for each ( var obj:Object in reactTypeComboBox.dataProvider ) {
-					if ( obj.@codeReactionType == reaction ) {
-						reactTypeComboBox.selectedItem = obj;
-						break;
-					}
-					reactTypeComboBox.selectedIndex = -1;
+					reactTypeText.text = plateReactTypeText.text = "Cherry Pick";
 				}
 				getSampleList();
 				refreshRunLists();
@@ -2263,7 +2253,8 @@
 				 width="100%"
 				 verticalGap="0">
 
-			<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+			<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" paddingLeft = "2"
+					 paddingRight="2">
 
 				<mx:Label fontSize="11"
 						  fontWeight="bold"
@@ -2312,25 +2303,25 @@
 							   color="#000000"
 							   icon="@Embed('../../assets/plate_add.png')"
 							   paddingLeft="1"
-							   paddingRight="0"
 							   horizontalGap="0"
 							   letterSpacing=".3"
 							   toolTip="New run..."
 							   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-							   textDecoration="underline"  fontSize="9"/>
+							   textDecoration="underline"  
+							   fontSize="9"/>
 
 			</mx:HBox>
 			<mx:HRule width="100%" height="10"/>
 			
-			<mx:HBox id = "filterBar"
-					 horizontalGap = "10"
-					 paddingTop = "0"
-					 paddingBottom = "0"
-					 paddingLeft = "2"
-					 horizontalAlign = "left"
-					 verticalAlign = "middle" paddingRight="2">
-				
-				
+				<mx:HBox id = "filterBar"
+						 width="100%"
+						 horizontalGap = "10"
+						 paddingLeft = "2"
+						 paddingRight="2"
+						 horizontalAlign = "left"
+						 verticalAlign = "middle">
+					
+					
 					<mx:CheckBox id="allCheckbox"
 								 label="Show all"
 								 paddingRight="5"
@@ -2344,191 +2335,190 @@
 					</mx:CheckBox>
 					
 					<mx:VRule height = "20" />
-				
-				<mx:HBox id = "statusCheckboxBar" 
-						 horizontalGap = "0" paddingLeft="5" paddingRight="5"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right">
-					<mx:CheckBox label = "Pending"
-								 id = "pendingCheckbox"
-								 horizontalGap = "0"
-								 styleName = "labelSmall"
-								 paddingLeft = "2" >
-						<mx:click>
-							toggleStatusCheckboxes( 1 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
 					
-					<mx:CheckBox label = "Running"
-								 id = "runningCheckbox"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleStatusCheckboxes( 2 );
-							refreshRunLists();
-						</mx:click>
+					<mx:HBox id = "statusCheckboxBar" 
+							 horizontalGap = "0" paddingLeft="5" paddingRight="5"
+							 verticalAlign = "middle"
+							 verticalGap = "0"
+							 horizontalAlign = "right">
+						<mx:CheckBox label = "Pending"
+									 id = "pendingCheckbox"
+									 horizontalGap = "0"
+									 styleName = "labelSmall"
+									 paddingLeft = "2" >
+							<mx:click>
+								toggleStatusCheckboxes( 1 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
 						
-					</mx:CheckBox>
+						<mx:CheckBox label = "Running"
+									 id = "runningCheckbox"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleStatusCheckboxes( 2 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox label = "Complete"
+									 id = "completeCheckbox"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleStatusCheckboxes( 3 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox label = "Failed"
+									 id = "failedCheckbox"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall">
+							<mx:click>
+								toggleStatusCheckboxes( 4 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+					</mx:HBox>
 					
-					<mx:CheckBox label = "Complete"
-								 id = "completeCheckbox"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleStatusCheckboxes( 3 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox label = "Failed"
-								 id = "failedCheckbox"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleStatusCheckboxes( 4 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-				</mx:HBox>
-				
-				<mx:VRule height = "20" />
-				
-				<mx:HBox id = "createDateCheckboxBar"
-						 horizontalGap = "0" height="100%"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5"
-						 paddingRight = "5">
-					<mx:CheckBox id = "lastWeekCheckboxCreated"
-								 label = "Created in last week"
-								 paddingRight = "0"
-								 horizontalGap = "0"
-								 paddingLeft = "0"
-								 styleName = "labelSmall" paddingTop="0" 
-								 selected="true">
-						<mx:click>
-							toggleCreateDateCheckboxes( 1 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "lastMonthCheckboxCreated"
-								 label = "month"
-								 paddingRight = "0"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" paddingTop="0">
-						<mx:click>
-							toggleCreateDateCheckboxes( 2 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "lastThreeMonthsCheckboxCreated"
-								 label = "3 months"
-								 paddingRight = "0"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" paddingTop="0">
-						<mx:click>
-							toggleCreateDateCheckboxes( 3 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<!--<mx:CheckBox id = "lastYearCheckboxCreated"
-								 label = "year"
-								 paddingLeft = "2"
-								 paddingRight = "0"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" paddingTop="0">
-						<mx:click>
-							toggleCreateDateCheckboxes( 4 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>-->
-				</mx:HBox>
-					
-				<mx:VRule height = "20" />
-					
-				<mx:HBox horizontalGap="0" >
-					<mx:CheckBox id = "lastWeekCheckbox"
-								 label = "Run in last week"
-								 paddingRight = "0"
-								 horizontalGap = "0"
-								 paddingLeft = "0"
-								 styleName = "labelSmall" >
-						<mx:click>
-							toggleCreateDateCheckboxes( 1 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "lastMonthCheckbox"
-								 label = "month"
-								 paddingRight = "0"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" >
-						<mx:click>
-							toggleCreateDateCheckboxes( 2 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "lastThreeMonthsCheckbox"
-								 label = "3 months"
-								 paddingRight = "0"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" >
-						<mx:click>
-							toggleCreateDateCheckboxes( 3 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<!--<mx:CheckBox id = "lastYearCheckbox"
-								 label = "year"
-								 paddingLeft = "2"
-								 paddingRight = "0"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" paddingTop="0">
-						<mx:click>
-							toggleCreateDateCheckboxes( 4 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>-->
-				</mx:HBox>
 					<mx:VRule height = "20" />
-					<mx:LinkButton
-								   textDecoration="underline"
-								   label="Refresh" color="#000000"
-								   icon="@Embed('../../assets/action_refresh.gif')"
-								   toolTip="Refresh sample list"
-								   click="{this.refreshLists();}"  paddingLeft="5" id="refreshSampleButton0"/>
 					
-				
-			
-			</mx:HBox>
+					<mx:HBox id = "createDateCheckboxBar"
+							 horizontalGap = "0" height="100%"
+							 verticalAlign = "middle"
+							 verticalGap = "0"
+							 horizontalAlign = "right"
+							 paddingLeft = "5"
+							 paddingRight = "5">
+						<mx:CheckBox id = "lastWeekCheckboxCreated"
+									 label = "Created in last week"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 paddingLeft = "0"
+									 styleName = "labelSmall" paddingTop="0" 
+									 selected="true">
+							<mx:click>
+								toggleCreateDateCheckboxes( 1 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "lastMonthCheckboxCreated"
+									 label = "month"
+									 paddingRight = "0"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingTop="0">
+							<mx:click>
+								toggleCreateDateCheckboxes( 2 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "lastThreeMonthsCheckboxCreated"
+									 label = "3 months"
+									 paddingRight = "0"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingTop="0">
+							<mx:click>
+								toggleCreateDateCheckboxes( 3 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<!--<mx:CheckBox id = "lastYearCheckboxCreated"
+						label = "year"
+						paddingLeft = "2"
+						paddingRight = "0"
+						horizontalGap = "0"
+						styleName = "labelSmall" paddingTop="0">
+						<mx:click>
+						toggleCreateDateCheckboxes( 4 );
+						refreshRunLists();
+						</mx:click>
+						
+						</mx:CheckBox>-->
+					</mx:HBox>
+					
+					<mx:VRule height = "20" />
+					
+					<mx:HBox horizontalGap="0" >
+						<mx:CheckBox id = "lastWeekCheckbox"
+									 label = "Run in last week"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 paddingLeft = "0"
+									 styleName = "labelSmall" >
+							<mx:click>
+								toggleCreateDateCheckboxes( 1 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "lastMonthCheckbox"
+									 label = "month"
+									 paddingRight = "0"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" >
+							<mx:click>
+								toggleCreateDateCheckboxes( 2 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox id = "lastThreeMonthsCheckbox"
+									 label = "3 months"
+									 paddingRight = "0"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" >
+							<mx:click>
+								toggleCreateDateCheckboxes( 3 );
+								refreshRunLists();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<!--<mx:CheckBox id = "lastYearCheckbox"
+						label = "year"
+						paddingLeft = "2"
+						paddingRight = "0"
+						horizontalGap = "0"
+						styleName = "labelSmall" paddingTop="0">
+						<mx:click>
+						toggleCreateDateCheckboxes( 4 );
+						refreshRunLists();
+						</mx:click>
+						
+						</mx:CheckBox>-->
+					</mx:HBox>
+					<mx:Spacer width="100%" height="100%"/>
+				<mx:LinkButton textDecoration="underline"
+							   label="Refresh"
+							   color="#000000"
+							   icon="@Embed('../../assets/action_refresh.gif')"
+							   toolTip="Refresh sample list"
+							   click="{this.refreshLists();}"
+							   id="refreshSampleButton0"
+							   fontSize="9" />
 
+				</mx:HBox>
 		</mx:VBox>
 		<mx:HBox id="hDivBox"
 				 width="100%"
@@ -2933,7 +2923,7 @@
 								
 							</mx:HBox>
 							<mx:Spacer width="100%" height="100%" />
-							<mx:LinkButton label="New plate"
+							<mx:LinkButton label="Add plate"
 										   click="{addPlate()}"
 										   color="#000000"
 										   icon="@Embed('../../assets/plate_add.png')"
@@ -3040,7 +3030,7 @@
 
 								<mx:Label text="Reaction:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
-								<mx:Text id="reactTypeText" width="140" height="100%" />
+								<mx:Text id="reactTypeText" width="140" height="100%"  />
 								<mx:Spacer width="4" height="100%" />
 
 							</mx:HBox>
@@ -3151,11 +3141,33 @@
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
+							<mx:HBox width="100%" id="plateReactComboBox" verticalAlign="middle">
+								
+								<mx:Label text="Reaction:" fontWeight="bold" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:ComboBox id="plateReactTypeComboBox" selectedIndex="-1"
+											 prompt="- Select Reaction Type -"
+											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ReactionType').DictionaryEntry}"
+											 labelField="@reactionType"
+											 toolTip="Select reaction type"
+											 change="(reactTypeComboBox.selectedItem==null) ? reactTypeComboBox.selectedIndex = -1 : toggleReactionType(reactTypeComboBox.selectedItem.@codeReactionType)"
+											 width="140" />
+								<mx:Spacer width="4" height="100%" />
+								
+							</mx:HBox>
+							<mx:HBox width="100%" id="plateReactTextBox" verticalAlign="middle">
+								
+								<mx:Label text="Reaction:" fontWeight="bold" />
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="plateReactTypeText" width="140" height="100%" />
+								<mx:Spacer width="4" height="100%" />
+								
+							</mx:HBox>
 							<mx:HBox width="100%" id="sealComboHBox" verticalAlign="middle">
 								
 								<mx:Label text="Sealing:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
-								<mx:ComboBox id="sealComboBox"
+								<mx:ComboBox id="sealComboBox" selectedIndex="-1"
 											 prompt="- Select Sealing -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry}"
 											 labelField="@sealType"
@@ -3337,12 +3349,14 @@
 				<mx:Label text="Select an order by color:" width="100%" id="colorPickLabel" />
 				<util:PlateColorPicker id="colorPick" width="100%" height="40" />
 				<mx:Button label="Remove order from plate"
+						   icon="@Embed('../../assets/delete.png')"
 						   visible="{orderNum.text!=colorPick.getNoSelectionText()}"
 						   includeInLayout="{orderNum.text!=colorPick.getNoSelectionText()}"
 						   width="100%"
 						   click="promptToRemoveGroup()"
 						   id="button3" />
 				<mx:Button label="Clear all samples from plate"
+						   icon="@Embed('../../assets/delete.png')"
 						   visible="{orderNum.text==colorPick.getNoSelectionText()}"
 						   includeInLayout="{orderNum.text==colorPick.getNoSelectionText()}"
 						   width="100%"
@@ -3381,6 +3395,7 @@
 			<mx:RemoveChild target="{radioRow}"/>
 			<mx:RemoveChild target="{radioCol}"/>
 			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{plateReactComboBox}"/>
 		</mx:State>
 		
 		<mx:State id="editState" name="editState">
@@ -3390,6 +3405,7 @@
 			<mx:RemoveChild target="{reactComboBox}"/>
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit Run"/>
 			<mx:RemoveChild target="{deleteRunLink}"/>
+			<mx:RemoveChild target="{plateReactComboBox}"/>
 			
 		</mx:State>
 		
@@ -3397,14 +3413,42 @@
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
-			<mx:RemoveChild target="{reactTextBox}"/>
 			<mx:RemoveChild target="{printButton}"/>
 			<mx:RemoveChild target="{pltButton}"/>
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Create New Run"/>
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Build Run"/>
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:"/>
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run"/>
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate"/>
+			<mx:RemoveChild target="{plateReactComboBox}"/>
+			<mx:RemoveChild target="{reactComboBox}"/>
 			
+		</mx:State>
+		
+		<mx:State id="editRunState" name="editRunState" basedOn="editState">
+			<mx:RemoveChild target="{savePlateButton}"/>
+		</mx:State>
+		
+		<mx:State id="editPlateState" name="editPlateState" basedOn="editState">
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit Plate"/>
+			<mx:RemoveChild target="{runTab}"/>
+			<mx:RemoveChild target="{saveRunButton}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{deletePlateLink}"/>
+			<mx:RemoveChild target="{runInfoBox}"/>
+			<mx:RemoveChild target="{pltButton}"/>
+		</mx:State>
+		
+		<mx:State id="newRunState" name="newRunState" basedOn="newState">
+			<mx:RemoveChild target="{savePlateButton}"/>
+		</mx:State>
+		
+		<mx:State id="newPlateState" name="newPlateState" basedOn="newState">
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Build Plate"/>
+			<mx:RemoveChild target="{runTab}"/>
+			<mx:RemoveChild target="{saveRunButton}"/>
+			<mx:RemoveChild target="{deleteRunLink}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{runInfoBox}"/>
 		</mx:State>
 		
 	</mx:states>
