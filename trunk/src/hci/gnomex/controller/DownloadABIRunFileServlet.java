@@ -180,6 +180,9 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                 
                 String idPlateWellString = well.getAttributeValue("idPlateWell") != null ? well.getAttributeValue("idPlateWell") : "0";
                 String sampleName = well.getAttributeValue( "sampleName" ) != null ? well.getAttributeValue("sampleName") : "";
+                if ( well.getAttributeValue( "isControl" ) == "Y" ) {
+                  sampleName = "control";
+                }
                 String idSample = well.getAttributeValue( "idSample" ) != null ? well.getAttributeValue("idSample") : "";
                 String idPlate = well.getAttributeValue( "idPlate" ) != null ? well.getAttributeValue("idPlate") : "";
                 String wellRow = well.getAttributeValue( "row" ) != null ? well.getAttributeValue("row") : "";

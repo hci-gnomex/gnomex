@@ -244,6 +244,8 @@ public class ChromatogramParser extends DetailObject implements Serializable
     // Filter to get source wells with redo flags
     if (!toToggleBack) {
       queryBuf.append(" AND well.redoFlag = 'N' ");
+    } else {
+      queryBuf.append( " AND well.redoFlag = 'Y' " );
     }
     // with sample, request, assay, and primer matching the reaction well
     if ( reactionWell.getIdSample() != null ) {

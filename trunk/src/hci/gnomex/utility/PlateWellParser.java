@@ -38,7 +38,7 @@ public class PlateWellParser extends DetailObject implements Serializable
 
       String idPlateWellString = node.getAttributeValue("idPlateWell");
 
-      if (idPlateWellString.equals(null) || idPlateWellString.equals("0")) {
+      if (idPlateWellString==null || idPlateWellString.equals("0")) {
 
         isNewWell = true;
         well = new PlateWell();
@@ -77,7 +77,7 @@ public class PlateWellParser extends DetailObject implements Serializable
     } 
     // Request
     if (n.getAttributeValue("idRequest") != null
-        && !n.getAttributeValue("idRequest").equals("----")) {
+        && !n.getAttributeValue("idRequest").equals("0")) {
       try {
         well.setIdRequest(new Integer(n.getAttributeValue("idRequest"))); 
       } catch (NumberFormatException e) {

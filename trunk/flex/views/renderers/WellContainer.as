@@ -8,9 +8,12 @@ package views.renderers {
 	import mx.controls.Label;
 	import mx.controls.Text;
 	import mx.controls.TextArea;
+	import mx.core.UIComponent;
 	import mx.events.CloseEvent;
+	import mx.events.DragEvent;
 	import mx.events.FlexEvent;
 	import mx.events.FlexMouseEvent;
+	import mx.managers.DragManager;
 	import mx.managers.PopUpManager;
 	
 	import views.plate.NavPlateView;
@@ -30,13 +33,13 @@ package views.renderers {
 		public var codeReactionType:String;
 		public var idAssay:int;
 		public var idPrimer:int;
-		public var redoFlag:String;
+		public var isControl:String = "N";
 		
 		public var submitter:String;
 		public var submitDate:String;
 		
 		// Renderer Fields
-		public var color:uint;
+		public var color:uint = 0xFFFFFF;
 		public var groupId:String;
 		
 		// Sample object
@@ -44,7 +47,7 @@ package views.renderers {
 		public var hasSample:Boolean = false;
 		
 		// Sample object
-		public var wellObject:Object;
+		public var sourceWell:Object;
 		
 		
 		// Temporary constructor - just takes a 'sample name'
@@ -67,69 +70,107 @@ package views.renderers {
 			toolTip = getToolTip();
 			addChild( new WellLabel( label ));
 			addEventListener( MouseEvent.CLICK, onClick );
+			addEventListener( DragEvent.DRAG_ENTER, dragOverWell );
+			addEventListener( DragEvent.DRAG_OVER, dragOverWell );
+			addEventListener( DragEvent.DRAG_DROP, dropOnWell );
+			addEventListener( DragEvent.DRAG_EXIT, dragExitWell );
 		}
 				
-		public function getGroupId():String {
-			
-			return groupId;
-		}
-		
-		
-		public function setGroupId( id:String ):void {
-			
-			groupId = id;
-		}
-		
 		
 		// function to get back the sample and its information
 		public function getSample():Object {
-			
 			return sample;
 		}
 		
 		
 		// function to set the sample
 		public function setSample( sample:Object ):void {
-			
 			this.sample = sample;
-			this.idSample = sample.@idSample != null ? sample.@idSample : 0;
-			this.sampleName = sample.@name != null ? sample.@name : '';
-			this.groupId = sample.@idRequest != null ? sample.@idRequest : '';
+			if ( sample != null ) {
+				this.idSample = sample.@idSample != null ? sample.@idSample : 0;
+				this.sampleName = sample.@name != null ? sample.@name : '';
+				this.groupId = sample.@idRequest != null ? sample.@idRequest : '';
+				this.hasSample = true;
+				this.isControl = "N";
+				sample.@isOnPlate = true;
+				
+			} else {
+				this.sourceWell = null;
+				
+				this.idSample =  0;
+				this.sampleName =  '';
+				this.groupId =  '';
+				this.idRequest = 0;
+				this.codeReactionType = '' ;
+				this.idAssay = 0;
+				this.idPrimer = 0;
+				this.submitter = '';
+				this.submitDate = '';
+				
+				this.hasSample = false;
+			}
 			this.setToolTip();
-			this.hasSample = true;
 		}
 		
-		public function loadWellObject( pw:Object ):void {
-			this.wellObject = pw;
+		public function loadSourceWell( pw:Object ):void {
+			if ( pw == null ) {
+				setSample( null );
+				sourceWell = null;
+				return;
+			}
 			
+			this.isControl = pw.@isControl != null ? pw.@isControl : '';
+			if ( this.isControl == "Y" ) {
+				this.setControl( true );
+				return;
+			} 
+			
+			this.sourceWell = pw;
+			this.idPlateWell = pw.@idPlateWell != null ? pw.@idPlateWell : 0;
+			this.idRequest = pw.@idRequest != null ? pw.@idRequest : 0;
 			if ( pw.@groupId != null && pw.@groupId != '' ) {
 				this.groupId = pw.@groupId;
 			} else {
-				this.groupId = pw.@idRequest!= null ? pw.@idRequest : '';
+				this.groupId = idRequest.toString();
 			}
 			
-			this.idPlateWell = pw.@idPlateWell != null ? pw.@idPlateWell : 0;
-//			this.position = pw.@position != null ? pw.@position : 0;
-//			this.row = pw.@row != null ? pw.@row : '';
-//			this.col = pw.@col != null ? pw.@col : 0;
-//			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
-//			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
-			this.idRequest = pw.@idRequest != null ? pw.@idRequest : 0;
 			this.codeReactionType = pw.@codeReactionType != null ? pw.@codeReactionType : '' ;
+			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
+			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
 			this.idAssay = pw.@idAssay != null ? pw.@idAssay : 0;
 			this.idPrimer = pw.@idPrimer != null ? pw.@idPrimer : 0;
-			this.redoFlag = pw.@redoFlag != null ? pw.@redoFlag : '';
 			
 			this.submitter = pw.@requestSubmitter != null ? pw.@requestSubmitter : '';
 			this.submitDate = pw.@requestSubmitDate != null ?pw.@requestSubmitDate : '';
 			
-			this.hasSample = true;
 			this.setToolTip();
+			this.hasSample = true;
+		}
+				
+		// Drag and Drop functions
+		public function dragOverWell( event:Event ):void {
+			DragManager.acceptDragDrop(event.currentTarget as UIComponent );
+			if ( plateView != null ) {
+				plateView.plateDropIndex = position;
+				this.setStyle( 'backgroundColor', 0xFF9955 );
+			}
+		}
+		public function dropOnWell( event:Event ):void {
+			if ( plateView != null ) {
+				plateView.plateDropIndex = position;
+				this.setStyle( 'backgroundColor', color );
+				plateView.addButtonClick();
+			}
+		}
+		public function dragExitWell( event:Event ):void {
+			if ( plateView != null ) {
+				plateView.plateDropIndex = 0;
+			}
+			this.setStyle( 'backgroundColor', color );
 		}
 		
 		// Click to highlight wells in same grouping on plate
 		public function onClick( event:Event ):void {
-			
 			if ( plateView != null ) {
 				plateView.colorPick.selectedItem = plateView.colorPick.colorArray[ plateView.colorPick.getLabelIndex( this.groupId )];
 				plateView.colorPick.selectedIndex = plateView.colorPick.getLabelIndex( this.groupId );
@@ -138,45 +179,19 @@ package views.renderers {
 			}
 		}
 		
-		// OLD
-		private function displayWellInfo():void {
-			
-			if ( sample != null ) {
-				var tw:TitleWindow = new TitleWindow();
-				tw.title = 'Well ' + ( position + 1 ) + ', ' + row + col;
-				
-				if ( idPlateWell != 0 ) {
-					tw.title += ', ' + idPlateWell;
-				}
-				tw.addEventListener( FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closeWellInfo )
-				tw.layout = "vertical";
-				var sampleLabel:mx.controls.Label  = new mx.controls.Label();
-				var requestLabel:mx.controls.Label = new mx.controls.Label();
-				var notesLabel:Text                = new mx.controls.Text();
-				sampleLabel.text = 'Sample: ' + sampleName;
-				requestLabel.text = 'Request #: ' + idRequest;
-				notesLabel.text = 'Sample Desc: ' + sample.@description;
-				tw.addChild( sampleLabel );
-				tw.addChild( requestLabel );
-				tw.addChild( notesLabel );
-				PopUpManager.addPopUp( tw, this, true );
-				PopUpManager.centerPopUp( tw );
-			}
-		}
-		// OLD
-		public function closeWellInfo( event:FlexMouseEvent ):void {
-			
-			PopUpManager.removePopUp( TitleWindow( event.target ));
-		}
-		
+
 		public function setToolTip():void {
 			this.toolTip = getToolTip();
 		}
 		
 		private function getToolTip():String {
 			
+			if ( isControl=="Y" ){
+				return "Control";
+			}
+			
 			var str:String = "";
-			if ( wellObject != null ) {
+			if ( sourceWell != null ) {
 				str += 'Well ' + ( position + 1 ) + ', ' + row + col + "";
 				
 				if ( idPlateWell != 0 ) {
@@ -219,5 +234,19 @@ package views.renderers {
 			
 			return color;
 		}
+		
+		public function setControl( control:Boolean ):void {
+			if ( control ) { 
+				isControl = "Y";
+				setLabel("C");
+				setColor(0x484848);
+				setSample( null );
+			} else {
+				isControl = "N";
+				setLabel("96");
+			}
+			setToolTip();
+		}
+		
 	}
 }

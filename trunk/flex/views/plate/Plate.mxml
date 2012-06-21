@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx='http://www.adobe.com/2006/mxml' xmlns:renderers="views.renderers.*">
+<mx:Canvas xmlns:mx='http://www.adobe.com/2006/mxml' xmlns:renderers="views.renderers.*" >
 
 	<mx:Script>
 		<![CDATA[
@@ -123,6 +123,9 @@
 						well.setLabel(( well.position + 1 ).toString());
 					}
 				}
+				// Control Well
+				well = getWell(95);
+				well.setControl( true );
 			}
 			
 			
@@ -186,7 +189,7 @@
 							gi = gr.getChildAt( col ) as GridItem;
 							gi.removeAllChildren();
 							well = new WellContainer( '' );
-//							well.plateView = this.parentDocument as NavPlateView;
+							well.plateView = this.parentDocument as NavPlateView;
 							well.position = index;
 							well.setLabel(( index + 1 ).toString());
 							gi.addChild( well );
@@ -201,7 +204,7 @@
 							gi = gr.getChildAt( col ) as GridItem;
 							gi.removeAllChildren();
 							well = new WellContainer( index.toString());
-//							well.plateView = this.parentDocument as NavPlateView;
+							well.plateView = this.parentDocument as NavPlateView;
 							well.position = index;
 							well.setLabel(( index + 1 ).toString());
 							gi.addChild( well );
@@ -210,6 +213,9 @@
 					}
 				}
 				indexWells();
+				// Control Well
+				well = getWell(95);
+				well.setControl( true );
 			}
 			
 			
@@ -276,18 +282,7 @@
 							gi = gr.getChildAt( col ) as GridItem;
 							well = gi.getChildAt( 0 ) as WellContainer;
 							
-							if ( well.hasSample ) {
-								wellXMLString += "<PlateWell " + 
-									" row='" + well.row + "'" + 
-									" col='" + well.col + "'" + 
-									" index='" + well.position + "'" + 
-									" idSample='" + well.idSample + "'" +
-									" sampleName='" + well.sampleName + "'" +
-									" idRequest='" + well.getGroupId() + "'" + 
-									" idPlateWell='" + well.idPlateWell + "'" + 
-									" idAssay='" + well.idAssay + "'" + 
-									" idPrimer='" + well.idPrimer + "'" +  "/>";
-							}
+							wellXMLString += getWellXML(well);
 						}
 					}
 				} else {
@@ -298,17 +293,7 @@
 							gi = gr.getChildAt( col ) as GridItem;
 							well = gi.getChildAt( 0 ) as WellContainer;
 							
-							if ( well.hasSample ) {
-								wellXMLString += "<PlateWell " + 
-									" row ='" + well.row + "'" + 
-									" col ='" + well.col + "'" + 
-									" index ='" + well.position + "'" + 
-									" idSample ='" + well.idSample + "'" + 
-									" idRequest ='" + well.getGroupId() + "'" + 
-									" idPlateWell ='" + well.idPlateWell + "'" + 
-									" idAssay ='" + well.idAssay + "'" + 
-									" idPrimer ='" + well.idPrimer + "'" + "/>";
-							}
+							wellXMLString += getWellXML(well);
 						}
 					}
 				}
@@ -316,6 +301,28 @@
 				return wellXMLString;
 			}
 			
+			private function getWellXML( well:WellContainer ):String{
+				var string:String = ""
+				if ( well.hasSample ) {
+					string += "<PlateWell " + 
+						" row ='" + well.row + "'" + 
+						" col ='" + well.col + "'" + 
+						" index ='" + well.position + "'" + 
+						" idSample ='" + well.idSample + "'" + 
+						" idRequest ='" + well.groupId + "'" + 
+						" idPlateWell ='" + well.idPlateWell + "'" + 
+						" idAssay ='" + well.idAssay + "'" +  
+						" isControl='" + well.isControl + "'" +  "/>";
+				} else if ( well.isControl == "Y" ) {
+					string += "<PlateWell " + 
+						" idPlateWell ='" + well.idPlateWell + "'" + 
+						" row ='" + well.row + "'" + 
+						" col ='" + well.col + "'" + 
+						" index ='" + well.position + "'" + 
+						" isControl='" + well.isControl + "'" +  "/>";
+				}
+				return string;
+			}
 			
 			// Function to return an array of all the unique groupIDs on the plate
 			public function getWellIDs():Array {
@@ -324,18 +331,18 @@
 				var isDuplicate:Boolean = false;
 				
 				for each ( var well:WellContainer in getWells()) {
-					if ( well.getGroupId() != null && well.getGroupId() != "" ) {
+					if ( well.groupId != null && well.groupId != "" ) {
 						isDuplicate = false;
 						
 						for each ( var id:String in idArray ) {
-							if ( well.getGroupId() == id ) {
+							if ( well.groupId == id ) {
 								isDuplicate = true;
 								break;
 							}
 						}
 						
 						if ( !isDuplicate ) {
-							idArray.push( well.getGroupId());
+							idArray.push( well.groupId);
 						}
 					}
 				}
@@ -382,18 +389,19 @@
 					if ( well.position == index ) {
 						well.setSample( sample );
 						well.plateView = this.parentDocument as NavPlateView;
+						
 						break;
 					}
 				}
 			}
 			
-			public function addWellObject( index:int, wo:Object ):void {
-//				var wc:WellContainer = plate.getWell( ind ) as WellContainer;
+			public function addSourceWell( index:int, wo:Object ):void {
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
-						well.loadWellObject( wo );
+						well.loadSourceWell( wo );
 						well.plateView = this.parentDocument as NavPlateView;
+						
 						break;
 					}
 				}
@@ -425,6 +433,9 @@
 										sample = well.getSample();
 										sample.@isOnPlate = true;
 									}
+									if ( well.isControl == "Y" ) {
+										well.setControl( true );
+									}
 									gi.addChild( well );
 								} else {
 									break;
@@ -447,6 +458,9 @@
 										sample = well.getSample();
 										sample.@isOnPlate = true;
 									}
+									if ( well.isControl == "Y" ) {
+										well.setControl( true );
+									}
 									gi.addChild( well );
 								} else {
 									break;
@@ -456,6 +470,10 @@
 					}
 				}
 				indexWells();
+				well = getWell(95);
+				if ( !well.hasSample ) {
+					well.setControl( true );
+				} 
 			}
 			
 			
@@ -464,7 +482,7 @@
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( indices.lastIndexOf( well.position ) != -1 ) {
-						well.setGroupId( id );
+						well.groupId = id;
 					}
 				}
 			}

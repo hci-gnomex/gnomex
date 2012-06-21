@@ -276,7 +276,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
   private void removeRedoFlags( List plateWells, Session sess ) {
     for(Iterator i = plateWells.iterator(); i.hasNext();) {
       PlateWell reactionWell = (PlateWell)i.next();
-      
+      if ( reactionWell.getIsControl().equals("Y") ) {
+        break;
+      }
       StringBuffer buf = ChromatogramParser.getRedoQuery( reactionWell, true );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();
