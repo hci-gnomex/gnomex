@@ -525,13 +525,17 @@ public class GetRequest extends GNomExCommand implements Serializable {
             HashMap<Integer, ArrayList<String>> sampleAssayMap = new HashMap<Integer, ArrayList<String>>();
             for(Iterator i = assays.iterator();i.hasNext();) {
               PlateWell pw = (PlateWell)i.next();
-              assayList.put(pw.getAssay().getName(), pw.getAssay().getName());
+              if (pw.getAssay() != null) {
+                assayList.put(pw.getAssay().getName(), pw.getAssay().getName());
+              }
               sampleWellMap.put(pw.getIdSample(), pw.getWellName());
               ArrayList<String> sampleAssays = sampleAssayMap.get(pw.getIdSample());
               if (sampleAssays == null) {
                 sampleAssays = new ArrayList<String>();
               }
-              sampleAssays.add(pw.getAssay().getName());
+              if (pw.getAssay() != null) {
+                sampleAssays.add(pw.getAssay().getName());
+              }
               sampleAssayMap.put(pw.getIdSample(), sampleAssays);
             }
             
@@ -560,7 +564,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                     break;
                   }
                 }
-                sampleNode.setAttribute("ASSAY_" + assay, assayValue);
+                sampleNode.setAttribute("hasAssay" + assay, assayValue);
               }
             }
             

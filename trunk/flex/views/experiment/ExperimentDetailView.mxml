@@ -734,7 +734,7 @@
 			// remove any existing assay columns
 			var colRemoved:Boolean = false;
 			for each(var remCol:AdvancedDataGridColumn in columns) {
-				if (remCol.dataField == null || remCol.dataField.substr(0, 7) != "@ASSAY_") {
+				if (remCol.dataField == null || remCol.dataField.substr(0, 9) != "@hasAssay") {
 					newColumns.push(remCol);
 				} else {
 					colRemoved = true;
@@ -752,7 +752,7 @@
 					if (addCol.dataField == "@description") {
 						for each (var assay:Object in assays) {
 							var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
-							newCol.dataField  = "@ASSAY_" + assay.@name;
+							newCol.dataField  = "@hasAssay" + assay.@name;
 							newCol.headerText = assay.@name;
 							newCol.visible    = true;
 							newCol.width	  = 40;

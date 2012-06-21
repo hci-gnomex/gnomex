@@ -1088,10 +1088,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.flush();
         }
         PlateWell parsedWell = requestParser.getWell(idSampleString);
-        for (Integer assayNumber:requestParser.getAssays(idSampleString)) {
+        for (String assayName:requestParser.getAssays(idSampleString)) {
           PlateWell assayWell = new PlateWell();
           assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-          assayWell.setIdAssay(assaysParser.getID(assayNumber));
+          assayWell.setIdAssay(assaysParser.getID(assayName));
           assayWell.setIdPlate(assayPlate.getIdPlate());
           assayWell.setIdSample(sample.getIdSample());
           assayWell.setPlate(assayPlate);
@@ -1758,7 +1758,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, 
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<Integer>> sampleToAssaysMap) throws Exception {
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
     
     List billingItems = new ArrayList<BillingItem>();
 

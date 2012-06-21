@@ -59,7 +59,7 @@ public class RequestParser implements Serializable {
   private Map<String, Plate> plateMap = new HashMap<String, Plate>();
   private Map<String, PlateWell> wellMap = new HashMap<String, PlateWell>();
   private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
-  private Map<String, ArrayList<Integer>> sampleAssays = new HashMap<String, ArrayList<Integer>>();
+  private Map<String, ArrayList<String>> sampleAssays = new HashMap<String, ArrayList<String>>();
   private Map<String, String> cherryPickSourceWells = new HashMap<String, String>();
   private Map<String, String> cherryPickSourcePlates = new HashMap<String, String>();
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
@@ -92,7 +92,7 @@ public class RequestParser implements Serializable {
     plateMap = new HashMap<String, Plate>();
     wellMap = new HashMap<String, PlateWell>();
     sampleToPlateMap = new HashMap<String, SamplePlateWell>();
-    sampleAssays = new HashMap<String, ArrayList<Integer>>();
+    sampleAssays = new HashMap<String, ArrayList<String>>();
     cherryPickSourcePlates = new HashMap<String, String>();
     cherryPickSourceWells = new HashMap<String, String>();
     cherryPickDestinationWells = new HashMap<String, String>();
@@ -628,12 +628,12 @@ public class RequestParser implements Serializable {
     }
     
     // Have map of assays chosen.  Build up the map
-    ArrayList<Integer> assays = new ArrayList<Integer>();
+    ArrayList<String> assays = new ArrayList<String>();
     for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
       Attribute attr = (Attribute)i.next();
       if (attr.getName().startsWith("hasAssay") && attr.getValue() != null && attr.getValue().equals("Y")) {
-        Integer number = Integer.parseInt(attr.getName().substring(9));
-        assays.add(number);
+        String name = attr.getName().substring(8);
+        assays.add(name);
       }
     }
     this.sampleAssays.put(idSampleString, assays);
@@ -1667,7 +1667,7 @@ public class RequestParser implements Serializable {
     }
   }
   
-  public ArrayList<Integer> getAssays(String idSampleString) {
+  public ArrayList<String> getAssays(String idSampleString) {
     return sampleAssays.get(idSampleString);
   }
   
@@ -1682,7 +1682,7 @@ public class RequestParser implements Serializable {
   public String getCherryPickDestinationWell(String idSampleString) {
     return this.cherryPickDestinationWells.get(idSampleString);
   }
-  public Map<String, ArrayList<Integer>> getSampleAssays() {
+  public Map<String, ArrayList<String>> getSampleAssays() {
     return sampleAssays;
   }
 

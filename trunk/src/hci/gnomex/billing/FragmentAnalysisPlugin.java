@@ -34,7 +34,7 @@ import org.hibernate.Session;
 public class FragmentAnalysisPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<Integer>> sampleToAssaysMap) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
     
 
     List billingItems = new ArrayList<BillingItem>();
@@ -50,7 +50,7 @@ public class FragmentAnalysisPlugin implements BillingPlugin {
     int qty = 0;
     //HashMap<Integer, Integer> assayMap = new HashMap<Integer, Integer>();
     for (Sample s : samples) {
-      ArrayList<Integer> assays = sampleToAssaysMap.get(s.getIdSampleString());
+      ArrayList<String> assays = sampleToAssaysMap.get(s.getIdSampleString());
       if (assays != null) {
         qty += assays.size();
       }
