@@ -2649,15 +2649,7 @@
 			
 			// Chosen Assays
 			if (isFragAnalState()) {
-				var assays:XMLListCollection = new XMLListCollection();
-				for (var x:int = 0; x < sampleSetupView.assayCheckBox.length; x++) {
-					if (sampleSetupView.assayCheckBox[x].selected) {
-						var y:int = x + 1000;
-						
-						addAssay(assays, y.toString().substr(1,3), assayCollection.getItemAt(x));
-					}
-				}
-				params.assaysXMLString = assays.toXMLString();
+				params.assaysXMLString = this.selectedAssaysCollection;
 			}
 			
 			// Chosen Assays
@@ -2700,13 +2692,6 @@
 			
 			saveNewRequest.send(params);			
 			
-		}
-			
-		private function addAssay(assays:XMLListCollection, number:String, item:Object):void {
-			if (item != null) {
-				var assayXML:XML = new XML("<Assay number='" + number + "' name='" + item.@display + "' id='" + item.@value + "'/>");
-				assays.addItem(assayXML);
-			}
 		}
 			
 		private function addPrimer(primers:XMLListCollection, number:String, item:Object):void {
@@ -3099,6 +3084,9 @@
 			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
 			if (this.isMitSeqState()) {
 				params.primersXMLString = parentApplication.navExperimentView.detailView.detail.primers.toXMLString();
+			}
+			if (this.isFragAnalState()) {
+				params.assaysXMLString = this.selectedAssaysCollection;
 			}
 			
 			if (downloadView.getFilesToDelete().length > 0) {
@@ -4405,10 +4393,19 @@
 				
 			}
 			
+			public function isAssaySelected(assay:Object):Boolean {
+				for each (var sel:Object in this.selectedAssaysCollection) {
+					if (sel.@name == assay.@name) {
+						return true;
+					}
+				}
+				return false;
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
-
+	<mx:XMLListCollection id="selectedAssaysCollection"/>
+	
   	<mx:XMLListCollection id="propertyEntries" source="{request.PropertyEntries.PropertyEntry}" 
 	  	 sort="{propertySorter}"  filterFunction="{filterPropertyEntry}"/>
 	<mx:Sort id="propertySorter" compareFunction="sortProperties" unique="true"/>

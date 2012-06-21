@@ -1073,37 +1073,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // handle plates and plate wells for Cap Seq
     updateCapSeqPlates(sess, sample, idSampleString, sampleCount);
     
-    // create plate and plate wells for fragment analysis, if applicable
-    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
-      if (assaysParser != null) {
-        assaysParser.parse(sess);
-  
-        if (this.assayPlate == null) {
-          assayPlate = new Plate();
-          assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-          assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-          assayPlate.setLabel(requestParser.getPlate(idSampleString).getLabel());
-          sess.save(assayPlate);
-          sess.flush();
-        }
-        PlateWell parsedWell = requestParser.getWell(idSampleString);
-        for (String assayName:requestParser.getAssays(idSampleString)) {
-          PlateWell assayWell = new PlateWell();
-          assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-          assayWell.setIdAssay(assaysParser.getID(assayName));
-          assayWell.setIdPlate(assayPlate.getIdPlate());
-          assayWell.setIdSample(sample.getIdSample());
-          assayWell.setPlate(assayPlate);
-          assayWell.setPosition(new Integer(sampleCount));
-          assayWell.setCol(parsedWell.getCol());
-          assayWell.setRow(parsedWell.getRow());
-          assayWell.setSample(sample);
-          assayWell.setIdRequest(requestParser.getRequest().getIdRequest());
-          sess.save(assayWell);
-        }
-        sess.flush();
-      }
-    }
+    // handle plate and plate wells for fragment analysis, if applicable
+    updateFragAnalPlates(sess, sample, idSampleString, sampleCount);
     
     updateMitSeqWells(sess, sample, idSampleString, sampleCount);
     
@@ -1224,6 +1195,92 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
       sess.flush();
+    }
+  }
+  private void updateFragAnalPlates(Session sess, Sample sample, String idSampleString, int sampleCount) throws Exception {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+      if (assaysParser != null) {
+        assaysParser.parse(sess);
+  
+        if (this.assayPlate == null) {
+          if (requestParser.isNewRequest()) {
+            assayPlate = new Plate();
+            assayPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+            assayPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+            assayPlate.setLabel(requestParser.getPlate(idSampleString).getLabel());
+            sess.save(assayPlate);
+            sess.flush();
+          } else {
+            String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
+            assayPlate = (Plate)sess.createQuery(query).uniqueResult();
+          }
+        }
+        PlateWell parsedWell = requestParser.getWell(idSampleString);
+        if (sample.getWells() == null) {
+          for (String assayName:requestParser.getAssays(idSampleString)) {
+            PlateWell assayWell = new PlateWell();
+            assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+            assayWell.setIdAssay(assaysParser.getID(assayName));
+            assayWell.setIdPlate(assayPlate.getIdPlate());
+            assayWell.setIdSample(sample.getIdSample());
+            assayWell.setPlate(assayPlate);
+            assayWell.setPosition(new Integer(sampleCount));
+            assayWell.setCol(parsedWell.getCol());
+            assayWell.setRow(parsedWell.getRow());
+            assayWell.setSample(sample);
+            assayWell.setIdRequest(requestParser.getRequest().getIdRequest());
+            sess.save(assayWell);
+          }
+          sess.flush();
+        } else {
+          // update any wells for assays that are still around and delete ones that aren't
+          ArrayList<PlateWell> wellsFound = new ArrayList<PlateWell>();
+          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell well = (PlateWell)i.next();
+            if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+              Boolean found = false;
+              for (String assayName:requestParser.getAssays(idSampleString)) {
+                if (well.getAssay() != null && assayName.equals(well.getAssay().getName())) {
+                  wellsFound.add(well);
+                  well.setCol(parsedWell.getCol());
+                  well.setPosition(new Integer(sampleCount));
+                  well.setRow(parsedWell.getRow());
+                  sess.save(well);
+                  found = true;
+                }
+              }
+              if (!found) {
+                sess.delete(well);
+              }
+            }
+          }
+          
+          // add wells for any new assays for the sample.
+          for (String assayName:requestParser.getAssays(idSampleString)) {
+            Boolean found = false;
+            for(PlateWell well:wellsFound) {
+              if (well.getAssay().getName().equals(assayName)) {
+                found = true;
+              }
+            }
+            if (!found) {
+              PlateWell assayWell = new PlateWell();
+              assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+              assayWell.setIdAssay(assaysParser.getID(assayName));
+              assayWell.setIdPlate(assayPlate.getIdPlate());
+              assayWell.setIdSample(sample.getIdSample());
+              assayWell.setPlate(assayPlate);
+              assayWell.setPosition(new Integer(sampleCount));
+              assayWell.setCol(parsedWell.getCol());
+              assayWell.setRow(parsedWell.getRow());
+              assayWell.setSample(sample);
+              assayWell.setIdRequest(requestParser.getRequest().getIdRequest());
+              sess.save(assayWell);
+            }
+          }
+          sess.flush();
+        }
+      }
     }
   }
   
