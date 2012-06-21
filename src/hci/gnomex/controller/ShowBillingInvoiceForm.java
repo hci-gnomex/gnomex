@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
@@ -11,7 +12,6 @@ import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
-import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingInvoiceHTMLFormatter;
 import hci.gnomex.utility.DictionaryHelper;
@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -102,7 +100,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           TreeMap requestMap = new TreeMap();
           TreeMap billingItemMap = new TreeMap();
           TreeMap relatedBillingItemMap = new TreeMap();
-          cacheBillingItemMap(sess, idBillingPeriod, idLab, idBillingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+          cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           
           
           if (action.equals(ACTION_SHOW)) {
@@ -154,7 +152,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   }
   
   
-  public static void cacheBillingItemMap(Session sess, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
+  public static void cacheBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
     throws Exception {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT req, bi ");
@@ -164,6 +162,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
     buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_PO + "')");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
     buf.append("ORDER BY req.number, bi.idBillingItem ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -221,6 +226,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       buf.append(request.getIdRequest().toString());
     }
     buf.append(")");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "req");
+      buf.append(" ");
+    }
+    
     buf.append("ORDER BY req.number, bi.idBillingAccount, bi.idBillingItem ");
     
     results = sess.createQuery(buf.toString()).list();

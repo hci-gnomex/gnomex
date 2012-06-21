@@ -297,6 +297,13 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     buf.append("WHERE  bp.startDate >= '" + this.formatDate(startDate) + "' ");
     buf.append("AND    bp.endDate <= '" + this.formatDate(endDate) + "' ");
     buf.append("AND    req.codeRequestCategory = '" + codeRequestCategory + "'");
+  
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
     buf.append("ORDER BY lab.lastName, lab.firstName, req.codeRequestCategory ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -316,6 +323,13 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     buf.append("AND    bp.endDate <= '" + this.formatDate(endDate) + "' ");
     buf.append("AND    req.codeRequestCategory IN " );
     buf.append("       ('" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "', '" + RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY + "') ");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
     buf.append("ORDER BY lab.lastName, lab.firstName, req.codeRequestCategory ");
     
     List results = sess.createQuery(buf.toString()).list();

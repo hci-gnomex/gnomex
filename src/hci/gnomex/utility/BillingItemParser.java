@@ -73,6 +73,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
         billingItem.setIdBillingAccount(!node.getAttributeValue("idBillingAccount").equals("") ? new Integer(node.getAttributeValue("idBillingAccount")) : null);
         billingItem.setIdLab(!node.getAttributeValue("idLab").equals("") ? new Integer(node.getAttributeValue("idLab")) : null);
         billingItem.setQty(!node.getAttributeValue("qty").equals("") ? new Integer(node.getAttributeValue("qty")) : null);
+        billingItem.setIdCoreFacility(!node.getAttributeValue("idCoreFacility").equals("") ? new Integer(node.getAttributeValue("idCoreFacility")) : null);
         
         if (node.getAttributeValue("completeDate") != null && !node.getAttributeValue("completeDate").equals("")) {
           billingItem.setCompleteDate(this.parseDate(node.getAttributeValue("completeDate")));
@@ -91,16 +92,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
         percentageDisplay = percentageDisplay.replaceAll("\\%", "");
         billingItem.setPercentagePrice(percentageDisplay != "" ? new BigDecimal(percentageDisplay).movePointLeft(2) : null);
 
-        /*
-        String invoicePrice = node.getAttributeValue("invoicePrice");
-        if (!invoicePrice.equals("")) {
-          invoicePrice = invoicePrice.replaceAll("\\$", "");
-          invoicePrice = invoicePrice.replaceAll(",", "");
-          billingItem.setInvoicePrice(new BigDecimal(invoicePrice));        
-        } else {
-          billingItem.setInvoicePrice(null);
-        }
-        */
+
         if (billingItem.getSplitType() == null) {
           billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
         }
@@ -143,8 +135,6 @@ public class BillingItemParser extends DetailObject implements Serializable {
         }
         billingPeriodSet.add(billingItem.getIdBillingPeriod());
         requestMap.put(billingItem.getIdRequest(), billingPeriodSet);
-        
-        //requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
 
         
         billingItems.add(billingItem);
@@ -196,10 +186,6 @@ public class BillingItemParser extends DetailObject implements Serializable {
   public Set getIdRequests() {
     return requestMap.keySet();
   }
-  
-  //public Integer getIdBillingPeriodForRequest(Integer idRequest) {
-  //  return (Integer)requestMap.get(idRequest);
-  //}
   
   public HashSet getIdBillingPeriodsForRequest(Integer idRequest) {
     return (HashSet)requestMap.get(idRequest);

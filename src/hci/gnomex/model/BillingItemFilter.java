@@ -21,6 +21,12 @@ public class BillingItemFilter extends DetailObject {
   private StringBuffer          queryBuf;
   private boolean              addWhere = true;
   
+  private SecurityAdvisor       secAdvisor;
+  
+  public BillingItemFilter(SecurityAdvisor secAdvisor) {
+    this.secAdvisor =  secAdvisor;
+  }
+  
   public boolean hasCriteria() {
     if (idBillingPeriod == null &&
         idLab == null &&
@@ -60,10 +66,14 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(" AND        req.createDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59'");      
     }
     
+    
+
+    
     addWhere = false;
     
     addRequestCriteria();
    
+    this.addSecurityCriteria();
 
     return queryBuf;
     
@@ -96,6 +106,8 @@ public class BillingItemFilter extends DetailObject {
     
     addRequestCriteria();
     addBillingItemCriteria();
+    
+    this.addSecurityCriteria();
     
     queryBuf.append(" order by bi.codeBillingStatus, req.number, lab.lastName, lab.firstName, ba.accountName ");
     
@@ -170,6 +182,16 @@ public class BillingItemFilter extends DetailObject {
   }   
   
   
+  private void addSecurityCriteria() {
+    if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      return;
+    } else {
+      this.addWhereOrAnd();
+      this.secAdvisor.appendCoreFacilityCriteria(queryBuf, "bi");
+    }
+    return;
+  
+  }
   
 
   private void addRequestCriteria() {

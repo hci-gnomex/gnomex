@@ -123,6 +123,7 @@ public class CapSeqPlatePlugin implements BillingPlugin {
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
       billingItem.setCategory(priceCategory.getName());
+      billingItem.setIdCoreFacility(request.getIdCoreFacility());
     
       
       billingItems.add(billingItem);

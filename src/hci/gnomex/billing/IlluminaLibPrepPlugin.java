@@ -102,6 +102,7 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(price.getIdPriceCategory());
       billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
+      billingItem.setIdCoreFacility(request.getIdCoreFacility());
 
       // Hold off on saving the notes.  Need to reserve note field
       // for complete date, etc at this time.

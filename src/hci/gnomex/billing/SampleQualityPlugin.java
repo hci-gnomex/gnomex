@@ -201,6 +201,7 @@ public class SampleQualityPlugin implements BillingPlugin {
         billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
         billingItem.setCategory(priceCategory.getName());
         billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
+        billingItem.setIdCoreFacility(request.getIdCoreFacility());
 
         // Hold off on saving the notes.  Need to reserve note field
         // for complete date, etc at this time.

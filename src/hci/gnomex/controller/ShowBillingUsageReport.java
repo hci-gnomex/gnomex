@@ -201,10 +201,17 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" join bi.billingPeriod as bp");
     buf.append(" join bi.priceCategory as cat");
     buf.append(" join bi.lab as lab");
-    buf.append(" where bp.startDate >= '" + this.formatDate(startDate) + "' and bp.endDate <= '" + this.formatDate(endDate) + "'");
+    buf.append(" where bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' and bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "'");
     buf.append(" and cat.name like 'Sample Quality%' and cat.name != 'Miscellaneous'");
     buf.append(" and qty is not null");
     buf.append(" and bi.codeBillingStatus != '" + BillingStatus.PENDING + "'");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
     buf.append(" group by lab.lastName, lab.firstName, bi.codeBillingChargeKind");
     List results = sess.createQuery(buf.toString()).list();
     fillSampleQualityMap(labMap, results);
@@ -220,10 +227,17 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" join bi.billingPeriod as bp");
     buf.append(" join bi.priceCategory as cat");
     buf.append(" join bi.lab as lab");
-    buf.append(" where bp.startDate >= '" + this.formatDate(startDate) + "' and bp.endDate <= '" + this.formatDate(endDate) + "'");
+    buf.append(" where bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' and bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "'");
     buf.append(" and bi.qty is not NULL");
     buf.append(" and bi.codeBillingStatus != '"+ BillingStatus.PENDING + "'");
     buf.append(" and cat.name not like 'Sample Quality%' and cat.name != 'Miscellaneous'");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
     buf.append(" group by lab.lastName, lab.firstName, cat.name, bi.codeBillingChargeKind");
     results = sess.createQuery(buf.toString()).list();
     fillMap(labMap, results);
@@ -239,10 +253,17 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" join bi.billingPeriod as bp");
     buf.append(" join bi.priceCategory as cat");
     buf.append(" join bi.lab as lab");
-    buf.append(" where bp.startDate >= '" + this.formatDate(startDate) + "' and bp.endDate <= '" + this.formatDate(endDate) + "'");
+    buf.append(" where bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' and bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "'");
     buf.append(" and cat.name = 'Miscellaneous'");   
     buf.append(" and qty is not null");
     buf.append(" and bi.codeBillingStatus != '"+ BillingStatus.PENDING + "'");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
     buf.append(" group by lab.lastName, lab.firstName, bi.description, bi.codeBillingChargeKind");
     results = sess.createQuery(buf.toString()).list();
     fillMap(labMap, results);

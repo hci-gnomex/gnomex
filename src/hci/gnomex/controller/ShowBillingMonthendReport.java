@@ -115,6 +115,13 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           buf.append("JOIN   bi.billingAccount as ba ");
           buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+          
+          if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+            buf.append(" AND ");
+            secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+            buf.append(" ");
+          }
+          
           buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
           
           List results = sess.createQuery(buf.toString()).list();

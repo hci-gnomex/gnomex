@@ -2042,7 +2042,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   
-  private boolean appendCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
+  public boolean appendCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
     if (this.getCoreFacilitiesIManage().isEmpty()) {
       throw new RuntimeException("Unable to filter admin by core facilties -- no core facilities have been assiged to this user");
     }
