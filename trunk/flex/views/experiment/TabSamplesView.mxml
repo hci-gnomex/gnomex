@@ -565,7 +565,8 @@
 					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
 					if (hasPlates()) {
 						// Controls not included in number of samples so we have to adjust.
-						numberOfSamplesToAdd += numberOfSamplesToAdd / 95 + 1;
+						numberOfSamplesToAdd += numberOfSamplesToAdd / 96 + 1;
+						if (numberOfSamplesToAdd > 384) numberOfSamplesToAdd=384
 					}
 				}
 			} else {
