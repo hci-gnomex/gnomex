@@ -558,7 +558,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             requestNode.setAttribute("assayList", assayListString);
             
-            // Add selected to request
+            // Add selected assays to request
             Element selectedAssaysNode = new Element("assays");
             for (String assayName:assayList.keySet()) {
               Assay assay = assayList.get(assayName);
@@ -595,6 +595,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
             // build source well and plate names for the samples
             HashMap<Integer, String> sampleSourceWellMap = new HashMap<Integer, String>();
             HashMap<Integer, String> sampleSourcePlateMap = new HashMap<Integer, String>();
+            TreeMap<String, String> destinationPlates = new TreeMap<String, String>();
+            
             String sourceQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE'";
             Query sourceQuery = sess.createQuery(sourceQueryString);
             sourceQuery.setParameterList("ids", sampleIds);
@@ -603,6 +605,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               PlateWell pw = (PlateWell)srcIter.next();
               sampleSourceWellMap.put(pw.getIdSample(), pw.getWellName());
               sampleSourcePlateMap.put(pw.getIdSample(), pw.getPlate().getLabel());
+              destinationPlates.put(pw.getPlate().getLabel(), pw.getPlate().getLabel());
             }
             
             // build destination well names for the samples
@@ -610,27 +613,42 @@ public class GetRequest extends GNomExCommand implements Serializable {
             String destinationQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='REACTION' and pw.redoFlag='N'";
             Query destinationQuery = sess.createQuery(destinationQueryString);
             destinationQuery.setParameterList("ids", sampleIds);
-            List destinationWells = sourceQuery.list();
+            List destinationWells = destinationQuery.list();
+            Integer numDestinationWells = 96;
             for(Iterator destIter = destinationWells.iterator();destIter.hasNext();) {
               PlateWell pw = (PlateWell)destIter.next();
               sampleDestinationWellMap.put(pw.getIdSample(), pw.getWellName());
+              if (pw.getRow().compareTo("H") > 0 || pw.getCol() > 12) {
+                numDestinationWells = 384;
+              }
             }
+            requestNode.setAttribute("numDestinationWells", numDestinationWells.toString());
             
             // add well plate names to samples
             List samples = requestNode.getChild("samples").getChildren("Sample");
             for (Iterator i1 = samples.iterator(); i1.hasNext();) {
               Element sampleNode = (Element)i1.next();
-              sampleNode.setAttribute("cherrySourceWell", sampleSourceWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
-              sampleNode.setAttribute("cherrySourcePlate", sampleSourcePlateMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
-              sampleNode.setAttribute("cherryDestinationWell", sampleDestinationWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("sourceWell", sampleSourceWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("sourcePlate", sampleSourcePlateMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("destinationWell", sampleDestinationWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
             }
+            
+            // Add plate list
+            Element platesNode = new Element("cherryPlateList");
+            for (String plateName:destinationPlates.keySet()) {
+              Element plateNode = new Element("Plate");
+              plateNode.setAttribute("name", plateName);
+              platesNode.addContent(plateNode);
+            }
+            requestNode.addContent(platesNode);
+
           }
         
-        doc.getRootElement().addContent(requestNode);
-      
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
-        this.xmlResult = out.outputString(doc);
-      } 
+          doc.getRootElement().addContent(requestNode);
+        
+          XMLOutputter out = new org.jdom.output.XMLOutputter();
+          this.xmlResult = out.outputString(doc);
+        } 
         
       }
     
