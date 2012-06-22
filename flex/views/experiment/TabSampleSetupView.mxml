@@ -275,11 +275,13 @@
 				}
 			} else if (parentDocument.isFragAnalState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
-					
-					for (var x:int = 0; x < assayCheckBox.length; x++) {
-						if (assayCheckBox[x].selected) {
-							isComplete = true;
-							break;
+					var num:int = Number(this.numberOfSamples.text);
+					if (num > 0 && num < 97) {
+						for (var x:int = 0; x < assayCheckBox.length; x++) {
+							if (assayCheckBox[x].selected) {
+								isComplete = true;
+								break;
+							}
 						}
 					}
 				}
