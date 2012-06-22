@@ -245,37 +245,8 @@
 					" wellName='" + mitWellName + "'" +
 					"/>");
 			} else if (currentState != null && (currentState.indexOf('CherryPick') >= 0)) {
-				var cherryWellName:String;
-				var cherryColNumber:int;
-				if (parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue == "384") {
-					cherryWellName = "ABCDEFGHIJKLMNOP".substr(parentDocument.samples.length / 24, 1);
-					cherryColNumber = parentDocument.samples.length % 24 + 1;
-				} else {
-					cherryWellName = "ABCDEFGHIJKLMNOP".substr(parentDocument.samples.length / 12, 1);
-					cherryColNumber = parentDocument.samples.length % 12 + 1;
-				}
-				cherryWellName += cherryColNumber.toString();
-				emptyNode = new XML("<Sample " +
-					" idSample='" + "Sample" + getNextSampleId() + "'" +
-					" name='' description='' " +
-					" canChangeSampleName='Y'" +
-					" canChangeSampleType='Y'" +
-					" canChangeSampleDropOffLocation='Y'" +
-					" canChangeSampleConcentration='N'" +
-					" canChangeSampleSource='N'" +
-					" canChangeNumberSequencingCycles='N'" +
-					" canChangeNumberSequencingLanes='N'" + 
-					" concentration=''" +
-					" idOligoBarcode = ''" +
-					" barcodeSequence = ''" +
-					" codeConcentrationUnit='ng/ul'" + 
-					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-					" otherSamplePrepMethod=''" + 				
-					" treatment=''" +
-					" sourcePlate=''" +
-					" sourceWell=''" +
-					" destinationWell='" + cherryWellName + "'" +
-					"/>");
+				var cherryWellName:String = getCherryWellName(parentDocument.samples.length, Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue));
+				emptyNode = this.getEmptyCherryPickNode(cherryWellName);
 			} else {
 				var xmlString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -336,6 +307,32 @@
 			}
 			return emptyNode;
 		}
+		
+		private function getEmptyCherryPickNode(cherryWellName:String):XML {
+			var emptyNode:XML = new XML("<Sample " +
+				" idSample='" + "Sample" + getNextSampleId() + "'" +
+				" name='' description='' " +
+				" canChangeSampleName='Y'" +
+				" canChangeSampleType='Y'" +
+				" canChangeSampleDropOffLocation='Y'" +
+				" canChangeSampleConcentration='N'" +
+				" canChangeSampleSource='N'" +
+				" canChangeNumberSequencingCycles='N'" +
+				" canChangeNumberSequencingLanes='N'" + 
+				" concentration=''" +
+				" idOligoBarcode = ''" +
+				" barcodeSequence = ''" +
+				" codeConcentrationUnit='ng/ul'" + 
+				" codeBioanalyzerChipType=''" +
+				" otherSamplePrepMethod=''" + 				
+				" treatment=''" +
+				" sourcePlate=''" +
+				" sourceWell=''" +
+				" destinationWell='" + cherryWellName + "'" +
+				"/>");
+			return emptyNode;
+		}
+		
 		private function getPlateName(idx:int):String {
 			var plateName:String = "";
 			if (parentDocument.request.@containerType == 'PLATE') {
@@ -357,6 +354,21 @@
 				wellName = parentApplication.wellNamesByColumn[y];
 			}
 			return wellName;
+		}
+		
+		private function getCherryWellName(idx:int, numDestinationWells:int):String {
+			var cherryWellName:String;
+			var cherryColNumber:int;
+			if (numDestinationWells == 384) {
+				cherryWellName = "ABCDEFGHIJKLMNOP".substr(idx / 24, 1);
+				cherryColNumber = idx % 24 + 1;
+			} else {
+				cherryWellName = "ABCDEFGHIJKLMNOP".substr(idx / 12, 1);
+				cherryColNumber = idx % 12 + 1;
+			}
+			cherryWellName += cherryColNumber.toString();
+			
+			return cherryWellName;
 		}
 		
 		private function getIsControl(idx:int):String {
@@ -622,6 +634,26 @@
 			}
 		}
         
+		public function prepareCherryPickingSamplesForEdit(numDestinationWells:int):void {
+			parentDocument.request.replace("samples", <samples></samples>); 
+			for(var idx:int = 0; idx < numDestinationWells; idx++) {
+				var destinationWellName:String = getCherryWellName(idx, numDestinationWells);
+				var found:Boolean = false;
+				for each(var sample:Object in parentDocument.samples) {
+					if (sample.@destinationWell == destinationWellName) {
+						found = true;
+						parentDocument.request.samples.appendChild(sample);
+						break;
+					}
+				}
+				if (!found) {
+					var emptyNode:XML = this.getEmptyCherryPickNode(destinationWellName);
+					parentDocument.request.samples.appendChild(emptyNode);
+				}
+			}
+			parentDocument.samples.source = parentDocument.request.samples.Sample;
+		}
+		
 		public function promptToClearAllSamples():void {
 			Alert.show("Remove all samples currently showing in list?",
 						null, 

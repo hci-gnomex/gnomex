@@ -744,7 +744,7 @@
 			}
 			var startIdx:int = parentDocument.cherryPlateListCollection.length;
 			for(var idx:int=startIdx; idx < numPlates+1; idx++) {
-				var node:XML = new XML("<plate name='" + getPlateName(idx) + "'/>");
+				var node:XML = new XML("<Plate name='" + getPlateName(idx) + "'/>");
 				parentDocument.cherryPlateListCollection.addItem(node);
 			}
 			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();

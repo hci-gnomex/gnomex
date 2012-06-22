@@ -1076,58 +1076,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // handle plate and plate wells for fragment analysis, if applicable
     updateFragAnalPlates(sess, sample, idSampleString, sampleCount);
     
+    // handl mitochondrial sequencing wells and plates
     updateMitSeqWells(sess, sample, idSampleString, sampleCount);
     
     // Cherry pick source and destination wells
-    String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
-    if (cherryPickSourceWell != null && cherryPickSourceWell.length() > 0) {
-      String sourcePlateName = requestParser.getCherryPickSourcePlate(idSampleString);
-      Plate cherrySourcePlate = this.cherrySourcePlateMap.get(sourcePlateName);
-      if (cherrySourcePlate == null) {
-        cherrySourcePlate = new Plate();
-        cherrySourcePlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
-        cherrySourcePlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        cherrySourcePlate.setLabel(sourcePlateName);
-        sess.save(cherrySourcePlate);
-        sess.flush();
-        this.cherrySourcePlateMap.put(sourcePlateName, cherrySourcePlate);
-      }
-      PlateWell sourceWell = new PlateWell();
-      sourceWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-      sourceWell.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
-      sourceWell.setRow(cherryPickSourceWell.substring(0, 1));
-      sourceWell.setPosition(new Integer(sampleCount));
-      sourceWell.setIdPlate(cherrySourcePlate.getIdPlate());
-      sourceWell.setPlate(cherrySourcePlate);
-      sourceWell.setIdSample(sample.getIdSample());
-      sourceWell.setSample(sample);
-      sourceWell.setIdRequest(requestParser.getRequest().getIdRequest());
-      sess.save(sourceWell);
-    }
-    String cherryPickDestinationWell = requestParser.getCherryPickDestinationWell(idSampleString);
-    if (cherryPickDestinationWell != null && cherryPickDestinationWell.length() > 0) {
-      if (this.cherryPickDestinationPlate == null) {
-        this.cherryPickDestinationPlate = new Plate();
-        this.cherryPickDestinationPlate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
-        this.cherryPickDestinationPlate.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
-        this.cherryPickDestinationPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        this.cherryPickDestinationPlate.setLabel("Cherry Reaction Plate");
-        sess.save(this.cherryPickDestinationPlate);
-        sess.flush();
-      }
-      PlateWell destinationWell = new PlateWell();
-      destinationWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-      destinationWell.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
-      destinationWell.setRow(cherryPickDestinationWell.substring(0, 1));
-      destinationWell.setPosition(new Integer(sampleCount));
-      destinationWell.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
-      destinationWell.setIdPlate(cherryPickDestinationPlate.getIdPlate());
-      destinationWell.setPlate(cherryPickDestinationPlate);
-      destinationWell.setIdSample(sample.getIdSample());
-      destinationWell.setSample(sample);
-      destinationWell.setIdRequest(requestParser.getRequest().getIdRequest());
-      sess.save(destinationWell);
-    }
+    updateCherryPickWells(sess, sample, idSampleString, sampleCount);
     
   }
 
@@ -1333,6 +1286,98 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
       }
       sess.flush();
+    }
+  }
+  
+  private void updateCherryPickWells(Session sess, Sample sample, String idSampleString, int sampleCount) throws Exception {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+      String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
+      if (cherryPickSourceWell != null && cherryPickSourceWell.length() > 0) {
+        String sourcePlateName = requestParser.getCherryPickSourcePlate(idSampleString);
+        Plate cherrySourcePlate = this.cherrySourcePlateMap.get(sourcePlateName);
+        if (cherrySourcePlate == null) {
+          if (requestParser.isNewRequest()) {
+            cherrySourcePlate = new Plate();
+            cherrySourcePlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+            cherrySourcePlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+            cherrySourcePlate.setLabel(sourcePlateName);
+            sess.save(cherrySourcePlate);
+            sess.flush();
+          } else {
+            String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' and p.label = '" + sourcePlateName + "' and idRequest = " + requestParser.getRequest().getIdRequest() + ")";
+            cherrySourcePlate = (Plate)sess.createQuery(query).uniqueResult();
+          }
+          this.cherrySourcePlateMap.put(sourcePlateName, cherrySourcePlate);
+        }
+        if (sample.getWells() == null) {
+          PlateWell sourceWell = new PlateWell();
+          sourceWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          sourceWell.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
+          sourceWell.setRow(cherryPickSourceWell.substring(0, 1));
+          sourceWell.setPosition(new Integer(sampleCount));
+          sourceWell.setIdPlate(cherrySourcePlate.getIdPlate());
+          sourceWell.setPlate(cherrySourcePlate);
+          sourceWell.setIdSample(sample.getIdSample());
+          sourceWell.setSample(sample);
+          sourceWell.setIdRequest(requestParser.getRequest().getIdRequest());
+          sess.save(sourceWell);
+        } else {
+          for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell well = (PlateWell)i.next();
+            if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+              well.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
+              well.setRow(cherryPickSourceWell.substring(0, 1));
+              well.setPosition(new Integer(sampleCount));
+              well.setIdPlate(cherrySourcePlate.getIdPlate());
+              well.setPlate(cherrySourcePlate);
+              sess.save(well);
+              break;
+            }
+          }
+        }
+      }
+      String cherryPickDestinationWell = requestParser.getCherryPickDestinationWell(idSampleString);
+      if (cherryPickDestinationWell != null && cherryPickDestinationWell.length() > 0) {
+        if (this.cherryPickDestinationPlate == null) {
+          if (requestParser.isNewRequest()) {
+            this.cherryPickDestinationPlate = new Plate();
+            this.cherryPickDestinationPlate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
+            this.cherryPickDestinationPlate.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
+            this.cherryPickDestinationPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+            this.cherryPickDestinationPlate.setLabel("Cherry Reaction Plate");
+            sess.save(this.cherryPickDestinationPlate);
+            sess.flush();
+          } else {
+            String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where p.codePlateType='" + PlateType.REACTION_PLATE_TYPE + "' and idRequest = " + requestParser.getRequest().getIdRequest() + ")";
+            cherryPickDestinationPlate = (Plate)sess.createQuery(query).uniqueResult();
+          }
+        }
+        if (sample.getWells() == null) {
+          PlateWell destinationWell = new PlateWell();
+          destinationWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          destinationWell.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
+          destinationWell.setRow(cherryPickDestinationWell.substring(0, 1));
+          destinationWell.setPosition(new Integer(sampleCount));
+          destinationWell.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
+          destinationWell.setIdPlate(cherryPickDestinationPlate.getIdPlate());
+          destinationWell.setPlate(cherryPickDestinationPlate);
+          destinationWell.setIdSample(sample.getIdSample());
+          destinationWell.setSample(sample);
+          destinationWell.setIdRequest(requestParser.getRequest().getIdRequest());
+          sess.save(destinationWell);
+        } else {
+          for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell well = (PlateWell)i.next();
+            if (well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+              well.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
+              well.setRow(cherryPickDestinationWell.substring(0, 1));
+              well.setPosition(new Integer(sampleCount));
+              sess.save(well);
+              break;
+            }
+          }
+        }
+      }
     }
   }
   
