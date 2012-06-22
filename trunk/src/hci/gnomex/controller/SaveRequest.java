@@ -155,6 +155,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Plate cherryPickDestinationPlate;
   
   private Integer nextSampleNumber;
+  private Integer sampleCountOnPlate;
+  private Integer previousCapSeqPlateId = null;
   
   public void validate() {
   }
@@ -352,12 +354,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         getStartingNextSampleNumber();
         
         // save samples
-        int sampleCount = 1;
+        sampleCountOnPlate = 1;
         for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
           String idSampleString = (String)i.next();
           boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
           Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-          saveSample(idSampleString, sample, sess, sampleCount, dictionaryHelper);
+          saveSample(idSampleString, sample, sess, dictionaryHelper);
           
 
           // if this is a new request, create QC work items for each sample
@@ -407,7 +409,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }            
           }
           
-          sampleCount++;
+          sampleCountOnPlate++;
         }
         
         requestParser.getRequest().setSamples(samples);
@@ -958,7 +960,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   
-  private void saveSample(String idSampleString, Sample sample, Session sess, int sampleCount, DictionaryHelper dh) throws Exception {
+  private void saveSample(String idSampleString, Sample sample, Session sess, DictionaryHelper dh) throws Exception {
 
     sample.setIdRequest(requestParser.getRequest().getIdRequest());
     sess.save(sample);
@@ -1071,20 +1073,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     // handle plates and plate wells for Cap Seq
-    updateCapSeqPlates(sess, sample, idSampleString, sampleCount);
+    updateCapSeqPlates(sess, sample, idSampleString);
     
     // handle plate and plate wells for fragment analysis, if applicable
-    updateFragAnalPlates(sess, sample, idSampleString, sampleCount);
+    updateFragAnalPlates(sess, sample, idSampleString);
     
     // handl mitochondrial sequencing wells and plates
-    updateMitSeqWells(sess, sample, idSampleString, sampleCount);
+    updateMitSeqWells(sess, sample, idSampleString);
     
     // Cherry pick source and destination wells
-    updateCherryPickWells(sess, sample, idSampleString, sampleCount);
+    updateCherryPickWells(sess, sample, idSampleString);
     
   }
 
-  private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString, int sampleCount) {
+  private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString) {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
       Plate plate = requestParser.getPlate(idSampleString);
       PlateWell well = requestParser.getWell(idSampleString);
@@ -1103,6 +1105,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
           sess.save(realPlate);
           sess.flush();
+          if (this.previousCapSeqPlateId == null || !this.previousCapSeqPlateId.equals(realPlate.getIdPlate())) {
+            this.sampleCountOnPlate = 1;
+          }
+          this.previousCapSeqPlateId = realPlate.getIdPlate();
           this.storePlateMap.put(idAsString, realPlate);
         }
         PlateWell realWell = well;
@@ -1121,7 +1127,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // in the order they are listed, so set the well position based on
         // to sample count which is incremented as we iterate through the
         // list of samples.
-        realWell.setPosition(new Integer(sampleCount));
+        realWell.setPosition(new Integer(sampleCountOnPlate));
         sess.save(realWell);
         sess.flush();
       } else {
@@ -1143,14 +1149,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           well.setSample(sample);
           well.setIdRequest(requestParser.getRequest().getIdRequest());
         }
-        well.setPosition(new Integer(sampleCount));
+        well.setPosition(new Integer(sampleCountOnPlate));
         sess.save(well);
       }
       
       sess.flush();
     }
   }
-  private void updateFragAnalPlates(Session sess, Sample sample, String idSampleString, int sampleCount) throws Exception {
+  private void updateFragAnalPlates(Session sess, Sample sample, String idSampleString) throws Exception {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
       if (assaysParser != null) {
         assaysParser.parse(sess);
@@ -1177,7 +1183,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             assayWell.setIdPlate(assayPlate.getIdPlate());
             assayWell.setIdSample(sample.getIdSample());
             assayWell.setPlate(assayPlate);
-            assayWell.setPosition(new Integer(sampleCount));
+            assayWell.setPosition(new Integer(sampleCountOnPlate));
             assayWell.setCol(parsedWell.getCol());
             assayWell.setRow(parsedWell.getRow());
             assayWell.setSample(sample);
@@ -1196,7 +1202,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 if (well.getAssay() != null && assayName.equals(well.getAssay().getName())) {
                   wellsFound.add(well);
                   well.setCol(parsedWell.getCol());
-                  well.setPosition(new Integer(sampleCount));
+                  well.setPosition(new Integer(sampleCountOnPlate));
                   well.setRow(parsedWell.getRow());
                   sess.save(well);
                   found = true;
@@ -1223,7 +1229,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               assayWell.setIdPlate(assayPlate.getIdPlate());
               assayWell.setIdSample(sample.getIdSample());
               assayWell.setPlate(assayPlate);
-              assayWell.setPosition(new Integer(sampleCount));
+              assayWell.setPosition(new Integer(sampleCountOnPlate));
               assayWell.setCol(parsedWell.getCol());
               assayWell.setRow(parsedWell.getRow());
               assayWell.setSample(sample);
@@ -1237,7 +1243,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
   }
   
-  private void updateMitSeqWells(Session sess, Sample sample, String idSampleString, int sampleCount) throws Exception {
+  private void updateMitSeqWells(Session sess, Sample sample, String idSampleString) throws Exception {
     // create/update plate and plate wells for mitochondrial sequencing, if applicable
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
       primersParser.parse(sess);
@@ -1265,7 +1271,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           primerWell.setIdPlate(primerPlate.getIdPlate());
           primerWell.setIdSample(sample.getIdSample());
           primerWell.setPlate(primerPlate);
-          primerWell.setPosition(new Integer(sampleCount));
+          primerWell.setPosition(new Integer(sampleCountOnPlate));
           primerWell.setCol(parsedWell.getCol());
           primerWell.setRow(parsedWell.getRow());
           primerWell.setSample(sample);
@@ -1276,9 +1282,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
           PlateWell well = (PlateWell)i.next();
           if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
-            if (!well.getCol().equals(parsedWell.getCol()) || !well.getPosition().equals(new Integer(sampleCount)) || !well.getRow().equals(parsedWell.getRow())) {
+            if (!well.getCol().equals(parsedWell.getCol()) || !well.getPosition().equals(new Integer(sampleCountOnPlate)) || !well.getRow().equals(parsedWell.getRow())) {
               well.setCol(parsedWell.getCol());
-              well.setPosition(new Integer(sampleCount));
+              well.setPosition(new Integer(sampleCountOnPlate));
               well.setRow(parsedWell.getRow());
               sess.save(well);
             }
@@ -1289,7 +1295,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
   }
   
-  private void updateCherryPickWells(Session sess, Sample sample, String idSampleString, int sampleCount) throws Exception {
+  private void updateCherryPickWells(Session sess, Sample sample, String idSampleString) throws Exception {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
       String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
       if (cherryPickSourceWell != null && cherryPickSourceWell.length() > 0) {
@@ -1314,7 +1320,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sourceWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
           sourceWell.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
           sourceWell.setRow(cherryPickSourceWell.substring(0, 1));
-          sourceWell.setPosition(new Integer(sampleCount));
+          sourceWell.setPosition(new Integer(sampleCountOnPlate));
           sourceWell.setIdPlate(cherrySourcePlate.getIdPlate());
           sourceWell.setPlate(cherrySourcePlate);
           sourceWell.setIdSample(sample.getIdSample());
@@ -1327,7 +1333,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
               well.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
               well.setRow(cherryPickSourceWell.substring(0, 1));
-              well.setPosition(new Integer(sampleCount));
+              well.setPosition(new Integer(sampleCountOnPlate));
               well.setIdPlate(cherrySourcePlate.getIdPlate());
               well.setPlate(cherrySourcePlate);
               sess.save(well);
@@ -1357,7 +1363,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           destinationWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
           destinationWell.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
           destinationWell.setRow(cherryPickDestinationWell.substring(0, 1));
-          destinationWell.setPosition(new Integer(sampleCount));
+          destinationWell.setPosition(new Integer(sampleCountOnPlate));
           destinationWell.setCodeReactionType(ReactionType.CHERRY_PICKING_REACTION_TYPE);
           destinationWell.setIdPlate(cherryPickDestinationPlate.getIdPlate());
           destinationWell.setPlate(cherryPickDestinationPlate);
@@ -1371,7 +1377,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if (well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
               well.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
               well.setRow(cherryPickDestinationWell.substring(0, 1));
-              well.setPosition(new Integer(sampleCount));
+              well.setPosition(new Integer(sampleCountOnPlate));
               sess.save(well);
               break;
             }
