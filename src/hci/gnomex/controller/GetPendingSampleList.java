@@ -52,6 +52,10 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
   private Element              redoNode = null;
   private Element              pendingNode = null;
   private Element              requestNode = null;
+  private Element              plateNode = null;
+  
+  private Integer              idPlatePrev = new Integer(-1);
+
   
   TreeMap<Integer, TreeMap<String, List<Object[]>>> requestMap = null;
   TreeMap<String, List<Object[]>>                   assayMap = null;
@@ -231,6 +235,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
         String assayKey = (String)i1.next();
         List<Object[]> results = assayMap.get(assayKey);
 
+        idPlatePrev = new Integer(-1);
         boolean firstTime = true;
         for (Object[]row : results) {
           if (firstTime && !assayKey.equals(" ")) {
@@ -241,8 +246,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
             firstTime = false;
             parentNode.setAttribute("sampleCount", Integer.valueOf(results.size()).toString());
           }
-          Element wellNode = createWellNode(row, dictionaryHelper);
-          parentNode.addContent(wellNode);
+          addWellNode(row, dictionaryHelper, parentNode, results);
           totalSampleCount++;
         }
       }
@@ -267,7 +271,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              idRequest.toString());
     requestNode.setAttribute("label",                  requestNumber);
-    requestNode.setAttribute("submitDate",             createDate == null ? ""  : this.formatDate((java.sql.Date)createDate, this.DATE_OUTPUT_DASH));
+    requestNode.setAttribute("requestSubmitDate",      createDate == null ? ""  : this.formatDate((java.sql.Date)createDate, this.DATE_OUTPUT_DASH));
     requestNode.setAttribute("idLab",                  idLab == null ? "" : idLab.toString());
     requestNode.setAttribute("lab",                    labName);
   
@@ -295,7 +299,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     return n;      
   }
   
-  private Element createWellNode(Object[] row, DictionaryHelper dictionaryHelper) {
+  private void addWellNode(Object[] row, DictionaryHelper dictionaryHelper, Element parentNode, List<Object[]> results) {
     
     Integer idRequest           = (Integer)row[0];
     String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
@@ -313,9 +317,33 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     
     Integer idAssay             = (Integer)row[13];
     Integer idPrimer            = (Integer)row[14];
+    Integer idPlate             = (Integer)row[15];
+    String plateLabel           = (String)row[16]  == null ? ""  : (String)row[16];
+    
+    if (idPlate != null) {
+      if (plateLabel == null || plateLabel.trim().equals("")) {
+        plateLabel = idPlate.toString();
+      }
+    }
+    
+    Element wellParentNode = parentNode;
     
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
-      
+    if (idPlate != null) {
+      if (!idPlate.equals(idPlatePrev)) {
+        plateNode = new Element("Plate");
+        plateNode.setAttribute("label",        plateLabel);
+        plateNode.setAttribute("idPlate",      idPlate != null ? idPlate.toString() : "");
+
+        int sampleCount = getSampleCountForPlate(idPlate, results);
+        plateNode.setAttribute("sampleCount", Integer.valueOf(sampleCount).toString());
+        
+        parentNode.addContent(plateNode);
+        wellParentNode = plateNode;
+      } else {
+        wellParentNode = plateNode;
+      }
+    }
     Element n = new Element("Well");
     n.setAttribute("name",           sample.getName());
     n.setAttribute("idRequest",      idRequest != null ? idRequest.toString() : "");
@@ -326,7 +354,9 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("row",            wellRow != null ? wellRow : "");
     n.setAttribute("col",            wellCol != null ? wellCol.toString() : "");
     n.setAttribute("index",          wellIndex != null ? wellIndex.toString() : "");
-    n.setAttribute("idPlate",        "");
+    n.setAttribute("idPlate",        idPlate != null ? idPlate.toString() : "");
+    n.setAttribute("requestSubmitDate",  createDate == null ? ""  : this.formatDate((java.sql.Date)createDate, this.DATE_OUTPUT_DASH));
+    n.setAttribute("requestSubmitter",   submitter != null ? submitter.getDisplayName() : "");
     
     if ( idAssay != null && idAssay.intValue() != -1 ) {
       n.setAttribute( "idAssay", idAssay.toString() );
@@ -339,7 +369,22 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       n.setAttribute("label", primerLabel);
     }
     
-    return n;      
+    idPlatePrev = idPlate;
+    
+    wellParentNode.addContent(n);
   
+  }
+  
+  private int getSampleCountForPlate(Integer theIdPlate, List<Object[]> results) {
+    int sampleCount = 0;
+    
+    for (Object[] row : results) {
+      Integer idPlate             = (Integer)row[15];
+      
+      if (idPlate.equals(theIdPlate)) {
+        sampleCount++;
+      }
+    }
+    return sampleCount;
   }
 }

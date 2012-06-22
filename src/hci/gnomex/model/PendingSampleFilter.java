@@ -51,7 +51,9 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            well.col, ");
     queryBuf.append("            well.position, ");
     queryBuf.append("            well.idAssay, ");
-    queryBuf.append("            well.idPrimer ");
+    queryBuf.append("            well.idPrimer, ");
+    queryBuf.append("            plate.idPlate, ");
+    queryBuf.append("            plate.label ");
     
     
     queryBuf.append(" FROM       Request as req ");
@@ -69,7 +71,7 @@ public class PendingSampleFilter extends DetailObject {
     
     addRequestCriteria();
     
-    queryBuf.append(" ORDER BY well.idAssay, well.idPrimer, req.createDate, req.idRequest, well.position ");
+    queryBuf.append(" ORDER BY well.idAssay, well.idPrimer, req.createDate, req.idRequest, plate.idPlate, well.position ");
 
     return queryBuf;
     
@@ -94,7 +96,9 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            well.col, ");  // well col
     queryBuf.append("            well.position, ");  // well position
     queryBuf.append("            well.idAssay, ");  // well idassay
-    queryBuf.append("            well.idPrimer  ");  // well idprimer
+    queryBuf.append("            well.idPrimer, ");  // well idprimer
+    queryBuf.append("            plate.idPlate, ");
+    queryBuf.append("            plate.label ");
     
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
@@ -111,7 +115,7 @@ public class PendingSampleFilter extends DetailObject {
     
     addRequestCriteria();
     
-    queryBuf.append(" ORDER BY req.createDate, req.idRequest ");
+    queryBuf.append(" ORDER BY req.createDate, req.idRequest, plate.idPlate, well.position ");
    
 
     return queryBuf;
