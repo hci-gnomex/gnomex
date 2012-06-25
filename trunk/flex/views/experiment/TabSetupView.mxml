@@ -459,7 +459,7 @@
 			private function onGetLab(event:ResultEvent):void {			
 				lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 				
-				
+				requestCategories.refresh();
 				billingAccounts.refresh();
 				if (billingAccounts.length == 1) {
 					this.billingAccountCombo.selectedIndex = 0;	        	
@@ -847,14 +847,13 @@
 					// If a request category is not associated with a core facility,
 					// include it in the list.
 					keep = true;
-				} else if (parentApplication.hasPermission(parentApplication.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-					// Don't filter the list for super admins
+				} else if (lab == null) {
 					keep = true;
 				} else {
 					// If the user is an admin, filter by the core facilities he/she manages; if
 					// the user is a normal user, filter by the core facilities associated with
 					// the labs he/she is a member of.
-					for each(var cf:Object in parentApplication.myCoreFacilities) {
+					for each(var cf:Object in lab..CoreFacility) {
 						if (cf.@idCoreFacility == item.@idCoreFacility) {
 							keep = true;
 							break;
@@ -908,8 +907,8 @@
 					<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 								 labelField="@name" 
 								 width="400"
-								 change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
-								 close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
+								 change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" 
+								 close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" 
 								 id="labCombo">
 					</mx:ComboBox>
 				</mx:HBox>
