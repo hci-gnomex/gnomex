@@ -141,8 +141,12 @@
 				<mx:Label text="DNA Sequencing Core" id="label0" styleName="welcomeLabel"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:LinkButton label="Fill Plates"  click="fillPlates()"  
+				<mx:LinkButton label="Fill Plates"  click="fillPlates('PLATE')"  
 							   styleName="dashboardButton" id="button11"  toolTip="Fill plates" icon="@Embed(source='../../assets/plate_add.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Build Run"  click="fillPlates('RUN')"  
+							   styleName="dashboardButton" id="runButton"  toolTip="Build Run" icon="@Embed(source='../../assets/run_add.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:LinkButton label="Review Instrument Runs"  click="reviewRuns()"  
@@ -165,8 +169,9 @@
 			import hci.flex.dictionary.DictionaryEditor;
 			
 			import mx.managers.PopUpManager;
-			import views.admin.PropertyWindow;
+			
 			import views.admin.AlignmentProfileWindow;
+			import views.admin.PropertyWindow;
 			import views.experiment.ExperimentEditView;
 			
 			public function checkDirty():void {
@@ -215,8 +220,12 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navOrderView;
 			}
 			
-			private function fillPlates():void {
+			private function fillPlates( buildState:String ):void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navPlateView;
+				callLater ( function():void {
+					parentApplication.navPlateView.toggleBuildState( buildState );
+					parentApplication.navPlateView.switchToNewState();
+				});
 			}
 			
 			private function reviewRuns():void {

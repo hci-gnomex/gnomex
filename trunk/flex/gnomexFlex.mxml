@@ -2527,9 +2527,12 @@
 			 	<mx:VRule height="20" id="fillPlateRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{fillPlateRule}" position="after">
-			 	<util:CustomLinkButton id="fillPlateLink" label="Fill Plate" click="{theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
+			 	<util:CustomLinkButton id="fillPlateLink" label="Fill Plate" click="{navPlateView.toggleBuildState('PLATE'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{fillPlateLink}" position="after">
+				 <util:CustomLinkButton id="fillRunLink" label="Build Run" click="{navPlateView.toggleBuildState('RUN'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_add.png')"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{fillRunLink}" position="after">
 			 	<mx:VRule height="20" id="runsRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{runsRule}" position="after">
