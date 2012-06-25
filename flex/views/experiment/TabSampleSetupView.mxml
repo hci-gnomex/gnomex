@@ -1040,16 +1040,16 @@
                        <mx:RadioButton id="containerTypePlate" label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
                   </mx:HBox>
              </mx:AddChild>
-			<mx:AddChild relativeTo="{hbox6}" position="before">
-				<mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
-					<mx:Label text="(3) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
-					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
-								 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
-					</mx:ComboBox>
-				</mx:HBox>
-			</mx:AddChild>
-             <mx:SetProperty target="{label8}" name="text" value="(4) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
+             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+                  <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
+                  	<mx:Label text="(4) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
+                  	<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
+                  				 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
+                  	</mx:ComboBox>
+                  </mx:HBox>
+             </mx:AddChild>
         </mx:State>
 	   <mx:State name="FragAnalState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
