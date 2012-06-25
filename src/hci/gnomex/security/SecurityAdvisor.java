@@ -1614,6 +1614,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return isMyCoreFacility;
   }
+  public boolean isCoreFacilityForMyLab(Integer idCoreFacility) {
+    boolean isMyCoreFacility = false;
+    for (Iterator i = this.getCoreFacilitiesForMyLab().iterator(); i.hasNext();) {
+      CoreFacility coreFacility = (CoreFacility)i.next();
+      if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
+        isMyCoreFacility = true;
+        break;
+      }
+    }
+    return isMyCoreFacility;
+  }
 
   public boolean isInstitutionIAmMemberOf(Integer idInstitution) {
     boolean isMyInstitution = false;
