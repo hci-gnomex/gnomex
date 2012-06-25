@@ -329,7 +329,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     Element wellParentNode = parentNode;
     
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
-    if (idPlate != null) {
+    if (idAssay == null && idPrimer == null && idPlate != null) {
       if (!idPlate.equals(idPlatePrev)) {
         plateNode = new Element("Plate");
         plateNode.setAttribute("label",        plateLabel);
