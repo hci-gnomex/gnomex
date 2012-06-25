@@ -2730,7 +2730,11 @@
 			} else {
 				agreeCheckbox.visible = readyToSubmit;				
 			}
-		}		
+		}
+			
+		public function isDNASeqCoreState():Boolean {
+			return this.isCapSeqState() || this.isCherryPickState() || this.isFragAnalState() || this.isMitSeqState();			
+		}
 		
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
@@ -2747,6 +2751,7 @@
 					this.confirmView.currentState = "ExternalExperimentState";
 				}
 			} else {
+				
 				var accountName:String = isAmendState() ? request.@accountNumberDisplay : setupView.billingAccountCombo.selectedItem.@accountNumberDisplay;
 				
 				agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
@@ -2765,18 +2770,13 @@
 			if (createBillingItems.lastResult.name() == "NewBilling") { 
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
-					if (billingItems.length() == 0) {
-						this.confirmView.currentState = "";						
+					
+					if (isDNASeqCoreState()) { 
+						this.confirmView.currentState = "DNASeqCoreState";
 					} else {
-						if (createBillingItems.lastResult.Request.@exceedsBillingAccountBalance == 'Y' ) {
-							//this.confirmView.currentState = "BillingExceedState";
-							// 5/19/2011 change: BillingExceedState disabled for now
-							this.confirmView.currentState = "";
-							readyToSubmit = true;
-						} else {
-							this.confirmView.currentState = ""
-						}
+						this.confirmView.currentState = "";
 					}
+					
 					this.confirmView.billingConfirmGrid.rowCount = billingItems.length() > 1 ? billingItems.length() - 1 : billingItems.length();
 					this.confirmView.billingConfirmGrid.validateNow();
 				} else {
