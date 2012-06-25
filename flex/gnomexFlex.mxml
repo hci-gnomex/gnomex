@@ -588,6 +588,7 @@
 			[Bindable]
 			public var isCoreGenomics:Boolean = false;
 			
+			[Bindable]
 			public var myCoreFacilities:XMLList = null;
 			
 			[Bindable]
@@ -1648,7 +1649,11 @@
 				
 				// Keep a list of core facilities associated with this user.  We will use
 				// this to filter the request categories on the Submit Request window.
-				myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
+				if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");					
+				} else {
+					myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
+				}
 				
 				
 				//

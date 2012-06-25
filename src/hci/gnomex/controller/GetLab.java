@@ -86,6 +86,7 @@ public class GetLab extends GNomExCommand implements Serializable {
     theLab.excludeMethodFromXML("getHasPublicData");
     
     Hibernate.initialize(theLab.getProjects());
+    Hibernate.initialize(theLab.getCoreFacilities());
    
     
     
