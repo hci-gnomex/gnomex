@@ -1,8 +1,10 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
@@ -44,6 +46,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
   private String chartName = "";
   private String fieldName = "";
   private String usageUserVisibility = "";
+  private Integer idCoreFacility = null;
   
   DateFormat dfShort    = new SimpleDateFormat("MMM yyyy");
   DateFormat dfDataTip  = new SimpleDateFormat("MMM dd yyyy");
@@ -68,6 +71,23 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("fieldName") != null && !request.getParameter("fieldName").equals("")) {
       fieldName = request.getParameter("fieldName");
+    }
+    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
+      idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
+    }
+    // idCoreFacility is required if there is more than one active core facility designated
+    // in the db.
+    if (idCoreFacility == null) {
+      int coreFacilityCount = 0;
+      for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
+          coreFacilityCount++;
+        }
+      }
+      if (coreFacilityCount >  1) {
+        this.addInvalidField("idCoreFacility", "idCoreFacility is required");
+      }
     }
   }
 
@@ -148,6 +168,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("join r.lab as lab ");
     queryBuf.append("where r.createDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and r.createDate < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
+    if (idCoreFacility != null) {
+      queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+    }
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number");
     
     List rows = sess.createQuery(queryBuf.toString()).list();
@@ -210,6 +233,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = 'upload' ");
+    if (idCoreFacility != null) {
+      queryBuf.append("and r.idCoreFacility = " + idCoreFacility + " ");
+    }
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
     rows = sess.createQuery(queryBuf.toString()).list();
@@ -341,7 +367,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = 'download' ");
-    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
+    if (idCoreFacility != null) {
+      queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+    }    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
     rows = sess.createQuery(queryBuf.toString()).list();
     
@@ -458,6 +486,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.startDateTime >= '" + this.formatDate(startDate, GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = 'download' ");
+    if (idCoreFacility != null) {
+      queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+    }
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number"); 
     rows = sess.createQuery(queryBuf.toString()).list();

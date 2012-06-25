@@ -26,6 +26,7 @@ public class TransferLog extends HibernateDetailObject {
   private Integer          idAnalysis;
   private Integer          idRequest;
   private Integer          idLab;
+  private Lab              lab;
   
   public Integer getIdTransferLog() {
     return idTransferLog;
@@ -92,5 +93,11 @@ public class TransferLog extends HibernateDetailObject {
   }
   public void setPerformCompression(String performCompression) {
     this.performCompression = performCompression;
+  }
+  public Lab getLab() {
+    return lab;
+  }
+  public void setLab(Lab lab) {
+    this.lab = lab;
   } 
 }

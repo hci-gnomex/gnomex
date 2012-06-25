@@ -41,6 +41,7 @@
 		method="POST"   
 		useProxy="false">
 		<mx:request>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@idCoreFacility : ""}</idCoreFacility>
 			<asOfLast6Months>{asOfLast6Months.selected ? 'Y' : 'N'}</asOfLast6Months>
 			<asOfLastYear>{asOfLastYear.selected ? 'Y' : 'N'}</asOfLastYear>
 			<asOfLast2Years>{asOfLast2Years.selected ? 'Y' : 'N'}</asOfLast2Years>
@@ -133,6 +134,7 @@
 			params.startDate = event.hitData.item.@startDate;
 			params.chartName = "SummaryActivityByWeek";
 			params.fieldName = mx.charts.series.LineSeries(event.hitData.chartItem.element).id;
+			params.idCoreFacility = this.coreFacilityCombo.selectedItem != null ? this.coreFacilityCombo.selectedItem.@idCoreFacility : "";
 			var title:String = " for week of ";
 			if (params.fieldName == "experimentCount") {
 				title = "Experiments for ";
@@ -164,6 +166,11 @@
 				</mx:Image>
 				<mx:Label text="GNomEx Usage" fontWeight="bold"/>
 			</mx:HBox>
+			<mx:ComboBox width="200" selectedIndex="1"
+						 dataProvider="{parentApplication.myCoreFacilities}"
+						 labelField="@display"
+						 change="{getUsageData.send()}"
+						 id="coreFacilityCombo"/>
 			<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label2"/>
 			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton3"/>
 			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton4"/>

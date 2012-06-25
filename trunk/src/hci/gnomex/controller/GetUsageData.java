@@ -1,10 +1,13 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UsageRowDescriptor;
 import hci.gnomex.utility.UsageRowDescriptorComparator;
+import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -38,6 +41,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
 import hci.gnomex.model.PropertyDictionary;
@@ -49,6 +53,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetUsageData.class);
 
+  private Integer idCoreFacility = null;
   private String usageUserVisibility = "";
   
   private TreeMap<String, Lab>  labMap   = new TreeMap<String, Lab>();
@@ -102,6 +107,23 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     if (request.getParameter("endRank") != null && !request.getParameter("endRank").equals("")) {
       endRank = Integer.valueOf(request.getParameter("endRank"));
     }
+    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
+      idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
+    }
+    // idCoreFacility is required if there is more than one active core facility designated
+    // in the db.
+    if (idCoreFacility == null) {
+      int coreFacilityCount = 0;
+      for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
+          coreFacilityCount++;
+        }
+      }
+      if (coreFacilityCount >  1) {
+        this.addInvalidField("idCoreFacility", "idCoreFacility is required");
+      }
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -148,6 +170,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
+      
       usageUserVisibility = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USAGE_USER_VISIBILITY);
 
       // Guests cannot run this command
@@ -163,11 +186,42 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Property usage_user_visibility does not allow users to access usage data");
         setResponsePage(this.ERROR_JSP);
       }
+      
+      // Make sure that the core facility admin or user is part of the core facility being used to filter
+      // the usage.
+      boolean hasPermission = true;
+      if (idCoreFacility != null) {
+        // Turn it off so we can figure out if user has permission by looking at core facilities 
+        hasPermission = false;  
+        if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+          hasPermission = true;
+        } else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+          // Admin of a core facility.  Make sure core facility that admin manages is this core facility
+          if (this.getSecAdvisor().isCoreFacilityIManage(idCoreFacility)) {
+            hasPermission = true;
+          }
+        } else {
+          // Normal user.  Make sure user belongs to lab that is associated with core facility
+          if (this.getSecAdvisor().isCoreFacilityForMyLab(idCoreFacility)) {
+            hasPermission = true;
+          }
+        }
+      }
+      if (!hasPermission) {
+        throw new Exception("Insufficient permission to access usage date for selected core facility");
+      }
 
       
       if (this.isValid()) {
         // Hash all labs
-        List labs = sess.createQuery("SELECT l from Lab l order by l.lastName, l.firstName").list();
+        StringBuffer buf = new StringBuffer();
+        buf.append("SELECT l from Lab l ");
+        if (idCoreFacility != null) {
+          buf.append("JOIN l.coreFacilities as cf ");
+          buf.append("WHERE cf.idCoreFacility = " + idCoreFacility + " ");
+        }
+        buf.append("order by l.lastName, l.firstName ");
+        List labs = sess.createQuery(buf.toString()).list();
         for(Iterator i = labs.iterator(); i.hasNext();) {
           Lab lab = (Lab)i.next();
           
@@ -233,7 +287,15 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get experiment count
         int rank = 0;
         int totalCount = 0;
-        List summaryRows = sess.createQuery("SELECT r.idLab, count(*) from Request r group by r.idLab order by count(*) desc").list();
+        buf = new StringBuffer();
+        buf.append("SELECT r.idLab, count(*) from Request r ");
+        if (idCoreFacility != null) {
+          buf.append("WHERE r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        buf.append("GROUP BY r.idLab ");
+        buf.append("ORDER BY count(*) desc");
+        
+        List summaryRows = sess.createQuery(buf.toString()).list();
         addEntryIntegerNodes(summaryExperimentsNode, summaryRows, "experimentCount", true);
         Integer totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r ").uniqueResult();
         summaryExperimentsNode.setAttribute("experimentCount", totalExperiments.toString());
@@ -250,17 +312,59 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
         // Get upload count
         rank = 0;
-        summaryRows = sess.createQuery("SELECT tl.idLab, count(distinct fileName) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab order by count(*) desc").list();
+        buf = new StringBuffer();
+        buf.append("SELECT tl.idLab, count(distinct fileName) ");
+        buf.append("from TransferLog tl ");
+        buf.append("JOIN tl.lab lab ");
+        buf.append("JOIN lab.coreFacilities as cf ");
+        buf.append("WHERE tl.transferType = 'upload' ");
+        if (idCoreFacility != null) {
+          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+        }
+        buf.append("GROUP BY tl.idLab ");
+        buf.append("ORDER BY count(*) desc");
+        summaryRows = sess.createQuery(buf.toString()).list();
         addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
-        Integer totalUploadCount = (Integer)sess.createQuery("SELECT count(distinct fileName) from TransferLog tl where tl.transferType = 'upload'").uniqueResult();
+        
+        buf = new StringBuffer();
+        buf.append("SELECT count(distinct fileName) ");
+        buf.append("FROM TransferLog tl ");
+        buf.append("JOIN tl.lab lab ");
+        buf.append("JOIN lab.coreFacilities as cf ");
+        buf.append("WHERE tl.transferType = 'upload' ");
+        if (idCoreFacility != null) {
+          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+        }
+        Integer totalUploadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
         summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
 
         
         // Get download count
         rank = 0;
-        summaryRows = sess.createQuery("SELECT tl.idLab, count(*) from TransferLog tl where tl.transferType = 'download' group by tl.idLab order by count(*) desc").list();
+        buf = new StringBuffer();
+        buf.append("SELECT tl.idLab, count(distinct fileName) ");
+        buf.append("from TransferLog tl ");
+        buf.append("JOIN tl.lab lab ");
+        buf.append("JOIN lab.coreFacilities as cf ");
+        buf.append("WHERE tl.transferType = 'download' ");
+        if (idCoreFacility != null) {
+          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");          
+        }
+        buf.append("GROUP BY tl.idLab ");
+        buf.append("ORDER BY count(*) desc");
+        summaryRows = sess.createQuery(buf.toString()).list();
         addEntryIntegerNodes(summaryDownloadsNode, summaryRows, "downloadCount", true);
-        Integer totalDownloadCount = (Integer)sess.createQuery("SELECT count(*) from TransferLog tl where tl.transferType = 'download'").uniqueResult();
+        
+        buf = new StringBuffer();
+        buf.append("SELECT count(distinct fileName) ");
+        buf.append("FROM TransferLog tl ");
+        buf.append("JOIN tl.lab lab ");
+        buf.append("JOIN lab.coreFacilities as cf ");
+        buf.append("WHERE tl.transferType = 'download' ");
+        if (idCoreFacility != null) {
+          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+        }
+        Integer totalDownloadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
         summaryDownloadsNode.setAttribute("downloadCount", totalDownloadCount.toString());
         
 
@@ -269,14 +373,31 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         // Get total file size for experiments by lab
         TreeMap diskSpaceMap = new TreeMap();
-        summaryRows = sess.createQuery("SELECT r.idLab, sum(ef.fileSize) from Request r join r.files as ef  where ef.fileSize is not NULL group by r.idLab").list();
+        buf = new StringBuffer();
+        buf.append("SELECT r.idLab, sum(ef.fileSize) ");
+        buf.append("FROM Request r ");
+        buf.append("JOIN r.files as ef  ");
+        buf.append("WHERE ef.fileSize is not NULL ");
+        if (idCoreFacility != null) {
+          buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        buf.append("GROUP BY r.idLab ");
+        summaryRows = sess.createQuery(buf.toString()).list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         // Add in total file size for analysis by lab
         summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by a.idLab").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true);
 
-        BigDecimal totalExperimentDiskSpace = (BigDecimal)sess.createQuery("SELECT  sum(ef.fileSize) from Request r join r.files as ef where ef.fileSize is not NULL ").uniqueResult();
+        buf = new StringBuffer();
+        buf.append("SELECT  sum(ef.fileSize) ");
+        buf.append("FROM Request r ");
+        buf.append("JOIN r.files as ef ");
+        buf.append("WHERE ef.fileSize is not NULL ");
+        if (idCoreFacility != null) {
+          buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        BigDecimal totalExperimentDiskSpace = (BigDecimal)sess.createQuery(buf.toString()).uniqueResult();
         BigDecimal totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
         BigDecimal totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace != null ? totalAnalysisDiskSpace : new BigDecimal(0)) : new BigDecimal(0);
         
@@ -289,7 +410,16 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get disk space by year
         //
         diskSpaceMap = new TreeMap();
-        summaryRows = sess.createQuery("SELECT year(r.createDate), sum(ef.fileSize) from Request r join r.files as ef  where ef.fileSize is not NULL group by year(r.createDate) ").list();
+        buf = new StringBuffer();
+        buf.append("SELECT year(r.createDate), sum(ef.fileSize) ");
+        buf.append("FROM Request r ");
+        buf.append("JOIN r.files as ef  ");
+        buf.append("where ef.fileSize is not NULL  ");
+        if (idCoreFacility != null) {
+          buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        buf.append("GROUP BY year(r.createDate) ");
+        summaryRows = sess.createQuery(buf.toString()).list();
         mapDiskSpace(summaryRows, diskSpaceMap);
         summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by year(a.createDate) ").list();
         mapDiskSpace(summaryRows, diskSpaceMap);
@@ -305,12 +435,15 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         diskSpaceMap = new TreeMap();
         StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(ef.fileSize) ");
-        queryBuf.append(" from Request r, RequestCategory rc ");
-        queryBuf.append(" join r.files as ef ");
-        queryBuf.append(" where r.codeRequestCategory = rc.codeRequestCategory ");
-        queryBuf.append(" and ef.fileSize is not NULL ");
-        queryBuf.append(" group by rc.requestCategory");
-        queryBuf.append(" order by rc.requestCategory ");
+        queryBuf.append(" FROM Request r, RequestCategory rc ");
+        queryBuf.append(" JOIN r.files as ef ");
+        queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
+        queryBuf.append(" AND ef.fileSize is not NULL ");
+        if (idCoreFacility != null) {
+          queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        queryBuf.append(" GROUP BY rc.requestCategory");
+        queryBuf.append(" ORDER BY rc.requestCategory ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         mapDiskSpace(summaryRows, diskSpaceMap);
 
@@ -327,7 +460,18 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
         // Get days since last upload
         rank = 0;
-        summaryRows = sess.createQuery("SELECT tl.idLab, max(tl.startDateTime) from TransferLog tl where tl.transferType = 'upload' group by tl.idLab  order by max(tl.startDateTime) desc").list();
+        buf = new StringBuffer();
+        buf.append("SELECT tl.idLab, max(tl.startDateTime) ");
+        buf.append("FROM TransferLog tl ");
+        buf.append("JOIN tl.lab as lab ");
+        buf.append("JOIN lab.coreFacilities as cf ");
+        buf.append("WHERE tl.transferType = 'upload' ");
+        if (idCoreFacility != null) {
+          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+        }
+        buf.append("GROUP BY tl.idLab  ");
+        buf.append("ORDER BY max(tl.startDateTime) desc");
+        summaryRows = sess.createQuery(buf.toString()).list();
         this.addEntryDaysSinceNodes(summaryDaysNode, summaryRows, "days");
         
 
@@ -340,10 +484,13 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get # of experiments by experiment platform
         //
         queryBuf = new StringBuffer("SELECT rc.requestCategory, count(*) ");
-        queryBuf.append(" from Request r, RequestCategory rc ");
-        queryBuf.append(" where r.codeRequestCategory = rc.codeRequestCategory ");
-        queryBuf.append(" group by rc.requestCategory");
-        queryBuf.append(" order by count(*) desc ");
+        queryBuf.append(" FROM Request r, RequestCategory rc ");
+        queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
+        if (idCoreFacility != null) {
+          queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        queryBuf.append(" GROUP BY rc.requestCategory");
+        queryBuf.append(" ORDER BY count(*) desc ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
         summaryExperimentsByTypeNode.setAttribute("experimentCount", totalExperiments.toString());
@@ -352,12 +499,15 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get # of next gen seq experiments by application
         //
         queryBuf = new StringBuffer("SELECT app.application, count(*) ");
-        queryBuf.append(" from Request r, Application app, RequestCategory rc ");
-        queryBuf.append(" where r.codeApplication = app.codeApplication ");
-        queryBuf.append(" and r.codeRequestCategory  = rc.codeRequestCategory ");
-        queryBuf.append(" and rc.type  = 'ILLUMINA' ");
-        queryBuf.append(" group by app.application");
-        queryBuf.append(" order by count(*) desc ");
+        queryBuf.append(" FROM Request r, Application app, RequestCategory rc ");
+        queryBuf.append(" WHERE r.codeApplication = app.codeApplication ");
+        queryBuf.append(" AND r.codeRequestCategory  = rc.codeRequestCategory ");
+        queryBuf.append(" AND rc.type  = 'ILLUMINA' ");
+        if (idCoreFacility != null) {
+          queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        }
+        queryBuf.append(" GROUP BY app.application");
+        queryBuf.append(" ORDER BY count(*) desc ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         rank = 0;
         totalCount = 0;
@@ -370,10 +520,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get # of analysis by analysis type
         //
         queryBuf = new StringBuffer("SELECT at.analysisType, count(*) ");
-        queryBuf.append(" from Analysis a, AnalysisType at ");
-        queryBuf.append(" where a.idAnalysisType = at.idAnalysisType ");
-        queryBuf.append(" group by at.analysisType");
-        queryBuf.append(" order by count(*) desc ");
+        queryBuf.append(" FROM Analysis a, AnalysisType at ");
+        queryBuf.append(" WHERE a.idAnalysisType = at.idAnalysisType ");
+        queryBuf.append(" GROUP BY at.analysisType");
+        queryBuf.append(" ORDER BY count(*) desc ");
         summaryRows = sess.createQuery(queryBuf.toString()).list();
         addEntryIntegerNodes(summaryAnalysisByTypeNode, summaryRows, "analysisCount", false);
         summaryAnalysisByTypeNode.setAttribute("analysisCount", totalAnalysisCount.toString());
@@ -414,7 +564,15 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   
   private void tallyWeeklyActivity(Session sess) {
     // Tally experiment count by week
-    List summaryRows = sess.createQuery("SELECT r.createDate, count(*) from Request r group by r.createDate order by r.createDate").list();
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT r.createDate, count(*) ");
+    buf.append("FROM Request r ");
+    if (idCoreFacility != null) {
+      buf.append("WHERE r.idCoreFacility = " + idCoreFacility + " ");
+    }
+    buf.append("GROUP BY r.createDate ");
+    buf.append("ORDER BY r.createDate");
+    List summaryRows = sess.createQuery(buf.toString()).list();
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
       java.sql.Date createDate  = (java.sql.Date)rows[0];
@@ -450,7 +608,18 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
         
     // Tally upload count by week
-    summaryRows = sess.createQuery("SELECT tl.startDateTime, tl.fileName from TransferLog tl where transferType = 'upload' group by tl.startDateTime, tl.fileName order by tl.startDateTime, tl.fileName").list();
+    buf = new StringBuffer();
+    buf.append("SELECT tl.startDateTime, tl.fileName ");
+    buf.append("FROM TransferLog tl ");
+    buf.append("JOIN tl.lab as lab ");
+    buf.append("JOIN lab.coreFacilities as cf ");
+    buf.append("WHERE transferType = 'upload' ");
+    if (idCoreFacility != null) {
+      buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+    }    
+    buf.append("GROUP BY tl.startDateTime, tl.fileName ");
+    buf.append("ORDER BY tl.startDateTime, tl.fileName");
+    summaryRows = sess.createQuery(buf.toString()).list();
     
     Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
     TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> ();
@@ -501,7 +670,19 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     }       
      
     // Tally download count by week
-    summaryRows = sess.createQuery("SELECT tl.startDateTime, count(*) from TransferLog tl where transferType = 'download' group by tl.startDateTime order by tl.startDateTime").list();
+    buf = new StringBuffer();
+    buf.append("SELECT tl.startDateTime, tl.fileName ");
+    buf.append("FROM TransferLog tl ");
+    buf.append("JOIN tl.lab as lab ");
+    buf.append("JOIN lab.coreFacilities as cf ");
+    buf.append("WHERE transferType = 'download' ");
+    if (idCoreFacility != null) {
+      buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+    }    
+    buf.append("GROUP BY tl.startDateTime, tl.fileName ");
+    buf.append("ORDER BY tl.startDateTime, tl.fileName");
+
+    summaryRows = sess.createQuery(buf.toString()).list();
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
       java.util.Date createDate  = (java.util.Date)rows[0];
