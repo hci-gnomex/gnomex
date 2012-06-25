@@ -151,7 +151,10 @@ public class AppUserFilter extends DetailObject {
  
       queryBuf.append(" coreFacilityMgr.idCoreFacility in ( ");
       appendCoreFacilityInClause();
-      
+      queryBuf.append(" OR ");
+           
+      // Also include any app user that is not yet assigned to a lab
+      queryBuf.append(" (lab.idLab is NULL AND collabLab.idLab is NULL AND managerLab.idLab is NULL) ");
       
       queryBuf.append(")");
 
