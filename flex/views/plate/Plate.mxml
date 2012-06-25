@@ -20,6 +20,7 @@
 			public var plateObject:Object;
 			public var plateName:String			= "";
 			public var comments:String			= "";
+			public var wellArray:Array			= new Array();
 			// Variable to designate if the plate's wells will be indexed
 			// column-wise or row-wise. Default is column-wise.
 			public var currentFillByCol:Boolean = true;
@@ -387,6 +388,9 @@
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
+						if ( index == 95 ) {
+							well.setControl( false );
+						}
 						well.setSample( sample );
 						well.plateView = this.parentDocument as NavPlateView;
 						
@@ -399,9 +403,12 @@
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
+						if ( index == 95 ) {
+							well.setControl( false );
+						}
 						well.loadSourceWell( wo );
 						well.plateView = this.parentDocument as NavPlateView;
-						
+						wellArray.push( well );
 						break;
 					}
 				}

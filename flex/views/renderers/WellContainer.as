@@ -124,7 +124,7 @@ package views.renderers {
 				this.setControl( true );
 				return;
 			} 
-			
+			pw.@isOnPlate = true;
 			this.sourceWell = pw;
 			this.idPlateWell = pw.@idPlateWell != null ? pw.@idPlateWell : 0;
 			this.idRequest = pw.@idRequest != null ? pw.@idRequest : 0;
