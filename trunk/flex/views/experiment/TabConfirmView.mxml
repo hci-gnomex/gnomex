@@ -28,6 +28,10 @@
 			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
 			
 		</mx:State>
+		<mx:State name="DNASeqCoreState">
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="1.  Please confirm the information below. Click the&lt;br&gt;     Back button or a tab to modify the request.&lt;br&gt;2. Click save button."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="50"/>
+		</mx:State>
 	</mx:states>
 	
 	
