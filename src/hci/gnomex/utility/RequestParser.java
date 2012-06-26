@@ -278,7 +278,7 @@ public class RequestParser implements Serializable {
           request.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
         }
       }
-    } else if (RequestCategory.isDNASeqRequestCategory(request.getCodeRequestCategory())) {
+    } else if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
       request.setCodeRequestStatus(RequestStatus.NEW);
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
@@ -627,7 +627,7 @@ public class RequestParser implements Serializable {
       this.sampleToPlateMap.put(idSampleString, samplePlateWell);
     }
     
-    // Have map of assays chosen.  Build up the map
+    // Hash map of assays chosen.  Build up the map
     ArrayList<String> assays = new ArrayList<String>();
     for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
       Attribute attr = (Attribute)i.next();

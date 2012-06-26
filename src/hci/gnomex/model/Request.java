@@ -1038,7 +1038,7 @@ public class Request extends HibernateDetailObject {
   }  
   
   public String isDNASeqExperiment() {
-    return RequestCategory.isDNASeqRequestCategory(this.getCodeRequestCategory()) == true ? "Y" : "N";
+    return RequestCategory.isDNASeqCoreRequestCategory(this.getCodeRequestCategory()) == true ? "Y" : "N";
   }
 
 

@@ -71,7 +71,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
       return false;
     }
   }
-  public static boolean isDNASeqRequestCategory(String codeRequestCategory) {
+  public static boolean isDNASeqCoreRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory != null && (codeRequestCategory.equals(CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(FRAGMENT_ANALYSIS_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY) ||
