@@ -173,14 +173,14 @@ public class DownloadABIRunFileServlet extends HttpServlet {
           Iterator i = runNode.getChildren("PlateWell").iterator();
         
           for ( char row = 'A'; row <= 'P'; row++ ) {
-            for ( int col = 1; col <= 23; col++ ) {
+            for ( int col = 1; col <= 24; col++ ) {
 
               if( i.hasNext() ) {
                 Element well = (Element) i.next();
                 
                 String idPlateWellString = well.getAttributeValue("idPlateWell") != null ? well.getAttributeValue("idPlateWell") : "0";
                 String sampleName = well.getAttributeValue( "sampleName" ) != null ? well.getAttributeValue("sampleName") : "";
-                if ( well.getAttributeValue( "isControl" ) == "Y" ) {
+                if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals("Y") ) {
                   sampleName = "control";
                 }
                 String idSample = well.getAttributeValue( "idSample" ) != null ? well.getAttributeValue("idSample") : "";
@@ -256,45 +256,58 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       Element irNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
       for( char row = 'A'; row <= 'H'; row ++ ) {
-        for ( int i = 0; i < 4; i++) {
-          for ( int col = 1; col <= 12; col++ ) {
-
-            int quadrant = i; 
-            if ( i == 1 ) {
-              quadrant = 2;
-            } else if ( i==2 ) {
-              quadrant = 1; 
-            } 
-
-            String plateQuery = "SELECT p from Plate as p where p.idInstrumentRun=" + ir.getIdInstrumentRun() + "       AND p.quadrant=" + quadrant;
-            Plate plate = (Plate) sess.createQuery( plateQuery ).uniqueResult();
-
-            Element wellNode = new Element("PlateWell");
-
-            if ( plate != null ) {
-
-              String wellQuery = "SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate() + "        AND pw.row='" + row + "'       AND pw.col=" + col;
-              PlateWell plateWell = (PlateWell) sess.createQuery( wellQuery ).uniqueResult();
-
-              if ( plateWell != null ) {
-                plateWell.excludeMethodFromXML("getPlate");
-
-                wellNode = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-
-              } else {
-                wellNode.setAttribute( "idPlateWell", "0" );
-              }
-
-            } else {
-              wellNode.setAttribute( "idPlateWell", "0" );
-            }
+        
+        for ( int col = 1; col <= 12; col++ ) {
+          for ( int quadrant = 0; quadrant < 3; quadrant = quadrant+2 ) {  
+            Element wellNode = getWellNode( sess, row, col, quadrant );
             irNode.addContent(wellNode);
-
           }
         }
+        for ( int col = 1; col <= 12; col++ ) {
+          for ( int quadrant = 1; quadrant < 4; quadrant = quadrant+2 ) {
+          
+            Element wellNode = getWellNode( sess, row, col, quadrant );
+            irNode.addContent(wellNode);
+          }
+        }
+        
       }
       
       return irNode;
+
+    } catch( Exception e ) {
+      log.error( "An exception has occurred in CreateRunFile ", e );
+      e.printStackTrace();
+      return null;
+    }
+  }
+  
+  private Element getWellNode( Session sess, char row, int col, int quadrant ) {
+    try {
+      
+      String plateQuery = "SELECT p from Plate as p where p.idInstrumentRun=" + ir.getIdInstrumentRun() + "       AND p.quadrant=" + quadrant;
+      Plate plate = (Plate) sess.createQuery( plateQuery ).uniqueResult();
+
+      Element wellNode = new Element("PlateWell");
+
+      if ( plate != null ) {
+
+        String wellQuery = "SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate() + "        AND pw.row='" + row + "'       AND pw.col=" + col;
+        PlateWell plateWell = (PlateWell) sess.createQuery( wellQuery ).uniqueResult();
+
+        if ( plateWell != null ) {
+          plateWell.excludeMethodFromXML("getPlate");
+
+          wellNode = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+        } else {
+          wellNode.setAttribute( "idPlateWell", "0" );
+        }
+
+      } else {
+        wellNode.setAttribute( "idPlateWell", "0" );
+      }
+      return wellNode;
 
     } catch( Exception e ) {
       log.error( "An exception has occurred in CreateRunFile ", e );
