@@ -169,6 +169,8 @@
 			<mx:ComboBox width="200" selectedIndex="1"
 						 dataProvider="{parentApplication.myCoreFacilities}"
 						 labelField="@display"
+						 includeInLayout="{parentApplication.myCoreFacilities.length() > 1}"
+						 visible="{parentApplication.myCoreFacilities.length() > 1}"
 						 change="{getUsageData.send()}"
 						 id="coreFacilityCombo"/>
 			<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label2"/>
