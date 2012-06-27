@@ -9,6 +9,7 @@ import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -227,8 +229,24 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
       if ( req.getCompletedDate() == null ) {
-        req.setCodeRequestStatus( RequestStatus.COMPLETED );
         
+        // Don't complete if there is a redo well
+        boolean hasRedo = false;
+        for (Sample s : (Set<Sample>)req.getSamples()) {
+          for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+            if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
+              hasRedo = true;
+              break;
+            }
+          }
+        }
+        
+        if (hasRedo) {
+          continue;
+        }
+        
+        req.setCodeRequestStatus( RequestStatus.COMPLETED );
+
         // We need to email the submitter that the experiment results
         // are ready to download
         try {
