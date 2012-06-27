@@ -79,7 +79,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
         buf.append(" FROM      Project p ");
         buf.append(" LEFT JOIN p.requests as req ");
         buf.append(" LEFT JOIN req.collaborators as collab ");
-        this.getSecAdvisor().buildSecurityCriteria(buf, "req", "collab", true, false);
+        this.getSecAdvisor().buildSecurityCriteria(buf, "req", "collab", true, false, false);
         List otherLabs = (List)sess.createQuery(buf.toString()).list();
         for (Iterator i = otherLabs.iterator(); i.hasNext();) {
           Integer idLabOther = (Integer)i.next();

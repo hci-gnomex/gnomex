@@ -198,7 +198,7 @@ public class ExperimentPickListFilter extends DetailObject {
  
   
   private void addSecurityCriteria() {
-    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false);
+    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
     
   

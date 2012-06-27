@@ -307,12 +307,12 @@ public class RequestProgressFilter extends DetailObject {
 
     if (this.allExperiments != null && this.allExperiments.equals("Y")) {
       boolean scopeToGroup = false;
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup, true);
     }else if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
       addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
       boolean scopeToGroup = true;
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup, true);
     }
     
   }

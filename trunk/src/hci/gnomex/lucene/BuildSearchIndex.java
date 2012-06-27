@@ -336,7 +336,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idInstitution, ");
     buf.append("       req.name, ");
     buf.append("       s1.otherOrganism, ");
-    buf.append("       s2.otherOrganism ");
+    buf.append("       s2.otherOrganism, ");
+    buf.append("       req.idCoreFacility ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -371,7 +372,7 @@ public class BuildSearchIndex extends DetailObject {
     }    
     
     //
-    // Sample quality experiments
+    // Sample quality, DNA Seq core experiments
     //
     buf = new StringBuffer();
     buf.append("SELECT proj.id, ");
@@ -413,7 +414,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idInstitution, ");
     buf.append("       req.name, ");
     buf.append("       '', ");
-    buf.append("       ''  ");
+    buf.append("       '',  ");
+    buf.append("       req.idCoreFacility ");
    
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -422,7 +424,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   req.requestCategory as reqCat ");
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.samples as s1 ");
-    buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_QC + "' ");
+    buf.append("WHERE       reqCat.type in ('" + RequestCategory.TYPE_QC + "', '" + RequestCategory.TYPE_CAP_SEQ + "', '" + RequestCategory.TYPE_MITOCHONDRIAL_DLOOP + "', '" + RequestCategory.TYPE_FRAGMENT_ANALYSIS + "', '" + RequestCategory.TYPE_CHERRY_PICKING + "') ");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     results = sess.createQuery(buf.toString()).list();
@@ -485,7 +487,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idInstitution, ");
     buf.append("       req.name, ");
     buf.append("       s1.otherOrganism, ");
-    buf.append("       '' ");
+    buf.append("       '', ");
+    buf.append("       req.idCoreFacility ");
         
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -560,7 +563,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       -99, ");
     buf.append("       '', ");
     buf.append("       '', ");
-    buf.append("       '' ");
+    buf.append("       '', ");
+    buf.append("       req.idCoreFacility ");
            
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -1101,6 +1105,7 @@ public class BuildSearchIndex extends DetailObject {
     String       organism = null;
     Integer      idInstitution = null;
     String       experimentName = null;
+    Integer      idCoreFacility = null;
     
     
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
@@ -1124,6 +1129,7 @@ public class BuildSearchIndex extends DetailObject {
       Integer idSampleType    = (Integer)row[29];
       samplePrepMethod        = (String)row[33];
       otherOrganism           = (String)row[38];
+      
       
       
       if (idOrganism != null) {
@@ -1190,6 +1196,8 @@ public class BuildSearchIndex extends DetailObject {
       idAppUser                = (Integer)row[31];
       idInstitution            = (Integer)row[36];
       experimentName           = (String) row[37];
+      idCoreFacility           = (Integer)row[40];
+      
       
       slideProductOrganism     = idOrganismSlideProduct != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganismSlideProduct.toString()) : null;
       requestCategory          = getDictionaryDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
@@ -1408,6 +1416,7 @@ public class BuildSearchIndex extends DetailObject {
     Map indexedFieldMap = new HashMap();
     
     indexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest != null ? idRequest.toString() : "unknown");      
+    indexedFieldMap.put(ExperimentIndexHelper.ID_CORE_FACILITY, idCoreFacility != null ? idCoreFacility.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.EXPERIMENT_NAME, experimentName);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_NAME, projectName);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_DESCRIPTION, projectDescription);
