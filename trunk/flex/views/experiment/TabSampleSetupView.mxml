@@ -397,7 +397,13 @@
 					&& (cherryNumPlates < 12 || (cherryPlate12Name.text != null && cherryPlate12Name.text != ''))) {
 					isComplete = true;	        	    	
 	        	}
-        	}
+			} else {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+					hasOrganism()) {
+					isComplete = true;	        	    	
+				}
+			}
         	
         	if (!this.parentDocument.isCherryPickState() && 
 				(!this.validNumberOfSamples || !this.validConcentration)) {
