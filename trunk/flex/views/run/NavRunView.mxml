@@ -334,7 +334,8 @@
 										 paddingRight = "0"
 										 horizontalGap = "0"
 										 paddingLeft = "0"
-										 styleName = "labelSmall" paddingTop="0" selected="{theViews.selectedChild == plateBrowseView}">
+										 styleName = "labelSmall" paddingTop="0" 
+										 selected="{theViews.selectedChild == plateBrowseView ||theViews.selectedChild == runBrowseView}">
 								<mx:click>
 									toggleCreateDateCheckboxes( 1 );
 									getList();
