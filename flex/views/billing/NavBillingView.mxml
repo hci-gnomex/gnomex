@@ -942,6 +942,7 @@
 					 " splitType='%'" +
        			 	 " notes=''" +
        			 	 " qty=''" + 
+					 " idCoreFacility='" + dropRequestNode.@idCoreFacility + "'" +
        			 	 " isDirty='Y'" +
        			 	 "/>");
 		       	

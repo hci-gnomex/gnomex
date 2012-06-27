@@ -119,11 +119,12 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       String requestNumber        = (String)row[2]  == null ? ""  : (String)row[2];
       Integer idLab               = (Integer)row[3];
       String codeRequestCategory  = (String)row[4]  == null ? ""  : (String)row[4];
-      String labLastName          = (String)row[5]  == null ? ""  : (String)row[5];
-      String labFirstName         = (String)row[6]  == null ? ""  : (String)row[6];
-      AppUser submitter           = (AppUser)row[7];
-      BillingItem billingItem     = (BillingItem)row[8];
-      String labIsExternalPricing = (String)row[9];
+      Integer idCoreFacility      = (Integer)row[5];
+      String labLastName          = (String)row[6]  == null ? ""  : (String)row[6];
+      String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
+      AppUser submitter           = (AppUser)row[8];
+      BillingItem billingItem     = (BillingItem)row[9];
+      String labIsExternalPricing = (String)row[10];
 
       String labName = Lab.formatLabName(labLastName, labFirstName);
       
@@ -157,6 +158,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("requestNumber", requestNumber);
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
+        requestNode.setAttribute("idCoreFacility", idCoreFacility != null ? idCoreFacility.toString() : "");
         requestNode.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
         requestNode.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
         requestNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");

@@ -166,6 +166,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.idLab, ");
     queryBuf.append("        req.codeRequestCategory, ");
+    queryBuf.append("        req.idCoreFacility, ");
     queryBuf.append("        lab.lastName, ");
     queryBuf.append("        lab.firstName, ");
     queryBuf.append("        appUser, ");
