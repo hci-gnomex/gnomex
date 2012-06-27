@@ -245,6 +245,20 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
           continue;
         }
         
+        int releaseCount = 0;
+        for (Chromatogram ch : (Set<Chromatogram>)req.getChromatograms()) {
+          if (ch.getReleaseDate() != null) {
+            releaseCount++;
+          }
+        }
+        // If all of the chromatograms for the experiments
+        // have been released, we can complete the experiment;
+        // otherwise, we have to assume the experiment is not
+        // yet complete.
+        if (releaseCount < req.getChromatograms().size()) {
+          continue;
+        }
+        
         req.setCodeRequestStatus( RequestStatus.COMPLETED );
 
         // We need to email the submitter that the experiment results
