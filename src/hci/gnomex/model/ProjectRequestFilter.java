@@ -539,7 +539,7 @@ public class ProjectRequestFilter extends DetailObject {
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
         
       }  else {
-        addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
+        addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true, true);
       }
     }
     

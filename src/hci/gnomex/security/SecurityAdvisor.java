@@ -1854,17 +1854,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return isFirstCriteria;
   }
   
-  public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup) {
+  public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       
       // GNomex super admin is not restricted
       
     } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      
-      // GNomex admin is restricted to objects for their core facility
-      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
-      isFirstCriteria = false;
-      appendCoreFacilityCriteria(queryBuf, classShortName);
+      if (hasCoreFacility) {
+        // GNomex admin is restricted to objects for their core facility
+        queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+        isFirstCriteria = false;
+        appendCoreFacilityCriteria(queryBuf, classShortName);
+      }
       
     } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       
@@ -2219,13 +2220,33 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
 
-  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String institutionField, 
+  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String institutionField, String coreFacilityField, 
       String collaboratorField, String ownerField,String visibilityField, boolean scopeToGroup, 
       String inheritedLabField, String leftJoinExclusionCriteria) {
     boolean addedFilter = false;
     
     // Admins
-    if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
+    if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+    } 
+    else if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
+      if (coreFacilityField != null) {
+        if (this.getCoreFacilitiesIManage().isEmpty()) {
+          throw new RuntimeException("Unable to filter experiments by core facility because admin not associated with any core facilty");
+        }
+        searchText.append(" ( ");
+        searchText.append(coreFacilityField + ":(");
+        boolean firstTime = true;
+        for (CoreFacility cf : (Set<CoreFacility>)this.getCoreFacilitiesIManage()) {
+          if (!firstTime) {
+            searchText.append(" ");
+            firstTime = false;
+          }
+          searchText.append(cf.getIdCoreFacility());
+        }
+        searchText.append(")");
+        searchText.append(" ) ");
+        addedFilter = true;
+      }
     }
     // GNomEx users
     else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {

@@ -321,7 +321,7 @@ public class WorkItemFilter extends DetailObject {
 
   
   private void addSecurityCriteria() {
-    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
+    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true, false);
   }
     
   

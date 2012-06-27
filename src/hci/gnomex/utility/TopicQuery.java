@@ -158,7 +158,7 @@ public class TopicQuery implements Serializable {
     addCriteria(REQUEST_LEVEL);
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false, false);
     }
     
     queryBuf.append(" ORDER BY tp.name asc, request.name asc ");
@@ -186,7 +186,7 @@ public class TopicQuery implements Serializable {
     addCriteria(ANALYSIS_LEVEL);
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "analysis", "collab", addWhere, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "analysis", "collab", addWhere, false, false);
     }
 
     queryBuf.append(" ORDER BY tp.name asc, analysis.name asc ");
@@ -214,7 +214,7 @@ public class TopicQuery implements Serializable {
     addCriteria(DATATRACK_LEVEL);
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
     }
     
     
