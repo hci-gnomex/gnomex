@@ -77,6 +77,7 @@ public class Request extends HibernateDetailObject {
   private Integer         idSampleDropOffLocation;
   private String          codeRequestStatus;
   private RequestStatus   requestStatus;
+  private Set             chromatograms;
   private Set             topics;    
   
   
@@ -657,6 +658,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getKey");
     this.excludeMethodFromXML("getCreateYear");
     this.excludeMethodFromXML("getRequestCategory");
+    this.excludeMethodFromXML("getChromatograms");
   }
   
   public String getOwnerName() {
@@ -927,6 +929,12 @@ public class Request extends HibernateDetailObject {
     }
   }
 
+  public Set getChromatograms() {
+    return chromatograms;
+  }
+  public void setChromatograms(Set chromatograms) {
+    this.chromatograms = chromatograms;
+  }
   @SuppressWarnings("unchecked")
   public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
     Document doc = new Document(new Element("Request"));
