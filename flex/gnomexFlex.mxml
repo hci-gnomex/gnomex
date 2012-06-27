@@ -1649,7 +1649,9 @@
 				
 				// Keep a list of core facilities associated with this user.  We will use
 				// this to filter the request categories on the Submit Request window.
-				if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+				if (isGuest) {
+					myCoreFacilities = null;
+				} else if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");					
 				} else {
 					myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
