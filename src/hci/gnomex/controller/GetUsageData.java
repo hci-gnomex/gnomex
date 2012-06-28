@@ -671,22 +671,22 @@ public class GetUsageData extends GNomExCommand implements Serializable {
      
     // Tally download count by week
     buf = new StringBuffer();
-    buf.append("SELECT tl.startDateTime, tl.fileName ");
-    buf.append("FROM TransferLog tl ");
+    buf.append("SELECT tl.startDateTime, count(*) ");
+    buf.append("from TransferLog tl ");
     buf.append("JOIN tl.lab as lab ");
     buf.append("JOIN lab.coreFacilities as cf ");
-    buf.append("WHERE transferType = 'download' ");
+    buf.append("where transferType = 'download' ");
     if (idCoreFacility != null) {
       buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
     }    
-    buf.append("GROUP BY tl.startDateTime, tl.fileName ");
-    buf.append("ORDER BY tl.startDateTime, tl.fileName");
+    buf.append("group by tl.startDateTime ");
+    buf.append("order by tl.startDateTime");
 
     summaryRows = sess.createQuery(buf.toString()).list();
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
       java.util.Date createDate  = (java.util.Date)rows[0];
-      Integer downloadCount     = (Integer)rows[1];
+      Integer  downloadCount  = (Integer)rows[1];
       
       String createDateKey = dfNormal.format(createDate);
       Integer weekNumber = weekNumberMap.get(createDateKey);
