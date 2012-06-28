@@ -1463,7 +1463,7 @@
 					isAdminState = true;
 					if (this.isExternalDataSharingSite) {
 						currentState = "AdminESState";
-					} if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+					} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
 						currentState = "AdminDNASeqState";
 					} else {
 						currentState = "AdminState";
