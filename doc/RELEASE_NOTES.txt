@@ -42,6 +42,7 @@
 * Miscellaneous bug fixes on plate editor and other core sequencing views. (mbowler)
 * Removed line replacing ampersand character in requestXMLString in SaveRequest (was causing issues with saving CR characters in description fields) (rcundick)
 * Editting of Cap Seq, Fragment Analysis, Mit Seq and Cherry picking works. (bspiglejr)
+* Add checkboxes to associate labs with core facilities. (bspiglejr)
 
 deploy notes 
 --------------------

@@ -5,6 +5,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
@@ -12,6 +13,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabCoreFacilityParser;
 import hci.gnomex.utility.LabInstitutionParser;
 import hci.gnomex.utility.LabMemberParser;
 import hci.gnomex.utility.MailUtil;
@@ -66,6 +68,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
   private String                         accountsXMLString;
   private Document                       accountsDoc;
   private BillingAccountParser           accountParser;
+  
+  private LabCoreFacilityParser             coreFacilityParser;
 
   private Lab                            labScreen;
   private boolean                        isNewLab = false;
@@ -172,6 +176,22 @@ public class SaveLab extends GNomExCommand implements Serializable {
       this.addInvalidField( "accountsXMLString", "Invalid accountsXMLString");
     }
 
+    String coreFacilitiesXMLString = "";
+    if (request.getParameter("coreFacilitiesXMLString") != null && !request.getParameter("coreFacilitiesXMLString").equals("")) {
+      coreFacilitiesXMLString = request.getParameter("coreFacilitiesXMLString");
+
+      reader = new StringReader(coreFacilitiesXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        Document coreFacilitiesDoc = sax.build(reader);
+        coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
+  
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse coreFacilitiesXMLString", je );
+        this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
+      }
+    }
+    
     try {
       launchAppURL = this.getLaunchAppURL(request);  
     } catch (Exception e) {
@@ -220,6 +240,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
           labMemberParser.parse(sess);
           collaboratorParser.parse(sess);
           managerParser.parse(sess);
+          if (coreFacilityParser != null) {
+            coreFacilityParser.parse(sess);
+          }
   
           Lab lab = null;
   
@@ -325,7 +348,32 @@ public class SaveLab extends GNomExCommand implements Serializable {
   
           sess.flush();
   
-  
+          //
+          // Save core facilities
+          //
+          if (this.isNewLab) {
+            TreeSet facilities = new TreeSet(new CoreFacilityComparator());
+            for(Iterator i = this.getSecAdvisor().getAppUser().getManagingCoreFacilities().iterator(); i.hasNext();) {
+              CoreFacility facility = (CoreFacility)i.next();
+              facilities.add(facility);
+            }
+            lab.setCoreFacilities(facilities);
+            
+            sess.flush();
+          } else {
+            if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) && coreFacilityParser != null) {
+              TreeSet facilities = new TreeSet(new CoreFacilityComparator());
+              for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
+                Integer idCoreFacility = (Integer)i.next();
+                CoreFacility facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
+                facilities.add(facility);
+              }
+              lab.setCoreFacilities(facilities);
+      
+              sess.flush();
+            }
+          }
+          
           this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
   
           setResponsePage(this.SUCCESS_JSP);
@@ -458,6 +506,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
       Institution u2 = (Institution)o2;
 
       return u1.getIdInstitution().compareTo(u2.getIdInstitution());
+
+    }
+  }
+
+  private class CoreFacilityComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      CoreFacility u1 = (CoreFacility)o1;
+      CoreFacility u2 = (CoreFacility)o2;
+
+      return u1.getIdCoreFacility().compareTo(u2.getIdCoreFacility());
 
     }
   }
