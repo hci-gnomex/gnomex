@@ -2,24 +2,17 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.gnomex.model.Topic;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.TopicQuery;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.jdom.Document;
 
 
 public class GetTopicList extends GNomExCommand implements Serializable {
@@ -41,10 +34,7 @@ public class GetTopicList extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
     try {
-      
-   
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       Document doc = topicQuery.getTopicDocument(sess, this.getSecAdvisor());
@@ -73,7 +63,6 @@ public class GetTopicList extends GNomExCommand implements Serializable {
         
       }
     }
-    
     return this;
   }
 }

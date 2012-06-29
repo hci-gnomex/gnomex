@@ -1132,7 +1132,7 @@
 	private function promptToRemoveDataTrackFolder():void {
 		if (itemToRemove.children() != null && itemToRemove.children().length() > 0) {
 			Alert.show("Removing folder '" + itemToRemove.@label + "'" +
-				" will also remove all descendent folders and dataTracks.\n\n" +
+				" will also remove all descendant folders and dataTracks.\n\n" +
 				"Are you sure you want to delete the folder and all of its contents?\n",
 				"Warning", 
 				(Alert.YES | Alert.NO), this, 
@@ -1824,7 +1824,20 @@
 		refreshDAS2ProgressWindow.currentState = "FinishedState";
 	}
 	
-
+	public function getTreeLabel(item:Object):String {
+		if (item.name() == "DataTrack") {
+			return item.@number + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
+		} else {
+			return item.@label;
+		}
+	}		
+	
+	public function addToLabel(label:String): String {
+		if(label.length > 0) {
+			return (" - " + label);
+		}
+		return label;
+	}
 ]]>
 </mx:Script>
 	
@@ -2102,6 +2115,7 @@
 							 doubleClickEnabled="false" 
 							 borderStyle="solid"
 							 labelField="@label"
+							 labelFunction="getTreeLabel" 
 							 dragEnabled="true" 
 							 dropEnabled="true" 
 							 dragMoveEnabled="true"

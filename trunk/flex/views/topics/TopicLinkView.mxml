@@ -151,9 +151,7 @@
 				if (getRequestFromNav.lastResult.name() == "SUCCESS") {
 					if (selectedRequestNumber != null) {
 						Alert.show("Experiment " + selectedRequestNumber + " not found.");
-					} else {
-						//Alert.show("Experiment " + selectedIdRequest + " not found.");
-					}
+					} 
 					selectedRequestNumber = null;
 					return;
 				}
@@ -240,8 +238,6 @@
 				}
 				
 				callLater(expandAndReselectTree);    					
-				//callLater(reselectTreeItem);
-				//callLater(expandAllNodes); 
 			}
 
 			private function toggleDateCheckboxes(checkBoxNumber:int):void {
@@ -269,21 +265,24 @@
 					hboxDT.visible = true;
 					hboxDT.includeInLayout = true;
 					hboxNotDT.visible = false;
+					hboxNotDT.includeInLayout = false;
 					idIcon.source = parentApplication.iconDataTrack;
 					titleLabel_1.text = "Data Track";
 				} else {
 					if (this.typeNav.selectedChild == this.expTab) {
-						idIcon.source = parentApplication.iconExperiment;		
+						idIcon.source = parentApplication.iconFlask;		
 						titleLabel_1.text  = "Experiment";
 					} else {						
 						idIcon.source = parentApplication.iconAnalysis;
 						titleLabel_1.text  = "Analysis";
 					}
 					hboxNotDT.visible = true;
+					hboxNotDT.includeInLayout = true;
 					hboxDT.visible = false;
 					hboxDT.includeInLayout = false;
 				}
 				titleLabel.text = "Add " + titleLabel_1.text + " (find and drag to topic)";
+				requestNumber.text = "";
 				searchParamsChange();
 			}	
 			
@@ -295,12 +294,13 @@
 					return item.@requestNumber + (item.@name != "" ? " - " + item.@name : "");
 				} else if (item.name() == "Analysis") { 
 					return item.@number + " (" + item.@name + ")";
+				} else if (item.name() == "DataTrack") {
+					return item.@label + " (" + item.@number + ")";
 				} else {
 					return item.@label;
 				}
-			}	
-			
-			
+			}
+		
 			private function onGetProjectRequestList(event:ResultEvent): void {
 				if (getProjectRequestList.lastResult.name() != "ProjectRequestList") {
 					Alert.show(getProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
@@ -337,6 +337,7 @@
 					anBrowseTree.visible = true;
 				}
 				var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
+				messageLabel.text = "(" + dataTracks.length() + " data tracks)";
 				
 				// If we are looking up a data track by number, get the tree item to select
 				if (this.dataTrackNumber != "") {
@@ -348,8 +349,7 @@
 					}
 					dataTrackNumber = "";
 				} 
-
-				
+		
 				callLater(expandAppropriateDTNodes);    	
 				
 			}			
@@ -389,6 +389,7 @@
 				}
 				
 			}
+			
 			private function selectDTTreeItem():void {
 				if (dtTreeItemToSelect != null) {
 					var item:Object = getItemDTToSelect();
@@ -400,8 +401,6 @@
 						dtBrowseTree.selectedItem = null;
 					}
 				}
-				//selectView();				
-				
 			}			
 			
 			private function getItemDTToSelect():XML {
@@ -645,7 +644,7 @@
 	<mx:XMLListCollection id="filteredGenomeBuildList" filterFunction="filterGenomeBuild" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"/>
 	
 	<mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
-		<mx:HBox width="100%" >
+		<mx:HBox width="100%" defaultButton="{lookupButton}">
 			<mx:Label text="Filter by:" paddingLeft="8"/>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxDT">
 				<mx:ComboBox labelField="@binomialName" change="filteredGenomeBuildList.refresh();searchParamsChange();" id="organismCombo" styleName="menuLabelSmall" prompt="Organism..." width="170">
@@ -654,11 +653,13 @@
 				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange();" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
 			</mx:HBox>	
 			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" prompt="Lab..." change="searchParamsChange();" ></mx:ComboBox>
-			<mx:Label text="Lookup by #" paddingLeft="8"/>
-			<mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="true"/>
-			<mx:Button id="lookupButton"  
-					   fontFamily="Arial"  height="18" width="30"
-					   color="#400040" click="lookupItem()" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>	
+			<mx:HBox horizontalGap="2" paddingLeft="8">
+				<mx:Label text="Lookup by #" paddingLeft="8"/>
+				<mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="true"/>
+				<mx:Button id="lookupButton"  
+						   fontFamily="Arial"  height="18" width="30"
+						   color="#400040" click="lookupItem()" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>	
+			</mx:HBox>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxNotDT">
 				<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="2"   styleName="labelSmall">
 					<mx:click>toggleDateCheckboxes(1);searchParamsChange();</mx:click>
@@ -676,10 +677,10 @@
 		</mx:HBox>
 		<mx:HBox width="100%">
 			<mx:Label id="titleLabel_1" styleName="titleLabel" text="Analysis"/>
-			<mx:Label id="messageLabel" styleName="labelSmall" text="" width="100%" textAlign="right"/>
+			<mx:Label id="messageLabel" styleName="labelSmall" text="" textAlign="right"/>
 		</mx:HBox>
-		<mx:TabNavigator id="typeNav" width="100%" height="100%" tabWidth="130"  styleName="panelBody" change="onTabChange()">
-			<mx:VBox id="expTab" width="100%" height="100%" label="Experiments" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">		
+		<mx:TabNavigator id="typeNav" width="100%" height="100%" styleName="panelBody" change="onTabChange()" tabWidth="130">
+			<mx:VBox id="expTab" width="100%" height="100%" label="Experiments" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0" icon="@Embed(source='../../assets/flask.png')">		
 				<mx:Tree width="100%" height="100%" 
 						 dataProvider="{getProjectRequestList.lastResult}" 
 						 showRoot="false" 
@@ -695,7 +696,7 @@
 						 allowMultipleSelection="true" 
 						 itemClick="browseTreeItemClicked(event);"></mx:Tree>
 			</mx:VBox>		
-			<mx:VBox id="anTab" width="100%" height="100%" label="Analyses" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">	
+			<mx:VBox id="anTab" width="100%" height="100%" label="Analysis" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0" icon="@Embed(source='../../assets/map.png')">	
 				<mx:Tree width="100%" height="100%" 
 						 dataProvider="{getAnalysisGroupList.lastResult}" 
 						 showRoot="false" 
@@ -704,13 +705,14 @@
 						 borderStyle="solid"
 						 labelField="@label"
 						 labelFunction="getTreeLabel"
+						 dragEnabled="true" 
 						 iconFunction="parentApplication.getTreeIcon" 
 						 backgroundAlpha="1"
-						 dragEnabled="true" 
+						 dropShadowEnabled="true" 
 						 allowMultipleSelection="true" 
 						 itemClick="browseTreeItemClicked(event);"></mx:Tree>				
 			</mx:VBox>		
-			<mx:VBox id="dtTab" width="100%" height="100%" label="DataTracks" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+			<mx:VBox id="dtTab" width="100%" height="100%" label="Data Tracks" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0" icon="@Embed(source='../../assets/datatrack.png')">
 				<mx:Tree width="100%" height="100%" 
 						 dataProvider="{getDataTrackList.lastResult}" 
 						 showRoot="false" 
@@ -718,13 +720,14 @@
 						 doubleClickEnabled="false" 
 						 borderStyle="solid"
 						 labelField="@label"
+						 labelFunction="getTreeLabel"
 						 dragEnabled="true" 
-						 itemRenderer="views.renderers.TreeNodeRenderer"
 						 iconFunction="parentApplication.getDataTrackTreeIcon" 
+						 itemRenderer="views.renderers.TreeNodeRenderer"
 						 backgroundAlpha="1" 
 						 dropShadowEnabled="true" 
 						 allowMultipleSelection="true" 
-						 itemClick="browseTreeItemClicked(event);"></mx:Tree>				
+						 itemClick="browseTreeItemClicked(event);"></mx:Tree>
 			</mx:VBox>		
 		</mx:TabNavigator>			
 	</mx:VBox>

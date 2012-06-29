@@ -37,7 +37,17 @@
 	import views.util.WebLinksView;
 	
 	public function init():void {
+		if (parentDocument.topicsBrowseTree.selectedItem.@canWrite == "Y") {
+			if (this.labStack != null) {
+				labStack.selectedIndex = 0;
+			}
+		} else {
+			if (this.labStack != null) {
+				labStack.selectedIndex = 1;
+			}
+		}
 		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.topicsBrowseTree.selectedItem.@idLab);
+		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser ==  parentDocument.topicsBrowseTree.selectedItem.@idAppUser);
 		this.dirtyTopic.resetDirty();
 	}
 	
@@ -67,6 +77,7 @@
 		params.name                   = this.topicName.text;
 		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
+		params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
 		
 		updateTopic.send(params);
 	}
@@ -95,13 +106,18 @@
 	<mx:HBox width="100%" >
 		<mx:Label text="Name:"  width="120"/>
 		<mx:TextInput id="topicName" width="100%" text="{parentDocument.topicsBrowseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>
-		<mx:Label text="Lab:" paddingLeft="8"/>
 		<mx:ViewStack id="labStack" width="100%">
 			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
+				<mx:Label text="Lab:" paddingLeft="8"/>
 				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="dirtyTopic.setDirty()"></mx:ComboBox>
+				<mx:Label text="Owner:" paddingLeft="8"/>
+				<mx:ComboBox width="200" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" change="dirtyTopic.setDirty()"></mx:ComboBox>							         			
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
+				<mx:Label text="Lab:" paddingLeft="8"/>
 				<mx:Label text="{parentDocument.topicsBrowseTree.selectedItem.@lab}"/>							         			
+				<mx:Label text="Owner:" paddingLeft="8"/>
+				<mx:Label text="{parentDocument.topicsBrowseTree.selectedItem.@appUser}"/>							         			
 			</mx:HBox>
 		</mx:ViewStack>
 	</mx:HBox>

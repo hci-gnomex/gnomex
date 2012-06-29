@@ -61,7 +61,7 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         
         StringBuffer queryBuf = new StringBuffer("select topic");
         queryBuf.append(" from Topic as topic");
-        queryBuf.append(" where topic.name = '" + topicName + "' and");
+        queryBuf.append(" where topic.name = '" + topicName.replaceAll("'", "''") + "' and");
         if(idParentTopic == null) {
           queryBuf.append(" topic.idParentTopic is null");
         } else {
@@ -82,7 +82,6 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         }
 
         this.topic.setName(topicName);
-        //this.topic.setDescription(RequestParser.unEscapeBasic(topic.getDescription()));
         this.topic.setIdParentTopic(idParentTopic);
         
         sess.save(topic);
@@ -119,7 +118,6 @@ public class SaveTopic extends GNomExCommand implements Serializable {
       topic = load;
       topic.setCreatedBy(this.getSecAdvisor().getUID());
       topic.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-      topic.setIdAppUser(this.getSecAdvisor().getIdAppUser());
       isNewTopic = true;
       
       
@@ -129,9 +127,9 @@ public class SaveTopic extends GNomExCommand implements Serializable {
     }
     
     topic.setName(RequestParser.unEscape(load.getName()));
-    //topic.setDescription(RequestParser.unEscapeBasic(load.getDescription()));
     topic.setDescription(load.getDescription());
     topic.setIdLab(load.getIdLab());
+    topic.setIdAppUser(load.getIdAppUser());
 
     // If parent annotation grouping is owned by a user group, this
     // child annotation grouping must be as well.
