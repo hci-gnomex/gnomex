@@ -221,7 +221,7 @@
 					</mx:RadioButton>		  	         	
 		  	    </mx:VBox>
 		  	  </mx:HBox>
-			  <mx:VBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
+			  <mx:VBox visible="{this.isAdminPermissionLevel.selected || this.isBillingPermissionLevel.selected}" borderStyle="inset"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
 				  <mx:Text text="Select Core Facilities this user manages."/>
 				  <mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.managingCoreFacilities}">
 					  <mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
