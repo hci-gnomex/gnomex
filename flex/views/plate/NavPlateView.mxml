@@ -11,8 +11,8 @@
 		   label="Plate"
 		   height="100%"
 		   width="100%"
-		   cornerRadius="10" 
-		   currentState="newStatePlate">
+		   currentState="newStatePlate"
+		   cornerRadius="10" >
 
 	<mx:HTTPService id="saveInstrumentRun"
 					url="SaveInstrumentRun.gx"
@@ -118,6 +118,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.renderers.WellContainer;
+			import views.util.DirtyNote;
 
 			
 			[Bindable]
@@ -127,13 +128,14 @@
 			static public const FRAG:String 	= "FRAG";
 			static public const CHERRY:String 	= "CHERRY";
 			
-			private var buildState:String;
+			public var buildState:String;
 			static public const PLATE:String    = "PLATE";
 			static public const RUN:String  	= "RUN";
 			
 			private var isInitialized:Boolean = false;
 			// The selected group id - as in what group is picked in the
 			// color picker.
+			[Bindable]
 			private var selectedGroupId:String;
 
 			// The active or displayed plate
@@ -149,7 +151,6 @@
 			private var allPlates:Array;
 
 			private var run:Object = new Object();
-			private var runXMLObject:Object = new Object();
 			// Variable to designate if the plates' wells will be indexed
 			// column-wise or row-wise.
 			[Bindable]
@@ -167,7 +168,7 @@
 			// Initialize: get sample list, set up list of all plates, assign a state,
 			// add one plate, add listener to the color picker, list the total sample number
 			private function init():void {
-				buildState = PLATE;
+				dirty.resetDirty();
 				
 				if ( !isInitialized ) {
 					
@@ -179,8 +180,9 @@
 					
 					switchActivePlate();
 					callLater( toggleReactionType, [SEQ] );
+				} else {
+					refreshLists();
 				}
-				refreshLists();
 				isInitialized = true;
 			}
 			
@@ -212,7 +214,6 @@
 				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
-//				params.createdLastYear = lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
 				
 				return params;
 			}
@@ -231,12 +232,10 @@
 				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
-//				params.createdLastYear = lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
 				
 				params.runLastWeek = lastWeekCheckbox.selected ? 'Y' : 'N' ;
 				params.runLastMonth = lastMonthCheckbox.selected ? 'Y' : 'N' ;
 				params.runLastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
-//				params.runLastYear = lastYearCheckbox.selected ? 'Y' : 'N' ;
 				
 				if ( pendingCheckbox.selected ) {
 					params.status = 'PENDING' ;
@@ -287,44 +286,32 @@
 					this.lastWeekCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
-//					this.lastYearCheckbox.selected  = false;
 					
 					this.lastWeekCheckboxCreated.selected  = false;
 					this.lastMonthCheckboxCreated.selected = false;
 					this.lastThreeMonthsCheckboxCreated.selected = false;
-//					this.lastYearCheckboxCreated.selected  = false;
 					
 					this.pendingCheckbox.selected = false;
 					this.runningCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
 					
-					
 				} else if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
-//					this.lastYearCheckbox.selected  = false;
 					
 				} else if (checkBoxNumber == 2) {
 					this.allCheckbox.selected = false;
 					this.lastWeekCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
-//					this.lastYearCheckbox.selected  = false;
 					
 				} else if (checkBoxNumber == 3) {
 					this.allCheckbox.selected = false;
 					this.lastWeekCheckbox.selected  = false;
 					this.lastMonthCheckbox.selected = false; 
-//					this.lastYearCheckbox.selected  = false;
 					
-				}  /* else if (checkBoxNumber == 4) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected  = false;
-					this.lastMonthCheckbox.selected = false; 
-					this.lastThreeMonthsCheckbox.selected = false;
-					
-				}   */ 
+				} 
 			} 		 
 			
 			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
@@ -332,27 +319,18 @@
 					this.allCheckbox.selected = false;
 					this.lastMonthCheckboxCreated.selected = false;
 					this.lastThreeMonthsCheckboxCreated.selected = false;
-//					this.lastYearCheckboxCreated.selected  = false;
 					
 				} else if (checkBoxNumber == 2) {
 					this.allCheckbox.selected = false;
 					this.lastWeekCheckboxCreated.selected = false;
 					this.lastThreeMonthsCheckboxCreated.selected = false;
-//					this.lastYearCheckboxCreated.selected  = false;
 					
 				} else if (checkBoxNumber == 3) {
 					this.allCheckbox.selected = false;
 					this.lastWeekCheckboxCreated.selected  = false;
 					this.lastMonthCheckboxCreated.selected = false; 
-//					this.lastYearCheckboxCreated.selected  = false;
 					
-				}  /* else if (checkBoxNumber == 4) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckboxCreated.selected  = false;
-					this.lastMonthCheckboxCreated.selected = false; 
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					
-				}    */
+				} 
 			} 		 
 			
 			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
@@ -388,8 +366,7 @@
 				
 				if ( createRunFile.lastResult.name() == "SUCCESS" ) {
 					Alert.show( "The .plt file has been created and the status has been updated to running." );
-					refreshRunLists();
-					getSampleList();
+					refreshLists();
 					removeRun();
 					callLater( loadRunById, [run.idRun] );
 				} else {
@@ -436,7 +413,6 @@
 				plateArray.push( allPlates[ numberOfPlates ]);
 				plateArray[ numberOfPlates ].visible = true;
 				numberOfPlates++;
-
 				
 				// Make the newly added plate the one that is selected. And orient
 				// the plate column- or row-wise
@@ -654,27 +630,27 @@
 			}
 
 			// Display assay, primer, or redo status information in information box
-			private function displayGroupInfo( group:XML ):void {
+			private function displayGroupInfo( group:XML, samplesOnPlate:Array ):void {
 				
 				infoViews.selectedChild = sampleInfoBox;
 				
 				if ( group == null ) {
 					return;
 				}
-				var samplesOnPlate:Array = new Array();
-				
-				for each ( var s:Object in group..Well ) {
-					if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
-						for each ( var wc:WellContainer in activePlate.getWells()) {
-							if ( wc.hasSample && wc.getSample().@name == s.@sampleName ) {
-								var plateWell:XML = <PlateWell />;
-								plateWell.@sampleName = wc.sampleName;
-								plateWell.@idSample = wc.idSample;
-								samplesOnPlate.push( plateWell );
-							}
-						}
-					}
-				}
+//				var samplesOnPlate:Array = new Array();
+//				
+//				for each ( var s:Object in group..Well ) {
+//					if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
+//						for each ( var wc:WellContainer in activePlate.getWells()) {
+//							if ( wc.hasSample && wc.getSample().@name == s.@sampleName ) {
+//								var plateWell:XML = <PlateWell />;
+//								plateWell.@sampleName = wc.sampleName;
+//								plateWell.@idSample = wc.idSample;
+//								samplesOnPlate.push( plateWell );
+//							}
+//						}
+//					}
+//				}
 
 				groupLabel.text = group.name();
 				grName.text = group.@label;
@@ -824,20 +800,10 @@
 				
 				for each ( var s:Object in getPendingSampleList.lastResult..Well ) {
 					count++;
-
+					
 					if ( s.@isOnPlate != null && s.@isOnPlate == true ) {
 						added++;
-					} /* else if ( activePlate != null ){
-						for each ( var w:WellContainer in activePlate.wellArray ) {
-							if ( w.idSample == s.@idSample ) {
-								if ( w.sourceWell.@label == s.@label  ) {
-									s.@isOnPlate = true;
-									added++ ;
-								}
-								
-							}
-						}
-					} */
+					} 
 					
 				}
 				return added + "/" + count + " samples";
@@ -1058,7 +1024,8 @@
 
 				var items:Array   = samplesList.toArray();
 				var samples:Array = new Array();
-
+				dirty.setDirty();
+				
 				for each ( var item:Object in items ) {
 					if ( item.name() == "Well" ) {
 						if ( item.@isOnPlate == null || item.@isOnPlate != true ) {
@@ -1085,6 +1052,7 @@
 					switchActivePlate();
 					return;
 				}
+				dirty.setDirty();
 				// Where we are on the plate
 				var index:int         = ind;
 				// Need to keep track of how many things are in the list but are not
@@ -1205,7 +1173,6 @@
 				if ( getInstrumentRun.lastResult.name() == "RunList" ) {
 					var plates:Array = new Array();
 					
-					
 					for each ( var p:Object in getInstrumentRun.lastResult..Plate ) {
 						plates.push( p );
 					}
@@ -1216,7 +1183,6 @@
 					
 					if ( currentState.substr(0,3) == "new" ) {
 						switchToEditState();
-//						currentState = editStateRun.name;
 					}
 					if ( currentState.substr(0,4) == "edit" ) {
 						tabNav.selectedChild = plateTab;
@@ -1237,7 +1203,7 @@
 			// This will load a run starting with the current plate (unless not empty)
 			// Should set up the next empty run as current selected plate before calling...
 			private function loadRun( plateList:Array ):void {
-
+				
 				run = new Object();
 				run.idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
 				run.runDate = getInstrumentRun.lastResult.InstrumentRun.@runDate;
@@ -1253,6 +1219,7 @@
 				if ( plateList == null || plateList.length == 0 ) {
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
 					callLater( switchActivePlate );
+					dirty.resetDirty();
 					return;
 				}
 
@@ -1268,6 +1235,7 @@
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
 					callLater( switchActivePlate );
 					colorPlateByGroup();
+					dirty.resetDirty();
 					return;
 				}
 
@@ -1278,13 +1246,15 @@
 					addPlate();
 				}
 				callLater( loadRun, new Array( plateList ));
+				dirty.resetDirty();
 				return;
 			}
 
 
 			// This uses the http service to get the run with the given id
 			public function loadRunById( idString:String ):void {
-
+				currentState = viewStateRun.name;
+				toggleBuildState( RUN );
 				var params:Object = new Object();
 				params.idInstrumentRun = idString;
 				getInstrumentRun.send( params );
@@ -1364,15 +1334,24 @@
 			/////////////////////
 			// Loading Plates
 			////////////////////
+			
+			public function loadPlateById( idString:String ):void {
+				var params:Object = new Object();
+				params.idPlate = idString;
+				getPlate.send( params );
+			}
 			private function onGetPlate( event:ResultEvent ):void {
 
 				if ( getPlate.lastResult.name() == "PlateList" ) {
-					plateAndRunInfoViews.selectedChild = plateInfoBox;
-
-					if ( currentState != viewState.name ) {
-						tabNav.selectedChild = samplesTab;
-					}
-					toggleReactionType( getPlate.lastResult.Plate.@codeReactionType );
+					currentState = viewStatePlate.name;
+					toggleBuildState( PLATE );
+					loadPlateObject(getPlate.lastResult.Plate);
+//					plateAndRunInfoViews.selectedChild = plateInfoBox;
+//
+//					if ( currentState != viewState.name ) {
+//						tabNav.selectedChild = samplesTab;
+//					}
+//					toggleReactionType( getPlate.lastResult.Plate.@codeReactionType );
 					
 				} else {
 					Alert.show( "An error occurred while getting the plate." );
@@ -1382,13 +1361,18 @@
 
 			// Loads a plate from an plate xml object
 			private function loadPlateObject( plateObject:Object ):void {
-
+				
 				// Checks that current plate is empty - if not, adds a plate
 				// SHOULD FIND NEXT EMPTY PLATE - SCAN THROUGH PLATES...
 				if ( activePlate.getWellIDs().length != 0 ) {
 					this.addPlate();
 					callLater( loadPlateObject, [ plateObject ]);
 					return;
+				}
+				if ( buildState == PLATE ) {
+					dirty.resetDirty();
+				} else if ( buildState == RUN ) {
+					dirty.setDirty();
 				}
 				// This checks that the flex plate fill orientation is the
 				// same as the plate being loaded.
@@ -1517,8 +1501,7 @@
 					
 					runNumberLabel.text = "" + run.idRun;
 					savePlates(  );
-					refreshRunLists();
-					getSampleList();
+					refreshLists();
 					
 					switchToEditState();
 				} else {
@@ -1533,7 +1516,7 @@
 					return;
 				}
 				if ( currentState.substr(0,3) == "new" && !checkPlateFormComplete() ) {
-					Alert.show( "Please fill in a name and select a seal type for this instrument run", "Form not complete" );
+					Alert.show( "Please fill in a name and select a seal type for this plate", "Form not complete" );
 					return;
 				}
 				Alert.show( "Are you sure you want to save the plate?", "Confirm Save Plate", ( Alert.YES | Alert.NO ), this, onPromptToSavePlate, iconWarning );
@@ -1625,8 +1608,7 @@
 			private function onSavePlate( event:ResultEvent ):void {
 
 				if ( savePlate.lastResult.name() == "SUCCESS" ) {
-					refreshRunLists();
-					getSampleList();
+					refreshLists();
 					if ( loadRunAfterSave ) {
 						tabNav.selectedChild = runTab;
 						callLater( loadRunById, [savePlate.lastResult.Plate.@idInstrumentRun] );
@@ -1673,12 +1655,9 @@
 				var wells:Array   = new Array();
 
 				resetSamples();
+				dirty.setDirty();
 				
 				for each ( var well:WellContainer in activePlate.getWells()) {
-					/* if ( well != null && well.hasSample ) {
-						var sample:Object = well.getSample();
-						sample.@isOnPlate = false;
-					} */
 					if ( well.groupId != selectedGroupId && well.isControl != "Y" ) {
 						wells.push( well );
 					}
@@ -1705,7 +1684,12 @@
 			private function onPromptToRemoveAllSamples( event:CloseEvent ):void {
 
 				if ( event.detail == Alert.YES ) {
-					removeAll();
+					if ( currentState == newStatePlate.name ) {
+						removeRun();
+						return;
+					} else {
+						removeAll();
+					}
 				}
 			}
 
@@ -1716,13 +1700,7 @@
 					return;
 				}
 				resetSamples();
-				/* for each ( var well:WellContainer in activePlate.getWells()) {
-					if ( well != null && well.hasSample ) {
-						var sample:Object = well.getSample();
-						sample.@isOnPlate = false;
-						
-					}
-				} */
+				
 				activePlate.removeAllWells();
 
 				// TO REMOVE THE PLATE, NEED TO GET THE NEXT PLATE'S WELLS AND ADD
@@ -1755,8 +1733,14 @@
 					removePlate();
 					return;
 				}
-				Alert.show( "Are you sure you want to remove this plate?", 
-					"Confirm Remove Plate", ( Alert.YES | Alert.NO ), this, onPromptToRemovePlate, iconWarning );
+				if( buildState == PLATE ) {
+					Alert.show( "Are you sure you want to clear this plate?", 
+						"Confirm Clear Plate", ( Alert.YES | Alert.NO ), this, onPromptToRemovePlate, iconWarning );
+				} else {
+					Alert.show( "Are you sure you want to remove this plate?", 
+						"Confirm Remove Plate", ( Alert.YES | Alert.NO ), this, onPromptToRemovePlate, iconWarning );
+				}
+				
 			}
 
 
@@ -1770,7 +1754,11 @@
 
 			// Function to delete the end plate
 			private function removePlate():void {
-
+				if ( currentState == newStatePlate.name ) {
+					removeRun();
+					return;
+				}
+				
 				removeAll();
 
 				if ( numberOfPlates == 1 ) {
@@ -1818,7 +1806,10 @@
 
 			// Function to delete the end run
 			private function removeRun():void {
-
+				if ( !isInitialized ) {
+					return;
+				}
+				dirty.resetDirty();
 				if ( numberOfPlates == 0 ) {
 					return;
 				}
@@ -1905,9 +1896,6 @@
 						}
 						colorPick.selectedColor = colorPick.getColorAt( colorPick.getLabelIndex( selectedGroupId ));
 					}
-				} else if ( selection.name() == "Status" ) {
-					sampleTree.selectedItem = selection;
-					highlightSelectedSamples();
 				}
 				sampleTree.selectedItem = selection;
 				highlightSelectedSamples();
@@ -1950,10 +1938,10 @@
 								if ( well.hasSample ) {
 									if ( well.getSample().@idSample == sample.@idSample ) {
 										indices.push( well.position );
-										var plateWell:XML = <PlateWell />;
-										plateWell.@sampleName = well.sampleName;
-										plateWell.@idSample = well.idSample;
-										samplesOnPlate.push( plateWell );
+										var pWell:XML = <PlateWell />;
+										pWell.@sampleName = well.sampleName;
+										pWell.@idSample = well.idSample;
+										samplesOnPlate.push( pWell );
 									}
 								}
 							}
@@ -1968,16 +1956,17 @@
 								if ( well.getSample() != null ) {
 									if ( well.getSample().@idSample == sample1.@idSample  && well.groupId == sample1.@label ) {
 										indices.push( well.position );
-										var plateWell:XML = <PlateWell />;
-										plateWell.@sampleName = well.sampleName;
-										plateWell.@idSample = well.idSample;
-										samplesOnPlate.push( plateWell );
+										var pw:XML = <PlateWell />;
+										pw.@sampleName = well.sampleName;
+										pw.@idSample = well.idSample;
+										samplesOnPlate.push( pw );
 									}
 								}
 							}
 						}
 					}
-					displayGroupInfo( selection as XML );
+					
+					displayGroupInfo( selection as XML, samplesOnPlate );
 				}
 
 
@@ -2048,9 +2037,15 @@
 				if ( buildState == PLATE ) {
 					currentState = viewStatePlate.name;
 					tabNav.selectedChild = plateTab;
+					if ( activePlate.idPlate != 0 ) {
+						loadPlateById( activePlate.idPlate.toString() );
+					}
 				} else if ( buildState == RUN ) {
 					currentState = viewStateRun.name;
 					tabNav.selectedChild = runTab;
+					if ( run.idRun != 0 ) {
+						loadRunById( run.idRun.toString() );
+					}
 				} else {
 					currentState = viewState.name;
 				}
@@ -2074,6 +2069,7 @@
 				} else if ( buildState == RUN ) {
 					currentState = newStateRun.name;
 					tabNav.selectedChild = runTab;
+					plateAndRunInfoViews.selectedChild = runInfoBox;
 				} else {
 					currentState = newState.name;
 				}
@@ -2139,7 +2135,7 @@
 			// Right now this only functions as a toggle between column- and row-wise
 			// well ordering.
 			private function toggleFillOrientation():void {
-				
+//				dirty.setDirty();
 				activePlate.nowFillByCol = fillColWise;
 				activePlate.repopulatePlate();
 				// Dispatch colorPick change event
@@ -2154,6 +2150,7 @@
 				if ( reaction == MIT ) {
 					reactionState = MIT;
 					colorPickLabel.text = "Select a primer by color."
+					removeOrderButton.label="Remove primer from plate"
 					reactionTypeRadioGroup.selection = radioMit;
 					fillColWise = true;
 					toggleFillOrientation();
@@ -2161,6 +2158,7 @@
 				} else if ( reaction == FRAG ) {
 					reactionState = FRAG;
 					colorPickLabel.text = "Select an assay by color.";
+					removeOrderButton.label="Remove assay from plate"
 					reactionTypeRadioGroup.selection = radioFrag;
 					fillColWise = false;
 					toggleFillOrientation();
@@ -2168,6 +2166,7 @@
 				} else if ( reaction == SEQ ) {
 					reactionState = SEQ;
 					colorPickLabel.text = "Select an order by color.";
+					removeOrderButton.label="Remove order from plate"
 					reactionTypeRadioGroup.selection = radioSEQ;
 					fillColWise = true;
 					toggleFillOrientation();
@@ -2178,8 +2177,7 @@
 					toggleFillOrientation();
 					reactTypeText.text = plateReactTypeText.text = "Cherry Pick";
 				}
-				getSampleList();
-				refreshRunLists();
+				refreshLists();
 			}
 
 			public function toggleBuildState( build:String ):void {
@@ -2204,18 +2202,13 @@
 			private function isSampleAdded( item:XML ):Class {
 
 				if ( sampleTree.dataDescriptor.hasChildren( item )) {
-					for each ( var child:Object in item.children()) {
-						if ( sampleTree.dataDescriptor.hasChildren( child )) {
-							for each ( var child2:Object in child.children()) {
-								if ( child2.@isOnPlate == null || child2.@isOnPlate != true ) {
-									return notifyIcon;
-								}
-							}
-						} else if ( child.@isOnPlate == null || child.@isOnPlate != true ) {
+					for each ( var well:Object in item..Well ) {
+						if ( well.@isOnPlate == null || well.@isOnPlate != true ) {
 							return notifyIcon;
 						}
 					}
 					return null;
+					
 				} else {
 					if ( item.@isOnPlate != null && item.@isOnPlate == true ) {
 						return null;
@@ -2475,7 +2468,7 @@
 									 paddingLeft = "2" >
 							<mx:click>
 								toggleStatusCheckboxes( 1 );
-								refreshRunLists();
+								refreshRunList();
 							</mx:click>
 							
 						</mx:CheckBox>
@@ -2499,7 +2492,7 @@
 									 styleName = "labelSmall">
 							<mx:click>
 								toggleStatusCheckboxes( 3 );
-								refreshRunLists();
+								refreshRunList();
 							</mx:click>
 							
 						</mx:CheckBox>
@@ -2511,7 +2504,7 @@
 									 styleName = "labelSmall">
 							<mx:click>
 								toggleStatusCheckboxes( 4 );
-								refreshRunLists();
+								refreshRunList();
 							</mx:click>
 							
 						</mx:CheckBox>
@@ -2566,18 +2559,6 @@
 							
 						</mx:CheckBox>
 						
-						<!--<mx:CheckBox id = "lastYearCheckboxCreated"
-						label = "year"
-						paddingLeft = "2"
-						paddingRight = "0"
-						horizontalGap = "0"
-						styleName = "labelSmall" paddingTop="0">
-						<mx:click>
-						toggleCreateDateCheckboxes( 4 );
-						refreshRunLists();
-						</mx:click>
-						
-						</mx:CheckBox>-->
 					</mx:HBox>
 					
 					<mx:VRule height = "20"  id="vrule2"/>
@@ -2591,7 +2572,7 @@
 									 styleName = "labelSmall" >
 							<mx:click>
 								toggleCreateDateCheckboxes( 1 );
-								refreshRunLists();
+								refreshRunList();
 							</mx:click>
 							
 						</mx:CheckBox>
@@ -2604,7 +2585,7 @@
 									 styleName = "labelSmall" >
 							<mx:click>
 								toggleCreateDateCheckboxes( 2 );
-								refreshRunLists();
+								refreshRunList();
 							</mx:click>
 							
 						</mx:CheckBox>
@@ -2617,23 +2598,11 @@
 									 styleName = "labelSmall" >
 							<mx:click>
 								toggleCreateDateCheckboxes( 3 );
-								refreshRunLists();
+								refreshRunList();
 							</mx:click>
 							
 						</mx:CheckBox>
 						
-						<!--<mx:CheckBox id = "lastYearCheckbox"
-						label = "year"
-						paddingLeft = "2"
-						paddingRight = "0"
-						horizontalGap = "0"
-						styleName = "labelSmall" paddingTop="0">
-						<mx:click>
-						toggleCreateDateCheckboxes( 4 );
-						refreshRunLists();
-						</mx:click>
-						
-						</mx:CheckBox>-->
 					</mx:HBox>
 					<mx:Spacer width="100%" height="100%"/>
 				<mx:LinkButton textDecoration="underline"
@@ -2641,7 +2610,7 @@
 							   color="#000000"
 							   icon="@Embed('../../assets/action_refresh.gif')"
 							   toolTip="Refresh sample list"
-							   click="{this.refreshLists();}"
+							   click="{this.refreshRunLists();}"
 							   id="refreshSampleButton0"
 							   fontSize="9" />
 
@@ -2652,7 +2621,7 @@
 				 height="100%"
 				 horizontalGap="2">
 
-			<mx:TabNavigator height="100%" width="220" styleName="navTabNavigator" id="tabNav">
+			<mx:TabNavigator height="100%" styleName="navTabNavigator" id="tabNav" minWidth="220">
 
 				<mx:VBox styleName="panelBox"
 						 height="100%" width="100%"
@@ -2889,11 +2858,10 @@
 					
 
 				</mx:VBox>
-				<mx:HDividedBox width="100%" height="100%">
+				<mx:HBox width="100%" height="100%"  >
 
 					<mx:Spacer height="100%" width="10" visible="false" />
 					<mx:HBox id="plateBox"
-							 height="100%" width="100%"
 							 horizontalAlign="center"
 							 verticalAlign="middle"
 							 dropShadowEnabled="true"
@@ -2904,9 +2872,9 @@
 							 dragComplete="dragComplete(event)"
 							 click="{sampleTree.selectedIndex = -1;colorPick.selectNone();}"
 							 borderStyle="solid"
-							 backgroundColor="#FFFFFF">
+							 backgroundColor="#FFFFFF" width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 
-						<mx:ViewStack id="plateStack" resizeToContent="true">
+						<mx:ViewStack id="plateStack" width="100%" height="100%">
 
 							<plate:Plate visible="false"
 										 id="P1R1"
@@ -2919,7 +2887,7 @@
 										 label="Q2"
 										 icon="{q2Icon}"
 										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
+										 creationPolicy="queued"/>
 							<plate:Plate visible="false"
 										 id="P3R1"
 										 label="Q3"
@@ -2932,85 +2900,13 @@
 										 icon="{q4Icon}"
 										 cacheAsBitmap="true"
 										 creationPolicy="queued" />
-							<!--<plate:Plate visible="false"
-										 id="P1R2"
-										 label="Q1"
-										 icon="{q1Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P2R2"
-										 label="Q2"
-										 icon="{q2Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P3R2"
-										 label="Q3"
-										 icon="{q3Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P4R2"
-										 label="Q4"
-										 icon="{q4Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P1R3"
-										 label="Q1"
-										 icon="{q1Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P2R3"
-										 label="Q2"
-										 icon="{q2Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P3R3"
-										 label="Q3"
-										 icon="{q3Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P4R3"
-										 label="Q4"
-										 icon="{q4Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P1R4"
-										 label="Q1"
-										 icon="{q1Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P2R4"
-										 label="Q2"
-										 icon="{q2Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P3R4"
-										 label="Q3"
-										 icon="{q3Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />
-							<plate:Plate visible="false"
-										 id="P4R4"
-										 label="Q4"
-										 icon="{q4Icon}"
-										 cacheAsBitmap="true"
-										 creationPolicy="queued" />-->
-
+							
 						</mx:ViewStack>
 
 					</mx:HBox>
 					<mx:Spacer height="100%" width="10" visible="false" />
 
-				</mx:HDividedBox>
+				</mx:HBox>
 				<mx:HBox width="100%">
 
 					<mx:ApplicationControlBar width="100%" verticalAlign="middle" styleName="panelBox">
@@ -3052,6 +2948,7 @@
 								
 							</mx:HBox>
 							<mx:Spacer width="100%" height="100%" />
+							<util:DirtyNote id="dirty" />
 							<mx:LinkButton label="Add plate"
 										   click="{addPlate()}"
 										   color="#000000"
@@ -3067,8 +2964,8 @@
 							<mx:LinkButton label="Remove Plate"
 									   	   click="{promptToRemovePlate()}"
 									   	   icon="@Embed('../../assets/delete.png')"
-										   visible="{(numberOfPlates>1)&amp;&amp;(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"
-									       includeInLayout="{(numberOfPlates>1)&amp;&amp;(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"
+										   visible="{(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"
+									       includeInLayout="{(plateStack.selectedChild==new ArrayCollection(plateArray).getItemAt(numberOfPlates-1) as Plate)}"
 									       id="deletePlateLink" 
 										   letterSpacing=".3"
 										   color="#000000"
@@ -3102,14 +2999,14 @@
 					 horizontalAlign="center"
 					 minWidth="275">
 
-				<mx:ViewStack width="100%" height="100%" id="infoViews">
+				<mx:ViewStack width="100%" height="100%" id="infoViews" minWidth="275">
 
 					<mx:TabNavigator width="100%" height="100%" id="plateAndRunInfoViews"  >
 
 						
 						<mx:VBox backgroundColor="#ffffff" height="100%"
 								 id="runInfoBox" 
-								 label="Run Information">
+								 label="Run Information" width="100%">
 
 							<mx:HBox width="100%" verticalAlign="middle">
 
@@ -3124,6 +3021,7 @@
 								<mx:Label text="Run Name:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextInput id="runNameText" 
+											  change="dirty.setDirty()"
 											  editable="true" 
 											  width="140" height="100%"  
 											  focusOut="{run.label = runNameText.text}"/>
@@ -3135,6 +3033,7 @@
 								<mx:Label text="Comments:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextArea id="runCommentsText" 
+											 change="dirty.setDirty()"
 											 editable="true" 
 											 width="140" height="100%" 
 											 focusOut="{run.comments = runCommentsText.text}"/>
@@ -3238,7 +3137,7 @@
 						<mx:VBox backgroundColor="#ffffff"
 								 height="100%"
 								 id="plateInfoBox"
-								 label="Plate Information">
+								 label="Plate Information" width="100%">
 							
 							<mx:HBox width="100%" verticalAlign="middle">
 								
@@ -3253,6 +3152,7 @@
 								<mx:Label text="Plate Name:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextInput id="plateNameText" 
+											  change="dirty.setDirty()"
 											  editable="true" 
 											  width="140" 
 											  focusOut="{activePlate.label = plateNameText.text}"/>
@@ -3264,6 +3164,7 @@
 								<mx:Label text="Comments:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextArea id="plateCommentsText" 
+											 change="dirty.setDirty()"
 											 editable="true" 
 											 width="140" 
 											 focusOut="{activePlate.comments = plateCommentsText.text}"/>
@@ -3340,7 +3241,7 @@
 							</mx:HBox>
 							<mx:Label text="  Wells:" fontWeight="bold" />
 							<mx:HBox width="100%" horizontalAlign="center">
-								<mx:Spacer width="4" />
+								<mx:Spacer width="4"  height="100%"/>
 								<mx:List width="100%" height="100%"
 										 id="wellDisplayTree"
 										 dataTipField="@idSample"
@@ -3348,10 +3249,10 @@
 										 borderStyle="solid"
 										 labelField="@sampleName"
 										 backgroundAlpha="1"
-										 dropShadowEnabled="true">
+										 dropShadowEnabled="true" variableRowHeight="true">
 								</mx:List>
 							
-								<mx:Spacer width="4" />
+								<mx:Spacer width="4"  height="100%"/>
 							</mx:HBox>
 							
 							
@@ -3404,7 +3305,7 @@
 						</mx:HBox>
 						<mx:Label text="  Samples:" fontWeight="bold"  id="label3"/>
 						<mx:HBox width="100%" horizontalAlign="center">
-							<mx:Spacer width="4" />
+							<mx:Spacer width="4"  height="100%"/>
 							<mx:List width="100%"
 									 height="100%"
 									 id="sampleDisplayTree"
@@ -3414,10 +3315,10 @@
 									 labelField="@sampleName"
 									 backgroundAlpha="1"
 									 dropShadowEnabled="true"
-									 itemClick="sampleItemClick(event)">
+									 itemClick="sampleItemClick(event)" variableRowHeight="true">
 							</mx:List>
 							
-							<mx:Spacer width="4" />
+							<mx:Spacer width="4"  height="100%"/>
 						</mx:HBox>
 						
 
@@ -3454,7 +3355,7 @@
 						</mx:HBox>
 						<mx:Label text="  Samples:" fontWeight="bold" />
 						<mx:HBox width="100%" horizontalAlign="center">
-							<mx:Spacer width="4" />
+							<mx:Spacer width="4"  height="100%"/>
 							<mx:List width="100%"
 									 height="100%"
 									 id="groupSampList"
@@ -3464,10 +3365,10 @@
 									 labelField="@sampleName"
 									 backgroundAlpha="1"
 									 dropShadowEnabled="true"
-									 itemClick="sampleItemClick(event)">
+									 itemClick="sampleItemClick(event)" variableRowHeight="true">
 							</mx:List>
 							
-							<mx:Spacer width="4" />
+							<mx:Spacer width="4"  height="100%"/>
 						</mx:HBox>
 						
 
@@ -3479,15 +3380,15 @@
 				<util:PlateColorPicker id="colorPick" width="100%" height="40" />
 				<mx:Button label="Remove order from plate"
 						   icon="@Embed('../../assets/delete.png')"
-						   visible="{orderNum.text!=colorPick.getNoSelectionText()}"
-						   includeInLayout="{orderNum.text!=colorPick.getNoSelectionText()}"
+						   visible="{colorPick.selectedIndex != 0}"
+						   includeInLayout="{colorPick.selectedIndex != 0}"
 						   width="100%"
 						   click="promptToRemoveGroup()"
 						   id="removeOrderButton" />
 				<mx:Button label="Clear all samples from plate"
 						   icon="@Embed('../../assets/delete.png')"
-						   visible="{orderNum.text==colorPick.getNoSelectionText()}"
-						   includeInLayout="{orderNum.text==colorPick.getNoSelectionText()}"
+						   visible="{colorPick.selectedIndex == 0}"
+						   includeInLayout="{colorPick.selectedIndex == 0}"
 						   width="100%"
 						   click="promptToRemoveAllSamples()"
 						   id="removeAllButton" />
@@ -3527,6 +3428,8 @@
 			<mx:RemoveChild target="{plateReactComboBox}"/>
 			<mx:RemoveChild target="{samplesTab}"/>
 			<mx:RemoveChild target="{viewButton}"/>
+			<mx:SetProperty target="{dirty}" name="visible" value="false" />
+			<mx:SetProperty target="{dirty}" name="includeInLayout" value="false" />
 		</mx:State>
 		<mx:State id="viewStatePlate" name="viewStatePlate" basedOn="viewState">
 			<mx:RemoveChild target="{pltButton}"/>
