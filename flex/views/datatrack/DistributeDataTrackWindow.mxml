@@ -788,7 +788,7 @@
 	private function promptToRemoveDataTrackFolder():void {
 		if (itemToRemove.children() != null && itemToRemove.children().length() > 0) {
 			Alert.show("Removing folder '" + itemToRemove.@label + "'" +
-				" will also remove all descendent folders and dataTracks.\n\n" +
+				" will also remove all descendant folders and dataTracks.\n\n" +
 				"Are you sure you want to delete the folder and all of its contents?\n",
 				"Warning", 
 				(Alert.YES | Alert.NO), this, 

@@ -210,6 +210,8 @@ public class Topic extends DetailObject implements Serializable {
      root.setAttribute("description", this.getDescription() != null ? this.getDescription() : "");	
      root.setAttribute("lab", this.getIdLab() != null ? dictionaryHelper.getLabObject(this.getIdLab()).getName() : "");
      root.setAttribute("idLab",this.getIdLab() != null ? this.getIdLab().toString() : "");
+     root.setAttribute("appUser", this.getIdAppUser() != null ? dictionaryHelper.getAppUserObject(this.getIdAppUser()).getDisplayName() : "");
+     root.setAttribute("idAppUser",this.getIdAppUser() != null ? this.getIdAppUser().toString() : "");
      root.setAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
      root.setAttribute("createDate", this.getCreateDate() != null ? DataTrackUtil.formatDate(this.getCreateDate()) : "");
 
