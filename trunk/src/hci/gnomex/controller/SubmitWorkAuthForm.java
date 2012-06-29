@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.mail.MessagingException;
@@ -59,6 +60,16 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     billingAccount = new BillingAccount();
     HashMap errors = this.loadDetailObject(request, billingAccount);
     this.addInvalidFields(errors);
+    
+    if(request.getParameter("accountNumberBus").length() != 2 || request.getParameter("accountNumberOrg").length() != 5 ||
+        request.getParameter("accountNumberFund").length() != 4 || request.getParameter("accountNumberAccount").length() != 5 ||
+        request.getParameter("accountNumberAu").length() != 1 || request.getParameter("accountNumberYear").length() != 4 ||
+        (request.getParameter("accountNumberActivity").length() != 5 && request.getParameter("accountNumberProject").equals("")) ||
+        (request.getParameter("accountNumberProject").length() != 8) && request.getParameter("accountNumberActivity").equals("") ){
+      
+      this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check");
+    }
+        
     
     if (request.getParameter("totalDollarAmountDisplay") != null && !request.getParameter("totalDollarAmountDisplay").equals("")) {
       String tda = request.getParameter("totalDollarAmountDisplay");
