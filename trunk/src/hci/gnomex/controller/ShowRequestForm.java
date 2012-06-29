@@ -18,6 +18,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.RequestHTMLFormatter;
+import hci.gnomex.utility.RequestParser;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
@@ -322,7 +323,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             XMLOutputter out = new org.jdom.output.XMLOutputter();
             out.setOmitEncoding(true);
             this.xmlResult = out.outputString(doc);
-            this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
+            this.xmlResult = RequestParser.unEscapeBasic(this.xmlResult);
             this.xmlResult = this.xmlResult.replaceAll("�",     "&micro");
             // Add the submission instructions to the end of the request
             // form.
