@@ -7,6 +7,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UsageRowDescriptor;
 import hci.gnomex.utility.UsageRowDescriptorComparator;
 import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -115,7 +116,11 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     if (idCoreFacility == null) {
       int coreFacilityCount = 0;
       for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
-        CoreFacility cf = (CoreFacility)i.next();
+        DictionaryEntry de = (DictionaryEntry)i.next();
+        if (de instanceof NullDictionaryEntry) {
+          continue;
+        }
+        CoreFacility cf = (CoreFacility)de;
         if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
           coreFacilityCount++;
         }
