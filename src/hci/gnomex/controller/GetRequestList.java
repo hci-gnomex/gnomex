@@ -1,7 +1,6 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -46,12 +45,11 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     
     try {
-      
-   
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    
+
     StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
+    
     log.info("Query for GetRequestList: " + buf.toString());
     List reqs = sess.createQuery(buf.toString()).list();
     
@@ -65,6 +63,9 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       String requestStatus = dh.getRequestStatus(req.getCodeRequestStatus());
       
       node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+      
+      List label = sess.createQuery("Select plate.label from Request as req Left Join req.samples as samps Left Join samps.wells as pws Left Join pws.plate as plate where req.idRequest = " + req.getIdRequest() + " AND plate.codePlateType = 'REACTION'").list();
+      node.setAttribute("plateLabel", label.size() != 0 && label.get(0) != null ? (String)label.get(0) : "");
       
       doc.getRootElement().addContent(node);
       
