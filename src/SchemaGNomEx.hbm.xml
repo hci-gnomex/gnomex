@@ -246,6 +246,7 @@
 		<property name="gSignalStrength" column="gSignalStrength" type="integer"/>
 		<property name="tSignalStrength" column="tSignalStrength" type="integer"/>
         <property name="releaseDate" column="releaseDate" type="java.util.Date"/>
+        <property name="idReleaser" column="idReleaser" type="integer"/>
 	</class>
   
   <!-- hci.gnomex.model.CoreFacility -->
