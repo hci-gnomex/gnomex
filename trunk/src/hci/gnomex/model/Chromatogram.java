@@ -23,9 +23,18 @@ public class Chromatogram extends HibernateDetailObject {
   private Integer    gSignalStrength;
   private Integer    tSignalStrength;
   private Date       releaseDate;
+  private Integer    idReleaser;
   
   
   
+  public Integer getIdReleaser() {
+    return idReleaser;
+  }
+
+  public void setIdReleaser(Integer idReleaser) {
+    this.idReleaser = idReleaser;
+  }
+
   public Integer getIdChromatogram()
   {
     return idChromatogram;
