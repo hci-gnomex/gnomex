@@ -57,17 +57,19 @@
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
-				var idRun:String = plateGrid.selectedItem.@idInstrumentRun;
+				if ( plateGrid.selectedItem.@codeReactionType == "CHERRY" ) {
+					return;
+				}
+				var idPlate:String = plateGrid.selectedItem.@idPlate;
 				
 				if ( event.columnIndex == 2 ) {
-					parentApplication.showInstrumentRun(idRun);
+					parentApplication.showPlate(idPlate);
 				}
 				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					plateGrid.selectedIndex = -1;
 				}
 				selectedPlates.refresh();
 			}
-			
 			public function getList():void {
 				getPlateList.send(getPlateParameters());
 			}
@@ -203,6 +205,8 @@
 			private function selectedFilterFunc(item:XML):Boolean {
 				return item.@isSelected == true;
 			} 	
+			
+			
 		]]>
 	</mx:Script>    	
 	
@@ -227,6 +231,7 @@
 			<mx:DataGrid id = "plateGrid"
 						 allowMultipleSelection="true"
 						 click="{selectedPlates.refresh()}"
+						 itemClick="gridItemClick(event)"
 						 change="selectionChange(event)"
 						 width = "100%"
 						 height = "100%"

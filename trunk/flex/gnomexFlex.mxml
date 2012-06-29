@@ -1012,6 +1012,32 @@
 				
 			}
 			
+			public function showPlate(idPlate:String):void {
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navPlateView;
+				
+				callLater( function():void {
+					
+					navPlateView.loadPlateById(idPlate);
+					navPlateView.tabNav.selectedChild = navPlateView.plateTab;
+				});
+				
+			}
+			
+			public function showPlateEditor( buildState:String ):void {
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navPlateView;
+				
+				callLater( function():void {
+					
+					navPlateView.buildState = buildState ;
+					navPlateView.switchToNewState();
+				});
+				
+			}
+			
 			public function showTopicForNumber(topicNumber:String):void {
 					navTopicsView.topicNumber = topicNumber;
 										
