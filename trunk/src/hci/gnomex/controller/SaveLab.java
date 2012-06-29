@@ -1,5 +1,7 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -31,6 +33,8 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import net.sf.hibernate.collection.Set;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
@@ -249,6 +253,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
           if (isNewLab) {
             lab = labScreen;
             sess.save(lab);
+            
           } else {
   
             lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
@@ -352,14 +357,40 @@ public class SaveLab extends GNomExCommand implements Serializable {
           // Save core facilities
           //
           if (this.isNewLab) {
-            TreeSet facilities = new TreeSet(new CoreFacilityComparator());
-            for(Iterator i = this.getSecAdvisor().getAppUser().getManagingCoreFacilities().iterator(); i.hasNext();) {
-              CoreFacility facility = (CoreFacility)i.next();
-              facilities.add(facility);
+            // If a core admin (not a super admin) is adding the lab,
+            // assign lab to same core facilty that the admin manages;            
+            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
+                this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) &&
+                this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0) {
+              lab.setCoreFacilities(this.getSecAdvisor().getCoreFacilitiesIManage());
+              sess.flush();
+            } else {
+              // If a super admin is adding the lab (or an admin that isn't managing a core facility),
+              // see if there is just one core facility.  in this case, assign the lab to that
+              // core facility.
+              int coreFacilityCount = 0;
+              CoreFacility coreFacilityDefault = null;
+              for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+                DictionaryEntry de = (DictionaryEntry)i.next();
+                if (de instanceof NullDictionaryEntry) {
+                  continue;
+                }
+                CoreFacility cf = (CoreFacility)de;
+                if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
+                  coreFacilityCount++;
+                  if (coreFacilityDefault == null) {
+                    coreFacilityDefault = cf;
+                  }
+                }
+              }
+              if (coreFacilityCount ==  1) {
+                TreeSet coreFacilities = new TreeSet(new CoreFacilityComparator());
+                coreFacilities.add(coreFacilityDefault);
+                lab.setCoreFacilities(coreFacilities);
+                sess.flush();
+              }
             }
-            lab.setCoreFacilities(facilities);
-            
-            sess.flush();
+
           } else {
             if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) && coreFacilityParser != null) {
               TreeSet facilities = new TreeSet(new CoreFacilityComparator());
