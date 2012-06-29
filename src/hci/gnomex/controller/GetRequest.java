@@ -194,36 +194,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.setAttribute("requestCategory", requestCategory.getRequestCategory());
           }
           
-          // Show prepInstructions and analysisInstructions.  Although
-          // these instructions are stored at the detailed sample and 
-          // sequence lane level, the ability to edit the instructions
-          // at this level has been disabled.  So just grab the first
-          // instruction from the detail to show on the experiment.
-          String prepInstructions = "";
-          if (request.getSamples() != null && request.getSamples().size() > 0) {
-            for (Iterator i = request.getSamples().iterator(); i.hasNext();) {
-              Sample s = (Sample)i.next();
-              if (s.getPrepInstructions() != null && !s.getPrepInstructions().equals("")) {
-                prepInstructions = s.getPrepInstructions();
-                break;                
-              }
-            }
-          }
-          requestNode.setAttribute("corePrepInstructions", prepInstructions);
 
-          String analysisInstructions = "";
-          if (request.getSequenceLanes() != null && request.getSequenceLanes().size() > 0) {
-            for (Iterator i = request.getSequenceLanes().iterator(); i.hasNext();) {
-              SequenceLane l = (SequenceLane)i.next();
-              if (l.getAnalysisInstructions() != null && !l.getAnalysisInstructions().equals("")) {
-                analysisInstructions = l.getAnalysisInstructions();
-                break;                
-              }
-            }
-          }
-          //requestNode.setAttribute("analysisInstructions", analysisInstructions);
-
-          
           // Show sequence lanes, organized by multiplex group or flow cell channel
           if (request.getSequenceLanes().size() > 0) {
             Element multiplexLanesNode = new Element("multiplexSequenceLanes");
