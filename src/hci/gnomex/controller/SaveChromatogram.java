@@ -161,6 +161,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       // Set releaseDate if released
       if ( released.equals( "Y" )) {
         ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
+        ch.setIdReleaser(this.getSecAdvisor().getIdAppUser());
         if ( ir!=null ) {
           ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
           changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
