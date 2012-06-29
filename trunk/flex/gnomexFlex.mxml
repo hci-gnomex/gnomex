@@ -1640,6 +1640,9 @@
 				var coreGenomicsConfigured:Boolean = false;
 				var coreDNASeqConfigured:Boolean = false;
 				for each (var cf:Object in coreFacilities) {
+					if (cf.@isActive != 'Y') {
+						continue;
+					}
 					if (cf.@facilityName == this.CORE_FACILITY_GENOMICS) {
 						coreGenomicsConfigured = true;
 					} else if (cf.@facilityName == this.CORE_FACILITY_DNA_SEQ) {
