@@ -349,7 +349,6 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("idRequest",      idRequest != null ? idRequest.toString() : "");
     n.setAttribute("idLab",          idLab != null ? idLab.toString() : "");
     n.setAttribute("idSample",       sample.getIdSample().toString());
-    n.setAttribute("isControl",      sample.getIsControl() != null ? sample.getIsControl() : "N"  );
     n.setAttribute("type",           requestCategory.getRequestCategory());
     n.setAttribute("row",            wellRow != null ? wellRow : "");
     n.setAttribute("col",            wellCol != null ? wellCol.toString() : "");

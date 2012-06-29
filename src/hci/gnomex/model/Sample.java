@@ -71,7 +71,6 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
   private Set         wells;
-  private String      isControl;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
@@ -648,13 +647,6 @@ public class Sample extends HibernateDetailObject {
    */
   public String getNumberSequencingLanes() {
     return "";
-  }
-
-  public String getIsControl() {
-    return isControl;
-  }
-  public void setIsControl(String isControl) {
-    this.isControl = isControl;
   }
 
   public Set getWells() {
