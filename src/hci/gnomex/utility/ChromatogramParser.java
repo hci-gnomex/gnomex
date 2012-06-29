@@ -34,6 +34,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
   private String launchAppURL = null;
   private String appURL = null;
   private String serverName = null;
+  private Integer idReleaser;
   
   public ChromatogramParser(Document doc) {
     this.doc = doc;
@@ -55,6 +56,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     this.launchAppURL = launchAppURL;
     this.appURL = appURL;
     this.serverName = serverName;
+    this.idReleaser = this.secAdvisor.getIdAppUser();
     
     for (Iterator i = root.getChildren("Chromatogram").iterator(); i.hasNext();) {
       Element node = (Element) i.next();
@@ -124,6 +126,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     int                   gSignalStrength = 0;
     int                   tSignalStrength = 0;
     
+    
     if (n.getAttributeValue("releaseDate") != null && !n.getAttributeValue("releaseDate").equals("")) {
       releaseDateStr = n.getAttributeValue("releaseDate");
     }
@@ -184,7 +187,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       java.util.Date releaseDate = this.parseDate(releaseDateStr);
       ch.setReleaseDate(releaseDate);
     }
-    
+    if ( released.equals("Y")){ch.setIdReleaser(this.idReleaser);}
     if ( idPlateWell != 0 ) {ch.setIdPlateWell( idPlateWell );}
     if ( idRequest != 0 ) {ch.setIdRequest( idRequest );}
     if ( qualifiedFilePath != null )  {ch.setQualifiedFilePath( qualifiedFilePath );}
