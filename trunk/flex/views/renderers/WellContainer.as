@@ -152,7 +152,7 @@ package views.renderers {
 			DragManager.acceptDragDrop(event.currentTarget as UIComponent );
 			if ( plateView != null ) {
 				plateView.plateDropIndex = position;
-				this.setStyle( 'backgroundColor', 0xFF9955 );
+				this.setStyle( 'backgroundColor', 0xFFCC66 );
 			}
 		}
 		public function dropOnWell( event:Event ):void {
