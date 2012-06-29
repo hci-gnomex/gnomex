@@ -61,8 +61,10 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        run.idInstrumentRun, ");
     queryBuf.append("        run.label, ");
     queryBuf.append("        plate.idPlate, ");
-    queryBuf.append("        plate.label ");
-    
+    queryBuf.append("        plate.label, ");
+    queryBuf.append("        pw.redoFlag, ");
+    queryBuf.append("        c.idReleaser ");
+        
     getQueryBody(queryBuf);
 
     return queryBuf;
