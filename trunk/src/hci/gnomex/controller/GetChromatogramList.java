@@ -72,6 +72,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         boolean alt = false;
         String runNumberPrev = "";
         Integer idPlatePrev = new Integer(-1);
+        AppUser releaser = null;
         for(Iterator i = chromats.iterator(); i.hasNext();) {
 
           Object[] row = (Object[])i.next();
@@ -100,6 +101,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           String runName = row[21] != null ? (String)row[21] : "";
           Integer idPlate = row[22] == null ? new Integer(0) : (Integer)row[22];
           String plateLabel = row[23] != null ? (String)row[23] : "";
+          String redoFlag = row[24] != null ? (String)row[24] : "";
+          Integer idReleaser = row[25] != null ? (Integer)row[25] : new Integer(0);
           
           if (!runNumber.equals(runNumberPrev)) {
             alt = !alt;
@@ -124,6 +127,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
             q20_len = new Integer(0);
             q40_len =  new Integer(0);
           }
+          
+          releaser = (AppUser)sess.get(AppUser.class, idReleaser);
           
           String submitter = AppUser.formatAppUserName(submitterLastName, submitterFirstName);
 
@@ -156,6 +161,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute( "fileSize", Long.valueOf(abiFile.length()).toString() );
           cNode.setAttribute("altColor",  new Boolean(alt).toString());
           cNode.setAttribute("plateLabel",  plateLabel != null && !plateLabel.equals("") ? plateLabel : idPlate.toString());
+          cNode.setAttribute("redoFlag", redoFlag);
+          cNode.setAttribute("releaser", releaser != null ? releaser.getDisplayName() : "");
           
           doc.getRootElement().addContent(cNode);
 
