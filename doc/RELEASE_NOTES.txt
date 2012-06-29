@@ -44,6 +44,7 @@
 * Editting of Cap Seq, Fragment Analysis, Mit Seq and Cherry picking works. (bspiglejr)
 * Add checkboxes to associate labs with core facilities. (bspiglejr)
 * Numerous changes and refinements to the Topics feature (rcundick)
+* Fix for html formatting problem of the description field in printable experiment form (rcundick)
 
 deploy notes 
 --------------------
