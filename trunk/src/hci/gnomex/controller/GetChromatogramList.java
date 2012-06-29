@@ -6,7 +6,6 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ChromatogramFilter;
-import hci.gnomex.model.Request;
 
 import java.io.File;
 import java.io.Serializable;
