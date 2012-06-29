@@ -779,6 +779,14 @@
 					<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
 									   headerText="Released"
 									   width="90" minWidth="75" id="datagridcolumn2"/>
+						
+					<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
+									   headerText="Releaser"
+									   width="80" minWidth="75"/>
+						
+					<mx:DataGridColumn dataField="@redoFlag"
+									   headerText="Redo"
+									   width="45" />
 					
 					<mx:DataGridColumn dataField="@submitter"
 									   headerText="Submitter" minWidth="75"
