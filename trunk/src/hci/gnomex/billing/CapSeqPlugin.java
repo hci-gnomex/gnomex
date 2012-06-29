@@ -43,14 +43,10 @@ public class CapSeqPlugin implements BillingPlugin {
       return billingItems;
     }
     
-    // Count number of samples. exclude any controls the
-    // count.
+    // Count number of samples.
     int qty = 0;
     HashMap<String, Integer> plateMap = new HashMap<String, Integer>();
     for (Sample s : samples) {
-      if (s.getIsControl() != null && s.getIsControl().equals("Y")) {
-        continue;
-      }
       qty++;
     }
     
