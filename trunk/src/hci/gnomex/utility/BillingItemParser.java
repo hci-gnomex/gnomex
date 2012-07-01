@@ -92,19 +92,21 @@ public class BillingItemParser extends DetailObject implements Serializable {
         percentageDisplay = percentageDisplay.replaceAll("\\%", "");
         billingItem.setPercentagePrice(percentageDisplay != "" ? new BigDecimal(percentageDisplay).movePointLeft(2) : null);
 
-
-        if (billingItem.getSplitType() == null) {
-          billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
-        }
-        if (billingItem.getSplitType().equals(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE)) {
-          billingItem.setInvoicePrice(billingItem.getUnitPrice().multiply(new BigDecimal(billingItem.getQty()).multiply(billingItem.getPercentagePrice())));
-        } else {
-          if (!billingItem.getUnitPrice().equals(originalUnitPrice) || !billingItem.getQty().equals(originalQty)) {
-            BigDecimal originalTotalPrice = originalUnitPrice.multiply(new BigDecimal(originalQty));
-            BigDecimal newTotalPrice = billingItem.getUnitPrice().multiply(new BigDecimal(billingItem.getQty()));
-            billingItem.setInvoicePrice(billingItem.getInvoicePrice().add(newTotalPrice.subtract(originalTotalPrice)));
+        
+        if (billingItem.getQty() != null && billingItem.getUnitPrice() != null) {
+          if (billingItem.getSplitType() == null) {
+            billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
+          } else if (billingItem.getSplitType().equals(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE)) {
+            billingItem.setInvoicePrice(billingItem.getUnitPrice().multiply(new BigDecimal(billingItem.getQty()).multiply(billingItem.getPercentagePrice())));
+          } else {
+            if (!billingItem.getUnitPrice().equals(originalUnitPrice) || !billingItem.getQty().equals(originalQty)) {
+              BigDecimal originalTotalPrice = originalUnitPrice.multiply(new BigDecimal(originalQty));
+              BigDecimal newTotalPrice = billingItem.getUnitPrice().multiply(new BigDecimal(billingItem.getQty()));
+              billingItem.setInvoicePrice(billingItem.getInvoicePrice().add(newTotalPrice.subtract(originalTotalPrice)));
+            }
           }
         }
+
         
         if (node.getAttributeValue("codeBillingStatus") != null && !node.getAttributeValue("codeBillingStatus").equals("")) {
           String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
