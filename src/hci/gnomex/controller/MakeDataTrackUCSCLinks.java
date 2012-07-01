@@ -78,13 +78,6 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
       dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
       dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
       
-      String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
-      if (portNumber == null) {
-        portNumber = "";
-      } else {
-        portNumber = ":" + portNumber;           
-      }
-      
       // We have to serve files from Tomcat, so use das2 base url
       baseURL =  dataTrackFileServerURL;
 
