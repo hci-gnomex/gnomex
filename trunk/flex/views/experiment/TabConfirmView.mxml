@@ -496,7 +496,7 @@
 				<mx:Label text="Experiment Description" textDecoration="underline" paddingTop="5"/>
 				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" 
 										  verticalScrollPolicy="auto" backgroundColor="#FFFFFF"
-										  text="{parentDocument.isAmendState() ? parentDocument.request.@description : ''}" borderColor="#E3E6E8"/>
+										  htmlText="{parentDocument.request.@description}" borderColor="#E3E6E8"/>
 				
 				<mx:HBox width="100%" paddingTop="4">
 					<mx:VBox width="50%" id="vbox3" verticalGap="0"   paddingTop="2">

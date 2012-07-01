@@ -221,7 +221,8 @@
 			
 			import views.experiment.ConvertIlluminaRequestWindow;
 			import views.util.PromptXMLListCollection;
-        
+			import views.util.StringUtil;
+
 
 		[Bindable]
 		private var requestIcon:String = '';
@@ -2991,6 +2992,7 @@
 			// request is being amended
 			if (this.isAmendState()) {
 				request.@amendState = currentState.toString();
+				saveDescription = StringUtil.cleanRichTextHTML(request.@description);
 			}
 			
 		}
