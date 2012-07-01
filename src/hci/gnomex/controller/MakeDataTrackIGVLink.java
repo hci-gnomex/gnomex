@@ -30,6 +30,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 	private String baseURL;
 	private String baseDir;
 	private String analysisBaseDir;
+	private String dataTrackFileServerURL;
 	private String serverName;
 	private boolean launchIGV = true;
 	public static final Pattern TO_STRIP = Pattern.compile("\\n");
@@ -55,12 +56,11 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			Session sess = getSecAdvisor().getHibernateSession(getUsername());
 			baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
 			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
-			String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
-			if (portNumber == null) {
-				portNumber = "";
-			} else portNumber = ":" + portNumber;           
-		
-			baseURL =  "http"+  "://"  + serverName + portNumber + contextPath + "/";
+			dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);      
+      
+      // We have to serve files from Tomcat, so use das2 base url
+      baseURL =  dataTrackFileServerURL;
+
 
 			DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
