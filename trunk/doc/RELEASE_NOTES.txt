@@ -44,7 +44,11 @@
 * Editting of Cap Seq, Fragment Analysis, Mit Seq and Cherry picking works. (bspiglejr)
 * Add checkboxes to associate labs with core facilities. (bspiglejr)
 * Numerous changes and refinements to the Topics feature (rcundick)
+* Fixed bug caused by old code that was deriving core facility notes, analysis instructions from samples instead of new fields on request. (tdisera)
+* Remove Seq Run (temp) worklist from HiSeq workflow tab  (tdisera)
+* Only show the last month of flow cells on HiSeq workflow tab (tdisera)
 * Fix for html formatting problem of the description field in printable experiment form (rcundick)
+
 
 deploy notes 
 --------------------
