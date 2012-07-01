@@ -1,13 +1,10 @@
 package hci.gnomex.model;
 
+import hci.hibernate3utils.HibernateDetailObject;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.NumberFormat;
-import java.util.Set;
-
-import org.hsqldb.Binary;
-
-import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class BillingAccount extends HibernateDetailObject {
