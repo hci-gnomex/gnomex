@@ -144,10 +144,10 @@
 	      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
 	    		<mx:click>toggleDateCheckboxes(1);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   selected="true">
 	    		<mx:click>toggleDateCheckboxes(2);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   selected="true">
+	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   selected="false">
 	    		<mx:click>toggleDateCheckboxes(3);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
 	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
