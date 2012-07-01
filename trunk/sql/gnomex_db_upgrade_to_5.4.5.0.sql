@@ -58,8 +58,6 @@ alter table gnomex.PlateWell add column redoFlag char(1) null;
 alter table gnomex.Sample drop column redoFlag;    
 
 
--- new isControl for Sample
-alter table Sample add column isControl char(1) NULL;
 
 -- new isControl for PlateWell
 alter table gnomex.PlateWell add column isControl char(1) null;
