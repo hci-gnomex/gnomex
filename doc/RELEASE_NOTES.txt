@@ -1,7 +1,11 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.5
+5.4.1
+---------------------
+* Changes to enable file downloading for Exp/Analysis/DT from within the Topics feature.
+
+5.4.5 (July 1, 2012)
 ---------------------
 * Changed any text that was displayed to the user from "Sequence Run" to "Sequence Lane". (tcourdy)
 * Added isActive to the populate.sql script for both Genome Build and Organism to fix issues that were occurring with a fresh install.(tcourdy)
