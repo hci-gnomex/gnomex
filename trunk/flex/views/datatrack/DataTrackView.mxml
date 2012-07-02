@@ -10,11 +10,15 @@
 	<mx:HBox horizontalGap="1" width="100%">
 			<mx:Image source="{getDataTrack.lastResult.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : (getDataTrack.lastResult.@codeVisibility == 'MEM' ? parentApplication.iconDataTrackMember : (getDataTrack.lastResult.@codeVisibility == 'MEMCOL' ? parentApplication.iconDataTrackMemberCollab : (getDataTrack.lastResult.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackPublic)))}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Data Track ' + getDataTrack.lastResult.@number}" />
+			<mx:LinkButton styleName="linkMenuButton" label="Download" 
+						   icon="@Embed(source='../../assets/download.png')" 
+						   enabled="true" visible="false" includeInLayout="false"
+						   click="{parentDocument.treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
             <mx:Spacer width="100%"/>
 			<mx:Label text="Created " 
 					  visible="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}"
 					  includeInLayout="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}" textAlign="right"/>
-		<mx:Label text="by" 
+			<mx:Label text="by" 
 				  visible="{getDataTrack.lastResult.@createdBy != ''}"
 				  includeInLayout="{getDataTrack.lastResult.@createdBy != ''}"/>
 			<mx:Label text="{getDataTrack.lastResult.@createdBy + ' ' + getDataTrack.lastResult.@createDate}"/>
@@ -44,7 +48,22 @@
 	useProxy="false">
 	<mx:request>
 	</mx:request>
-</mx:HTTPService>   
+</mx:HTTPService>  
+	
+	
+<mx:HTTPService             
+	id="getDownloadEstimatedSize" 
+	url="GetEstimatedDownloadDataTrackSize.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetDownloadEstimatedSize(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get data track download estimated size', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>  
+	
 	
 <mx:XMLListCollection id="dataTrackFiles" source="{getDataTrack.lastResult.Files..File}"/>
 <mx:XMLListCollection id="dataTrackFilesToRemove"/> 
@@ -62,7 +81,24 @@
 	import views.admin.PropertyWindow;
 	import views.datatrack.FolderInfoWindow;
 	import views.util.StringUtil;
+	import mx.events.CloseEvent;
+	
+	private const DOWNLOAD_FILES_URL:String       = "DownloadDataTrackFileServlet.gx"; 
+	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-datatracks";  
+	
+	import views.experiment.DownloadProgressView;
 
+	private static var alertButtonWidthDefault:Number = Alert.buttonWidth;
+	
+	private static const  KB:Number = Math.pow(2, 10);
+	private static const  MB:Number = Math.pow(2, 20);
+	private static const  GB:Number = Math.pow(2, 30);
+	private static const   ZIP_MAX_SIZE:Number = (1 * GB);
+	
+	private var downloadKeys:String = new String();
+	private var estimatedDownloadSize:Number = new Number();
+	private var uncompressedDownloadSize:Number = new Number();
+	
 	private function onGetDataTrack(event:ResultEvent):void {
 		if (getDataTrack.lastResult.name() == "DataTrack") {
 			if (this.parentDocument.currentState == "AdminState") {
@@ -401,6 +437,171 @@
 		
 	}
 
+	/*******************************************
+	 * 
+	 * Download Functions
+	 * 
+	 */
+	public function promptToDownloadSelectedItems():void {
+		var itemsToDownload:Array = new Array();
+		downloadKeys = new String();
+		for each(var item:Object in parentDocument.browseTree.selectedItems) {
+			var dataTracks:Array = new Array();
+			if (item.name() == "DataTrack") {
+				dataTracks.push(item);
+			} else {
+				getChildDataTracks(item, dataTracks);
+			}
+			
+			for each (var dataTrack:Object in dataTracks) {
+				// Get rid of duplicates
+				var keep:Boolean = true;
+				
+				for each(var di:Object in itemsToDownload) {
+					if (di.@idDataTrack == dataTrack.@idDataTrack) {
+						keep = false;
+						break;
+					}
+				}
+				if (keep) {
+					itemsToDownload.push(dataTrack);
+					var idDataTrackFolder:Object = "-99";
+					
+					if(dataTrack.hasOwnProperty("@idDataTrackFolder") && dataTrack.@idDataTrackFolder != "") {
+						idDataTrackFolder = dataTrack.@idDataTrackFolder;
+					}
+					//var idDataTrackFolder:Object = dataTrack.@idDataTrackFolder != "" ? dataTrack.@idDataTrackFolder : "-99";
+					downloadKeys += dataTrack.@idDataTrack + "," + idDataTrackFolder + ":";         						
+				}
+			}
+		}
+		if (itemsToDownload.length == 0) {
+			Alert.show("Please select the data tracks or folders to download.");
+			return;
+		}
+		var params:Object = new Object();
+		params.keys = downloadKeys;
+		this.getDownloadEstimatedSize.send(params);
+	}
+	
+	
+	private function onGetDownloadEstimatedSize(event:ResultEvent):void {
+		if (getDownloadEstimatedSize.lastResult.@size == 0) {
+			Alert.show("No data files exist for selected item(s).", "");
+		} else {
+			estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
+			uncompressedDownloadSize = getDownloadEstimatedSize.lastResult.@uncompressedSize;
+			if (parentApplication.isFDTSupported) {
+				promptForDownloadMethod();
+			} else {
+				Alert.show( "Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+					"",
+					(Alert.YES | Alert.NO), this, 
+					downloadFiles); 
+			}
+		}
+	}
+	
+	private function promptForDownloadMethod():void {
+		var downloadSizeRange:String = getFileSizeText(estimatedDownloadSize);
+		if (downloadSizeRange != getFileSizeText(uncompressedDownloadSize)) {
+			downloadSizeRange += " - " + getFileSizeText(uncompressedDownloadSize);
+		}
+		var recommended:String = "(FDT download is recommended for downloads > 1GB.)";
+		
+		Alert.buttonWidth = 120; 
+		Alert.yesLabel = "Normal download";
+		Alert.noLabel = "FDT download";
+		Alert.show( "Ready to download approximately " + downloadSizeRange + ".\n" +
+			"Which download mechanism do you want to use?\n\n" + recommended,
+			"Choose download method",
+			(Alert.YES | Alert.NO | Alert.CANCEL), this, 
+			onPromptForDownloadMethod);
+		
+	}
+	
+	private function onPromptForDownloadMethod(event:CloseEvent):void {
+		Alert.yesLabel = "Yes";
+		Alert.noLabel = "No";
+		Alert.buttonWidth = alertButtonWidthDefault;
+		if (event.detail==Alert.YES) {
+			// If normal download, prompt about size first.
+			Alert.show( "Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+				"",
+				(Alert.YES | Alert.NO), this, 
+				downloadFiles);					
+		} else  if (event.detail == Alert.NO){
+			// If this is an FDT download, make the request to download the 
+			// FDT webstart application
+			var url:URLRequest = new URLRequest('FastDataTransferDownloadDataTrackServlet.gx');	
+			url.contentType = "text/xml";
+			url.method = URLRequestMethod.GET;
+			navigateToURL(url, '_self');	
+		} 
+	}
+	
+	
+	public static function getFileSizeText(theFileSize:Number):String {
+		var size:Number = 0;
+		var sizeTxt:String = "";
+		if (theFileSize > GB ) {
+			// Round gigabyte to the one decimal place
+			size = Math.round((theFileSize / GB) * 10) / 10;
+			if (size == 0) {
+				size = 1;
+			} 
+			sizeTxt = size + " GB";
+		}  else if (theFileSize > MB ) {
+			// Round megabyte to neareast whole number
+			size = Math.round(theFileSize / MB);
+			if (size == 0) {
+				size = 1;
+			}
+			sizeTxt = size + " MB";
+		} else if (theFileSize > KB ) {
+			// Round kb to the nearest 100th place
+			size = Math.round((theFileSize / KB) / 100) * 100;
+			if (size == 0) {
+				size = 1;
+			}
+			sizeTxt = size + " KB";
+		} else {
+			// Round bytes to nearest 100th place
+			size = Math.round(theFileSize / 100) * 100;
+			if (size == 0) {
+				size = 1;
+			}
+			sizeTxt = size + " bytes";
+		}
+		return sizeTxt;
+	}
+	
+	
+	private function downloadFiles(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			var parms:URLVariables = new URLVariables();
+			parms.mode = "zip";
+			
+			var progressWindow:DownloadProgressView = new DownloadProgressView();	        
+			progressWindow.init(this, 
+				this.DOWNLOAD_FILES_URL, 
+				parms, 
+				this.downloadButton, 
+				estimatedDownloadSize, 
+				this.SUGGESTED_LOCAL_FILENAME);
+		}
+		
+	} 
+	
+	private function getChildDataTracks(item:Object, children:Array):void {
+		for each(var child:Object in item.children()) {
+			if (child.name() == "DataTrack") {
+				children.push(child);											
+			} else {
+				this.getChildDataTracks(child, children);
+			}
+		}
+	}	
 	
 ]]>
 </mx:Script>

@@ -209,13 +209,13 @@
 	private function onGetTopicList(event:ResultEvent): void {
 		if (getTopicList.lastResult.name() != "TopicList") {
 			Alert.show(getTopicList.lastResult..ACTMESSAGE.@TEXT);
-			topicsBrowseTree.visible = false;
+			browseTree.visible = false;
 			return;
 		}
 		if (getTopicList.lastResult.Folder.Topic.length() == 0) {
-			topicsBrowseTree.visible = false;
+			browseTree.visible = false;
 		} else {
-			topicsBrowseTree.visible = true;
+			browseTree.visible = true;
 		}
 		
 		// If we are looking up a topic by number, get the tree item to select
@@ -255,7 +255,7 @@
 			// If the user has check the 'Expand tree' checkbox,
 			// just expand all nodes
 			this.expandAllNodes();
-			topicsBrowseTree.validateNow();
+			browseTree.validateNow();
 			callLater(selectTreeItem);					
 		} else if (itemToSelect != null && (
 				itemToSelect.name() == "Topic" 
@@ -263,15 +263,15 @@
 				|| itemToSelect.name() == "Analysis"
 				|| itemToSelect.name() == "DataTrack")) {		
 			expandParents(itemToSelect);
-			topicsBrowseTree.validateNow();
+			browseTree.validateNow();
 			callLater(selectTreeItem);
 		} else {
 			// If not looking for specific item then expand to first level of topics
-			//topicsBrowseTree.expandChildrenOf(getTopicList.lastResult, true);
+			//browseTree.expandChildrenOf(getTopicList.lastResult, true);
 			var node:XMLList = getTopicList.lastResult.Folder;
-			topicsBrowseTree.expandItem(node[0], true);
+			browseTree.expandItem(node[0], true);
 			for each(topic in getTopicList.lastResult.Folder.Topic) {
-				topicsBrowseTree.expandItem(topic, true);
+				browseTree.expandItem(topic, true);
 				expandAllCategoryNodes(topic)
 			}
 			callLater(selectTreeItem);
@@ -281,7 +281,7 @@
 	
 	private function expandAllCategoryNodes(node:Object):void {
 		for each(var category:Object in node.Category) {
-			topicsBrowseTree.expandItem(category, true);					
+			browseTree.expandItem(category, true);					
 		}
 		for each(var topic:Object in node.Topic) {
 			expandAllCategoryNodes(topic)
@@ -290,15 +290,15 @@
 	}
 	
 	private function expandParents(node:XML):void {
-		if (node && !topicsBrowseTree.isItemOpen(node)) {
-			topicsBrowseTree.expandItem(node, true);
+		if (node && !browseTree.isItemOpen(node)) {
+			browseTree.expandItem(node, true);
 			expandParents(node.parent());
 		}
 	}
 	
 	private function recurseExpandParent(item:XML):void {
 		if (item.name() != 'DataTrack') {
-			topicsBrowseTree.expandItem(item, true);				
+			browseTree.expandItem(item, true);				
 		}
 		if (item.parent() != null) {
 			recurseExpandParent(item.parent());									
@@ -307,16 +307,16 @@
 	}
 	private function selectTreeItem():void {
 		if (itemToSelect != null) {
-			topicsBrowseTree.selectedItem = itemToSelect;
-			var idx:int = topicsBrowseTree.getItemIndex(itemToSelect);
-			topicsBrowseTree.scrollToIndex(idx);
+			browseTree.selectedItem = itemToSelect;
+			var idx:int = browseTree.getItemIndex(itemToSelect);
+			browseTree.scrollToIndex(idx);
 		} else {
-			topicsBrowseTree.selectedItem = null;
+			browseTree.selectedItem = null;
 		}
 		// Automatically expand all category nodes.
 		var items:XMLList = getTopicList.lastResult.Folder..Category;
 		for each(var category:Object in items) {
-			topicsBrowseTree.expandItem(category, true);
+			browseTree.expandItem(category, true);
 		}
 	}
 	
@@ -396,7 +396,7 @@
 	
 
 	private function onTreeClick():void {
-		this.treeItemToSelect = this.topicsBrowseTree.selectedItem;
+		this.treeItemToSelect = this.browseTree.selectedItem;
 		if (topicView.dirtyTopic != null) {
 			topicView.dirtyTopic.resetDirty();
 		}
@@ -404,61 +404,62 @@
 	}
 	
 	private function onTreeDoubleClick():void {
-		if(this.topicsBrowseTree.selectedItem.name() == "Request") {
-			parentApplication.showExperiment(topicsBrowseTree.selectedItem.@idRequest);
-		} else if (this.topicsBrowseTree.selectedItem.name() == "Analysis") {
-			parentApplication.showAnalysisForNumber(topicsBrowseTree.selectedItem.@number);
-		} else if (this.topicsBrowseTree.selectedItem.name() == "DataTrack") {
-			parentApplication.showDataTrackForNumber(topicsBrowseTree.selectedItem.@number);
+		if(this.browseTree.selectedItem.name() == "Request") {
+			parentApplication.showExperiment(browseTree.selectedItem.@idRequest);
+		} else if (this.browseTree.selectedItem.name() == "Analysis") {
+			parentApplication.showAnalysisForNumber(browseTree.selectedItem.@number);
+		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
+			parentApplication.showDataTrackForNumber(browseTree.selectedItem.@number);
 		}
 	}
 	
 	public function selectView():void {
-		if (this.topicsBrowseTree.selectedItem == null 
-			|| this.topicsBrowseTree.selectedItem.name() == "Folder"
-			|| this.topicsBrowseTree.selectedItem.name() == "Category") {
+		if (this.browseTree.selectedItem == null 
+			|| this.browseTree.selectedItem.name() == "Folder"
+			|| this.browseTree.selectedItem.name() == "Category") {
 			//removeButton.label = '';
 			this.mainViewStack.selectedChild = this.blankView;
 			return;
 		}
 		
-		if (this.topicsBrowseTree.selectedItem.name() == "Topic") {
+		if (this.browseTree.selectedItem.name() == "Topic") {
 			removeButton.label = 'Delete topic'; 			
 		} else {
 			removeButton.label = 'Remove link';   			
 		}
              
-		if (this.topicsBrowseTree.selectedItem.name() == "Topic") {
+		if (this.browseTree.selectedItem.name() == "Topic") {
 			this.mainViewStack.selectedChild = this.topicView;
 			this.topicView.init();
 			
-		} else if (this.topicsBrowseTree.selectedItem.name() == "DataTrack") {
+		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
 			dataTrackView.saveDataTrackButton.visible = false;
 			this.mainViewStack.selectedChild = this.dataTrackView;                
 			
 			var parms1:Object = new Object();
-			parms1.idDataTrack = this.topicsBrowseTree.selectedItem.@idDataTrack;
+			parms1.idDataTrack = this.browseTree.selectedItem.@idDataTrack;
 			dataTrackView.getDataTrack.send(parms1);
-		} else if (this.topicsBrowseTree.selectedItem.name() == "Request") {
+			dataTrackView.downloadButton.visible = true;
+			dataTrackView.downloadButton.includeInLayout = true;
+		} else if (this.browseTree.selectedItem.name() == "Request") {
 			// These are needed by experimentDetailView
 			selectedIdLab = null;
 			selectedIdProject = null;
-			selectedIdRequest = topicsBrowseTree.selectedItem.@idRequest;			
+			selectedIdRequest = browseTree.selectedItem.@idRequest;			
 			var params:Object = new Object();
-			params.idRequest = this.topicsBrowseTree.selectedItem.@idRequest;
+			params.idRequest = this.browseTree.selectedItem.@idRequest;
 			getRequest.send(params);
 			experimentDetailView.editButton.enabled = false;
-			experimentDetailView.downloadsLink.enabled = false;
 			experimentDetailView.detail.hideButtonsBox.visible = false;
 			experimentDetailView.detail.filesView.deleteButtonsContainer.visible = false;
 			this.mainViewStack.selectedChild = this.experimentDetailView;  
-		} else if (this.topicsBrowseTree.selectedItem.name() == "Analysis") {
-			analysisDetailView.titleLabel.text = "Analysis " + topicsBrowseTree.selectedItem.@number;
-			selectedIdAnalysis = topicsBrowseTree.selectedItem.@idAnalysis;
+		} else if (this.browseTree.selectedItem.name() == "Analysis") {
+			analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
+			selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
 			var parms:Object = new Object();
 			parms.idAnalysis = selectedIdAnalysis; 
 			getAnalysis.send(parms);
-			selectedIdLab = topicsBrowseTree.selectedItem.@idLab;
+			selectedIdLab = browseTree.selectedItem.@idLab;
 			analysisDetailView.edtButton.enabled = false;
 			analysisDetailView.dstButton.enabled = false;
 			analysisDetailView.hideButtonsBox.visible = false;
@@ -468,8 +469,8 @@
 	}
 	
 	private function onGetRequest(event:ResultEvent):void {
-		selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.topicsBrowseTree.selectedItem.@idRequest);
-		experimentDetailView.titleLabel.text = (topicsBrowseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + topicsBrowseTree.selectedItem.@requestNumber;
+		selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.browseTree.selectedItem.@idRequest);
+		experimentDetailView.titleLabel.text = (browseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + browseTree.selectedItem.@requestNumber;
 		callLater(postOnGetRequest);	
 	}
 	
@@ -495,19 +496,19 @@
 	
 	private function collapseAllNodes():void {
 		
-		topicsBrowseTree.expandItem(getTopicList.lastResult, false);
+		browseTree.expandItem(getTopicList.lastResult, false);
 		for each(var folder:Object in getTopicList.lastResult.Folder.Topic) {
-			topicsBrowseTree.expandItem(folder, false);
+			browseTree.expandItem(folder, false);
 		}
-		topicsBrowseTree.validateNow();
+		browseTree.validateNow();
 	}
 	
 	public function expandAllNodes():void
 	{
 		for each(var topic:Object in getTopicList.lastResult.Folder.Topic) {
-			topicsBrowseTree.expandChildrenOf(topic,true);
+			browseTree.expandChildrenOf(topic,true);
 		}
-		topicsBrowseTree.validateNow();
+		browseTree.validateNow();
 		treeContainer.validateNow();
 	}	
 	
@@ -553,7 +554,7 @@
 	}
 	
 	private function promptToRemoveSelectedItems():void {
-		itemToRemove = topicsBrowseTree.selectedItem;
+		itemToRemove = browseTree.selectedItem;
 		if(itemToRemove == null) {
 			return;
 		}
@@ -595,7 +596,7 @@
 		if (itemToRemove.childIndex() == 0) {
 			this.treeItemToSelect = itemToRemove.parent();
 		} else {
-			var idx:int = topicsBrowseTree.selectedItem.childIndex() - 1;
+			var idx:int = browseTree.selectedItem.childIndex() - 1;
 			this.treeItemToSelect = itemToRemove.parent().children()[idx];
 		}
 		
@@ -734,7 +735,7 @@
 			sourceId = Tree(event.dragInitiator).id;
 		}
 		
-		if(sourceId == "topicsBrowseTree") {
+		if(sourceId == "browseTree") {
 			withinTopics = true;
 			action = "move";
 		} else if(sourceId == 'expBrowseTree' || sourceId == 'anBrowseTree' || sourceId == 'dtBrowseTree') {
@@ -749,8 +750,8 @@
 		}
 		
 		// Determine the drop node
-		var dropIndex:int = this.topicsBrowseTree.calculateDropIndex(event);
-		var renderer:Object = this.topicsBrowseTree.indexToItemRenderer(dropIndex); 
+		var dropIndex:int = this.browseTree.calculateDropIndex(event);
+		var renderer:Object = this.browseTree.indexToItemRenderer(dropIndex); 
 		if (dropIndex == 0 || renderer == null) {
 			// Abort if dropped outside of list boundary.
 			event.preventDefault();
@@ -937,7 +938,7 @@
 	
 	
 	private function newTopic():void {
-		showAddTopicWindow(topicsBrowseTree.selectedItem.name() == 'Topic');
+		showAddTopicWindow(browseTree.selectedItem.name() == 'Topic');
 	}	
 	
 	private function showAddTopicWindow(isChild:Boolean):void {
@@ -945,7 +946,7 @@
 		PopUpManager.centerPopUp(addTopicWindow);
 		var parentObj:Object = null;
 		if(isChild) {
-			parentObj = topicsBrowseTree.selectedItem;			
+			parentObj = browseTree.selectedItem;			
 		}
 
 		addTopicWindow.init(parentObj, this, null);
@@ -956,7 +957,7 @@
 	}
 	
 	private function expandTree():void {
-		topicsBrowseTree.selectedItem=null;
+		browseTree.selectedItem=null;
 		if (cbAlwaysExpandTree.selected) {
 			expandAppropriateNodes();
 		}	else {
@@ -995,7 +996,7 @@
 					 verticalAlign="middle" paddingTop="6" paddingBottom="6" paddingLeft="20"
 					 id="topBar" horizontalGap="0">
 				<mx:LinkButton   label="New topic" width="90"
-								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; (topicsBrowseTree.selectedItem.name() == 'Folder' || topicsBrowseTree.selectedItem.name() == 'Topic')}"
+								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; (browseTree.selectedItem.name() == 'Folder' || browseTree.selectedItem.name() == 'Topic')}"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
 								 styleName="linkMenuButton"   					        	
@@ -1005,7 +1006,7 @@
 								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
 								 icon="@Embed(source='../../assets/topic_new.png')"/>
 				<mx:LinkButton   label="Delete topic" width="213" 
-								 enabled="{currentState != 'GuestState' &amp;&amp; topicsBrowseTree.selectedItem != null  &amp;&amp; topicsBrowseTree.selectedItem.name() != 'Folder'  &amp;&amp; topicsBrowseTree.selectedItem.name() != 'Category'}"
+								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; browseTree.selectedItem.name() != 'Folder'  &amp;&amp; browseTree.selectedItem.name() != 'Category'}"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
 								 styleName="linkMenuButton"   					        	
@@ -1035,7 +1036,7 @@
 					<mx:Tree width="100%" height="100%" 
 							 dataProvider="{getTopicList.lastResult}" 
 							 showRoot="false" 
-							 id="topicsBrowseTree" 
+							 id="browseTree" 
 							 itemRollOver="setLastTreeItem(event)"
 							 click="onTreeClick();"
 							 doubleClickEnabled="true" 
