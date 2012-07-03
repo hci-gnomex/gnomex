@@ -87,6 +87,7 @@
 	    	params.idPrice = price.@idPrice;
 	    	params.unitPrice = unitPrice.text;
 	    	params.unitPriceExternalAcademic = unitPriceExternalAcademic.text;
+			params.unitPriceExternalCommercial = unitPriceExternalCommercial.text;
 	    	params.idPriceCategory = priceCategory.@idPriceCategory;
 	    	params.isActive = priceIsActive.selected ? "Y" : "N";
 	    	
@@ -136,12 +137,16 @@
     </mx:HBox>
 	<mx:HBox width="100%">
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label text="Unit price:" width="70"/>
-			<mx:TextInput id="unitPrice" width="80" text="{price.@unitPrice}" textAlign="right"/>
+			<mx:Label text="Unit price:" width="70" toolTip="Internal Unit Price"/>
+			<mx:TextInput id="unitPrice" width="50" text="{price.@unitPrice}" textAlign="right"/>
 		</mx:HBox>
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label text="External Unit price:"/>
-			<mx:TextInput id="unitPriceExternalAcademic" width="80" text="{price.@unitPriceExternalAcademic}" textAlign="right"/>
+			<mx:Label text="External Academic:" toolTip="External Unit Price for Academic Labs"/>
+			<mx:TextInput id="unitPriceExternalAcademic" width="50" text="{price.@unitPriceExternalAcademic}" textAlign="right"/>
+		</mx:HBox>
+		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label text="External Commercial:" toolTip="External Unit Price for Commercial Labs"/>
+			<mx:TextInput id="unitPriceExternalCommercial" width="50" text="{price.@unitPriceExternalCommercial}" textAlign="right"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:VBox width="100%"  verticalGap="0">

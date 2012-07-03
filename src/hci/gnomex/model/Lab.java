@@ -13,6 +13,7 @@ public class Lab extends HibernateDetailObject {
   private String  firstName;
   private String  lastName;
   private String  isExternalPricing;
+  private String  isExternalPricingCommercial;
   private String  department;
   private String  contactName;
   private String  contactAddress;
@@ -292,6 +293,16 @@ public class Lab extends HibernateDetailObject {
   
   public void setIsExternalPricing(String isExternalPricing) {
     this.isExternalPricing = isExternalPricing;
+  }
+  
+  
+  public String getIsExternalPricingCommercial() {
+    return isExternalPricingCommercial;
+  }
+
+  
+  public void setIsExternalPricingCommercial(String isExternalPricingCommercial) {
+    this.isExternalPricingCommercial = isExternalPricingCommercial;
   }
   
   public Set getInstitutions() {

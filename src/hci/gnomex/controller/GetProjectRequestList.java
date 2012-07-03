@@ -334,10 +334,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);
-    requestNode.setAttribute("requestCreateDate",      row[6] == null ? ""  : this.formatDate((java.sql.Date)row[6], this.DATE_OUTPUT_ALTIO));
-    requestNode.setAttribute("requestCreateDateDisplay", row[6] == null ? ""  : this.formatDate((java.sql.Date)row[6], this.DATE_OUTPUT_SQL));
-    requestNode.setAttribute("requestCreateDateDisplayMedium", row[6] == null ? ""  : DateFormat.getDateInstance(DateFormat.MEDIUM).format((java.sql.Date)row[6]));
-    requestNode.setAttribute("createDate",             row[6] == null ? ""  : this.formatDate((java.sql.Date)row[6], this.DATE_OUTPUT_SLASH));
+    requestNode.setAttribute("requestCreateDate",      row[6] == null ? ""  : this.formatDate((java.util.Date)row[6], this.DATE_OUTPUT_ALTIO));
+    requestNode.setAttribute("requestCreateDateDisplay", row[6] == null ? ""  : this.formatDate((java.util.Date)row[6], this.DATE_OUTPUT_SQL));
+    requestNode.setAttribute("requestCreateDateDisplayMedium", row[6] == null ? ""  : DateFormat.getDateInstance(DateFormat.MEDIUM).format((java.util.Date)row[6]));
+    requestNode.setAttribute("createDate",             row[6] == null ? ""  : this.formatDate((java.util.Date)row[6], this.DATE_OUTPUT_SLASH));
     requestNode.setAttribute("idSlideProduct",         row[9] == null ? ""  : ((Integer)row[9]).toString());
     requestNode.setAttribute("idLab",                  row[12] == null ? "" : ((Integer)row[12]).toString());
     requestNode.setAttribute("idAppUser",              row[14] == null ? "" : ((Integer)row[14]).toString());

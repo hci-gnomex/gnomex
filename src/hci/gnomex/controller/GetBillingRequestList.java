@@ -104,10 +104,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         String labLastName          = (String)row[4]  == null ? ""  : (String)row[4];
         String labFirstName         = (String)row[5]  == null ? ""  : (String)row[5];
         AppUser submitter           = (AppUser)row[6];
-        Date createDate             = (Date)row[7];
+        java.util.Date createDate   = (java.util.Date)row[7];
         Date completedDate          = (Date)row[8];
         BillingAccount billingAcct  = (BillingAccount)row[9];
         String labIsExternalPricing = (String)row[10];
+        String labIsExternalPricingCommercial = (String)row[11];
         
         String labName = Lab.formatLabName(labLastName, labFirstName);
         
@@ -137,6 +138,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
         node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
         node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+        node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
       
         String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
         String requestNumberBilled = requestNumber + labBillingName;
@@ -186,11 +188,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String labLastName          = (String)row[5]  == null ? ""  : (String)row[5];
       String labFirstName         = (String)row[6]  == null ? ""  : (String)row[6];
       AppUser submitter           = (AppUser)row[7];
-      Date createDate             = (Date)row[8];
+      java.util.Date createDate   = (java.util.Date)row[8];
       Date completedDate          = (Date)row[9];
       BillingAccount billingAcct  = (BillingAccount)row[10];
       String labIsExternalPricing = (String)row[11];
-  
+      String labIsExternalPricingCommercial = (String)row[12];
       
       String labName = Lab.formatLabName(labLastName, labFirstName);
   
@@ -258,6 +260,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
       node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
       node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+      node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
       
       // There can be multiple requests nodes for a given request number when
       // the request's billing items are split among multiple billing 

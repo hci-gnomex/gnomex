@@ -443,6 +443,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setContactZip(labScreen.getContactZip());
     lab.setIsCcsgMember(labScreen.getIsCcsgMember());
     lab.setIsExternalPricing(labScreen.getIsExternalPricing());
+    lab.setIsExternalPricingCommercial(labScreen.getIsExternalPricingCommercial());
     lab.setIsActive(labScreen.getIsActive());
     lab.setExcludeUsage(labScreen.getExcludeUsage());
 

@@ -261,7 +261,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     
     Integer idRequest           = (Integer)row[0];
     String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
-    Date createDate             = (Date)row[4];
+    java.util.Date createDate             = (java.util.Date)row[4];
     Integer idLab               = (Integer)row[5];
     String labLastName          = (String)row[6]  == null ? ""  : (String)row[6];
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
@@ -271,7 +271,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              idRequest.toString());
     requestNode.setAttribute("label",                  requestNumber);
-    requestNode.setAttribute("requestSubmitDate",      createDate == null ? ""  : this.formatDate((java.sql.Date)createDate, this.DATE_OUTPUT_DASH));
+    requestNode.setAttribute("requestSubmitDate",      createDate == null ? ""  : this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH));
     requestNode.setAttribute("idLab",                  idLab == null ? "" : idLab.toString());
     requestNode.setAttribute("lab",                    labName);
   
@@ -305,7 +305,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
     String codeRequestStatus    = (String)row[2]  == null ? ""  : (String)row[2];
     String codeRequestCategory  = (String)row[3]  == null ? ""  : (String)row[3];
-    Date createDate             = (Date)row[4];
+    java.util.Date createDate   = (java.util.Date)row[4];
     Integer idLab               = (Integer)row[5];
     String labLastName          = (String)row[6]  == null ? ""  : (String)row[6];
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
@@ -354,7 +354,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("col",            wellCol != null ? wellCol.toString() : "");
     n.setAttribute("index",          wellIndex != null ? wellIndex.toString() : "");
     n.setAttribute("idPlate",        idPlate != null ? idPlate.toString() : "");
-    n.setAttribute("requestSubmitDate",  createDate == null ? ""  : this.formatDate((java.sql.Date)createDate, this.DATE_OUTPUT_DASH));
+    n.setAttribute("requestSubmitDate",  createDate == null ? ""  : this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH));
     n.setAttribute("requestSubmitter",   submitter != null ? submitter.getDisplayName() : "");
     
     if ( idAssay != null && idAssay.intValue() != -1 ) {

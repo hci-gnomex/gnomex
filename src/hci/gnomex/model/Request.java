@@ -29,7 +29,7 @@ public class Request extends HibernateDetailObject {
   
   private Integer         idRequest;
   private String          number;
-  private Date            createDate;
+  private java.util.Date  createDate;
   private String          protocolNumber;
   private String          codeProtocolType;
   private Integer         idCoreFacility;
@@ -129,11 +129,11 @@ public class Request extends HibernateDetailObject {
     this.codeRequestCategory = codeRequestCategory;
   }
   
-  public Date getCreateDate() {
+  public java.util.Date getCreateDate() {
     return createDate;
   }
   
-  public void setCreateDate(Date createDate) {
+  public void setCreateDate(java.util.Date createDate) {
     this.createDate = createDate;
   }
   
@@ -786,7 +786,7 @@ public class Request extends HibernateDetailObject {
     return Request.getKey(this.getNumber(), this.getCreateDate(), resultsDir);
   }
   
-  public static String getKey(String requestNumber, java.sql.Date theCreateDate, String resultsDir) {
+  public static String getKey(String requestNumber, java.util.Date theCreateDate, String resultsDir) {
     if (theCreateDate == null) {
       return "";
     } else {
@@ -806,7 +806,7 @@ public class Request extends HibernateDetailObject {
     return Request.getCreateYear(this.getCreateDate());
   }
   
-  public static String getCreateYear(Date theCreateDate) {
+  public static String getCreateYear(java.util.Date theCreateDate) {
     if (theCreateDate == null) {
       return "";
     } else {

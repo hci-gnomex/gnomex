@@ -123,7 +123,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String codeRequestCategory = (String)row[2];
         String hybNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
         
-        String createDate    = this.formatDate((java.sql.Date)row[0]);
+        String createDate    = this.formatDate((java.util.Date)row[0]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
@@ -145,7 +145,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String requestNumber = (String)row[1];
         String codeRequestCategory = (String)row[2];
         
-        String createDate    = this.formatDate((java.sql.Date)row[0]);
+        String createDate    = this.formatDate((java.util.Date)row[0]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
@@ -160,7 +160,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String baseKey = createYear + "-" + sortDate + "-" + requestNumber;
         
         // Now read the request directory to identify all its subdirectories
-        Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.sql.Date)row[0]), codeRequestCategory);
+        Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.util.Date)row[0]), codeRequestCategory);
         this.hashFolders(folders, rowMap, dh, baseKey, row);
       }
       
@@ -196,7 +196,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String codeRequestCategory = (String)row[2];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];
 
-        String createDate    = this.formatDate((java.sql.Date)row[0]);
+        String createDate    = this.formatDate((java.util.Date)row[0]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
@@ -226,7 +226,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         Object[] row = (Object[])rowMap.get(key);
         String codeRequestCategory = (String)row[2];
         String hybNumber =  (String)row[5];
-        String createDate = this.formatDate((java.sql.Date)row[0]);
+        String createDate = this.formatDate((java.util.Date)row[0]);
         Integer idRequest = row[21] != null ? (Integer)row[21] : Integer.valueOf(0);
         
         String appUserName = "";
@@ -264,7 +264,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           doc.getRootElement().addContent(requestNode);
           
           // Show files under the root experiment directory
-          String createDateString = this.formatDate((java.sql.Date)row[0]);
+          String createDateString = this.formatDate((java.util.Date)row[0]);
           addRootFileNodes(requestNode, requestNumber,  createDateString, null);
 
           // Crawl the upload staging directory and show its files under the root experiment directory
@@ -416,7 +416,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               n1.setAttribute("state", "unchecked");
               n1.setAttribute("altColor", new Boolean(alt).toString());
               n1.setAttribute("idRequest", row[21].toString());
-              n1.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
+              n1.setAttribute("createDate", this.formatDate((java.util.Date)row[0]));
               n1.setAttribute("requestNumber", (String)row[1]);
               n1.setAttribute("codeRequestCategory", fcCodeRequestCategory);
               n1.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);

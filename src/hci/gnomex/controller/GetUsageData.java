@@ -580,7 +580,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     List summaryRows = sess.createQuery(buf.toString()).list();
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
-      java.sql.Date createDate  = (java.sql.Date)rows[0];
+      java.util.Date createDate  = (java.util.Date)rows[0];
       Integer experimentCount   = (Integer)rows[1];
       
       String createDateKey = dfNormal.format(createDate);

@@ -923,12 +923,19 @@
 					params.idBillingPeriod = lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "";
 	       			this.createBillingItems.send(params);
 	    	   	} else if (dragNode.name() == "Price") {
+					var price:String = dragNode.@unitPrice;
+					if (dropRequestNode.@isExternalPricing == 'Y') {
+						price = dragNode.@unitPriceExternalAcademic;
+					}
+					if (dropRequestNode.@isExternalPricingCommercial == 'Y') {
+						price = dragNode.@unitPriceExternalCommercial;
+					}
        				var newBillingItem:XML = new XML(
        				 "<BillingItem " + 
        				 " codeBillingChargeKind='" + dragNode.@codeBillingChargeKind + "'" +
        			 	 " category='" + dragNode.@category + "'" +
        			 	 " description='" + dragNode.@name + "'" +
-       			 	 " unitPrice='" + (dropRequestNode.@isExternalPricing == 'Y' ? dragNode.@unitPriceExternalAcademic : dragNode.@unitPrice) + "'" +	
+       			 	 " unitPrice='" + price + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
 					 //" idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
 					 " idBillingPeriod='" + (lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "") + "'" + 
@@ -1080,7 +1087,7 @@
 			var isEmptyPriceOrQty:Boolean = false;
 			for each(var request:XML in billingItems) {
  				if (request.@isDirty == "Y") { 
- 					if (request.@isExternalPricing == "Y") {
+ 					if (request.@isExternalPricing == "Y" || request.@isExternalCommercialPricing == "Y") {
 	 					for each(var bi:XML in request.BillingItem) {
 	 						if (bi.@codeBillingStatus == 'APPROVED') {
 	 							isExternalApproved = true;
@@ -1794,6 +1801,31 @@
 			return item.@completeDateOther.toString();
 		}
 		
+		private function showPricingTreeToolTips(object:Object):String
+		{
+			if(object.hasOwnProperty("dataField"))
+			{
+				switch(object.dataField)
+				{
+					case "@unitPriceCurrency":
+						
+						return "Internal Unit Price";
+						break;
+					
+					case "@unitPriceExternalAcademicCurrency":
+						
+						return "External Unit Price for Academic Labs";
+						break;
+					
+					case "@unitPriceExternalCommercialCurrency":
+						
+						return "External Unit Price for Commercial Labs";
+						break;
+				}
+			}
+			
+			return "";
+		}		
  	]]>
  </mx:Script>	
 
@@ -1962,14 +1994,16 @@
 						 borderStyle="solid" 
 						 dropShadowEnabled="true" 
 						 headerWordWrap="false" 
-						 resizableColumns="true">						
-    		 	        <util:dataProvider> 
+						resizableColumns="true" 
+						dataTipFunction="showPricingTreeToolTips">						
+  		 	        <util:dataProvider> 
   						  <mx:HierarchicalData source="{pricingList}"/>
 				        </util:dataProvider>						  
 				        <util:columns>
   						  <mx:AdvancedDataGridColumn dataField="@display"  headerText="" width="200"/> 
-  						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="50" textAlign="right" /> 
-  						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalAcademicCurrency"  headerText="External" width="50" textAlign="right" /> 
+						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="50" textAlign="right" showDataTips="true" /> 
+						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalAcademicCurrency"  headerText="Acdmc" width="50" textAlign="right" showDataTips="true" /> 
+						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCommercialCurrency"  headerText="Cmmrcl" width="50" textAlign="right" showDataTips="true" /> 
   					    </util:columns>
   					</util:AdvancedDataGridAS>
   					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0">

@@ -501,6 +501,7 @@
 		<property name="firstName" column="firstName" type="string"/>
 		<property name="lastName" column="lastName" type="string"/>
 		<property name="isExternalPricing" column="isExternalPricing" type="string"/>
+    <property name="isExternalPricingCommercial" column="isExternalPricingCommercial" type="string"/>
 		<property name="department" column="department" type="string"/>
 		<property name="contactName" column="contactName" type="string"/>
 		<property name="contactAddress" column="contactAddress" type="string"/>
@@ -662,7 +663,7 @@
 		<property name="number" column="number" type="string"/>
 		<property name="codeProtocolType" column="codeProtocolType" type="string"/>
 		<property name="protocolNumber" column="protocolNumber" type="string"/>
-		<property name="createDate" column="createDate" type="date"/>
+		<property name="createDate" column="createDate" type="java.util.Date"/>
 		<property name="idLab" column="idLab" type="integer"/>
 		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     	<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
@@ -1485,6 +1486,7 @@
 		<property name="isActive"  column="isActive" type="string"/>
 		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
 		<property name="unitPriceExternalAcademic" column="unitPriceExternalAcademic" type="big_decimal"/>
+    <property name="unitPriceExternalCommercial" column="unitPriceExternalCommercial" type="big_decimal"/>
 		<property name="idPriceCategory" column="idPriceCategory" type="integer"/>
 		<set name="priceCriterias" table="PriceCriteria" lazy="true" cascade="delete" >
 			<key column="idPrice"/>

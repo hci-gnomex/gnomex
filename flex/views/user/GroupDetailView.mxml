@@ -368,6 +368,7 @@
 				params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
 				params.isActive = this.isActiveCheckBox.selected ? "Y" : "N";
 				params.isExternalPricing = this.isExternalPricingAcademicButton.selected ? "Y" : "N";
+				params.isExternalPricingCommercial = this.isExternalPricingCommercialButton.selected ? "Y" : "N";
 				params.excludeUsage = this.excludeUsageCheckBox.selected ? "Y" : "N"; 
 				
 				for each(var acct:Object in billingAccounts) {
@@ -471,6 +472,10 @@
 			private function checkPricingChange():void {
 				if(isExternalPricingAcademicButton.selected) {
 					if(parentDocument.fullLab.@isExternalPricing != 'Y') {
+						dirty.setDirty();
+					}
+				} else if (isExternalPricingCommercialButton.selected) {
+					if(parentDocument.fullLab.@isExternalPricingCommercial != 'Y') {
 						dirty.setDirty();
 					}
 				} else {
@@ -807,8 +812,9 @@
 			</mx:VBox>
 			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:HBox horizontalGap="12">
-					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? false : true}" click="checkPricingChange()"/>
+					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' || parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? false : true}" click="checkPricingChange()"/>
 					<mx:RadioButton id="isExternalPricingAcademicButton" label="External Academic Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>
+					<mx:RadioButton id="isExternalPricingCommercialButton" label="External Commercial Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? true : false}" click="checkPricingChange()"/>
 				</mx:HBox>
 				<mx:Spacer height="2"/>
 				<mx:Label text="Accounts" fontWeight="bold"/>

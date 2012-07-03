@@ -1603,6 +1603,7 @@
 									currentState="userState" />
 		</mx:AddChild>
 		<mx:RemoveChild target="{filesView}"/>
+		<mx:RemoveChild target="{parentDocument.downloadsLink}"/>
 	</mx:State>
 	<mx:State name="CapSeqState" basedOn="BaseSeqChromoState">
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
