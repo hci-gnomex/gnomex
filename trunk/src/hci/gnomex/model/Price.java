@@ -17,6 +17,7 @@ public class Price extends DictionaryEntry implements Serializable {
   private String     description;
   private BigDecimal unitPrice;
   private BigDecimal unitPriceExternalAcademic;
+  private BigDecimal unitPriceExternalCommercial;
   private String     isActive;
   private Set        priceCriterias = new TreeSet();
   
@@ -94,11 +95,18 @@ public class Price extends DictionaryEntry implements Serializable {
   public BigDecimal getUnitPriceExternalAcademic() {
     return unitPriceExternalAcademic;
   }
-
-
   
   public void setUnitPriceExternalAcademic(BigDecimal unitPriceExternalAcademic) {
     this.unitPriceExternalAcademic = unitPriceExternalAcademic;
+  }
+
+  
+  public BigDecimal getUnitPriceExternalCommercial() {
+    return unitPriceExternalCommercial;
+  }
+  
+  public void setUnitPriceExternalCommercial(BigDecimal unitPriceExternalCommercial) {
+    this.unitPriceExternalCommercial = unitPriceExternalCommercial;
   }
 
   
@@ -123,6 +131,14 @@ public class Price extends DictionaryEntry implements Serializable {
       return "";
     }
   }
+  
+  public String getUnitPriceExternalCommercialCurrency() {
+    if (unitPriceExternalCommercial != null) {
+      return NumberFormat.getCurrencyInstance().format(unitPriceExternalCommercial);
+    } else {
+      return "";
+    }
+  }
 
   
   public Set getPriceCriterias() {
@@ -137,6 +153,8 @@ public class Price extends DictionaryEntry implements Serializable {
  public BigDecimal getEffectiveUnitPrice(Lab lab) {
    if (lab != null && lab.getIsExternalPricing() != null && lab.getIsExternalPricing().equalsIgnoreCase("Y")) {
      return unitPriceExternalAcademic;
+   } else if (lab != null && lab.getIsExternalPricingCommercial() != null && lab.getIsExternalPricingCommercial().equalsIgnoreCase("Y")) {
+       return unitPriceExternalCommercial;
    } else {
      return unitPrice;
    }

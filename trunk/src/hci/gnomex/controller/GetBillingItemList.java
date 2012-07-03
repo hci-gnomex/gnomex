@@ -125,6 +125,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       AppUser submitter           = (AppUser)row[8];
       BillingItem billingItem     = (BillingItem)row[9];
       String labIsExternalPricing = (String)row[10];
+      String labIsExternalPricingCommercial = (String)row[11];
 
       String labName = Lab.formatLabName(labLastName, labFirstName);
       
@@ -166,6 +167,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountNameAndNumber());       
         requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
         requestNode.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+        requestNode.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
         requestNode.setAttribute("isDirty", "N");
 
         

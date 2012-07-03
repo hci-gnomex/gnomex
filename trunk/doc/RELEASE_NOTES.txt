@@ -1,7 +1,13 @@
 ﻿GNomEx Release Notes
 ---------------------
 
-5.4.1
+5.4.6
+---------------------
+. Can now choose External Commercial as pricing for a lab and add External Commercial pricing in the billing screen.  (bspiglejr)
+. The detail screen for Order Review screen for sequencing experiments now allows editting of the experiment.  (bspiglejr)
+. Order Review screen now shows submit time as well as date. (bspiglejr)
+
+5.4.5.1
 ---------------------
 * Changes to enable file downloading for Exp/Analysis/DT from within the Topics feature.
 

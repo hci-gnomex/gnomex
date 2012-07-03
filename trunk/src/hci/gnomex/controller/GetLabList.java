@@ -153,6 +153,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
           
           lab.excludeMethodFromXML("getIsCcsgMember");
           lab.excludeMethodFromXML("getIsExternalPricing");
+          lab.excludeMethodFromXML("getIsExternalPricingCommercial");
           
           doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement());
         }

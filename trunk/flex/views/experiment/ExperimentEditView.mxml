@@ -220,9 +220,18 @@
 			import mx.validators.ValidationResult;
 			
 			import views.experiment.ConvertIlluminaRequestWindow;
+			import views.order.NavOrderView;
 			import views.util.PromptXMLListCollection;
-			import views.util.StringUtil;
 
+			import views.util.StringUtil;
+        
+		[Embed(source='../../assets/page.png')]
+		[Bindable]
+		public var viewIcon:Class;
+		
+		[Embed(source='../../assets/arrow_left.png')]
+		[Bindable]
+		public var leftArrowIcon:Class;
 
 		[Bindable]
 		private var requestIcon:String = '';
@@ -2052,6 +2061,9 @@
 				this.sampleSetupView.currentState = 'CherryPickState';
 				
 				this.samplesView.currentState = 'CherryPickState';				
+				var numDestinationWells:int = Number(this.request.@numDestinationWells.toString());
+				cherryPlateList = this.request.cherryPlateList.Plate;
+				samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				this.samplesView.showHideColumns();				
 			} else {
 				
@@ -2095,6 +2107,14 @@
 			this.getRequestCategoryName();
 			this.getBillingAccountName(); 
 			this.getExperimentCategoryName();
+
+			if (parentDocument is NavOrderView) {
+				this.linkbutton2.label = "Back";
+				this.linkbutton2.setStyle('icon',this.leftArrowIcon);
+			} else {
+				this.linkbutton2.label = "View";
+				this.linkbutton2.setStyle('icon',this.viewIcon);
+			}
 
 		    postSetupEditForm();
 
@@ -3538,11 +3558,14 @@
 		}			
 
 		private function showViewWindow():void {
-		     parentDocument.theViews.selectedChild = parentDocument.detailView;
-           	 parentDocument.detailView.detail.setupForm(this.request);
+			if (parentDocument is NavOrderView) {
+				parentDocument.theViews.selectedChild = parentDocument.browseView;
+			} else {
+				parentDocument.theViews.selectedChild = parentDocument.detailView;
+				parentDocument.detailView.detail.setupForm(this.request);
+			}
 		}
 		
-
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
 				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
@@ -4283,25 +4306,26 @@
 				return params;					
 			}
 			
+			private function getBrowseParametersOrderView():Object {
+				var params:Object = new Object();
+				params.idRequest = request.@idRequest;
+				params.idLab = request.@idLab;
+				params.lastYear = 'Y';
+				params.isMicroarray  = "N";
+				params.isNextGenSeq  = "N";
+				params.isBioanalyzer = "N";
+					
+				
+				return params;					
+			}
+			
 			public function reloadDownloadList():void {
 				// Getting the download list is slow since we now show an expanded file
 				// view by default.  Only show downloads at request or project level.
-				if (parentDocument.selectedIdProject != null || 
-					parentDocument.selectedIdRequest != null) {
-					downloadView.getRequestDownloadList.send(getBrowseParameters());
+				if (parentDocument is NavOrderView) {
+					downloadView.getRequestDownloadList.send(getBrowseParametersOrderView());
 					downloadView.browseMessage = "";
 				} else {
-					downloadView.browseMessage = "Click on a project or request to narrow download selection.";
-					downloadView.downloadSizeMessage = "";
-					downloadView.rowCountMessage = "";
-					downloadView.downloadTree.visible = false;
-				}
-			}
-			
-			public function refreshDownloadList():void {
-				if (theTab.selectedChild == downloadView) {
-					// Getting the download list is slow since we now show an expanded file
-					// view by default.  Only show downloads at request or project level.
 					if (parentDocument.selectedIdProject != null || 
 						parentDocument.selectedIdRequest != null) {
 						downloadView.getRequestDownloadList.send(getBrowseParameters());
@@ -4312,6 +4336,14 @@
 						downloadView.rowCountMessage = "";
 						downloadView.downloadTree.visible = false;
 					}
+				}
+			}
+			
+			public function refreshDownloadList():void {
+				if (theTab.selectedChild == downloadView) {
+					// Getting the download list is slow since we now show an expanded file
+					// view by default.  Only show downloads at request or project level.
+					reloadDownloadList();
 					theTab.selectedChild = downloadView;
 				}
 			}
@@ -4323,8 +4355,15 @@
 				
 			}
 			public function showAlternateDownloadPage():void {
-				if (parentDocument.selectedIdRequest != null) {
-					var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+				var url:URLRequest = null;
+				if (parentDocument is NavOrderView) {
+					url = new URLRequest('ShowRequestDownloadForm' + 
+						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+						'.gx?idRequest=' + 
+						request.@idRequest.toString());
+					navigateToURL(url, '_blank');					 
+				} else if (parentDocument.selectedIdRequest != null) {
+					url = new URLRequest('ShowRequestDownloadForm' + 
 						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
 						'.gx?idRequest=' + 
 						parentDocument.selectedIdRequest);
@@ -4888,6 +4927,7 @@
 		</mx:State>
 		<mx:State name="SequencingChromaEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{downloadView}"/>
+			<mx:RemoveChild target="{downloadsLink}"/>
 		</mx:State>
 		<mx:State name="CapSeqState">
 			<mx:RemoveChild target="{hybSetupView}"/>

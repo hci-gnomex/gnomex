@@ -1095,7 +1095,7 @@ public class BuildSearchIndex extends DetailObject {
     String       requestOwnerLastName = null;
     String       requestCodeVisibility = null;
     String       requestPublicNote = null;
-    Date         requestCreateDate = null;
+    java.util.Date requestCreateDate = null;
     StringBuffer requestDisplayName = null;
     String       labProject = null;
     String       labRequest = null;
@@ -1191,7 +1191,7 @@ public class BuildSearchIndex extends DetailObject {
       requestOwnerFirstName    = (String) row[24];
       requestOwnerLastName     = (String) row[25];      
       requestCodeVisibility    = (String) row[27];
-      requestCreateDate        = row[28] instanceof java.sql.Date ? (java.sql.Date) row[28] : null;
+      requestCreateDate        = row[28] instanceof java.util.Date ? (java.util.Date) row[28] : null;
       slideProduct             = (String) row[30];
       idAppUser                = (Integer)row[31];
       idInstitution            = (Integer)row[36];

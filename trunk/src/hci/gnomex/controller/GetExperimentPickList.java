@@ -107,7 +107,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String requestNumber = (String)row[3];
         String hybNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
         
-        String createDate    = this.formatDate((java.sql.Date)row[2]);
+        String createDate    = this.formatDate((java.util.Date)row[2]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
@@ -129,7 +129,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String requestNumber = (String)row[3];
         String laneNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
         
-        String createDate    = this.formatDate((java.sql.Date)row[2]);
+        String createDate    = this.formatDate((java.util.Date)row[2]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
@@ -224,8 +224,8 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[1] == null ? ""  : ((Integer)row[1]).toString());
-    requestNode.setAttribute("createDate",             row[2] == null ? ""  : this.formatDate((java.sql.Date)row[2], this.DATE_OUTPUT_ALTIO));
-    requestNode.setAttribute("createDateDisplay",      row[2] == null ? ""  : this.formatDate((java.sql.Date)row[2], this.DATE_OUTPUT_SQL));
+    requestNode.setAttribute("createDate",             row[2] == null ? ""  : this.formatDate((java.util.Date)row[2], this.DATE_OUTPUT_ALTIO));
+    requestNode.setAttribute("createDateDisplay",      row[2] == null ? ""  : this.formatDate((java.util.Date)row[2], this.DATE_OUTPUT_SQL));
     requestNode.setAttribute("number",                 row[3] == null ? ""  : (String)row[3]);
     requestNode.setAttribute("codeRequestCategory",    codeRequestCategory);
     requestNode.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");

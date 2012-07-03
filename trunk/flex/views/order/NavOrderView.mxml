@@ -4,14 +4,29 @@
 		   xmlns:views="views.*"  show="init()"
 		   xmlns:order="views.order.*"
 		   xmlns:util="views.util.*"
+		   xmlns:experiment="views.experiment.*"
 		   creationPolicy="all" 
 		   cornerRadius="10"  >
 	
 	
+	<mx:HTTPService  
+		id="getRequest" 
+		url="GetRequest.gx"
+		destination="getRequest"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
 	
 	<mx:Script> 
 		<![CDATA[
-			
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+
 			[Bindable]
 			public var selectedRequest:Object;
 			
@@ -25,7 +40,25 @@
 			}
 			
 			public function switchToOrderDetailView():void{
-				this.theViews.selectedChild = detailView;
+				editView.titleLabel.text = (selectedRequest.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ selectedRequest.@requestNumber;
+				var parms:Object = new Object();
+				parms.idRequest = selectedRequest.@idRequest;;
+				getRequest.send(parms);
+			}
+			
+			private function onGetRequest(event:ResultEvent):void {
+				if (getRequest.lastResult.name() == "SUCCESS") {
+					Alert.show("Experiment  not found");					
+					return;
+				}
+
+				selectedRequest = getRequest.lastResult.Request.(@idRequest == selectedRequest.@idRequest);
+				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedRequest.@codeRequestCategory);
+
+				theViews.selectedChild = editView;
+				editView.removeDataListeners();
+				editView.setupEditForm(this.selectedRequest);
+				callLater(editView.setupDataListeners);
 			}
 			
 			
@@ -49,13 +82,9 @@
 									   label="Order List"
 									   icon="@Embed('../../assets/application_view_list.png')">
 				</order:OrderBrowseView>
-				<order:OrderDetailView id="detailView"
-									   width="100%"
-									   height="100%"
-									   label="Order Detail"
-									   icon="@Embed(source='../../assets/tv_chart.png')"
-									   selectedRequest="{selectedRequest}">
-				</order:OrderDetailView>
+				<experiment:ExperimentEditView id="editView" width="100%" height="100%" label="Order Detail"
+											   icon="@Embed(source='../../assets/tv_chart.png')">
+				</experiment:ExperimentEditView>
 
 				
 			</mx:ViewStack>

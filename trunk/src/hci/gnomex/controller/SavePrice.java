@@ -162,6 +162,7 @@ public class SavePrice extends GNomExCommand implements Serializable {
     price.setDescription(priceScreen.getDescription());
     price.setUnitPrice(priceScreen.getUnitPrice());
     price.setUnitPriceExternalAcademic(priceScreen.getUnitPriceExternalAcademic());
+    price.setUnitPriceExternalCommercial(priceScreen.getUnitPriceExternalCommercial());
     price.setIdPriceCategory(priceScreen.getIdPriceCategory());
     price.setIsActive(priceScreen.getIsActive());
     

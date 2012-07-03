@@ -239,7 +239,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           n.setAttribute("idRequest",              row[0] == null ? "" : ((Integer)row[0]).toString());
           n.setAttribute("requestNumber",          row[1] == null ? "" : (String)row[1]);
-          n.setAttribute("createDate",             row[2] == null ? "" :  this.formatDate((java.sql.Date)row[2]));
+          n.setAttribute("createDate",             row[2] == null ? "" :  this.formatDate((java.util.Date)row[2]));
           n.setAttribute("codeRequestCategory",    row[3] == null ? "" :  (String)row[3]);
           n.setAttribute("codeRequestCategory1",   row[3] == null ? "" :  (String)row[3]);
           n.setAttribute("idAppUser",              row[4] == null ? "" :  ((Integer)row[4]).toString());

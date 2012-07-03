@@ -214,7 +214,7 @@ public class RegisterFiles extends TimerTask {
     for (Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       String requestNbr            = (String)row[0];
-      java.sql.Date createDate     = (java.sql.Date)row[1];
+      java.util.Date createDate     = (java.util.Date)row[1];
       String codeRequestCategory   = (String)row[2];
       Integer idRequest            = (Integer)row[3];
       
@@ -364,7 +364,7 @@ public class RegisterFiles extends TimerTask {
     }
   }
   
-  private Map hashFiles(String requestNumber, java.sql.Date createDate, String codeRequestCategory)  throws Exception {
+  private Map hashFiles(String requestNumber, java.util.Date createDate, String codeRequestCategory)  throws Exception {
     HashMap fileMap = new HashMap();
     String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
     

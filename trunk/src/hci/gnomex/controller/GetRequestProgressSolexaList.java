@@ -136,7 +136,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         n.setAttribute("altColor",        new Boolean(alt).toString());
         n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");        
         n.setAttribute("idRequest",       row[0].toString());
-        n.setAttribute("createDate",      this.formatDate((java.sql.Date)row[1]));
+        n.setAttribute("createDate",      this.formatDate((java.util.Date)row[1]));
         n.setAttribute("requestNumber",  (String)row[2]);
         n.setAttribute("idAppUser",       row[3] == null ? "" : ((Integer)row[3]).toString());
         n.setAttribute("sampleNumber",    row[4] == null ? "" : (String)row[4]);

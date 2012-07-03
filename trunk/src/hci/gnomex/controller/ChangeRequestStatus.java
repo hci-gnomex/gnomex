@@ -67,9 +67,14 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       
       if (this.isValid()) {
         
-        
         Request req = (Request) sess.get( Request.class,idRequest );
+        String oldRequestStatus = req.getCodeRequestStatus();
+        
         req.setCodeRequestStatus( codeRequestStatus );
+        
+        if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
+          req.setCreateDate(new java.util.Date());
+        }
         
         // If this is a DNA Seq core request, we need to create the billing items when the status changes to
         // submitted
