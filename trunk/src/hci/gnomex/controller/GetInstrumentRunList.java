@@ -64,7 +64,6 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
       if( ! runFilter.hasSufficientCriteria( this.getSecAdvisor() ) ) {
         message = "Please select a filter";
-//        rootNode.setAttribute( "message", message );
       } else {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(
             this.getUsername() );
@@ -110,7 +109,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
           List plates = sess.createQuery(
               "SELECT p from Plate as p where p.idInstrumentRun="
-                  + idInstrumentRun ).list();
+                  + idInstrumentRun + "  ORDER BY p.quadrant").list();
 
           for( Iterator i2 = plates.iterator(); i2.hasNext(); ) {
             Plate plate = ( Plate ) i2.next();
@@ -124,11 +123,13 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
             List wells = sess.createQuery(
                 "SELECT w from PlateWell as w where w.idPlate="
-                    + plate.getIdPlate() ).list();
+                    + plate.getIdPlate()  ).list();
 
             for( Iterator i3 = wells.iterator(); i3.hasNext(); ) {
               PlateWell well = ( PlateWell ) i3.next();
               well.excludeMethodFromXML( "getSample" );
+              well.excludeMethodFromXML("getAssay");
+              well.excludeMethodFromXML("getPrimer");
               Element pwNode = well.toXMLDocument( null,
                   DetailObject.DATE_OUTPUT_SQL ).getRootElement();
 

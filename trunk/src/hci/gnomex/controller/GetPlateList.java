@@ -101,13 +101,21 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           
           
           
-          List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
+          List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
 
           for(Iterator i2 = plateWells.iterator(); i2.hasNext();) {
             PlateWell plateWell = (PlateWell)i2.next();
             plateWell.excludeMethodFromXML("getPlate");
             plateWell.excludeMethodFromXML("getSample");
+            plateWell.excludeMethodFromXML("getAssay");
+            plateWell.excludeMethodFromXML("getPrimer");
             Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            
+            if ( plateWell.getAssay() != null ) {
+              node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+            } else if ( plateWell.getPrimer() != null ) {
+              node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+            }
             
             node.setAttribute("requestSubmitDate", "");
             node.setAttribute("requestSubmitter", "");
