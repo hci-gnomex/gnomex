@@ -78,7 +78,7 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
         iNode.setAttribute( "creator", creator);
       }
 
-      List plates = sess.createQuery("SELECT p from Plate as p where p.idInstrumentRun=" + idInstrumentRun).list();
+      List plates = sess.createQuery("SELECT p from Plate as p where p.idInstrumentRun=" + idInstrumentRun + "  ORDER BY p.quadrant").list();
 
       for(Iterator i = plates.iterator(); i.hasNext();) {
         Plate plate = (Plate)i.next();
@@ -97,7 +97,7 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
         
         Element pwNode = new Element("plateWells");
 
-        List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate()).list();
+        List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + plate.getIdPlate() ).list();
 
         for(Iterator i1 = plateWells.iterator(); i1.hasNext();) {
           PlateWell plateWell = (PlateWell)i1.next();
