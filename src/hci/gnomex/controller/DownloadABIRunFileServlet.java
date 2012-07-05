@@ -7,6 +7,7 @@ import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
@@ -41,7 +42,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
   
   private Integer                        idInstrumentRun;
   private InstrumentRun                  ir;
-  private DictionaryHelper               dictionaryHelper;
+  private String                         codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
   
   public void init() {
   
@@ -93,6 +94,10 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       response.getOutputStream().println("</html>");
       return;
       
+    }
+    
+    if (req.getParameter("codeReactionType") != null && !req.getParameter("codeReactionType").equals("")) {
+      codeReactionType = req.getParameter("codeReactionType");
     }
 
     InputStream in = null;
@@ -185,6 +190,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                 }
                 String idSample = well.getAttributeValue( "idSample" ) != null ? well.getAttributeValue("idSample") : "";
                 String idPlate = well.getAttributeValue( "idPlate" ) != null ? well.getAttributeValue("idPlate") : "";
+                String primer = well.getAttributeValue( "primer" ) != null ? well.getAttributeValue("primer") : "";
                 String wellRow = well.getAttributeValue( "row" ) != null ? well.getAttributeValue("row") : "";
                 int wellCol = well.getAttributeValue( "col" ) != null ? Integer.valueOf( well.getAttributeValue("col") ) : 0;
 
@@ -193,13 +199,23 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                   
                   response.getOutputStream().print( row + String.format( "%02d", col ) + "\t" );
                   
-                  String fileName = idSample + "#" + sampleName + "#" + idPlate;
-                  response.getOutputStream().print( fileName + "\t" );
+                  String fileName;
+                  if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
+                    fileName = idSample + "#" + sampleName + "#" + idPlate;
+                    response.getOutputStream().print( fileName + "\t" );
+                  } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
+                    fileName = sampleName + "_" + primer;
+                    response.getOutputStream().print( fileName + "\t" );
+                  }
                   
                   String comments = "<ID:" + idPlateWellString + "><WELL:" + wellRow + String.format( "%02d", wellCol ) + ">";
                   response.getOutputStream().print( comments + "\t" );
                   
-                  response.getOutputStream().print( "Finch\tLongSeq50\tSeq_A\t\r\n");
+                  if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
+                    response.getOutputStream().print( "Finch\tLongSeq50\tSeq_A\t\r\n");
+                  } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
+                    response.getOutputStream().print( "SMGF_Seq\tLongSeq50\tPCR\t\r\n");
+                  }
                 }
                 
                 

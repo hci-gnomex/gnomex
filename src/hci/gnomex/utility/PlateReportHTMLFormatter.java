@@ -199,7 +199,9 @@ public class PlateReportHTMLFormatter {
         String idRequestString = (String) i.next();
         Request req = 
           (Request) requestMap.get(idRequestString);
-
+        if ( req == null ) {
+          break;
+        }
         int index = requestNumbers.indexOf( idRequestString );
         Integer val = requestSampleNo.get( index );
 
