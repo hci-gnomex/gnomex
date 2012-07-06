@@ -782,11 +782,18 @@
 						
 					<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
 									   headerText="Releaser"
-									   width="80" minWidth="75"/>
+									   width="85" minWidth="75"/>
 						
-					<mx:DataGridColumn dataField="@redoFlag"
-									   headerText="Redo"
-									   width="45" />
+						<mx:DataGridColumn width="75" headerText="Redo">
+							<mx:itemRenderer>
+								<mx:Component >
+									<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+										<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
+										</mx:Image> 
+									</mx:HBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
 					
 					<mx:DataGridColumn dataField="@submitter"
 									   headerText="Submitter" minWidth="75"
