@@ -5,7 +5,7 @@
 	
 	<mx:HBox horizontalGap="10">
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram '+selectedIdChromatogram}"/>
-		<mx:LinkButton label="Back" click="{parentDocument.chromatViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>		
+		<mx:LinkButton label="Back" id="backButton" click="{parentDocument.chromatViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>		
 	</mx:HBox>
 	
 	<mx:HTTPService  
@@ -909,6 +909,7 @@
 			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>
 			<mx:SetProperty name="height" value="600"/>
 			<mx:SetProperty name="width" value="1000"/>
+			<mx:RemoveChild target="{backButton}"/>
 		</mx:State>
 	</mx:states>
 	
