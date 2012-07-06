@@ -1795,7 +1795,7 @@
 							   icon="@Embed(source='../../assets/igv.png')"
 							   disabledIcon="@Embed(source='../../assets/igv_disable.png')"  					        	
 							   toolTip="Create file link(s) for viewing the selected data track in the IGV Genome Browser"
-							   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackView.dataTrackFiles.length !=0 &amp;&amp;  dataTrackView.getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
+							   enabled="false"
 							   click="{createIGVLink()}" 
 							   id="makeIGVLinkButton" />
 							   
