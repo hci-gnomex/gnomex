@@ -153,8 +153,8 @@ public class AppUserFilter extends DetailObject {
       appendCoreFacilityInClause();
       queryBuf.append(" OR ");
            
-      // Also include any app user that is not yet assigned to a lab
-      queryBuf.append(" (lab.idLab is NULL AND collabLab.idLab is NULL AND managerLab.idLab is NULL) ");
+      // Also include any non-admin app user that is not yet assigned to a lab
+      queryBuf.append(" (user.codePermissionKind = '" + UserPermissionKind.GROUP_PERMISSION_KIND + "' AND lab.idLab is NULL AND collabLab.idLab is NULL AND managerLab.idLab is NULL) ");
       
       queryBuf.append(")");
 
