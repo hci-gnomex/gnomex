@@ -783,10 +783,10 @@ public class Request extends HibernateDetailObject {
   }
   
   public String getKey(String resultsDir) {
-    return Request.getKey(this.getNumber(), this.getCreateDate(), resultsDir);
+    return Request.getKey(this.getNumber(), this.getCreateDate(), resultsDir, this.getIdCoreFacility());
   }
   
-  public static String getKey(String requestNumber, java.util.Date theCreateDate, String resultsDir) {
+  public static String getKey(String requestNumber, java.util.Date theCreateDate, String resultsDir, Integer idCoreFacility) {
     if (theCreateDate == null) {
       return "";
     } else {
@@ -796,7 +796,7 @@ public class Request extends HibernateDetailObject {
       String createDay   = tokens[1];
       String createYear  = tokens[2];
       String sortDate = createYear + createMonth + createDay;
-      String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + resultsDir;     
+      String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + resultsDir + "-" + idCoreFacility;     
       return key;
     }
   }

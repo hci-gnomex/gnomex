@@ -158,9 +158,8 @@ public class RegisterFiles extends TimerTask {
   
   private void initialize() throws Exception {
     PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
-    baseExperimentDir   = ph.getMicroarrayDirectoryForReading(serverName);
     baseFlowCellDir     = ph.getFlowCellDirectory(serverName);
-    baseAnalysisDir     = ph.getAnalysisReadDirectory(serverName);
+    baseAnalysisDir     = ph.getAnalysisDirectory(serverName);
     flowCellDirFlag     = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
     
     // Figure out how far back we should look at experiments
@@ -202,7 +201,7 @@ public class RegisterFiles extends TimerTask {
     }
     
     // Get all of the experiments created on or after the as-of-date
-    buf = new StringBuffer("SELECT r.number, r.createDate, r.codeRequestCategory, r.idRequest ");
+    buf = new StringBuffer("SELECT r.number, r.createDate, r.codeRequestCategory, r.idRequest, r.idCoreFacility ");
     buf.append(" FROM Request r");
     if (asOfDate != null) {
       buf.append(" WHERE r.createDate >= '" + new SimpleDateFormat("yyyy-MM-dd").format(asOfDate.getTime()) + "'");
@@ -217,6 +216,7 @@ public class RegisterFiles extends TimerTask {
       java.util.Date createDate     = (java.util.Date)row[1];
       String codeRequestCategory   = (String)row[2];
       Integer idRequest            = (Integer)row[3];
+      Integer idCoreFacility       = (Integer)row[4];
       
       String baseRequestNumber = Request.getBaseRequestNumber(requestNbr);
 
@@ -224,7 +224,7 @@ public class RegisterFiles extends TimerTask {
       tx = sess.beginTransaction();
       
       // Get all of the files from the file system
-      Map fileMap = hashFiles(baseRequestNumber, createDate, codeRequestCategory);
+      Map fileMap = hashFiles(sess, baseRequestNumber, createDate, codeRequestCategory, idCoreFacility);
       for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
         String fileName = (String)i1.next();
         FileDescriptor fd = (FileDescriptor)fileMap.get(fileName);
@@ -364,9 +364,12 @@ public class RegisterFiles extends TimerTask {
     }
   }
   
-  private Map hashFiles(String requestNumber, java.util.Date createDate, String codeRequestCategory)  throws Exception {
+  private Map hashFiles(Session sess, String requestNumber, java.util.Date createDate, String codeRequestCategory, Integer idCoreFacility)  throws Exception {
     HashMap fileMap = new HashMap();
     String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
+    
+    String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+    
     
     // Get all of the folders in the experiment directory
     Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseExperimentDir, baseRequestNumber, Request.getCreateYear(createDate), codeRequestCategory);
@@ -377,7 +380,7 @@ public class RegisterFiles extends TimerTask {
       Map requestMap = new TreeMap();
       Map directoryMap = new TreeMap();
       List requestNumbers = new ArrayList<String>();
-      GetExpandedFileList.getFileNamesToDownload(baseExperimentDir, null, Request.getKey(requestNumber, createDate, folderName), requestNumbers, requestMap, directoryMap, flowCellDirFlag);
+      GetExpandedFileList.getFileNamesToDownload(sess, serverName, null, Request.getKey(requestNumber, createDate, folderName, idCoreFacility), requestNumbers, requestMap, directoryMap, flowCellDirFlag);
       List directoryKeys   = (List)requestMap.get(baseRequestNumber);
       if (directoryKeys != null) {
         for(Iterator i2 = directoryKeys.iterator(); i2.hasNext();) {
