@@ -6,6 +6,7 @@ import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
@@ -235,9 +236,12 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         boolean hasRedo = false;
         for (Sample s : (Set<Sample>)req.getSamples()) {
           for (PlateWell well : (Set<PlateWell>)s.getWells()) {
-            if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
-              hasRedo = true;
-              break;
+            // Only check source wells for redo.  The reaction well will be set to redo and not toggle back.
+            if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+              if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
+                hasRedo = true;
+                break;
+              }
             }
           }
         }
