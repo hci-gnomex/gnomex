@@ -122,13 +122,12 @@ public class DownloadResultsServlet extends HttpServlet {
         
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-        baseDirFlowCell = dh.getFlowCellDirectory(req.getServerName());
-        baseDir = dh.getMicroarrayDirectoryForReading(req.getServerName());
+        baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(req.getServerName());
         
         archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));
        
         Map fileDescriptorMap = new HashMap();
-        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+        long compressedFileSizeTotal = getFileNamesToDownload(sess, req.getServerName(), baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
 
         
         
@@ -274,7 +273,7 @@ public class DownloadResultsServlet extends HttpServlet {
     return request;    
   }
     
-  public static long getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellDirectoryFlag) {
+  public static long getFileNamesToDownload(Session sess, String serverName, String baseDirFlowCell, String keysString, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellDirectoryFlag) {
 
     long fileSizeTotal = 0;
     String[] keys = keysString.split(":");
@@ -287,10 +286,14 @@ public class DownloadResultsServlet extends HttpServlet {
       String requestNumber = tokens[2];
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       String resultDirectory = tokens[3];
+      Integer idCoreFacility = Integer.valueOf(tokens[4]);
       String flowCellIndicator = "";
-      if (tokens.length > 4) {
-        flowCellIndicator = tokens[4];
+      if (tokens.length > 5) {
+        flowCellIndicator = tokens[5];
       }
+      
+      String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+
       
       String directoryName = "";
       String theBaseDir;

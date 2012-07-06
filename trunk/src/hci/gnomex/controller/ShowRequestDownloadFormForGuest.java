@@ -83,9 +83,8 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
       if (this.isValid()) {
         
         // Format an HTML page with links to download the files
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
         String baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
-        Document doc = ShowRequestDownloadForm.formatDownloadHTML(sess, secAdvisor, experiments, baseDir, baseDirFlowCell, baseURL);
+        Document doc = ShowRequestDownloadForm.formatDownloadHTML(sess, secAdvisor, experiments, serverName, baseDirFlowCell, baseURL);
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         out.setOmitEncoding(true);

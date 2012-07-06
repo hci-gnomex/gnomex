@@ -70,7 +70,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        '', '',");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
-    queryBuf.append("        max(s.seqPrepByCore) ");
+    queryBuf.append("        max(s.seqPrepByCore), req.idCoreFacility ");
     getQualityControlResultQueryBody(queryBuf);
     
     
@@ -98,7 +98,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        s1.qualFailed, s2.qualFailed, ls1.labelingFailed, ls2.labelingFailed, ");
     queryBuf.append("        hyb.extractionFailed, hyb.extractionBypassed, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
-    queryBuf.append("        '' ");
+    queryBuf.append("        '', req.idCoreFacility");
     getMicroarrayResultQueryBody(queryBuf);
     
     return queryBuf;
@@ -159,7 +159,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
-    queryBuf.append("        '' " );
+    queryBuf.append("        '', req.idCoreFacility " );
     getSolexaResultQueryBody(queryBuf);
     
     return queryBuf;
@@ -219,7 +219,8 @@ public class RequestDownloadFilter extends DetailObject {
     
     queryBuf.append(" SELECT DISTINCT req.number, ");
     queryBuf.append("                 fc.number, ");
-    queryBuf.append("                 fc.createDate ");
+    queryBuf.append("                 fc.createDate, ");
+    queryBuf.append("                 req.idCoreFacility ");
     getSolexaFlowCellQueryBody(queryBuf);
     
     return queryBuf;

@@ -45,7 +45,7 @@ public class GetGenomeBuild extends GNomExCommand implements Serializable {
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
       
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 

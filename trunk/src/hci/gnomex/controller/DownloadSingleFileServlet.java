@@ -34,6 +34,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadSingleFileServlet.class);
   
+  private String                          serverName = null;
   private String                          baseDir = null;
   private String                          baseDirFlowCell = null;
   private Integer                         idRequest = null;
@@ -57,6 +58,8 @@ public class DownloadSingleFileServlet extends HttpServlet {
     fileName = null;
     dir = null;
     view = "N";
+    
+    serverName = req.getServerName();
     
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -142,7 +145,6 @@ public class DownloadSingleFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForReading(req.getServerName());
         baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(req.getServerName());
         
           
@@ -173,7 +175,10 @@ public class DownloadSingleFileServlet extends HttpServlet {
         // does not have  permission to read it.
         if (!secAdvisor.canRead(experiment)) {  
           throw new Exception("Insufficient permissions to read experiment " + experiment.getNumber() + ".  Bypassing download.");
-        }
+        }        
+        
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(req.getServerName(), experiment.getIdCoreFacility());
+
 
         // Now get the files that exist on the file server for this experiment
         Map requestMap = new TreeMap();
@@ -200,13 +205,13 @@ public class DownloadSingleFileServlet extends HttpServlet {
           String theCreateYear  = dateTokens[2];
           String sortDate = theCreateYear + createMonth + createDay;    
           
-          String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+          String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG) + "-" + experiment.getIdCoreFacility();
           if (keys.length() > 0) {
             keys.append(":");
           }
           keys.append(fcKey);
         }
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+        GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
         
         
         

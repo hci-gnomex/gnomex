@@ -98,7 +98,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         }
         if (this.isValid()) {
           createYear = yearFormatter.format(analysis.getCreateDate());
-          String baseDir = dh.getAnalysisWriteDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
           targetDir = baseDir + createYear + File.separator + analysis.getNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = analysis.getNumber();
           
@@ -119,7 +119,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         }
         if (this.isValid()) {
           createYear = yearFormatter.format(experiment.getCreateDate());
-          String baseDir = dh.getMicroarrayDirectoryForWriting(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, experiment.getIdCoreFacility());
           targetDir = baseDir + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = Request.getBaseRequestNumber(experiment.getNumber());
         }
@@ -130,7 +130,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload data track files");
         }
         if (this.isValid()) {
-          String baseDir = dh.getDataTrackDirectoryForWriting(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
           targetDir = baseDir + File.separator + dataTrack.getFileName() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = dataTrack.getNumber();
         }

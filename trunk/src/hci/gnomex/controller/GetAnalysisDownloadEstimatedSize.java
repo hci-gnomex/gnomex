@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class GetAnalysisDownloadEstimatedSize extends GNomExCommand implements S
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisReadDirectory(baseDir);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(baseDir);
 
       Map fileNameMap = new HashMap();
       long compressedFileSizeTotal = DownloadAnalysisFolderServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap);

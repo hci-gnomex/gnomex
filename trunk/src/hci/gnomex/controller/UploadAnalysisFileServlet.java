@@ -7,6 +7,7 @@ import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -160,7 +161,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 
-          String baseDir = dh.getAnalysisWriteDirectory(req.getServerName());
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(req.getServerName());
           if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
             baseDir += "/";
           }

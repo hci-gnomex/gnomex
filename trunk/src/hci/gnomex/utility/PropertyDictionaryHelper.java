@@ -23,12 +23,9 @@ public class PropertyDictionaryHelper implements Serializable {
 
   private static final String    PROPERTY_PRODUCTION_SERVER                   = "production_server";
   
-  private static final String    PROPERTY_EXPERIMENT_READ_DIRECTORY           = "experiment_read_directory";
-  private static final String    PROPERTY_EXPERIMENT_WRITE_DIRECTORY          = "experiment_write_directory";
-  private static final String    PROPERTY_ANALYSIS_READ_DIRECTORY             = "analysis_read_directory";
-  private static final String    PROPERTY_ANALYSIS_WRITE_DIRECTORY            = "analysis_write_directory";
-  private static final String    PROPERTY_DATATRACK_READ_DIRECTORY            = "datatrack_read_directory";
-  private static final String    PROPERTY_DATATRACK_WRITE_DIRECTORY           = "datatrack_write_directory";
+  private static final String    PROPERTY_EXPERIMENT_DIRECTORY                = "experiment_directory";
+  private static final String    PROPERTY_ANALYSIS_DIRECTORY                  = "analysis_directory";
+  private static final String    PROPERTY_DATATRACK_DIRECTORY                 = "datatrack_directory";
   private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
   private static final String    PROPERTY_FDT_DIRECTORY_GNOMEX                = "fdt_directory_gnomex";
   private static final String    PROPERTY_FDT_DIRECTORY                       = "fdt_directory";
@@ -50,11 +47,8 @@ public class PropertyDictionaryHelper implements Serializable {
     propertyName = PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) {  
-      property = this.getPropertyPartialMatch(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR;
-        property = this.getProperty(propertyName);        
-      }
+      propertyName = PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR;
+      property = this.getProperty(propertyName);        
     }
     return addFileSepIfNec(property);
   }
@@ -68,11 +62,8 @@ public class PropertyDictionaryHelper implements Serializable {
 	  propertyName = PROPERTY_FDT_DIRECTORY_GNOMEX + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FDT_DIRECTORY_GNOMEX;
-			  property = this.getProperty(propertyName);			  
-		  }
+		  propertyName = PROPERTY_FDT_DIRECTORY_GNOMEX;
+		  property = this.getProperty(propertyName);			  
 	  }
 	  return addFileSepIfNec(property);
   }
@@ -86,11 +77,8 @@ public class PropertyDictionaryHelper implements Serializable {
 	  propertyName = PROPERTY_FDT_DIRECTORY + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FDT_DIRECTORY;
-			  property = this.getProperty(propertyName);
-		  }
+		  propertyName = PROPERTY_FDT_DIRECTORY;
+		  property = this.getProperty(propertyName);
 	  }
 	  return addFileSepIfNec(property);
   }
@@ -103,11 +91,8 @@ public class PropertyDictionaryHelper implements Serializable {
 	  propertyName = PROPERTY_FDT_CLIENT_CODEBASE + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FDT_CLIENT_CODEBASE;
-			  property = this.getProperty(propertyName);
-		  }
+		 propertyName = PROPERTY_FDT_CLIENT_CODEBASE;
+		 property = this.getProperty(propertyName);
 	  }
 	  return property;
   }
@@ -121,11 +106,8 @@ public class PropertyDictionaryHelper implements Serializable {
 	  propertyName = PROPERTY_FDT_SERVER_NAME + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FDT_SERVER_NAME;
-			  property = this.getProperty(propertyName);
-		  }
+	    propertyName = PROPERTY_FDT_SERVER_NAME;
+			property = this.getProperty(propertyName);
 	  }
 	  return property;
   }
@@ -171,6 +153,9 @@ public class PropertyDictionaryHelper implements Serializable {
   }
   
   public String getCoreFacilityProperty(Integer idCoreFacility, String name) {
+    if (idCoreFacility == null) {
+      return "";
+    }
     String propertyValue = "";
     if (name != null && !name.equals("")) {
       String qualName = idCoreFacility.toString() + "\t" + name;
@@ -183,18 +168,6 @@ public class PropertyDictionaryHelper implements Serializable {
     return propertyValue;
   }
   
-  public String getPropertyPartialMatch(String name) {
-	  Set keySet = propertyMap.keySet();
-	  Iterator i = keySet.iterator();
-	  while(i.hasNext()) {
-		  String thisKey = (String) i.next();
-		  if(thisKey.startsWith(name)) {
-			  return getProperty(thisKey);
-		  }
-	  }
-	  return "";
-
-  }
   
   public String getQualifiedProperty(String name, String serverName) {
     // First try to get property that is 
@@ -222,35 +195,27 @@ public class PropertyDictionaryHelper implements Serializable {
     
   public String getFDTJarLocation(String serverName) {
     // First try to get property that is qualified by server name.  
-    // Then, try with partial match. If that isn't found then get 
-    // the property without any qualification.    
+    // If that isn't found then get the property without any qualification.    
     String property = "";
     String propertyName = PROPERTY_FDT_JAR_LOCATION + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) { 
-      property = this.getPropertyPartialMatch(propertyName);
-      if (property == null || property.equals("")) { 
         propertyName = PROPERTY_FDT_JAR_LOCATION;
         property = this.getProperty(propertyName);        
-      }
     }   
 
     return property;
   }  
   
-  public String getAnalysisReadDirectory(String serverName) {
+  public String getAnalysisDirectory(String serverName) {
 	  // First try to get property that is qualified by server name.  
-	  // Then, try with partial match. If that isn't found then get 
-	  // the property without any qualification.	  
+	  // If that isn't found then get the property without any qualification.	  
 	  String property = "";
-	  String propertyName = PROPERTY_ANALYSIS_READ_DIRECTORY + "_" + serverName;
+	  String propertyName = PROPERTY_ANALYSIS_DIRECTORY + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) { 
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) { 
-			  propertyName = PROPERTY_ANALYSIS_READ_DIRECTORY;
-			  property = this.getProperty(propertyName);       	
-		  }
+		  propertyName = PROPERTY_ANALYSIS_DIRECTORY;
+		  property = this.getProperty(propertyName);       	
 	  }   
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
@@ -261,45 +226,16 @@ public class PropertyDictionaryHelper implements Serializable {
 
 	  return property;
   }
-
-  public String getAnalysisWriteDirectory(String serverName) {
-	  // First try to get property that is qualified by server name.  
-	  // Then, try with partial mathc. If that isn't found then get 
-	  // the property without any qualification.	  
-	  String property = "";
-	  String propertyName = PROPERTY_ANALYSIS_WRITE_DIRECTORY + "_" + serverName;
-	  property = this.getProperty(propertyName);
-	  if (property == null || property.equals("")) { 
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) { 
-			  propertyName = PROPERTY_ANALYSIS_WRITE_DIRECTORY;
-			  property = this.getProperty(propertyName);       	
-		  }
-	  }   
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-	  
-
-	  return addFileSepIfNec(property);
-  }
   
-  public String getDataTrackReadDirectory(String serverName) {
+  public String getDataTrackDirectory(String serverName) {
     // First try to get property that is qualified by server name.  
-    // Then, try with partial match. If that isn't found then get 
-    // the property without any qualification.    
+    // If that isn't found then get the property without any qualification.    
     String property = "";
-    String propertyName = PROPERTY_DATATRACK_READ_DIRECTORY + "_" + serverName;
+    String propertyName = PROPERTY_DATATRACK_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) { 
-      property = this.getPropertyPartialMatch(propertyName);
-      if (property == null || property.equals("")) { 
-        propertyName = PROPERTY_DATATRACK_READ_DIRECTORY;
-        property = this.getProperty(propertyName);        
-      }
+      propertyName = PROPERTY_DATATRACK_DIRECTORY;
+      property = this.getProperty(propertyName);        
     }   
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
@@ -311,44 +247,16 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
 
-  public String getDataTrackWriteDirectory(String serverName) {
-    // First try to get property that is qualified by server name.  
-    // Then, try with partial mathc. If that isn't found then get 
-    // the property without any qualification.    
-    String property = "";
-    String propertyName = PROPERTY_DATATRACK_WRITE_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) { 
-      property = this.getPropertyPartialMatch(propertyName);
-      if (property == null || property.equals("")) { 
-        propertyName = PROPERTY_DATATRACK_WRITE_DIRECTORY;
-        property = this.getProperty(propertyName);        
-      }
-    }   
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-    
-
-    return addFileSepIfNec(property);
-  }
   
   public String getFlowCellDirectory(String serverName) {
     // First try to get property that is qualified by server name.  
-	// Then, try with partial mathc. If that isn't found then get 
-    // the property without any qualification.	  
+    // If that isn't found then get the property without any qualification.      
     String property = "";
     String propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) { 
-    	property = this.getPropertyPartialMatch(propertyName);
-    	if (property == null || property.equals("")) { 
 			propertyName = PROPERTY_FLOWCELL_DIRECTORY;
 			property = this.getProperty(propertyName);				  
-    	}  
     }
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
@@ -360,20 +268,23 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
 
-  public String getMicroarrayDirectoryForWriting(String serverName) {
-    // First try to get property that is qualified by server name.  
-	// Then, try with partial mathc. If that isn't found then get 
-    // the property without any qualification.	  
-	String property = "";
-    String propertyName = PROPERTY_EXPERIMENT_WRITE_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
+  public String getExperimentDirectory(String serverName, Integer idCoreFacility) {
+    // First try to get property that is qualified by server name
+    // and core facility.  if not found, if not found, try by
+    // property name (not qualified) and id core facility.  last,
+    // try by just plain property name. 
+    String property = "";
+    property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName);
     if (property == null || property.equals("")) { 
-    	property = this.getPropertyPartialMatch(propertyName);
-    	if (property == null || property.equals("")) {
-			propertyName = PROPERTY_EXPERIMENT_WRITE_DIRECTORY;
-			property = this.getProperty(propertyName);
-    	}
+    	property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY);
     }
+    if (property == null || property.equals("")) {
+      property = this.getProperty(PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName);
+    }
+    if (property == null || property.equals("")) { 
+      property = this.getProperty(PROPERTY_EXPERIMENT_DIRECTORY);
+    }
+    
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
       if (!property.endsWith("/") && !property.endsWith("\\")) {
@@ -382,29 +293,6 @@ public class PropertyDictionaryHelper implements Serializable {
     }
     
     return addFileSepIfNec(property);
-  }
-
-  public  String getMicroarrayDirectoryForReading(String serverName) {
-    // First try to get property that is qualified by server name.  
-	// Then, try with partial mathc. If that isn't found then get 
-    // the property without any qualification.
-    String property = "";
-    String propertyName = PROPERTY_EXPERIMENT_READ_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) { 
-      property = this.getPropertyPartialMatch(propertyName);
-      if (property == null || property.equals("")) {
-          propertyName = PROPERTY_EXPERIMENT_READ_DIRECTORY;
-          property = this.getProperty(propertyName);    	  
-      }
-    }
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-    return property;    
   }
   
   public static String parseZipEntryName(String baseDir, String fileName) {
@@ -517,11 +405,11 @@ public class PropertyDictionaryHelper implements Serializable {
     return zipEntryName;
   }
   
-  public String parseMainFolderName(String serverName, String fileName) {
+  public String parseMainFolderName(String serverName, String fileName, Integer idCoreFacility) {
     String mainFolderName = "";
     String baseDirLastPart = "";
     
-    String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
+    String experimentDirectory = this.getExperimentDirectory(serverName, idCoreFacility);
     String flowCellDirectory   = this.getFlowCellDirectory(serverName);
     
     try {

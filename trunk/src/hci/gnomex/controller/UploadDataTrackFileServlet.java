@@ -95,7 +95,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
     try {
       sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
       
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
      
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);

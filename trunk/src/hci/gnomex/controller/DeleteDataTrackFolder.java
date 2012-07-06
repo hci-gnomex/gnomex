@@ -63,7 +63,7 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackWriteDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
 
       dataTrackFolder = (DataTrackFolder)sess.load(DataTrackFolder.class, idDataTrackFolder);
       

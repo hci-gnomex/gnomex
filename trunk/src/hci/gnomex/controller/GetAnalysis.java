@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -90,8 +91,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisReadDirectory(serverName);
-      baseDirDataTrack = dh.getDataTrackDirectoryForReading(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      baseDirDataTrack = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
       
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {

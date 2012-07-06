@@ -9,6 +9,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -84,7 +85,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-        baseDir = dh.getAnalysisReadDirectory(req.getServerName());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(req.getServerName());
        
         archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));        
         

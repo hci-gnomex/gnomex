@@ -26,7 +26,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 	private static final long serialVersionUID = 1L;
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackIGVLink.class);
 	private Integer idDataTrack;
-	private String contextPath;
+	private String dataTrackFileServerWebContext;
 	private String baseURL;
 	private String baseDir;
 	private String analysisBaseDir;
@@ -46,7 +46,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 		if (request.getParameter("launchIGV")!= null && request.getParameter("launchIGV").equals("yes")) launchIGV = true;
 		else launchIGV = false;
 
-		contextPath = request.getContextPath();
+		
 		serverName = request.getServerName();
 	}
 
@@ -54,10 +54,11 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 
 		try {
 			Session sess = getSecAdvisor().getHibernateSession(getUsername());
-			baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
-			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+			baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
 			dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);      
-      
+      dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
+
       // We have to serve files from Tomcat, so use das2 base url
       baseURL =  dataTrackFileServerURL;
 
@@ -102,7 +103,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
 
 			//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.useq (will be converted if autoConvert is true))
-			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
+			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, this.dataTrackFileServerWebContext);
 			File[] filesToLink = link.getFilesToLink();
 			if (filesToLink== null)  throw new Exception ("No files to link?!");
 
@@ -111,7 +112,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
 			//look and or make directory to hold softlinks to data, also removes old softlinks
-			File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, GNomExFrontController.getWebContextPath());
+			File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, this.dataTrackFileServerWebContext);
 
 			String randomWord = UUID.randomUUID().toString();
 

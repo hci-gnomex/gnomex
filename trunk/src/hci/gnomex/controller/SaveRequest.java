@@ -765,7 +765,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (requestParser.isNewRequest()) {
           this.createResultDirectories(requestParser.getRequest(), 
               dictionaryHelper.getPropertyDictionary(PropertyDictionary.QC_DIRECTORY), 
-              dictionaryHelper.getMicroarrayDirectoryForWriting(serverName));
+              PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+          
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();

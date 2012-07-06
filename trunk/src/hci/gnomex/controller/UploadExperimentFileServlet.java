@@ -6,6 +6,7 @@ import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -159,7 +160,8 @@ public class UploadExperimentFileServlet extends HttpServlet {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(request.getCreateDate());
 
-          String baseDir = dh.getMicroarrayDirectoryForWriting(req.getServerName()) + "/" + createYear;
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(req.getServerName(), request.getIdCoreFacility());
+          baseDir +=  "/" + createYear;
           if (!new File(baseDir).exists()) {
             boolean success = (new File(baseDir)).mkdir();
             if (!success) {

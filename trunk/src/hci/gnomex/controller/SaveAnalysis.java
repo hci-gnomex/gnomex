@@ -12,7 +12,6 @@ import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
@@ -25,7 +24,6 @@ import hci.gnomex.utility.AnalysisGenomeBuildParser;
 import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyOptionComparator;
@@ -48,9 +46,9 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.jdom.Element;
 
 
 
@@ -482,8 +480,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         // Get rid of removed analysis files
         if (analysisFileParser != null) {
-          DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-          String analysisBaseDir = dh.getAnalysisWriteDirectory(baseDir);
+          String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(baseDir);
           
           for(Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
             String idAnalysisFileString = (String)i.next();
@@ -566,7 +563,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         String filePathInfo = "";
         if (isBatchMode) {
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisWriteDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
           filePathInfo = " filePath=\"" + getAnalysisDirectory(baseDir, analysis) + "\"";
         }
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"" + filePathInfo + "/>";

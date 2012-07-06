@@ -53,8 +53,8 @@ public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements 
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
-      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
 
       long estimatedDownloadSize = 0;
       long uncompressedDownloadSize = 0;

@@ -11,6 +11,7 @@ import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -99,7 +100,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisReadDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
 
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {

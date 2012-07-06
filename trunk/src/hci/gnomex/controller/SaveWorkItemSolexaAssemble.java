@@ -12,6 +12,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FlowCellChannelComparator;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.WorkItemSolexaAssembleParser;
 
 import java.io.File;
@@ -301,7 +302,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             
             sess.flush();
             
-            this.createFlowCellDirectory(flowCell, dh.getFlowCellDirectory(serverName));
+            this.createFlowCellDirectory(flowCell, PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName));
             
             
           }

@@ -94,8 +94,8 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
-        analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+        analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
 
         // Make sure the system is configured to run FDT
         String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
