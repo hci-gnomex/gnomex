@@ -61,6 +61,7 @@ public class AppUserFilter extends DetailObject {
       queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacilityMem ");
       queryBuf.append(" LEFT JOIN collabLab.coreFacilities as coreFacilityCollab ");
       queryBuf.append(" LEFT JOIN managerLab.coreFacilities as coreFacilityMgr ");
+      queryBuf.append(" LEFT JOIN user.managingCoreFacilities as managingCoreFacility ");
     }
     
     
@@ -154,7 +155,17 @@ public class AppUserFilter extends DetailObject {
       queryBuf.append(" OR ");
            
       // Also include any non-admin app user that is not yet assigned to a lab
-      queryBuf.append(" (user.codePermissionKind = '" + UserPermissionKind.GROUP_PERMISSION_KIND + "' AND lab.idLab is NULL AND collabLab.idLab is NULL AND managerLab.idLab is NULL) ");
+      queryBuf.append(" (user.codeUserPermissionKind = '" + UserPermissionKind.GROUP_PERMISSION_KIND + "' AND lab.idLab is NULL AND collabLab.idLab is NULL AND managerLab.idLab is NULL) ");
+      queryBuf.append(" OR ");
+      
+      // Also include other admins managing this core facility
+      queryBuf.append("(");
+      queryBuf.append(" user.codeUserPermissionKind in ('" + UserPermissionKind.ADMIN_PERMISSION_KIND + "', '" + UserPermissionKind.BILLING_PERMISSION_KIND + "')");
+      queryBuf.append(" AND managingCoreFacility.idCoreFacility in ( ");
+      appendCoreFacilityInClause();
+      queryBuf.append(")");
+      
+      
       
       queryBuf.append(")");
 
