@@ -72,13 +72,13 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
-    baseDirFlowCell = dh.getFlowCellDirectory(baseDirFlowCell);
+
+    baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
     
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List requestNumbers = new ArrayList<String>();
-    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+    getFileNamesToDownload(sess, serverName, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
    
     //  For each request number
     for(Iterator i = requestNumbers.iterator(); i.hasNext();) {
@@ -131,13 +131,13 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
             boolean isValidFlowCell = false;
             for(Iterator i3 = request.getSequenceLanes().iterator(); i3.hasNext();) {
               SequenceLane lane = (SequenceLane)i3.next();
-              if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh, serverName))) {
+              if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()))) {
                 isValidFlowCell = true;
                 break;
               }
             }
             if (!isValidFlowCell) {
-              log.error("Bypassing flow cell " + fd.getMainFolderName(dh, serverName) + " for request " + request.getNumber() + ".  No lanes on request used this flow cell.");
+              log.error("Bypassing flow cell " + fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()) + " for request " + request.getNumber() + ".  No lanes on request used this flow cell.");
               continue;
             }
           
@@ -206,12 +206,12 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
   }
   
   
-  public static void getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag) {
-    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, flowCellDirectoryFlag, false); 
+  public static void getFileNamesToDownload(Session sess, String serverName, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag) {
+    getFileNamesToDownload(sess, serverName, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, flowCellDirectoryFlag, false); 
   }
 
   
-  public static void getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag, boolean flattenSubDirs) {
+  public static void getFileNamesToDownload(Session sess, String serverName, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag, boolean flattenSubDirs) {
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
@@ -222,11 +222,11 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       String requestNumber = tokens[2];
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       String resultDirectory = tokens[3];
+      Integer idCoreFacility = Integer.valueOf(tokens[4]);
       String flowCellIndicator = "";
-      if (tokens.length > 4) {
-        flowCellIndicator = tokens[4];
+      if (tokens.length > 5) {
+        flowCellIndicator = tokens[5];
       }
-      
       
 
       String directoryKey = requestNumber + "-" + resultDirectory;
@@ -241,6 +241,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         String flowCellNumber = resultDirectory;
         
       } else {
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
         directoryName = baseDir + "/" + createYear + "/" + requestNumberBase + "/" + resultDirectory;
         theBaseDir = baseDir;
       }

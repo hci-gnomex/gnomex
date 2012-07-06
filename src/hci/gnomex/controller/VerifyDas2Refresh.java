@@ -47,8 +47,8 @@ public class VerifyDas2Refresh extends GNomExCommand implements Serializable {
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
-      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
-      dataTrackBaseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackReadDirectory(serverName);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      dataTrackBaseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
       
       
       DataTrackQuery DataTrackQuery = new DataTrackQuery();

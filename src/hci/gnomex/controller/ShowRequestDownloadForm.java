@@ -95,9 +95,8 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 
       if (this.isValid()) {
         // Format an HTML page with links to download the files
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
         String baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
-        Document doc = formatDownloadHTML(sess, secAdvisor, experiments, baseDir, baseDirFlowCell, baseURL);
+        Document doc = formatDownloadHTML(sess, secAdvisor, experiments, serverName, baseDirFlowCell, baseURL);
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         out.setOmitEncoding(true);
@@ -173,7 +172,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
    * Format an HTML page showing download links for each of the files of this experiment
    * 
    */
-  public static Document formatDownloadHTML(Session sess, SecurityAdvisor secAdvisor, List experiments, String baseDir, String baseDirFlowCell, String baseURL) throws UnknownPermissionException {
+  public static Document formatDownloadHTML(Session sess, SecurityAdvisor secAdvisor, List experiments, String serverName, String baseDirFlowCell, String baseURL) throws UnknownPermissionException {
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
@@ -214,6 +213,8 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     
     for(Iterator ie = experiments.iterator(); ie.hasNext();) {
       Request experiment = (Request)ie.next();
+      
+      String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, experiment.getIdCoreFacility());
 
       // Make sure the user can read the experiment
       if (!secAdvisor.canRead(experiment)) { 
@@ -234,7 +235,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
         boolean flattenSubDirs = true;
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
+        GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, folder, requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), null);
         
         if (i.hasNext()) {
@@ -263,7 +264,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
         boolean flattenSubDirs = true;
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
+        GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, flowCell.getNumber(), requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), flowCell.getIdFlowCell());
         
       }

@@ -10,6 +10,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
   
   
   private Integer      idAnalysis = null;
+  private String       serverName;
   private String       baseDir;
  
   
@@ -47,7 +49,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idAnalysis", "idAnalysis is required.");
    }
-   baseDir = request.getServerName();
+   serverName = request.getServerName();
 
   }
 
@@ -56,7 +58,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
 
       Session sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisWriteDirectory(baseDir);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
       Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);
       Hibernate.initialize(analysis.getAnalysisGroups());
       analysis.setAnalysisGroups(null);

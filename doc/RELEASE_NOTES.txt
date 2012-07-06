@@ -3,9 +3,12 @@
 
 5.4.6
 ---------------------
-. Can now choose External Commercial as pricing for a lab and add External Commercial pricing in the billing screen.  (bspiglejr)
-. The detail screen for Order Review screen for sequencing experiments now allows editting of the experiment.  (bspiglejr)
-. Order Review screen now shows submit time as well as date. (bspiglejr)
+* Can now choose External Commercial as pricing for a lab and add External Commercial pricing in the billing screen.  (bspiglejr)
+* The detail screen for Order Review screen for sequencing experiments now allows editting of the experiment.  (bspiglejr)
+* Order Review screen now shows submit time as well as date. (bspiglejr)
+* Fix populate sql script for SlideProduct so that correct foreign keys to organism are used.
+* Rework interface for getting experiment, analysis, and data track directory properties, combining read and write properties. (tdisera)
+* Separate experiment directory by core facility. (tdisera)
 
 5.4.5.1
 ---------------------

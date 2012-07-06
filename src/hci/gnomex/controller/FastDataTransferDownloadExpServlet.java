@@ -151,20 +151,20 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
             requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-            if (!requestNumberBase.equalsIgnoreCase(fd.getMainFolderName(dh, serverName))) {
+            if (!requestNumberBase.equalsIgnoreCase(fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()))) {
               boolean isAuthorizedDirectory = false;
               // If this is a flow cell, make sure that that a sequence lane on this request has this flow cell
               for(Iterator i2 = request.getSequenceLanes().iterator(); i2.hasNext();) {
                 SequenceLane lane = (SequenceLane)i2.next();
                 if (lane.getFlowCellChannel() != null && 
-                    lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh, serverName))) {
+                    lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()))) {
                   isAuthorizedDirectory = true;
                   break;
                 }
 
               }
               if (!isAuthorizedDirectory) {
-                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(dh, serverName) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
+                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
                 continue;              
               }
             }

@@ -101,7 +101,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
 
         Request request = (Request)sess.load(Request.class, idRequest);
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
         baseDir += File.separator + request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
 
         if (this.getSecAdvisor().canUploadData(request)) {

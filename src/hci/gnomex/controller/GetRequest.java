@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
@@ -97,8 +98,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getMicroarrayDirectoryForWriting(serverName);
- 
+      
       // Find request
       boolean newRequest = false;
       
@@ -136,6 +136,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
         }
           
         if (this.isValid()) {
+          
+          baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+          
           
           Hibernate.initialize(request.getSamples());
           Hibernate.initialize(request.getHybridizations());
@@ -384,7 +387,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             Element requestUploadNode = new Element("RequestUpload");
             requestNode.addContent(requestUploadNode);
             String key = request.getKey(Constants.UPLOAD_STAGING_DIR);
-            GetRequestDownloadList.addExpandedFileNodes(baseDir, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh);
+            GetRequestDownloadList.addExpandedFileNodes(sess, serverName, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh);
           }
 
           // Default to not breaking otu samples by plates.

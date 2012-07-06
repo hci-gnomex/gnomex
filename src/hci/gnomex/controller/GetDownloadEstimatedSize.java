@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
   private String    keysString = null;
   private String    includeTIF = "N";
   private String    includeJPG = "N";
+  private String    serverName = null;
 
   private String    baseDir;
   private String    baseDirFlowCell;
@@ -44,8 +46,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
         && !request.getParameter("includeJPG").equals("")) {
       includeJPG = request.getParameter("includeJPG");
     }
-    baseDir         = request.getServerName();
-    baseDirFlowCell = request.getServerName();
+    serverName         = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -53,12 +54,11 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
-      baseDirFlowCell = dh.getFlowCellDirectory(baseDirFlowCell);
+      baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
       
       
       Map fileNameMap = new HashMap();      
-      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(sess, serverName, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
       this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
       
       if (isValid()) {

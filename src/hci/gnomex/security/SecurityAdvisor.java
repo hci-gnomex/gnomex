@@ -1057,7 +1057,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (object instanceof Request) {
       
       Request req = (Request)object;
-      canUpload = canUpdate(req) || isCollaboratorUploader(req);
+      
+      // Super Admins
+      if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        canUpload = true;
+      }
+      // Admins - Can only update requests from core facility user manages
+      else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpload = isCoreFacilityIManage(req.getIdCoreFacility());
+      }
+      // University GNomEx users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        canUpload = canUpdate(req) || isCollaboratorUploader(req);
+      } 
     }
     //
     // Analysis

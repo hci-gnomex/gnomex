@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Session;
+
 
 public class FileDescriptor extends DetailObject implements Serializable {
   private static final double    KB = Math.pow(2, 10);
@@ -175,9 +177,9 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.zipEntryName = zipEntryName;
   }
   
-  public String getMainFolderName(DictionaryHelper dh,String serverName) {
+  public String getMainFolderName(Session sess, String serverName, Integer idCoreFacility) {
     if (fileName != null && !fileName.equals("")) {
-      return dh.parseMainFolderName(serverName, fileName);
+      return PropertyDictionaryHelper.getInstance(sess).parseMainFolderName(serverName, fileName, idCoreFacility);
     } else {
       return "";
     }

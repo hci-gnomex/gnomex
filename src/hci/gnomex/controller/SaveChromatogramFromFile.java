@@ -56,7 +56,6 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
       
       File abiFile = new File(filePath, fileName);
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
@@ -78,6 +77,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
 
       // Figure out the experiment directory the file is to go to.
       Request request = (Request)sess.load(Request.class, chromatogram.getIdRequest());
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
       String destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
 
       int idPlateWell = 0;

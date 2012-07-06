@@ -103,7 +103,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
         Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);
         
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
         baseDir += analysis.getCreateYear() ;
 
         if (this.getSecAdvisor().canUploadData(analysis)) {
