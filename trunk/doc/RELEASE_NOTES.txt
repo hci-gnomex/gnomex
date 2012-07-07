@@ -9,6 +9,8 @@
 * Fix populate sql script for SlideProduct so that correct foreign keys to organism are used.
 * Rework interface for getting experiment, analysis, and data track directory properties, combining read and write properties. (tdisera)
 * Separate experiment directory by core facility. (tdisera)
+* Rework the Lab total billing report to show DNA seq core's request types as columns. (tdisera)
+* Mark the instrument run as complete when ALL of the chromatograms have been released. (tdisera)
 
 5.4.5.1
 ---------------------
