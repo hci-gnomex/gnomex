@@ -163,8 +163,15 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       if ( released.equals( "Y" )) {
         ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
         ch.setIdReleaser(this.getSecAdvisor().getIdAppUser());
-        if ( ir!=null ) {
-          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+        if (ir != null) {
+          // The instrument run status should change to COMPLETE if all chromatograms
+          // for instrument run have been released.
+          if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
+            ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+          }
+          // Loop through each experiment for an instrument run.  If all of the chromatograms
+          // on the experiment have been released and none of the source wells are flagged
+          // for redo, mark the experiment run status as COMPLETE.
           changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
         }
       }
@@ -211,6 +218,7 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
     
     return this;
   }
+  
   
   public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) {
  

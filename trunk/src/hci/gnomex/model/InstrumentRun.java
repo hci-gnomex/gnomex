@@ -3,6 +3,9 @@ package hci.gnomex.model;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Session;
 
 
 public class InstrumentRun extends HibernateDetailObject {
@@ -119,5 +122,25 @@ public class InstrumentRun extends HibernateDetailObject {
     this.instrumentRunStatus = instrumentRunStatus;
   }
   
+  public static boolean areAllChromatogramsReleased(Session sess, InstrumentRun run) {
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT  ch ");
+    queryBuf.append("FROM    Chromatogram as c ");
+    queryBuf.append("JOIN    c.plateWell as pw ");
+    queryBuf.append("JOIN    pw.plate as plate ");
+    queryBuf.append("JOIN    plate.instrumentRun as run ");
+    queryBuf.append("WHERE   run.idInstrumentRun = " + run.getIdInstrumentRun());
+    
+    int releaseCount = 0;
+    List<Chromatogram> chromatograms = (List<Chromatogram>)sess.createQuery(queryBuf.toString()).list();
+    for (Chromatogram ch : chromatograms) {
+      if (ch.getReleaseDate() != null) {
+        releaseCount++;
+      }
+    }
+    
+    return releaseCount == chromatograms.size();
+  }
+
     
 }
