@@ -285,11 +285,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           
           // Show files under the root experiment directory
           String createDateString = this.formatDate((java.util.Date)row[0]);
-          
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
           addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, null);
 
-          // Crawl the upload staging directory and show its files under the root experiment directory
+          // Show the files (and directories) under upload staging.  Show these under request node.
           if (includeUploadStagingDir.equals("Y")) {
             addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR);            
           }
@@ -562,7 +561,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
         
       } else {
-        requestDownloadNode.setAttribute("isEmpty", "Y");
+        if (!requestDownloadNode.hasChildren()) {
+          requestDownloadNode.setAttribute("isEmpty", "Y");
+        }
       }
     }
     
