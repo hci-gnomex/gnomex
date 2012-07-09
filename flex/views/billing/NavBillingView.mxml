@@ -1967,17 +1967,17 @@
 					<mx:Tile  direction="horizontal" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="0" verticalGap="0">
 						<mx:Repeater id="priceSheetRepeater" dataProvider="{getPricingList.lastResult.PriceSheet}">
 							<mx:LinkButton label="{priceSheetRepeater.currentItem.@display}" 
-								fontSize="9" paddingTop="0" paddingBottom="0" 
+								fontSize="9" paddingTop="0" paddingBottom="0"  width="130"
 								paddingLeft="0" paddingRight="1" textDecoration="underline"
-								click="{jumpToPriceSheet(event.currentTarget.getRepeaterItem().@display)}">
+								click="{jumpToPriceSheet(event.currentTarget.getRepeaterItem().@display)}" textAlign="left">
 							</mx:LinkButton>
 						</mx:Repeater>
   									<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
-  										<mx:LinkButton label="Drag-and-drop hint" 
-  											click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')">
-  										</mx:LinkButton>
   									</mx:VBox>
 					</mx:Tile>
+					<mx:LinkButton label="Drag-and-drop hint" 
+						click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')" fontSize="9">
+					</mx:LinkButton>
 					
 					<util:AdvancedDataGridAS id="pricingTree" width="100%" height="100%" 
 						 displayItemsExpanded="true" 
@@ -1995,15 +1995,15 @@
 						 dropShadowEnabled="true" 
 						 headerWordWrap="false" 
 						resizableColumns="true" 
-						dataTipFunction="showPricingTreeToolTips">						
+						dataTipFunction="showPricingTreeToolTips" fontSize="9">						
   		 	        <util:dataProvider> 
   						  <mx:HierarchicalData source="{pricingList}"/>
 				        </util:dataProvider>						  
 				        <util:columns>
-  						  <mx:AdvancedDataGridColumn dataField="@display"  headerText="" width="200"/> 
-						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="50" textAlign="right" showDataTips="true" /> 
-						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalAcademicCurrency"  headerText="Acdmc" width="50" textAlign="right" showDataTips="true" /> 
-						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCommercialCurrency"  headerText="Cmmrcl" width="50" textAlign="right" showDataTips="true" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@display"  headerText="" width="150"/> 
+						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="30" textAlign="right" showDataTips="true" /> 
+						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalAcademicCurrency"  headerText="Academic" width="30" textAlign="right" showDataTips="true" /> 
+						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCommercialCurrency"  headerText="Commercial" width="30" textAlign="right" showDataTips="true" /> 
   					    </util:columns>
   					</util:AdvancedDataGridAS>
   					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0">
