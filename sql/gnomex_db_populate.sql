@@ -405,7 +405,11 @@ INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPr
  (75,'Agilent 180K microarray','agilent microarray','0.00',NULL,4,'Y'),
  (76,'Agilent CGH 180K','agilent microarray analysis','0.00',NULL,3,'Y'),
  (77,'76 Cycle SR','illumina ga sequencing','0.00',NULL,7,'Y'),
- (78,'76 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y');
+ (78,'76 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y'),
+ (79,'HiSeq 50 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'), 
+ (80,'HiSeq 50 cycle paired end','HiSeq 50 cycle paired end','0.00',NULL,11,'Y'),
+ (81,'HiSeq 101 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'),
+ (82,'HiSeq 101 cycle paired end','HiSeq 101 cycle paired end','0.00',NULL,11,'Y');
 
 INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idPrice`) VALUES 
  (1,'BIOAN','RNANANO',1),
@@ -486,7 +490,11 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
  (79,'14',NULL,25),
  (80,'MONNUCSEQ',NULL,32),
  (81,'DNAMETHSEQ',NULL,31),
- (82,'TSCRPTSEQ',NULL,63);
+ (82,'TSCRPTSEQ',NULL,63),
+ (83,'3','6',79),
+ (84,'4','6',80),
+ (85,'3','5',81),
+ (86,'4','5',82);
 
 
 
