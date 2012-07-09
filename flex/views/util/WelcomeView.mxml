@@ -141,7 +141,7 @@
 				<mx:Label text="DNA Sequencing Core" id="label0" styleName="welcomeLabel"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:LinkButton label="Fill Plates"  click="fillPlates('PLATE')"  
+				<mx:LinkButton label="Fill Plate"  click="fillPlates('PLATE')"  
 							   styleName="dashboardButton" id="button11"  toolTip="Fill plates" icon="@Embed(source='../../assets/plate_add.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
@@ -149,7 +149,7 @@
 							   styleName="dashboardButton" id="runButton"  toolTip="Build Run" icon="@Embed(source='../../assets/run_add.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:LinkButton label="Review Instrument Runs"  click="reviewRuns()"  
+				<mx:LinkButton label="Instrument Runs"  click="reviewRuns()"  
 							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{button11}" position="before">
