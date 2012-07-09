@@ -228,13 +228,20 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
-      if ( !requests.containsKey( well.getIdRequest() ) ) {
-        Request req = (Request) sess.get(Request.class, well.getIdRequest());
-        requests.put( req.getIdRequest(), req );
+      // If the plate well points to a request (not the control plate well),
+      // has the request.  We will iterate through this hash to see
+      // which requests should be completed.
+      if (well.getIdRequest() != null) {
+        if ( !requests.containsKey( well.getIdRequest() ) ) {
+          Request req = (Request) sess.get(Request.class, well.getIdRequest());
+          requests.put( req.getIdRequest(), req );
+        }
+        
       }
     }
     
-    // Change request Status 
+    // Change request Status to completed if all plate wells have released
+    // chromatograms and there are no pending redos.
     for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
