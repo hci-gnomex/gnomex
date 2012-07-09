@@ -74,7 +74,7 @@ public class RequestDownloadFilter extends DetailObject {
     getQualityControlResultQueryBody(queryBuf);
     
     
-    queryBuf.append("        group by req.createDate, req.number, req.codeRequestCategory, req.codeApplication, req.idAppUser, reqOwner.firstName, reqOwner.lastName, req.idLab, req.idRequest ");
+    queryBuf.append("        group by req.createDate, req.number, req.codeRequestCategory, req.codeApplication, req.idAppUser, reqOwner.firstName, reqOwner.lastName, req.idLab, req.idRequest, req.idCoreFacility ");
     
     return queryBuf;
     
@@ -208,7 +208,7 @@ public class RequestDownloadFilter extends DetailObject {
     addSolexaCriteria();
     addSecurityCriteria();
 
-    queryBuf.append("        group by req.idRequest, s.idSample, s.number ");
+    queryBuf.append("        group by req.idRequest, s.idSample, s.number, req.idCoreFacility ");
     
   }
 
@@ -238,7 +238,7 @@ public class RequestDownloadFilter extends DetailObject {
     addSolexaCriteria();
     addSecurityCriteria();
 
-    queryBuf.append("        group by req.number, fc.number, fc.createDate ");
+    queryBuf.append("        group by req.number, fc.number, fc.createDate, req.idCoreFacility ");
     queryBuf.append("        order by req.number, fc.number  ");
     
   }
