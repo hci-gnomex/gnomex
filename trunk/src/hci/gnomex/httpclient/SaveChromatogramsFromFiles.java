@@ -48,7 +48,6 @@ public class SaveChromatogramsFromFiles {
   private boolean debug = false;
   private String server;
   private String dropFilePath;
-  private String experimentFilePath;
 
   /**
    * @param args
@@ -70,8 +69,6 @@ public class SaveChromatogramsFromFiles {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-dropFilePath")) {
         dropFilePath = args[++i];
-      } else if (args[i].equals("-experimentFilePath")) {
-        experimentFilePath = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
       } 
@@ -94,10 +91,9 @@ public class SaveChromatogramsFromFiles {
   private void printUsage() {
     System.out.println("java hci.gnomex.utility.SaveChromatogramsFromFiles " + "\n" +
         "[-debug] " + "\n" +
-        "-properties <propertiesFileName> " + "\n" +
+        "[-properties <propertiesFileName>] " + "\n" +
         "-server <server> " + "\n" +
-        "-dropFilePath <dropFilePath>" + "\n" +
-        "-experimentFilePath <experimentFilePath>" + "\n" );
+        "-dropFilePath <dropFilePath>" + "\n"  );
   }
   
   private void callServlet() {
@@ -213,7 +209,7 @@ public class SaveChromatogramsFromFiles {
             if (start == -1) {
               throw new Exception("destDir attribute not returned in XML result " + inputLine);
             }
-            start = start + 11;
+            start = start + 9;
             int end = inputLine.indexOf("\"", start);
             if (end == -1) {
               throw new Exception("destDir attribute could not be parsed from XML result " + inputLine);
