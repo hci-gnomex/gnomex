@@ -96,7 +96,8 @@ public class BillingItemParser extends DetailObject implements Serializable {
         if (billingItem.getQty() != null && billingItem.getUnitPrice() != null) {
           if (billingItem.getSplitType() == null) {
             billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
-          } else if (billingItem.getSplitType().equals(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE)) {
+          } 
+          if (billingItem.getSplitType().equals(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE)) {
             billingItem.setInvoicePrice(billingItem.getUnitPrice().multiply(new BigDecimal(billingItem.getQty()).multiply(billingItem.getPercentagePrice())));
           } else {
             if (!billingItem.getUnitPrice().equals(originalUnitPrice) || !billingItem.getQty().equals(originalQty)) {
