@@ -10,6 +10,7 @@ import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ChromatTrimUtil;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -56,17 +57,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
 
     serverName = request.getServerName();
 
-    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
-    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
-      DictionaryEntry de = (DictionaryEntry)i.next();
-      if (de instanceof NullDictionaryEntry) {
-        continue;
-      }
-      CoreFacility cf = (CoreFacility)de;
-      if (cf.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
-        this.idCoreFacility = cf.getIdCoreFacility();
-      }
-    }
+    idCoreFacility = DictionaryHelper.getIdCoreFacilityDNASeq();
     if (this.idCoreFacility == null) {
       this.addInvalidField("idCoreFacility", "Unable to find Core Facility for DNA Sequencing");
     }
