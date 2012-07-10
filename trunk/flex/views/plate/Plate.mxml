@@ -44,6 +44,7 @@
 				removeAllWells();
 				idPlate = 0;
 				plateName = "";
+				label = "";
 				comments = "";
 				plateObject = null;
 			}
@@ -99,11 +100,6 @@
 						gi.setStyle( 'borderStyle', 'solid' );
 						gi.setStyle( 'borderColor', 'white' );
 						// This creates a well container for each well.
-						// Now the well container takes a string name as input.
-						// Maybe: this should take a well object as input which should
-						// be obtained from some list of wells for the plate.
-						// Maybe: create a getWellsInPlate servlet to return all wells
-						// contained in a given plate?
 						var well:WellContainer = new WellContainer( '' );
 						well.plateView = this.parentDocument as NavPlateView;
 						gi.addChild( well );
@@ -124,9 +120,6 @@
 						well.setLabel(( well.position + 1 ).toString());
 					}
 				}
-				// Control Well
-				well = getWell(95);
-				well.setControl( true );
 			}
 			
 			
@@ -214,9 +207,6 @@
 					}
 				}
 				indexWells();
-				// Control Well
-				well = getWell(95);
-				well.setControl( true );
 			}
 			
 			
@@ -310,9 +300,10 @@
 						" col ='" + well.col + "'" + 
 						" index ='" + well.position + "'" + 
 						" idSample ='" + well.idSample + "'" + 
-						" idRequest ='" + well.groupId + "'" + 
+						" idRequest ='" + well.idRequest + "'" + 
 						" idPlateWell ='" + well.idPlateWell + "'" + 
 						" idAssay ='" + well.idAssay + "'" +  
+						" idPrimer ='" + well.idPrimer + "'" + 
 						" isControl='" + well.isControl + "'" +  "/>";
 				} else if ( well.isControl == "Y" ) {
 					string += "<PlateWell " + 
@@ -388,7 +379,7 @@
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
-						if ( index == 95 ) {
+						if ( well.isControl == "Y" ) {
 							well.setControl( false );
 						}
 						well.setSample( sample );
@@ -403,7 +394,7 @@
 				
 				for each ( var well:WellContainer in getWells()) {
 					if ( well.position == index ) {
-						if ( index == 95 ) {
+						if (  well.isControl == "Y" ) {
 							well.setControl( false );
 						}
 						well.loadSourceWell( wo );
@@ -477,10 +468,6 @@
 					}
 				}
 				indexWells();
-				well = getWell(95);
-				if ( !well.hasSample ) {
-					well.setControl( true );
-				} 
 			}
 			
 			
