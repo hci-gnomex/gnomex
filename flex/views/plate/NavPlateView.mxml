@@ -9,10 +9,8 @@
 		   showEffect="{parentApplication.fadeIn}"
 		   hideEffect="{parentApplication.fadeOut}"
 		   label="Plate"
-		   height="100%"
-		   width="100%"
 		   currentState="newStatePlate"
-		   cornerRadius="10" >
+		   cornerRadius="10"  width="100%" height="100%">
 
 	<mx:HTTPService id="saveInstrumentRun"
 					url="SaveInstrumentRun.gx"
@@ -842,6 +840,20 @@
 				}
 				return true;
 			}
+			
+			private function selectedPlateAdded():Boolean {
+				
+				var selectedItems:Array = plateTree.selectedItems;
+				
+				for each ( var item:Object in selectedItems ) {
+					if ( item.name() == "Plate" ) {
+						if ( item.@idRun == null || item.@idRun != run.idRun ) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
 
 
 			// ---------------------------
@@ -994,8 +1006,8 @@
 				dropOnPlate( new DragEvent( 'DRAG_DROP', false, true, null, source ));
 				sampleTree.selectedIndex = -1;
 			}
-
-
+			
+			
 			//-----------------------------
 			// Adding samples functions
 			//-----------------------------
@@ -1355,6 +1367,7 @@
 				activePlate.plateObject = plateObject;
 				activePlate.label = plateObject.@label;
 				activePlate.comments = plateObject.@comments;
+				plateObject.@idRun = run.idRun;
 
 				for each ( var pw:Object in plateObject..PlateWell ) {
 					var ind:int = pw.@position;
@@ -1707,6 +1720,7 @@
 
 			// Function to delete the end plate
 			private function removePlate():void {
+				removeFromRun( activePlate.idPlate );
 				if ( currentState == newStatePlate.name ) {
 					removeRun();
 					return;
@@ -1737,7 +1751,14 @@
 					displayPlateInfo();
 				});
 			}
-
+			
+			private function removeFromRun( idPlate:int ):void{
+				for each ( var plate:Object in plateTree ) {
+					if ( plate.@idPlate != null && plate.@idPlate == idPlate.toString() ) {
+						plate.@idRun = "0";
+					}
+				}
+			}
 
 			//////////////////
 			// Remove Runs
@@ -1775,6 +1796,7 @@
 					removeAll();
 					run = new Object();
 					run.idRun = 0;
+					removeFromRun( activePlate.idPlate );
 					activePlate.resetPlate();
 					activePlate.label = "";
 					runNumberLabel.text = "0";
@@ -1793,6 +1815,7 @@
 							sample.@isOnPlate = false;
 						}
 					}
+					removeFromRun( p.idPlate );
 					p.resetPlate();
 					plateArray.pop();
 					numberOfPlates--;
@@ -1805,6 +1828,7 @@
 						runNumberLabel.text = "0";
 						var plate1:Object = plateStack.getChildAt( 0 );
 						var p1:Plate      = plate1 as Plate;
+						removeFromRun( p1.idPlate );
 						p1.resetPlate();
 						p1.label = "";
 					}
@@ -2296,7 +2320,7 @@
 
 
 	
-	<mx:VBox width="100%" height="100%" verticalGap="2">
+	<mx:VBox verticalGap="2" width="100%" height="100%">
 
 		<mx:VBox styleName="panelBox"
 				 backgroundImage="@Embed(source='../../assets/filterBar.png')"
@@ -2558,15 +2582,14 @@
 
 				</mx:HBox>
 		</mx:VBox>
-		<mx:HBox id="hDivBox"
-				 width="100%"
+		<mx:HBox width="100%"
 				 height="100%"
-				 horizontalGap="2">
+				 horizontalGap="2" verticalAlign="middle">
 
-			<mx:TabNavigator height="100%" styleName="navTabNavigator" id="tabNav" minWidth="220">
+			<mx:TabNavigator height="100%" styleName="navTabNavigator" id="tabNav" width="220">
 
 				<mx:VBox styleName="panelBox"
-						 height="100%" width="100%"
+						 height="100%" width="220"
 						 id="samplesTab"
 						 label="Samples"
 						 horizontalAlign="center">
@@ -2665,12 +2688,20 @@
 						 id="plateTab"
 						 horizontalAlign="center"
 						 label="Plates" 
-						 width="100%">
+						 width="220">
 
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 
 						<mx:Label styleName="titleLabel" text="Plates:" />
 						<mx:Spacer width="100%" height="100%" />
+						<mx:LinkButton label="Add Plate to Run"
+									   icon="@Embed('../../assets/add.png')"
+									   click="{loadFromPlateTree(event)}"
+									   id="addPlatesButton"
+									   textDecoration="underline"
+									   visible="{plateTree.selectedItems.length>=1 &amp;&amp; selectedPlateAdded() == false}"
+									   includeInLayout="{plateTree.selectedItems.length>=1 &amp;&amp; selectedPlateAdded() == false}"
+									   color="#000000" />
 
 					</mx:HBox>
 					<mx:VBox id="plateTreeContainer"
@@ -2692,7 +2723,7 @@
 								 dropShadowEnabled="true"
 								 dataProvider="{plateList}"
 								 allowMultipleSelection="false"
-								 itemClick="loadFromPlateTree(event)"
+								 itemClick="{ currentState.substr(0,4) == 'view' || buildState != RUN ? loadFromPlateTree(event) : buildState=buildState;}"
 								 dragEnabled="false"
 								 iconFunction="treeIconFunction"
 								 variableRowHeight="true"
@@ -2713,7 +2744,7 @@
 						 id="runTab"
 						 horizontalAlign="center"
 						 label="Runs"
-						 width="100%">
+						 width="220">
 
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 
@@ -2760,9 +2791,8 @@
 
 			</mx:TabNavigator>
 			<mx:VBox horizontalAlign="center"
-					 height="100%"
 					 id="platePanel"
-					 width="100%">
+					 width="100%" height="100%">
 
 				<mx:VBox styleName="panelBox" width="100%" verticalAlign="middle">
 
@@ -2800,47 +2830,37 @@
 					
 
 				</mx:VBox>
-				<mx:HBox width="100%" height="100%"  >
+				
 
-					<mx:Spacer height="100%" width="10" visible="false" />
-					<mx:HBox id="plateBox"
-							 horizontalAlign="center"
-							 verticalAlign="middle"
-							 dropShadowEnabled="true"
-							 dragEnter="onDragEnterPlate(event)"
-							 dragOver="onDragOverPlate(event)"
-							 dragDrop="dropOnPlate(event)"
-							 dragExit="onDragExitPlate(event)"
-							 dragComplete="dragComplete(event)"
-							 click="{sampleTree.selectedIndex = -1;colorPick.selectNone();}"
-							 borderStyle="solid"
-							 backgroundColor="#FFFFFF" width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+				<mx:HBox id="plateBox"
+						 horizontalAlign="center"
+						 verticalAlign="middle"
+						 dropShadowEnabled="true"
+						 dragEnter="onDragEnterPlate(event)"
+						 dragOver="onDragOverPlate(event)"
+						 dragDrop="dropOnPlate(event)"
+						 dragExit="onDragExitPlate(event)"
+						 dragComplete="dragComplete(event)"
+						 click="{sampleTree.selectedIndex = -1;colorPick.selectNone();}"
+						 borderStyle="solid"
+						 backgroundColor="#FFFFFF"
+						 width="100%"
+						 paddingBottom="0"
+						 paddingLeft="0"
+						 paddingRight="0"
+						 paddingTop="0" height="100%">
 
-						<mx:ViewStack id="plateStack" width="100%" height="100%">
+					<mx:ViewStack id="plateStack" width="525" height="300">
 
-							<plate:Plate visible="false"
-										 id="P1R1"
-										 icon="{buildState == RUN ? q1Icon : null}"
-										 />
-							<plate:Plate visible="false"
-										 id="P2R1"
-										 icon="{q2Icon}"
-										 />
-							<plate:Plate visible="false"
-										 id="P3R1"
-										 icon="{q3Icon}"
-										  />
-							<plate:Plate visible="false"
-										 id="P4R1"
-										 icon="{q4Icon}"
-										 />
-							
-						</mx:ViewStack>
+						<plate:Plate visible="false" id="P1R1" icon="{buildState == RUN ? q1Icon : null}" width="100%" height="100%" />
+						<plate:Plate visible="false" id="P2R1" icon="{q2Icon}" width="100%" height="100%" />
+						<plate:Plate visible="false" id="P3R1" icon="{q3Icon}" width="100%" height="100%" />
+						<plate:Plate visible="false" id="P4R1" icon="{q4Icon}" width="100%" height="100%" />
 
-					</mx:HBox>
-					<mx:Spacer height="100%" width="10" visible="false" />
+					</mx:ViewStack>
 
 				</mx:HBox>
+				
 				<mx:HBox width="100%">
 
 					<mx:ApplicationControlBar width="100%" verticalAlign="middle" styleName="panelBox">
@@ -3023,7 +3043,9 @@
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%" verticalAlign="middle">
+							<mx:HBox width="100%" verticalAlign="middle"
+									 visible="{wellDisplayTree.dataProvider.length > 0}"
+									 includeInLayout="{wellDisplayTree.dataProvider.length > 0}">
 								
 								<mx:Label text="# Wells:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
@@ -3031,12 +3053,18 @@
 								<mx:Spacer width="4" height="100%" />
 								
 							</mx:HBox>
-							<mx:Label text="  Wells:" fontWeight="bold" />
-							<mx:HBox width="100%" horizontalAlign="center">
-								<mx:Spacer width="4"  height="100%"/>
+							<mx:Label text="  Wells:" fontWeight="bold" 
+									  visible="{wellDisplayTree.dataProvider.length > 0}"
+									  includeInLayout="{wellDisplayTree.dataProvider.length > 0}"/>
+							<mx:HBox width="100%" 
+									 horizontalAlign="center" 
+									 visible="{wellDisplayTree.dataProvider.length > 0}"
+									 includeInLayout="{wellDisplayTree.dataProvider.length > 0}">
+								<mx:Spacer width="4" />
 								<mx:List width="100%" height="100%"
 										 id="wellDisplayTree"
 										 dataTipField="@idSample"
+										 selectable="false"
 										 doubleClickEnabled="false"
 										 borderStyle="solid"
 										 labelField="@sampleName"
@@ -3044,7 +3072,7 @@
 										 dropShadowEnabled="true" variableRowHeight="true">
 								</mx:List>
 							
-								<mx:Spacer width="4"  height="100%"/>
+								<mx:Spacer width="4"  />
 							</mx:HBox>
 							
 						</mx:VBox>
@@ -3352,8 +3380,11 @@
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="View Plate"/>
 			<mx:RemoveChild target="{runInfoBox}"/>
+			<mx:RemoveChild target="{addPlatesButton}"/>
 		</mx:State>
-		<mx:State id="viewStateRun" name="viewStateRun" basedOn="viewState"/>
+		<mx:State id="viewStateRun" name="viewStateRun" basedOn="viewState">
+			<mx:RemoveChild target="{addPlatesButton}"/>
+		</mx:State>
 		
 		
 		<mx:State id="editState" name="editState">
@@ -3377,11 +3408,13 @@
 			<mx:RemoveChild target="{vrule1}"/>
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:RemoveChild target="{vrule2}"/>
+			<mx:RemoveChild target="{addPlatesButton}"/>
 		</mx:State>
 		<mx:State id="editStateRun" name="editStateRun" basedOn="editState">
 			<mx:RemoveChild target="{savePlateButton}"/>
 			<mx:RemoveChild target="{samplesTab}"/>
 			<mx:RemoveChild target="{removeOrderButton}"/>
+			<mx:RemoveChild target="{addPlatesButton}"/>
 			<!--<mx:RemoveChild target="{removeAllButton}"/>-->
 		</mx:State>
 		
@@ -3420,6 +3453,7 @@
 			<mx:RemoveChild target="{vrule2}"/>
 			<mx:SetProperty target="{newPlateButton}" name="label" value="New Plate"/>
 			<mx:SetProperty target="{newRunButton}" name="label" value="New Run"/>
+			<mx:RemoveChild target="{addPlatesButton}"/>
 		</mx:State>
 		
 		

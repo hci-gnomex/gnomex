@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx='http://www.adobe.com/2006/mxml' xmlns:renderers="views.renderers.*" >
+<mx:Canvas xmlns:mx='http://www.adobe.com/2006/mxml' xmlns:renderers="views.renderers.*">
 
 	<mx:Script>
 		<![CDATA[

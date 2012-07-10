@@ -208,6 +208,8 @@ package views.renderers {
 				if ( sample != null && sample.@description != null ){
 					str += '\rSample Desc: ' + sample.@description;
 				}
+			} else {
+				str += 'Click to toggle control';
 			}
 			return str;
 		}

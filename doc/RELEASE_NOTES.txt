@@ -14,6 +14,8 @@
 * Rework the Lab total billing report to show DNA seq core's request types as columns. (tdisera)
 * Mark the instrument run as complete when ALL of the chromatograms have been released. (tdisera)
 * Place chromatograms for controls in an instrument run directory. (tdisera)
+* Added control well toggle functionality to plate editor. (mbowler)
+* Changed method for adding plates to a run ('add' button). (mbowler) 
 
 5.4.5.1
 ---------------------
