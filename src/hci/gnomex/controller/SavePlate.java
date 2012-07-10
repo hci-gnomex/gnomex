@@ -137,6 +137,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
       
       if ( idInstrumentRun != 0 ) {
         plate.setIdInstrumentRun(idInstrumentRun);
+        plate.setQuadrant(quadrant);
+      } else {
+        plate.setQuadrant(0);
       }
       
       java.util.Date createDate = null;
@@ -147,7 +150,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       
       plate.setQuadrant(quadrant);
       if ( comments != null ) {plate.setComments(comments);}
-      plate.setQuadrant(quadrant);
+      
       if ( label != null ) {plate.setLabel(label);}
       if ( codeReactionType != null ) {plate.setCodeReactionType(codeReactionType);}
       if ( creator != null ) {
@@ -169,20 +172,22 @@ public class SavePlate extends GNomExCommand implements Serializable {
       // Remove wells
       //
       TreeSet wellsToDelete = new TreeSet(new WellComparator());
+      
+      List wells = sess.createQuery( "SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
+      //for( Iterator i = wells.iterator(); i.hasNext(); ) {
       for(Iterator i = plate.getPlateWells().iterator(); i.hasNext();) {
         PlateWell existingWell = (PlateWell)i.next();
         if (!wellParser.getWellMap().containsKey(existingWell.getIdPlateWell().toString())) {
           wellsToDelete.add(existingWell);
-          
+          plate.getPlateWells().remove( existingWell );
+          break;
         }
       }
       for (Iterator i = wellsToDelete.iterator(); i.hasNext();) {
         PlateWell wellToDelete = (PlateWell)i.next();
-        plate.getPlateWells().remove(wellToDelete);
+        sess.delete( wellToDelete );
       }
-      
-      sess.flush();
-      
+            
       //
       // Save wells
       //

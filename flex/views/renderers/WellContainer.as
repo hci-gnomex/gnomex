@@ -172,10 +172,15 @@ package views.renderers {
 		// Click to highlight wells in same grouping on plate
 		public function onClick( event:Event ):void {
 			if ( plateView != null ) {
-				plateView.colorPick.selectedItem = plateView.colorPick.colorArray[ plateView.colorPick.getLabelIndex( this.groupId )];
-				plateView.colorPick.selectedIndex = plateView.colorPick.getLabelIndex( this.groupId );
-				plateView.colorPick.dispatchEvent( new FlexEvent( FlexEvent.VALUE_COMMIT ));
-				event.stopPropagation();
+				if ( this.hasSample ) {
+					plateView.colorPick.selectedItem = plateView.colorPick.colorArray[ plateView.colorPick.getLabelIndex( this.groupId )];
+					plateView.colorPick.selectedIndex = plateView.colorPick.getLabelIndex( this.groupId );
+					plateView.colorPick.dispatchEvent( new FlexEvent( FlexEvent.VALUE_COMMIT ));
+					event.stopPropagation();
+				} else if ( plateView.currentState.substr(0, 4) != 'view' ) {
+					this.setControl( this.isControl == "N" );
+					plateView.dirty.setDirty();
+				}
 			}
 		}
 		
@@ -243,7 +248,8 @@ package views.renderers {
 				setSample( null );
 			} else {
 				isControl = "N";
-				setLabel("96");
+				setColor(0xFFFFFF);
+				setLabel((this.position + 1).toString());
 			}
 			setToolTip();
 		}
