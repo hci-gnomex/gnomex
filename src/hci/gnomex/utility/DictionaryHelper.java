@@ -1,10 +1,12 @@
 package hci.gnomex.utility;
 
+import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.OligoBarcode;
@@ -638,6 +640,24 @@ public class DictionaryHelper implements Serializable {
   
   public boolean isProductionServer(String serverName) {
     return propertyDictionaryHelper.isProductionServer(serverName);
+  }
+  
+  public static Integer getIdCoreFacilityDNASeq() {
+    Integer idCoreFacility = null;
+    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      CoreFacility cf = (CoreFacility)de;
+      if (cf.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
+        idCoreFacility = cf.getIdCoreFacility();
+        break;
+      }
+    }
+    return idCoreFacility;
+    
   }
 
 }
