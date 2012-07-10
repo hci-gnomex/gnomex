@@ -96,7 +96,19 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
         
         // Check permissions - bypass this file if the user 
         // does not have  permission to read it.
-        if (!secAdvisor.canRead(chromatogram.getRequest())) {
+        boolean hasPermission = false;
+        if (chromatogram.getRequest() == null) {
+          // Only the admins and dna seq core admins can access chromatograms for control samples
+          hasPermission = secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) ||
+                          secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE);
+        } else {
+          // For chromatograms that belong to an experiment, make sure
+          // the user has read permission on the experiment itself.
+          if (secAdvisor.canRead(chromatogram.getRequest())) {
+            hasPermission = true;
+          }
+        }
+        if (!hasPermission) {
           response.setContentType("text/html");
           response.getOutputStream().println(
               "<html><head><title>Error</title></head>");
