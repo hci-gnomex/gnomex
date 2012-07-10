@@ -1,7 +1,11 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
@@ -11,6 +15,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +32,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
   private String  fileName;
   private String  filePath;
   private String  baseDir;
+  private Integer idCoreFacility;
 
 
   public void validate() {
@@ -47,8 +53,24 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
     } else {
       this.addInvalidField("filePath", "filePath is a required parameter");
     }
-    
+
     serverName = request.getServerName();
+
+    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      CoreFacility cf = (CoreFacility)de;
+      if (cf.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
+        this.idCoreFacility = cf.getIdCoreFacility();
+      }
+    }
+    if (this.idCoreFacility == null) {
+      this.addInvalidField("idCoreFacility", "Unable to find Core Facility for DNA Sequencing");
+    }
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -75,10 +97,6 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       }
       
 
-      // Figure out the experiment directory the file is to go to.
-      Request request = (Request)sess.load(Request.class, chromatogram.getIdRequest());
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
-      String destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
 
       int idPlateWell = 0;
       // Get PlateWell id from the db or file comments:
@@ -106,6 +124,31 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
         }
       }
       idPlateWell = well.getIdPlateWell();
+      
+      // Figure out the experiment directory the file is to go to.
+      // If this is a control, the chromatogram will be placed in an instrument
+      // run directory.  Otherwise, the chromatogram will be places in the
+      // experiment directory.
+      String destDir = "";
+      if (well.getIdRequest() == null) {
+        if (well.getPlate() == null || well.getPlate().getInstrumentRun() == null) {
+          throw new Exception("Chromatogram " + chromatogram.getIdChromatogram() + " does not belong to an instrument run");
+        }
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getInstrumentRunDirectory(serverName, this.idCoreFacility);
+        destDir = baseDir + "/" + well.getPlate().getInstrumentRun().getCreateYear() + "/" + well.getPlate().getInstrumentRun().getIdInstrumentRun();
+        File dir = new File(destDir);
+        if (!dir.exists()) {
+          boolean success = dir.mkdirs();          
+          if (!success) {
+            throw new Exception("Unable to create instrument run directory " + destDir + " for chromatogram " +  chromatogram.getIdChromatogram());      
+          }
+        }
+      } else {
+        Request request = (Request)sess.load(Request.class, well.getIdRequest());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+        destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
+      }
+
       
       // Signal Strengths:
       int aSignalStrength = chromatReader.getSignalStrengths()[1];
@@ -140,6 +183,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       
       sess.flush();
       
+
       
       if (isValid())  {
         this.xmlResult = "<SUCCESS idChromatogram=\"" + chromatogram.getIdChromatogram() + "\"" +

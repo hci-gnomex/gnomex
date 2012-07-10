@@ -27,6 +27,7 @@ public class PropertyDictionaryHelper implements Serializable {
   private static final String    PROPERTY_ANALYSIS_DIRECTORY                  = "analysis_directory";
   private static final String    PROPERTY_DATATRACK_DIRECTORY                 = "datatrack_directory";
   private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
+  private static final String    PROPERTY_INSTRUMENT_RUN_DIRECTORY            = "instrument_run_directory";
   private static final String    PROPERTY_FDT_DIRECTORY_GNOMEX                = "fdt_directory_gnomex";
   private static final String    PROPERTY_FDT_DIRECTORY                       = "fdt_directory";
   private static final String    PROPERTY_FDT_CLIENT_CODEBASE                 = "fdt_client_codebase";
@@ -247,6 +248,7 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
 
+
   
   public String getFlowCellDirectory(String serverName) {
     // First try to get property that is qualified by server name.  
@@ -294,7 +296,34 @@ public class PropertyDictionaryHelper implements Serializable {
     
     return addFileSepIfNec(property);
   }
-  
+
+  public String getInstrumentRunDirectory(String serverName, Integer idCoreFacility) {
+    // First try to get property that is qualified by server name
+    // and core facility.  if not found, if not found, try by
+    // property name (not qualified) and id core facility.  last,
+    // try by just plain property name. 
+    String property = "";
+    property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_INSTRUMENT_RUN_DIRECTORY + "_" + serverName);
+    if (property == null || property.equals("")) { 
+      property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_INSTRUMENT_RUN_DIRECTORY);
+    }
+    if (property == null || property.equals("")) {
+      property = this.getProperty(PROPERTY_INSTRUMENT_RUN_DIRECTORY + "_" + serverName);
+    }
+    if (property == null || property.equals("")) { 
+      property = this.getProperty(PROPERTY_INSTRUMENT_RUN_DIRECTORY);
+    }
+    
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+      if (!property.endsWith("/") && !property.endsWith("\\")) {
+        property = property + "/";
+      }
+    }
+    
+    return addFileSepIfNec(property);
+  }
+
   public static String parseZipEntryName(String baseDir, String fileName) {
     String zipEntryName = "";
     String baseDirLastPart = "";

@@ -15,3 +15,8 @@ delete from PropertyDictionary where propertyName = 'analysis_write_directory';
 -- Combine datatrack_read_property and datatrack_write_property
 update PropertyDictionary set propertyName = 'datatrack_directory' where propertyName = 'datatrack_read_directory';
 delete from PropertyDictionary where propertyName = 'datatrack_write_directory';
+
+-- Create new property for instrument_run_directory
+insert into PropertyDictionary (propertyName, propertyValue, forServerOnly, idCoreFacility)
+SELECT  'instrument_run_directory', '/path/to/gnomex/instrumentrun','Y', idCoreFacility
+from CoreFacility where coreFacilityName = 'DNA Sequencing'l
