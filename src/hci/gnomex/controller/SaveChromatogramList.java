@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
 
@@ -69,26 +70,32 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
 
-
-        parser.parse(sess, this.getSecAdvisor(), launchAppURL, appURL, serverName);
-
-        sess.flush();
-
-        this.xmlResult = "<SUCCESS/>";
-
-        setResponsePage(this.SUCCESS_JSP);          
+        if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
 
+          parser.parse(sess, this.getSecAdvisor(), launchAppURL, appURL, serverName);
+
+          sess.flush();
+
+          this.xmlResult = "<SUCCESS/>";
+
+          setResponsePage(this.SUCCESS_JSP);          
+
+        } else {
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to save chromatogram.");
+          setResponsePage(this.ERROR_JSP);
+        }
+        
       }catch (Exception e){
         log.error("An exception has occurred in SaveChromatogramList ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
-          
+
       }finally {
         try {
           HibernateSession.closeSession();        
         } catch(Exception e) {
-          
+
         }
       }
       

@@ -95,13 +95,13 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
         idPlateWell = chromatogram.getIdPlateWell();
       } else {
         String comments = chromatReader.getComments();
-        int ind1 = comments.indexOf("<");
+        int ind1 = comments.indexOf("<ID:");
         int ind2 = comments.indexOf(">");
         String idString = comments.substring(ind1+4, ind2);
         idPlateWell = !idString.equals(null) ? Integer.parseInt(idString):0;
       }
       
-      
+      // Get the plate well object from db or create a new one
       PlateWell well;
       if (idPlateWell==0) {
         well = new PlateWell();

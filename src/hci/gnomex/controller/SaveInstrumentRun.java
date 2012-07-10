@@ -8,6 +8,7 @@ import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -79,78 +80,82 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       InstrumentRun ir;
-      
-      if(isNew) {
 
-        ir = new InstrumentRun();
-        sess.save(ir);
-        creator = this.getSecAdvisor().getIdAppUser().toString();
-        ir.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+      if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
+
+        if(isNew) {
+
+          ir = new InstrumentRun();
+          sess.save(ir);
+          creator = this.getSecAdvisor().getIdAppUser().toString();
+          ir.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+
+        } else {
+          ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
+        }
+
+        java.util.Date createDate = null;
+        if (createDateStr != null) {
+          createDate = this.parseDate(createDateStr);
+          ir.setCreateDate(createDate);
+        }
+
+        if ( runDateStr != null ) {ir.setRunDate(this.parseDate(runDateStr));}
+        if ( comments != null ) {ir.setComments(comments);}
+        if ( label != null ) {ir.setLabel(label);}
+        if ( codeReactionType != null ) {ir.setCodeReactionType(codeReactionType);}
+        if ( creator != null ) {
+          ir.setCreator(creator);
+        } else if ( ir.getCreator()==null || ir.getCreator().equals("") ) {
+          ir.setCreator( this.getSecAdvisor().getIdAppUser() != null ? this.getSecAdvisor().getIdAppUser().toString() : "" ); 
+        }
+        if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
+
+        if ( codeInstrumentRunStatus != null )  {
+          ir.setCodeInstrumentRunStatus(codeInstrumentRunStatus);
+          if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) && ir.getRunDate() == null ) {
+            ir.setRunDate( new java.util.Date(System.currentTimeMillis()) ); 
+          }  
+          // Change request status...
+          if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) ||
+               codeInstrumentRunStatus.equals( InstrumentRunStatus.PENDING )) {
+            changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
+          } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.COMPLETE ) ){
+            changeRequestStatus( sess, ir, RequestStatus.COMPLETED );
+          } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.FAILED ) ){
+            changeRequestStatus( sess, ir, RequestStatus.FAILED );
+          } 
+
+        }
+
+        // Disassociate any plates currently on run.
+        if (  disassociatePlates != null && disassociatePlates.equals( "Y" ) ) {
+          this.disassociatePlates( sess, ir );
+        }
+
+        sess.flush();
+
+        this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\"/>";
+
+        setResponsePage(this.SUCCESS_JSP);
       } else {
-        ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save run.");
+        setResponsePage(this.ERROR_JSP);
       }
-      
-      java.util.Date createDate = null;
-      if (createDateStr != null) {
-        createDate = this.parseDate(createDateStr);
-        ir.setCreateDate(createDate);
-      }
-      
-      if ( runDateStr != null ) {ir.setRunDate(this.parseDate(runDateStr));}
-      if ( comments != null ) {ir.setComments(comments);}
-      if ( label != null ) {ir.setLabel(label);}
-      if ( codeReactionType != null ) {ir.setCodeReactionType(codeReactionType);}
-      if ( creator != null ) {
-        ir.setCreator(creator);
-      } else if ( ir.getCreator()==null || ir.getCreator().equals("") ) {
-        ir.setCreator( this.getSecAdvisor().getIdAppUser() != null ? this.getSecAdvisor().getIdAppUser().toString() : "" ); 
-      }
-      if ( codeSealType != null )  {ir.setCodeSealType(codeSealType);}
-      
-      if ( codeInstrumentRunStatus != null )  {
-        ir.setCodeInstrumentRunStatus(codeInstrumentRunStatus);
-        if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) && ir.getRunDate() == null ) {
-          ir.setRunDate( new java.util.Date(System.currentTimeMillis()) ); 
-        }  
-        // Change request status...
-        if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.RUNNING ) ) {
-          changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
-        } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.PENDING ) ) {
-          changeRequestStatus( sess, ir, RequestStatus.PROCESSING );
-        } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.COMPLETE ) ){
-          changeRequestStatus( sess, ir, RequestStatus.COMPLETED );
-        } else if ( codeInstrumentRunStatus.equals( InstrumentRunStatus.FAILED ) ){
-          changeRequestStatus( sess, ir, RequestStatus.FAILED );
-        } 
-        
-      }
-      
-      // Disassociate any plates currently on run.
-      if (  disassociatePlates != null && disassociatePlates.equals( "Y" ) ) {
-        this.disassociatePlates( sess, ir );
-      }
-            
-      sess.flush();
-        
-      this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\"/>";
-      
-      setResponsePage(this.SUCCESS_JSP);
       
     }catch (Exception e){
       log.error("An exception has occurred in SaveInstrumentRun ", e);
       e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
+      throw new RollBackCommandException(e.getMessage());  
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
       }
     }
     

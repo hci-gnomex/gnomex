@@ -9,9 +9,11 @@ import hci.gnomex.model.PlateFilter;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,95 +57,101 @@ public class GetPlateList extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
 
     try {
-      Document doc = new Document(new Element(listKind));
-      
-      if (!plateFilter.hasSufficientCriteria(this.getSecAdvisor())) {
-        message = "Please select a filter";
-//      rootNode.setAttribute( "message", message );
-      } else {
-        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
-        StringBuffer buf = plateFilter.getQuery(this.getSecAdvisor());
-        log.info("Query for GetPlateList: " + buf.toString());
-        List plates = sess.createQuery(buf.toString()).list();
+      if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
-        for(Iterator i = plates.iterator(); i.hasNext();) {
+        Document doc = new Document(new Element(listKind));
 
-          Object[] row = (Object[])i.next();
+        if (!plateFilter.hasSufficientCriteria(this.getSecAdvisor())) {
+          message = "Please select a filter";
+        } else {
+          Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-          Integer idPlate          = row[0] == null ? new Integer(0) : (Integer)row[0];
-          Integer idInstrumentRun  = row[1] == null ? new Integer(0) : (Integer)row[1];
-          Integer quadrant         = row[2] == null ? new Integer(0) : (Integer)row[2];
-          String  createDate       = this.formatDate((java.sql.Timestamp)row[3]);
-          String  comments         = row[4] == null ? "" : row[4].toString();
-          String  label            = row[5] == null ? "" : row[5].toString();
-          String  codeReactionType = row[6] == null ? "" : row[6].toString();
-          String  creator          = row[7] == null ? "" : row[7].toString();
-          String  codeSealType     = row[8] == null ? "" : row[8].toString();
+          StringBuffer buf = plateFilter.getQuery(this.getSecAdvisor());
+          log.info("Query for GetPlateList: " + buf.toString());
+          List plates = sess.createQuery(buf.toString()).list();
 
-          Element pNode = new Element("Plate");
-          pNode.setAttribute("idPlate", idPlate.toString());
-          pNode.setAttribute("idInstrumentRun", idInstrumentRun.toString());
-          pNode.setAttribute("quadrant", quadrant.toString());
-          pNode.setAttribute("createDate", createDate);
-          pNode.setAttribute("comments", comments);
-          pNode.setAttribute("label", label);
-          pNode.setAttribute("codeReactionType", codeReactionType);
-          if ( creator != null && !creator.equals( "" ) ) {
-            AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
-            pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
-          } else {
-            pNode.setAttribute( "creator", creator);
-          }
-          
-          pNode.setAttribute("codeSealType", codeSealType);
-          pNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
-          
-          
-          
-          List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
+          for(Iterator i = plates.iterator(); i.hasNext();) {
 
-          for(Iterator i2 = plateWells.iterator(); i2.hasNext();) {
-            PlateWell plateWell = (PlateWell)i2.next();
-            plateWell.excludeMethodFromXML("getPlate");
-            plateWell.excludeMethodFromXML("getSample");
-            plateWell.excludeMethodFromXML("getAssay");
-            plateWell.excludeMethodFromXML("getPrimer");
-            Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-            
-            if ( plateWell.getAssay() != null ) {
-              node.setAttribute( "label", plateWell.getAssay().getDisplay() );
-            } else if ( plateWell.getPrimer() != null ) {
-              node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+            Object[] row = (Object[])i.next();
+
+            Integer idPlate          = row[0] == null ? new Integer(0) : (Integer)row[0];
+            Integer idInstrumentRun  = row[1] == null ? new Integer(0) : (Integer)row[1];
+            Integer quadrant         = row[2] == null ? new Integer(0) : (Integer)row[2];
+            String  createDate       = this.formatDate((java.sql.Timestamp)row[3]);
+            String  comments         = row[4] == null ? "" : row[4].toString();
+            String  label            = row[5] == null ? "" : row[5].toString();
+            String  codeReactionType = row[6] == null ? "" : row[6].toString();
+            String  creator          = row[7] == null ? "" : row[7].toString();
+            String  codeSealType     = row[8] == null ? "" : row[8].toString();
+
+            Element pNode = new Element("Plate");
+            pNode.setAttribute("idPlate", idPlate.toString());
+            pNode.setAttribute("idInstrumentRun", idInstrumentRun.toString());
+            pNode.setAttribute("quadrant", quadrant.toString());
+            pNode.setAttribute("createDate", createDate);
+            pNode.setAttribute("comments", comments);
+            pNode.setAttribute("label", label);
+            pNode.setAttribute("codeReactionType", codeReactionType);
+            if ( creator != null && !creator.equals( "" ) ) {
+              AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+              pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+            } else {
+              pNode.setAttribute( "creator", creator);
             }
-            
-            node.setAttribute("requestSubmitDate", "");
-            node.setAttribute("requestSubmitter", "");
-            
-            if ( plateWell.getIdRequest() != null ) {
-              String idRequestString = plateWell.getIdRequest().toString();
-              if ( idRequestString != null && !idRequestString.equals("")) {
-                Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-                if ( request != null ) {
-                  node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
-                  node.setAttribute("requestSubmitter", request.getOwnerName());
+
+            pNode.setAttribute("codeSealType", codeSealType);
+            pNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
+
+
+
+            List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
+
+            for(Iterator i2 = plateWells.iterator(); i2.hasNext();) {
+              PlateWell plateWell = (PlateWell)i2.next();
+              plateWell.excludeMethodFromXML("getPlate");
+              plateWell.excludeMethodFromXML("getSample");
+              plateWell.excludeMethodFromXML("getAssay");
+              plateWell.excludeMethodFromXML("getPrimer");
+              Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+              if ( plateWell.getAssay() != null ) {
+                node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+              } else if ( plateWell.getPrimer() != null ) {
+                node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+              }
+
+              node.setAttribute("requestSubmitDate", "");
+              node.setAttribute("requestSubmitter", "");
+
+              if ( plateWell.getIdRequest() != null ) {
+                String idRequestString = plateWell.getIdRequest().toString();
+                if ( idRequestString != null && !idRequestString.equals("")) {
+                  Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+                  if ( request != null ) {
+                    node.setAttribute("requestSubmitDate", request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
+                    node.setAttribute("requestSubmitter", request.getOwnerName());
+                  }
                 }
               }
+
+              pNode.addContent(node);
             }
-            
-            pNode.addContent(node);
+
+            doc.getRootElement().addContent(pNode);
+
           }
-          
-          doc.getRootElement().addContent(pNode);
-
         }
+
+
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        this.xmlResult = out.outputString(doc);
+
+        setResponsePage(this.SUCCESS_JSP);
+
+      } else {
+        this.addInvalidField( "Insufficient permissions",
+        "Insufficient permission to view plate list." );
       }
-
-
-      XMLOutputter out = new org.jdom.output.XMLOutputter();
-      this.xmlResult = out.outputString(doc);
-
-      setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetPlateList ", e);
       e.printStackTrace();

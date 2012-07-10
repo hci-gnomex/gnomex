@@ -207,11 +207,11 @@ public class PlateReportHTMLFormatter {
 
         Element row = new Element("TR");
         table.addContent(row);
-
+        
         // Need to add background color to this first cell.
         this.addColoredCell(row, req.getIdRequest() != null ? req.getIdRequest().toString() : "&nbsp;", index);
         this.addCell(row, req.getName() != null ? req.getName() : "&nbsp;");
-        this.addCell(row, req.getUsername() != null ? req.getUsername() : "&nbsp;");
+        this.addCell(row, req.getOwnerName() != null ? req.getOwnerName() : "&nbsp;");
         this.addCell(row, val.toString());
         this.addCell(row, req.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(req.getCreateDate()) : "&nbsp;");
 

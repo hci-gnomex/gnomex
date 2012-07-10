@@ -119,6 +119,7 @@
 			import views.util.DirtyNote;
 
 			
+			// Reaction type
 			[Bindable]
 			private var reactionState:String;
 			static public const MIT:String 		= "MIT";
@@ -126,29 +127,32 @@
 			static public const FRAG:String 	= "FRAG";
 			static public const CHERRY:String 	= "CHERRY";
 			
+			// Building a plate or a run?
 			[Bindable]
 			public var buildState:String;
 			static public const PLATE:String    = "PLATE";
 			static public const RUN:String  	= "RUN";
 			
 			private var isInitialized:Boolean = false;
+			
 			// The selected group id - as in what group is picked in the
-			// color picker.
+			// color picker; either request, primer, or assay depending on
+			// reaction state
 			[Bindable]
 			private var selectedGroupId:String;
 
 			// The active or displayed plate
 			[Bindable]
 			private var activePlate:Plate;
-
-			// Array of all the 'active' plates, number of 'active' plates
+			// Array of all the plates in the run
 			[Bindable]
 			private var plateArray:Array    = new Array();
 			[Bindable]
 			private var numberOfPlates:int  = 0;
-			// Array of all the possible plate objects
+			// Array of all 4 place holder plate objects
 			private var allPlates:Array;
 
+			// The run
 			private var run:Object = new Object();
 			// Variable to designate if the plates' wells will be indexed
 			// column-wise or row-wise.
@@ -174,9 +178,7 @@
 					allPlates     = new Array( P1R1, P2R1, P3R1, P4R1 );
 					addPlate(); // Add one starting plate
 					colorPick.addEventListener( FlexEvent.VALUE_COMMIT, groupPicked );
-					
 					run.idRun = 0;
-					
 					switchActivePlate();
 					callLater( toggleReactionType, [SEQ] );
 				} else {
@@ -184,31 +186,28 @@
 				}
 				isInitialized = true;
 			}
-			
+			// Refresh all of the lists in left hand tabs
 			private function refreshLists():void{
 				refreshRunLists();
 				getSampleList();
 			}
-			
+			// Refresh the run and plate lists
 			private function refreshRunLists():void {
 				refreshPlateList();
 				refreshRunList();
 			}
-			
+			// Refresh the plate list
 			private function refreshPlateList():void {
 				var params:Object = getPlateParameters();
 				getPlateList.send( params );
 			}
-			
 			private function getPlateParameters():Object {
 				var params:Object = new Object;
 				params.plateType = "REACTION";
 				params.notAddedToARun = "Y";
 				params.codeReactionType = reactionState;
 				
-				if ( allCheckbox.selected ) {
-					return params;
-				}
+				if ( allCheckbox.selected ) { return params; }
 				
 				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
@@ -216,6 +215,7 @@
 				
 				return params;
 			}
+			// Refresh the run list
 			private function refreshRunList():void {
 				var params:Object = getRunParameters();
 				getInstrumentRunList.send( params );
@@ -224,9 +224,7 @@
 				var params:Object = new Object;
 				params.codeReactionType = reactionState;
 				
-				if ( allCheckbox.selected ) {
-					return params;
-				}
+				if ( allCheckbox.selected ) { return params; }
 				
 				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
@@ -236,22 +234,14 @@
 				params.runLastMonth = lastMonthCheckbox.selected ? 'Y' : 'N' ;
 				params.runLastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
 				
-				if ( pendingCheckbox.selected ) {
-					params.status = 'PENDING' ;
-				}
-				if ( runningCheckbox.selected ) {
-					params.status = 'RUNNING' ;
-				}
-				if ( completeCheckbox.selected ) {
-					params.status = 'COMPLETE' ;
-				}
-				if ( failedCheckbox.selected ) {
-					params.status = 'FAILED' ;
-				}
+				if ( pendingCheckbox.selected )  { params.status = 'PENDING'; }
+				if ( runningCheckbox.selected )  { params.status = 'RUNNING'; }
+				if ( completeCheckbox.selected ) { params.status = 'COMPLETE'; }
+				if ( failedCheckbox.selected )   { params.status = 'FAILED'; }
 				
 				return params;
 			}
-
+			// Get pending samples for selected reaction state
 			private function getSampleList():void {
 				var crc:String;
 				if ( reactionState == SEQ ) {
@@ -269,7 +259,6 @@
 				params.codeRequestCategory = crc; 
 				getPendingSampleList.send(params);
 			}
-			
 			private function onGetPendingSampleList( event:ResultEvent ):void {
 				
 				if ( getPendingSampleList.lastResult.name() == "SampleList" ) {
@@ -360,7 +349,6 @@
 				} 
 			}
 			
-			
 			private function onCreateRunFile( event:ResultEvent ):void {
 				
 				if ( createRunFile.lastResult.name() == "SUCCESS" ) {
@@ -385,7 +373,6 @@
 
 
 			// Color the different groups on the plate
-			// Currently colors by request
 			private function colorPlateByGroup():void {
 
 				var indices:Array = new Array();
@@ -656,7 +643,6 @@
 			}
 			
 			// Create and show a printable plate report - color coded
-			// Should prohibit this if the plate hasn't been save to db yet... ?
 			private function createPlateReport():void {
 				
 				var params:URLVariables = new URLVariables();
@@ -671,7 +657,7 @@
 				navigateToURL(url, '_blank');
 			}
 			
-			
+			// Create the .plt run file
 			private function createPltFiles():void {
 				if ( reactionState != MIT && reactionState != SEQ ) {
 					return;
@@ -808,7 +794,7 @@
 			}
 
 
-			// Check to see if the selected item has been added to plate
+			// Check to see if the selected item from the sample tree has been added to plate
 			private function selectedItemAdded():Boolean {
 
 				var selectedItems:Array = sampleTree.selectedItems;
@@ -841,15 +827,13 @@
 				return true;
 			}
 			
+			// Check to see if the selected plate is added to the run
 			private function selectedPlateAdded():Boolean {
 				
-				var selectedItems:Array = plateTree.selectedItems;
-				
-				for each ( var item:Object in selectedItems ) {
-					if ( item.name() == "Plate" ) {
-						if ( item.@idRun == null || item.@idRun != run.idRun ) {
-							return false;
-						}
+				var item:Object = plateTree.selectedItem;
+				if ( item.name() == "Plate" ) {
+					if ( item.@idRun == null || item.@idRun != run.idRun ) {
+						return false;
 					}
 				}
 				return true;
@@ -1720,7 +1704,7 @@
 
 			// Function to delete the end plate
 			private function removePlate():void {
-				removeFromRun( activePlate.idPlate );
+				
 				if ( currentState == newStatePlate.name ) {
 					removeRun();
 					return;
@@ -1728,6 +1712,7 @@
 				
 				removeAll();
 				if ( buildState == RUN ) {
+					removeFromRun( activePlate.idPlate );
 					activePlate.resetPlate();
 					dirty.setDirty();
 				}
@@ -1738,6 +1723,7 @@
 				plateArray[ numberOfPlates - 1 ].visible = false;
 				var plate:Object = plateArray[ numberOfPlates - 1 ];
 				var p:Plate      = plate as Plate;
+				removeFromRun( p.idPlate );
 				p.resetPlate();
 				plateArray.pop();
 				numberOfPlates--;
@@ -1753,9 +1739,12 @@
 			}
 			
 			private function removeFromRun( idPlate:int ):void{
-				for each ( var plate:Object in plateTree ) {
+				if ( idPlate == 0 ) {
+					return;
+				}
+				for each ( var plate:Object in plateTree.dataProvider ) {
 					if ( plate.@idPlate != null && plate.@idPlate == idPlate.toString() ) {
-						plate.@idRun = "0";
+						plate.@idRun = "-1";
 					}
 				}
 			}
@@ -1782,7 +1771,7 @@
 			}
 
 
-			// Function to delete the end run
+			// Function to delete the run
 			private function removeRun():void {
 				if ( !isInitialized ) {
 					return;
@@ -2093,8 +2082,7 @@
 				runSealComboBox.selectedIndex = -1;
 			}
 			
-			// Function to fill the selected plate by the selected fill orientation
-			// Right now this only functions as a toggle between column- and row-wise
+			// Function to toggle between column- and row-wise
 			// well ordering.
 			private function toggleFillOrientation():void {
 				activePlate.nowFillByCol = fillColWise;
@@ -2102,12 +2090,13 @@
 				// Dispatch colorPick change event
 				colorPick.dispatchEvent( new FlexEvent( FlexEvent.VALUE_COMMIT ));
 			}
-			
+			// Toggle the reaction type
 			private function toggleReactionType(reaction:String):void{
 				if ( reactionState == reaction ) {
 					return;
 				}
 				removeRun();
+				/* pltButton.visible = pltButton.includeInLayout = true; */
 				if ( reaction == MIT ) {
 					reactionState = MIT;
 					colorPickLabel.text = "Select a primer by color."
@@ -2115,7 +2104,6 @@
 					reactionTypeRadioGroup.selection = radioMit;
 					fillColWise = true;
 					toggleFillOrientation();
-					pltButton.visible = pltButton.includeInLayout = true;
 					reactTypeText.text = plateReactTypeText.text = "Mito DLoop";
 				} else if ( reaction == FRAG ) {
 					reactionState = FRAG;
@@ -2124,7 +2112,6 @@
 					reactionTypeRadioGroup.selection = radioFrag;
 					fillColWise = false;
 					toggleFillOrientation();
-					pltButton.visible = pltButton.includeInLayout = false;
 					reactTypeText.text = plateReactTypeText.text = "Fragment Analysis";
 				} else if ( reaction == SEQ ) {
 					reactionState = SEQ;
@@ -2133,19 +2120,18 @@
 					reactionTypeRadioGroup.selection = radioSEQ;
 					fillColWise = true;
 					toggleFillOrientation();
-					pltButton.visible = pltButton.includeInLayout = true;
 					reactTypeText.text = plateReactTypeText.text = "Capillary Seq";
-				} else if ( reaction == CHERRY ) {
+				} /* else if ( reaction == CHERRY ) {
 					reactionState = CHERRY;
 					fillColWise = false;
 					toggleFillOrientation();
 					pltButton.visible = pltButton.includeInLayout = false;
 					reactTypeText.text = plateReactTypeText.text = "Cherry Pick";
-				}
+				} */
 				
 				refreshLists();
 			}
-
+			// Toggle between plate versus run
 			public function toggleBuildState( build:String ):void {
 				if ( buildState == build ) {
 					return;
@@ -2907,25 +2893,15 @@
 							</mx:HBox>
 							<mx:Spacer width="100%" height="100%" />
 							<util:DirtyNote id="dirty" />
-							<!--<mx:LinkButton label="Add plate"
-										   click="{addPlate()}"
-										   color="#000000"
-										   icon="@Embed('../../assets/plate_add.png')"
-										   enabled="{numberOfPlates!=4}"
-										   paddingLeft="1"
-										   paddingRight="0"
-										   horizontalGap="0"
-										   letterSpacing=".3"
-										   toolTip="New plate..."
-										   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
-										   textDecoration="underline"  id="linkbutton1"/>-->
 							<mx:LinkButton label="Remove Plate"
 									   	   click="{promptToRemovePlate()}"
 									   	   icon="@Embed('../../assets/delete.png')"
 									       id="deletePlateLink" 
 										   letterSpacing=".3"
 										   color="#000000"
-										   textDecoration="underline"/>
+										   textDecoration="underline"
+										   visible="{buildState==PLATE||activePlate.idPlate!=0}"
+										   includeInLayout="{buildState==PLATE||activePlate.idPlate!=0}"/>
 							<mx:LinkButton label="Clear Run"
 									   	   click="{promptToRemoveRun()}"
 										   icon="@Embed('../../assets/delete.png')"
@@ -3409,6 +3385,7 @@
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:RemoveChild target="{vrule2}"/>
 			<mx:RemoveChild target="{addPlatesButton}"/>
+			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate"/>
 		</mx:State>
 		<mx:State id="editStateRun" name="editStateRun" basedOn="editState">
 			<mx:RemoveChild target="{savePlateButton}"/>

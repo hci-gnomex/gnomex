@@ -16,6 +16,8 @@
 * Place chromatograms for controls in an instrument run directory. (tdisera)
 * Added control well toggle functionality to plate editor. (mbowler)
 * Changed method for adding plates to a run ('add' button). (mbowler) 
+* Added security checks for dna sequencing core backend functions. (mbowler)
+* Fixed problem with plate report not displaying request submitter name. (mbowler)
 
 5.4.5.1
 ---------------------
