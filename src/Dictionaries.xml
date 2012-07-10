@@ -6,6 +6,7 @@
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
 	<Dictionary displayName="Admin - Institution" className="hci.gnomex.model.Institution"  >
+	  	  <Filter className="YN" filterField="isDefault"/>
 	</Dictionary>
 	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.PropertyDictionary" scrub="Y">
       <Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>

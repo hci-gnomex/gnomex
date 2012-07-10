@@ -1058,11 +1058,15 @@
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="400" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@submitterName}" width="400" />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@createDate}" width="400"/>
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Label text="{'Owned by'}" width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="400" />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
 							<mx:Label width="100" text="Completed" />

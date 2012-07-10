@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
@@ -128,7 +129,16 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                     if (otherWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(sample.getIdRequest());
-                      wi.setCodeStepNext(workItem.getCodeStepNext().equals(Step.SEQ_PREP) ? Step.SEQ_CLUSTER_GEN : Step.HISEQ_CLUSTER_GEN);
+                      
+                      String codeStepNext = "";
+                      if(workItem.getCodeStepNext().equals(Step.SEQ_PREP)) {
+                        codeStepNext = Step.SEQ_CLUSTER_GEN;
+                      } else if (workItem.getCodeStepNext().equals(Step.HISEQ_PREP)) {
+                        codeStepNext = Step.HISEQ_CLUSTER_GEN;
+                      } else if (workItem.getCodeStepNext().equals(Step.MISEQ_PREP)) {
+                        codeStepNext = Step.MISEQ_CLUSTER_GEN;
+                      }
+                      wi.setCodeStepNext(codeStepNext);
                       wi.setSequenceLane(lane);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                       sess.save(wi);                      

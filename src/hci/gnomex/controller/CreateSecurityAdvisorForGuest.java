@@ -70,7 +70,8 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     errorAction   = (String) request.getParameter("errorAction");
 
 
-
+    /*
+    Captcha check eliminated 7/6/12
     if ( captchaPhrase == null || captchaPhrase.equals("")) {
       this.addInvalidField("captcha", "Please enter the text that matches the image");
     } else if ( captcha == null) {
@@ -78,6 +79,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     } else if (!captcha.isCorrect(captchaPhrase)) {
       this.addInvalidField("captch", "Text does not match image.  Please try again.");
     }
+    */
 
     // see if we have a valid form
     if (isValid()) {

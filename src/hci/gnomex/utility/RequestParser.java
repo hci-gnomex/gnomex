@@ -211,6 +211,9 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("idAppUser") != null && !n.getAttributeValue("idAppUser").equals("")) {
       request.setIdAppUser(new Integer(n.getAttributeValue("idAppUser")));
     } 
+    if (n.getAttributeValue("idSubmitter") != null && !n.getAttributeValue("idSubmitter").equals("")) {
+      request.setIdSubmitter(new Integer(n.getAttributeValue("idSubmitter")));
+    } 
     if (n.getAttributeValue("idLab") != null && !n.getAttributeValue("idLab").equals("")) {
       request.setIdLab(new Integer(n.getAttributeValue("idLab")));
     }

@@ -51,9 +51,10 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
     queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', ");
-    queryBuf.append("'");
+    queryBuf.append("', '");
     queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("', '");
+    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
     queryBuf.append("') ");
     
 
@@ -89,9 +90,10 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
     queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', ");
-    queryBuf.append("'");
+    queryBuf.append("', '");
     queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("', '");
+    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
     queryBuf.append("') ");
 
     queryBuf.append("        group by s.number ");
@@ -147,9 +149,10 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
     queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', ");
-    queryBuf.append("'");
+    queryBuf.append("', '");
     queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("', '");
+    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
     queryBuf.append("') ");
 
     queryBuf.append("        group by s.number, ch.lastCycleDate ");
@@ -178,9 +181,10 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
     queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', ");
-    queryBuf.append("'");
+    queryBuf.append("', '");
     queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("', '");
+    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
     queryBuf.append("') ");
 
     queryBuf.append("        group by s.number, ch.pipelineDate ");

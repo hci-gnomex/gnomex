@@ -253,6 +253,14 @@
 
 					dirty.resetDirty();
 					
+					if(typeRadioGroup.selectedValue == 'ILLUMINA') {
+						channelLabel.width = 160;
+						channelLabel.text = "Number of flowcell channels";
+					} else {
+						channelLabel.width = 120;
+						channelLabel.text = "Number of channels";						
+					}
+					
 					showHideAppColumns();
 				} else {
 					theViews.selectedIndex = 0;
@@ -573,8 +581,8 @@
 									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()"/>
 								</mx:VBox>
 							</mx:HBox>
-							<mx:HBox visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
-								<mx:Label text="Number of channels" width="120"/>
+							<mx:HBox visible="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+								<mx:Label id="channelLabel" text="Number of channels" width="120"/>
 								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">

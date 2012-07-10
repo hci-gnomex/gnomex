@@ -37,6 +37,27 @@
 					navBar.removeChild(solexaTab);
 				}
 			}
+			
+			requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'MISEQ');
+			
+			var miSeq:Object = null;
+			if (requestCategory != null) {
+				if (requestCategory is XMLList) {
+					var rcList:XMLList = XMLList(requestCategory);
+					if (rcList.length() > 0) {
+						miSeq = rcList[0];
+					}
+				} else {
+					miSeq = requestCategory;
+				} 
+			} 
+			if (miSeq == null || miSeq.@isActive == 'N') {
+				if (navBar.contains(miSeqTab)) {
+					navBar.removeChild(miSeqTab);
+				}
+			}
+			
+			
 		}
 		
 		public function checkDirty():void {
@@ -98,7 +119,29 @@
 			
 
         }
-        
+
+		private function onMiSeqWorklistChange():void {
+			if (hiSeqViews.selectedChild == workflowHiSeqQCView) {
+				workflowHiSeqQCView.codeStepNext = "MISEQQC";
+				workflowHiSeqQCView.getWorkList.send();
+			} else if (hiSeqViews.selectedChild == workflowHiSeqPrepView) {
+				workflowHiSeqPrepView.codeStepNext = "MISEQPREP";
+				workflowHiSeqPrepView.getWorkList.send();
+			} else if (hiSeqViews.selectedChild == workflowHiSeqAssembleView) {
+				workflowHiSeqAssembleView.codeStepNext = "MISEQASSEM";
+				workflowHiSeqAssembleView.initializeData();
+				workflowHiSeqAssembleView.getWorkList.send();
+				workflowHiSeqAssembleView.getNextWorkList.send();
+			} else if (hiSeqViews.selectedChild == workflowHiSeqPipelineView) {
+				workflowHiSeqPipelineView.codeStepNext = "MISEQPIPE";
+				workflowHiSeqPipelineView.getWorkList.send();
+			} 
+			detailViews.selectedIndex = 2;  
+			detailViews.visible = true;
+			
+			
+		}   
+			
         private function onTabChange():void {
         	if (this.navBar.selectedChild == this.solexaTab) {
         		this.flowCellView.codeSequencingPlatform = "GAIIX";
@@ -108,14 +151,22 @@
         		microarrayViews.selectedChild=blankMicroarray;
         		hiSeqViews.selectedChild=this.blankHiSeq;
         		this.detailViews.selectedChild = this.solexaViews;
-        	} else if (this.navBar.selectedChild == this.hiSeqTab) {
-        		this.flowCellView.codeSequencingPlatform = "HISEQ";
-        		this.flowCellView.lookupField.text = '';
-        		this.flowCellView.lastThreeMonthsCheckbox.selected = true;
-        		this.flowCellView.toggleDateCheckboxes(3);
-	        	solexaViews.selectedChild=blankSolexa;
-    	    	microarrayViews.selectedChild=blankMicroarray;
-        		this.detailViews.selectedChild = this.hiSeqViews;
+			} else if (this.navBar.selectedChild == this.hiSeqTab) {
+				this.flowCellView.codeSequencingPlatform = "HISEQ";
+				this.flowCellView.lookupField.text = '';
+				this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+				this.flowCellView.toggleDateCheckboxes(3);
+				solexaViews.selectedChild=blankSolexa;
+				microarrayViews.selectedChild=blankMicroarray;
+				this.detailViews.selectedChild = this.hiSeqViews;
+			} else if (this.navBar.selectedChild == this.hiSeqTab) {
+				this.flowCellView.codeSequencingPlatform = "MISEQ";
+				this.flowCellView.lookupField.text = '';
+				this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+				this.flowCellView.toggleDateCheckboxes(3);
+				solexaViews.selectedChild=blankSolexa;
+				microarrayViews.selectedChild=blankMicroarray;
+				this.detailViews.selectedChild = this.hiSeqViews;
         	} else {
 	        	solexaViews.selectedChild=blankSolexa;
     	    	hiSeqViews.selectedChild=this.blankHiSeq;
@@ -151,6 +202,19 @@
 				
 				</mx:VBox>
 			</mx:Canvas >
+			<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow">
+				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+					
+					<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4">
+					</mx:LinkBar> 
+					
+					<mx:Spacer height="20"/>			  		
+					<mx:HRule>
+					</mx:HRule>
+					<mx:Spacer height="10"/>			  		
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
+				</mx:VBox>
+			</mx:Canvas>
 			<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow" visible="true">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					

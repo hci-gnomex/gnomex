@@ -131,20 +131,28 @@ public class ReassignIlluminaRequestCategory extends GNomExCommand implements Se
           for(Iterator i = request.getWorkItems().iterator(); i.hasNext();) {
             WorkItem wi = (WorkItem)i.next();
             if (codeRequestCategory.equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
-              if (wi.getCodeStepNext().equals(Step.SEQ_QC)) {
+              if (wi.getCodeStepNext().equals(Step.SEQ_QC) || wi.getCodeStepNext().equals(Step.MISEQ_QC)) {
                 wi.setCodeStepNext(Step.HISEQ_QC);
-              } else if (wi.getCodeStepNext().equals(Step.SEQ_PREP)) {
+              } else if (wi.getCodeStepNext().equals(Step.SEQ_PREP) || wi.getCodeStepNext().equals(Step.MISEQ_PREP)) {
                 wi.setCodeStepNext(Step.HISEQ_PREP);
-              } else if (wi.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
+              } else if (wi.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) || wi.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
                 wi.setCodeStepNext(Step.HISEQ_CLUSTER_GEN);
               } 
             } else if (codeRequestCategory.equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-              if (wi.getCodeStepNext().equals(Step.HISEQ_QC)) {
+              if (wi.getCodeStepNext().equals(Step.HISEQ_QC) || wi.getCodeStepNext().equals(Step.MISEQ_QC)) {
                 wi.setCodeStepNext(Step.SEQ_QC);
-              } else if (wi.getCodeStepNext().equals(Step.HISEQ_PREP)) {
+              } else if (wi.getCodeStepNext().equals(Step.HISEQ_PREP) || wi.getCodeStepNext().equals(Step.MISEQ_PREP)) {
                 wi.setCodeStepNext(Step.SEQ_PREP);
-              } else if (wi.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+              } else if (wi.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) || wi.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
                 wi.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
+              } 
+            } else if (codeRequestCategory.equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+              if (wi.getCodeStepNext().equals(Step.HISEQ_QC) || wi.getCodeStepNext().equals(Step.SEQ_QC) ) {
+                wi.setCodeStepNext(Step.MISEQ_QC);
+              } else if (wi.getCodeStepNext().equals(Step.HISEQ_PREP) ||wi.getCodeStepNext().equals(Step.SEQ_PREP)) {
+                wi.setCodeStepNext(Step.MISEQ_PREP);
+              } else if (wi.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) || wi.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
+                wi.setCodeStepNext(Step.MISEQ_CLUSTER_GEN);
               }
             } 
           }

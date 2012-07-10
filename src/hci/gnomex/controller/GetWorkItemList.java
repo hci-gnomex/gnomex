@@ -67,19 +67,23 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
             filter.getCodeStepNext().equals(Step.SEQ_QC) ||
             filter.getCodeStepNext().equals(Step.HISEQ_QC) ||
+            filter.getCodeStepNext().equals(Step.MISEQ_QC) ||
             filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK) ||
             filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
-            filter.getCodeStepNext().equals(Step.HISEQ_PREP)) {
+            filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
+            filter.getCodeStepNext().equals(Step.MISEQ_PREP)) {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
           comparator  = new LabeledSampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-                    filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+                    filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+                    filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
           comparator  = new LaneComparator();
         } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
                     filter.getCodeStepNext().equals(Step.HISEQ_RUN) ||
                     filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
-                    filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
+                    filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
+                    filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
           comparator = new FlowCellChannelComparator();
         } else {
           comparator =  new HybComparator();
@@ -125,8 +129,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC) ||
               filter.getCodeStepNext().equals(Step.HISEQ_QC) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_QC) ||
               filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
@@ -141,14 +147,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
-                      filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
+                      filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
+                      filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
             FlowCell fc = (FlowCell)row[16];
             FlowCellChannel ch = (FlowCellChannel)row[17];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-                      filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+                      filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+                      filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
             String multiplexGroupNumber = row[22] != null ? ((Integer)row[22]).toString() : "";
             // Sort the 'On hold' items so they are at the bottom of the list
             // for cluster gen
@@ -158,7 +166,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           }
           
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
             Integer idSample = (Integer)row[9];
             idSamples.put(idSample, null);
           }
@@ -167,7 +176,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         }
         
         if ((filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) || 
-             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) && !idSamples.isEmpty()) {
+             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+             filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) && !idSamples.isEmpty()) {
           List flowCells = sess.createQuery(filter.getRelatedFlowCellQuery(idSamples.keySet()).toString()).list();
           for(Iterator i = flowCells.iterator(); i.hasNext();) {
             Object[] row = (Object[])i.next();
@@ -200,6 +210,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
+
           Object[] row = (Object[])allRows.get(key);
           
           
@@ -215,7 +226,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             }
             
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) || 
-                      filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
+                      filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
+                      filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
             FlowCell fc = (FlowCell)row[16];
             flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
@@ -251,7 +263,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("sampleNumber",           row[10] == null ? "" :  (String)row[10]);
           n.setAttribute("idHybridization",        row[11] == null ? "" :  ((Integer)row[11]).toString());
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
             n.setAttribute("laneNumber",           row[12] == null ? "" :  (String)row[12]);              
             n.setAttribute("number",               row[12] == null ? "" :  (String)row[12]);  
           } else {
@@ -275,7 +288,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC) ||
-              filter.getCodeStepNext().equals(Step.HISEQ_QC)) {
+              filter.getCodeStepNext().equals(Step.HISEQ_QC) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_QC)) {
             n.setAttribute("qualDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
             n.setAttribute("qualCompleted",              row[16] == null ? "N" : "Y");
             n.setAttribute("qualFailed",                 row[17] == null ? "" :  (String)row[17]);
@@ -288,7 +302,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
             n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
             n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
-            Integer idSampleType                       = row[27] == null ? null : (Integer)row[27];
+            Integer idSampleType                       = row[27] == null ? 0 : (Integer)row[27];
 
             String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
             n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
@@ -387,7 +401,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             }
             n.setAttribute("extractionStatus", extractionStatus);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
-                       filter.getCodeStepNext().equals(Step.HISEQ_PREP)) {
+                       filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
+                       filter.getCodeStepNext().equals(Step.MISEQ_PREP)) {
             n.setAttribute("idSeqLibProtocol",                  row[16] == null ? "" :  ((Integer)row[16]).toString());
             n.setAttribute("seqPrepByCore",                     row[17] == null ? "" :  (String)row[17]);
             n.setAttribute("seqPrepLibConcentration",           row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
@@ -445,7 +460,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("seqPrepStockStatus", seqPrepStockStatus);
           
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-                      filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+                      filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+                      filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
             n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
             n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
             n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
@@ -530,7 +546,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
          
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
-                       filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
+                       filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
+                       filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
 
             FlowCell fc = (FlowCell)row[16];
             FlowCellChannel ch = (FlowCellChannel)row[17];
@@ -574,7 +591,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
           // Cluster gen work items are organized in a hierarchical fashion
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
             String clusterGenKey = requestNumber + "-" + codeRequestCategory;
             List nodes = (List)clusterGenMap.get(clusterGenKey);
             
@@ -597,7 +615,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_RUN) ||
               filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
-              filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
+              filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
             prevFlowCellNumber = flowCellNumber;
           }
           
@@ -606,7 +625,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         // Organize cluster gen workitems.  Under experiment number,
         // we organize sequence lanes under multiplex group number.
         if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-            filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+            filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+            filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
           for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
             String clusterGenKey = (String)i.next();
             String [] tokens = clusterGenKey.split("-");

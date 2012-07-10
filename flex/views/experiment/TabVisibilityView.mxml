@@ -36,8 +36,8 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
-		import views.util.PromptXMLListCollection;
 		import views.util.DateUtils;
+		import views.util.PromptXMLListCollection;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
@@ -84,6 +84,7 @@
 		}
 
 		private function onGetLab(event:ResultEvent):void {
+			var inst:Object;
 			if (getLab.lastResult.name() == "OpenLabList") {
 				var emptyNode:XML = new XML("<AppUser " +
 				    " idAppUser=''" +
@@ -94,15 +95,25 @@
 
 				this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
 				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
-				if (this.idInstitution != null) {
-					for each(var inst:Object in possibleInstitutions) {
+				if (this.idInstitution != null && this.idInstitution != '') {
+					for each(inst in possibleInstitutions) {
 						if (inst.@idInstitution == this.idInstitution) {
 							this.institutionCombo.selectedItem =  inst;
 							break;
 						}
 					}
 				} else {
-					this.institutionCombo.selectedIndex = 0;
+					var hasDefault:Boolean = false;
+					for each(inst in possibleInstitutions) {
+						if (inst.@isDefault == 'Y') {
+							this.institutionCombo.selectedItem =  inst;
+							hasDefault = true;
+							break;
+						}
+					}
+					if(!hasDefault) {
+						this.institutionCombo.selectedIndex = 0;
+					}	
 				}
 			}
 		}

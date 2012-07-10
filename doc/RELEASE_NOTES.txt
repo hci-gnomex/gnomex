@@ -1,4 +1,4 @@
-﻿GNomEx Release Notes
+﻿﻿GNomEx Release Notes
 ---------------------
 
 5.4.6
@@ -18,10 +18,13 @@
 * Changed method for adding plates to a run ('add' button). (mbowler) 
 * Added security checks for dna sequencing core backend functions. (mbowler)
 * Fixed problem with plate report not displaying request submitter name. (mbowler)
+* Changes to enable file downloading for Exp/Analysis/DT from within the Topics feature. (rcundick)
+* Added idSubmitter field to Request and Analysis record to keep track of original submitter. 
+* Owner (idAppUser) field can now be changed for Request, Analysis. (rcundick)
+* Implemented MiSeq workflow interface. (rcundick)
+* Eliminated Captcha requirement for guest users. (rcundick)
+* Added option to set default institution via isDefault flag on institution record. (rcundick)
 
-5.4.5.1
----------------------
-* Changes to enable file downloading for Exp/Analysis/DT from within the Topics feature.
 
 5.4.5 (July 1, 2012)
 ---------------------
