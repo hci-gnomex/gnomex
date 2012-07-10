@@ -8,9 +8,12 @@
 * Order Review screen now shows submit time as well as date. (bspiglejr)
 * Fix populate sql script for SlideProduct so that correct foreign keys to organism are used.
 * Rework interface for getting experiment, analysis, and data track directory properties, combining read and write properties. (tdisera)
+* No longer include 'sample quality' (bioanalyzer folder) as default folder for experiment downloads (tdisera)
+* No longer create bioanalyzer directory when request is submitted (tdisera)
 * Separate experiment directory by core facility. (tdisera)
 * Rework the Lab total billing report to show DNA seq core's request types as columns. (tdisera)
 * Mark the instrument run as complete when ALL of the chromatograms have been released. (tdisera)
+* Place chromatograms for controls in an instrument run directory. (tdisera)
 
 5.4.5.1
 ---------------------
