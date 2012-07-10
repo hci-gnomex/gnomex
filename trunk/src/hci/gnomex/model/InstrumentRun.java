@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.hibernate3utils.HibernateDetailObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +52,22 @@ public class InstrumentRun extends HibernateDetailObject {
   {
     this.createDate = createDate;
   }
+  
+  public String getCreateYear() {
+    return InstrumentRun.getCreateYear(this.getCreateDate());
+  }
+  
+  public static String getCreateYear(java.util.Date theCreateDate) {
+    if (theCreateDate == null) {
+      return "";
+    } else {
+      String createDate  = new SimpleDateFormat("MM/dd/yyyy").format(theCreateDate);
+      String tokens[] = createDate.split("/");
+      String createYear  = tokens[2];
+      return createYear;
+    }
+  }
+
 
   public String getCodeInstrumentRunStatus()
   {
