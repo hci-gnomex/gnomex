@@ -8,9 +8,11 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,75 +52,82 @@ public class GetPlate extends GNomExCommand implements Serializable {
 
     try {
 
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
-      Plate p = null;
+      if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
-      if (idPlate == null || idPlate.intValue() == 0) {
-        p = new Plate();
-      } else {
-        p = (Plate)sess.get(Plate.class, idPlate);
-      }
-      
-      if (p == null) {
-        this.addInvalidField("missingPlate", "Cannot find plate idPlate=" + idPlate );
-      }
-      
-      
-      Document doc = new Document(new Element("PlateList"));
+        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      p.excludeMethodFromXML("getPlateWells");
-      p.excludeMethodFromXML( "getInstrumentRun" );
-      Element pNode = p.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-      
-      String creator = p.getCreator();
-      if ( creator != null && !creator.equals( "" ) ) {
-        AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
-        pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
-      } else {
-        pNode.setAttribute( "creator", creator);
-      }
-      
-      Element pwNode = new Element("plateWells");
-      
-      List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
+        Plate p = null;
 
-      for(Iterator i = plateWells.iterator(); i.hasNext();) {
-        PlateWell plateWell = (PlateWell)i.next();
-        plateWell.excludeMethodFromXML("getPlate");
-        
-        Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        
-        if ( plateWell.getAssay() != null ) {
-          node.setAttribute( "label", plateWell.getAssay().getDisplay() );
-        } else if ( plateWell.getPrimer() != null ) {
-          node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+        if (idPlate == null || idPlate.intValue() == 0) {
+          p = new Plate();
+        } else {
+          p = (Plate)sess.get(Plate.class, idPlate);
         }
-        
-        node.setAttribute("requestSubmitDate", "");
-        node.setAttribute("requestSubmitter", "");
-        
-        if ( plateWell.getIdRequest() != null ) {
-          String idRequestString = plateWell.getIdRequest().toString();
-          if ( idRequestString != null && !idRequestString.equals("")) {
-            Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-            if ( request != null ) {
-              node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
-              node.setAttribute("requestSubmitter", request.getOwnerName());
+
+        if (p == null) {
+          this.addInvalidField("missingPlate", "Cannot find plate idPlate=" + idPlate );
+        }
+
+
+        Document doc = new Document(new Element("PlateList"));
+
+        p.excludeMethodFromXML("getPlateWells");
+        p.excludeMethodFromXML( "getInstrumentRun" );
+        Element pNode = p.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+        String creator = p.getCreator();
+        if ( creator != null && !creator.equals( "" ) ) {
+          AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+          pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+        } else {
+          pNode.setAttribute( "creator", creator);
+        }
+
+        Element pwNode = new Element("plateWells");
+
+        List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
+
+        for(Iterator i = plateWells.iterator(); i.hasNext();) {
+          PlateWell plateWell = (PlateWell)i.next();
+          plateWell.excludeMethodFromXML("getPlate");
+
+          Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+          if ( plateWell.getAssay() != null ) {
+            node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+          } else if ( plateWell.getPrimer() != null ) {
+            node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+          }
+
+          node.setAttribute("requestSubmitDate", "");
+          node.setAttribute("requestSubmitter", "");
+
+          if ( plateWell.getIdRequest() != null ) {
+            String idRequestString = plateWell.getIdRequest().toString();
+            if ( idRequestString != null && !idRequestString.equals("")) {
+              Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+              if ( request != null ) {
+                node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
+                node.setAttribute("requestSubmitter", request.getOwnerName());
+              }
             }
           }
-        }
-        
-        pwNode.addContent(node);
-      }
-      
-      pNode.addContent(pwNode);
-      doc.getRootElement().addContent(pNode);
 
-      XMLOutputter out = new org.jdom.output.XMLOutputter();
-      this.xmlResult = out.outputString(doc);
-      
-      setResponsePage(this.SUCCESS_JSP);
+          pwNode.addContent(node);
+        }
+
+        pNode.addContent(pwNode);
+        doc.getRootElement().addContent(pNode);
+
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        this.xmlResult = out.outputString(doc);
+
+        setResponsePage(this.SUCCESS_JSP);
+
+      } else {
+        this.addInvalidField( "Insufficient permissions",
+        "Insufficient permission to view plate." );
+      }
     }catch (NamingException e){
       log.error("An exception has occurred in GetPlate ", e);
       e.printStackTrace();

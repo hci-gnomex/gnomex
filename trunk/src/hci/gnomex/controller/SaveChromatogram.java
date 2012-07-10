@@ -129,93 +129,99 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       Chromatogram ch;
-      
-      if(isNew) {
-        if ( fileName!=null && !fileName.equals( "" )) {
-          ch = new Chromatogram();
-          sess.save( ch );
-          // SAVE FROM FILE, GET BACK ID, CONTINUE
-          idChromatogram = ch.getIdChromatogram(); 
-        }
-      } 
-      
-      ch = (Chromatogram) sess.get(Chromatogram.class, idChromatogram);
-      
-      PlateWell pw = null;
-      Plate p = null;
-      InstrumentRun ir=null;
-      
-      if ( ch.getIdPlateWell() != null ) {
-        pw = (PlateWell) sess.get(PlateWell.class, ch.getIdPlateWell());
-      }
-      if ( pw != null && pw.getIdPlate() != null ) {
-        p = (Plate) sess.get(Plate.class, pw.getIdPlate());
-      }
-      if ( p != null && p.getIdInstrumentRun() != null ) {
-        ir = (InstrumentRun) sess.get(InstrumentRun.class, p.getIdInstrumentRun());
-      }
-      
-      // Set releaseDate if released
-      if ( released.equals( "Y" )) {
-        ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
-        ch.setIdReleaser(this.getSecAdvisor().getIdAppUser());
-        if (ir != null) {
-          // The instrument run status should change to COMPLETE if all chromatograms
-          // for instrument run have been released.
-          if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
-            ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+
+      if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
+
+        if(isNew) {
+          if ( fileName!=null && !fileName.equals( "" )) {
+            ch = new Chromatogram();
+            sess.save( ch );
+            // SAVE FROM FILE, GET BACK ID, CONTINUE
+            idChromatogram = ch.getIdChromatogram(); 
           }
-          // Loop through each experiment for an instrument run.  If all of the chromatograms
-          // on the experiment have been released and none of the source wells are flagged
-          // for redo, mark the experiment run status as COMPLETE.
-          changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
+        } 
+
+        ch = (Chromatogram) sess.get(Chromatogram.class, idChromatogram);
+
+        PlateWell pw = null;
+        Plate p = null;
+        InstrumentRun ir=null;
+
+        if ( ch.getIdPlateWell() != null ) {
+          pw = (PlateWell) sess.get(PlateWell.class, ch.getIdPlateWell());
         }
-      }
-      if (releaseDateStr != null) {
-        java.util.Date releaseDate = this.parseDate(releaseDateStr);
-        ch.setReleaseDate(releaseDate);
-        if ( ir!=null ) {
-          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
-          changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
+        if ( pw != null && pw.getIdPlate() != null ) {
+          p = (Plate) sess.get(Plate.class, pw.getIdPlate());
         }
+        if ( p != null && p.getIdInstrumentRun() != null ) {
+          ir = (InstrumentRun) sess.get(InstrumentRun.class, p.getIdInstrumentRun());
+        }
+
+        // Set releaseDate if released
+        if ( released.equals( "Y" )) {
+          ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
+          ch.setIdReleaser(this.getSecAdvisor().getIdAppUser());
+          if (ir != null) {
+            // The instrument run status should change to COMPLETE if all chromatograms
+            // for instrument run have been released.
+            if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
+              ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+            }
+            // Loop through each experiment for an instrument run.  If all of the chromatograms
+            // on the experiment have been released and none of the source wells are flagged
+            // for redo, mark the experiment run status as COMPLETE.
+            changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
+          }
+        }
+        if (releaseDateStr != null) {
+          java.util.Date releaseDate = this.parseDate(releaseDateStr);
+          ch.setReleaseDate(releaseDate);
+          if ( ir!=null ) {
+            ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+            changeRequestsToComplete( sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName );
+          }
+        }
+
+        if ( idPlateWell != 0 )           {ch.setIdPlateWell( idPlateWell );}
+        if ( idRequest != 0 )             {ch.setIdRequest( idRequest );}
+        if ( qualifiedFilePath != null )  {ch.setQualifiedFilePath( qualifiedFilePath );}
+        if ( displayName != null )        {ch.setDisplayName( displayName );}
+        if ( readLength != 0 )            {ch.setReadLength( readLength );}
+        if ( trimmedLength != 0 )         {ch.setTrimmedLength( trimmedLength );}
+        if ( q20 != 0 )                   {ch.setQ20( q20 );}
+        if ( q40 != 0 )                   {ch.setQ40( q40 );}
+        if ( aSignalStrength != 0 )       {ch.setaSignalStrength( aSignalStrength );}
+        if ( cSignalStrength != 0 )       {ch.setcSignalStrength( cSignalStrength );}
+        if ( gSignalStrength != 0 )       {ch.setgSignalStrength( gSignalStrength );}
+        if ( tSignalStrength != 0 )       {ch.settSignalStrength( tSignalStrength );}
+
+        sess.flush();
+
+        this.xmlResult = "<SUCCESS idChromatogram=\"" + ch.getIdChromatogram() + "\"/>";
+
+        setResponsePage(this.SUCCESS_JSP);
+
+      } else {
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save chromatogram.");
+        setResponsePage(this.ERROR_JSP);
       }
-      
-      if ( idPlateWell != 0 ) {ch.setIdPlateWell( idPlateWell );}
-      if ( idRequest != 0 ) {ch.setIdRequest( idRequest );}
-      if ( qualifiedFilePath != null )  {ch.setQualifiedFilePath( qualifiedFilePath );}
-      if ( displayName != null ) {ch.setDisplayName( displayName );}
-      if ( readLength != 0 ) {ch.setReadLength( readLength );}
-      if ( trimmedLength != 0 ) {ch.setTrimmedLength( trimmedLength );}
-      if ( q20 != 0 )  {ch.setQ20( q20 );}
-      if ( q40 != 0 ) {ch.setQ40( q40 );}
-      if ( aSignalStrength != 0 ) {ch.setaSignalStrength( aSignalStrength );}
-      if ( cSignalStrength != 0 )  {ch.setcSignalStrength( cSignalStrength );}
-      if ( gSignalStrength != 0 ) {ch.setgSignalStrength( gSignalStrength );}
-      if ( tSignalStrength != 0 ) {ch.settSignalStrength( tSignalStrength );}
-        
-      sess.flush();
-        
-      this.xmlResult = "<SUCCESS idChromatogram=\"" + ch.getIdChromatogram() + "\"/>";
-      
-      setResponsePage(this.SUCCESS_JSP);
-      
     }catch (Exception e){
       log.error("An exception has occurred in SaveChromatogram ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
   

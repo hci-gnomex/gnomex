@@ -10,6 +10,7 @@ import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PlateReportHTMLFormatter;
 
@@ -85,9 +86,9 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(
           this.getUsername() );
-
       dictionaryHelper = DictionaryHelper.getInstance( sess );
 
+      
       // Get plate
       plate = ( Plate ) sess.get( Plate.class, idPlate );
       if( plate == null ) {
@@ -95,7 +96,8 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
       }
 
       if( this.isValid() ) {
-        if( 1==1 ) { //this.getSecAdvisor().canRead( plate ) ) {
+
+        if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
           // Get instrument run
           if( plate.getIdInstrumentRun() != null ) {
@@ -221,12 +223,8 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
           reqInf.addContent( "Request Information:" );
           maindiv.addContent( reqInf );
 
-          // for ( all requests on plate ) {
-          // make a set of requests
-          // }
           maindiv.addContent( new Element( "BR" ) );
           formatter.addRequestTable(maindiv, reqMap);
-
 
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -242,7 +240,7 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
 
         } else {
           this.addInvalidField( "Insufficient permissions",
-              "Insufficient permission to read request." );
+              "Insufficient permission to view plate report." );
         }
 
       }
