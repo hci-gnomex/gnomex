@@ -927,6 +927,7 @@ values
 insert into gnomex.SealType
 (codeSealType, sealType, isActive)
 values 
+('SEPTA',  'Septa', 'Y'),
 ('HEATSEAL',  'Heat Sealing', 'Y');
   
 -- Insert entries into PropertyType

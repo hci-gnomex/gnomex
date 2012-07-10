@@ -9,6 +9,7 @@ public class SealType extends DictionaryEntry implements Comparable, Serializabl
 
 
   public static final String   HEATSEAL = "HEATSEAL";
+  public static final String   SEPTA = "Septa";
 
   
   private String   codeSealType;
