@@ -429,12 +429,16 @@
 						</mx:HBox>
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 							<mx:Label text="Submitted by"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@ownerName}" width="100%"/> 
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@submitterName}" width="100%"/> 
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 							<mx:Label text="Submit Date"  width="98" fontWeight="normal"/>
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@createDate}" width="100%"/>
 						</mx:HBox> 
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Label text="Owned by"  width="98" fontWeight="normal"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@ownerName}" width="100%"/> 
+						</mx:HBox>						
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 							<mx:Label text="Analysis Groups"  width="98" fontWeight="normal"/>
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@analysisGroupNames}" width="100%"/>

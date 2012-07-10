@@ -235,6 +235,8 @@ public class RequestProgressFilter extends DetailObject {
       queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
       queryBuf.append("', '");
       queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+      queryBuf.append("', '");
+      queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
       queryBuf.append("' ");
       queryBuf.append(") ");
     }  else if (isBioanalyzer.equals("Y")) {

@@ -370,7 +370,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
 
                 if (requestParser.isQCAmendRequest() && !isNewSample) {
-                  String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
+                  String codeStepNext = "";
+                  if(requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+                    codeStepNext = Step.SEQ_PREP;
+                  } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
+                    codeStepNext = Step.HISEQ_PREP;
+                  } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+                    codeStepNext = Step.MISEQ_PREP;
+                  }
                   // QC->Solexa request....
                   // Place samples on Seq Prep worklist.
                   workItem.setCodeStepNext(codeStepNext);
@@ -384,10 +391,24 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
                   // will be recorded.
                   if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
-                    String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_QC : Step.HISEQ_QC;
+                    String codeStepNext = "";
+                    if(requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+                      codeStepNext = Step.SEQ_QC;
+                    } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
+                      codeStepNext = Step.HISEQ_QC;
+                    } if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY))  {
+                      codeStepNext = Step.MISEQ_QC;
+                    }
                     workItem.setCodeStepNext(codeStepNext);
                   } else {
-                    String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
+                    String codeStepNext = "";
+                    if(requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+                      codeStepNext = Step.SEQ_PREP;
+                    } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
+                      codeStepNext = Step.HISEQ_PREP;
+                    } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+                      codeStepNext = Step.MISEQ_PREP;
+                    }
                     workItem.setCodeStepNext(codeStepNext);
                     sample.setQualBypassed("Y");
                     sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
@@ -577,7 +598,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 WorkItem workItem = new WorkItem();
                 workItem.setIdRequest(requestParser.getRequest().getIdRequest());
                 workItem.setSequenceLane(lane);
-                String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_CLUSTER_GEN : Step.HISEQ_CLUSTER_GEN;
+                String codeStepNext = "";
+                if(requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+                  codeStepNext = Step.SEQ_CLUSTER_GEN;
+                } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
+                  codeStepNext = Step.HISEQ_CLUSTER_GEN;
+                } else if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+                  codeStepNext = Step.MISEQ_CLUSTER_GEN;
+                }
                 workItem.setCodeStepNext(codeStepNext);
                 sess.save(workItem);
               }

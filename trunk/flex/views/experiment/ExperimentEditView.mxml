@@ -303,6 +303,9 @@
 		public var filteredProjectList:XMLListCollection;
 		[Bindable]
 		public var slideDesignList:XMLListCollection;
+		[Bindable]
+		private var appUsersForLab:XMLListCollection;
+		private var appUserSort:Sort;
 
         
 
@@ -1798,6 +1801,7 @@
 			request.@idRequest = "0";
 			request.@number = "";
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
+			request.@idSubmitter= setupView.idAppUser;
 			request.@idAppUser = setupView.idAppUser;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
@@ -2177,6 +2181,7 @@
 				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries, true);			
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
+			request.@idSubmitter = setupView.idAppUser;
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
@@ -2449,6 +2454,10 @@
 				if (requestEditProjectCombo.selectedItem == null || requestEditProjectCombo.selectedItem.@idProject == '') {
 					errorMessage += "Project must be specified.\n\n";
 				}
+				if (ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') {
+					errorMessage += "Owner must be specified.\n\n";
+				} 
+
 			}
 			
 			// Check for duplicate sampleNames / wells
@@ -2866,6 +2875,7 @@
 			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
 			request.@idAppUser = this.getIdAppUserSubmitter();
+			request.@idSubmitter = request.@idAppUser;
 			
 			if (!this.isAmendState()) {
 				// If we are submitting a new request, grab the lab, billing, project
@@ -3094,6 +3104,7 @@
 			
 			
 			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
+			request.@idAppUser = ownerCombo.selectedItem.@idAppUser;
 			if (requestEditBillingAccountCombo.selectedItem != null && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
 				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;				
 			}
@@ -3566,6 +3577,7 @@
 			}
 		}
 		
+
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
 				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
@@ -3585,12 +3597,32 @@
 		        		requestEditProjectCombo.selectedItem = p;
 		        		break;
 		        	}
-		        } 
+		        }
 				
+				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+				appUsersForLab = new XMLListCollection(lab.members.AppUser);
+				for each (var mgr:Object in lab.managers.AppUser) {
+					if (!appUsersForLab.contains(mgr)) {
+						appUsersForLab.addItem(mgr);				
+					}
+				}
+				appUsersForLab.addItemAt(emptyNode, 0);
+				
+				appUserSort = new Sort();
+				appUserSort.compareFunction = this.sortAppUsers;
+				appUsersForLab.sort = appUserSort;
+				appUsersForLab.refresh();
+				ownerCombo.selectedItem = emptyNode;
+				for each(var a:Object in appUsersForLab) {
+					if (a.@idAppUser == request.@idAppUser) {
+						ownerCombo.selectedItem = a;
+						break;
+					}
+				}
 			}			
 
 		}
-
+			
         private function onGetSlideDesignList(event:ResultEvent):void {
         	var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
         	slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
@@ -4108,6 +4140,7 @@
 	        }
 	        this.getCandidateAmendExperiments();
 		}
+			
         private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
 				return 0;
@@ -4128,7 +4161,7 @@
 				}
 				
 			}
-		}	
+		}
 		
 		public function showConvertIlluminaRequest():void {
    			var convertWindow:ConvertIlluminaRequestWindow = ConvertIlluminaRequestWindow(PopUpManager.createPopUp(DisplayObject(this), ConvertIlluminaRequestWindow, false));
@@ -4442,6 +4475,7 @@
 				}
 				return false;
 			}
+			
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
@@ -4467,7 +4501,7 @@
   	<mx:XMLListCollection id="projects" source="{getLab.lastResult..Lab.projects.Project}" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
-	
+		
 	<mx:NumberValidator id="minRangeValidator"
 						source="{rangeFrom}"
 						lowerThanMinError="Outside valid range."
@@ -4847,12 +4881,22 @@
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
 						<mx:Text text="Submitted by"  fontWeight="normal" width="100"/>
-						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@ownerName}" />
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@submitterName}" />
 					</mx:HBox>
 
 					<mx:HBox horizontalGap="0">
 						<mx:Text  text="Submit Date" width="100"  fontWeight="normal"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
+					</mx:HBox>
+					
+					<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:Label text="Owner"  width="100" fontWeight="normal"/>
+						<mx:ComboBox id="ownerCombo"
+									 labelField="@displayName" 
+									 change="this.dirty.setDirty();" 
+									 dataProvider="{appUsersForLab}" 
+									 enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+									 width="400"/>
 					</mx:HBox>
 						
 					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">

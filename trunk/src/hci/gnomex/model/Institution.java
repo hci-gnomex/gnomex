@@ -10,7 +10,8 @@ public class Institution extends DictionaryEntry implements Serializable {
   private Integer idInstitution;
   private String  institution;
   private String  description;
-  private String  isActive;
+  private String  isActive;  
+  private String  isDefault;
   private Set     labs;
   
   public String getDisplay() {
@@ -48,6 +49,12 @@ public class Institution extends DictionaryEntry implements Serializable {
   }
   private void setLabs(Set labs) {
     this.labs = labs;
+  }
+  public String getIsDefault() {
+    return isDefault;
+  }
+  public void setIsDefault(String isDefault) {
+    this.isDefault = isDefault;
   }
 
 }

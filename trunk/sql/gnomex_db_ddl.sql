@@ -27,6 +27,7 @@ CREATE TABLE `gnomex`.`Analysis` (
   `idInstitution` INT(10) NULL,
   `idCoreFacility` INT(10) NULL,
   `privacyExpirationDate` DATETIME NULL,
+  `idSubmitter` INT(10) NULL,
   PRIMARY KEY (`idAnalysis`),
   CONSTRAINT `FK_Analysis_Lab` FOREIGN KEY  (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -59,7 +60,11 @@ CREATE TABLE `gnomex`.`Analysis` (
     CONSTRAINT FK_Analysis_CoreFacility FOREIGN KEY  (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Analysis_AppUser1` FOREIGN KEY  (`idSubmitter`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION    
 )
 ENGINE = INNODB;
 
@@ -1412,6 +1417,7 @@ CREATE TABLE `gnomex`.`Request` (
   `avgInsertSizeTo` INT(10) null,
   `idSampleDropOffLocation` INT(10) NULL,
   `codeRequestStatus` VARCHAR(10) NULL,
+  `idSubmitter` INT(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1460,7 +1466,15 @@ CREATE TABLE `gnomex`.`Request` (
   CONSTRAINT `FK_Request_RequestStatus` FOREIGN KEY `FK_Request_RequestStatus` (`codeRequestStatus`)
     REFERENCES `gnomex`.`RequestStatus` (`codeRequestStatus`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_AppUser` FOREIGN KEY  (`idAppUser`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,     
+  CONSTRAINT `FK_Request_AppUser1` FOREIGN KEY  (`idSubmitter`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION 
 )
 ENGINE = INNODB;
 

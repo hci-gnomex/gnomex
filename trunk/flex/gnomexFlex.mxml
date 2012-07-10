@@ -51,11 +51,11 @@
     useProxy="false">
     <mx:request>
     </mx:request>
-    </mx:HTTPService > 
+    </mx:HTTPService >
         	
 	<mx:HTTPService 
     id="getSecurityAdvisorForGuest" 
-    url="getSecurityAdvisorInfo.jsp"
+    url="CreateSecurityAdvisorForGuest.gx"
     resultFormat="e4x"
     result="onGetSecurityAdvisorForGuest(event)"
 	fault="onFailHttpRequest('Failed to create security advisor for guest', event)"
@@ -382,14 +382,22 @@
 	        public var iconSolexaDisabled:Class;
 	        
 	        
-	        [Bindable]
-	        [Embed(source="assets/DNA_diag_lightening.png")]
-	        public var iconHiSeq:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/DNA_diag_lightening_disable.png")]
-	        public var iconHiSeqDisabled:Class;
-	        
+			[Bindable]
+			[Embed(source="assets/DNA_diag_lightening.png")]
+			public var iconHiSeq:Class;
+			
+			[Bindable]
+			[Embed(source="assets/DNA_diag_lightening_disable.png")]
+			public var iconHiSeqDisabled:Class;
+			
+			[Bindable]
+			[Embed(source="assets/DNA_diag_miseq.png")]
+			public var iconMiSeq:Class;
+			
+			[Bindable]
+			[Embed(source="assets/DNA_diag_miseq_disable.png")]
+			public var iconMiSeqDisabled:Class;
+			
 	        [Bindable]
 	        [Embed(source="assets/sitemap.png")]
 	        public var iconTree:Class;
@@ -547,6 +555,7 @@
 					<item label="" icon="assets/cherrypick.png" />
 					<item label="" icon="assets/fraganal.png" />
 					<item label="" icon="assets/mitseq.png" />
+					<item label="" icon="assets/DNA_diag_miseq.png" />
 				</items>    
 			);
 			
@@ -1341,11 +1350,15 @@
 				this.addEventListener(Event.ADDED_TO_STAGE, stage_init);
 
             	if (isGuestMode() ) { 
+					/*
+					Captcha feature removed 7.6.12. Guests can now login directly
             		var captchaWindow:CaptchaView = new CaptchaView();
             		PopUpManager.addPopUp(captchaWindow, mainArea, false);
             		PopUpManager.centerPopUp(captchaWindow);
             		captchaWindow.init();
             		captchaWindow.phrase.setFocus();
+					*/
+					getSecurityAdvisorForGuest.send();
             				    
 				} else {
 	            	createSecurityAdvisor.send();

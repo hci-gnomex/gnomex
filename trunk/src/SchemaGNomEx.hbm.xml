@@ -44,6 +44,8 @@
 		<property name="codeVisibility" column="codeVisibility" type="string"/>		
 		<property name="idInstitution" column="idInstitution" type="integer"/>
 		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+		<property name="idSubmitter" column="idSubmitter" type="integer"/>
+		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
     <property name="privacyExpirationDate" column="privacyExpirationDate" type="date"/>		
 		<set name="analysisGroups" table="AnalysisGroupItem" lazy="true" cascade="none">
 			<key column="idAnalysis"/>
@@ -470,6 +472,7 @@
 		<property name="institution" column="institution" type="string"/>
 		<property name="description" column="description" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="isDefault" column="isDefault" type="string"/>
 		<set name="labs" table="InstitutionLab" lazy="true" cascade="none">
 			<key column="idInstitution"/>
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
@@ -699,6 +702,8 @@
 		<property name="idSampleDropOffLocation" column="idSampleDropOffLocation" type="integer" />
     	<property name="codeRequestStatus" column="codeRequestStatus" type="string"/>
     	<many-to-one name="requestStatus" column="codeRequestStatus" class="hci.gnomex.model.RequestStatus" cascade="none" insert="false" update="false" />
+		<property name="idSubmitter" column="idSubmitter" type="integer"/>
+		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />    	
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />

@@ -79,7 +79,8 @@ public class Request extends HibernateDetailObject {
   private RequestStatus   requestStatus;
   private Set             chromatograms;
   private Set             topics;    
-  
+  private Integer         idSubmitter;
+  private AppUser         submitter;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -153,6 +154,22 @@ public class Request extends HibernateDetailObject {
   
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
+  }
+  
+  public Integer getIdSubmitter() {
+    return idSubmitter;
+  }
+
+  public void setIdSubmitter(Integer idSubmitter) {
+    this.idSubmitter = idSubmitter;
+  }
+
+  public AppUser getSubmitter() {
+    return submitter;
+  }
+
+  public void setSubmitter(AppUser submitter) {
+    this.submitter = submitter;
   }
   
   public Integer getIdLab() {
@@ -653,6 +670,7 @@ public class Request extends HibernateDetailObject {
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getAppUser");
+    this.excludeMethodFromXML("getSubmitter");
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getBillingAccount");
     this.excludeMethodFromXML("getKey");
@@ -668,6 +686,15 @@ public class Request extends HibernateDetailObject {
       return "";
     }
   }
+  
+  public String getSubmitterName() {
+    if (submitter != null) {
+      return submitter.getFirstName() + " " + submitter.getLastName();
+    } else {
+      return "";
+    }
+  }
+  
   public String getLabName() {
     if (lab != null) {
       return lab.getName();
@@ -990,6 +1017,7 @@ public class Request extends HibernateDetailObject {
     root.setAttribute("isDirty",                "N");
     root.setAttribute("isSelected",             "N");
     root.setAttribute("analysisNames",          "");
+    root.setAttribute("idSubmitter",              this.getNonNullString(this.getIdSubmitter()));
     
     if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       root.setAttribute("requestPublicNote",          "(Public) ");
