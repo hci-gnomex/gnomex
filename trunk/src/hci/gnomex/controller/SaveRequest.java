@@ -2100,11 +2100,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       log.error("Unable to create directory " + directoryName);      
     }
     
-    String bioanalyzerDirName = directoryName + "/" + qcDirectory;
-    success = (new File(bioanalyzerDirName)).mkdir();
-    if (!success) {
-      log.error("Unable to create directory " + bioanalyzerDirName);      
-    }
     
     if (req.getHybridizations() != null) {
       for(Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
