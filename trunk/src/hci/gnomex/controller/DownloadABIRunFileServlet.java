@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.biojava.bio.program.formats.Ligand.Reaction;
 import org.hibernate.Session;
 
 import org.jdom.Document;
@@ -158,19 +160,53 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         sess.flush();
         
         // Run headers 
-        response.getOutputStream().print( "Container Name\tPlate ID\tDescription\tApplication\tContainerType\tOwner\tOperator\tPlateSealing\tSchedulingPref\t\r\n" );
+        if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
+          response.getOutputStream().print( "Container Name\tPlate ID\tDescription\tContainerType\tAppType\tOwner\tOperator\tPlateSealing\tSchedulingPref\t\n" );
+        } else {
+          response.getOutputStream().print( "Container Name\tPlate ID\tDescription\tApplication\tContainerType\tOwner\tOperator\tPlateSealing\tSchedulingPref\t\r\n" );
+        }
         // Run information
         SealType sealType = ( SealType ) sess.get( SealType.class, ir.getCodeSealType() );
         String sealTypeText = sealType.getSealType();
         
-        response.getOutputStream().print( runName + "\t" + runName + "\tSequencingAnalysis\t384-Well\tCore\t3730-1\t" + sealTypeText + "\t1234\t\r\n" );
+        String plateID = "";
+        if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
+          plateID = runName;
+        } else {
+          plateID = idInstrumentRun.toString();
+        }
+        String owner = "";
+        AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(ir.getCreator()));
+        owner = user.getDisplayName() != null? user.getDisplayName() : "Core";
+        
+        if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
+          response.getOutputStream().print( runName + "\t" + plateID + "\tSequencingAnalysis\t384-Well\t" + owner + "\t3730-1\t" + sealTypeText + "\t1234\t\r\n" );
+        } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )){
+          response.getOutputStream().print( runName + "\t" + plateID + "\tSequencingAnalysis\t384-Well\t" + owner + "\t" + owner + "\t" + sealTypeText + "\t1234\t\r\n" );
+        } else {
+          response.getOutputStream().print( runName + "\t" + plateID + "\t384-Well\tRegular\t" + owner + "\t" + owner + "\t" +  sealTypeText + "\t1234\t\n" );
+          response.getOutputStream().print( "AppServer\tAppInstance\t\n" );
+          response.getOutputStream().print( "GeneMapper\tGeneMapper_Generic_Instance\t\n" );
+        }
+        
         // Well headers
-        response.getOutputStream().print( "Well\tSample Name\tComment\tResults\tGroup" +
-            "\tInstrument Protocol 1\tAnalysis Protocol 1" +
-            "\tInstrument Protocol 2\tAnalysis Protocol 2" +
-            "\tInstrument Protocol 3\tAnalysis Protocol 3" +
-            "\tInstrument Protocol 4\tAnalysis Protocol 4" +
-            "\tInstrument Protocol 5\tAnalysis Protocol 5\t\r\n" );
+        if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
+          response.getOutputStream().print( "Well\tSample Name\tComment\tSampleType\tSnp Set\tAnalysis Method\tPanel" +
+              "\tUser-Defined 3\tSize Standard" +
+              "\tUser-Defined 2\tUser-Defined 1" +
+              "\tResults Group 1\tInstrument Protocol 1" +
+              "\tResults Group 2\tInstrument Protocol 2" +
+              "\tResults Group 3\tInstrument Protocol 3" +
+              "\tResults Group 4\tInstrument Protocol 4" +
+              "\tResults Group 5\tInstrument Protocol 5\t\r\n" );
+        } else {
+          response.getOutputStream().print( "Well\tSample Name\tComment\tResults Group" +
+              "\tInstrument Protocol 1\tAnalysis Protocol 1" +
+              "\tInstrument Protocol 2\tAnalysis Protocol 2" +
+              "\tInstrument Protocol 3\tAnalysis Protocol 3" +
+              "\tInstrument Protocol 4\tAnalysis Protocol 4" +
+              "\tInstrument Protocol 5\tAnalysis Protocol 5\t\r\n" );
+        }
         
         Element runNode = getRunWells( sess );
         
@@ -191,6 +227,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                 String idSample = well.getAttributeValue( "idSample" ) != null ? well.getAttributeValue("idSample") : "";
                 String idPlate = well.getAttributeValue( "idPlate" ) != null ? well.getAttributeValue("idPlate") : "";
                 String primer = well.getAttributeValue( "primer" ) != null ? well.getAttributeValue("primer") : "";
+                String assay = well.getAttributeValue( "assay" ) != null ? well.getAttributeValue("assay") : "";
                 String wellRow = well.getAttributeValue( "row" ) != null ? well.getAttributeValue("row") : "";
                 int wellCol = well.getAttributeValue( "col" ) != null ? Integer.valueOf( well.getAttributeValue("col") ) : 0;
 
@@ -206,15 +243,23 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                   } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
                     fileName = sampleName + "_" + primer;
                     response.getOutputStream().print( fileName + "\t" );
+                  } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
+                    fileName = sampleName + "_" + assay;
+                    response.getOutputStream().print( fileName + "\t" );
                   }
                   
-                  String comments = "<ID:" + idPlateWellString + "><WELL:" + wellRow + String.format( "%02d", wellCol ) + ">";
+                  String comments = "<ID:" + idPlateWellString + ">";
+                  if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )){ 
+                      comments += "<WELL:" + wellRow + String.format( "%02d", wellCol ) + ">";
+                  }
                   response.getOutputStream().print( comments + "\t" );
                   
                   if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
                     response.getOutputStream().print( "Finch\tLongSeq50\tSeq_A\t\r\n");
                   } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
                     response.getOutputStream().print( "SMGF_Seq\tLongSeq50\tPCR\t\r\n");
+                  } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
+                    response.getOutputStream().print( "\t\t\t\t\t\t\t\tSMGF_FA\tFragAnalysis-RCT_50_POP7\t\n");
                   }
                 }
                 
