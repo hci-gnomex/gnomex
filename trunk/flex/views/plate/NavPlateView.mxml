@@ -3565,7 +3565,6 @@
 	<mx:states>
 
 		<mx:State id="viewState" name="viewState">
-
 			<mx:RemoveChild target="{deletePlateLink}" />
 			<mx:RemoveChild target="{deleteRunLink}" />
 			<mx:RemoveChild target="{savePlateButton}" />
@@ -3575,9 +3574,6 @@
 			<mx:SetProperty target="{runNameText}" name="editable" value="false" />
 			<mx:SetProperty target="{runCommentsText}" name="editable" value="false" />
 			<mx:RemoveChild target="{removeOrderButton}" />
-
-
-			<!--<mx:RemoveChild target="{removeAllButton}" />-->
 			<mx:RemoveChild target="{sealComboHBox}" />
 			<mx:RemoveChild target="{runSealComboHBox}" />
 			<mx:RemoveChild target="{statusComboHBox}" />
@@ -3587,20 +3583,12 @@
 			<mx:RemoveChild target="{orientationLabel}" />
 			<mx:RemoveChild target="{radioRow}" />
 			<mx:RemoveChild target="{radioCol}" />
-
-
-			<!--<mx:RemoveChild target="{linkbutton1}"/>-->
-
-
-			<!--<mx:RemoveChild target="{plateReactComboBox}"/>-->
 			<mx:RemoveChild target="{samplesTab}" />
 			<mx:RemoveChild target="{viewButton}" />
 			<mx:SetProperty target="{dirty}" name="visible" value="false" />
 			<mx:SetProperty target="{dirty}" name="includeInLayout" value="false" />
-
 		</mx:State>
 		<mx:State id="viewStatePlate" name="viewStatePlate" basedOn="viewState">
-
 			<mx:RemoveChild target="{pltButton}" />
 			<mx:RemoveChild target="{vrule1}" />
 			<mx:RemoveChild target="{vrule2}" />
@@ -3609,37 +3597,26 @@
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="View Plate" />
 			<mx:RemoveChild target="{runInfoBox}" />
 			<mx:RemoveChild target="{addPlatesButton}" />
-
+			<mx:RemoveChild target="{newRunButton}"/>
 		</mx:State>
 		<mx:State id="viewStateRun" name="viewStateRun" basedOn="viewState">
-
 			<mx:RemoveChild target="{addPlatesButton}" />
-
+			<mx:RemoveChild target="{newPlateButton}"/>
 		</mx:State>
 
-
 		<mx:State id="editState" name="editState">
-
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
 			<mx:RemoveChild target="{reactComboBox}" />
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit Run" />
 			<mx:RemoveChild target="{deleteRunLink}" />
-
-
-			<!--<mx:RemoveChild target="{plateReactComboBox}"/>-->
 			<mx:RemoveChild target="{editButton}" />
-
 		</mx:State>
 		<mx:State id="editStatePlate" name="editStatePlate" basedOn="editState">
-
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit Plate" />
 			<mx:RemoveChild target="{runTab}" />
 			<mx:RemoveChild target="{saveRunButton}" />
-
-
-			<!--<mx:RemoveChild target="{linkbutton1}"/>-->
 			<mx:RemoveChild target="{runInfoBox}" />
 			<mx:RemoveChild target="{pltButton}" />
 			<mx:RemoveChild target="{statusCheckboxBar}" />
@@ -3648,22 +3625,17 @@
 			<mx:RemoveChild target="{vrule2}" />
 			<mx:RemoveChild target="{addPlatesButton}" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
-
+			<mx:RemoveChild target="{newRunButton}"/>
 		</mx:State>
 		<mx:State id="editStateRun" name="editStateRun" basedOn="editState">
-
 			<mx:RemoveChild target="{savePlateButton}" />
 			<mx:RemoveChild target="{samplesTab}" />
 			<mx:RemoveChild target="{removeOrderButton}" />
 			<mx:RemoveChild target="{addPlatesButton}" />
-
-
-			<!--<mx:RemoveChild target="{removeAllButton}"/>-->
+			<mx:RemoveChild target="{newPlateButton}"/>
 		</mx:State>
 
-
 		<mx:State id="newState" name="newState">
-
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
@@ -3673,45 +3645,29 @@
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:" />
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
-
-
-			<!--<mx:RemoveChild target="{plateReactComboBox}"/>-->
 			<mx:RemoveChild target="{reactComboBox}" />
-
 		</mx:State>
 		<mx:State id="newStateRun" name="newStateRun" basedOn="newState">
-
 			<mx:RemoveChild target="{savePlateButton}" />
-
-
-			<!--<mx:RemoveChild target="{linkbutton1}"/>-->
 			<mx:RemoveChild target="{samplesTab}" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Remove Plate" />
 			<mx:RemoveChild target="{removeOrderButton}" />
-
-
-			<!--<mx:RemoveChild target="{removeAllButton}"/>-->
+			<mx:RemoveChild target="{newPlateButton}"/>
 		</mx:State>
 		<mx:State id="newStatePlate" name="newStatePlate" basedOn="newState">
-
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Fill Plate" />
 			<mx:RemoveChild target="{runTab}" />
 			<mx:RemoveChild target="{saveRunButton}" />
 			<mx:RemoveChild target="{deleteRunLink}" />
-
-
-			<!--<mx:RemoveChild target="{linkbutton1}"/>-->
 			<mx:RemoveChild target="{runInfoBox}" />
 			<mx:RemoveChild target="{statusCheckboxBar}" />
 			<mx:RemoveChild target="{vrule1}" />
 			<mx:RemoveChild target="{hbox1}" />
 			<mx:RemoveChild target="{vrule2}" />
 			<mx:SetProperty target="{newPlateButton}" name="label" value="New Plate" />
-			<mx:SetProperty target="{newRunButton}" name="label" value="New Run" />
 			<mx:RemoveChild target="{addPlatesButton}" />
-
+			<mx:RemoveChild target="{newRunButton}"/>
 		</mx:State>
-
 
 	</mx:states>
 
