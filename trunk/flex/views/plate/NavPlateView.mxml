@@ -210,7 +210,9 @@
 			private function getPlateParameters():Object {
 				var params:Object = new Object;
 				params.plateType = "REACTION";
-				params.notAddedToARun = "Y";
+				//if ( buildState == RUN || currentState.substr( 0, 4 ) == "view" ) { 
+					params.notAddedToARun = "Y"; 
+				//}
 				params.codeReactionType = reactionState;
 				
 				if ( allCheckbox.selected ) { return params; }
@@ -1214,6 +1216,9 @@
 			// Should set up the next empty run as current selected plate before calling...
 			private function loadRun( plateList:Array ):void {
 				
+				if ( currentState.substr(0,3) == "new" ) {
+					currentState = viewStateRun.name;
+				}
 				run = new Object();
 				run.idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
 				run.runDate = getInstrumentRun.lastResult.InstrumentRun.@runDate;
@@ -1263,7 +1268,6 @@
 			
 			// This uses the http service to get the run with the given id
 			public function loadRunById( idString:String ):void {
-				currentState = viewStateRun.name;
 				toggleBuildState( RUN );
 				var params:Object = new Object();
 				params.idInstrumentRun = idString;
@@ -1298,7 +1302,7 @@
 						plateTree.selectedIndex = -1;
 						return;
 					}
-					
+					 
 					if ( currentState.substr( 0, 3 ) == "new" ) {
 						switchToEditState();
 						loadSelectedRun();
@@ -2210,6 +2214,7 @@
 					reactionTypeRadioGroup.selection = radioSEQ;
 					fillColWise = true;
 					toggleFillOrientation();
+					activePlate.getWell(95).setControl(true);
 					reactTypeText.text = plateReactTypeText.text = "Capillary Seq";
 				} /* else if ( reaction == CHERRY ) {
 					reactionState = CHERRY;
@@ -2365,13 +2370,13 @@
 			}
 			
 			
-			private function setDirty():void {
+			public function setDirty():void {
 				this.isDirty = true;
 				dirty.setDirty();
 			}
 			
 			
-			private function resetDirty():void {
+			public function resetDirty():void {
 				this.isDirty = false;
 				dirty.resetDirty();
 			}
@@ -3689,7 +3694,7 @@
 		</mx:State>
 		<mx:State id="newStatePlate" name="newStatePlate" basedOn="newState">
 
-			<mx:SetProperty target="{runTitleLabel}" name="text" value="Build Plate" />
+			<mx:SetProperty target="{runTitleLabel}" name="text" value="Fill Plate" />
 			<mx:RemoveChild target="{runTab}" />
 			<mx:RemoveChild target="{saveRunButton}" />
 			<mx:RemoveChild target="{deleteRunLink}" />
