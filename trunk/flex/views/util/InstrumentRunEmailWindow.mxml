@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" title="Send email to users associated with selected runs" 
+	width="652" height="430"
+	xmlns:util="views.util.*" 
+	initialize="init()"
+	defaultButton="{saveButton}" showCloseButton="true" titleIcon="@Embed(source='../../assets/email_go.png')"> 
+       
+    <mx:HTTPService 
+    id="sendInstrumentRunEmail" 
+    url="InstrumentRunEmailServlet.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSendInstrumentRunEmail(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to send Email', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >  
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		
+		import flash.net.URLRequest;
+		import flash.net.URLVariables;
+		
+		import mx.controls.Alert;
+		import mx.formatters.NumberFormatter;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		[Bindable]
+		public var selectedRuns:XMLListCollection = new XMLListCollection();
+			    	
+		private function init():void {
+		}
+
+		private function save():void {
+	 		var params:Object = new Object();
+			var runsSelected:String = "<InstrumentRuns>";
+			
+			for each(var node:XML in selectedRuns){
+				runsSelected += "<idInstrumentRun>" + node[0].@idInstrumentRun + "</idInstrumentRun>";
+			} 
+			runsSelected += "</InstrumentRuns>";
+			params.runsSelectedXMLString = new XML(runsSelected);
+			
+	 		params.subject = subject.text;
+	 		params.format = "text";
+	 		params.body = body.text;
+	 		this.sendInstrumentRunEmail.send(params);
+			
+		}
+		
+		private function onSendInstrumentRunEmail(event:ResultEvent):void {
+        	if (sendInstrumentRunEmail.lastResult.name() == "SUCCESS") {
+				Alert.show("Email successfully sent");
+            	PopUpManager.removePopUp(this);        		
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error sending email");
+        	}
+        }   
+
+	]]>
+</mx:Script>
+	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="Subject:" width="80"/>
+			<mx:TextInput width="100%" id="subject"/>
+		</mx:HBox>
+		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
+			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
+				<mx:Label text="Body:" width="80"/>
+			</mx:HBox>
+			<mx:ViewStack paddingLeft="80" id="bodyViewStack" width="100%" height="100%">
+				<mx:Canvas label="textView" width="100%" height="100%"> 
+					<util:TextAreaWorkaround width="100%" height="100%" id="body"/>
+				</mx:Canvas>
+				<mx:Canvas label="uploadView" width="100%" height="100%">
+				    <mx:HBox width="100%" paddingTop="10">
+				        <mx:Label id="fileName" fontWeight="bold"/>
+						<mx:Text id="message" fontWeight="bold"/>
+				    	
+				    </mx:HBox>
+				</mx:Canvas>
+			</mx:ViewStack>
+		</mx:VBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="{this.body.text != '' &amp;&amp; subject.text != ''}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+
+	
+</mx:TitleWindow>
