@@ -38,14 +38,16 @@
 	
 	<mx:Script> 
 		<![CDATA[
-			
 			import hci.flex.controls.DropdownLabel;
 			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			
+			import views.util.InstrumentRunEmailWindow;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -275,6 +277,14 @@
 					'?idInstrumentRun=' + idRun);
 				navigateToURL(url, '_blank');
 			}
+			
+			private function showEmailWindow():void{
+				var emailWindow:InstrumentRunEmailWindow = InstrumentRunEmailWindow(mx.managers.PopUpManager.createPopUp(this, InstrumentRunEmailWindow, true));
+				emailWindow.selectedRuns = this.selectedRuns;
+				mx.managers.PopUpManager.centerPopUp(emailWindow);
+				this.setFocus();
+				
+			}
 
 		]]>
 	</mx:Script>    	
@@ -402,6 +412,15 @@
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
 					   enabled="{selectedRuns.length>0}"/>
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Email"
+					   icon="@Embed('../../assets/email_go.png')"
+					   toolTip="Email collaborators"
+					   click="{showEmailWindow()}" 
+					   disabledIcon="@Embed('../../assets/email_go_disable.png')"
+					   enabled="{selectedRuns.length>0}"/>
+		
 		<mx:Spacer width="100%" height="100%" />
 		<mx:Label text = "{'(' + runList.length + ' runs)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		
