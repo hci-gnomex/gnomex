@@ -192,6 +192,7 @@
 		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
 		import mx.events.DragEvent;
+		import mx.events.ListEvent;
 		import mx.events.PropertyChangeEvent;
 		import mx.formatters.CurrencyFormatter;
 		import mx.managers.DragManager;
@@ -523,11 +524,14 @@
 				this.pricingTree.dataProvider = new HierarchicalData(pricingList);
 				this.pricingTree.dataProvider.refresh();
 				refreshBillingTimer.start();
+				
 
 			} else {
 				Alert.show("An error occurred while getting price sheet.");
 			}			
 		}
+		
+
 		
 		
 		private function onRefreshBillingTimerTimer(evt:TimerEvent):void {
@@ -743,6 +747,7 @@
  			if (this.requestTree.selectedItem == null) {
  				return;
  			}
+			billingStatusCombo.enabled = true;
  			lastSelectedItem = this.requestTree.selectedItem;
  			gatherDisplayInfo(this.requestTree.selectedItem);
  		}
@@ -1826,6 +1831,18 @@
 			
 			return "";
 		}		
+
+		public function billingStatusCombo_changeHandler(event:ListEvent):void {
+			for each(var request:XML in billingItemsDisplayed){
+				for each(var bi:Object in request.BillingItem){
+					bi.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+					bi.@isDirty = "Y";
+				}
+			}
+			
+			billingStatusCombo.selectedItem = billingStatusCombo.prompt;
+		}
+
  	]]>
  </mx:Script>	
 
@@ -2030,7 +2047,14 @@
  
 			        	
         	<mx:VBox styleName="panelBox"  width="100%" height="100%">
-        		<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
+				<mx:HBox width="100%">
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
+					<mx:Spacer width="100%"/>
+					<mx:Label styleName="titleLabel" text="Batch Mode:"/>
+					<mx:ComboBox id="billingStatusCombo" prompt="- Change Status -" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
+								 labelField="@display" toolTip="Use this to change the status of every displayed billing item" change="billingStatusCombo_changeHandler(event)" enabled="false"/>
+				</mx:HBox>
+				
         		<mx:AdvancedDataGrid width="100%" height="100%"  
         			displayItemsExpanded="true"  
         			editable="true" 
