@@ -9,7 +9,7 @@
 	<mx:VBox width="100%" verticalGap="2">
 		<mx:HBox horizontalGap="1">
 			<mx:Image source="{parentApplication.iconTopic}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Topic ' + parentDocument.topicsBrowseTree.selectedItem.@name}" />
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Topic ' + parentDocument.browseTree.selectedItem.@name}" />
 			<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 		</mx:HBox>
 	</mx:VBox>
@@ -37,7 +37,7 @@
 	import views.util.WebLinksView;
 	
 	public function init():void {
-		if (parentDocument.topicsBrowseTree.selectedItem.@canWrite == "Y") {
+		if (parentDocument.browseTree.selectedItem.@canWrite == "Y") {
 			if (this.labStack != null) {
 				labStack.selectedIndex = 0;
 			}
@@ -46,8 +46,8 @@
 				labStack.selectedIndex = 1;
 			}
 		}
-		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.topicsBrowseTree.selectedItem.@idLab);
-		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser ==  parentDocument.topicsBrowseTree.selectedItem.@idAppUser);
+		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.browseTree.selectedItem.@idLab);
+		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser ==  parentDocument.browseTree.selectedItem.@idAppUser);
 		this.dirtyTopic.resetDirty();
 	}
 	
@@ -56,24 +56,24 @@
 		var userLink:String =  "GNomEx User:\r"  + parentApplication.baseURL 
 			+ parentApplication.GNOMEX_USER_JSP;
 		var guestLink:String = "\r\rGuest:\r"  + parentApplication.baseURL + parentApplication.GNOMEX_GUEST_JSP;
-		var topicNumber:String = "?topicNumber=" + parentDocument.topicsBrowseTree.selectedItem.@idTopic;
+		var topicNumber:String = "?topicNumber=" + parentDocument.browseTree.selectedItem.@idTopic;
 		
-		Alert.show(userLink + topicNumber + guestLink + topicNumber, "Web Links for Topic " + parentDocument.topicsBrowseTree.selectedItem.@name);
+		Alert.show(userLink + topicNumber + guestLink + topicNumber, "Web Links for Topic " + parentDocument.browseTree.selectedItem.@name);
 		*/
 		var webLinksView:WebLinksView = new WebLinksView();
-		var topicNumber:String = "?topicNumber=" + parentDocument.topicsBrowseTree.selectedItem.@idTopic;
+		var topicNumber:String = "?topicNumber=" + parentDocument.browseTree.selectedItem.@idTopic;
 
 		PopUpManager.addPopUp(webLinksView, this, true);
 		PopUpManager.centerPopUp(webLinksView);
-		webLinksView.setTitleMessage("Topic " + parentDocument.topicsBrowseTree.selectedItem.@name);
+		webLinksView.setTitleMessage("Topic " + parentDocument.browseTree.selectedItem.@name);
 		webLinksView.setUserLink(topicNumber);
 		webLinksView.setGuestLink(topicNumber);
 	}
 	
 	private function save():void {
 		var params:Object = new Object();
-		params.idTopic      		  = parentDocument.topicsBrowseTree.selectedItem.@idTopic;
-		params.idParentTopic      	  = parentDocument.topicsBrowseTree.selectedItem.@idParentTopic;
+		params.idTopic      		  = parentDocument.browseTree.selectedItem.@idTopic;
+		params.idParentTopic      	  = parentDocument.browseTree.selectedItem.@idParentTopic;
 		params.name                   = this.topicName.text;
 		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
@@ -86,7 +86,7 @@
 	private function onUpdateTopic(event:ResultEvent):void {
 		if (updateTopic.lastResult.name() == "SUCCESS") {
 			this.dirtyTopic.resetDirty();
-			parentDocument.treeItemToSelect = this.parentDocument.topicsBrowseTree.selectedItem;
+			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
 			parentDocument.refreshTopics();			
 		} else {
 			Alert.show(updateTopic.lastResult..ACTMESSAGE.@TEXT);
@@ -105,7 +105,7 @@
 <mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
 	<mx:HBox width="100%" >
 		<mx:Label text="Name:"  width="120"/>
-		<mx:TextInput id="topicName" width="100%" text="{parentDocument.topicsBrowseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>
+		<mx:TextInput id="topicName" width="100%" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>
 		<mx:ViewStack id="labStack" width="100%">
 			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
 				<mx:Label text="Lab:" paddingLeft="8"/>
@@ -115,9 +115,9 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
 				<mx:Label text="Lab:" paddingLeft="8"/>
-				<mx:Label text="{parentDocument.topicsBrowseTree.selectedItem.@lab}"/>							         			
+				<mx:Label text="{parentDocument.browseTree.selectedItem.@lab}"/>							         			
 				<mx:Label text="Owner:" paddingLeft="8"/>
-				<mx:Label text="{parentDocument.topicsBrowseTree.selectedItem.@appUser}"/>							         			
+				<mx:Label text="{parentDocument.browseTree.selectedItem.@appUser}"/>							         			
 			</mx:HBox>
 		</mx:ViewStack>
 	</mx:HBox>
@@ -125,8 +125,8 @@
 		<mx:Label text="Description:" width="120"/>
 		<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
 							id="descriptionRichText" width="100%" 
-							htmlText="{parentDocument.topicsBrowseTree.selectedItem.@description}" 
-							showControlBar="{parentDocument.topicsBrowseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+							htmlText="{parentDocument.browseTree.selectedItem.@description}" 
+							showControlBar="{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
 							change="this.dirtyTopic.setDirty()"
 							creationComplete="removeRichTextButtons()"
 							paddingLeft="0" paddingRight="0" paddingTop="0" 
@@ -137,7 +137,7 @@
 	</mx:HBox>
 	<mx:HBox width="100%" horizontalGap="0" >
 		<mx:Label text="Created by:" width="126"/>
-		<mx:Label text="{parentDocument.topicsBrowseTree.selectedItem.@createdBy + ' ' + parentDocument.topicsBrowseTree.selectedItem.@createDate}" width="100%"/>
+		<mx:Label text="{parentDocument.browseTree.selectedItem.@createdBy + ' ' + parentDocument.browseTree.selectedItem.@createDate}" width="100%"/>
 	</mx:HBox>
 	
 </mx:VBox>
@@ -145,7 +145,7 @@
 <mx:ControlBar horizontalAlign="right" width="100%">
 	<util:DirtyNote id="dirtyTopic"/>
 	<mx:Button  label="Save" id="saveTopicButton"  click="save()" icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
-		<mx:enabled>{parentDocument.topicsBrowseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+		<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
 	</mx:Button>
 </mx:ControlBar>
 

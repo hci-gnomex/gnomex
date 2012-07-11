@@ -62,3 +62,14 @@ insert into gnomex.SealType
 values 
 ('SEPTA',  'Septa', 'Y');
 
+-- Add isDefault field to Institution table
+
+alter table gnomex.Institution add column isDefault char(1) null;
+
+
+--- Alter Topic columns to allow nulls
+
+alter table gnomex.Topic alter column idParentTopic int(10) NULL;
+
+alter table gnomex.Topic alter column idLab int(10) NULL;
+
