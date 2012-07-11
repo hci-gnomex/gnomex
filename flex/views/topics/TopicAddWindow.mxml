@@ -121,8 +121,8 @@
 			<mx:Label text="Description:" width="105"/>
 			<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
 								id="descriptionRichText" width="1056" 
-								htmlText="{parentDocument.topicsBrowseTree.selectedItem.@description}" 
-								showControlBar="{parentDocument.topicsBrowseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+								htmlText="{parentDocument.browseTree.selectedItem.@description}" 
+								showControlBar="{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
 								creationComplete="removeRichTextButtons()"
 								paddingLeft="0" paddingRight="0" paddingTop="0" 
 								roundedBottomCorners="false" paddingBottom="0" 

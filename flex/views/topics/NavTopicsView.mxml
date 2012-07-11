@@ -212,11 +212,7 @@
 			browseTree.visible = false;
 			return;
 		}
-		if (getTopicList.lastResult.Folder.Topic.length() == 0) {
-			browseTree.visible = false;
-		} else {
-			browseTree.visible = true;
-		}
+		browseTree.visible = true;
 		
 		// If we are looking up a topic by number, get the tree item to select
 		if (this.topicNumber != "") {

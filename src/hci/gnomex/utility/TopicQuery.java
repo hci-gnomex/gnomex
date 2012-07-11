@@ -620,10 +620,7 @@ public class TopicQuery implements Serializable {
 				// Recurse for each topic (under a topic)
 				TreeMap<String, ?> childFolders = topicToTopics.get(folderKey);
 				fillTopicNode(topicNode, childFolders, secAdvisor, dictionaryHelper);
-				if(topicNode.hasChildren()) {
-				  // No need to add the content unless children are present.
-	        parentNode.addContent(topicNode);				  
-				}
+	      parentNode.addContent(topicNode);				  
 			}	
 		}
 

@@ -979,6 +979,7 @@ CREATE TABLE gnomex.Institution (
     institution 	varchar(200) NOT NULL,
     description  	varchar(500) NULL,
     isActive     	char(1) NULL,
+    isDefault    	char(1) NULL,
     PRIMARY KEY (idInstitution)
     )
 ENGINE = INNODB;
@@ -2652,7 +2653,7 @@ CREATE TABLE `gnomex`.`Topic` (
   `idTopic` INT(10) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(2000) NOT NULL,
   `description` VARCHAR(10000) NULL,
-  `idParentTopic` int(10) NOT NULL,  
+  `idParentTopic` int(10) NULL,  
   `idLab` int(10) NOT NULL,
   `createdBy` VARCHAR(200) NOT NULL,
   `createDate` datetime default NULL,
