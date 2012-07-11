@@ -179,7 +179,7 @@ package views.renderers {
 					event.stopPropagation();
 				} else if ( plateView.currentState.substr(0, 4) != 'view' ) {
 					this.setControl( this.isControl == "N" );
-					plateView.dirty.setDirty();
+					plateView.setDirty();
 				}
 			}
 		}
