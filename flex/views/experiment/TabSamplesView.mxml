@@ -1427,6 +1427,11 @@
 				sampleOrganismColumn.editable = false;
 				this.concentrationCol.visible = false;
 				
+				if (isEditState) { 
+					this.sampleTypeCol.visible = true;
+				} else {
+					this.sampleTypeCol.visible = false;
+				}
 				this.otherOrganismCol.visible = false;
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
