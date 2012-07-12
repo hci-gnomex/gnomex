@@ -94,7 +94,11 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
       if ( ch.getReleaseDate() != null ) {
         if ( ir!=null ) {
-          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+          // The instrument run status should change to COMPLETE if all chromatograms
+          // for instrument run have been released.
+          if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
+            ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+          }
           SaveChromatogram.changeRequestsToComplete(sess, ir, secAdvisor, launchAppURL, appURL, serverName);
         }
       }
@@ -226,12 +230,20 @@ public class ChromatogramParser extends DetailObject implements Serializable
 
   public void requeueSourceWells( int idReactionWell, Session sess ) {
       PlateWell reactionWell = (PlateWell) sess.get( PlateWell.class, idReactionWell );
+      
+      // Mark the reaction well as redo.  This will be a record indicating
+      // that this reaction will was redone.
+      reactionWell.setRedoFlag("Y");
+      
       StringBuffer buf = getRedoQuery( reactionWell, false );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();
       
-      // If source redo wells are found, mark the reaction well as a redo, and
-      // remove redo flag from the source wells.
+      // Now we mark the source well as a redo.  This will result
+      // in the source well on the pending sample list for Fill Plate.
+      // Once the source well is placed on a plate, the redo flag
+      // is turned off.  We will have a record on the original
+      // reaction well indicating that it was redone.
       for ( Iterator i2 = redoWells.iterator(); i2.hasNext();) {
         PlateWell redoWell = (PlateWell) i2.next();
         redoWell.setRedoFlag( "Y" );
