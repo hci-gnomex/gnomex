@@ -115,7 +115,8 @@
        <mx:request>
          <idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>       	
          <idLab>{labCombo.selectedItem.@idLab}</idLab>       	
-         <idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
+         <idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
+		 <idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
        </mx:request>
     </mx:HTTPService >  
     
@@ -565,7 +566,7 @@
 			if (getBillingRequestList.lastResult.name() == "BillingRequestList") {
 				this.requests = new XMLListCollection(getBillingRequestList.lastResult.Status);
 				this.requestTree.dataProvider = new HierarchicalData(requests);
-				this.requestTree.dataProvider.refresh();   	
+				this.requestTree.dataProvider.refresh();
 				
 				var pendingItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Pending');
 				jumpPending.visible =  pendingItems.length() ? true : false;
@@ -582,7 +583,8 @@
 				var message:String = getBillingRequestList.lastResult.ERROR.@message;
 				Alert.show(message);
 			}				
-		} 
+		}
+
 		private function onGetBillingItemList(event:ResultEvent):void {
 			if (getBillingItemList.lastResult.name() == "BillingItemList") {
 				this.billingItems = new XMLListCollection(getBillingItemList.lastResult.Request);
@@ -1888,7 +1890,7 @@
 						<mx:ComboBox id="labCombo" 
 									 labelField="@name"
 									 dataProvider="{parentApplication.promptedLabList}"
-									 visible="true"  width="160" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
+									 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
 						</mx:ComboBox>				   
 					</mx:HBox>
 				      <mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="0" paddingRight="0">
@@ -1901,7 +1903,7 @@
 					<mx:VBox verticalGap="0">
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
-							 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;refresh()">
+							 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;refresh()">
 						</mx:ComboBox>
 						<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0">
 							<mx:RadioButton label="Acct name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
@@ -1914,6 +1916,12 @@
 						</mx:HBox>
 						
 					</mx:VBox>
+					
+					<mx:HBox>
+						<mx:Label text="Core Facility"/>
+						<mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"
+									 labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()" includeInLayout="{parentApplication.currentState == 'AdminState'}" visible="{parentApplication.currentState == 'AdminState'}"/>
+					</mx:HBox>
 			   	
 		    	</mx:HBox> 
 				<mx:HBox horizontalGap="0" defaultButton="{lookupButton}">
