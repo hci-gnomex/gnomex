@@ -139,32 +139,31 @@
 			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
 				
 				if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
 					this.fragCheckbox.selected = false;
 					this.mitoCheckbox.selected  = false;
 					this.cherryCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
 					this.capSeqCheckbox.selected = false;
 					this.mitoCheckbox.selected  = false;
 					this.cherryCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
 					this.capSeqCheckbox.selected = false;
 					this.fragCheckbox.selected = false;
 					this.cherryCheckbox.selected = false;
 					
 				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
 					this.capSeqCheckbox.selected = false;
 					this.fragCheckbox.selected = false;
 					this.mitoCheckbox.selected  = false;
-					
 				}     
 			} 	
 
-			
-			
-			
-			
 		]]>
 	</mx:Script> 
 	
