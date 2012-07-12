@@ -29,10 +29,10 @@ alter table gnomex.Request add
 
 -- Initialize idSubmitter to current contents of idAppUser  
 update Analysis
-set idSubmitter = idAppUser
+set idSubmitter = idAppUser;
 
 update Request
-set idSubmitter = idAppUser
+set idSubmitter = idAppUser;
 
 
 --Add new fields for commercial pricing
