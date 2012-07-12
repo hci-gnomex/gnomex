@@ -144,7 +144,7 @@
 				
 			}
 
-			private function getList():void {
+			public function getList():void {
 				getRequestList.send(getOrderParameters());
 			}
 			
