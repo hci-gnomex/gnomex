@@ -182,9 +182,6 @@
 				if (parentDocument.samples.length >= 384) {
 					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
 					isValid = false;
-				} else if (parentDocument.samples.length >= 96 && parentDocument.request.@containerType != 'PLATE') {
-					Alert.show("You have selected Tube as your container.  In order to have more than 96 samples please select Plate.  Add Sample ignored.");
-					isValid = false;
 				} else {
 					var plateName:String = getPlateName(parentDocument.samples.length);
 					var isControl:String = getIsControl(parentDocument.samples.length);
