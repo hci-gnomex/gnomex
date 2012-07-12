@@ -86,7 +86,11 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);       
       
-      if (this.getSecurityAdvisor().canUpdate(analysis)) {
+      // Normally, we would check to make sure the user has 'write' permissions
+      // on the Analysis.  But in this case, we are just inserting AnalysisFile
+      // objects into the db for the sole purpose of linking to DataTracks, so
+      // we want to allow readers to be able to perform these inserts.
+      if (!this.getSecAdvisor().isGuest() && this.getSecurityAdvisor().canRead(analysis)) {
         
         if (analysisFileParser != null) {
           analysisFileParser.parse(sess);          
