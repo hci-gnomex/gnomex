@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%" 
+	width="100%" height="100%"
 	xmlns:util="views.util.*">
 	
 <mx:HBox>
 	<mx:Image source="assets/text_align_justify.png"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
-		text="{codeStepNext == 'SEQASSEM' ? 'Illumina GAIIx Cluster Gen' : 'Illumina HiSeq Cluster Gen'}"/>
+		text=""/>
 	<mx:TextArea styleName="instructionBox" wordWrap="false" height="20" paddingLeft="4" paddingRight="4" width="600">
 		<mx:htmlText><![CDATA[To assemble flow cell, drag ctrl or seq. req. onto flow cell.  To drag multiple, hold SHIFT or CTRL key while selecting.]]></mx:htmlText>
 	</mx:TextArea>	
@@ -94,7 +94,17 @@
 		
 		private var warningMessage:String = "";
 		
-		public function initializeData():void {
+		private var maxFlowCellCount:int;
+		
+		public function initializeData(maxFlowCells:int):void {
+			maxFlowCellCount = maxFlowCells;
+			if(codeStepNext == 'SEQASSEM') {
+				titleLabel.text = 'Illumina GAIIx Cluster Gen';
+			} else if (codeStepNext == 'HSEQASSEM') {
+				titleLabel.text = 'Illumina HiSeq Cluster Gen';
+			} else if (codeStepNext == 'MISEQASSEM') {
+				titleLabel.text = 'Illumina MiSeq Cluster Gen';
+			}
 			controlsGrid.dataProvider = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SequencingControl'); 
         }
 		
@@ -220,7 +230,13 @@
     		params.flowCellBarcode = this.flowCellBarcode.text;
     		params.flowCellDate = this.flowCellDate.text;
     		params.workItemXMLString = dirtyChannelWorkList.toXMLString();
-    		params.codeStepNext = codeStepNext == 'SEQASSEM' ? 'SEQPIPE' : 'HSEQPIPE';
+			if(codeStepNext == 'SEQASSEM') {
+				params.codeStepNext = 'SEQPIPE';
+			} else if (codeStepNext == 'HSEQASSEM') {
+				params.codeStepNext = 'HSEQPIPE';
+			} else if (codeStepNext == 'MISEQASSEM') {
+				params.codeStepNext = 'MISEQPIPE';
+			}
 			params.runNumber = this.runNumber.text;
 			params.numberSequencingCyclesActual = this.numberOfCycles.text;
 			params.side = this.radiogroupSide.selectedValue;
@@ -355,8 +371,10 @@
  			} else if (item.name() == "Request") {
  				if (item.@codeRequestCategory == "SOLEXA") {
  					return parentApplication.iconSolexa;
- 				} else if (item.@codeRequestCategory == "HISEQ") {
- 					return parentApplication.iconHiSeq;
+				} else if (item.@codeRequestCategory == "HISEQ") {
+					return parentApplication.iconHiSeq;
+				} else if (item.@codeRequestCategory == "MISEQ") {
+					return parentApplication.iconMiSeq;
  				} else {
  					return null;
  				}
@@ -563,8 +581,8 @@
     		// Warn if flow cell channels exceeded.
     		if (dirtyChannelWorkList.length > 0) {
 	    		var lastWorkItem:Object = dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1);
-	    		if (lastWorkItem.@channelNumber > 8) {
-					Alert.show("Max 8 flow cell channels loaded.  Please remove extra lanes");			
+	    		if (lastWorkItem.@channelNumber > maxFlowCellCount) {
+					Alert.show("Max " + maxFlowCellCount + " flow cell channels loaded.  Please remove extra lanes");			
 				}	    			
     		}
     		
