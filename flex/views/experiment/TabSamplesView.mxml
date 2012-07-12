@@ -571,32 +571,40 @@
         	}
        		
         	
+			var numberOfSamples:Number = 0;
 			var numberOfSamplesToAdd:Number = 0;
+			var numberOfSamplesWithoutControl:Number = 0;
 			if (parentApplication.submitInternalExperiment()) {
 				if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
 					return;
 				}
 				if (parentDocument.isCherryPickState()) {
-					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
+					numberOfSamples = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
+					numberOfSamplesWithoutControl = numberOfSamples;
 				} else {
-					numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					numberOfSamplesWithoutControl = numberOfSamples;
 					if (hasPlates()) {
 						// Controls not included in number of samples so we have to adjust.
-						numberOfSamplesToAdd += int(numberOfSamplesToAdd / 96) + 1;
-						if (numberOfSamplesToAdd > 384) numberOfSamplesToAdd=384
+						numberOfSamples += int(numberOfSamples / 96) + 1;
+						if (numberOfSamples > 384) numberOfSamples=384
 					}
 				}
 			} else {
-				numberOfSamplesToAdd = 1;
+				numberOfSamples = 1;
+				numberOfSamplesWithoutControl = numberOfSamples;
 			}
-    		if (parentDocument.samples.length <= numberOfSamplesToAdd) {
-    			numberOfSamplesToAdd = numberOfSamplesToAdd - parentDocument.samples.length;
+    		if (parentDocument.samples.length <= numberOfSamples) {
+    			numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
+				for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
+					addSample();
+				}
     		} else {
-    			numberOfSamplesToAdd = 0;
+				while (parentDocument.samples.length > numberOfSamplesWithoutControl) {
+					parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+				}
     		}
-    		for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
-    			addSample();
-    		}
+			
 			if (hasPlates()) {
 				fillPlates();
 			}
