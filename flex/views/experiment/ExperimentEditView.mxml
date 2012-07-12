@@ -222,7 +222,6 @@
 			import views.experiment.ConvertIlluminaRequestWindow;
 			import views.order.NavOrderView;
 			import views.util.PromptXMLListCollection;
-
 			import views.util.StringUtil;
         
 		[Embed(source='../../assets/page.png')]
@@ -338,6 +337,9 @@
 		
 		[Bindable]
 		private var requestApplication:Object = null;	
+		
+		[Bindable]
+		private var tabIndexToRestore:int = -1;
 		
 		public var concentrationValidator:NumberValidator = new NumberValidator();
 		
@@ -2147,6 +2149,7 @@
 				hybsView.checkHybsCompleteness();
 			}
 
+			this.restoreTabIndex();
 			
 			this.dirty.resetDirty();
 		}
@@ -3337,11 +3340,25 @@
 			}	
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
 			
-			parentApplication.navExperimentView.showEditView = true;	
-			parentApplication.navExperimentView.refreshExperiments();
-		    parentApplication.navExperimentView.detailView.detail.refreshSavedExperiment(request.@idRequest); 
+			// this refreshes the request from the db.
+			if (parentDocument is NavOrderView) {
+				this.tabIndexToRestore = this.theTab.selectedIndex;
+				parentDocument.browseView.getList();
+				parentDocument.switchToOrderDetailView();
+			} else {
+				parentApplication.navExperimentView.showEditView = true;	
+				parentApplication.navExperimentView.refreshExperiments();
+			    parentApplication.navExperimentView.detailView.detail.refreshSavedExperiment(request.@idRequest);
+			}
 		}
 
+		private function restoreTabIndex():void {
+			if (this.tabIndexToRestore >= 0) {
+				this.theTab.selectedIndex = tabIndexToRestore;
+				tabIndexToRestore = -1;
+			}
+		}
+			
 		private function showPrintableRequestForm():void {
 			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
 			navigateToURL(url, '_blank');	
