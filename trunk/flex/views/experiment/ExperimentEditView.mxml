@@ -2419,9 +2419,6 @@
 			warningMessage = '';
 			
 			if (isCapSeqState()) {
-				if (samples.length > 96 && this.request.@containerType != 'PLATE') {
-					errorMessage += "You may not have more than 96 samples in a Tube container.\n\n";
-				}
 				if (samples.length < 32 && this.request.@containerType == 'PLATE') {
 					errorMessage += "You may not have less than 32 samples in a Plate container.\n\n";
 				}
