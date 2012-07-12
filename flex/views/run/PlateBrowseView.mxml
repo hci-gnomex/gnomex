@@ -27,13 +27,16 @@
 
 	<mx:Script> 
 		<![CDATA[
-			
 			import mx.controls.Alert;
+			
+			import views.renderers.Label;
+			
+			import hci.flex.controls.DropdownLabel;
+			
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
-			import hci.flex.controls.DropdownLabel;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -120,7 +123,6 @@
 			
 			private function getPlateParameters():Object {
 				var params:Object = new Object;
-				params.plateType = "REACTION";
 				params.notAddedToARun = "Y";
 				
 				if ( parentDocument.allCheckbox.selected ) {
@@ -132,16 +134,23 @@
 				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastYear = parentDocument.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
 				
+				if (parentDocument.reactionCheckbox.selected){
+					params.plateType = "REACTION"; 
+				}
+				else if (parentDocument.sourceCheckbox.selected){
+					params.plateType = "SOURCE";
+				}
+				
 				if ( parentDocument.capSeqCheckbox.selected ) {
 					params.codeReactionType = 'SEQ' ;
 				}
-				if ( parentDocument.fragCheckbox.selected ) {
+				else if ( parentDocument.fragCheckbox.selected ) {
 					params.codeReactionType = 'FRAG' ;
 				}
-				if ( parentDocument.mitoCheckbox.selected ) {
+				else if ( parentDocument.mitoCheckbox.selected ) {
 					params.codeReactionType = 'MIT' ;
 				}
-				if ( parentDocument.cherryCheckbox.selected ) {
+				else if ( parentDocument.cherryCheckbox.selected ) {
 					params.codeReactionType = 'CHERRY' ;
 				}
 				
@@ -282,6 +291,10 @@
 						</mx:headerRenderer>
 						
 					</mx:DataGridColumn>
+					
+					<mx:DataGridColumn dataField="@codePlateType"
+									   headerText= "Plate Type"
+									   width="100" itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.PlateType').DictionaryEntry, '@display', '@value', '@codePlateType')}"/>
 
 					<mx:DataGridColumn dataField = "@creator" headerText = "Created by" width = "75" />
 
