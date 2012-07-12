@@ -2,6 +2,8 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
@@ -16,6 +18,7 @@ import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -229,7 +232,9 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
   public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) {
  
     // Get any requests on that run
-    Map requests = new HashMap();
+    Map<Integer, List<PlateWell>> requestToWellMap = new HashMap<Integer, List<PlateWell>>();
+    Map<Integer, Request> requestMap = new HashMap<Integer, Request>();
+    
     List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
@@ -238,22 +243,29 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       // has the request.  We will iterate through this hash to see
       // which requests should be completed.
       if (well.getIdRequest() != null) {
-        if ( !requests.containsKey( well.getIdRequest() ) ) {
+        if ( !requestMap.containsKey( well.getIdRequest() ) ) {
           Request req = (Request) sess.get(Request.class, well.getIdRequest());
-          requests.put( req.getIdRequest(), req );
+          requestMap.put( req.getIdRequest(), req );
         }
-        
+        List<PlateWell> theWells = (List<PlateWell>)requestToWellMap.get(well.getIdRequest());
+        if (theWells == null) {
+          theWells = new ArrayList<PlateWell>();
+          requestToWellMap.put(well.getIdRequest(), theWells);
+        }
+        theWells.add(well);
       }
     }
     
     // Change request Status to completed if all plate wells have released
     // chromatograms and there are no pending redos.
-    for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
+    for ( Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
+      List<PlateWell> plateWells = requestToWellMap.get(idReq);
+      
       if ( req.getCompletedDate() == null ) {
         
-        // Don't complete if there is a redo well
+        // Don't complete if there is a redo well on the request
         boolean hasRedo = false;
         for (Sample s : (Set<Sample>)req.getSamples()) {
           for (PlateWell well : (Set<PlateWell>)s.getWells()) {
@@ -272,20 +284,38 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
         }
         
         int releaseCount = 0;
+        HashMap<Integer, Integer> releasedSamples = new HashMap<Integer, Integer>();
         for (Chromatogram ch : (Set<Chromatogram>)req.getChromatograms()) {
           if (ch.getReleaseDate() != null) {
             releaseCount++;
+            if (ch.getPlateWell() != null && ch.getPlateWell().getIdSample() != null) {
+              releasedSamples.put(ch.getPlateWell().getIdSample(), ch.getPlateWell().getIdSample());
+            }
           }
         }
-        // If all of the chromatograms for the experiments
-        // have been released, we can complete the experiment;
-        // otherwise, we have to assume the experiment is not
-        // yet complete.
-        if (releaseCount < req.getChromatograms().size()) {
+        
+        // If we don't have a released chromatogram for any of the samples on the
+        // experiment, we don't want to mark the experiment as complete yet.
+        boolean sampleMissingReleasedChrom = false;
+        for (PlateWell pw : plateWells) {
+          if (pw.getIdSample() != null) {
+            if (!releasedSamples.containsKey(pw.getIdSample())) {
+              sampleMissingReleasedChrom = true;
+            }
+          }
+        }
+        if (sampleMissingReleasedChrom) {
           continue;
         }
+
         
         req.setCodeRequestStatus( RequestStatus.COMPLETED );
+        req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
+        
+        // Now change the billing items for the request from PENDING to COMPLETE
+        for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+          billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+        }
 
         // We need to email the submitter that the experiment results
         // are ready to download
@@ -295,7 +325,6 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
           log.warn("Cannot send confirmation email for request " + req.getNumber());
         }
       }
-      req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
     }
     sess.flush();
   }
