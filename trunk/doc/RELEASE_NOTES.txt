@@ -24,6 +24,10 @@
 * Implemented MiSeq workflow interface. (rcundick)
 * Eliminated Captcha requirement for guest users. (rcundick)
 * Added option to set default institution via isDefault flag on institution record. (rcundick)
+* Allow user with read permissions to save analysis files so that user clicking on 'Distribute Data Tracks' doesn't get insufficient permission exception when analysis files have yet to be created (tdisera)
+* Fixed bug that was causing Add members button on Lab detail to be disabled for first user in dropdown (tdisera)
+
+
 
 
 5.4.5 (July 1, 2012)
