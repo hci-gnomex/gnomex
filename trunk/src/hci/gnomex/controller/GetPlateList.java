@@ -83,6 +83,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
             String  codeReactionType = row[6] == null ? "" : row[6].toString();
             String  creator          = row[7] == null ? "" : row[7].toString();
             String  codeSealType     = row[8] == null ? "" : row[8].toString();
+            String  codePlateType    = row[9] == null ? "" : row[9].toString();
 
             Element pNode = new Element("Plate");
             pNode.setAttribute("idPlate", idPlate.toString());
@@ -100,6 +101,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
             }
 
             pNode.setAttribute("codeSealType", codeSealType);
+            pNode.setAttribute("codePlateType", codePlateType);
             pNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
 
 
