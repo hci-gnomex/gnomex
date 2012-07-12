@@ -724,7 +724,7 @@
 							<mx:ComboBox width="150" dataProvider="{appUsers}" id="memberCombo" labelField="@displayName">			       	
 							</mx:ComboBox>
 							<mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								<mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+								<mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
 							</mx:Button>
 							<mx:Button click="removeMember()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}" width="25"/>
 						</mx:HBox>
@@ -740,7 +740,7 @@
 							<mx:ComboBox width="150" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 							</mx:ComboBox>
 							<mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								<mx:enabled>{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+								<mx:enabled>{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
 							</mx:Button>
 							<mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}" width="25"/>
 						</mx:HBox>
@@ -756,7 +756,7 @@
 							<mx:ComboBox width="150" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 							</mx:ComboBox>
 							<mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								<mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+								<mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
 							</mx:Button>
 							<mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
 						</mx:HBox>
