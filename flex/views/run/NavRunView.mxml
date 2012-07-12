@@ -53,6 +53,9 @@
 					this.mitoCheckbox.selected  = false;
 					this.cherryCheckbox.selected = false;
 					
+					this.reactionCheckbox.selected = false;
+					this.sourceCheckbox.selected = false;
+					
 				} else if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
@@ -162,7 +165,18 @@
 					this.fragCheckbox.selected = false;
 					this.mitoCheckbox.selected  = false;
 				}     
-			} 	
+			}
+			
+			private function toggleCodePlateType(checkBoxNumber:int):void{
+				if(checkBoxNumber == 0){
+					this.allCheckbox.selected = false;
+					this.sourceCheckbox.selected = false;
+				}
+				else if(checkBoxNumber == 1){
+					this.allCheckbox.selected = false;
+					this.reactionCheckbox.selected = false;
+				}
+			}
 
 		]]>
 	</mx:Script> 
@@ -436,7 +450,39 @@
 							</mx:CheckBox>
 							
 						</mx:HBox>
+						
 					</mx:VBox>
+					
+					<mx:VRule height="20" includeInLayout="{theViews.selectedChild == plateBrowseView}" visible="{theViews.selectedChild == plateBrowseView}"/>
+					
+					<mx:HBox horizontalGap="0" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+							 visible="{theViews.selectedChild == plateBrowseView}" paddingLeft="5" paddingRight="5"
+							 horizontalAlign = "right" verticalAlign="middle">
+						<mx:CheckBox id="reactionCheckbox"
+									 label="Reaction"
+									 paddingLeft = "2"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingTop="0">
+							<mx:click>
+								toggleCodePlateType(0);
+								getList();
+							</mx:click>
+						</mx:CheckBox>
+						
+						<mx:CheckBox id="sourceCheckbox"
+									 label="Source"
+									 paddingLeft = "2"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingTop="0">
+							<mx:click>
+								toggleCodePlateType(1);
+								getList();
+							</mx:click>
+						</mx:CheckBox>
+						
+					</mx:HBox>
 					
 				</mx:HBox>
 	
