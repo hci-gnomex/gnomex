@@ -962,7 +962,7 @@
 						<mx:RadioButton id="radioRequestCategory" groupName="requestTypeGroup" 
 										label="{requestCategoryRepeater.currentItem.@display}" 
 										value="{requestCategoryRepeater.currentItem.@value}" 
-										click="parentDocument.setRequestCategoryName();checkSetupCompleteness();highlightRequestCategory()"  change="checkSetupCompleteness()"  width="206"/>							
+										click="parentDocument.setRequestCategoryName();highlightRequestCategory()"  change="checkSetupCompleteness()"  width="206"/>							
 						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="9"/>							
 					</mx:HBox>
 				</mx:Repeater>
