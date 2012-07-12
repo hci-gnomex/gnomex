@@ -4,6 +4,7 @@ import hci.hibernate3utils.HibernateDetailObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -140,23 +141,50 @@ public class InstrumentRun extends HibernateDetailObject {
   }
   
   public static boolean areAllChromatogramsReleased(Session sess, InstrumentRun run) {
+    boolean isComplete = false;
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT  ch ");
-    queryBuf.append("FROM    Chromatogram as c ");
-    queryBuf.append("JOIN    c.plateWell as pw ");
-    queryBuf.append("JOIN    pw.plate as plate ");
+    queryBuf.append("SELECT  well.idPlateWell ");
+    queryBuf.append("FROM    Plate plate ");
     queryBuf.append("JOIN    plate.instrumentRun as run ");
+    queryBuf.append("JOIN    plate.plateWells as well ");
     queryBuf.append("WHERE   run.idInstrumentRun = " + run.getIdInstrumentRun());
+    List<Integer> plateWells = (List<Integer>)sess.createQuery(queryBuf.toString()).list();
     
-    int releaseCount = 0;
-    List<Chromatogram> chromatograms = (List<Chromatogram>)sess.createQuery(queryBuf.toString()).list();
-    for (Chromatogram ch : chromatograms) {
-      if (ch.getReleaseDate() != null) {
-        releaseCount++;
+    
+    queryBuf = new StringBuffer();
+    queryBuf.append("SELECT  ch ");
+    queryBuf.append("FROM    Chromatogram as ch ");
+    queryBuf.append("WHERE   ch.idPlateWell in ( ");
+    boolean firstTime = true;
+    for (Integer idPlateWell : plateWells) {
+      if (!firstTime) {
+        queryBuf.append(", ");
       }
+      queryBuf.append(idPlateWell);
+      firstTime = false;
+    }
+    queryBuf.append(")");
+    List<Chromatogram> releasedChromatograms = (List<Chromatogram>)sess.createQuery(queryBuf.toString()).list();
+    HashMap<Integer, Chromatogram> wellToChrom = new  HashMap<Integer, Chromatogram>();
+    for (Chromatogram ch : releasedChromatograms) {
+      wellToChrom.put(ch.getIdPlateWell(), ch);
     }
     
-    return releaseCount == chromatograms.size();
+    boolean missingReleasedChromatogram = false;
+    int releaseCount = 0;
+    for (Integer idPlateWell : plateWells) {
+      Chromatogram ch = wellToChrom.get(idPlateWell);
+      if (ch != null && ch.getReleaseDate() != null) {
+        releaseCount++;
+      }else {
+        missingReleasedChromatogram = true;
+      }
+    }
+
+    
+    // Return true there are no missing or unreleased chromatograms and 
+    // the number of released chrom at least as large as number of reaction wells.
+    return !missingReleasedChromatogram && releaseCount >= plateWells.size();
   }
 
     
