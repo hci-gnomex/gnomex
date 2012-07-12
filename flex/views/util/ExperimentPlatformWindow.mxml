@@ -256,9 +256,11 @@
 					if(typeRadioGroup.selectedValue == 'ILLUMINA') {
 						channelLabel.width = 160;
 						channelLabel.text = "Number of flowcell channels";
+						numberOfChannelsStepper.maximum = 8;
 					} else {
 						channelLabel.width = 120;
-						channelLabel.text = "Number of channels";						
+						channelLabel.text = "Number of channels";	
+						numberOfChannelsStepper.maximum = 2;
 					}
 					
 					showHideAppColumns();

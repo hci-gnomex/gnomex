@@ -7,7 +7,7 @@
 >
 <mx:HBox>
 	<mx:Image source="@Embed('../../assets/chart_curve.png')"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="{codeStepNext == 'SEQQC' ? 'Illumina GAIIx Sample Quality' : 'Illumina HiSeq Sample Quality'}"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text=""/>
 </mx:HBox>
 	
 	<mx:HTTPService 
@@ -75,7 +75,17 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
-        
+			
+		public function initTitle():void {
+			if(codeStepNext == 'SEQQC') {
+				titleLabel.text = 'Illumina GAIIx Sample Quality';
+			} else if (codeStepNext == 'HSEQQC') {
+				titleLabel.text = 'Illumina HiSeq Sample Quality';
+			} else if (codeStepNext == 'MISEQQC') {
+				titleLabel.text = 'Illumina MiSeq Sample Quality';
+			}	
+		}			
+			   
         private function refreshWorkList():void {
         	dirty.resetDirty();
         	getWorkList.send();

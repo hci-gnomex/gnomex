@@ -8,7 +8,7 @@
 <mx:HBox>
 	<mx:Image source="{parentApplication.iconServer}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
-		text="{codeStepNext == 'SEQPIPE' ? 'Illumina GAIIx Data Pipeline' : 'Illumina HiSeq Data Pipeline'}"/>
+		text=""/>
 </mx:HBox>
 	
 	<mx:HTTPService  
@@ -68,6 +68,17 @@
         
         [Bindable]
         private var dirtyWorkItems:XMLListCollection;
+			
+		public function initTitle():void {
+			if(codeStepNext == 'SEQPIPE') {
+				titleLabel.text = 'Illumina GAIIx Data Pipeline';
+			} else if (codeStepNext == 'HSEQPIPE') {
+				titleLabel.text = 'Illumina HiSeq Data Pipeline';
+			} else if (codeStepNext == 'MISEQPIPE') {
+				titleLabel.text = 'Illumina MiSeq Data Pipeline';
+			}
+			
+		}			
 
         private function refreshWorkList():void {
         	dirty.resetDirty();

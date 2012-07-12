@@ -9,7 +9,7 @@
 <mx:HBox>
 	<mx:Image source="{parentApplication.iconSamplePrep}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
-		text="{codeStepNext == 'SEQPREP' ? 'Illumina GAIIx Library Prep' : 'Illumina HiSeq Library Prep'}"/>	
+		text=""/>	
 </mx:HBox>
 	
 	<mx:HTTPService 
@@ -78,7 +78,18 @@
         private function init():void {
         	barcodes.refresh();
         }
-        
+			
+		public function titleInit():void {
+			if(codeStepNext == 'SEQPREP') {
+				titleLabel.text = 'Illumina GAIIx Library Prep';
+			} else if (codeStepNext == 'HSEQPREP') {
+				titleLabel.text = 'Illumina HiSeq Library Prep';
+			} else if (codeStepNext == 'MISEQPREP') {
+				titleLabel.text = 'Illumina MiSeq Library Prep';
+			}
+			
+		}  
+			
         private function refreshWorkList():void {
         	dirty.resetDirty();
         	getWorkList.send();
