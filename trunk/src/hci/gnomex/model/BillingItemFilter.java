@@ -16,6 +16,7 @@ public class BillingItemFilter extends DetailObject {
   private Integer               idLab;
   private Integer               idBillingAccount;
   private String                requestNumber;
+  private Integer               idCoreFacility;
   
   
   private StringBuffer          queryBuf;
@@ -29,6 +30,7 @@ public class BillingItemFilter extends DetailObject {
   
   public boolean hasCriteria() {
     if (idBillingPeriod == null &&
+        idCoreFacility == null &&
         idLab == null &&
         idBillingAccount == null &&
         (requestNumber == null || requestNumber.equals(""))) {
@@ -55,6 +57,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("            ba, ");
     queryBuf.append("            lab.isExternalPricing, ");
     queryBuf.append("            lab.isExternalPricingCommercial ");
+
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
     queryBuf.append(" JOIN       req.billingAccount as ba ");
@@ -205,7 +208,13 @@ public class BillingItemFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" bi.idLab =");
       queryBuf.append(idLab);
-    } 
+    }
+    
+    if (idCoreFacility != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idCoreFacility =");
+      queryBuf.append(idCoreFacility);
+    }
     // Search by billing account 
     if (idBillingAccount != null){
       this.addWhereOrAnd();
@@ -297,6 +306,14 @@ public class BillingItemFilter extends DetailObject {
   
   public void setBillingPeriod(BillingPeriod billingPeriod) {
     this.billingPeriod = billingPeriod;
+  }
+
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
   }
 
 
