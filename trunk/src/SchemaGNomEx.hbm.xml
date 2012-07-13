@@ -249,6 +249,7 @@
 		<property name="tSignalStrength" column="tSignalStrength" type="integer"/>
         <property name="releaseDate" column="releaseDate" type="java.util.Date"/>
         <property name="idReleaser" column="idReleaser" type="integer"/>
+        <property name="lane" column="lane" type="integer"/>
 	</class>
   
   <!-- hci.gnomex.model.CoreFacility -->
