@@ -231,10 +231,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
   public void requeueSourceWells( int idReactionWell, Session sess ) {
       PlateWell reactionWell = (PlateWell) sess.get( PlateWell.class, idReactionWell );
       
-      // Mark the reaction well as redo.  This will be a record indicating
-      // that this reaction will was redone.
-      reactionWell.setRedoFlag("Y");
-      
       StringBuffer buf = getRedoQuery( reactionWell, false );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();
