@@ -24,6 +24,7 @@ public class Chromatogram extends HibernateDetailObject {
   private Integer    tSignalStrength;
   private Date       releaseDate;
   private Integer    idReleaser;
+  private Integer     lane;
   
   
   
@@ -193,6 +194,14 @@ public class Chromatogram extends HibernateDetailObject {
   public void setReleaseDate(Date releaseDate)
   {
     this.releaseDate = releaseDate;
+  }
+
+  public Integer getLane() {
+    return lane;
+  }
+
+  public void setLane(Integer lane) {
+    this.lane = lane;
   }
     
 }
