@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox   xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*" xmlns:run="views.run.*"  show="init()"  paddingTop="1" verticalGap="0">
 	
