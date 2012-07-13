@@ -118,7 +118,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         ir = (InstrumentRun)sess.load(InstrumentRun.class, idInstrumentRun);
 
         String runName = ir.getLabel() != null && !ir.getLabel().equals("") ? ir.getLabel() : ir.getIdInstrumentRun().toString();
-        String runFileName = "abirun-" + runName.replaceAll("\\s", "-") + ".plt";
+        String runFileName = runName.replaceAll("\\s", "-") + ".plt";
 
         // Check permissions 
         if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
