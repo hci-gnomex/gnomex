@@ -7,8 +7,6 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
@@ -17,10 +15,8 @@ import hci.gnomex.utility.PlateWellParser;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -127,7 +123,6 @@ public class SavePlate extends GNomExCommand implements Serializable {
           sess.save(plate);
           creator = this.getSecAdvisor().getIdAppUser().toString();
           plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-
         } else {
           plate = (Plate) sess.get(Plate.class, idPlate);
           if ( plate.getCreateDate() == null ) {
@@ -146,7 +141,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
         if (createDateStr != null) {
           createDate = this.parseDate(createDateStr);
         }
-        if ( createDate != null )       {plate.setCreateDate(createDate);}
+        if ( createDate != null )  {plate.setCreateDate(createDate);}
         
         if ( creator != null ) {
           plate.setCreator(creator);
@@ -169,21 +164,11 @@ public class SavePlate extends GNomExCommand implements Serializable {
         //
         // Remove wells
         //
-        TreeSet wellsToDelete = new TreeSet(new WellComparator());
-
-        List wells = sess.createQuery( "SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
-        //for( Iterator i = wells.iterator(); i.hasNext(); ) {
         for(Iterator i = plate.getPlateWells().iterator(); i.hasNext();) {
           PlateWell existingWell = (PlateWell)i.next();
           if (!wellParser.getWellMap().containsKey(existingWell.getIdPlateWell().toString())) {
-            wellsToDelete.add(existingWell);
-            plate.getPlateWells().remove( existingWell );
-            break;
+            sess.delete( existingWell );
           }
-        }
-        for (Iterator i = wellsToDelete.iterator(); i.hasNext();) {
-          PlateWell wellToDelete = (PlateWell)i.next();
-          sess.delete( wellToDelete );
         }
 
         //
@@ -226,7 +211,6 @@ public class SavePlate extends GNomExCommand implements Serializable {
         // Remove redo flags for any wells that might be redos
         removeRedoFlags( plateWells, sess );
 
-        Map requests = new HashMap();
         for(Iterator i = plateWells.iterator(); i.hasNext();) {
           PlateWell plateWell = (PlateWell)i.next();
           plateWell.excludeMethodFromXML("getPlate");
@@ -237,16 +221,6 @@ public class SavePlate extends GNomExCommand implements Serializable {
           if ( plateWell.getIdRequest()==null ) {
             break;
           }
-          if ( !plateWell.getIdRequest().equals( "" ) && !requests.containsKey( plateWell.getIdRequest() ) ) {
-            Request req = (Request) sess.get(Request.class, plateWell.getIdRequest());
-            requests.put( req.getIdRequest(), req );
-          }
-        }
-        // Change request status for any requests on the plate
-        for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
-          int idReq = (Integer) i.next();
-          Request req = (Request) sess.get(Request.class, idReq );
-          req.setCodeRequestStatus( RequestStatus.PROCESSING );
         }
 
         sess.flush();

@@ -77,12 +77,10 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
             Object[] row = ( Object[] ) i.next();
 
-            Integer idInstrumentRun = row[0] == null ? new Integer( - 2 )
-            : ( Integer ) row[0];
+            Integer idInstrumentRun = row[0] == null ? new Integer( - 2 ) : ( Integer ) row[0];
             String runDate = this.formatDate( ( java.sql.Timestamp ) row[1] );
             String createDate = this.formatDate( ( java.sql.Timestamp ) row[2] );
-            String codeInstrumentRunStatus = row[3] == null ? ""
-                : row[3].toString();
+            String codeInstrumentRunStatus = row[3] == null ? "" : row[3].toString();
             String comments = row[4] == null ? "" : row[4].toString();
             String label = row[5] == null ? "" : row[5].toString();
             String codeReactionType = row[6] == null ? "" : row[6].toString();
@@ -93,8 +91,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
             irNode.setAttribute( "idInstrumentRun", idInstrumentRun.toString() );
             irNode.setAttribute( "runDate", runDate );
             irNode.setAttribute( "createDate", this.formatDate(createDate, this.DATE_OUTPUT_SQL));
-            irNode.setAttribute( "codeInstrumentRunStatus",
-                codeInstrumentRunStatus.toString() );
+            irNode.setAttribute( "codeInstrumentRunStatus", codeInstrumentRunStatus.toString() );
             irNode.setAttribute( "comments", comments );
             irNode.setAttribute( "label", label );
             irNode.setAttribute( "codeReactionType", codeReactionType );
