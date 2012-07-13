@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*" xmlns:run="views.run.*"  show="init()"  paddingTop="1" verticalGap="0">
 	
@@ -24,7 +24,7 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService >
-
+	
 	<mx:Script> 
 		<![CDATA[
 			import mx.controls.Alert;
@@ -128,7 +128,7 @@
 				if ( parentDocument.allCheckbox.selected ) {
 					return params;
 				}
-
+				
 				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
@@ -158,7 +158,7 @@
 			}
 			
 			private function checkEmptyFilter():Boolean {
-								
+				
 				if ( parentDocument.lastWeekCheckbox.selected ) {
 					return false ;
 				}
@@ -221,7 +221,7 @@
 	
 	<mx:XMLListCollection id = "plateList" source = "{getPlateList.lastResult..Plate}" />
 	<mx:XMLListCollection id = "selectedPlates" source="{getPlateList.lastResult..Plate}" filterFunction="selectedFilterFunc"/>
-
+	
 	<mx:VDividedBox width = "100%"
 					height = "100%"
 					styleName = "form"
@@ -229,14 +229,14 @@
 					paddingLeft = "4"
 					paddingRight = "4"
 					paddingTop = "4">
-
+		
 		<mx:VBox width = "100%" height = "100%" verticalGap = "1">
-
+			
 			<mx:HBox width = "100%" verticalAlign = "bottom">
 				<mx:Spacer width = "100%" />
-
+				
 			</mx:HBox>
-
+			
 			<mx:DataGrid id = "plateGrid"
 						 allowMultipleSelection="true"
 						 click="{selectedPlates.refresh()}"
@@ -250,7 +250,7 @@
 					
 					<mx:DataGridColumn id = "checkBoxColumn"
 									   textAlign = "center"
-									   width = "100"
+									   width = "30"
 									   resizable = "false"
 									   sortable = "false"
 									   editable = "true"
@@ -261,7 +261,7 @@
 									   headerRenderer = "views.renderers.CheckBoxHeader"
 									   draggable="false"/>
 					
-					<mx:DataGridColumn   minWidth="28" width="85" headerText="#">
+					<mx:DataGridColumn   minWidth="28" width="50" headerText="#">
 						<mx:itemRenderer>
 							<mx:Component >
 								<mx:HBox paddingLeft="1" horizontalGap="0"   horizontalScrollPolicy="off">
@@ -295,29 +295,29 @@
 					<mx:DataGridColumn dataField="@codePlateType"
 									   headerText= "Plate Type"
 									   width="100" itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.PlateType').DictionaryEntry, '@display', '@value', '@codePlateType')}"/>
-
+					
 					<mx:DataGridColumn dataField = "@creator" headerText = "Created by" width = "75" />
-
+					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
-
+					
 					<mx:DataGridColumn dataField = "@codeReactionType" 
 									   headerText = "Reaction Type" width = "100"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ReactionType').DictionaryEntry, '@display', '@value', '@codeReactionType')}"/>
 					
 					<mx:DataGridColumn dataField = "@codeSealType" 
-									   headerText = "Type" width = "80" 
+									   headerText = "Seal" width = "80" 
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry, '@display', '@value', '@codeSealType')}"/>
-
-					<mx:DataGridColumn dataField = "@comments" headerText = "Comments" width = "250" />
-
+					
+					<mx:DataGridColumn dataField = "@comments" headerText = "Comments"  />
+					
 				</mx:columns>
-
+				
 			</mx:DataGrid>
-
+			
 		</mx:VBox>
-
+		
 	</mx:VDividedBox>
-
+	
 	<mx:ControlBar horizontalAlign = "left" width = "100%" paddingTop="2" paddingBottom="2">
 		<mx:Label id = "nSelectedRuns" text="{selectedPlates.length + ' selected'}" />
 		
@@ -331,7 +331,7 @@
 		<mx:Spacer width="100%" height="100%" />
 		<mx:Label text = "{'(' + plateList.length + ' runs)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		
-
+		
 	</mx:ControlBar>
-
+	
 </mx:VBox>
