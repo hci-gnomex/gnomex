@@ -558,7 +558,7 @@
 					 paddingLeft = "5"
 					 paddingRight = "5">
 				
-				<mx:CheckBox label = "Cap Seq"
+				<mx:CheckBox label = "ABI Seq"
 							 id = "capSeqCheckbox"
 							 horizontalGap = "0"
 							 styleName = "labelSmall"
