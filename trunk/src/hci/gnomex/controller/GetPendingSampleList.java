@@ -380,8 +380,10 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     for (Object[] row : results) {
       Integer idPlate             = (Integer)row[15];
       
-      if (idPlate.equals(theIdPlate)) {
-        sampleCount++;
+      if (idPlate != null) {
+        if (idPlate.equals(theIdPlate)) {
+          sampleCount++;
+        }
       }
     }
     return sampleCount;
