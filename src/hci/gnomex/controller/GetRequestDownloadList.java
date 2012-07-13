@@ -220,7 +220,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           // something in the rowmap to get the root files from.
           rowMap.put(baseKey + "-" + this.DUMMY_DIRECTORY + "-" + idCoreFacility, row);
         } else {
-          this.hashFolders(folders, rowMap, dh, baseKey, row);
+          int foldersHashed = this.hashFolders(folders, rowMap, dh, baseKey, row);
+          
+          // If we didn't actually hash any folders (for example upload_staging directory is
+          // ignored), then add the dummy directory to the row map so that we
+          // have the request in the hash to get the root files from or at least
+          // create the Request node.
+          if (foldersHashed == 0) {
+            rowMap.put(baseKey + "-" + this.DUMMY_DIRECTORY + "-" + idCoreFacility, row);
+          }
         }
         
 
@@ -498,13 +506,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     return this;
   }
   
-  private void hashFolders(Set folders, TreeMap rowMap, DictionaryHelper dh, String baseKey, Object[] row) {
+  private int hashFolders(Set folders, TreeMap rowMap, DictionaryHelper dh, String baseKey, Object[] row) {
     Integer idCoreFacility = (Integer)row[31];
+    int foldersHashed = 0;
     for(Iterator i1 = folders.iterator(); i1.hasNext();) {
       String folderName = (String)i1.next();
-      if (folderName.equals(dh.getPropertyDictionary(PropertyDictionary.QC_DIRECTORY))) {
-        continue;
-      }
       if (folderName.equals(Constants.UPLOAD_STAGING_DIR)) {
         continue;
       }
@@ -515,7 +521,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       }
       newRow[5] = folderName;
       rowMap.put(key, newRow);
+      foldersHashed++;
     }    
+    return foldersHashed;
   }
   
   public static void addExpandedFileNodes(Session sess,
