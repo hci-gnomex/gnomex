@@ -1079,7 +1079,7 @@
 				for ( var x:int = ind; x < activePlate.getWells().length; x++ ) {
 					var well:WellContainer = activePlate.getWell( x );
 					
-					if ( well.hasSample ) {
+					if ( well.hasSample || well.isControl == "Y" ) {
 						index = x + 1;
 					} else {
 						break;
@@ -1093,7 +1093,7 @@
 						// No samples that are already on a plate should make it here.
 						if ( item.name() == "Well" && item.@isOnPlate != true ) {
 							
-							if ( !activePlate.getWell( index ).hasSample ) {
+							if ( !activePlate.getWell( index ).hasSample && activePlate.getWell( index ).isControl != "Y" ) {
 								
 								activePlate.addSampleToWell( index, item );
 								item.@groupId = item.@idRequest;
@@ -1576,11 +1576,11 @@
 			private function onPromptToSavePlate( event:CloseEvent ):void {
 				
 				if ( event.detail == Alert.YES ) {
-					savePlate();
+					saveSinglePlate();
 				}
 			}
 						
-			private function savePlate():void {
+			private function saveSinglePlate():void {
 				
 				var plate:Plate = activePlate;
 				
@@ -1655,6 +1655,9 @@
 				}
 				activePlate.removeAllWells();
 				activePlate.addWellsToPlate( wells );
+				if ( reactionState == SEQ ) {
+					activePlate.getWell(95).setControl(true);
+				}
 				switchActivePlate();
 				sampleTree.selectedItem = null;
 				callLater( function():void {
@@ -1819,6 +1822,9 @@
 					activePlate.resetPlate();
 					activePlate.label = "";
 					runNumberLabel.text = "0";
+					if ( reactionState == SEQ ) {
+						activePlate.getWell(95).setControl(true);
+					}
 					return;
 				}
 				
@@ -1859,6 +1865,9 @@
 					activePlate = plateStack.selectedChild as Plate;
 					activePlate.nowFillByCol = fillColWise;
 					activePlate.repopulatePlate();
+					if ( reactionState == SEQ ) {
+						activePlate.getWell(95).setControl(true);
+					}
 					displayPlateInfo();
 				});
 			}
@@ -1870,7 +1879,7 @@
 			// Handler for clicking a lab, order or sample on pending samples tree
 			private function sampleTreeItemClick( event:Event ):void {
 				
-				if ( sampleTree.selectedItems.length > 1 ) {
+				if ( sampleTree.selectedItems == null || sampleTree.selectedItems.length > 1 ) {
 					return;
 				}
 				var selection:Object = sampleTree.selectedItem;
@@ -2062,16 +2071,25 @@
 				refreshLists();
 				if ( buildState == PLATE ) {
 					currentState = newStatePlate.name;
-//					tabNav.selectedChild = plateTab;
 				} else if ( buildState == RUN ) {
 					currentState = newStateRun.name;
-//					tabNav.selectedChild = runTab;
 					
 				} else {
 					currentState = newState.name;
 				}
+				
+				for each ( var obj:Object in statusComboBox.dataProvider ) {
+					if ( obj.@codeInstrumentRunStatus == "PENDING" ) {
+						statusComboBox.selectedItem = obj;
+						break;
+					}
+					statusComboBox.selectedIndex = -1;
+				}
+				sealComboBox.selectedIndex = -1;
+				runSealComboBox.selectedIndex = -1;
+				
 				callLater( function():void {
-					for each ( var obj:Object in statusComboBox.dataProvider ) {
+					/* for each ( var obj:Object in statusComboBox.dataProvider ) {
 						if ( obj.@codeInstrumentRunStatus == "PENDING" ) {
 							statusComboBox.selectedItem = obj;
 							break;
@@ -2080,7 +2098,7 @@
 					}
 					sealComboBox.selectedIndex = -1;
 					runSealComboBox.selectedIndex = -1;
-					
+					 */
 					if ( buildState == PLATE ) {
 						tabNav.selectedChild = samplesTab;
 					} else {
@@ -2331,6 +2349,32 @@
 				dirty.resetDirty();
 			}
 			
+			private function sealComboBoxChange():void {
+				setDirty();
+				if (sealComboBox.selectedIndex==0) {
+					sealComboBox.selectedIndex = -1;
+					runSealComboBox.selectedIndex=-1;
+				} else {
+					sealComboBox.selectedIndex=sealComboBox.selectedIndex; 
+					runSealComboBox.selectedItem=sealComboBox.selectedItem;
+				} 
+			}
+			private function runSealComboBoxChange():void {
+				setDirty();
+				if (runSealComboBox.selectedIndex==0) {
+					runSealComboBox.selectedIndex=-1;
+					sealComboBox.selectedIndex=-1;
+				} else {
+					runSealComboBox.selectedIndex=runSealComboBox.selectedIndex; 
+					sealComboBox.selectedItem=runSealComboBox.selectedItem;
+				} 
+			}
+			private function statusComboChange():void {
+				setDirty(); 
+				if (statusComboBox.selectedIndex==0) { 
+					statusComboBox.selectedIndex=-1;
+				} 
+			}
 			
 			//---------
 			// Icons
@@ -3093,7 +3137,7 @@
 								<mx:Label text="Plate Name:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextInput id="plateNameText"
-											  change="this.setDirty()"
+											  change="this.setDirty();"
 											  editable="{buildState==PLATE &amp;&amp; currentState.substr(0, 4)!='view'}"
 											  width="140"
 											  focusOut="{activePlate.label = plateNameText.text}" />
@@ -3107,7 +3151,7 @@
 								<mx:Label text="Comments:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextArea id="plateCommentsText"
-											 change="this.setDirty()"
+											 change="this.setDirty();"
 											 editable="{buildState==PLATE &amp;&amp; currentState.substr(0, 4)!='view'}"
 											 width="140"
 											 focusOut="{activePlate.comments = plateCommentsText.text}" />
@@ -3138,7 +3182,7 @@
 											 prompt="- Select Sealing -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry}"
 											 labelField="@sealType"
-											 change="(sealComboBox.selectedIndex==0) ? sealComboBox.selectedIndex = -1  : sealComboBox.selectedIndex=sealComboBox.selectedIndex; runSealComboBox.selectedItem=sealComboBox.selectedItem;"
+											 change="{sealComboBoxChange()}"
 											 toolTip="Select seal type"
 											 width="140" />
 
@@ -3239,7 +3283,7 @@
 								<mx:Label text="Run Name:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextInput id="runNameText"
-											  change="this.setDirty()"
+											  change="this.setDirty();"
 											  editable="true"
 											  width="140"
 											  height="100%"
@@ -3254,14 +3298,14 @@
 								<mx:Label text="Comments:" fontWeight="bold" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextArea id="runCommentsText"
-											 change="this.setDirty()"
+											 change="this.setDirty();"
 											 editable="true"
 											 width="140"
 											 height="100%"
 											 focusOut="{run.comments = runCommentsText.text}" />
 
 							</mx:HBox>
-							<mx:HBox width="100%"
+							<!--<mx:HBox width="100%"
 									 id="reactComboBox"
 									 verticalAlign="middle"
 									 horizontalGap="0"
@@ -3278,7 +3322,7 @@
 											 change="(reactTypeComboBox.selectedItem==null) ? reactTypeComboBox.selectedIndex = -1 : toggleReactionType(reactTypeComboBox.selectedItem.@codeReactionType)"
 											 width="140" />
 
-							</mx:HBox>
+							</mx:HBox>-->
 							<mx:HBox width="100%"
 									 id="reactTextBox"
 									 verticalAlign="middle"
@@ -3304,7 +3348,7 @@
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SealType').DictionaryEntry}"
 											 labelField="@sealType"
 											 toolTip="Select seal type"
-											 change="(runSealComboBox.selectedIndex==0) ?  runSealComboBox.selectedIndex=-1  : runSealComboBox.selectedIndex=runSealComboBox.selectedIndex ; sealComboBox.selectedItem=runSealComboBox.selectedItem;"
+											 change="{runSealComboBoxChange()}"
 											 width="140" />
 
 							</mx:HBox>
@@ -3333,7 +3377,7 @@
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.InstrumentRunStatus').DictionaryEntry}"
 											 labelField="@instrumentRunStatus"
 											 toolTip="Select status"
-											 change="(statusComboBox.selectedIndex==0) ?  statusComboBox.selectedIndex=-1 : statusComboBox.selectedIndex=statusComboBox.selectedIndex; "
+											 change="{statusComboChange()}"
 											 width="140" />
 
 							</mx:HBox>
@@ -3528,7 +3572,7 @@
 			<mx:RemoveChild target="{sealComboHBox}" />
 			<mx:RemoveChild target="{runSealComboHBox}" />
 			<mx:RemoveChild target="{statusComboHBox}" />
-			<mx:RemoveChild target="{reactComboBox}" />
+			<!--<mx:RemoveChild target="{reactComboBox}" />-->
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="View Run" />
 			<mx:SetProperty target="{numPlates}" name="visible" value="false" />
 			<mx:RemoveChild target="{orientationLabel}" />
@@ -3559,7 +3603,7 @@
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
-			<mx:RemoveChild target="{reactComboBox}" />
+			<!--<mx:RemoveChild target="{reactComboBox}" />-->
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Edit Run" />
 			<mx:RemoveChild target="{deleteRunLink}" />
 			<mx:RemoveChild target="{editButton}" />
@@ -3595,7 +3639,7 @@
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:" />
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
-			<mx:RemoveChild target="{reactComboBox}" />
+			<!--<mx:RemoveChild target="{reactComboBox}" />-->
 		</mx:State>
 		<mx:State id="newStateRun" name="newStateRun" basedOn="newState">
 			<mx:RemoveChild target="{savePlateButton}" />

@@ -149,7 +149,7 @@
 							   styleName="dashboardButton" id="runButton"  toolTip="Build Run" icon="@Embed(source='../../assets/run_add.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:LinkButton label="Instrument Runs"  click="reviewRuns()"  
+				<mx:LinkButton label="Review Plates and Runs"  click="reviewRuns()"  
 							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{button11}" position="before">
