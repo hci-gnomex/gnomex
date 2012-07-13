@@ -1044,6 +1044,7 @@
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 					<mx:VBox verticalGap="6" label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="Experiment"  width="100" />
 							<mx:TextInput editable="false" text="{requestCategoryName}" width="400"  backgroundColor="#FFFFFF"/>
@@ -1051,6 +1052,10 @@
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="400" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Label text="Name" width="100"/>
+							<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 							<mx:Label text="Lab group"  width="100" />
@@ -1099,11 +1104,6 @@
 					</mx:VBox>
 				
 					<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
-						<mx:HBox>
-							<mx:Label text="Experiment Name"/>
-							<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
-							<mx:Spacer width="5"/>
-							</mx:HBox>
 						<mx:Spacer height="4"/>
 						<mx:Label text="Description"/>
 						<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
