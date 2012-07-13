@@ -122,6 +122,7 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
                 
                 node.setAttribute("requestSubmitDate", "");
                 node.setAttribute("requestSubmitter", "");
+                node.setAttribute("requestNumber", "");
                 
                 if ( plateWell.getIdRequest() != null ) {
                   String idRequestString = plateWell.getIdRequest().toString();
@@ -133,6 +134,7 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
                     if ( request != null ) {
                       node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
                       node.setAttribute("requestSubmitter", request.getOwnerName());
+                      node.setAttribute("requestNumber", request.getNumber());
                     }
                   }
                 }
