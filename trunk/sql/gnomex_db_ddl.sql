@@ -569,6 +569,7 @@ CREATE TABLE `gnomex`.`Chromatogram` (
   `releaseDate` DATETIME NULL,
   `qualifiedFilePath` varchar(500) null,
   `idReleaser` int(10) null,
+  `lane` int(10) NULL,
   PRIMARY KEY (`idChromatogram`),
   CONSTRAINT `FK_Chromatogram_PlateWell` FOREIGN KEY `FK_Chromatogram_PlateWell` (`idPlateWell`)
     REFERENCES `gnomex`.`PlateWell` (`idPlateWell`)
