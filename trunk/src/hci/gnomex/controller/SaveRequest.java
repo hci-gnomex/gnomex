@@ -981,6 +981,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.isNewRequest()) {
       request.setNumber(request.getIdRequest().toString() + "R");
       sess.save(request);
+      
+      if (request.getName() == null || request.getName().trim().equals("")) {
+        sess.flush();  
+        sess.refresh(request);
+        request.setName(request.getAppUser().getShortName() + "-" + request.getIdRequest());
+        sess.save(request);
+      }
     } 
     
     originalRequestNumber = request.getNumber();
