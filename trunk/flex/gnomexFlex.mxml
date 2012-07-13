@@ -2585,7 +2585,7 @@
 			 	<mx:VRule height="20" id="runsRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{runsRule}" position="after">
-			 	<util:LinkButtonTwoLines width="95"  id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
+			 	<util:LinkButtonTwoLines width="95"  id="runsLink" label="Review Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{runsLink}" position="after">
