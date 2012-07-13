@@ -20,7 +20,6 @@
 			public var plateObject:Object;
 			public var plateName:String			= "";
 			public var comments:String			= "";
-			public var wellArray:Array			= new Array();
 			// Variable to designate if the plate's wells will be indexed
 			// column-wise or row-wise. Default is column-wise.
 			public var currentFillByCol:Boolean = true;
@@ -111,15 +110,15 @@
 				indexWells();
 				
 				// Set the label of the well as index
-				for ( row = 1; row < 9; row++ ) {
-					gr = grid.getChildAt( row ) as GridRow;
-					
-					for ( col = 1; col < 13; col++ ) {
-						gi = gr.getChildAt( col ) as GridItem;
-						well = gi.getChildAt( 0 ) as WellContainer;
-						well.setLabel(( well.position + 1 ).toString());
-					}
-				}
+//				for ( row = 1; row < 9; row++ ) {
+//					gr = grid.getChildAt( row ) as GridRow;
+//					
+//					for ( col = 1; col < 13; col++ ) {
+//						gi = gr.getChildAt( col ) as GridItem;
+//						well = gi.getChildAt( 0 ) as WellContainer;
+//						well.setLabel(( well.position + 1 ).toString());
+//					}
+//				}
 			}
 			
 			
@@ -399,7 +398,6 @@
 						}
 						well.loadSourceWell( wo );
 						well.plateView = this.parentDocument as NavPlateView;
-						wellArray.push( well );
 						break;
 					}
 				}
