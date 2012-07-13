@@ -147,6 +147,8 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       int gSignalStrength = chromatReader.getSignalStrengths()[0];
       int tSignalStrength = chromatReader.getSignalStrengths()[2];
       
+      int lane = Integer.parseInt(chromatReader.getLane());
+      
       // Q20, Q40
       int q20 = chromatReader.getQ(20);
       int q40 = chromatReader.getQ(40);
@@ -171,6 +173,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       chromatogram.setcSignalStrength(cSignalStrength);
       chromatogram.setgSignalStrength(gSignalStrength);
       chromatogram.settSignalStrength(tSignalStrength);
+      chromatogram.setLane(lane);
       
       sess.flush();
       
