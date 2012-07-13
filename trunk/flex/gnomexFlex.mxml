@@ -1055,7 +1055,7 @@
 					// through show event (init()).  The next time
 					// through, we will make the call directly.
 					if (navTopicsView.isInitialized) {
-						navTopicsView.refreshTopicForLookup()
+						navTopicsView.refreshTopics()
 					}
 					
 					this.stateStack.selectedChild = theViews;
@@ -1799,7 +1799,7 @@
 	        }
 	        
 	        private function onGetAppUserList(event:ResultEvent):void {
-			  	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
+			  	var emptyNode:XML = <AppUser displayName = '' idAppUser='' name='' label=''/>;
               	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
               	
               	getProjectList.send();

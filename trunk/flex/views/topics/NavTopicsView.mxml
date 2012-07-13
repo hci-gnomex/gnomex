@@ -37,7 +37,7 @@
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onMoveOrCopyTopic(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to move dataTrack folder', event)"
+		fault="parentApplication.onFailHttpRequest('Failed to move topic', event)"
 		method="POST"
 		useProxy="false">
 		<mx:request>
@@ -50,7 +50,7 @@
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onDeleteTopic(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to remove dataTrack folder', event)"
+		fault="parentApplication.onFailHttpRequest('Failed to remove topic', event)"
 		method="POST"
 		useProxy="false">
 		<mx:request>
@@ -186,14 +186,15 @@
 
 	
 	public function init():void {
-		refreshTopicForLookup()
+		//refreshTopicForLookup()
+		refreshTopics();
 		checkSecurity();	
 		isInitialized = true;
 	}
 	
-	public function refreshTopicForLookup():void {
-		getTopicList.send();
-	}	
+	//public function refreshTopicForLookup():void {
+	//	getTopicList.send();
+	//}	
 	
 	private function checkSecurity():void {
 		currentState = "";
@@ -292,15 +293,15 @@
 		}
 	}
 	
-	private function recurseExpandParent(item:XML):void {
-		if (item.name() != 'DataTrack') {
-			browseTree.expandItem(item, true);				
-		}
-		if (item.parent() != null) {
-			recurseExpandParent(item.parent());									
-		}
+	//private function recurseExpandParent(item:XML):void {
+	//	if (item.name() != 'DataTrack') {
+	//		browseTree.expandItem(item, true);				
+	//	}
+	//	if (item.parent() != null) {
+	//		recurseExpandParent(item.parent());									
+	//	}
 		
-	}
+	//}
 	private function selectTreeItem():void {
 		if (itemToSelect != null) {
 			browseTree.selectedItem = itemToSelect;
@@ -459,6 +460,7 @@
 			analysisDetailView.edtButton.enabled = false;
 			analysisDetailView.dstButton.enabled = false;
 			analysisDetailView.hideButtonsBox.visible = false;
+			analysisDetailView.hideButtonsBox.includeInLayout = false;
 			analysisDetailView.filesView.deleteButtonsContainer.visible = false;
 			this.mainViewStack.selectedChild = this.analysisDetailView;  
 		}
@@ -529,19 +531,19 @@
 		refreshTopics();
 	}
 	
-	public function refreshDataTrackForLookup():void {
-		var params:Object = new Object();
-		params.number = dataTrackNumber;
-		getTopicList.send(params);
-	}
+	//public function refreshDataTrackForLookup():void {
+	//	var params:Object = new Object();
+	///	params.number = dataTrackNumber;
+	//	getTopicList.send(params);
+	//}
 	
-	public function refreshDataTrackForItem():void {
-		var params:Object = new Object();
-		params.idOrganism = refreshItem.@idOrganism;
-		params.idGenomeBuild = refreshItem.@idGenomeBuild;
-		params.idLab = refreshItem.@idLab;
-		getTopicList.send(params);
-	}
+	//public function refreshDataTrackForItem():void {
+	//	var params:Object = new Object();
+	//	params.idOrganism = refreshItem.@idOrganism;
+	//	params.idGenomeBuild = refreshItem.@idGenomeBuild;
+	//	params.idLab = refreshItem.@idLab;
+	//	getTopicList.send(params);
+	//}
 
 	public function refreshTopics():void {
 		var parms:Object = new Object();
@@ -748,7 +750,7 @@
 		// Determine the drop node
 		var dropIndex:int = this.browseTree.calculateDropIndex(event);
 		var renderer:Object = this.browseTree.indexToItemRenderer(dropIndex); 
-		if (dropIndex == 0 || renderer == null) {
+		if (renderer == null) {
 			// Abort if dropped outside of list boundary.
 			event.preventDefault();
 			event.target.hideDropFeedback(event);
@@ -759,7 +761,7 @@
 		
 		// If the drop node is an experiment, analysis, data track, or category go up to next topic level
 		// and make it the drop target
-		if (dropNode.name() == "Request" || dropNode.name() == "Experiment" || dropNode.name() == "DataTrack") {
+		if (dropNode.name() == "Request" || dropNode.name() == "Analysis" || dropNode.name() == "DataTrack") {
 			dropNode = dropNode.parent().parent();
 		} else if(dropNode.name() == "Category") {
 			dropNode = dropNode.parent();
@@ -945,10 +947,7 @@
 			parentObj = browseTree.selectedItem;			
 		}
 
-		addTopicWindow.init(parentObj, this, null);
-		if (currentState == 'AdminState') {
-			addTopicWindow.labCombo.selectedItem = null;
-		}
+		addTopicWindow.init(parentObj, this);
 		addTopicWindow.topicName.setFocus();
 	}
 	
@@ -1012,7 +1011,7 @@
 								 disabledIcon="@Embed(source='../../assets/cross_disable.png')" 
 								 icon="@Embed(source='../../assets/cross.png')"/>
 				<mx:LinkButton   label="Link to experiments, analysis, or data tracks"
-								 enabled="true"
+								 enabled="true" width="320"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
 								 styleName="linkMenuButton"   					        	
@@ -1021,6 +1020,14 @@
 								 id="linkbutton5"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/link_disable.png')" 
 								 icon="@Embed(source='../../assets/link.png')"/>
+				<mx:LinkButton 	 label="Refresh" 
+								 icon="@Embed(source='../../assets/action_refresh.gif')" 
+								 click="refreshTopics()" 
+								 textDecoration="underline" 
+								 paddingRight="0" 
+								 id="linkbutton2" 
+								 paddingLeft="0"/>
+
 			</mx:HBox>
     </mx:VBox>
 	

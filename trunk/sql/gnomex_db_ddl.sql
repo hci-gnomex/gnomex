@@ -2657,7 +2657,7 @@ CREATE TABLE `gnomex`.`Topic` (
   `idLab` int(10) NOT NULL,
   `createdBy` VARCHAR(200) NOT NULL,
   `createDate` datetime default NULL,
-  `idAppUser` int(10)  default NULL,  
+  `idAppUser` int(10)  NOT NULL,  
   PRIMARY KEY (`idTopic`),
   KEY `FK_Topic_AppUser` (`idAppUser`),
   KEY `FK_Topic_Lab` (`idLab`),  
