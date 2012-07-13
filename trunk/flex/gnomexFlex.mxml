@@ -245,7 +245,6 @@
 			import views.util.AboutView;
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
-			import views.util.CustomLinkBar;
 			import views.util.DownloadHints;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
@@ -2358,25 +2357,25 @@
 			      </mx:HBox>
 			      
 			      <mx:HBox width="100%" horizontalGap="6"  verticalAlign="middle" styleName="customLinkBar" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
-					  <util:CustomLinkButton id="homeLink" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
+					  <mx:LinkButton id="homeLink" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
 					  <mx:VRule height="20" id="submitRequestRule"/>
-					  <util:CustomLinkButton id="submitRequestLink" label="Submit Request" click="{theViews.selectedChild = submitRequestView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
+					  <mx:LinkButton id="submitRequestLink" label="New Order" click="{theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
 					  <mx:VRule height="20" id="amendRequestRule" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"/>
-					  <util:CustomLinkButton  id="amendRequestLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}" label="Add Services to Request" click="{theViews.selectedChild = amendRequestView}" width="100" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
+					  <util:LinkButtonTwoLines  id="amendRequestLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}" label="Add Services to Request" click="{theViews.selectedChild = amendRequestView}" width="100" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
 					  <mx:VRule height="20" id="experimentsRule"/>
-					  <util:CustomLinkButton id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="95" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
+					  <mx:LinkButton id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="95" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
 					  <mx:VRule height="20" id="analysisRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" />
-					  <util:CustomLinkButton id="analysisLink" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
+					  <mx:LinkButton id="analysisLink" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
 					  <mx:VRule height="20" id="dataTracksRule" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}" /> 
-					  <util:CustomLinkButton id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
+					  <util:LinkButtonTwoLines id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
 					  <mx:VRule height="20" id="topicsRule" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
-					  <util:CustomLinkButton id="topicsLink" label="Topics" click="{theViews.selectedChild = navTopicsView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/topic.png')" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
+					  <mx:LinkButton id="topicsLink" label="Topics" click="{theViews.selectedChild = navTopicsView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/topic.png')" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
 					  <mx:VRule height="20" id="workflowRule" visible="{showCoreGenomicsLinks}"  includeInLayout="{showCoreGenomicsLinks}" />
-					  <util:CustomLinkButton id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
+					  <mx:LinkButton id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
 					  <mx:VRule height="20" id="billingRule"/>
-					  <util:CustomLinkButton id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
+					  <mx:LinkButton id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
 					  <mx:VRule height="20" id="usersRule"/>
-					  <util:CustomLinkButton id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
+					  <util:LinkButtonTwoLines id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
 			      </mx:HBox>
 	      	
 		      	
@@ -2399,7 +2398,7 @@
 						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 						</util:WelcomeView>  
 			
-					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'Submit Request'}" 
+					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Order'}" 
 					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>
 	
@@ -2565,35 +2564,35 @@
 			 	<mx:VRule height="20" id="ordersRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{ordersRule}" position="after">
-			 	<util:CustomLinkButton id="ordersLink" label="Review Orders" click="{theViews.selectedChild = navOrderView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/page.png')"/>
+			 	<util:LinkButtonTwoLines id="ordersLink" label="Review Orders" click="{theViews.selectedChild = navOrderView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/page.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{ordersLink}" position="after">
 			 	<mx:VRule height="20" id="fillPlateRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{fillPlateRule}" position="after">
-			 	<util:CustomLinkButton id="fillPlateLink" label="Fill Plate" click="{navPlateView.toggleBuildState('PLATE'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
+			 	<util:LinkButtonTwoLines id="fillPlateLink" label="Fill Plate" click="{navPlateView.toggleBuildState('PLATE'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{fillPlateLink}" position="after">
 				 <mx:VRule height="20" id="fillRunRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{fillRunRule}" position="after">
-				 <util:CustomLinkButton id="fillRunLink" label="Build Run" click="{navPlateView.toggleBuildState('RUN'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_add.png')"/>
+				 <util:LinkButtonTwoLines id="fillRunLink" label="Build Run" click="{navPlateView.toggleBuildState('RUN'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_add.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{fillRunLink}" position="after">
 			 	<mx:VRule height="20" id="runsRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{runsRule}" position="after">
-			 	<util:CustomLinkButton width="95"  id="runsLink" label="Instrument Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
+			 	<util:LinkButtonTwoLines width="95"  id="runsLink" label="Instrument Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{runsLink}" position="after">
 			 	<mx:VRule height="20" id="dataRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{dataRule}" position="after">
-			 	<util:CustomLinkButton id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
+			 	<util:LinkButtonTwoLines id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
 			 </mx:AddChild>
 		 </mx:State>
 
