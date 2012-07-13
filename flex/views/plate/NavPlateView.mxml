@@ -1203,11 +1203,6 @@
 					if ( currentState.substr( 0, 3 ) == "new" ) {
 						switchToEditState();
 					}
-					
-					/* if ( currentState.substr( 0, 4 ) == "edit" ) {
-						tabNav.selectedChild = plateTab;
-					} */
-					
 					callLater( loadRun, new Array( plates ));
 					
 					
@@ -1452,9 +1447,8 @@
 			// -----------------
 			private function promptToSaveRun():void {
 				
-				// This should check for empty runs and plates, not just the current plate.
-				if ( activePlate.getWellIDs().length == 0 ) {
-					Alert.show( "No samples have been added to the plate(s)", "Plates not filled" );
+				if ( numberOfPlates == 0 ) {
+					Alert.show( "No plates have been added to the run.  Do you still want to save?", "No plates", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 					return;
 				}
 				
@@ -1554,7 +1548,7 @@
 			private function promptToSavePlate():void {
 				
 				if ( activePlate.getWellIDs().length == 0 ) {
-					Alert.show( "No samples have been added to the plate", "Plate not filled" );
+					Alert.show( "No samples have been added to the plate.  Do you still want to save?", "Plate not filled", ( Alert.YES | Alert.NO ), this, onPromptToSavePlate, iconWarning );
 					return;
 				}
 				
@@ -1582,97 +1576,41 @@
 			private function onPromptToSavePlate( event:CloseEvent ):void {
 				
 				if ( event.detail == Alert.YES ) {
-					saveSinglePlate();
+					savePlate();
 				}
 			}
-			
-			
-			/* private function savePlates():void {
-				
-				// needs to savePlate for each of the filled/semifilled plates
-				// send in the idInstrumentRun
-				var idInstrumentRun:int = run.idRun;
-				
-				for ( var i:int = 0; i < numberOfPlates; i++ ) {
-					
-					var plate:Plate = plateArray[ i ] as Plate;
-					
-					if ( plate.getWellIDs().length != 0 ) {
-						var params:Object = new Object();
-						params.idInstrumentRun = idInstrumentRun;
-						params.plateWellXMLString = plate.getWellsXML();
-						params.quadrant = i;
-						params.comments = plate.comments;
-						params.label = plate.label;
 						
-						if ( runSealComboBox.selectedIndex != -1 ) {
-							params.codeSealType = runSealComboBox.selectedItem.@codeSealType;
-						}
-						
-						if ( currentState.substr( 0, 3 ) == "new" ) {
-							params.codeReactionType = reactionState;
-						}
-						
-						if ( plate.idPlate != 0 ) {
-							params.idPlate = plate.idPlate;
-						}
-						savePlate.send( params );
-					}
-					
-				}
-				loadRunAfterSave = true;
-			} */
-			
-			
-//			private var loadPlateAfterSave:Boolean = false;
-			
-			
-			private function saveSinglePlate():void {
+			private function savePlate():void {
 				
 				var plate:Plate = activePlate;
 				
-				if ( plate.getWellIDs().length != 0 ) {
-					var params:Object = new Object();
-					params.plateWellXMLString = plate.getWellsXML();
-					
-					if ( plate.idPlate != 0 ) {
-						params.idPlate = plate.idPlate;
-					}
-					params.quadrant = plateStack.selectedIndex;
-					params.comments = plate.comments;
-					params.label = plate.label;
-					
-					if ( sealComboBox.selectedIndex != -1 ) {
-						params.codeSealType = sealComboBox.selectedItem.@codeSealType;
-					}
-					
-					if ( currentState.substr( 0, 3 ) == "new" ) {
-						params.codeReactionType = reactionState;
-					}
-					
-					savePlate.send( params );
+				var params:Object = new Object();
+				params.plateWellXMLString = plate.getWellsXML();
+				
+				if ( plate.idPlate != 0 ) {
+					params.idPlate = plate.idPlate;
 				}
-//				loadPlateAfterSave = true;
+				params.quadrant = plateStack.selectedIndex;
+				params.comments = plate.comments;
+				params.label = plate.label;
+				params.codeReactionType = reactionState;
+				
+				if ( sealComboBox.selectedIndex != -1 ) {
+					params.codeSealType = sealComboBox.selectedItem.@codeSealType;
+				}
+				
+				savePlate.send( params );
 			}
 			
 			
-			// Plate index can be used to figure out the quadrant for plt file.
 			private function onSavePlate( event:ResultEvent ):void {
 				
 				if ( savePlate.lastResult.name() == "SUCCESS" ) {
 					refreshLists();
-					
-					/* if ( loadRunAfterSave ) {
-						tabNav.selectedChild = runTab;
-						callLater( loadRunById, [ savePlate.lastResult.Plate.@idInstrumentRun ]);
-					} else if ( loadPlateAfterSave ) { */
-						switchToEditState();
-						tabNav.selectedChild = plateTab;
-						removeRun();
-						callLater( loadPlateObject, [ savePlate.lastResult.Plate ]);
-					/* }
-					loadRunAfterSave = false;
-					loadPlateAfterSave = false; */
+					switchToEditState();
+					tabNav.selectedChild = plateTab;
+					removeRun();
+					callLater( loadPlateObject, [ savePlate.lastResult.Plate ]);
 					
 				} else {
 					Alert.show( "An error occurred while saving the plate." );
