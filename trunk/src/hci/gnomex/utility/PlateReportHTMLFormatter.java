@@ -140,6 +140,7 @@ public class PlateReportHTMLFormatter {
             String idPlateWellString = well.getAttributeValue("idPlateWell");
             String sampleName = well.getAttributeValue( "sampleName" );
             String idRequest = well.getAttributeValue( "idRequest" );
+            String requestNumber = well.getAttributeValue( "requestNumber" );
 
             if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals( "Y" ) ) {
               sampleName = "Control";
@@ -162,7 +163,7 @@ public class PlateReportHTMLFormatter {
               this.addColoredWellCell( row,
                   idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
                       sampleName,
-                      idRequest);
+                      requestNumber, idRequest);
             }
           }
         }
@@ -209,7 +210,7 @@ public class PlateReportHTMLFormatter {
         table.addContent(row);
         
         // Need to add background color to this first cell.
-        this.addColoredCell(row, req.getIdRequest() != null ? req.getIdRequest().toString() : "&nbsp;", index);
+        this.addColoredCell(row, req.getNumber() != null ? req.getNumber() : "&nbsp;", index);
         this.addCell(row, req.getName() != null ? req.getName() : "&nbsp;");
         this.addCell(row, req.getOwnerName() != null ? req.getOwnerName() : "&nbsp;");
         this.addCell(row, val.toString());
@@ -272,7 +273,7 @@ public class PlateReportHTMLFormatter {
     cell.addContent( cell2 );
     row.addContent(cell);
   } 
-  private void addColoredWellCell(Element row, String text1, String text2, String idRequest) {
+  private void addColoredWellCell(Element row, String text1, String text2, String text3, String idRequest) {
     int index = requestNumbers.indexOf( idRequest );
 
     Element cell = new Element("TD");
@@ -283,7 +284,7 @@ public class PlateReportHTMLFormatter {
     cell2.addContent( new Element( "BR" ) );
     cell2.addContent(text2);
     cell2.addContent( new Element( "BR" ) );
-    cell2.addContent(idRequest);
+    cell2.addContent(text3);
     cell.addContent( cell2 );
     row.addContent(cell);
   } 
