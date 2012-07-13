@@ -3,6 +3,9 @@ use gnomex;
 --Add idReleaser column to the Chromatogram table
 alter table Chromatogram add column `idReleaser` int(10) null;
 
+--Add lane column to the chromatogram table
+alter table Chromatogram add column `lane` int(10) null;
+
 -- Add idSubmitter to Analysis
 alter table gnomex.Analysis add column idSubmitter int(10) null;
 alter table gnomex.Analysis add
