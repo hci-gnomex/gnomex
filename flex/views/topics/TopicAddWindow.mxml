@@ -28,6 +28,7 @@
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
+	
 	import views.util.StringUtil;
 
 	
@@ -37,37 +38,55 @@
 	public var windowTitle:Object = null;
 		
 	private var parentView:DisplayObject;
+	private var parentTopic:Object;
 
-	public function init(parent:Object, parentView:DisplayObject, idLab:Object):void {
-		this.parentView = parentView;
+	public function init(parentTopic:Object, parentView:DisplayObject):void {
+		var item:Object;
 		
-		var idLab:Object = idLab;
-		if (idLab == null) {
-			if (parent != null && parent.hasOwnProperty("@idLab") && parent.@idLab != null && parent.@idLab != "") {
-				idLab = parent.@idLab;
-			}
+		this.parentView = parentView;
+		this.parentTopic = parentTopic;
+		
+		var isAdmin:Boolean = false;
+		if(parentApplication.isSuperAdmin || parentApplication.hasPermission(parentApplication.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+			isAdmin = true;
 		}
-		// If the parent topic is owned by a lab,
-		// setup this topic the same way.
-		if (idLab != null) {
-			for each (var item:Object in labCombo.dataProvider) {
-				if (item.@idLab == idLab) {
-					labCombo.selectedItem = item;
-					break;
-				}
+			
+		// Default owner to current user
+		for each (item in ownerCombo.dataProvider) {
+			if (item.@idAppUser == parentApplication.idAppUser) {
+				ownerCombo.selectedItem = item;
+				break;
 			}
 		}	
 		
-		if (parent != null) {
-			this.idParentTopic = parent.@idTopic;
-			windowTitle = "Add subtopic of " + parent.@label;		
-			
-		} else {
+		if(parentTopic == null) {
+			// If top level topic
 			this.idParentTopic = null;
 			windowTitle = "Add new top level topic";
+		} else {
+			// If subtopic
+			if(isAdmin) {
+				// If admin, changed default owner to parent owner
+				for each (item in ownerCombo.dataProvider) {
+					if (item.@idAppUser == parentTopic.@idAppUser) {
+						ownerCombo.selectedItem = item;
+						break;
+					}
+				}
+			}				
+			
+			this.idParentTopic = parentTopic.@idTopic;
+			windowTitle = "Add subtopic of " + parentTopic.@label;
+			if(parentTopic.hasOwnProperty("@idLab") && parentTopic.@idLab != null && parentTopic.@idLab != "") {
+				for each (item in labCombo.dataProvider) {
+					if (item.@idLab == parentTopic.@idLab) {
+						labCombo.selectedItem = item;
+						break;
+					}
+				}				
+			}
 		}
 	}
-	
 
    	private function onSaveTopic(event:ResultEvent):void {
 		if (saveTopic.lastResult.name() == "SUCCESS") {			
@@ -86,11 +105,27 @@
 	}
 
 	private function save():void {
+		if (labCombo.selectedItem == null || labCombo.selectedIndex == 0) {
+			labCombo.setFocus();
+			Alert.show("Please select a Lab.");
+			return;        		
+		} 
+		if (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0) {
+			ownerCombo.setFocus();
+			Alert.show("Please select select the topic owner.");
+			return;        		
+		} 
+		var selectedIdLab:String = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
+		if(parentTopic != null && parentTopic.@idLab != selectedIdLab) {
+			ownerCombo.setFocus();
+			Alert.show("Lab for child topic must be the same as its parent (" + parentTopic.@lab + ")");
+			return;  			
+		}
 		var params:Object = new Object();
 		params.idParentTopic      	  = idParentTopic;
 		params.name                   = this.topicName.text;
 		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
-		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
+		params.idLab                  = selectedIdLab;
 		params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
 		
 		saveTopic.send(params);

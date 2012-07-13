@@ -46,8 +46,9 @@
 				labStack.selectedIndex = 1;
 			}
 		}
-		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab ==  parentDocument.browseTree.selectedItem.@idLab);
-		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser ==  parentDocument.browseTree.selectedItem.@idAppUser);
+		
+		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab);
+		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == parentDocument.browseTree.selectedItem.@idAppUser);
 		this.dirtyTopic.resetDirty();
 	}
 	
@@ -71,6 +72,17 @@
 	}
 	
 	private function save():void {
+		
+		if (labCombo.selectedItem == null || labCombo.selectedIndex == 0) {
+			labCombo.setFocus();
+			Alert.show("Please select a Lab.");
+			return;        		
+		} 
+		if (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0) {
+			ownerCombo.setFocus();
+			Alert.show("Please select select the topic owner.");
+			return;        		
+		} 
 		var params:Object = new Object();
 		params.idTopic      		  = parentDocument.browseTree.selectedItem.@idTopic;
 		params.idParentTopic      	  = parentDocument.browseTree.selectedItem.@idParentTopic;
