@@ -360,13 +360,13 @@
 				<mx:HBox id="hbox3" horizontalGap="2" verticalAlign="middle">
 					<mx:Label text="Experiments" id="label2" styleName="welcomeLabel"/>
 				</mx:HBox>
-				<mx:LinkButton label="Submit Experiment Request"  click="submitRequest()"  
-							   styleName="dashboardButton" id="button1"  toolTip="Submit new work requests for Microarray, Next generation sequencing or quality control services" icon="@Embed(source='../../assets/flask_add.png')"/>
-				<mx:LinkButton label="Add services to Experiment Request"  
+				<mx:LinkButton label="New Experiment Order"  click="submitRequest()"  
+							   styleName="dashboardButton" id="button1"  toolTip="Create an experiment order" icon="@Embed(source='../../assets/flask_add.png')"/>
+				<mx:LinkButton label="Add services to an Order"  
 							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
 							   click="amendRequest()" 
 							   styleName="dashboardButton" id="amendButton"  toolTip="Add microarray or next gen sequencing services to an existing experiment request" icon="@Embed(source='../../assets/flask_edit.png')"/>
-				<mx:LinkButton label="Register External Experiment"  click="submitExternalExperiment()"  
+				<mx:LinkButton label="Register Experiment"  click="submitExternalExperiment()"  
 							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
 							   styleName="dashboardButton" id="submitExternalExperimentButton"  toolTip="Submit an experiment to the GNomEx repository and upload associated raw data files" icon="@Embed(source='../../assets/experiment_register.png')"/>
 				<mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
