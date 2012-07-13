@@ -764,6 +764,9 @@
 					
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "65" />
 					
+					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off"
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}"/>
+					
 					<mx:DataGridColumn dataField = "@notes" headerText = "Notes" width = "250" />
 					
 				</mx:columns>
