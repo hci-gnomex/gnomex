@@ -1405,6 +1405,16 @@
 				activePlate.label = plateObject.@label;
 				activePlate.comments = plateObject.@comments;
 				plateObject.@idRun = run.idRun;
+				
+				for each ( var obj:Object in sealComboBox.dataProvider ) {
+					if ( obj.@codeSealType == plateObject.@codeSealType ) {
+						sealComboBox.selectedItem = obj;
+						runSealComboBox.selectedItem = sealComboBox.selectedItem;
+						break;
+					}
+					sealComboBox.selectedIndex = -1;
+				}
+				sealText.text = plateObject.@codeSealType;
 				run.codeSealType = plateObject.@codeSealType;
 				
 				for each ( var pw:Object in plateObject..PlateWell ) {

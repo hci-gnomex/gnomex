@@ -31,7 +31,6 @@
 				currentFillByCol = colFill;
 			}
 			
-			
 			public function setNowFillByCol( colFill:Boolean ):void {
 				
 				nowFillByCol = colFill;
@@ -109,16 +108,6 @@
 				// Assign each well an index number.
 				indexWells();
 				
-				// Set the label of the well as index
-//				for ( row = 1; row < 9; row++ ) {
-//					gr = grid.getChildAt( row ) as GridRow;
-//					
-//					for ( col = 1; col < 13; col++ ) {
-//						gi = gr.getChildAt( col ) as GridItem;
-//						well = gi.getChildAt( 0 ) as WellContainer;
-//						well.setLabel(( well.position + 1 ).toString());
-//					}
-//				}
 			}
 			
 			
@@ -173,38 +162,19 @@
 				var well:WellContainer;
 				var row:int;
 				var col:int;
-				var index:int = 0;
 				
-				if ( currentFillByCol ) {
-					for ( col = 1; col < 13; col++ ) {
-						for ( row = 1; row < 9; row++ ) {
-							gr = grid.getChildAt( row ) as GridRow;
-							gi = gr.getChildAt( col ) as GridItem;
-							gi.removeAllChildren();
-							well = new WellContainer( '' );
-							well.plateView = this.parentDocument as NavPlateView;
-							well.position = index;
-							well.setLabel(( index + 1 ).toString());
-							gi.addChild( well );
-							index++;
-						}
-					}
-				} else {
+				
+				for ( col = 1; col < 13; col++ ) {
 					for ( row = 1; row < 9; row++ ) {
 						gr = grid.getChildAt( row ) as GridRow;
-						
-						for ( col = 1; col < 13; col++ ) {
-							gi = gr.getChildAt( col ) as GridItem;
-							gi.removeAllChildren();
-							well = new WellContainer( index.toString());
-							well.plateView = this.parentDocument as NavPlateView;
-							well.position = index;
-							well.setLabel(( index + 1 ).toString());
-							gi.addChild( well );
-							index++;
-						}
+						gi = gr.getChildAt( col ) as GridItem;
+						gi.removeAllChildren();
+						well = new WellContainer( '' );
+						well.plateView = this.parentDocument as NavPlateView;
+						gi.addChild( well );
 					}
 				}
+				
 				indexWells();
 			}
 			
@@ -520,8 +490,12 @@
 					}
 				}
 			}
+			
 		]]>
+		
 	</mx:Script>
+	
+	
 	<mx:Grid id="grid"
 			 horizontalAlign="center"
 			 verticalAlign="middle"
