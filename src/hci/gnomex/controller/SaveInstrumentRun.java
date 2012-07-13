@@ -12,6 +12,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   
@@ -39,6 +42,8 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   private String                creator = null;
   private String                codeSealType = null;
   private String                codeInstrumentRunStatus = null;
+  
+  private String                plateXMLString;
   
   private String                disassociatePlates = null;
   
@@ -77,6 +82,10 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     if (request.getParameter("disassociatePlates") != null && !request.getParameter("disassociatePlates").equals("")) {
       disassociatePlates = request.getParameter("disassociatePlates");
     } 
+    if (request.getParameter("plateXMLString") != null
+        && !request.getParameter("plateXMLString").equals("")) {
+      plateXMLString = request.getParameter("plateXMLString");
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -136,6 +145,27 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         // Disassociate any plates currently on run.
         if (  disassociatePlates != null && disassociatePlates.equals( "Y" ) ) {
           this.disassociatePlates( sess, ir );
+        }
+        
+        if (plateXMLString != null) {
+          StringReader reader = new StringReader(plateXMLString);
+          SAXBuilder sax = new SAXBuilder();
+          Document platesDoc = sax.build(reader);
+          for (Iterator i = platesDoc.getRootElement().getChildren("Plate").iterator(); i.hasNext();) {
+            Element node = (Element) i.next();
+
+            String idPlate = node.getAttributeValue("idPlate");
+            String quadrant = node.getAttributeValue( "quadrant" );
+            
+            Plate plate = (Plate) sess.get(Plate.class, Integer.valueOf( idPlate ));
+            if ( plate != null) {
+              plate.setIdInstrumentRun( idInstrumentRun );
+              plate.setQuadrant( Integer.valueOf( quadrant ) );
+              if ( ir.getCodeSealType() != null ) {
+                plate.setCodeSealType( ir.getCodeSealType() );
+              }
+            }
+          }      
         }
 
         sess.flush();
