@@ -763,12 +763,12 @@
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
 					
-					<mx:DataGridColumn dataField="@runNumber"
-									   headerText="Run #"
+					<mx:DataGridColumn dataField="@runName"
+									   headerText="Run"
 									   width="50" minWidth="20" />
-						<mx:DataGridColumn dataField="@plateLabel"
-										   headerText="Plate"
-										   width="50" minWidth="20" />
+					<mx:DataGridColumn dataField="@plateLabel"
+									   headerText="Plate"
+									   width="50" minWidth="20" />
 					<mx:DataGridColumn dataField="@requestNumber"
 									   headerText="Order #"  visible="{currentState != 'userState'}"
 									   width="50" minWidth="15" />
@@ -828,6 +828,10 @@
 									   headerText="q40/len"
 									   width="70"
 									   sortCompareFunction="fieldNumericSorter('q40_len')" />
+						
+					<mx:DataGridColumn headerText="Lane"
+									   dataField="@lane"
+									   width="65"/>
 					
 					<mx:DataGridColumn dataField="@aSignalStrength"
 									   headerText="A sig"
