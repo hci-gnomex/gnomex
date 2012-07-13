@@ -35,8 +35,6 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
   private InstrumentRunFilter            runFilter;
   private String                         listKind = "RunList";
-  private Element                        rootNode = null;
-  private String                         message  = "";
 
 
   public void validate() {
@@ -66,7 +64,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
         Document doc = new Document( new Element( listKind ) );
 
         if( ! runFilter.hasSufficientCriteria( this.getSecAdvisor() ) ) {
-          message = "Please select a filter";
+          this.addInvalidField("missing filter", "Please select a filter" );
         } else {
           Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(
               this.getUsername() );
@@ -123,35 +121,6 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
                   DetailObject.DATE_OUTPUT_SQL ).getRootElement();
               pNode.setAttribute( "createDate",
                   this.formatDate( plate.getCreateDate() ) );
-
-              List wells = sess.createQuery(
-                  "SELECT w from PlateWell as w where w.idPlate="
-                  + plate.getIdPlate()  ).list();
-
-              for( Iterator i3 = wells.iterator(); i3.hasNext(); ) {
-                PlateWell well = ( PlateWell ) i3.next();
-                well.excludeMethodFromXML( "getSample" );
-                well.excludeMethodFromXML("getAssay");
-                well.excludeMethodFromXML("getPrimer");
-                Element pwNode = well.toXMLDocument( null,
-                    DetailObject.DATE_OUTPUT_SQL ).getRootElement();
-
-                pwNode.setAttribute("requestSubmitDate", "");
-                pwNode.setAttribute("requestSubmitter", "");
-
-                if ( well.getIdRequest() != null ) {
-                  String idRequestString = well.getIdRequest().toString();
-                  if ( idRequestString != null && !idRequestString.equals("")) {
-                    Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-                    if ( request != null ) {
-                      pwNode.setAttribute("requestSubmitDate", request.getCreateDate().toString());
-                      pwNode.setAttribute("requestSubmitter", request.getOwnerName());
-                    }
-                  }
-                }
-
-                pNode.addContent( pwNode );
-              }
 
               irNode.addContent( pNode );
             }
