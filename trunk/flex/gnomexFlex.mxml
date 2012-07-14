@@ -2560,7 +2560,7 @@
 			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
 		 </mx:State>
 		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
-			 <mx:AddChild relativeTo="{homeLink}" position="after">
+			 <mx:AddChild relativeTo="{submitRequestLink}" position="after">
 			 	<mx:VRule height="20" id="ordersRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{ordersRule}" position="after">
@@ -2582,18 +2582,20 @@
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{fillRunLink}" position="after">
-			 	<mx:VRule height="20" id="runsRule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{runsRule}" position="after">
-			 	<util:LinkButtonTwoLines width="95"  id="runsLink" label="Review Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
-			 </mx:AddChild>
-			 
-			 <mx:AddChild relativeTo="{runsLink}" position="after">
 			 	<mx:VRule height="20" id="dataRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{dataRule}" position="after">
 			 	<util:LinkButtonTwoLines id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
 			 </mx:AddChild>
+			 
+			 
+			 <mx:AddChild relativeTo="{dataLink}"  position="after">
+				 <mx:VRule height="20" id="runsRule"/>
+			 </mx:AddChild>
+			 <mx:AddChild relativeTo="{runsRule}" position="after">
+				 <util:LinkButtonTwoLines width="95"  id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
+			 </mx:AddChild>
+
 		 </mx:State>
 
 		 
