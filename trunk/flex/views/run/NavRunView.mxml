@@ -196,7 +196,7 @@
 								 label="Show all"
 								 paddingRight="0"
 								 paddingLeft="0"
-								 horizontalGap="0" styleName="labelSmall" selected="{theViews.selectedChild == plateBrowseView}" >
+								 horizontalGap="0" styleName="labelSmall" selected="false" >
 						<mx:click>
 							toggleDateCheckboxes( 0 );
 							this.getList();
@@ -275,7 +275,7 @@
 						 paddingRight = "5">
 					<mx:VBox verticalGap="0">
 						<mx:CheckBox label = "ABI Seq"
-									 id = "capSeqCheckbox"
+									 id = "capSeqCheckbox" selected="true"
 									 horizontalGap = "0"
 									 styleName = "labelSmall"
 									 paddingLeft = "2" paddingRight="0" paddingTop="0" paddingBottom="0">
@@ -339,7 +339,7 @@
 						<mx:HBox horizontalGap="0">
 							<mx:CheckBox id = "lastWeekCheckboxCreated"
 										 label = "Created in last week"
-										 paddingRight = "0"
+										 paddingRight = "0" selected="{theViews.selectedChild == plateBrowseView}"
 										 horizontalGap = "0"
 										 paddingLeft = "0"
 										 styleName = "labelSmall" paddingTop="0">
