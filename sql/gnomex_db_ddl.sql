@@ -945,7 +945,7 @@ CREATE TABLE `gnomex`.`Lab` (
   `firstName` VARCHAR(200) NULL,
   `lastName` VARCHAR(200) NULL,
   `isExternalPricing` VARCHAR(1) NULL,
-  `isExternalPricingCommercial` VARCHAR(1) NULL,
+  `isExternalPricingCommercial` CHAR(1) NULL,
   `isActive` VARCHAR(1) NULL,
   `excludeUsage` VARCHAR(1) NULL,
   PRIMARY KEY (`idLab`),
