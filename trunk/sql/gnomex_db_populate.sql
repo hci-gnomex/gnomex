@@ -680,7 +680,7 @@ VALUES
   (5, 1, 'SOLEXA', 4, '18 cycle paired-end reads'),
   (6, 3, 'SOLEXA', 4, '36 cycle paired-end reads'),
   (7, 4, 'HISEQ', 4, '50 cycle paired-end reads'),
-  (8, 6, 'HISEQ', 4, '101 cycle paired-end reads');
+  (8, 6, 'HISEQ', 4, '101 cycle paired-end reads'),
   (9, 2, 'MISEQ', 4, '26 cycle paired-end reads'),
   (10, 7, 'MISEQ', 4, '150 cycle paired-end reads');
 
@@ -893,7 +893,7 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y'),
   ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y'),
   ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y'),
-  ('HISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y');
+  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y');
 
 INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
 VALUES ('AFFY', 'CHIP'),
