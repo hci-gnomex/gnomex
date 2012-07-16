@@ -150,8 +150,8 @@ VALUES
   (10, 100, 6);
   
 INSERT INTO gnomex.Price (idPrice,name,description,unitPrice,unitPriceExternalAcademic,idPriceCategory,isActive) VALUES
- (200,'MiSeq 26 cycle paired end','HiSeq 26 cycle paired end','0.00',NULL,100,'Y'),
- (201,'MiSeq 150 cycle paired end','HiSeq 150 cycle paired end','0.00',NULL,100,'Y');
+ (200,'MiSeq 26 cycle paired end','MiSeq 26 cycle paired end','0.00',NULL,100,'Y'),
+ (201,'MiSeq 150 cycle paired end','MiSeq 150 cycle paired end','0.00',NULL,100,'Y');
  
  
 INSERT INTO gnomex.PriceCriteria (idPriceCriteria,filter1,filter2,idPrice) VALUES 
