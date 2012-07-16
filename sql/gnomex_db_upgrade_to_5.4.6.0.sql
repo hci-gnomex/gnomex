@@ -1,9 +1,9 @@
 use gnomex;
 
---Add idReleaser column to the Chromatogram table
+-- Add idReleaser column to the Chromatogram table
 alter table Chromatogram add column `idReleaser` int(10) null;
 
---Add lane column to the chromatogram table
+-- Add lane column to the chromatogram table
 alter table Chromatogram add column `lane` int(10) null;
 
 -- Add idSubmitter to Analysis
@@ -38,7 +38,7 @@ update Request
 set idSubmitter = idAppUser;
 
 
---Add new fields for commercial pricing
+-- Add new fields for commercial pricing
 alter table Lab add column `isExternalPricingCommercial` CHAR(1) null;
 alter table Price add column `unitPriceExternalCommercial` DECIMAL(6, 2) NULL;
 
@@ -70,8 +70,6 @@ values
 alter table gnomex.Institution add column isDefault char(1) null;
 
 
---- Alter Topic idParentTopic column to allow nulls
+-- Alter Topic idParentTopic column to allow nulls
 
-alter table gnomex.Topic alter column idParentTopic int(10) NULL;
-
-
+alter table gnomex.Topic change column idParentTopic idParentTopic int(10) NULL;
