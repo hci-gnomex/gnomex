@@ -282,7 +282,8 @@ VALUES
   (2, 'Agilent Microarray', 'Agilent Microarray Price Sheet', 'Y'),
   (3, 'Affymetrix Microarray', 'Affymetrix Microarray Price Sheet', 'Y'),
   (4, 'Illumina GAIIx Sequencing', 'Illumina GAIIx Sequencing Price Sheet', 'Y'),
-  (5, 'Illumina HiSeq 2000 Sequencing', 'Illumina HiSeq 2000 Sequencing Price Sheet', 'Y');
+  (5, 'Illumina HiSeq 2000 Sequencing', 'Illumina HiSeq 2000 Sequencing Price Sheet', 'Y'),
+  (10, 'Illumina MiSeq Sequencing', 'Illumina MiSeq Sequencing Price Sheet', 'Y');
 
 INSERT INTO `gnomex`.`PriceSheetRequestCategory`(`idPriceSheet`, `codeRequestCategory`)
 VALUES (1, 'QC'),
@@ -290,7 +291,8 @@ VALUES (1, 'QC'),
   (2, 'AGIL1'),
   (3, 'AFFY'),
   (4, 'SOLEXA'),
-  (5, 'HISEQ');
+  (5, 'HISEQ'),
+  (10, 'MISEQ');
 
 INSERT INTO `gnomex`.`PriceCategory`(`idPriceCategory`, `name`, `description`, `pluginClassName`, `codeBillingChargeKind`, `dictionaryClassNameFilter1`, `dictionaryClassNameFilter2`, `isActive`)
 VALUES (1, 'Sample Quality', 'Sample Quality', 'hci.gnomex.billing.SampleQualityPlugin', 'SERVICE', 'hci.gnomex.model.Application', 'hci.gnomex.model.BioanalyzerChipType', 'Y'),
@@ -305,7 +307,8 @@ VALUES (1, 'Sample Quality', 'Sample Quality', 'hci.gnomex.billing.SampleQuality
   (8, 'Sample Quality (Illumina Lib)', 'Sample Quality (Illumina Lib)', 'hci.gnomex.billing.IlluminaLibSampleQualityPlugin', 'SERVICE',  'hci.gnomex.model.Application', 'hci.gnomex.model.BioanalyzerChipType', 'Y'),
   (9, 'Miscellaneous', 'Agilent Miscellaneous', NULL, 'SERVICE', NULL, NULL, 'Y'),
   (10, 'Array Capture', 'Illumina Array Capture', NULL, 'SERVICE', NULL, NULL, 'Y'),
-  (11, 'Illumina HiSeq Sequencing', 'Illumina HiSeq Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y');
+  (11, 'Illumina HiSeq Sequencing', 'Illumina HiSeq Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y'),
+  (100, 'Illumina MiSeq Sequencing', 'Illumina MiSeq Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y');
 
 INSERT INTO `gnomex`.`PriceSheetPriceCategory`(`idPriceSheet`, `idPriceCategory`, `sortOrder`)
 VALUES
@@ -328,7 +331,12 @@ VALUES
   (5, 5, 2),
   (5, 8, 3),
   (5, 11, 5),
-  (5, 10, 6);
+  (5, 10, 6),
+  (10, 1, 1),
+  (10, 5, 2),
+  (10, 8, 3),
+  (10, 100, 6);
+  
 
 INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPriceExternalAcademic`,`idPriceCategory`,`isActive`) VALUES
  (1,'Bioanalyzer RNA Nano','sample quality','0.00',NULL,1,'Y'),
@@ -409,7 +417,9 @@ INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPr
  (79,'HiSeq 50 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'), 
  (80,'HiSeq 50 cycle paired end','HiSeq 50 cycle paired end','0.00',NULL,11,'Y'),
  (81,'HiSeq 101 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'),
- (82,'HiSeq 101 cycle paired end','HiSeq 101 cycle paired end','0.00',NULL,11,'Y');
+ (82,'HiSeq 101 cycle paired end','HiSeq 101 cycle paired end','0.00',NULL,11,'Y'), 
+ (200,'MiSeq 26 cycle paired end','HiSeq 26 cycle paired end','0.00',NULL,100,'Y'),
+ (201,'MiSeq 150 cycle paired end','HiSeq 150 cycle paired end','0.00',NULL,100,'Y');
 
 INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idPrice`) VALUES 
  (1,'BIOAN','RNANANO',1),
@@ -494,7 +504,9 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
  (83,'3','6',79),
  (84,'4','6',80),
  (85,'3','5',81),
- (86,'4','5',82);
+ (86,'4','5',82),
+ (300,'4','2',200),
+ (301,'4','7',201);
 
 
 
@@ -652,11 +664,12 @@ values
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
 VALUES (1, 18, 'Y'),
-  (2, 26, 'N'),
+  (2, 26, 'Y'),
   (3, 36, 'Y'),
   (4, 50, 'Y'),
   (5, 76, 'N'),
-  (6, 101, 'Y');
+  (6, 101, 'Y'),
+  (7, 150, 'Y');
 
 INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`, idSeqRunType, name)
 VALUES 
@@ -668,6 +681,8 @@ VALUES
   (6, 3, 'SOLEXA', 4, '36 cycle paired-end reads'),
   (7, 4, 'HISEQ', 4, '50 cycle paired-end reads'),
   (8, 6, 'HISEQ', 4, '101 cycle paired-end reads');
+  (9, 2, 'MISEQ', 4, '26 cycle paired-end reads'),
+  (10, 7, 'MISEQ', 4, '150 cycle paired-end reads');
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
 VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
@@ -675,7 +690,8 @@ VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows fo
 
 INSERT INTO `gnomex`.`OligoBarcodeSchemeAllowed`(`idOligoBarcodeSchemeAllowed`, `idOligoBarcodeScheme`, `codeRequestCategory`)
 VALUES (1, 1, 'SOLEXA'),
-       (2, 2, 'HISEQ');
+       (2, 2, 'HISEQ'),
+       (3, 2, 'MISEQ');
 
 INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `name`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`, `sortOrder`)
 VALUES (1,  'GAII Tag 1', 'AAT', 1, 'Y', 1),
@@ -876,7 +892,8 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC', 'Y', 'Y'),
   ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y'),
   ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y'),
-  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y');
+  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y'),
+  ('HISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y');
 
 INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
 VALUES ('AFFY', 'CHIP'),
@@ -911,7 +928,17 @@ VALUES ('AFFY', 'CHIP'),
   ('HISEQ', 'SMRNASEQ'),
   ('HISEQ', 'DNAMETHSEQ'),
   ('HISEQ', 'MONNUCSEQ'),
-  ('HISEQ', 'TSCRPTSEQ');
+  ('HISEQ', 'TSCRPTSEQ'),
+  ('MISEQ', 'CHIPSEQ' ),
+  ('MISEQ', 'DMRNASEQ'),
+  ('MISEQ', 'DNASEQ'),
+  ('MISEQ', 'TDNASEQ'),
+  ('MISEQ', 'MRNASEQ'),
+  ('MISEQ', 'SMRNASEQ'),
+  ('MISEQ', 'DNAMETHSEQ'),
+  ('MISEQ', 'MONNUCSEQ'),
+  ('MISEQ', 'TSCRPTSEQ');
+  
 
 -- Populate RequestStatus dictionary
 insert into gnomex.RequestStatus 
@@ -1077,7 +1104,17 @@ VALUES (1, 1, 'AGIL'),
   (50, 9, 'HISEQ'),
   (51, 10, 'HISEQ'),
   (52, 11, 'HISEQ'),
-  (53, 12, 'HISEQ');
+  (53, 12, 'HISEQ'),
+  (54, 1, 'MISEQ'),
+  (55, 5, 'MISEQ'),
+  (56, 9, 'MISEQ'),
+  (57, 7, 'MISEQ'),
+  (58, 4, 'MISEQ'),
+  (59, 9, 'MISEQ'),
+  (60, 10, 'MISEQ'),
+  (61, 11, 'MISEQ'),
+  (62, 12, 'MISEQ');
+  
 
 
 INSERT INTO `gnomex`.`SeqLibProtocol`(`idSeqLibProtocol`, `seqLibProtocol`,`description`,`url`, `isActive`)
@@ -1118,7 +1155,8 @@ VALUES (1, 'PhiX Control', 'Y', NULL);
 
 INSERT INTO `gnomex`.`SequencingPlatform`(`codeSequencingPlatform`, `sequencingPlatform`, `isActive`)
 VALUES ('GAIIX', 'Illumina GAIIx Sequencing', 'Y'),
-   ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 'Y');
+   ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 'Y'),
+   ('MISEQ', 'Illumina MiSeq Sequencing', 'Y');
 
 INSERT INTO `gnomex`.`SlideDesign`(`idSlideDesign`, `name`, `slideDesignProtocolName`, `idSlideProduct`, `accessionNumberArrayExpress`, `isActive`)
 VALUES (3,'Whole human genome microarray (44K)','012391',2,'A-AGIL-28','N'),
@@ -1340,16 +1378,20 @@ VALUES ('COMPLETE', 'Complete', 'Y'),
   ('HYB', 'Hybridization', 'Y'),
   ('LABEL', 'Labeling', 'Y'),
   ('QC', 'Quality Control', 'Y'),
-  ('SEQASSEM', 'Illumina GAIIx Cluster Gen', 'Y'),
+  ('SEQASSEM', 'Illumina GAIIx Seq Prep', 'Y'),
   ('SEQPIPE', 'Illumina GAIIx Data Pipeline', 'Y'),
   ('SEQPREP', 'Illumina GAIIx Library Prep', 'Y'),
   ('SEQQC', 'Illumina GAIIx Quality Control', 'Y'),
-  ('SEQRUN', 'Illumina GAIIx Sequencing Run', 'Y'),
-  ('HSEQASSEM', 'Illumina GAIIx Cluster Gen', 'Y'),
+  ('SEQRUN', 'Illumina GAIIx Sequencing Run', 'N'),
+  ('HSEQASSEM', 'Illumina HiSeq Seq Prep', 'Y'),
   ('HSEQPIPE', 'Illumina HiSeq 2000 Data Pipeline', 'Y'),
   ('HSEQPREP', 'Illumina HiSeq 2000 Library Prep', 'Y'),
   ('HSEQQC', 'Illumina HiSeq 2000 Quality Control', 'Y'),
-  ('HSEQRUN', 'Illumina HiSeq 2000 Sequencing Run', 'Y'),
+  ('HSEQRUN', 'Illumina HiSeq 2000 Sequencing Run', 'N'),
+  ('MISEQASSEM', 'Illumina MiSeq Seq Prep', 'Y'),
+  ('MISEQPIPE', 'Illumina MiSeq Data Pipeline', 'Y'),
+  ('MISEQPREP', 'Illumina MiSeq Library Prep', 'Y'),
+  ('MISEQQC', 'Illumina MiSeq Quality Control', 'Y'),
   ('STOP', 'Stop/Failed', 'Y');
 
 
