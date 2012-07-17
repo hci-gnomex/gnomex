@@ -657,26 +657,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
 
     }
-
-    if (canRead) {
-      // Super admins can read every dictionary entry
-      if (!hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-        if (object instanceof PropertyDictionary) {
-          PropertyDictionary prop1 = (PropertyDictionary)object;
-          if (prop1.getIdCoreFacility() != null) {
-            // Only show properties with core facility user can see.
-            Boolean found = false;
-            for(Iterator facilityIter = getAppUser().getManagingCoreFacilities().iterator();facilityIter.hasNext();) {
-              CoreFacility facility = (CoreFacility)facilityIter.next();
-              if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
-                found = true;
-              }
-            }
-            canRead = found;
-          }
-        }
-      }
-    }
     //
     // Topic
     //
@@ -706,6 +686,44 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }     
     }       
+
+    
+
+    if (canRead) {
+      // Property dictionaries are a special case of the a dictionary.
+      // Super admins can read them, but admins should only see them
+      // for those that aren't associated with a specific core facility
+      // or are associated with a core facility that the user, as an admin either
+      // manages or as a user is associated with via the lab membership.
+      if (!hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        if (object instanceof PropertyDictionary) {
+          PropertyDictionary prop1 = (PropertyDictionary)object;
+          if (prop1.getIdCoreFacility() != null) {
+            // Only show properties with core facility user can see.
+            Boolean found = false;
+            if (this.getCoreFacilitiesIManage() != null) {
+              for(Iterator facilityIter = this.getCoreFacilitiesIManage().iterator();facilityIter.hasNext();) {
+                CoreFacility facility = (CoreFacility)facilityIter.next();
+                if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
+                  found = true;
+                }
+              }
+            }
+            // ?? Should we allow normal users to see properties specific
+            // to a core facility?
+            if (this.getCoreFacilitiesForMyLab() != null) {
+              for(Iterator facilityIter = this.getCoreFacilitiesForMyLab().iterator();facilityIter.hasNext();) {
+                CoreFacility facility = (CoreFacility)facilityIter.next();
+                if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
+                  found = true;
+                }
+              }
+            }
+            canRead = found;
+          }
+        }
+      }
+    }
     return canRead;
   }
   
