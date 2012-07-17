@@ -51,6 +51,8 @@
 	private var parentView:DisplayObject = null;
 
 	private var itemToSelect:XML;
+		
+	private	var visibilitySetByDefault:Boolean = false;
 
 	public function init(genomeBuild:Object, parent:Object, parentView:DisplayObject, idLab:Object):void {
 		this.parentView = parentView;
@@ -69,18 +71,34 @@
 				idLab = parent.@idLab;		
 			}
 		}
+		
+		var defaultVisibility:String = parentApplication.getProperty(parentApplication.PROPERTY_DEFAULT_VISIBILITY_DATATRACK);
+		if (defaultVisibility != null && defaultVisibility.length > 0) {
+			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+				if (item.@value == defaultVisibility) {
+					this.visibilityCombo.selectedItem = item;
+					visibilitySetByDefault = true;
+					break;
+				}
+			}			
+		}
+		
+
 		// If the parent folder belongs to a user group or this is a non-admin
 		// user, set the dataTrack
 		// visibility to 'Members' and the user group combo
 		// to the same user group.
 		// Otherwise; set the visibility to 'PUBLIC'.
 		if (idLab != null) {
-			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
-				if (item.@value == 'MEM') {
-					this.visibilityCombo.selectedItem = item;
-					break;
-				}
+			if(!visibilitySetByDefault) {
+				for each(var o:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+					if (o.@value == 'MEM') {
+						this.visibilityCombo.selectedItem = o;
+						break;
+					}
+				}				
 			}
+
 			for each (var g:Object in labCombo.dataProvider) {
 				if (g.@idLab == idLab) {
 					labCombo.selectedItem = g;
@@ -88,11 +106,13 @@
 				}					
 			}			
 		} else {
-			for each(var v:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
-				if (v.@value == 'PUBLIC') {
-					this.visibilityCombo.selectedItem = v;
-					break;
-				}
+			if(!visibilitySetByDefault) {
+				for each(var v:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+					if (v.@value == 'PUBLIC') {
+						this.visibilityCombo.selectedItem = v;
+						break;
+					}
+				}				
 			}
 			
 		}
@@ -100,11 +120,13 @@
 	}
 		
 	private function setDefaultVisibility():void {
-		if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != "") {
-			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
-				if (item.@value == 'MEM') {
-					this.visibilityCombo.selectedItem = item;
-					break;
+		if(!visibilitySetByDefault) {
+			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != "") {
+				for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+					if (item.@value == 'MEM') {
+						this.visibilityCombo.selectedItem = item;
+						break;
+					}
 				}
 			}
 		}

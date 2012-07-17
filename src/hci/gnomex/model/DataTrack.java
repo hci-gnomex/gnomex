@@ -341,7 +341,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 					Element userNode = new Element("Institution");
 					institutesNode.addContent(userNode);
 					userNode.setAttribute("idInstitution", institute.getIdInstitution().toString());  
-					userNode.setAttribute("name", institute.getInstitution());
+          userNode.setAttribute("name", institute.getInstitution());
+          userNode.setAttribute("isDefault", institute.getIsDefault());
 				}
 
 			}
