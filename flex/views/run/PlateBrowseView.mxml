@@ -129,6 +129,7 @@
 					return params;
 				}
 				
+				params.plateName = parentDocument.requestNoLookupField.text != null ? parentDocument.requestNoLookupField.text : '' ;
 				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
