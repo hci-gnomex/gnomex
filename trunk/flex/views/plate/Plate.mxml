@@ -15,7 +15,7 @@
 			import views.renderers.WellContainer;
 			
 			[Bindable]
-			public var idPlate:int              = 0;
+			public var idPlate:int              = -1;
 			[Bindable]
 			public var plateObject:Object;
 			public var plateName:String			= "";
@@ -40,7 +40,7 @@
 			public function resetPlate():void {
 				
 				removeAllWells();
-				idPlate = 0;
+				idPlate = -1;
 				plateName = "";
 				label = "";
 				comments = "";
@@ -449,6 +449,15 @@
 				}
 			}
 			
+			public function getEmptyWellCount():int {
+				var count:int = 0;
+				for each ( var well:WellContainer in getWells()) {
+						if (  well.isControl != "Y" && !well.hasSample ) {
+							count++;
+						}
+				}
+				return count;
+			}
 			
 			// Function to assign all the wells an index number, this
 			// will be done either column or row-wise.

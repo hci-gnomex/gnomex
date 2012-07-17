@@ -44,7 +44,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
   private Document              wellsDoc;
   private PlateWellParser       wellParser;
 
-  private int                   quadrant = 0;
+  private int                   quadrant = -1;
   private String                createDateStr = null;
   private String                comments = null;
   private String                label = null;
@@ -57,7 +57,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
   
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    if (request.getParameter("idPlate") != null && !request.getParameter("idPlate").equals("")) {
+    if (request.getParameter("idPlate") != null && !request.getParameter("idPlate").equals("-1")) {
       idPlate = Integer.parseInt(request.getParameter("idPlate"));
       isNew = false;
     } 
@@ -134,7 +134,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
           plate.setIdInstrumentRun(idInstrumentRun);
           plate.setQuadrant(quadrant);
         } else {
-          plate.setQuadrant(0);
+          plate.setQuadrant(-1);
         }
 
         java.util.Date createDate = null;
