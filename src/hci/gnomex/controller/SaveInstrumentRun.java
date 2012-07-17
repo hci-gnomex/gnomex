@@ -230,6 +230,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     for(Iterator i1 = plates.iterator(); i1.hasNext();) {
       Plate plate = (Plate)i1.next();
       plate.setIdInstrumentRun( null );
+      plate.setQuadrant( -1 );
       sess.flush();
     }
    
