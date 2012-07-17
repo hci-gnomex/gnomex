@@ -775,6 +775,19 @@
 					<mx:DataGridColumn dataField="@sampleName" visible="{currentState == 'userState'}"
 									   headerText="Sample"
 									   width="60" minWidth="15" />
+						
+					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{!this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
+									   width="90" minWidth="75" id="releasedCheckBox">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+									<mx:Image source="{data.@releaseDate != '' ? parentApplication.iconCheck : ''}">
+									</mx:Image> 
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+						
 					
 					<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
 									   headerText="Released"
