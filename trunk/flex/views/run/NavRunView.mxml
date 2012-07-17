@@ -171,6 +171,25 @@
 				}
 			}
 			
+			private function setDefaultButton():void {
+				if ( this.requestNoLookupField.text != '' ) {
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					this.lastYearCheckboxCreated.selected  = false;
+					
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					this.allCheckbox.selected = false;
+					
+					this.reactionCheckbox.selected = false;
+					this.sourceCheckbox.selected = false;
+						
+				}
+			}
+			
 			
 		]]>
 	</mx:Script> 
@@ -477,6 +496,30 @@
 							</mx:click>
 						</mx:CheckBox>
 						
+					</mx:HBox>
+					
+					<mx:VRule height="20" includeInLayout="{theViews.selectedChild == plateBrowseView}" visible="{theViews.selectedChild == plateBrowseView}"/>
+					
+					<mx:HBox horizontalGap="0" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+							 visible="{theViews.selectedChild == plateBrowseView}" paddingLeft="2" paddingRight="0"
+							 horizontalAlign = "right" verticalAlign="middle">
+						
+						<mx:Label text="Plate Name:" />
+						
+						<mx:TextInput id="requestNoLookupField"
+									  fontSize="9"
+									  height="20"
+									  width="60"
+									  change="{setDefaultButton()}" />
+						
+						<mx:Button id="lookupButton"
+								   fontFamily="Arial"
+								   height="18"
+								   width="20"
+								   color="#400040"
+								   visible="true"
+								   icon="@Embed('../../assets/arrow_right.png')"
+								   click="{if (requestNoLookupField.text != '') this.getList()}" />
 					</mx:HBox>
 					
 				</mx:HBox>
