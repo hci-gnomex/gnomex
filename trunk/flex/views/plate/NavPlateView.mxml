@@ -512,6 +512,7 @@
 						plateWell.@wellPosition = wc.row + (wc.col < 10 ? '0' + wc.col : wc.col.toString());
 						plateWell.@sampleName =   wc.sampleName;
 						plateWell.@idSample = wc.idSample;
+						plateWell.@idRequest = wc.idRequest;
 						samplesOnPlate.push( plateWell );
 					}
 				}
@@ -571,6 +572,7 @@
 						plateWell.@wellPosition = wc.row + (wc.col < 10 ? '0' + wc.col : wc.col.toString());
 						plateWell.@sampleName =  wc.sampleName;
 						plateWell.@idSample = wc.idSample;
+						plateWell.@idRequest = wc.idRequest;
 						samplesOnPlate.push( plateWell );
 						submitDate.text = wc.submitDate;
 						submitter.text = wc.submitter;
@@ -631,6 +633,7 @@
 						plateWell.@wellPosition = well.row + (well.col < 10 ? '0' + well.col : well.col.toString());
 						plateWell.@sampleName = well.sampleName;
 						plateWell.@idSample = well.idSample;
+						plateWell.@idRequest = well.idRequest;
 						samplesOnPlate.push( plateWell );
 					}
 				}
@@ -1916,6 +1919,7 @@
 									plateWell.@wellPosition = well.row + (well.col < 10 ? '0' + well.col : well.col.toString());
 									plateWell.@sampleName = well.sampleName;
 									plateWell.@idSample = well.idSample;
+									plateWell.@idRequest = well.idRequest;
 									samplesOnPlate.push( plateWell );
 								}
 							}
@@ -1932,6 +1936,7 @@
 										pWell.@wellPosition = well.row + (well.col < 10 ? '0' + well.col : well.col.toString());
 										pWell.@sampleName = well.sampleName;
 										pWell.@idSample = well.idSample;
+										pWell.@idRequest = well.idRequest;
 										samplesOnPlate.push( pWell );
 									}
 								}
@@ -1952,6 +1957,7 @@
 										pw.@wellPosition = well.row + (well.col < 10 ? '0' + well.col : well.col.toString());
 										pw.@sampleName = well.sampleName;
 										pw.@idSample = well.idSample;
+										pw.@idRequest = well.idRequest;
 										samplesOnPlate.push( pw );
 									}
 								}
@@ -3239,6 +3245,8 @@
 														   dataField = "@wellPosition" />
 										<mx:DataGridColumn textAlign = "center"
 														   dataField = "@sampleName" />
+										<mx:DataGridColumn textAlign = "center"
+														   dataField = "@idRequest" />
 									</mx:columns>
 								</mx:DataGrid>
 
@@ -3454,6 +3462,8 @@
 													   dataField = "@wellPosition" />
 									<mx:DataGridColumn textAlign = "center"
 													   dataField = "@sampleName" />
+									<mx:DataGridColumn textAlign = "center"
+													   dataField = "@idRequest" />
 								</mx:columns>
 							</mx:DataGrid>
 						</mx:HBox>
@@ -3504,6 +3514,8 @@
 													   dataField = "@wellPosition" />
 									<mx:DataGridColumn textAlign = "center"
 													   dataField = "@sampleName" />
+									<mx:DataGridColumn textAlign = "center"
+													   dataField = "@idRequest" />
 								</mx:columns>
 							</mx:DataGrid>
 						</mx:HBox>
