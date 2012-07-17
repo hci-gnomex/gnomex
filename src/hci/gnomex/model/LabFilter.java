@@ -165,7 +165,7 @@ public class LabFilter extends DetailObject {
     if (secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       // No criteria needed if this is a super users
       
-    } if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    } else if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       
       // Filter to show only labs associated with core facilities this admin manages
       if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
