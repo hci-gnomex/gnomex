@@ -31,7 +31,7 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class CapSeqPlugin implements BillingPlugin {
+public class CapSeqTubePlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
@@ -43,12 +43,24 @@ public class CapSeqPlugin implements BillingPlugin {
       return billingItems;
     }
     
-    // Count number of samples.
+    // Count number of samples, detect if samples submitted in plate wells
     int qty = 0;
-    HashMap<String, Integer> plateMap = new HashMap<String, Integer>();
+    boolean sampleInPlateWell = false;
     for (Sample s : samples) {
       qty++;
+      if (s.getWells() != null) {
+        for (PlateWell w : (Set<PlateWell>)s.getWells()) {
+          if (w.getPlate() != null && w.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+            sampleInPlateWell = true;
+          }
+        }
+      }
     }
+    // This billing plug-in only applies for samples submitted in tubes
+    if (sampleInPlateWell) {
+      return billingItems;
+    }
+
     
     // Find the price for capillary sequencing
     Price price = null;
