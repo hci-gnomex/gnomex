@@ -205,11 +205,11 @@ package views.renderers {
 				
 				str += '\rSample: ' + sampleName;
 				str += '\rRequest #: ' + groupId;
-				if ( sample != null && sample.@description != null ){
-					str += '\rSample Desc: ' + sample.@description;
+				
+			} else if ( plateView != null ) {
+				if ( plateView.currentState.substr(0, 4) != 'view' && plateView.buildState != 'RUN' ) {
+					str += 'Click to toggle control';
 				}
-			} else {
-				str += 'Click to toggle control';
 			}
 			return str;
 		}
