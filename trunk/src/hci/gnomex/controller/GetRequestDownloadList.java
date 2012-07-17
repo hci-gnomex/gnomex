@@ -662,7 +662,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         // Hide that the files are in the upload staging directory.  Show them in the root experiment directory instead.
         String zipEntryName = Request.getBaseRequestNumber(requestNumber) + File.separator + f1.getName();
 
-        FileDescriptor fdesc = new FileDescriptor(Request.getBaseRequestNumber(requestNumber), f1.getName(), f1, zipEntryName);
+        FileDescriptor fdesc = new FileDescriptor(requestNumber, f1.getName(), f1, zipEntryName);
         fdesc.setDirectoryName("");
         fdesc.excludeMethodFromXML("getChildren");
 
