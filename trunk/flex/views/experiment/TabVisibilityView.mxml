@@ -59,7 +59,12 @@
 				this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
 				this.privacyExpirationPicker.text = parentDocument.request.@privacyExpirationDate;
 			} else {
-				this.visibilityRadioGroup.selectedValue = 'MEM';
+				if(parentDocument.request.@codeVisibility != null && parentDocument.request.@codeVisibility != '') {
+					this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
+				} else {
+					this.visibilityRadioGroup.selectedValue = 'MEM';
+				}
+				
 				if(parentApplication.isPrivacyExpirationSupported) {
 					var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
 					privacyExpirationPicker.text = parentApplication.formatDate(expireDate);
@@ -104,13 +109,18 @@
 					}
 				} else {
 					var hasDefault:Boolean = false;
-					for each(inst in possibleInstitutions) {
-						if (inst.@isDefault == 'Y') {
-							this.institutionCombo.selectedItem =  inst;
-							hasDefault = true;
-							break;
-						}
-					}
+					if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+						for each(inst in possibleInstitutions) {
+							if (inst.@isDefault == 'Y') {
+								this.institutionCombo.selectedItem =  inst;
+								hasDefault = true;
+								break;
+							}
+						}	
+					} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+						// Default to Member if institution selected but not enabled
+						this.visibilityRadioGroup.selectedValue = 'MEM';					
+					}					
 					if(!hasDefault) {
 						this.institutionCombo.selectedIndex = 0;
 					}	

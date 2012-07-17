@@ -56,6 +56,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        TOPICS_SUPPORTED                    = "topics_supported";
   public static final String        DATATRACK_FILESERVER_URL            = "datatrack_fileserver_url";
   public static final String        DATATRACK_FILESERVER_WEB_CONTEXT    = "datatrack_fileserver_web_context";
+  public static final String        DEFAULT_VISIBILITY_EXPERIMENT       = "default_visibility_experiment";
+  public static final String        DEFAULT_VISIBILITY_ANALYSIS         = "default_visibility_analysis";
+  public static final String        DEFAULT_VISIBILITY_DATATRACK        = "default_visibility_datatrack";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";

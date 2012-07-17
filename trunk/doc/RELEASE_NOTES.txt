@@ -29,6 +29,7 @@
 * Renamed 'Submit Request' to 'New Order' (tdisera)
 * Fill in experiment name as username-request# if name not provided (tdisera)
 * Show experiment name on Info tab of Experiment detail (tdisera)
+* Added default_visibility_analysis, default_visibility_datatrack, and default_visibility_experiment properties for setting default visibility. (rcundick) 
 
 
 

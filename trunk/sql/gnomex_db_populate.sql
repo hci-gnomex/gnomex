@@ -853,7 +853,10 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (78, 'datatrack_supported','Y','Indicates if data track feature is supported', 'N'),
  (79, 'topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N'),
  (80, 'datatrack_fileserver_url','http://yourservername:8080/das2gnomex/','The URL from Apache Tomcat where the data track files will be served', 'N'),
- (81, 'datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N');
+ (81, 'datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N'),
+ (82, 'default_visibility_analysis','','Default visibility for new Analysis. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ (83, 'default_visibility_datatrack','','Default visibility for new Data Track. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ (84, 'default_visibility_experiment','','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
  
 
 

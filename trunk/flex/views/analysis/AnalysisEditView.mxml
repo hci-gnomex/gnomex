@@ -861,15 +861,30 @@
 					
 					this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
 					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
-					if (analysis.@idInstitution != null) {
+					if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
 						for each(var inst:Object in possibleInstitutions) {
 							if (inst.@idInstitution == analysis.@idInstitution) {
 								this.institutionCombo.selectedItem =  inst;
 								break;
 							}
 						}
-					} else {
-						this.institutionCombo.selectedIndex = 0;
+					} else {		
+						var hasDefault:Boolean = false;
+						if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+							for each(inst in possibleInstitutions) {
+								if (inst.@isDefault == 'Y') {
+									this.institutionCombo.selectedItem =  inst;
+									hasDefault = true;
+									break;
+								}
+							}	
+						} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+							// Default to Member if institution selected but not enabled
+							this.visibilityRadioGroup.selectedValue = 'MEM';					
+						}					
+						if(!hasDefault) {
+							this.institutionCombo.selectedIndex = 0;
+						}						
 					}
 					
 					var lab:Object = getLab.lastResult..Lab.(@idLab == analysis.@idLab);

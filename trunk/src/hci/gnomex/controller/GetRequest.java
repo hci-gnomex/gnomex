@@ -47,6 +47,7 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Primer;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
@@ -111,6 +112,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request.canDelete(true);
         request.canUpdate(true);
         request.setCanDeleteSample(true);
+        
+        PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+        String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_EXPERIMENT);
+        if (defaultVisibility != null && defaultVisibility.length() > 0) {
+          request.setCodeVisibility(defaultVisibility);
+        }
+
       } else if (idRequest != null) {
         request = (Request)sess.get(Request.class, idRequest);
       } else {

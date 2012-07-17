@@ -10,8 +10,10 @@ import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
@@ -44,6 +46,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -265,7 +268,28 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       Analysis analysis = null;
       if (isNewAnalysis) {
         analysis = analysisScreen;
-        analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+        
+        PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+        String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_ANALYSIS);
+        if (defaultVisibility != null && defaultVisibility.length() > 0) {
+          analysis.setCodeVisibility(defaultVisibility);
+          if(defaultVisibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
+            if (analysis.getIdLab() != null) {
+              Lab lab = (Lab)sess.load(Lab.class, analysis.getIdLab());
+              Hibernate.initialize(lab.getInstitutions());
+              Iterator it = lab.getInstitutions().iterator();
+              while(it.hasNext()) {
+                Institution thisInst = (Institution) it.next();
+                if(thisInst.getIsDefault().compareTo("Y") == 0) {
+                  analysis.setIdInstitution(thisInst.getIdInstitution());            
+                }
+              }
+            }
+          }
+        } else {
+          analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+        }
+        
         analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());
         analysis.setIdSubmitter(this.getSecAdvisor().getIdAppUser());
       } else {

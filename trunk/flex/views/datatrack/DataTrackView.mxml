@@ -108,13 +108,36 @@
 				this.dataTrackOwnerStack.selectedIndex = 1;
 				this.dataTrackLabStack.selectedIndex = getDataTrack.lastResult.@canWrite == 'Y' ? 0 : 1;
 			}
+			
 			this.visibilityRadioGroup.selectedValue = getDataTrack.lastResult.@codeVisibility;
-			for each(var institute:Object in possibleInstitutions) {
-				if (institute.@idInstitution == getDataTrack.lastResult.@idInstitution.toString()) {
-					instituteCombo.selectedItem = institute;
-					break;
-				}
-			} 
+			this.instituteCombo.enabled = this.possibleInstitutions.length > 1;
+			if (getDataTrack.lastResult.@idInstitution != null && getDataTrack.lastResult.@idInstitution != '') {
+				for each(var institute:Object in possibleInstitutions) {
+					if (institute.@idInstitution == getDataTrack.lastResult.@idInstitution.toString()) {
+						instituteCombo.selectedItem = institute;
+						break;
+					}
+				} 
+			} else {		
+				var hasDefault:Boolean = false;
+				if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+					for each(var inst:Object in possibleInstitutions) {
+						if (inst.@isDefault == 'Y') {
+							this.instituteCombo.selectedItem =  inst;
+							hasDefault = true;
+							break;
+						}
+					}	
+				} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+					// Default to Member if institution selected but not enabled
+					this.visibilityRadioGroup.selectedValue = 'MEM';					
+				}					
+				if(!hasDefault) {
+					this.instituteCombo.selectedIndex = 0;
+				}						
+			}			
+			
+			
 			labCombo.selectedItem = null;
 			for each(var l:XML in parentApplication.promptedLabList) {
 				if (l.@idLab == getDataTrack.lastResult.@idLab.toString()) {

@@ -7,6 +7,8 @@ import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Institution;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpSession;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 
@@ -375,6 +378,23 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
     // Assign a file directory name
     dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
+    
+    if(dataTrack.getCodeVisibility().compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
+      if (dataTrack.getIdLab() != null) {
+        Lab lab = (Lab)sess.load(Lab.class, dataTrack.getIdLab());
+        Hibernate.initialize(lab.getInstitutions());
+        Iterator it = lab.getInstitutions().iterator();
+        while(it.hasNext()) {
+          Institution thisInst = (Institution) it.next();
+          if(thisInst.getIsDefault().compareTo("Y") == 0) {
+            dataTrack.setIdInstitution(thisInst.getIdInstitution());            
+          }
+        }
+      }
+    }    
+    
+    
+    
     sess.flush();
 
     return dataTrack;
