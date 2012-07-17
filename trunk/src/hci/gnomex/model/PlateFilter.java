@@ -13,6 +13,8 @@ public class PlateFilter extends DetailObject {
   private Integer               idPlate;
   private Integer               idInstrumentRun;
   
+  private String                plateName;
+  
   private String                getAll = "N";
   private String                notAddedToARun = "N";
 
@@ -57,6 +59,7 @@ public class PlateFilter extends DetailObject {
     boolean hasLimitingCriteria = false;
     if (idPlate != null ||
         idInstrumentRun != null ||
+        (plateName != null && !plateName.equals("")) ||
         (status != null && !status.equals("")) ||
         (plateType != null && !plateType.equals("")) ||
         (codeReactionType != null && !codeReactionType.equals("")) ||
@@ -96,7 +99,14 @@ public class PlateFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" p.idPlate =");
       queryBuf.append(idPlate);
-    } 
+    }
+    
+    if (plateName != null && !plateName.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" p.label like '");
+      queryBuf.append(plateName);
+      queryBuf.append("%'");
+    }
 
     if (idInstrumentRun != null){
       this.addWhereOrAnd();
@@ -306,6 +316,14 @@ public class PlateFilter extends DetailObject {
 
   public void setCodePlateType(String codePlateType) {
     this.plateType = codePlateType;
+  }
+
+  public String getPlateName() {
+    return plateName;
+  }
+
+  public void setPlateName(String plateName) {
+    this.plateName = plateName;
   }
 
 }
