@@ -177,12 +177,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String requestNumber         = (String)row[0];
         String flowCellNumber        = (String)row[1];
         java.sql.Date createDate     = (java.sql.Date)row[2];
+        Integer idCoreFacility       = (Integer)row[3];
         
         List flowCellFolders = (List)flowCellMap.get(requestNumber);
         if (flowCellFolders == null) {
           flowCellFolders = new ArrayList<FlowCellFolder>();
         }
-        flowCellFolders.add(new FlowCellFolder(requestNumber, flowCellNumber, createDate));
+        flowCellFolders.add(new FlowCellFolder(requestNumber, flowCellNumber, createDate, idCoreFacility));
         
         flowCellMap.put(requestNumber, flowCellFolders); 
       }
@@ -443,7 +444,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               String theCreateYear  = dateTokens[2];
               String sortDate = theCreateYear + createMonth + createDay;      
 
-              String fcKey = theCreateYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+              String fcKey = theCreateYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + fcFolder.getIdCoreFacility() + "-" + dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
               String fcCodeRequestCategory = row[2] == null ? "" : (String)row[2];
               
               Element n1 = new Element("RequestDownload");
@@ -543,36 +544,39 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     List requestNumbers = new ArrayList<String>();
     GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, key, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
     List directoryKeys   = (List)requestMap.get(requestNumber);
-    for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
-      String directoryKey = (String)i1.next();
-      String[] dirTokens = directoryKey.split("-");
-      String directoryName = dirTokens[1];
+    if (directoryKeys != null) {
+      for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+        String directoryKey = (String)i1.next();
+        String[] dirTokens = directoryKey.split("-");
+        String directoryName = dirTokens[1];
 
-      
-      List   theFiles     = (List)directoryMap.get(directoryKey);
-
-      // For each file in the directory
-      if (theFiles != null && theFiles.size() > 0) {
-        for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-          FileDescriptor fd = (FileDescriptor) i2.next();
-          fd.setDirectoryName(directoryName);
-          fd.excludeMethodFromXML("getChildren");
-          
-          Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
-          fdNode.setAttribute("isSelected", "N");
-          fdNode.setAttribute("state", "unchecked");
-          recurseAddChildren(fdNode, fd);
-          
-          requestDownloadNode.addContent(fdNode);
-          requestDownloadNode.setAttribute("isEmpty", "N");
-          requestNode.setAttribute("isEmpty", "N");
-        }
         
-      } else {
-        if (!requestDownloadNode.hasChildren()) {
-          requestDownloadNode.setAttribute("isEmpty", "Y");
+        List   theFiles     = (List)directoryMap.get(directoryKey);
+
+        // For each file in the directory
+        if (theFiles != null && theFiles.size() > 0) {
+          for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
+            FileDescriptor fd = (FileDescriptor) i2.next();
+            fd.setDirectoryName(directoryName);
+            fd.excludeMethodFromXML("getChildren");
+            
+            Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
+            fdNode.setAttribute("isSelected", "N");
+            fdNode.setAttribute("state", "unchecked");
+            recurseAddChildren(fdNode, fd);
+            
+            requestDownloadNode.addContent(fdNode);
+            requestDownloadNode.setAttribute("isEmpty", "N");
+            requestNode.setAttribute("isEmpty", "N");
+          }
+          
+        } else {
+          if (!requestDownloadNode.hasChildren()) {
+            requestDownloadNode.setAttribute("isEmpty", "Y");
+          }
         }
       }
+      
     }
     
   }
@@ -901,15 +905,18 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     private String        requestNumber;
     private String        flowCellNumber;
     private java.sql.Date createDate;
+    private Integer       idCoreFacility;
     
     
     public FlowCellFolder(String requestNumber,
                           String flowCellNumber,
-                          Date createDate) {
+                          Date createDate,
+                          Integer idCoreFacility) {
       super();
       this.requestNumber = requestNumber;
       this.flowCellNumber = flowCellNumber;
       this.createDate = createDate;
+      this.idCoreFacility = idCoreFacility;
     }
 
 
@@ -942,6 +949,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
     public void setRequestNumber(String requestNumber) {
       this.requestNumber = requestNumber;
+    }
+
+
+    public Integer getIdCoreFacility() {
+      return idCoreFacility;
     }
     
   }
