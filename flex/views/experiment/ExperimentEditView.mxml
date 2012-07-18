@@ -1574,7 +1574,7 @@
 		private function filterMicroarrayApplication(item:Object):Boolean {
 			var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
 
-			if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA" || codeRequestCategory == 'HISEQ') {
+			if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA" || codeRequestCategory == 'HISEQ' || codeRequestCategory == 'MISEQ') {
 				codeRequestCategory = "AGIL";
 			}
 			if (item.@value == "") {
@@ -2005,6 +2005,7 @@
 			
 			if (requestCategory.@type == 'ILLUMINA') {
 				currentState = request.@isExternal == 'Y' ? 'SeqExternalEditState' : 'SolexaEditState';
+
 				this.annotationView.checkSecurity();			
 				if (parentApplication.hasPermission("canWriteAnyObject")) { 
 					samplesView.currentState = 'SolexaSamplesAdminState';						
@@ -2137,9 +2138,9 @@
 					theTab.addChild(billingTab);
 				}
 			}
+			
 			initializeControls();
 			
-
 			if (this.isMicroarrayState() && this.request.@isExternal != 'Y') {
 				assignSlideNumbers();	
 			}

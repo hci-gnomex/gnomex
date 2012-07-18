@@ -166,7 +166,8 @@
 				
 			} else if (this.selectedExperiment.@isExternal != 'Y' &&
 				       (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
-			           this.selectedExperiment.@codeRequestCategory == 'HISEQ')) {
+			           this.selectedExperiment.@codeRequestCategory == 'HISEQ' ||
+					   this.selectedExperiment.@codeRequestCategory == 'MISEQ')) {
 				currentState = 'SolexaState';
 			} else if (requestCategory.@type == 'MICROARRAY') {
 				if (this.selectedExperiment.@isExternal != 'Y') {

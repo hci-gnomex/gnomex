@@ -100,10 +100,16 @@
 			maxFlowCellCount = maxFlowCells;
 			if(codeStepNext == 'SEQASSEM') {
 				titleLabel.text = 'Illumina GAIIx Cluster Gen';
+				hboxGroupSide.visible = true;
+				hboxGroupSide.includeInLayout = true;
 			} else if (codeStepNext == 'HSEQASSEM') {
 				titleLabel.text = 'Illumina HiSeq Cluster Gen';
+				hboxGroupSide.visible = true;
+				hboxGroupSide.includeInLayout = true;
 			} else if (codeStepNext == 'MISEQASSEM') {
 				titleLabel.text = 'Illumina MiSeq Cluster Gen';
+				hboxGroupSide.visible = false;
+				hboxGroupSide.includeInLayout = false;
 			}
 			controlsGrid.dataProvider = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SequencingControl'); 
         }
@@ -151,13 +157,15 @@
     	
     	private function save():void {
     		// Prevent save if max flow cell channels exceeded.
-    		if (dirtyChannelWorkList.length > 0) {
-	    		var lastWorkItem:Object = dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1);
-	    		if (lastWorkItem.@channelNumber > 8) {
-					Alert.show("Max 8 flow cell channels loaded.  Please remove extra lanes");
-					return;				
+			if (dirtyChannelWorkList.length > 0) {
+				var lastWorkItem:Object = dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1);
+				if (lastWorkItem.@channelNumber > maxFlowCellCount) {
+					Alert.show("Max " + maxFlowCellCount + " flow cell channels loaded.  Please remove extra lanes");			
 				}	    			
-    		}
+			}
+			
+			
+			
     		// Prevent save if flow cell barcode is not entered, but items
     		// have been dragged over to flowcell
     		if (dirtyChannelWorkList.length > 0) {
@@ -196,7 +204,7 @@
 			}
 			// Prevent save if side is not entered, but
 			// items have been draddged over to flowcell
-			if (dirtyChannelWorkList.length > 0) {
+			if (!(codeStepNext == 'MISEQASSEM') && dirtyChannelWorkList.length > 0) {
 				if (this.radiogroupSide.selectedValue == null || this.radiogroupSide.selectedValue == "") {
 					this.radioSideA.setFocus();
 					Alert.show("Please choose the side");
@@ -288,24 +296,29 @@
         	}        	
         }     
     	private function validateNumberOfLanes():void {
-    		if (dirtyChannelWorkList.length < 8) {
-    			warningMessage = "Not all 8 channels are populated.\n\n";
-    			isValid = false;
-    		}
+			if (dirtyChannelWorkList.length < maxFlowCellCount) {
+				if(maxFlowCellCount > 1) {
+					warningMessage = "Not all " + maxFlowCellCount + " channels are populated.\n\n";
+				} else {
+					warningMessage = "The channel is not populated.\n\n";
+				}
+				isValid = false;
+			}					
     	}
     	
     	private function validateSequencingControl():void {
     		var theItem:Object;
     		var item:Object;
     		var controlCount:int = 0;
-	       // Make sure at least one sequencing control specified
-	       for each (theItem in dirtyChannelWorkList) {
+	       
+			// Make sure at least one sequencing control specified
+	       	for each (theItem in dirtyChannelWorkList) {
 	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
 	       			controlCount++;
 	       		} else if (theItem != null && theItem.hasOwnProperty("@isControl") && theItem.@isControl != null && theItem.@isControl == "true") {
 					controlCount++;
 				}
-	       }
+	       	}
    			if (controlCount == 0) {
    				warningMessage += "No sequencing control specified for any of the channels.\n\n";
    			}
@@ -315,8 +328,9 @@
     		var theItem:Object;
     		var item:Object;
     		var invalidCount:int = 0;
-	       //Warn if different flow cell type 
-	       for each (theItem in dirtyChannelWorkList) {
+			
+	       	//Warn if different flow cell type 
+	       	for each (theItem in dirtyChannelWorkList) {
 	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
 	       			continue;
 	       		}
@@ -334,7 +348,7 @@
 	       		if (invalidCount > 0) {
 	       			break;
 	       		}
-	       }
+	       	}
 
     	}    	
     	
@@ -916,7 +930,7 @@
 									 labelField="@display"
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}">
 						</mx:ComboBox>
-						<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
+						<mx:HBox id="hboxGroupSide" paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
 							<mx:RadioButtonGroup id="radiogroupSide"/>
 							<mx:RadioButton groupName="radiogroupSide" label="Side A" styleName="labelSmall" id="radioSideA" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" verticalGap="0" value="A">
 							</mx:RadioButton>

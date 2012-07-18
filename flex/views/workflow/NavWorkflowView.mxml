@@ -162,6 +162,7 @@
         private function onTabChange():void {
         	if (this.navBar.selectedChild == this.solexaTab) {
         		this.flowCellView.codeSequencingPlatform = "GAIIX";
+				this.flowCellView.titleLabel.text = 'Illumina GAIIx Flow Cells';
         		this.flowCellView.lookupField.text = '';
         		this.flowCellView.lastThreeMonthsCheckbox.selected = true;
         		this.flowCellView.toggleDateCheckboxes(3);
@@ -171,6 +172,7 @@
         		this.detailViews.selectedChild = this.solexaViews;
 			} else if (this.navBar.selectedChild == this.hiSeqTab) {
 				this.flowCellView.codeSequencingPlatform = "HISEQ";
+				this.flowCellView.titleLabel.text = 'Illumina HiSeq 2000 Flow Cells';
 				this.flowCellView.lookupField.text = '';
 				this.flowCellView.lastThreeMonthsCheckbox.selected = true;
 				this.flowCellView.toggleDateCheckboxes(3);
@@ -180,6 +182,7 @@
 				this.detailViews.selectedChild = this.hiSeqViews;
 			} else if (this.navBar.selectedChild == this.miSeqTab) {
 				this.flowCellView.codeSequencingPlatform = "MISEQ";
+				this.flowCellView.titleLabel.text = 'Illumina MiSeq Flow Cells';
 				this.flowCellView.lookupField.text = '';
 				this.flowCellView.lastThreeMonthsCheckbox.selected = true;
 				this.flowCellView.toggleDateCheckboxes(3);
