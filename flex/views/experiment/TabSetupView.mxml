@@ -11,7 +11,7 @@
 					</mx:Text>
 					<mx:ComboBox dataProvider="{appUsers}" 
 								 selectedIndex="-1" labelField="@displayName" 
-								 id="appUserCombo" width="400" close="{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}">
+								 id="appUserCombo" width="400" close="{idAppUser = appUserCombo.selectedItem.@idAppUser;selectDefaultUserProject();checkSetupCompleteness()}">
 						<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
 					</mx:ComboBox>
 				</mx:HBox>
@@ -468,8 +468,23 @@
 				if (parentDocument != null && !parentDocument.isAmendState()) {
 					parentDocument.filteredProjectList.refresh();	        	
 				}
+				
+				selectDefaultUserProject();
 				this.checkSetupCompleteness();
 				
+				
+			}
+			
+			private function selectDefaultUserProject():void {
+				// Default the project dropdown to the the project owned by the user
+				if (idAppUser != null) {
+					for each(var project:Object in parentDocument.filteredProjectList) {
+						if (project.@idAppUser.toString() == idAppUser.toString()) {
+							this.projectCombo.selectedItem = project;
+							break;
+						}
+					}
+				}
 				
 			}
 			

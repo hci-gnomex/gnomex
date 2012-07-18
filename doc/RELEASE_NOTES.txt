@@ -33,7 +33,7 @@
 * Fix confirmation emails for DNA Sequencing request categories.  (bspiglejr)
 * Do not show DNA Sequencing request categories when adding services.  (bspiglejr)
 * Sample upload files are now spread sheets with instructions in header to save as tab delimited files.  (bspiglejr)
-
+* Select default user project on Submit Request window, setup tab.  When Lab is saved, save a default project for every lab member and manager. (tdisera)
 
 5.4.5 (July 1, 2012)
 ---------------------
