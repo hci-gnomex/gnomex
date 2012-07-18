@@ -826,6 +826,9 @@
 
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = '';
+				if (this.samples != null && this.samples.length > 0) {
+					this.samples.removeAll();
+				}
 				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				sampleSetupView.enabled = false;
