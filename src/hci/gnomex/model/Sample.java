@@ -242,6 +242,7 @@ public class Sample extends HibernateDetailObject {
     this.excludeMethodFromXML("getASourceWell");
     this.excludeMethodFromXML("getSourceWells");
     this.excludeMethodFromXML("getAssays");
+    this.excludeMethodFromXML("getADestinationWell");
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
@@ -704,5 +705,17 @@ public class Sample extends HibernateDetailObject {
       }
     }
     return assays;
+  }
+
+  public PlateWell getADestinationWell() {
+    PlateWell well = null;
+    for (Iterator i = getWells().iterator(); i.hasNext();) {
+      PlateWell w = (PlateWell)i.next();
+      if (w.getIdPlate() == null || w.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+        well = w;
+        break;
+      }
+    }
+    return well;
   }
 }

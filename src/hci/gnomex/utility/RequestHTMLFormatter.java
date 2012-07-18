@@ -260,6 +260,11 @@ public class RequestHTMLFormatter {
           this.addHeaderCell(rowh, (String)i.next(), rowSpan, new Integer(1));
         }
       }
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+        this.addHeaderCell(rowh, "Source Plate", rowSpan, new Integer(1));
+        this.addHeaderCell(rowh, "Source Well", rowSpan, new Integer(1));
+        this.addHeaderCell(rowh, "Destination Well", rowSpan, new Integer(1));
+      }
     }
     if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (showBarcodeTag) {
@@ -384,6 +389,12 @@ public class RequestHTMLFormatter {
             }
             this.addCell(row, assayFlag);
           }
+        }
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+          PlateWell sourceWell = sample.getASourceWell();
+          this.addCell(row, sourceWell.getPlate().getLabel());
+          this.addCell(row, sourceWell.getWellName());
+          this.addCell(row, sample.getADestinationWell().getWellName());
         }
       }
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {

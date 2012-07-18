@@ -30,7 +30,7 @@
 * Fill in experiment name as username-request# if name not provided (tdisera)
 * Show experiment name on Info tab of Experiment detail (tdisera)
 * Added default_visibility_analysis, default_visibility_datatrack, and default_visibility_experiment properties for setting default visibility. (rcundick) 
-* Fix confirmation email when submitting a Cap Seq request.  (bspiglejr)
+* Fix confirmation emails for DNA Sequencing request categories.  (bspiglejr)
 
 
 
