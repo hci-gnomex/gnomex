@@ -34,6 +34,9 @@
 * Do not show DNA Sequencing request categories when adding services.  (bspiglejr)
 * Sample upload files are now spread sheets with instructions in header to save as tab delimited files.  (bspiglejr)
 * Select default user project on Submit Request window, setup tab.  When Lab is saved, save a default project for every lab member and manager. (tdisera)
+* Added ability to remove a single plate from a run. (mbowler)
+* Added ability to toggle between plates from run tree. (mbowler)
+* Added redo status notification, run name, plate name, and idPlateWell to chromatogram detail view. (mbowler)
 
 5.4.5 (July 1, 2012)
 ---------------------
