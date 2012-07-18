@@ -32,6 +32,7 @@
 * Added default_visibility_analysis, default_visibility_datatrack, and default_visibility_experiment properties for setting default visibility. (rcundick) 
 * Fix confirmation emails for DNA Sequencing request categories.  (bspiglejr)
 * Do not show DNA Sequencing request categories when adding services.  (bspiglejr)
+* Sample upload files are now spread sheets with instructions in header to save as tab delimited files.  (bspiglejr)
 
 
 5.4.5 (July 1, 2012)
