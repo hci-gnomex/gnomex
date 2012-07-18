@@ -103,7 +103,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
           sess.save(ir);
           creator = this.getSecAdvisor().getIdAppUser().toString();
           ir.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-
+          ir.setCodeInstrumentRunStatus( InstrumentRunStatus.PENDING );
         } else {
           ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
         }

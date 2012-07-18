@@ -9,6 +9,7 @@ import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
@@ -72,6 +73,7 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
 
         Document doc = new Document(new Element("RunList"));
 
+        ir.excludeMethodFromXML( "getInstrumentRunStatus" );
         Element iNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
         String creator = ir.getCreator();
@@ -106,7 +108,8 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
           for(Iterator i1 = plateWells.iterator(); i1.hasNext();) {
             PlateWell plateWell = (PlateWell)i1.next();
             plateWell.excludeMethodFromXML("getPlate");
-
+            plateWell.excludeMethodFromXML( "getSample" );
+            
             Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
             if ( plateWell.getAssay() != null ) {
@@ -115,22 +118,30 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
               node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
             }
 
+            // Add Request information
             if ( plateWell.getIdRequest() != null ) {
-              String idRequestString = plateWell.getIdRequest().toString();
-              if ( idRequestString != null && !idRequestString.equals("")) {
-                Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+              Request request = (Request) sess.get(Request.class, plateWell.getIdRequest());
                 if ( request != null ) {
                   node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
                   node.setAttribute("requestSubmitter", request.getOwnerName());
-
                 }
-              }
             }
+            // Add sample
+            if ( plateWell.getSample() != null ) {
+              Sample sample = plateWell.getSample();
+              sample.excludeMethodFromXML( "getASourceWell" );
+              sample.excludeMethodFromXML( "getSourceWells" );
+              sample.excludeMethodFromXML( "getAssays" );
+              sample.excludeMethodFromXML( "getADestinationWell" );
+              Element sampleNode = sample.toXMLDocument( null, DetailObject.DATE_OUTPUT_SQL ).getRootElement();
 
+              node.addContent( sampleNode );
+            }
+            
             pwNode.addContent(node);
           }
+          
           pNode.addContent(pwNode);
-
           iNode.addContent(pNode);
         }
 

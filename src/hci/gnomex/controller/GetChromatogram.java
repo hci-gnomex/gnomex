@@ -3,6 +3,9 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Chromatogram;
+import hci.gnomex.model.InstrumentRun;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ChromatTrimUtil;
@@ -102,7 +105,29 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       String comments = chromatReader.getComments();
       int ind1 = comments.indexOf("<");
       int ind2 = comments.indexOf(">");
-      String idPlateWellString = c!=null ? new Integer(c.getIdPlateWell()).toString() : comments.substring(ind1+4, ind2);
+      String idPlateWellString;
+      if ( c != null && c.getIdPlateWell() != null ) {
+        idPlateWellString = (c.getIdPlateWell()).toString();
+      } else {
+        idPlateWellString = comments.substring(ind1+4, ind2);
+      }
+      
+      PlateWell plateWell = (PlateWell) sess.load( PlateWell.class, Integer.valueOf( idPlateWellString ) );
+      String plateName = "";
+      String instrumentRunName = "";
+      String isRedo = "N";
+      
+      if ( plateWell != null ) {
+        isRedo = plateWell.getRedoFlag();
+        Plate plate = plateWell.getPlate();
+        if ( plate!=null && plate.getLabel()!=null ) {
+          plateName = plate.getLabel();
+        } 
+        InstrumentRun instrumentRun = plate.getInstrumentRun();
+        if ( instrumentRun!=null && instrumentRun.getLabel()!=null ) {
+          instrumentRunName = instrumentRun.getLabel();
+        } 
+      }
       
       // Signal Strengths:
       String aSignalStrength = new Integer(chromatReader.getSignalStrengths()[1]).toString();
@@ -117,9 +142,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       String runStart = chromatReader.getStartDate() + "  " + chromatReader.getStartTime();
       String runStop  = chromatReader.getStopDate()  + "  " + chromatReader.getStopTime();
       
-      
-      String idRequest = c!=null && c.getIdRequest()!=null ? new Integer(c.getIdRequest()).toString() : "0";
-      
+     
       Request request = null;
       if (c.getIdRequest() != null) {
          request = (Request)sess.load(Request.class, c.getIdRequest());
@@ -142,7 +165,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("displayName", abiFile.getName());
         chromNode.setAttribute("requestNumber", request != null ? request.getNumber() : "");
         chromNode.setAttribute("wellRowCol", wellRowCol);
-        chromNode.setAttribute("idPlateWell", c.getIdPlateWell() != null ? c.getIdPlateWell().toString() : "");
+        chromNode.setAttribute("idPlateWell", idPlateWellString );
         chromNode.setAttribute("comments", chromatReader.getComments());
         chromNode.setAttribute("readLength", new Integer(chromatReader.getSeq().toString().length()).toString());
         chromNode.setAttribute("signalStrengths", signalStrengths);
@@ -155,7 +178,9 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("spacing", chromatReader.getSpacing());
         chromNode.setAttribute("runStart", runStart);
         chromNode.setAttribute("runStop", runStop);
-        
+        chromNode.setAttribute("runName", instrumentRunName);
+        chromNode.setAttribute("plateName", plateName);
+        chromNode.setAttribute("redoFlag", isRedo);
         
         // SEQUENCE
         if (includeSeqString) {

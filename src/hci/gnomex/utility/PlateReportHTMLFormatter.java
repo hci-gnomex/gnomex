@@ -81,8 +81,8 @@ public class PlateReportHTMLFormatter {
 
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
-    table.addContent(makeRow("Run ID",   runId,
-        "Name",     runLabel));
+    table.addContent(makeRow("Run Name",     runLabel,
+        "Run ID",   runId));
 
     table.addContent(makeRow("Create Date",   createDate,
         "Created By",    creator));
