@@ -1077,5 +1077,24 @@ public class Request extends HibernateDetailObject {
     return RequestCategory.isDNASeqCoreRequestCategory(this.getCodeRequestCategory()) == true ? "Y" : "N";
   }
 
-
+  public Boolean isCapSeqPlate() {
+    Boolean retVal = false;
+    if (this.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+      Sample firstSample = (Sample)this.getSamples().toArray()[0];
+      if (firstSample.getWells() != null) {
+        for(Iterator i = firstSample.getWells().iterator();i.hasNext();) {
+          PlateWell w = (PlateWell)i.next();
+          if (w.getIdPlate() == null) {
+            // null plate only happens for source plate of tube types.
+            retVal = false;
+            break;
+          } else {
+            retVal = true;
+          }
+        }
+      }
+    }
+    return retVal;
+  }
+  
 }

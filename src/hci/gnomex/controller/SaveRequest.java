@@ -1993,7 +1993,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
     }
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), samples, hybs, sequenceLanes, introNote.toString());
+    sess.refresh(requestParser.getRequest());
+    for (Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();) {
+      sess.refresh(i.next());
+    }
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), requestParser.getRequest().getSamples(), hybs, sequenceLanes, introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + 
                   (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") + 
                   requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");

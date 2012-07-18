@@ -638,7 +638,6 @@ public class Sample extends HibernateDetailObject {
   public void setRequest(Request request) {
     this.request = request;
   }
-
   
   /*
    * Added this getter so that XML has attribute @numberSequencingLanes
@@ -663,5 +662,17 @@ public class Sample extends HibernateDetailObject {
 
   public void setIdSampleString(String idSampleString) {
     this.idSampleString = idSampleString;
+  }
+
+  public PlateWell getSourceWell() {
+    PlateWell well = null;
+    for (Iterator i = getWells().iterator(); i.hasNext();) {
+      PlateWell w = (PlateWell)i.next();
+      if (w.getIdPlate() == null || w.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+        well = w;
+        break;
+      }
+    }
+    return well;
   }
 }

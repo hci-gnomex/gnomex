@@ -7,6 +7,7 @@ import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -205,7 +206,6 @@ public class RequestHTMLFormatter {
     
     Element rowh = new Element("TR");
     table.addContent(rowh);
-    
     Integer rowSpan = new Integer(1);
     if (includeMicroarrayCoreNotes) {
       rowSpan = new Integer(2);
@@ -229,10 +229,21 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Multiplex Group", rowSpan, new Integer(1), "left");
     }
     this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), showMultiplexGroup ? "normal" : "left");
+    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+      this.addHeaderCell(rowh, "Container", rowSpan, 1);
+      if (request.isCapSeqPlate()) {
+        this.addHeaderCell(rowh, "Plate", rowSpan, 1);
+        this.addHeaderCell(rowh, "Well",rowSpan, 1);
+      }
+    }
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
-    this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
-    this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
-    this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
+    if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+      this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
+      this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
+      this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
+    } else {
+      this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1));
+    }
     if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (showBarcodeTag) {
         
@@ -323,10 +334,21 @@ public class RequestHTMLFormatter {
         }
       } 
       this.addLeftCell(row, sample.getNumber());
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+        if (request.isCapSeqPlate()) {
+          this.addCell(row, "PLATE");
+          this.addCell(row, sample.getSourceWell().getPlate().getLabel());
+          this.addCell(row, sample.getSourceWell().getWellName());
+        } else {
+          this.addCell(row, "TUBE");
+        }
+      }
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-      this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
-      this.addCell(row, getSamplePrepMethod(sample));
+      if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+        this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
+        this.addCell(row, getSamplePrepMethod(sample));
+      }
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         if (showBarcodeTag) {
           this.addCell(row, sample.getIdOligoBarcode() != null ? DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString()) : (sample.getBarcodeSequence() != null && !sample.getBarcodeSequence().equals("") ? sample.getBarcodeSequence() : "&nbsp;"));          
@@ -1066,6 +1088,5 @@ public class RequestHTMLFormatter {
     maindiv.addContent(pb);
     maindiv.addContent(new Element("BR"));
   }
-
 
 }
