@@ -245,6 +245,21 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     return name;
   }
+  
+  public String getFirstLastDisplayName() {
+    String name = "";
+    if (firstName != null && !firstName.equals("")) {
+      name = firstName;
+    }
+    if (lastName != null && !lastName.equals("")) {
+      if (!name.equals("")) {
+        name += " " ;
+      }
+      name += lastName;
+    }
+    return name;
+  }
+  
   public int compareTo(Object o) {
     if (o instanceof AppUser) {
       AppUser other = (AppUser)o;      

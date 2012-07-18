@@ -10,6 +10,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Project;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountParser;
@@ -27,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.mail.MessagingException;
@@ -349,6 +351,30 @@ public class SaveLab extends GNomExCommand implements Serializable {
           lab.setManagers(managers);
   
           sess.flush();
+          
+          
+          //
+          // Create default user projects
+          //
+          HashMap<Integer, List<Project>> userProjectMap = new HashMap<Integer, List<Project>>();
+          HashMap<Integer, AppUser> userMap = new HashMap<Integer, AppUser>(); 
+          initializeUserProjectMap(userProjectMap, userMap, (Set<AppUser>)lab.getMembers());
+          initializeUserProjectMap(userProjectMap, userMap, (Set<AppUser>)lab.getManagers());
+          hashProjects(userProjectMap, lab);
+          // Now iterate through the hash and create a default project for each user
+          // where one is not present
+          for (Integer idAppUser : userProjectMap.keySet()) {
+            List<Project> defaultProjects = userProjectMap.get(idAppUser);
+            if (defaultProjects == null || defaultProjects.isEmpty()) {
+              Project project = new Project();
+              project.setIdAppUser(idAppUser);
+              project.setIdLab(lab.getIdLab());
+              AppUser theUser = userMap.get(idAppUser);
+              project.setName("Experiments for " + theUser.getFirstLastDisplayName());
+              sess.save(project);
+            }
+          }
+          sess.flush();
   
           //
           // Save core facilities
@@ -427,6 +453,30 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     return this;
+  }
+  
+  private void initializeUserProjectMap(HashMap<Integer, List<Project>> userProjectMap, HashMap<Integer, AppUser> userMap, Set<AppUser> theUsers) {
+    for (AppUser theUser : theUsers) {
+      List<Project>userProjects = userProjectMap.get(theUser.getIdAppUser());
+      if (userProjects == null) {
+        userProjects = new ArrayList<Project>();
+        userProjectMap.put(theUser.getIdAppUser(), userProjects);
+        userMap.put(theUser.getIdAppUser(), theUser);
+      }
+    }
+  }
+  private void hashProjects(HashMap<Integer, List<Project>> userProjectMap, Lab lab) {
+    //  for each project with idAppUser, associate it with the active members and managers of the lab
+    if (lab.getProjects() != null) {
+      for (Project proj : (Set<Project>)lab.getProjects()) {
+        if (proj.getIdAppUser() != null) {
+          List<Project> theProjects = userProjectMap.get(proj.getIdAppUser());
+          if (theProjects != null) {
+            theProjects.add(proj);
+          }
+        }
+      }
+    }    
   }
 
   private void initializeLab(Lab lab) {

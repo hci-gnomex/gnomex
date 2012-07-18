@@ -25,7 +25,7 @@ public class ProjectFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT DISTINCT proj.id, proj.name, proj.description, proj.idLab ");
+    queryBuf.append(" SELECT DISTINCT proj.id, proj.name, proj.description, proj.idLab, proj.idAppUser ");
     
     getQueryBody(queryBuf);
     
