@@ -6,9 +6,12 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 
@@ -236,6 +239,9 @@ public class Sample extends HibernateDetailObject {
     this.excludeMethodFromXML("getLabeledSamples");
     this.excludeMethodFromXML("getRequest");
     this.excludeMethodFromXML("getWells");
+    this.excludeMethodFromXML("getASourceWell");
+    this.excludeMethodFromXML("getSourceWells");
+    this.excludeMethodFromXML("getAssays");
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
@@ -664,7 +670,7 @@ public class Sample extends HibernateDetailObject {
     this.idSampleString = idSampleString;
   }
 
-  public PlateWell getSourceWell() {
+  public PlateWell getASourceWell() {
     PlateWell well = null;
     for (Iterator i = getWells().iterator(); i.hasNext();) {
       PlateWell w = (PlateWell)i.next();
@@ -674,5 +680,29 @@ public class Sample extends HibernateDetailObject {
       }
     }
     return well;
+  }
+
+  public List<PlateWell> getSourceWells() {
+    ArrayList<PlateWell> wells = new ArrayList<PlateWell>();
+    for (Iterator i = getWells().iterator(); i.hasNext();) {
+      PlateWell w = (PlateWell)i.next();
+      if (w.getIdPlate() == null || w.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+        wells.add(w);
+      }
+    }
+    return wells;
+  }
+  
+  public Map<String, Assay> getAssays() {
+    TreeMap<String, Assay> assays = new TreeMap<String, Assay>();
+    for (Iterator i = getWells().iterator(); i.hasNext();) {
+      PlateWell w = (PlateWell)i.next();
+      if (w.getIdPlate() == null || w.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+        if (w.getAssay() != null) {
+          assays.put(w.getAssay().getName(), w.getAssay());
+        }
+      }
+    }
+    return assays;
   }
 }

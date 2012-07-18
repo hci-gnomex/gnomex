@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Assay;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -43,6 +45,7 @@ public class RequestHTMLFormatter {
   private DictionaryHelper dictionaryHelper;
   private boolean         includeMicroarrayCoreNotes = true;
   private boolean         dnaSamples = false;
+  private Map<String, Assay> assays = null; // this is list of all assays for request if fragment analysis request.
   
  public RequestHTMLFormatter(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper) {
    this.secAdvisor = secAdvisor;
@@ -236,7 +239,9 @@ public class RequestHTMLFormatter {
         this.addHeaderCell(rowh, "Well",rowSpan, 1);
       }
     }
-    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+    if (request.getCodeRequestCategory() != null && 
+        (request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY) 
+            || request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY))) {
       this.addHeaderCell(rowh, "Well", rowSpan, 1);
     }
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
@@ -247,6 +252,13 @@ public class RequestHTMLFormatter {
     } else {
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
         this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1));
+      }
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+        // Add in assay headers.
+        this.assays = request.getAssays();
+        for(Iterator i=assays.keySet().iterator(); i.hasNext();) {
+          this.addHeaderCell(rowh, (String)i.next(), rowSpan, new Integer(1));
+        }
       }
     }
     if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
@@ -342,14 +354,16 @@ public class RequestHTMLFormatter {
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
         if (request.isCapSeqPlate()) {
           this.addCell(row, "PLATE");
-          this.addCell(row, sample.getSourceWell().getPlate().getLabel());
-          this.addCell(row, sample.getSourceWell().getWellName());
+          this.addCell(row, sample.getASourceWell().getPlate().getLabel());
+          this.addCell(row, sample.getASourceWell().getWellName());
         } else {
           this.addCell(row, "TUBE");
         }
       }
-      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
-        this.addCell(row, sample.getSourceWell().getWellName());
+      if (request.getCodeRequestCategory() != null 
+          && (request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)
+              || request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY))) {
+        this.addCell(row, sample.getASourceWell().getWellName());
       }
       this.addCell(row, sample.getName());
       if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
@@ -359,6 +373,17 @@ public class RequestHTMLFormatter {
       } else {
         if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
           this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
+        }
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+          // Add in values.
+          this.assays = request.getAssays();
+          for(Iterator i=assays.keySet().iterator(); i.hasNext();) {
+            String assayFlag = "&nbsp;";
+            if (sample.getAssays().containsKey((String)i.next())) {
+              assayFlag = "Y";
+            }
+            this.addCell(row, assayFlag);
+          }
         }
       }
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
