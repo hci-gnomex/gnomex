@@ -315,9 +315,12 @@ public class ProjectRequestFilter extends DetailObject {
   }
 
   private void addRequestCriteria() {
-    
-    this.addWhereOrAnd();
-    queryBuf.append("( req.idRequest is null OR ( 1=1 ");
+
+    // if not a time search, then show empty folders.
+    if (!lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append("( req.idRequest is null OR ( 1=1 ");
+    }
     // Search by user 
     if (idAppUser != null){
       this.addWhereOrAnd();
@@ -487,7 +490,11 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY);
       queryBuf.append("'");
     }   
-    queryBuf.append(" ) )");
+
+    // Close paren for showing empty folders or
+    if (!lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
+      queryBuf.append(" ) )");
+    }
   }
   
   private void addSlideProductCriteria() {
