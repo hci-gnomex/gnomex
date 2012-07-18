@@ -2292,7 +2292,13 @@
 			distributeDataTrackWindow = null;
 		}
 			
-						
+		public function isDNASeqType(type:String):Boolean {
+			if (type == TYPE_CAP_SEQ || type == TYPE_FRAG_ANAL || type == this.TYPE_MIT_SEQ || type == this.TYPE_CHERRY_PICK) {
+				return true;
+			} else {
+				return false;
+			}
+		}						
 
         ]]>
     </mx:Script>
