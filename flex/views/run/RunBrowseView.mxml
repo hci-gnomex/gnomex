@@ -173,6 +173,7 @@
 					return params;
 				}
 				
+				params.idInstrumentRun = parentDocument.lookupRunNumberField.text != '' ? parentDocument.lookupRunNumberField.text : '';
 				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
 				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
