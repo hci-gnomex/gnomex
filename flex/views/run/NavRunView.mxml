@@ -25,6 +25,9 @@
 			}
 			
 			private function toggleDateCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNumberField.text = '';
+				
 				if (checkBoxNumber == 0) {
 					this.lastWeekCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
@@ -77,6 +80,9 @@
 			} 		 
 			
 			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNumberField.text = '';
+				
 				if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
 					this.lastMonthCheckboxCreated.selected = false;
@@ -105,6 +111,9 @@
 			} 		 
 			
 			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNumberField.text = '';
+				
 				if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
 					this.runningCheckbox.selected  = false;
@@ -133,6 +142,8 @@
 			}
 			
 			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNumberField.text = '';
 				
 				if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
@@ -161,6 +172,8 @@
 			}
 			
 			private function toggleCodePlateType(checkBoxNumber:int):void{
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNumberField.text = '';
 				if(checkBoxNumber == 0){
 					this.allCheckbox.selected = false;
 					this.sourceCheckbox.selected = false;
@@ -172,11 +185,19 @@
 			}
 			
 			private function setDefaultButton():void {
-				if ( this.requestNoLookupField.text != '' ) {
+				if ( this.lookupPlateNameField.text != '' || this.lookupRunNumberField.text != '' ) {
 					this.lastWeekCheckboxCreated.selected  = false;
 					this.lastMonthCheckboxCreated.selected = false;
 					this.lastThreeMonthsCheckboxCreated.selected = false;
 					this.lastYearCheckboxCreated.selected  = false;
+					
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastYearCheckbox.selected = false;
+					
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected = false;
+					this.completeCheckbox.selected = false;
 					
 					this.capSeqCheckbox.selected = false;
 					this.fragCheckbox.selected = false;
@@ -498,15 +519,13 @@
 						
 					</mx:HBox>
 					
-					<mx:VRule height="20" includeInLayout="{theViews.selectedChild == plateBrowseView}" visible="{theViews.selectedChild == plateBrowseView}"/>
-					
-					<mx:HBox horizontalGap="0" includeInLayout="{theViews.selectedChild == plateBrowseView}"
-							 visible="{theViews.selectedChild == plateBrowseView}" paddingLeft="2" paddingRight="0"
-							 horizontalAlign = "right" verticalAlign="middle">
-						
+					<mx:VRule height="20"/>
+					<mx:HBox horizontalGap="0" paddingLeft="2" paddingRight="0"
+							 horizontalAlign = "right" verticalAlign="middle" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+							 visible="{theViews.selectedChild == plateBrowseView}">
 						<mx:Label text="Plate Name:" />
 						
-						<mx:TextInput id="requestNoLookupField"
+						<mx:TextInput id="lookupPlateNameField"
 									  fontSize="9"
 									  height="20"
 									  width="60"
@@ -519,16 +538,51 @@
 								   color="#400040"
 								   visible="true"
 								   icon="@Embed('../../assets/arrow_right.png')"
-								   click="{if (requestNoLookupField.text != '') this.getList()}" />
+								   click="{if (lookupPlateNameField.text != '') this.getList()}" />
+						
 					</mx:HBox>
 					
+					<mx:VBox visible="{theViews.selectedChild == runBrowseView}" 
+							 includeInLayout="{theViews.selectedChild == runBrowseView}" horizontalAlign="right" 
+							 verticalAlign="middle" paddingLeft="5">
+						<mx:HBox>
+							<mx:Label text="Run #" />
+							
+							<mx:TextInput id="lookupRunNumberField"
+										  fontSize="9"
+										  height="20"
+										  width="45"
+										  change="{setDefaultButton()}" />
+							
+							<mx:Button id="lookupButton1"
+									   fontFamily="Arial"
+									   height="18"
+									   width="20"
+									   color="#400040"
+									   visible="true"
+									   icon="@Embed('../../assets/arrow_right.png')"
+									   click="{if (lookupRunNumberField.text != '') this.getList()}" />
+							
+						</mx:HBox>
+						<mx:HBox>
+							
+							<mx:LinkButton textDecoration = "underline"
+										   label = "Refresh"
+										   click = "{getList();}"
+										   icon = "@Embed('../../assets/action_refresh.gif')"
+										   toolTip = "Refresh run list"  paddingBottom="0" paddingTop="0"
+										   paddingRight="2" width="115"/>
+						</mx:HBox>
+					</mx:VBox>
+					
 				</mx:HBox>
-				<mx:Spacer width="100%"/>
+				<mx:Spacer width="100%" visible="{theViews.selectedChild == plateBrowseView}" includeInLayout="{theViews.selectedChild == plateBrowseView}" />
 				<mx:LinkButton textDecoration = "underline"
 							   label = "Refresh"
 							   click = "{getList();}"
 							   icon = "@Embed('../../assets/action_refresh.gif')"
-							   toolTip = "Refresh run list"  paddingBottom="0" paddingTop="0"/>
+							   toolTip = "Refresh plate list"  paddingBottom="0" paddingTop="0"
+							   visible="{theViews.selectedChild == plateBrowseView}" includeInLayout="{theViews.selectedChild == plateBrowseView}"/>
 			</mx:HBox>
 			
 		</mx:VBox>
