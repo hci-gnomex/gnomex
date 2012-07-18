@@ -236,13 +236,18 @@ public class RequestHTMLFormatter {
         this.addHeaderCell(rowh, "Well",rowSpan, 1);
       }
     }
+    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+      this.addHeaderCell(rowh, "Well", rowSpan, 1);
+    }
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
       this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
       this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
       this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
     } else {
-      this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1));
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+        this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1));
+      }
     }
     if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (showBarcodeTag) {
@@ -343,11 +348,18 @@ public class RequestHTMLFormatter {
           this.addCell(row, "TUBE");
         }
       }
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+        this.addCell(row, sample.getSourceWell().getWellName());
+      }
       this.addCell(row, sample.getName());
-      this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
       if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+        this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
         this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
         this.addCell(row, getSamplePrepMethod(sample));
+      } else {
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+          this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
+        }
       }
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         if (showBarcodeTag) {
