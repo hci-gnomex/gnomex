@@ -2,8 +2,8 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="{windowTitle}"
 	showCloseButton="true" 
-	width="1192" 
-	height="428"
+	width="440" 
+	height="162"
 	verticalGap="0"
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconTopic}"
@@ -124,7 +124,7 @@
 		var params:Object = new Object();
 		params.idParentTopic      	  = idParentTopic;
 		params.name                   = this.topicName.text;
-		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.description            = "";
 		params.idLab                  = selectedIdLab;
 		params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
 		
@@ -134,37 +134,22 @@
     private function closeWindow():void {
 		PopUpManager.removePopUp(this);		
 	}
-		
-	private function removeRichTextButtons():void {
-		this.descriptionRichText.toolbar.removeChild(descriptionRichText.colorPicker);
-		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontFamilyCombo);
-		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontSizeCombo);
-	}
-	
+
 	]]>
     </mx:Script>
     <mx:VBox width="100%" height="100%" styleName="form" verticalGap="10">
 		<mx:HBox width="100%" >
 			<mx:Label text="Name:" width="105"/>
 			<mx:TextInput id="topicName" width="308" maxChars="2000"/>
+		</mx:HBox>		
+		<mx:HBox width="100%" >
 			<mx:Label text="Lab:" width="105"/>
 			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="308" labelField="@name"></mx:ComboBox>
-			<mx:Label text="Owner:" width="105"/>
-			<mx:ComboBox width="200" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}"></mx:ComboBox>							         			
 		</mx:HBox>		
-		<mx:HBox  width="100%" paddingTop="4">
-			<mx:Label text="Description:" width="105"/>
-			<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
-								id="descriptionRichText" width="1056" 
-								htmlText="{parentDocument.browseTree.selectedItem.@description}" 
-								showControlBar="{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
-								creationComplete="removeRichTextButtons()"
-								paddingLeft="0" paddingRight="0" paddingTop="0" 
-								roundedBottomCorners="false" paddingBottom="0" 
-								borderThicknessRight="0" borderThicknessLeft="0" 
-								borderThicknessBottom="0" borderThickness="0" 
-								borderThicknessTop="0" height="323" minHeight="50"/>
-		</mx:HBox>
+		<mx:HBox width="100%" >
+			<mx:Label text="Owner:" width="105"/>
+			<mx:ComboBox width="308" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}"></mx:ComboBox>							         			
+		</mx:HBox>		
 
     </mx:VBox>
 

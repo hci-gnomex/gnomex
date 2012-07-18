@@ -420,7 +420,7 @@
 		}
 		
 		if (this.browseTree.selectedItem.name() == "Topic") {
-			removeButton.label = 'Delete topic'; 			
+			removeButton.label = 'Delete'; 			
 		} else {
 			removeButton.label = 'Remove link';   			
 		}
@@ -448,7 +448,6 @@
 			getRequest.send(params);
 			experimentDetailView.editButton.enabled = false;
 			experimentDetailView.detail.hideButtonsBox.visible = false;
-			experimentDetailView.detail.filesView.deleteButtonsContainer.visible = false;
 			this.mainViewStack.selectedChild = this.experimentDetailView;  
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
 			analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
@@ -461,7 +460,6 @@
 			analysisDetailView.dstButton.enabled = false;
 			analysisDetailView.hideButtonsBox.visible = false;
 			analysisDetailView.hideButtonsBox.includeInLayout = false;
-			analysisDetailView.filesView.deleteButtonsContainer.visible = false;
 			this.mainViewStack.selectedChild = this.analysisDetailView;  
 		}
 	}
@@ -530,20 +528,6 @@
 		treeItemToSelect = itemToSelect;
 		refreshTopics();
 	}
-	
-	//public function refreshDataTrackForLookup():void {
-	//	var params:Object = new Object();
-	///	params.number = dataTrackNumber;
-	//	getTopicList.send(params);
-	//}
-	
-	//public function refreshDataTrackForItem():void {
-	//	var params:Object = new Object();
-	//	params.idOrganism = refreshItem.@idOrganism;
-	//	params.idGenomeBuild = refreshItem.@idGenomeBuild;
-	//	params.idLab = refreshItem.@idLab;
-	//	getTopicList.send(params);
-	//}
 
 	public function refreshTopics():void {
 		var parms:Object = new Object();
@@ -747,17 +731,13 @@
 			return;
 		}
 		
+		// retrieve the data associated with the "items" format. This will be the data that
+		// the dragInitiator has copied into the DragSource.
+		var items:Array = ds.dataForFormat("treeItems") as Array;
+		
 		// Determine the drop node
-		var dropIndex:int = this.browseTree.calculateDropIndex(event);
-		var renderer:Object = this.browseTree.indexToItemRenderer(dropIndex); 
-		if (renderer == null) {
-			// Abort if dropped outside of list boundary.
-			event.preventDefault();
-			event.target.hideDropFeedback(event);
-			DragManager.showFeedback(DragManager.NONE);		   	
-			return;
-		}
-		dropNode = renderer.data; 
+		browseTree.selectedIndex = this.browseTree.calculateDropIndex(event);
+		dropNode = browseTree.selectedItem as XML;
 		
 		// If the drop node is an experiment, analysis, data track, or category go up to next topic level
 		// and make it the drop target
@@ -773,7 +753,8 @@
 		var itemCnt:int = 0;
 		dragParams = new ArrayCollection();
 		var params:Object = new Object();
-		for each(var dragItem:Object in ds.dataForFormat("treeItems") as Array) {
+		//for each(var dragItem:Object in ds.dataForFormat("treeItems") as Array) {
+		for each(var dragItem:Object in items) {
 			var keep:Boolean = true;
 			if (dragItem.name() == "Request") {
 				params.name = "Request";
@@ -787,6 +768,11 @@
 				}
 				// Ignore operation if user dragged to its own parent
 				if (withinTopics && dragItem.parent().parent() == dropNode) {
+					keep = false;
+				}
+				
+				// Ignore operation if dragging request to the root folder node
+				if (dropNode.name() == "Folder") {
 					keep = false;
 				}
 				
@@ -809,6 +795,11 @@
 					keep = false;
 				}
 				
+				// Ignore operation if dragging analysis to the root folder node
+				if (dropNode.name() == "Folder") {
+					keep = false;
+				}
+				
 				if (keep) {
 					dragParams.addItem(params);
 					itemCnt++;
@@ -825,6 +816,11 @@
 				}
 				// Ignore operation if user dragged to its own parent
 				if (withinTopics && dragItem.parent().parent() == dropNode) {
+					keep = false;
+				}
+				
+				// Ignore operation if dragging data track to the root folder node
+				if (dropNode.name() == "Folder") {
 					keep = false;
 				}
 				
@@ -987,8 +983,7 @@
 			 backgroundSize="100%" width="100%" 
 			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 
-			<mx:HBox width="100%" 
-					 verticalAlign="middle" paddingTop="6" paddingBottom="6" paddingLeft="20"
+			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="0">
 				<mx:LinkButton   label="New topic" width="90"
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; (browseTree.selectedItem.name() == 'Folder' || browseTree.selectedItem.name() == 'Topic')}"
@@ -1000,7 +995,10 @@
 								 id="linkbutton1"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
 								 icon="@Embed(source='../../assets/topic_new.png')"/>
-				<mx:LinkButton   label="Delete topic" width="213" 
+				<mx:VRule height="20" id="vrule1" width="2" 							   
+						  visible="{currentState != 'GuestState'}"
+						  includeInLayout="{currentState != 'GuestState'}"/>
+				<mx:LinkButton   label="Delete"
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; browseTree.selectedItem.name() != 'Folder'  &amp;&amp; browseTree.selectedItem.name() != 'Category'}"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
@@ -1010,8 +1008,11 @@
 								 id="removeButton"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/cross_disable.png')" 
 								 icon="@Embed(source='../../assets/cross.png')"/>
-				<mx:LinkButton   label="Link to experiments, analysis, or data tracks"
-								 enabled="true" width="320"
+				<mx:VRule height="20" id="vrule4" width="2" 							   
+						  visible="{currentState != 'GuestState'}"
+						  includeInLayout="{currentState != 'GuestState'}"/>				
+				<mx:LinkButton   label="Link to data"
+								 enabled="true"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
 								 styleName="linkMenuButton"   					        	
@@ -1020,6 +1021,7 @@
 								 id="linkbutton5"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/link_disable.png')" 
 								 icon="@Embed(source='../../assets/link.png')"/>
+				<mx:Spacer width="100%"/>
 				<mx:LinkButton 	 label="Refresh" 
 								 icon="@Embed(source='../../assets/action_refresh.gif')" 
 								 click="refreshTopics()" 
