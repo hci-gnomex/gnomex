@@ -907,8 +907,7 @@
 			
 			
 			public var plateDropIndex:int = 0;
-			
-			
+						
 			// Drop samples or folders containing samples onto the current plate
 			private function dropOnPlate( event:DragEvent ):void {
 				
@@ -1448,21 +1447,26 @@
 					}
 				}
 				
+				if ( currentState.substr( 0, 3 ) == "new" && !checkFormComplete()) {
+					Alert.show( "Run name, seal type, and status are all required", "Form not complete" );
+					return;
+				}
+				
 				if ( !hasPlates ) {
 					Alert.show( "No plates have been added to the run.  Do you still want to save?", "No plates", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 					return;
 				}
 				
-				if ( currentState.substr( 0, 3 ) == "new" && !checkFormComplete()) {
-					Alert.show( "Please fill in a name and select a seal type for this instrument run", "Form not complete" );
-					return;
-				}
 				Alert.show( "Are you sure you want to save run?", "Confirm Save Run", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 			}
 			
 			
 			private function checkFormComplete():Boolean {
 				if ( sealComboBox.selectedIndex == -1 ) {
+					return false;
+				}
+				
+				if ( statusComboBox.selectedIndex == -1 ) {
 					return false;
 				}
 				
