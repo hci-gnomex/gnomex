@@ -677,6 +677,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getCreateYear");
     this.excludeMethodFromXML("getRequestCategory");
     this.excludeMethodFromXML("getChromatograms");
+    this.excludeMethodFromXML("getAssays");
   }
   
   public String getOwnerName() {
@@ -1097,4 +1098,14 @@ public class Request extends HibernateDetailObject {
     return retVal;
   }
   
+  public Map<String, Assay> getAssays() {
+    TreeMap<String, Assay> assays = new TreeMap<String, Assay>();
+    if (this.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+      for(Iterator i=this.getSamples().iterator();i.hasNext();) {
+        Sample sample = (Sample)i.next();
+        assays.putAll(sample.getAssays());
+      }
+    }
+    return assays;
+  }
 }
