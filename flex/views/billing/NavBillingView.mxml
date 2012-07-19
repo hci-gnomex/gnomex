@@ -34,6 +34,7 @@
     	<showInactive>{this.showInactivePricesCheckbox.selected ? "Y" : "N"}</showInactive>
     	<showPriceCriteria>{this.showPriceCriteriaCheckbox.selected  ? "Y" : "N"}</showPriceCriteria>
     	<showPrices>{this.showPricesCheckbox.selected  ? "Y" : "N"}</showPrices>
+		<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
     </mx:request>
     </mx:HTTPService > 
 
@@ -1917,10 +1918,10 @@
 						
 					</mx:VBox>
 					
-					<mx:HBox>
-						<mx:Label text="Core Facility"/>
-						<mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"
-									 labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()" includeInLayout="{parentApplication.currentState == 'AdminState'}" visible="{parentApplication.currentState == 'AdminState'}"/>
+					<mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 2}" visible="{parentApplication.coreFacilitiesICanManage.length() > 2}">
+						<mx:Label text="Core Facility" />
+						<mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.coreFacilitiesICanManage}"
+									 labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()"/>
 					</mx:HBox>
 			   	
 		    	</mx:HBox> 

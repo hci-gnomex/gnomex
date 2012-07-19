@@ -38,6 +38,8 @@
 * Added ability to toggle between plates from run tree. (mbowler)
 * Added redo status notification, run name, plate name, and idPlateWell to chromatogram detail view. (mbowler)
 * Deletion of files from Analysis now do not leave orphaned AnalysisFile rows and correctly delete TransferLog rows.  (bspiglejr)
+* Filter prices in billing by core facility chosen.  (bspiglejr)
+* Only show core facilities drop down in billing if super admin or admin that administers > 1 facility (bspiglejr)
 
 
 5.4.5 (July 1, 2012)
