@@ -40,6 +40,7 @@
 * Deletion of files from Analysis now do not leave orphaned AnalysisFile rows and correctly delete TransferLog rows.  (bspiglejr)
 * Filter prices in billing by core facility chosen.  (bspiglejr)
 * Only show core facilities drop down in billing if super admin or admin that administers > 1 facility (bspiglejr)
+* Do not allow < 32 samples on a plate at save time.  (bspiglejr)
 
 
 5.4.5 (July 1, 2012)
