@@ -473,7 +473,15 @@
 				if (event.data.indexOf("<SampleSheet>") >= 0) {
 					var cols:String = "";
 					
-					sampleSheetXML = new XML(event.data); 
+					sampleSheetXML = new XML(event.data);
+					
+					if (tabSamplesView.hasPlates()) {
+						var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
+						if ((hasColNames.selected && ssRowList.length() > 97) || (!hasColNames.selected && ssRowList.length() > 96)) {
+							Alert.show("A maximum of 96 samples can be uploaded to a plate.");
+							return;
+						}  
+					}
 					
 					sampleSheetColumnList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
 
