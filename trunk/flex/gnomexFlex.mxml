@@ -600,6 +600,9 @@
 			public var myCoreFacilities:XMLList = null;
 			
 			[Bindable]
+			public var coreFacilitiesICanManage:XMLList = null;
+			
+			[Bindable]
 			public var isSuperAdmin:Boolean = false;
 			
 			[Bindable]
@@ -1693,12 +1696,26 @@
 				// this to filter the request categories on the Submit Request window.
 				if (isGuest) {
 					myCoreFacilities = null;
+					coreFacilitiesICanManage = null;
 				} else if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-					myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");					
+					myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");		
+					coreFacilitiesICanManage = dictionaryManager.getEntries("hci.gnomex.model.CoreFacility");
 				} else {
 					myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
+					coreFacilitiesICanManage = new XMLList();
+					for each(var entry:Object in dictionaryManager.getEntries("hci.gnomex.model.CoreFacility")) {
+						if (entry.@value == '') {
+							coreFacilitiesICanManage[coreFacilitiesICanManage.length()] = entry;
+						} else {
+							for each (var entry1:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
+								if (entry.@value == entry1.@value) {
+									coreFacilitiesICanManage[coreFacilitiesICanManage.length()] = entry;
+									break;
+								}
+							}
+						}
+					}
 				}
-				
 				
 				//
 				// Determine which core facilities the user is associated with.

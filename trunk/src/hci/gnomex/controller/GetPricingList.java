@@ -34,6 +34,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
   private String showInactive = "N";
   private String showPrices = "Y";
   private String showPriceCriteria = "N";
+  private String idCoreFacility = "";
 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPricingList.class);
@@ -56,6 +57,10 @@ public class GetPricingList extends GNomExCommand implements Serializable {
       showPriceCriteria = request.getParameter("showPriceCriteria");
     }
 
+    if (request.getParameter("idCoreFacility") != null) {
+      idCoreFacility = request.getParameter("idCoreFacility");
+    }
+    
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -78,10 +83,14 @@ public class GetPricingList extends GNomExCommand implements Serializable {
 
         StringBuffer buf = new StringBuffer();
         buf.append("SELECT p from PriceSheet p ");
-        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.idCoreFacility.length() > 0) {
           buf.append("JOIN p.requestCategories rc ");
           buf.append("WHERE ");
-          this.getSecAdvisor().appendCoreFacilityCriteria(buf, "rc");
+          if (this.idCoreFacility.length() > 0) {
+            buf.append("(rc.idCoreFacility = ").append(this.idCoreFacility).append(")");
+          } else {
+            this.getSecAdvisor().appendCoreFacilityCriteria(buf, "rc");
+          }
           buf.append(" ");
         }
         buf.append("order by p.name");
