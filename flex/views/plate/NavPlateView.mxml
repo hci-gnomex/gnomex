@@ -2956,11 +2956,15 @@
 						<mx:LinkButton label="Create PLT file"
 									   click="createPltFiles()"
 									   textDecoration="underline"
-									   id="pltButton" />
+									   id="pltButton" 
+									   visible="{run.idRun != '0' &amp;&amp; !this.isDirty}"
+									   includeInLayout="{run.idRun != '0' &amp;&amp; !this.isDirty}"/>
 						<mx:LinkButton label="Plate Report"
 									   click="createPlateReport()"
 									   textDecoration="underline"
-									   id="printButton" />
+									   id="printButton"
+									   visible="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"
+									   includeInLayout="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"/>
 						
 					</mx:HBox>
 					
