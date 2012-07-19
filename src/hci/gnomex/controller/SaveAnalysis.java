@@ -795,7 +795,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 //    String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = analysisFile.getBaseFilePath() + analysisFile.getQualifiedFilePath() + analysisFile.getFileName();
+    String fileName = analysisFile.getFileName();
     fileName = fileName.replaceAll("'", "''"); // Replace any single quotes in file with double quotes so SQL won't fail
 
     // Remove references of the file in TransferLog
