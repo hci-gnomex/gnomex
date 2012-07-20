@@ -42,6 +42,7 @@
 * Only show core facilities drop down in billing if super admin or admin that administers > 1 facility (bspiglejr)
 * Do not allow < 32 samples on a plate at save time.  (bspiglejr)
 * Review Results - sort file name column by run, quadrant, well position. (tdisera)
+* Added Topics tab to experiment, analysis, and data track detail views. (rcundick)
 
 
 5.4.5 (July 1, 2012)

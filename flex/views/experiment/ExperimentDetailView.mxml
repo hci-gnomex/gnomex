@@ -120,6 +120,12 @@
 		public function setupForm(selectedExperiment:Object):void {
 			this.selectedExperiment = selectedExperiment;
 			
+			if(!parentApplication.isTopicsSupported) {
+				if (theTab.contains(this.topicsTab)) {
+					theTab.removeChild(topicsTab);
+				}				
+			}
+			
 			if(selectedExperiment.@captureLibDesignId != ""){
 				libDesignAndInsertBox.visible = true;
 				designAndInsertLabel.text = "Cap Lib Design";
@@ -133,7 +139,6 @@
 			}
 			else{
 				libDesignAndInsertBox.visible = false;
-
 			}
 				
 			if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
@@ -1032,6 +1037,16 @@
 				return item.groupLabel;
 			}
 		}
+		
+		public function getTopicIcon(item:Object):Class {
+			return parentApplication.iconTopic;
+		}
+		
+		private function goToTopic():void {  
+			if (this.topicsTree.selectedItem.name() == "Topic") {
+				parentApplication.showTopicForNumber(topicsTree.selectedItem.@idTopic);	 
+			}	
+		}
 
 	]]>
 </mx:Script>
@@ -1041,6 +1056,18 @@
 <mx:XMLListCollection id="assays" source="{selectedExperiment.assays.Assay}"/>
 <mx:XMLListCollection id="primers" source="{selectedExperiment.primers.Primer}"/>
 <mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
+<mx:XMLListCollection id="sortedTopics"
+					  source="{this.selectedExperiment.topics.Topic}">
+	<mx:sort>
+		<mx:Sort>
+			<mx:fields>
+				<mx:SortField id="sortField"
+							  name="@name"
+							  caseInsensitive="true" />
+			</mx:fields>
+		</mx:Sort>
+	</mx:sort>
+</mx:XMLListCollection>
 
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
@@ -1297,6 +1324,19 @@
 				
 				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUploadData == 'Y'}" >
 				</experiment:ExperimentDownloadView>
+				
+				<mx:VBox verticalGap="0" width="100%" height="100%" id="topicsTab" label="Topics">
+					<mx:Tree width="100%" height="100%" dataProvider="{sortedTopics}" id="topicsTree" 
+							 showRoot="false" 
+							 dragEnabled="true"
+							 dropEnabled="false"
+							 dragMoveEnabled="false"
+							 iconFunction="getTopicIcon" 
+							 doubleClickEnabled="true" 
+							 itemDoubleClick="goToTopic()"
+							 labelField="@name" >						
+					</mx:Tree>
+				</mx:VBox>
 						   
 			</mx:TabNavigator>
 			

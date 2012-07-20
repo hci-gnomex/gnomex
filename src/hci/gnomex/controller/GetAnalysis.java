@@ -49,6 +49,7 @@ import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Topic;
 
 
 public class GetAnalysis extends GNomExCommand implements Serializable {
@@ -130,6 +131,22 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           Hibernate.initialize(a.getCollaborators());
         } else {
           a.excludeMethodFromXML("getCollaborators");
+        }
+        
+        Hibernate.initialize(a.getTopics());
+        
+        if(a.getTopics() != null) {
+          Iterator<?> it = a.getTopics().iterator();
+          while(it.hasNext()) {
+            Topic t = (Topic) it.next();
+            t.excludeMethodFromXML("getTopics");
+            t.excludeMethodFromXML("getRequests");
+            t.excludeMethodFromXML("getAnalyses");
+            t.excludeMethodFromXML("getDataTracks");
+            t.excludeMethodFromXML("getAppUser");
+            t.excludeMethodFromXML("getLab");
+          }
+          
         }
         
         Document doc = new Document(new Element("OpenAnalysisList"));
