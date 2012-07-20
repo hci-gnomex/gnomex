@@ -561,6 +561,39 @@
 				
 			}
 
+			
+			public function sortByQuadrantAndPosition(item1:Object, item2:Object):int {
+				var runNumber1:int = item1.@runNumber;
+				var runNumber2:int = item2.@runNumber;
+				
+				var wellPos1:int = item1.@wellPosition;
+				var wellPos2:int = item2.@wellPosition;
+
+				var quadrant1:int = item1.@quadrant;
+				var quadrant2:int = item2.@quadrant;
+
+				if (runNumber1 > runNumber2) {
+					return 1;
+				} else if (runNumber2 > runNumber1) {
+					return -1;
+				} else {
+					if (quadrant1 > quadrant2) {
+						return 1;
+					} else if (quadrant2 > quadrant1) {
+						return -1;
+					} else {
+						if (wellPos1 > wellPos2) {
+							return 1;
+						} else if (wellPos2 > wellPos1) {
+							return -1;
+						} else {
+							return 0;
+						}
+					}
+					
+				}
+			}
+
 
 
 		]]>
@@ -735,12 +768,6 @@
 									   draggable="false"/>
 					
 					<mx:DataGridColumn dataField="@idChromatogram"
-									   headerText="#"
-									   width="35"
-									   sortCompareFunction="fieldNumericSorter('idChromatogram')" 
-									   draggable="false" id="datagridcolumn1"/>
-					
-					<mx:DataGridColumn dataField="@idChromatogram"
 									   headerText=""
 									   textAlign="center"
 									   resizable="false"
@@ -750,7 +777,7 @@
 									   minWidth="35"
 									   draggable="false"/>
 					
-					<mx:DataGridColumn dataField="@displayName"
+					<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
 									   headerText="File"
 									   minWidth="150"
 									   textDecoration="underline"
@@ -766,8 +793,17 @@
 					<mx:DataGridColumn dataField="@runName"
 									   headerText="Run"
 									   width="50" minWidth="20" />
+					<mx:DataGridColumn dataField="@runNumber"
+										   headerText="Run #"
+										   width="30" minWidth="20" />
+						<mx:DataGridColumn dataField="@quadrant"
+										   headerText="Quadrant"
+										   width="30" minWidth="20" />
+						<mx:DataGridColumn dataField="@wellPosition"
+										   headerText="Well pos"
+										   width="30" minWidth="20" />
 					<mx:DataGridColumn dataField="@plateLabel"
-									   headerText="Plate"
+									   headerText="Plate" 
 									   width="50" minWidth="20" />
 					<mx:DataGridColumn dataField="@requestNumber"
 									   headerText="Order #"  visible="{currentState != 'userState'}"
