@@ -103,6 +103,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           String redoFlag = row[24] != null ? (String)row[24] : "";
           Integer idReleaser = row[25] != null ? (Integer)row[25] : new Integer(0);
           String lane = row[26] != null ? ((Integer)row[26]).toString() : "";
+          String wellPos = row[27] != null ? ((Integer)row[27]).toString() : "";
+          String quadrant = row[28] != null ? ((Integer)row[28]).toString() : "";
           
           if (!runNumber.equals(runNumberPrev)) {
             alt = !alt;
@@ -164,6 +166,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           cNode.setAttribute("redoFlag", redoFlag);
           cNode.setAttribute("releaser", releaser != null ? releaser.getDisplayName() : "");
           cNode.setAttribute("lane", lane);
+          cNode.setAttribute("wellPosition", wellPos);
+          cNode.setAttribute("quadrant", quadrant);
           
           doc.getRootElement().addContent(cNode);
 

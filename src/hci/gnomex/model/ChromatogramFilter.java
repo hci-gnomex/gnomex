@@ -64,7 +64,9 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        plate.label, ");
     queryBuf.append("        pw.redoFlag, ");
     queryBuf.append("        c.idReleaser, ");
-    queryBuf.append("        c.lane ");
+    queryBuf.append("        c.lane, ");
+    queryBuf.append("        pw.position, ");
+    queryBuf.append("        plate.quadrant ");
         
     getQueryBody(queryBuf);
 
@@ -112,7 +114,7 @@ public class ChromatogramFilter extends DetailObject {
 
     addCriteria();
     
-    queryBuf.append(" order by run.idInstrumentRun, plate.idPlate, pw.position, c.idRequest");
+    queryBuf.append(" order by run.idInstrumentRun, plate.quadrant, pw.position, c.idRequest");
   }
 
   private void addCriteria() {
