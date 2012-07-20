@@ -23,7 +23,7 @@
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetProjectRequestList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
+		fault="{this.isLabSelection=false;parentApplication.onFailHttpRequest('Failed to get project request list', event);}"
 		method="POST" 
 		useProxy="false">
 		<mx:request>
@@ -49,7 +49,7 @@
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetAnalysisGroupList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
+		fault="{this.isLabSelection=false;parentApplication.onFailHttpRequest('Failed to get analysis group list', event);}"
 		method="POST"   
 		useProxy="false">
 	</mx:HTTPService>
@@ -93,6 +93,7 @@
 			
 			public var dataTrackNumber:Object;
 			
+			private var isLabSelection:Boolean = false;			
 	
 			
 			public var dtTreeItemToSelect:Object = null; 
@@ -283,7 +284,11 @@
 				}
 				titleLabel.text = "Add " + titleLabel_1.text + " (find and drag to topic)";
 				requestNumber.text = "";
-				searchParamsChange();
+				var labSelected:Boolean = false;
+				if(labCombo.selectedItem != null && labCombo.selectedIndex > 0) {
+					labSelected = true;
+				}
+				searchParamsChange(labSelected);
 			}	
 			
 			private function refreshDataTracks():void {
@@ -303,6 +308,7 @@
 		
 			private function onGetProjectRequestList(event:ResultEvent): void {
 				if (getProjectRequestList.lastResult.name() != "ProjectRequestList") {
+					this.isLabSelection = false;
 					Alert.show(getProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
 					expBrowseTree.visible = false;
 					return;
@@ -440,7 +446,7 @@
 				callLater(selectTreeNode);
 			}	
 			
-			public function expandAllNodes():void
+			private function expandAllNodes():void
 			{
 				if (this.typeNav.selectedChild == this.expTab) {
 					expBrowseTree.expandItem(getProjectRequestList.lastResult, true);
@@ -448,7 +454,9 @@
 						expBrowseTree.expandItem(lab, true);
 					}
 					for each(var project:Object in getProjectRequestList.lastResult..Project) {
-						expBrowseTree.expandItem(project, true);
+						if(!this.isLabSelection) {
+							expBrowseTree.expandItem(project, true);
+						}
 					}
 					expBrowseTree.validateNow();		
 				} else if (this.typeNav.selectedChild == this.anTab) {
@@ -457,13 +465,18 @@
 						anBrowseTree.expandItem(lab, true);
 					}
 					for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
-						anBrowseTree.expandItem(ag, true);
+						if(!this.isLabSelection) {
+							anBrowseTree.expandItem(ag, true);
+						}
 					}
 					for each(var a:Object in getAnalysisGroupList.lastResult..Analysis) {
-						anBrowseTree.expandItem(a, true);
+						if(!this.isLabSelection) {
+							anBrowseTree.expandItem(a, true);
+						}		
 					}
 					anBrowseTree.validateNow();
-				}					
+				}
+				this.isLabSelection = false;
 			}	
 			
 			private function selectTreeNode():void {
@@ -583,12 +596,14 @@
 				params.showCategory = 'N';
 				
 				return params;
-			}	
+			}
 			
-			private function searchParamsChange():void {
+			private function searchParamsChange(labSelected:Boolean):void {
 				if (this.typeNav.selectedChild == this.expTab) {
-					getProjectRequestList.send(getBrowseParameters());			
+					isLabSelection = labSelected;
+					getProjectRequestList.send(getBrowseParameters());					
 				} else if (this.typeNav.selectedChild == this.anTab) {
+					isLabSelection = labSelected;
 					this.anBrowseTree.selectedItem = null;
 					getAnalysisGroupList.send(getBrowseParameters());
 				} else if (this.typeNav.selectedChild == this.dtTab) {				
@@ -647,12 +662,12 @@
 		<mx:HBox width="100%" defaultButton="{lookupButton}">
 			<mx:Label text="Filter by:" paddingLeft="8"/>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxDT">
-				<mx:ComboBox labelField="@binomialName" change="filteredGenomeBuildList.refresh();searchParamsChange();" id="organismCombo" styleName="menuLabelSmall" prompt="Organism..." width="170">
+				<mx:ComboBox labelField="@binomialName" change="filteredGenomeBuildList.refresh();searchParamsChange(false);" id="organismCombo" styleName="menuLabelSmall" prompt="Organism..." width="170">
 					<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
 				</mx:ComboBox>
-				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange();" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
+				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange(false);" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
 			</mx:HBox>	
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" prompt="Lab..." change="searchParamsChange();" ></mx:ComboBox>
+			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" prompt="Lab..." change="searchParamsChange(true);" ></mx:ComboBox>
 			<mx:HBox horizontalGap="2" paddingLeft="8">
 				<mx:Label text="Lookup by #" paddingLeft="8"/>
 				<mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="true"/>
@@ -662,16 +677,16 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxNotDT">
 				<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="2"   styleName="labelSmall">
-					<mx:click>toggleDateCheckboxes(1);searchParamsChange();</mx:click>
+					<mx:click>toggleDateCheckboxes(1);searchParamsChange(false);</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
-					<mx:click>toggleDateCheckboxes(2);searchParamsChange();</mx:click>
+					<mx:click>toggleDateCheckboxes(2);searchParamsChange(false);</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
-					<mx:click>toggleDateCheckboxes(3);searchParamsChange();</mx:click>
+					<mx:click>toggleDateCheckboxes(3);searchParamsChange(false);</mx:click>
 				</mx:CheckBox>		    		
 				<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">
-					<mx:click>toggleDateCheckboxes(4);searchParamsChange();</mx:click>
+					<mx:click>toggleDateCheckboxes(4);searchParamsChange(false);</mx:click>
 				</mx:CheckBox>
 			</mx:HBox>		
 		</mx:HBox>

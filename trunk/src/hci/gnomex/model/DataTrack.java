@@ -288,6 +288,28 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
 				}
 			}
 		}
+		
+    // Show list of topics.  Only show for
+    // annotation detail (when data_root is provided)
+    if (data_root != null) {
+      if (getTopics() != null) {
+        Element topicsNode = new Element("topics");
+        root.addContent(topicsNode);
+        for(Iterator i = getTopics().iterator(); i.hasNext();) {
+          Topic t = (Topic)i.next();
+          Element topicNode = new Element("Topic");
+          topicsNode.addContent(topicNode);
+          topicNode.setAttribute("idTopic", t.getIdTopic().toString()); 
+          topicNode.setAttribute("name", t.getName());
+          topicNode.setAttribute("description", t.getDescription()==null?"":t.getDescription());
+          topicNode.setAttribute("idAppUser", t.getIdAppUser()==null?"":t.getIdAppUser().toString());
+          topicNode.setAttribute("idLab", t.getIdLab()==null?"":t.getIdLab().toString());
+          topicNode.setAttribute("createdBy",  t.getCreatedBy()==null?"":t.getCreatedBy());
+          topicNode.setAttribute("createDate", t.getCreateDate()==null?"":this.formatDate(t.getCreateDate()));
+          topicNode.setAttribute("idParentTopic", t.getIdParentTopic()==null?"":t.getIdParentTopic().toString()); 
+        }
+      }
+    }
 
 		// Show list of possible collaborators.  Only show
 		// for annotation detail (when data_root is provided).

@@ -217,13 +217,14 @@
 		
 		// If we are looking up a topic by number, get the tree item to select
 		if (this.topicNumber != "") {
-			var dt:Object = getTopicList.lastResult.Folder.Topic.(@idTopic == topicNumber);			
+			var dt:Object = getTopicList.lastResult.Folder..Topic.(@idTopic == topicNumber);			
 			if (dt is XMLList && dt.length() > 0) {
 				treeItemToSelect = dt[0];
 			} else {
 				treeItemToSelect = dt;
 			}
 			topicNumber = "";
+			cbAlwaysExpandTree.selected = false;
 		} 				
 		
 		callLater(expandAppropriateNodes);  	

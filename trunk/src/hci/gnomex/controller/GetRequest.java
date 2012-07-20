@@ -56,6 +56,7 @@ import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.Topic;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
@@ -152,6 +153,21 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Hibernate.initialize(request.getHybridizations());
           Hibernate.initialize(request.getAnalysisExperimentItems());
           Hibernate.initialize(request.getSeqLibTreatments());
+          Hibernate.initialize(request.getTopics());
+          
+          if(request.getTopics() != null) {
+            Iterator<?> it = request.getTopics().iterator();
+            while(it.hasNext()) {
+              Topic t = (Topic) it.next();
+              t.excludeMethodFromXML("getTopics");
+              t.excludeMethodFromXML("getRequests");
+              t.excludeMethodFromXML("getAnalyses");
+              t.excludeMethodFromXML("getDataTracks");
+              t.excludeMethodFromXML("getAppUser");
+              t.excludeMethodFromXML("getLab");
+            }
+            
+          }
          
           request.excludeMethodFromXML("getBillingItems");
          
