@@ -107,7 +107,9 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         } else {
           ir = (InstrumentRun) sess.get(InstrumentRun.class, idInstrumentRun);
         }
-
+        
+        idInstrumentRun = ir.getIdInstrumentRun();
+        
         java.util.Date createDate = null;
         if (createDateStr != null) {
           createDate = this.parseDate(createDateStr);
