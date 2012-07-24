@@ -5025,6 +5025,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 					<mx:Text  width="100" text="Container" />
@@ -5058,6 +5059,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
 			<mx:RemoveChild target="{hybSetupView}"/>
@@ -5079,6 +5081,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
 			<mx:RemoveChild target="{hybSetupView}"/>
@@ -5100,6 +5103,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

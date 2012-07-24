@@ -112,7 +112,8 @@
 				
 				
 				if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
-					parentDocument.requestFormButton.visible = false;				
+					parentDocument.requestFormButton.visible = false;	
+					parentDocument.requestFormButton.includeInLayout = false;
 				}
 			}
 		}
@@ -1097,6 +1098,10 @@
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@createDate}" width="400"/>
 						</mx:HBox>
+						<mx:HBox horizontalGap="0">
+							<mx:Label text="Last modified" width="100" />
+							<mx:Text  text="{this.selectedExperiment.@lastModifyDate}"/>
+						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="{'Owned by'}" width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="400" />
@@ -1105,6 +1110,8 @@
 							<mx:Label width="100" text="Completed" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="400" />
 						</mx:HBox>
+						
+						
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="visibilityBox">
 							<mx:Text  width="100" text="Visibility" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{visibilityName}" width="400" />
@@ -1633,6 +1640,7 @@
 			</mx:HBox>
 		</mx:AddChild>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
+		<mx:SetProperty target="{parentDocument.requestFormButton}" name="includeInLayout" value="false"/>
 		<mx:SetProperty target="{parentDocument.submitExperimentButton}" name="includeInLayout" value="true"/>
 		<mx:SetProperty target="{parentDocument.submitExperimentButton}" name="visible" value="true"/>
 		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
