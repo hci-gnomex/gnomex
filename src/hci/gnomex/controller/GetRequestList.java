@@ -64,8 +64,27 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       
       node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
       
-      List label = sess.createQuery("Select plate.label from Request as req Left Join req.samples as samps Left Join samps.wells as pws Left Join pws.plate as plate where req.idRequest = " + req.getIdRequest() + " AND plate.codePlateType = 'REACTION'").list();
-      node.setAttribute("plateLabel", label.size() != 0 && label.get(0) != null ? (String)label.get(0) : "");
+      StringBuffer queryBuf = new StringBuffer();
+      queryBuf.append("select plate.label, run.idInstrumentRun, run.label ");
+      queryBuf.append("from Request as req ");
+      queryBuf.append("left Join req.samples as samps ");
+      queryBuf.append("left Join samps.wells as pws ");
+      queryBuf.append("left Join pws.plate as plate ");
+      queryBuf.append("left Join plate.instrumentRun as run ");
+      queryBuf.append("where req.idRequest = " + req.getIdRequest() + " ");
+      queryBuf.append("AND plate.codePlateType = 'REACTION' ");
+      List plateRows = sess.createQuery(queryBuf.toString()).list();
+      
+      if (plateRows != null && plateRows.size() > 0) {
+        Object[] plateRow = (Object[])plateRows.get(0);
+        String plateLabel        = (String)plateRow[0];
+        Integer idInstrumentRun  = (Integer)plateRow[1];
+        String runLabel          = (String)plateRow[2];
+        
+        node.setAttribute("plateLabel", plateLabel != null ? plateLabel : "");
+        node.setAttribute("idInstrumentRun", idInstrumentRun != null ? idInstrumentRun.toString() : "");
+        node.setAttribute("runLabel", runLabel != null ? runLabel : "");        
+      }
       
       doc.getRootElement().addContent(node);
       
