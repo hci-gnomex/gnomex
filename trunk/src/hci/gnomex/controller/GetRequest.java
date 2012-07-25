@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -45,6 +46,7 @@ import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Primer;
 import hci.gnomex.model.PropertyDictionary;
@@ -180,7 +182,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           
           if (!newRequest) {
-            this.getSecAdvisor().flagPermissions(request);            
+            this.getSecAdvisor().flagPermissions(request);      
           }
 
 
@@ -201,6 +203,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           
+          flagPlateInfo(newRequest, request, requestNode);
           
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
           requestNode.setAttribute("requestStatus", requestStatus);
@@ -684,6 +687,35 @@ public class GetRequest extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void flagPlateInfo(boolean isNewRequest, Request request, Element requestNode) {
+    
+    boolean onReactionPlate = false;
+    boolean hasPendingRedo = false;
+    
+    if (!isNewRequest) {
+      // Find out if the samples are on a reaction plate.  If they
+      // are, flag the request so that appropriate warnings
+      // can be displayed if the data is changed.
+      for (Sample s : (Set<Sample>)request.getSamples()) {
+        for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+          // Only check source wells for redo.  The reaction well will be set to redo and not toggle back.
+          if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+            if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
+              hasPendingRedo = true;
+            }
+          } else if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+              onReactionPlate = true;
+          }
+        }
+      }
+    }
+
+    
+    requestNode.setAttribute("hasPendingRedo", hasPendingRedo ? "Y" : "N");
+    requestNode.setAttribute("onReactionPlate", onReactionPlate ? "Y" : "N");
+    
   }
 
 }

@@ -26,18 +26,73 @@ public class RequestFilter extends DetailObject {
   private String                codeRequestCategory;
   private String                status;
   
+  private String                hasPendingRedo = "N";
+  
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
   
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
+    addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT req");
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append(" req.idRequest, ");
+    queryBuf.append(" req.number, ");
+    queryBuf.append(" req.name, ");
+    queryBuf.append(" req.description, ");
+    queryBuf.append(" req.idSampleDropOffLocation, ");
+    queryBuf.append(" req.codeRequestStatus, ");
+    queryBuf.append(" req.codeRequestCategory, ");
+    queryBuf.append(" req.createDate, ");
+    queryBuf.append(" submitter.firstName, ");
+    queryBuf.append(" submitter.lastName, ");
+    queryBuf.append(" lab.firstName, ");
+    queryBuf.append(" lab.lastName, ");
+    queryBuf.append(" req.idAppUser, ");
+    queryBuf.append(" req.idLab, ");
+    queryBuf.append(" req.idCoreFacility, ");
+    queryBuf.append(" count(sample.idSample) ");
     
     getQueryBody(queryBuf);
+
+    queryBuf.append(" GROUP BY ");
+    queryBuf.append(" req.idRequest, ");
+    queryBuf.append(" req.number, ");
+    queryBuf.append(" req.name, ");
+    queryBuf.append(" req.description, ");
+    queryBuf.append(" req.idSampleDropOffLocation, ");
+    queryBuf.append(" req.codeRequestStatus, ");
+    queryBuf.append(" req.codeRequestCategory, ");
+    queryBuf.append(" req.createDate, ");
+    queryBuf.append(" submitter.firstName, ");
+    queryBuf.append(" submitter.lastName, ");
+    queryBuf.append(" lab.firstName, ");
+    queryBuf.append(" lab.lastName, ");
+    queryBuf.append(" req.idAppUser, ");
+    queryBuf.append(" req.idLab, ");
+    queryBuf.append(" req.idCoreFacility ");
+
+    queryBuf.append(" order by req.idRequest ");
+
+    return queryBuf;
+    
+  }
+
+  public StringBuffer getReactionPlateQuery(SecurityAdvisor secAdvisor) {
+    addWhere = true;
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append(" req.idRequest, ");
+    queryBuf.append(" plate.label, ");
+    queryBuf.append(" run.idInstrumentRun, ");
+    queryBuf.append(" run.label ");
+    
+    getReactionPlateQueryBody(queryBuf);
     
     return queryBuf;
     
@@ -46,15 +101,37 @@ public class RequestFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.samples as sample ");
+    queryBuf.append(" JOIN        req.submitter as submitter ");
+    queryBuf.append(" JOIN        req.lab as lab ");
+    
+    if (hasPendingRedo.equals("Y")) {
+      queryBuf.append(" JOIN        sample.wells as sourceWell ");
+      queryBuf.append(" LEFT JOIN   sourceWell.plate as sourcePlate ");
+    }
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
     
     addRequestCriteria();
+    addWellCriteria();
     addSecurityCriteria();
     
-    queryBuf.append(" order by req.idRequest");
   
   }
   
+
+  public void getReactionPlateQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.samples as sample ");
+    queryBuf.append(" JOIN        sample.wells as well ");
+    queryBuf.append(" JOIN        well.plate as plate ");
+    queryBuf.append(" LEFT JOIN   plate.instrumentRun as run ");
+    queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
+    
+    addRequestCriteria();
+    addReactionPlateCriteria();
+    addSecurityCriteria();
+  }
   
 
   private void addRequestCriteria() {
@@ -154,6 +231,22 @@ public class RequestFilter extends DetailObject {
     } 
   }
   
+  private void addWellCriteria() {
+    // Search by redoFlag
+    if (hasPendingRedo.equals("Y")){
+      this.addWhereOrAnd();
+      queryBuf.append("(");
+      queryBuf.append(" sourceWell.redoFlag = 'Y'");
+      this.addWhereOrAnd();
+      queryBuf.append(" (sourcePlate is NULL OR sourcePlate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') ");
+      queryBuf.append(")");
+    }    
+  } 
+
+  private void addReactionPlateCriteria() {
+      this.addWhereOrAnd();
+      queryBuf.append(" plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
+  }   
   private void addSecurityCriteria() {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
@@ -278,6 +371,14 @@ public class RequestFilter extends DetailObject {
   
   public void setStatus( String status ) {
     this.status = status;
+  }
+
+  public String getHasPendingRedo() {
+    return hasPendingRedo;
+  }
+
+  public void setHasPendingRedo(String hasPendingRedo) {
+    this.hasPendingRedo = hasPendingRedo;
   }
 
 

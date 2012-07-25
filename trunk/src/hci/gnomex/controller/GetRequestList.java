@@ -1,13 +1,19 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestFilter;
+import hci.gnomex.model.RequestStatus;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,13 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestFilter;
-import hci.gnomex.model.Request;
 
 
 public class GetRequestList extends GNomExCommand implements Serializable {
@@ -31,6 +33,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestList.class);
   
   private RequestFilter requestFilter;
+  private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
   
   public void validate() {
   }
@@ -51,40 +54,67 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
     
     log.info("Query for GetRequestList: " + buf.toString());
-    List reqs = sess.createQuery(buf.toString()).list();
+    List rows = sess.createQuery(buf.toString()).list();
+    
+    //Hash reaction plate info by idRequest
+    hashReactionPlates(sess);
     
     Document doc = new Document(new Element("RequestList"));
-    for(Iterator i = reqs.iterator(); i.hasNext();) {
-      Request req = (Request)i.next();
+    for(Iterator i = rows.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
       
-      Element node = req.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      Integer idRequest               = (Integer)row[0];
+      String number                   = (String)row[1];
+      String name                     = (String)row[2];
+      String description              = (String)row[3];
+      Integer idSampleDropOffLocation = (Integer)row[4];
+      String codeRequestStatus        = (String)row[5];
+      String codeRequestCategory      = (String)row[6];
+      String createDate               = row[7] != null ? this.formatDateTime((java.util.Date)row[7], this.DATE_OUTPUT_DASH) : "";
+      String submitterFirstName       = (String)row[8];
+      String submitterLastName        = (String)row[9];
+      String labFirstName             = (String)row[10];
+      String labLastName              = (String)row[11];
+      Integer idAppUser               = (Integer)row[12];
+      Integer idLab                   = (Integer)row[13];
+      Integer idCoreFacility          = (Integer)row[14];
+      Integer numberOfSamples         = (Integer)row[15];
+
+      String requestStatus = dh.getRequestStatus(codeRequestStatus);
+      String labName = Lab.formatLabName(labLastName, labFirstName);
+      String ownerName = AppUser.formatName(submitterLastName, submitterFirstName);
       
-      RequestCategory requestCategory = dh.getRequestCategoryObject(req.getCodeRequestCategory());
-      String requestStatus = dh.getRequestStatus(req.getCodeRequestStatus());
+      String experimentName = toString(name);
+      if (experimentName.length() == 0) {
+        experimentName = AppUser.formatShortName(submitterLastName, submitterFirstName) + "-" + number;
+      }
+
+      Element node = new Element("Request");
       
+      node.setAttribute("idRequest", toString(idRequest));
+      node.setAttribute("name", toString(experimentName));
+      node.setAttribute("number", toString(number));
+      node.setAttribute("requestNumber", toString(number));
+      node.setAttribute("description", toString(description));
+      node.setAttribute("idSampleDropOffLocation", toString(idSampleDropOffLocation));
+      node.setAttribute("codeRequestStatus", toString(codeRequestStatus));
+      node.setAttribute("requestStatus", toString(requestStatus));
+      node.setAttribute("codeRequestCategory", toString(codeRequestCategory));
+      node.setAttribute("createDate", createDate);
+      node.setAttribute("ownerName", toString(ownerName));
+      node.setAttribute("labName", toString(labName));
+      node.setAttribute("numberOfSamples", toString(numberOfSamples));
+      node.setAttribute("isSelected", "N");
+          
+      
+      RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
       node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
       
-      StringBuffer queryBuf = new StringBuffer();
-      queryBuf.append("select plate.label, run.idInstrumentRun, run.label ");
-      queryBuf.append("from Request as req ");
-      queryBuf.append("left Join req.samples as samps ");
-      queryBuf.append("left Join samps.wells as pws ");
-      queryBuf.append("left Join pws.plate as plate ");
-      queryBuf.append("left Join plate.instrumentRun as run ");
-      queryBuf.append("where req.idRequest = " + req.getIdRequest() + " ");
-      queryBuf.append("AND plate.codePlateType = 'REACTION' ");
-      List plateRows = sess.createQuery(queryBuf.toString()).list();
+
+      List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
+      appendReactionPlateInfo(node, rxnPlateRows);
       
-      if (plateRows != null && plateRows.size() > 0) {
-        Object[] plateRow = (Object[])plateRows.get(0);
-        String plateLabel        = (String)plateRow[0];
-        Integer idInstrumentRun  = (Integer)plateRow[1];
-        String runLabel          = (String)plateRow[2];
-        
-        node.setAttribute("plateLabel", plateLabel != null ? plateLabel : "");
-        node.setAttribute("idInstrumentRun", idInstrumentRun != null ? idInstrumentRun.toString() : "");
-        node.setAttribute("runLabel", runLabel != null ? runLabel : "");        
-      }
+      appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility);
       
       doc.getRootElement().addContent(node);
       
@@ -119,6 +149,107 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private String toString(Object theValue) {
+    if (theValue != null) {
+      return theValue.toString();
+    } else {
+      return "";
+    }
+  }
+  
+  private void hashReactionPlates(Session sess) {
+    reactionPlateMap = new HashMap<Integer, List<Object[]>>();
+    
+    StringBuffer queryBuf = requestFilter.getReactionPlateQuery(this.getSecAdvisor());
+    List<Object[]> plateRows = sess.createQuery(queryBuf.toString()).list();
+    
+    if (plateRows != null) {
+      
+      for (Object[] plateRow : plateRows) {
+        Integer idRequest        = (Integer)plateRow[0];
+        String plateLabel        = (String)plateRow[1];
+        Integer idInstrumentRun  = (Integer)plateRow[2];
+        String runLabel          = (String)plateRow[3];
+        
+        List<Object[]> thePlateRows = reactionPlateMap.get(idRequest);
+        if (thePlateRows == null) {
+          thePlateRows = new ArrayList<Object[]>();
+          reactionPlateMap.put(idRequest, thePlateRows);
+        }
+        thePlateRows.add(plateRow);
+      }
+    }    
+  }
+  
+  private void appendReactionPlateInfo(Element node, List<Object[]> plateRows) {
+    
+    String rxnPlateNames = "";
+    String runIds = "";
+    String runNames = "";
+    if (plateRows != null) {
+      for (Object[] plateRow : plateRows) {
+        Integer idRequest        = (Integer)plateRow[0];
+        String plateLabel        = (String)plateRow[1];
+        Integer idInstrumentRun  = (Integer)plateRow[2];
+        String runLabel          = (String)plateRow[3];
+        
+        if (rxnPlateNames.length() > 0 && toString(plateLabel).length() > 0) {
+          rxnPlateNames += ", ";
+        }
+        if (runIds.length() > 0 && toString(idInstrumentRun).length() > 0) {
+          runIds += ", ";
+        }
+        if (runNames.length() > 0 & toString(runLabel).length() > 0) {
+          runNames += ", ";
+        }
+        rxnPlateNames += toString(plateLabel);
+        runIds += toString(idInstrumentRun);
+        runNames += toString(runLabel);
+      }
+    }
+    
+    node.setAttribute("plateLabel", rxnPlateNames);
+    node.setAttribute("idInstrumentRun", runIds);
+    node.setAttribute("runLabel", runNames);        
+    
+  }
+  
+  private void appendSecurityFlags(Element node, String codeRequestStatus, 
+      String codeRequestCategory, Integer idLab, Integer idAppUser, Integer idCoreFacility) {
+    boolean canUpdate = false;
+    boolean isDNASeqExperiment = RequestCategory.isDNASeqCoreRequestCategory(codeRequestCategory);
+    
+    // Super Admins
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      canUpdate = true;
+    }
+    // Admins - Can only update requests from core facility user manages
+    else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+      canUpdate = this.getSecAdvisor().isCoreFacilityIManage(idCoreFacility);
+      if (isDNASeqExperiment && !codeRequestStatus.equals(RequestStatus.SUBMITTED) && !codeRequestStatus.equals(RequestStatus.NEW)) {
+        canUpdate = false;
+      }
+    }
+    // University GNomEx users
+    else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+      
+      // Lab manager
+      if (this.getSecAdvisor().isGroupIManage(idLab)) {
+        canUpdate = true;
+      }
+      // Owner of request
+      else if (this.getSecAdvisor().isGroupIAmMemberOf(idLab) && this.getSecAdvisor().isOwner(idAppUser)) {
+        canUpdate = true;
+      } 
+      if (canUpdate && isDNASeqExperiment && !codeRequestStatus.equals(RequestStatus.NEW)) {
+        canUpdate = false;
+      }
+    } 
+    
+    node.setAttribute("canUpdate", canUpdate ? "Y" : "N");
+
   }
 
 }
