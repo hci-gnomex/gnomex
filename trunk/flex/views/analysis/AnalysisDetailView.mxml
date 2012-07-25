@@ -92,6 +92,18 @@
 					if (theTab.contains(this.topicsTab)) {
 						theTab.removeChild(topicsTab);
 					}				
+				} else {
+					var topics:XMLList = this.analysis.topics.Topic;
+					if(topics == null || topics.length() == 0) {
+						// If topics enabled but none returned then hide the topics tab
+						if (theTab.contains(this.topicsTab)) {
+							theTab.removeChild(topicsTab);
+						}					
+					} else if (topics != null && topics.length() > 0) {	
+						if (!theTab.contains(this.topicsTab)) {
+							theTab.addChild(topicsTab);
+						}					
+					}				
 				}
 				
 				getAnalysisTypeName();
