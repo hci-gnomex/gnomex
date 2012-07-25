@@ -583,15 +583,7 @@
 				orderNum.text = selectedGroupId;
 				numberSamples.text = indices.length != 0 ? indices.length.toString() : '';
 				
-				var request:Object = getPendingSampleList.lastResult..Request.( @idRequest == selectedGroupId );
 				
-				if ( submitDate.text == null || submitDate.text == '' ) {
-					submitDate.text = request != null ? request.@submitDate : '';
-				}
-				
-				if ( submitter.text == null || submitter.text == '' ) {
-					submitter.text = request != null ? request.@submitter : '';
-				}
 				sampleDisplayGrid.dataProvider = samplesOnPlate;
 				
 				if ( colorPick.getLabelIndex( selectedGroupId ) == 0 ) {
