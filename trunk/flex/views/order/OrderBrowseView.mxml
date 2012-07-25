@@ -5,8 +5,8 @@
 		 defaultButton="{lookupButton}" verticalGap="0">
 <mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="1">
 	<mx:Image source="assets/page.png"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Review Orders"/>	
-	
+	<mx:Label id="titleLabel" styleName="titleLabel" text="Review Orders" fontWeight="bold"/>	
+	 
 	<mx:Spacer width="100%"/>
 
 	<mx:HBox horizontalGap="0"
@@ -98,14 +98,23 @@
 				getList();
 			}
 			
+			public function viewOrder(event:MouseEvent):void {
+				parentView.selectedRequest = orderGrid.selectedItem;
+				parentDocument.switchToOrderDetailView();
+			}
+			
+			public function editOrder(event:MouseEvent):void {
+				parentView.selectedRequest = orderGrid.selectedItem;
+				parentDocument.switchToOrderEditView();
+			}
 			private function gridItemClick(event:ListEvent):void {
 				
 				if ( orderGrid.selectedItem != null ) {
 					parentView.selectedRequest = orderGrid.selectedItem;
 				}
 				
-				if ( event.columnIndex == 2 ) {
-					parentView.switchToOrderDetailView();
+				if ( event.columnIndex == 2 || event.columnIndex == 1) {
+					parentView.switchToOrderEditView();
 				}
 				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					orderGrid.selectedIndex = -1;
@@ -691,7 +700,9 @@
 				
 			</mx:HBox>
 			
-			<mx:DataGrid id = "orderGrid"
+			<mx:DataGrid id = "orderGrid" 
+						 wordWrap="true"
+						 variableRowHeight="true"
 						 allowMultipleSelection="true"
 						 itemClick = "gridItemClick(event)"
 						 click="{selectedOrders.refresh()}"
@@ -731,21 +742,22 @@
 
 					
 					<mx:DataGridColumn dataField = "@name"
-									   headerText = "Label"
+									   headerText = "Name"
 									   width = "160"
-									   textDecoration = "underline"
-									   color = "#2017D8"
 									   draggable="false">
-						<mx:headerRenderer>
-							<mx:Component>
-								<mx:Label text = "Label" textDecoration = "none" color = "#000000" />
-								
-							</mx:Component>
-							
-						</mx:headerRenderer>
-						
 					</mx:DataGridColumn>
 					
+					<mx:DataGridColumn headerText="Action" width="140" editable="false">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
+									<mx:LinkButton label="View"  textDecoration="underline" click="outerDocument.viewOrder(event)" fontSize="9" color="#0000FF"/>
+									<mx:LinkButton label="Edit"  enabled="{data.@canUpdate == 'Y'}"  textDecoration="underline" fontSize="9" click="outerDocument.editOrder(event)" color="#0000FF"/>
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+										
 					
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "65" />
 					
@@ -761,17 +773,17 @@
 									   headerText = "Type" width = "80" 
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry, '@display', '@value', '@codeRequestCategory')}"/>
 					
-					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
+					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
 					
-					<mx:DataGridColumn dataField="@plateLabel" headerText = "Plate" width="110"/>
+					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110"/>
 					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110"/>
 					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70"/>
 					
-					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="80"/>
+					<mx:DataGridColumn dataField="@submitterName" headerText="Submitter" width="100"/>
 
-					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "110" />
+					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
 
-					<mx:DataGridColumn dataField = "@notes" headerText = "Notes" width = "250" />
+					<mx:DataGridColumn dataField = "@notes" headerText = "Notes" width = "120" />
 					
 				</mx:columns>
 				

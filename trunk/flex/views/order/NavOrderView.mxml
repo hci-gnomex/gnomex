@@ -10,22 +10,35 @@
 	
 	
 	<mx:HTTPService  
-		id="getRequest" 
+		id="getRequestToEdit" 
 		url="GetRequest.gx"
-		destination="getRequest"
+		destination="getRequestToEdit"
 		resultFormat="e4x"
-		showBusyCursor="false"
-		result="onGetRequest(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+		showBusyCursor="true"
+		result="onGetRequestToEdit(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request to edit', event)"
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService>
 
 	
+	<mx:HTTPService  
+		id="getRequestToView" 
+		url="GetRequest.gx"
+		destination="getRequestToView"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetRequestToView(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request to view', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+
 	<mx:Script> 
 		<![CDATA[
-			import mx.rpc.events.ResultEvent;
 			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			public var selectedRequest:Object;
@@ -39,26 +52,55 @@
 				}
 			}
 			
-			public function switchToOrderDetailView():void{
-				editView.titleLabel.text = (selectedRequest.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ selectedRequest.@requestNumber;
+			public function switchToOrderEditView():void{
 				var parms:Object = new Object();
-				parms.idRequest = selectedRequest.@idRequest;;
-				getRequest.send(parms);
+				parms.idRequest = selectedRequest.@idRequest;
+				getRequestToEdit.send(parms);
 			}
 			
-			private function onGetRequest(event:ResultEvent):void {
-				if (getRequest.lastResult.name() == "SUCCESS") {
+			private function onGetRequestToEdit(event:ResultEvent):void {
+				if (getRequestToEdit.lastResult.name() == "SUCCESS") {
 					Alert.show("Experiment  not found");					
 					return;
 				}
 
-				selectedRequest = getRequest.lastResult.Request.(@idRequest == selectedRequest.@idRequest);
+				selectedRequest = getRequestToEdit.lastResult.Request.(@idRequest == selectedRequest.@idRequest);
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedRequest.@codeRequestCategory);
+
+				var title:String = 'Edit Experiment ' + selectedRequest.@number;
 
 				theViews.selectedChild = editView;
 				editView.removeDataListeners();
 				editView.setupEditForm(this.selectedRequest);
+				editView.titleLabel.text = title;
 				callLater(editView.setupDataListeners);
+			}
+			
+			
+			public function switchToOrderDetailView():void{
+				var parms:Object = new Object();
+				parms.idRequest = selectedRequest.@idRequest;
+				getRequestToView.send(parms);
+			}
+			
+			private function onGetRequestToView(event:ResultEvent):void {
+				if (getRequestToView.lastResult.name() == "SUCCESS") {
+					Alert.show("Experiment  not found");					
+					return;
+				}
+				
+				selectedRequest = getRequestToView.lastResult.Request.(@idRequest == selectedRequest.@idRequest);
+				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedRequest.@codeRequestCategory);
+				
+				var title:String = 'Edit Experiment ' + selectedRequest.@number;
+
+				detailView.detail.setupForm(this.selectedRequest);
+
+				theViews.selectedChild = detailView;
+				detailView.navBackButton.visible = true;
+				detailView.navBackButton.includeInLayout = true;
+				detailView.titleLabel.text = title;
+				
 			}
 			
 			
@@ -82,9 +124,12 @@
 									   label="Order List"
 									   icon="@Embed('../../assets/application_view_list.png')">
 				</order:OrderBrowseView>
-				<experiment:ExperimentEditView id="editView" width="100%" height="100%" label="Order Detail"
+				<experiment:ExperimentEditView id="editView" width="100%" height="100%" label="Order Detail (Edit)"
 											   icon="@Embed(source='../../assets/tv_chart.png')">
 				</experiment:ExperimentEditView>
+				<experiment:ExperimentDetailPanel id="detailView" width="100%" height="100%" label="Order Detail"
+											   icon="@Embed(source='../../assets/tv_chart.png')">
+				</experiment:ExperimentDetailPanel>
 
 				
 			</mx:ViewStack>

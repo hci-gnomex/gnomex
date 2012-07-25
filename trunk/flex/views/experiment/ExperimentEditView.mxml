@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml"     
+<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*" 
     xmlns:util="views.util.*"  
@@ -7,7 +7,7 @@
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	width="100%" height="100%"  
 	creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*" xmlns:mx1="library://ns.adobe.com/flex/mx">
-
+ 
      
    <mx:HTTPService  
     id="getNewRequest" 
@@ -2119,11 +2119,18 @@
 			this.getExperimentCategoryName();
 
 			if (parentDocument is NavOrderView) {
-				this.linkbutton2.label = "Back";
-				this.linkbutton2.setStyle('icon',this.leftArrowIcon);
+				this.navBackButton.visible = true;
+				this.navBackButton.includeInLayout = true;
+				
+				
 			} else {
 				this.linkbutton2.label = "View";
 				this.linkbutton2.setStyle('icon',this.viewIcon);
+				
+				this.navBackButton.visible = false;
+				this.navBackButton.includeInLayout = false;
+				
+
 			}
 
 		    postSetupEditForm();
@@ -2421,6 +2428,10 @@
 		private function validateRequest():void {
 			errorMessage = '';
 			warningMessage = '';
+			
+			if (request.@onReactionPlate == 'Y') {
+				warningMessage = "Samples from this order are already on a reaction plate.\n\n";
+			}
 			
 			if (isCapSeqState()) {
 				if (samples.length < 32 && this.request.@containerType == 'PLATE') {
@@ -3599,14 +3610,18 @@
 				}
 			}			
 		}			
-
-		private function showViewWindow():void {
+			
+		private function backToNavOrder():void {
 			if (parentDocument is NavOrderView) {
 				parentDocument.theViews.selectedChild = parentDocument.browseView;
-			} else {
-				parentDocument.theViews.selectedChild = parentDocument.detailView;
-				parentDocument.detailView.detail.setupForm(this.request);
-			}
+			} 
+		}
+
+		private function showViewWindow():void {
+			parentDocument.theViews.selectedChild = parentDocument.detailView;
+			parentDocument.detailView.detail.setupForm(this.request);
+			parentDocument.detailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ')+ this.request.@number;
+
 		}
 		
 
@@ -4652,8 +4667,6 @@
 	</mx:XMLList>
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
-			<mx:Image source="{requestIcon}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
 		</mx:HBox>		
 	</mx:VBox>
 
@@ -4774,6 +4787,14 @@
 	
     <mx:states>
     	<mx:State name="EditState">
+			<mx:AddChild relativeTo="{navBox}" position="firstChild">
+				<mx:HBox id="topBox" verticalAlign="middle">
+					<mx:LinkButton label="Back" paddingRight="50" click="backToNavOrder()" icon="@Embed(source='../../assets/arrow_left.png')" textDecoration="underline" id="navBackButton" paddingLeft="0" textAlign="left" fontStyle="normal">    	        
+					</mx:LinkButton>				
+
+				</mx:HBox>
+			</mx:AddChild>
+
     		<mx:RemoveChild target="{seqSetup1View}"/>
     		<mx:AddChild relativeTo="{theTab}" position="lastChild">
     			<mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
@@ -4859,14 +4880,12 @@
     		</mx:AddChild>
     		<mx:SetStyle target="{dirty}" name="fontSize" value="9"/>
     		<mx:SetProperty target="{dirty}" name="label" value="Changes have not been saved"/>
-    		<mx:SetProperty target="{hbox7}" name="width"/>
     		<mx:SetStyle target="{hbox8}" name="horizontalGap" value="0"/>
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
-			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
-				<mx:Spacer width="8"/>
-			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" verticalAlign="middle" paddingLeft="4">
+				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" paddingTop="4" verticalAlign="middle" paddingLeft="4">
+					<mx:Image source="{requestIcon}"/>
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}" fontWeight="bold" paddingRight="50"/>
 					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
 					<mx:LinkButton label="Download Files" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
@@ -4878,7 +4897,7 @@
 					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}"  fontSize="9"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{navBox}" name="width"/>
+			<mx:SetProperty target="{navBox}" name="width" value="100%"/>
 			<mx:AddChild relativeTo="{theTab}" position="firstChild">
 				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
@@ -4952,6 +4971,7 @@
 					
 				</mx:VBox>
 			</mx:AddChild>
+			<mx:SetStyle target="{navBox}" name="verticalGap" value="0"/>
 		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
