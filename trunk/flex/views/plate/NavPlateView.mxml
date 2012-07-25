@@ -2434,7 +2434,7 @@
 					 paddingLeft="2"
 					 paddingRight="2">
 				
-				<mx:Label fontSize="11"
+				<mx:Label
 						  fontWeight="bold"
 						  id="runTitleLabel"
 						  text="Run"
@@ -2446,17 +2446,17 @@
 									label="Capillary Sequencing"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(SEQ)}"
-									selected="{reactionState==SEQ}" />
+									selected="{reactionState==SEQ}"  styleName="labelSmall"/>
 					<mx:RadioButton id="radioMit"
 									label="Mitochondrial Sequencing"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(MIT)}"
-									selected="{reactionState==MIT}" />
+									selected="{reactionState==MIT}"  styleName="labelSmall"/>
 					<mx:RadioButton id="radioFrag"
 									label="Fragment Analysis"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(FRAG)}"
-									selected="{reactionState==FRAG}" />
+									selected="{reactionState==FRAG}"  styleName="labelSmall"/>
 					<mx:Spacer width="100%" height="100%" />
 					
 				</mx:HBox>
@@ -3635,6 +3635,7 @@
 			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:" />
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
+			<mx:SetStyle target="{runTitleLabel}" name="fontSize"/>
 		</mx:State>
 		<mx:State id="newStateRun" name="newStateRun" basedOn="newState">
 			<mx:RemoveChild target="{savePlateButton}" />
@@ -3659,6 +3660,10 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
+			<mx:SetStyle target="{runTitleLabel}" name="fontSize"/>
+			<mx:SetProperty target="{radioSEQ}" name="styleName" value="labelSmall"/>
+			<mx:SetProperty target="{radioMit}" name="styleName" value="labelSmall"/>
+			<mx:SetProperty target="{radioFrag}" name="styleName" value="labelSmall"/>
 		</mx:State>
 		
 	</mx:states>
