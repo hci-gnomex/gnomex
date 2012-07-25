@@ -45,7 +45,10 @@
 * Added Topics tab to experiment, analysis, and data track detail views. (rcundick)
 * Add red label to highlight that experiment has not been submitted (tdisera)
 * Show run name, run id on Order review screen (tdisera)
+* Make performance improvements to query for Review Orders window.  Speed up queries in GetRequest by returning table columns rather than request objects. (tdisera).
 * Default to 'my experiments' for normal user (tdisera)
+* Show view and edit links on Order Review screen.  Disable edit link when order cannot be edited. (tdisera)
+* Conditionally show 'Back' link on Experiment Detail, Experiment Edit views (only when launched from Review Orders view). (tdisera)
 
 
 5.4.5 (July 1, 2012)
