@@ -132,7 +132,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           
           releaser = (AppUser)sess.get(AppUser.class, idReleaser);
           
-          String submitter = AppUser.formatAppUserName(submitterLastName, submitterFirstName);
+          String submitter = AppUser.formatShortName(submitterLastName, submitterFirstName);
 
           
           Element cNode = new Element("Chromatogram");
