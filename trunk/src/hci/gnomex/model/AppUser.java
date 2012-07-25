@@ -31,7 +31,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private Set     managingCoreFacilities;
   
   
-  public static String formatAppUserName(String lastName, String firstName) {
+  public static String formatName(String lastName, String firstName) {
     
     String name = "";
     if (lastName != null && !lastName.equals("")) {
@@ -45,6 +45,17 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     
     return name;
+  }
+  
+  public static String formatShortName(String lastName, String firstName) {
+    String name = "";
+    if (firstName != null && !firstName.equals("")) {
+      name = firstName.substring(0, 1);
+    }
+    if (lastName != null && !lastName.equals("")) {
+      name += lastName;
+    }
+    return name.toLowerCase();    
   }
   
   public String getDepartment() {
@@ -219,14 +230,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
   }
   public String getShortName() {
-    String name = "";
-    if (firstName != null && !firstName.equals("")) {
-      name = firstName.substring(0, 1);
-    }
-    if (lastName != null && !lastName.equals("")) {
-      name += lastName;
-    }
-    return name.toLowerCase();
+    return formatShortName(this.lastName, this.firstName);
   }
 
   public String getDisplayName() {
