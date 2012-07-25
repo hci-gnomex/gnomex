@@ -92,7 +92,7 @@
 				selectedRequest = getRequestToView.lastResult.Request.(@idRequest == selectedRequest.@idRequest);
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedRequest.@codeRequestCategory);
 				
-				var title:String = 'Edit Experiment ' + selectedRequest.@number;
+				var title:String = 'View Experiment ' + selectedRequest.@number;
 
 				detailView.detail.setupForm(this.selectedRequest);
 
