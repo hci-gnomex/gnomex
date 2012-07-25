@@ -790,6 +790,10 @@
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
 					
+					<mx:DataGridColumn dataField="@sampleName" visible="{currentState == 'userState'}"
+									   headerText="Sample"
+									   width="80" minWidth="15" />
+						
 					<mx:DataGridColumn dataField="@runName"
 									   headerText="Run"
 									   width="50" minWidth="20" />
@@ -808,9 +812,7 @@
 					<mx:DataGridColumn dataField="@requestNumber"
 									   headerText="Order #"  visible="{currentState != 'userState'}"
 									   width="50" minWidth="15" />
-					<mx:DataGridColumn dataField="@sampleName" visible="{currentState == 'userState'}"
-									   headerText="Sample"
-									   width="60" minWidth="15" />
+
 						
 					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{!this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
 									   width="90" minWidth="75" id="releasedCheckBox">
