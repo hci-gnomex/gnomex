@@ -3455,7 +3455,7 @@
 							<mx:Text id="numberSamples" width="100%" />
 							
 						</mx:HBox>
-						<mx:Label text="  Samples:" fontWeight="bold" id="label3" />
+						<mx:Label text="  Samples on Plate:" fontWeight="bold" id="label3" />
 						<mx:HBox width="100%" horizontalAlign="center" paddingRight="4">
 							
 							<mx:Spacer width="4" height="100%" />
@@ -3632,10 +3632,8 @@
 			<mx:RemoveChild target="{printButton}" />
 			<mx:RemoveChild target="{pltButton}" />
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Build Run" />
-			<mx:SetProperty target="{label3}" name="text" value="  Samples on Plate:" />
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
-			<mx:SetStyle target="{runTitleLabel}" name="fontSize"/>
 		</mx:State>
 		<mx:State id="newStateRun" name="newStateRun" basedOn="newState">
 			<mx:RemoveChild target="{savePlateButton}" />
@@ -3660,10 +3658,6 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
-			<mx:SetStyle target="{runTitleLabel}" name="fontSize"/>
-			<mx:SetProperty target="{radioSEQ}" name="styleName" value="labelSmall"/>
-			<mx:SetProperty target="{radioMit}" name="styleName" value="labelSmall"/>
-			<mx:SetProperty target="{radioFrag}" name="styleName" value="labelSmall"/>
 		</mx:State>
 		
 	</mx:states>
