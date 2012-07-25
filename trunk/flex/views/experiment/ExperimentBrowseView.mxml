@@ -33,6 +33,7 @@
     useProxy="false">
     <mx:request>
    		<idProject>0</idProject>    	
+		<idLab>{parentDocument.selectedIdLab}</idLab>
     </mx:request>
   </mx:HTTPService>
 

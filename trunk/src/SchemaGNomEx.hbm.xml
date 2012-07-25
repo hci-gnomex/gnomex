@@ -259,6 +259,7 @@
     </id>
     <property name="facilityName" column="facilityName" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
+    <property name="showProjectAnnotations" column="showProjectAnnotations" type="string"/>
   </class>
 	
   

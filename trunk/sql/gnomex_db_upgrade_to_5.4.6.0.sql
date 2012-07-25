@@ -166,4 +166,7 @@ values ('default_visibility_datatrack','','Default visibility for new Data Track
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('default_visibility_experiment','','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
  
+-- Property for core facility
+alter table gnomex.CoreFacility add showProjectAnnotations char(1) NOT NULL Default 'Y';
+
 

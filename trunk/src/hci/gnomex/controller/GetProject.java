@@ -24,10 +24,12 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 
 
@@ -36,6 +38,7 @@ public class GetProject extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProject.class);
   
   private Integer idProject;
+  private Integer idLab;
 
   
   public void validate() {
@@ -48,6 +51,12 @@ public class GetProject extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("idProject", "idProject is required");
     }
+
+    if (request.getParameter("idLab") != null) {
+      idLab = new Integer(request.getParameter("idLab"));
+    } else {
+      this.addInvalidField("idLab", "idLab is required");
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -59,6 +68,9 @@ public class GetProject extends GNomExCommand implements Serializable {
       if (idProject.intValue() == 0) {
         project = new Project();
         project.setIdProject(new Integer(0));
+        Lab l = (Lab)sess.load(Lab.class, idLab);
+        project.setIdLab(idLab);
+        project.setLab(l);
       } else {
         project = (Project)sess.get(Project.class, idProject);
         if (!this.getSecAdvisor().canRead(project)) {
@@ -79,12 +91,20 @@ public class GetProject extends GNomExCommand implements Serializable {
         queryBuf.append("SELECT ef from ExperimentFactor as ef ");
         List experimentFactors = sess.createQuery(queryBuf.toString()).list();
 
-      
+        String showProjectAnnotations = "N";
+        for(Iterator i = project.getLab().getCoreFacilities().iterator(); i.hasNext();) {
+          CoreFacility facility = (CoreFacility)i.next();
+          if (facility.getShowProjectAnnotations().equals("Y")) {
+            showProjectAnnotations = "Y";
+            break;
+          }
+        }
       
 
       
         Document doc = new Document(new Element("OpenProjectList"));
         Element projectNode = project.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        projectNode.setAttribute("showProjectAnnotations", showProjectAnnotations);
         doc.getRootElement().addContent(projectNode);
 
         // Show list of experiment design entries

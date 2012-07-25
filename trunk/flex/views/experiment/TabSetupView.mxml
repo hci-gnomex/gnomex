@@ -201,6 +201,7 @@
 		useProxy="false">
 		<mx:request>
 			<idProject>0</idProject>    	
+			<idLab>{labCombo.selectedItem.@idLab}</idLab>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -368,6 +369,7 @@
 				selectedIdProject = this.projectCombo.selectedItem.@idProject;
 				var params:Object = new Object();
 				params.idProject = this.projectCombo.selectedItem.@idProject;
+				params.idLab = labCombo.selectedItem.@idLab;
 				getProjectForEdit.send(params);			
 			}
 			
@@ -442,6 +444,7 @@
 				selectedIdProject = idProject;
 				var params:Object = new Object();
 				params.idProject = idProject;
+				params.idLab = labCombo.selectedItem.@idLab;
 				getProject.send(params);
 			}
 			
