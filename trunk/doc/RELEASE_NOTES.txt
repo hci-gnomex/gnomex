@@ -52,6 +52,7 @@
 * Filter by pending redos on Review Orders screen (tdisera)
 * Do not show annotations for projects in labs which only have coreFacilities marked for no annotations.  (bspiglejr)
 * Fix abort when editting Mitochondrial Sequencing or Fragment Analysis requests which already have samples on reaction plates.  (bspiglejr)
+* Allow duplicate sample names on DNA Sequencing type experiments. (bspiglejr)
 
 
 5.4.5 (July 1, 2012)

@@ -2500,13 +2500,8 @@
 				var sampleCount:int = 0;
 				var sourceWellCount:int = 0;
 				for each(var s1:Object in samples) {
-					if (s.@name == s1.@name) {
-						// Same name on different plates ok.
-						if (isCapSeqState() && this.request.@containerType == "PLATE") {
-							if (s.@plateName != s1.@plateName) {
-								continue;
-							}
-						}
+					// duplicate names ok for dna seq requests
+					if (s.@name == s1.@name && !this.isDNASeqCoreState()) {
 						sampleCount++;
 					}
 					if (this.isCherryPickState()) {
