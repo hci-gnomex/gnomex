@@ -56,7 +56,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   
   private RequestCategory                rcScreen;
   private boolean                        isNewRequestCategory = false;
-
+  
+  private String                         newCodeRequestCategory;
+  
   
   public void validate() {
   }
@@ -64,6 +66,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     rcScreen = new RequestCategory();
+    newCodeRequestCategory = request.getParameter("newCodeRequestCategory");
     HashMap errors = this.loadDetailObject(request, rcScreen);
     this.addInvalidFields(errors);
     if (rcScreen.getCodeRequestCategory() == null || rcScreen.getCodeRequestCategory().equals("")) {
@@ -123,12 +126,29 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
 
+        if(newCodeRequestCategory != null && !newCodeRequestCategory.equals("")){
+          List requestCategories = sess.createQuery("Select rc.codeRequestCategory from RequestCategory as rc").list();
+          for(Iterator i1 = requestCategories.iterator(); i1.hasNext();){
+            String crc = (String)i1.next();
+            if(crc.equals(newCodeRequestCategory)){
+              this.addInvalidField("Duplicate Code Request Category", "The Code Request Category you selected is already in use.  Please select another.");
+              this.setResponsePage(ERROR_JSP);
+              return this;
+            }
+          }
+        }
+
         
         RequestCategory rc = null;
               
         if (isNewRequestCategory) {
           rc = rcScreen;
-          rc.setCodeRequestCategory("EXP" + this.getNextAssignedRequestCategoryNumber(sess));
+          if(newCodeRequestCategory != null && !newCodeRequestCategory.equals("")){
+            rc.setCodeRequestCategory(newCodeRequestCategory);
+          }
+          else{
+            rc.setCodeRequestCategory("EXP" + this.getNextAssignedRequestCategoryNumber(sess));
+          }
           sess.save(rc);
         } else {
           rc = (RequestCategory)sess.load(RequestCategory.class, rcScreen.getCodeRequestCategory());
