@@ -243,11 +243,11 @@
 						parentView.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram as int;
 					}
 					
-					if ( event.columnIndex == 3 ) {
+					if ( event.columnIndex == 2 ) {
 						parentView.chromatViews.selectedChild = parentView.chromatDetailView;	
 					}
 				}
-				if ( event.columnIndex == 3 && currentState == userState.name ) {
+				if ( event.columnIndex == 2 && currentState == userState.name ) {
 					var addWindow:ChromatDetailView;
 					addWindow = ChromatDetailView(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, ChromatDetailView, true));
 					addWindow.selectedChromat = chromatogramGrid.selectedItem;
@@ -257,7 +257,7 @@
 					mx.managers.PopUpManager.centerPopUp(addWindow);
 					addWindow.setFocus();
 				}
-				if ( event.columnIndex != 0 && event.columnIndex != 3 ) {
+				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					chromatogramGrid.selectedIndex = -1;
 				}
 				
