@@ -67,7 +67,9 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         (request.getParameter("accountNumberActivity").length() != 5 && request.getParameter("accountNumberProject").equals("")) ||
         (request.getParameter("accountNumberProject").length() != 8) && request.getParameter("accountNumberActivity").equals("") ){
       
+      this.setResponsePage(this.ERROR_JSP);
       this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check");
+      return;
     }
         
     
