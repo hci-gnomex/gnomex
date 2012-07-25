@@ -1206,7 +1206,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             sess.save(assayPlate);
             sess.flush();
           } else {
-            String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
+            String query = "select p from Plate p where p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' and p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
             assayPlate = (Plate)sess.createQuery(query).uniqueResult();
           }
         }
@@ -1293,7 +1293,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.save(primerPlate);
           sess.flush();
         } else {
-          String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
+          String query = "select p from Plate p where p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' and p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
           primerPlate = (Plate)sess.createQuery(query).uniqueResult();
         }
       }
