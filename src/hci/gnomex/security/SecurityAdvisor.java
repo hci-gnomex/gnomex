@@ -748,9 +748,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Super Admins
       if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canUpdate = true;
-        if (req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
-          canUpdate = false;
-        }
       }
       // Admins - Can only update requests from core facility user manages
       else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
@@ -1114,9 +1111,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Super Admin can delete any request
       if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canDelete = true;
-        if (r.isDNASeqExperiment().equals("Y") && !r.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !r.getCodeRequestStatus().equals(RequestStatus.NEW)) {
-          canDelete = false;
-        }
       } 
       // Admin - can delete experiments from core facility user manages
       else if (hasPermission(this.CAN_DELETE_REQUESTS)) {
@@ -1748,7 +1742,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return isMyLab;
   }
   
-  private boolean isOwner(Integer idAppUserOfObject) {
+  public boolean isOwner(Integer idAppUserOfObject) {
     if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
       return true;
     } else if (isGuest) {
