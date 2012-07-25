@@ -3,7 +3,7 @@
     xmlns:views="*.views" 
 	xmlns:util="views.util.*"
     xmlns:fx="*.views.renderers" show="{this.initializeBarcoding();}"
-	label="Sample View" width="100%" height="100%"  enabled="false" xmlns:controls="hci.flex.controls.*" xmlns:renderers="views.renderers.*">
+	label="Samples" width="100%" height="100%"  enabled="false" xmlns:controls="hci.flex.controls.*" xmlns:renderers="views.renderers.*">
   
 <mx:Script>
 	<![CDATA[
@@ -1893,7 +1893,7 @@
 											   dataField="@destinationWell" sortable="false"/>
 
 					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					 
+					
 
 					<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
 											   headerText="# Lanes to Sequence" width="72" 

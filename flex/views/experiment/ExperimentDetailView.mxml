@@ -50,6 +50,7 @@
 		
 		import views.experiment.ConvertIlluminaRequestWindow;
 		import views.experiment.ExperimentEditView;
+		import views.order.NavOrderView;
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.URLRenderer;
 		import views.util.RunAlignmentWindow;
@@ -275,6 +276,7 @@
 			}
 			
 			if (showPlates) {
+//				this.redoFlagCol.visible = false;
 				
 				this.samplesGridConfirm.dataProvider = null;
 				sampleGroupingCollection = new GroupingCollection();
@@ -298,6 +300,7 @@
 				this.multiplexGroupNumberColumn.visible = false;
 
 			} else if (showSampleMultiplexGroup) {
+//				this.redoFlagCol.visible = false;
 
         		this.samplesGridConfirm.dataProvider = null;
         		sampleGroupingCollection = new GroupingCollection();
@@ -316,7 +319,9 @@
 				this.plateNameCol.visible = false;
 
         	} else {
-        		sampleGroupingCollection = null;
+//				this.redoFlagCol.visible = true;
+
+				sampleGroupingCollection = null;
         		this.samplesGridConfirm.dataProvider = this.samples;
         		
         		this.multiplexGroupNumberColumn.visible = false;
@@ -540,6 +545,11 @@
            	 parentDocument.parentDocument.editView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
 			 parentDocument.parentDocument.editView.selectedAssaysCollection = this.assays;
 			 
+			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
+			 if (parentDocument.parentDocument != null && parentDocument.parentDocument.editView != null && parentDocument.parentDocument.editView.titleLabel != null) {
+				 parentDocument.parentDocument.editView.titleLabel.text = editTitle;
+			 }
+
            	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
 			 if (parentDocument.parentDocument.editView.theTab.contains(parentDocument.parentDocument.editView.annotationView)) {
@@ -562,6 +572,7 @@
            	 //callLater(parentDocument.editView.setupDataListeners);
 		}
 		
+
 		public function refreshSavedExperiment(idRequest:Object):void {
 			 parentDocument.parentDocument.selectedIdRequest = idRequest;
 			 var parms:Object = new Object();
@@ -581,6 +592,11 @@
 			this.cherryDestinationWellCol.visible = false;
 			this.cherrySourcePlateCol.visible = false;
 			this.cherrySourceWellCol.visible = false;
+			reactionPlateCol.visible = false;
+			redoFlagCol.visible = false;
+			
+			
+
 			
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
@@ -670,6 +686,9 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+					reactionPlateCol.visible = true;
+//					redoFlagCol.visible = true;
+
 				} else if (isMitSeqState()) {
 					concentrationCol.visible = false; 
 					sampleTypeCol.visible = false;
@@ -685,6 +704,9 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+					reactionPlateCol.visible = true;
+//					redoFlagCol.visible = true;
+
 				} else if (isFragAnalState()) {
 					concentrationCol.visible = false; 
 					sampleTypeCol.visible = false;
@@ -700,6 +722,7 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+					reactionPlateCol.visible = true;
 				} else if (isCherryPickState()) {
 					concentrationCol.visible = false; 
 					sampleTypeCol.visible = false;
@@ -718,6 +741,8 @@
 					this.cherryDestinationWellCol.visible = true;
 					this.cherrySourcePlateCol.visible = true;
 					this.cherrySourceWellCol.visible = true;
+					reactionPlateCol.visible = true;
+
 	        	} else {
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
@@ -1195,10 +1220,25 @@
 							<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"
 													    labelFunction="isControlLabelFunction"/>
-							<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+							<mx:AdvancedDataGridColumn headerText="Sample Name" width="160" dataField="@name"/>
 							<mx:AdvancedDataGridColumn  headerText="Source Plate" width="150" dataField="@sourcePlate" editable="false" id="cherrySourcePlateCol"/>
 							<mx:AdvancedDataGridColumn  headerText="Source Well"  width="75" dataField="@sourceWell" editable="false" id="cherrySourceWellCol"/>
 							<mx:AdvancedDataGridColumn  headerText="Dest. Well" width="75" dataField="@destinationWell" editable="false" id="cherryDestinationWellCol"/>
+							
+							<mx:AdvancedDataGridColumn id="reactionPlateCol" headerText="Reaction Plates" width="140" dataField="@reactionPlateNames" editable="false" wordWrap="true" />
+							<mx:AdvancedDataGridColumn id="redoFlagCol" width="40" headerText="Redo">
+								<mx:itemRenderer>
+									<mx:Component >
+										<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+											<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
+											</mx:Image> 
+										</mx:HBox>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+
+
+							
 							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>

@@ -552,8 +552,16 @@
 			} 
 			
 			if (browseTree.selectedItem.name() == 'Request') {
-				detailView.titleLabel.text = (browseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + browseTree.selectedItem.@requestNumber;
-				editView.titleLabel.text = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
+				var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + browseTree.selectedItem.@requestNumber;
+				detailView.titleLabel.text = viewTitle;
+				detailView.navBackButton.visible = false;
+				detailView.navBackButton.includeInLayout = false;
+
+				var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
+				if (editView != null && editView.titleLabel != null) {
+					editView.titleLabel.text = editTitle;
+				}
+
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
@@ -736,7 +744,7 @@
 				params.searchPublicProjects = 'N';
 				getProjectRequestList.send(params);
 				
-			    detailView.titleLabel.text = (selectedExperiment.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + selectedRequestNumber;
+			    detailView.titleLabel.text = (selectedExperiment.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + selectedRequestNumber;
 			    
 			    
 			}
