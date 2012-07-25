@@ -95,6 +95,7 @@
     useProxy="false">
     <mx:request>
       <idProject>{selectedIdProject}</idProject>
+	  <idLab>{selectedIdLab}</idLab>
     </mx:request>
   </mx:HTTPService>
   
@@ -150,6 +151,7 @@
         [Bindable]
         public var selectedProject:Object;
         
+		[Bindable]
         public var selectedIdLab:String;
         
         public var selectedNode:Object;

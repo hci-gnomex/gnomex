@@ -17,6 +17,7 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private Integer  idCoreFacility;
   private String   facilityName;
   private String   isActive;
+  private String   showProjectAnnotations;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -53,6 +54,14 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   
   public void setIsActive(String isActive) {
     this.isActive = isActive;
+  }
+
+  public String getShowProjectAnnotations() {
+    return showProjectAnnotations;
+  }
+  
+  public void setShowProjectAnnotations(String val) {
+    showProjectAnnotations = val;
   }
   
   public static List getActiveCoreFacilities(Session sess) {

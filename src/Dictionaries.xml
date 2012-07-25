@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dictionaries>
 
-  <Dictionary displayName="Admin - Core Facility" className="hci.gnomex.model.CoreFacility" editable="Y" />
+  <Dictionary displayName="Admin - Core Facility" className="hci.gnomex.model.CoreFacility" editable="Y" >
+    <Filter className="YN" filterField="showProjectAnnotations"/>
+  </Dictionary>
 	<Dictionary displayName="Admin - Funding Agency" className="hci.gnomex.model.FundingAgency"  >
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>

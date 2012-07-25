@@ -600,6 +600,7 @@ CREATE TABLE `gnomex`.`CoreFacility` (
   `idCoreFacility` INT(10) NOT NULL AUTO_INCREMENT,
   `facilityName` varchar(200) NULL,
   `isActive` CHAR(1) NOT NULL DEFAULT 'N',
+  `showProjectAnnotations` CHAR(1) NOT NULL DEFAULT 'Y',
   PRIMARY KEY (`idCoreFacility`)
 )
 ENGINE = INNODB;

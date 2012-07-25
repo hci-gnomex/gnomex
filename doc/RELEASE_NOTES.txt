@@ -50,6 +50,7 @@
 * Show view and edit links on Order Review screen.  Disable edit link when order cannot be edited. (tdisera)
 * Conditionally show 'Back' link on Experiment Detail, Experiment Edit views (only when launched from Review Orders view). (tdisera)
 * Filter by pending redos on Review Orders screen (tdisera)
+* Do not show annotations for projects in labs which only have coreFacilities marked for no annotations  (bspiglejr)
 
 
 5.4.5 (July 1, 2012)
