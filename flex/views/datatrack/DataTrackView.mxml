@@ -112,7 +112,20 @@
 	private var uncompressedDownloadSize:Number = new Number();
 	
 	private function onGetDataTrack(event:ResultEvent):void {
-		if (getDataTrack.lastResult.name() == "DataTrack") {
+		if (getDataTrack.lastResult.name() == "DataTrack") {		
+			if(parentApplication.isTopicsSupported) {
+				var topics:XMLList = getDataTrack.lastResult.topics.Topic;
+				if(topics == null || topics.length() == 0) {
+					// If topics enabled but none returned then hide the topics tab
+					if (theTab.contains(this.topicsTab)) {
+						theTab.removeChild(topicsTab);
+					}					
+				} else if (topics != null && topics.length() > 0) {	
+					if (!theTab.contains(this.topicsTab)) {
+						theTab.addChild(topicsTab);
+					}					
+				}				
+			}			
 			if (this.parentDocument.currentState == "AdminState") {
 				this.dataTrackOwnerStack.selectedIndex = 0;
 				this.dataTrackLabStack.selectedIndex = 0;
