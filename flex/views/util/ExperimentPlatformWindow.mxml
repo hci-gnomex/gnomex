@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="absolute" width="920" height="530"  creationPolicy="all"
+				layout="absolute" width="920" height="558"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform">
@@ -543,6 +543,12 @@
 								<mx:Spacer width="10"/>
 								<mx:CheckBox id="isActiveCheckbox" label="Active"  click="{dirty.setDirty()}" selected="{requestCategory.@isActive == 'N' ? false : true}"/>
 							</mx:HBox>
+							
+							<mx:HBox verticalAlign="middle" horizontalGap="1" width="100%">
+								<mx:Label  text="Code" width="80"/>
+								<mx:TextInput id="codeRequestCategoryField"  width="65" backgroundColor="0xffffff" text="{requestCategory.@codeRequestCategory}" editable="false"/>
+							</mx:HBox>
+							
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Notes" width="80"/>
 								<mx:TextInput id="notes"  width="100%" text="{requestCategory.@notes}"  change="dirty.setDirty()"/>
@@ -552,6 +558,7 @@
 								<mx:Label  text="Sort Order" width="80"/>
 								<mx:TextInput id="sortOrder"  width="40" text="{requestCategory.@sortOrder}" change="dirty.setDirty()"/>
 							</mx:HBox>
+							
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Vendor" width="80"/>
 								<mx:ComboBox  width="100%" 
