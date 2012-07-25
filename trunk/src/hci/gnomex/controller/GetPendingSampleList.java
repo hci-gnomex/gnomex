@@ -261,20 +261,31 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     
     Integer idRequest           = (Integer)row[0];
     String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
-    java.util.Date createDate             = (java.util.Date)row[4];
+    java.util.Date createDate   = (java.util.Date)row[4];
     Integer idLab               = (Integer)row[5];
     String labLastName          = (String)row[6]  == null ? ""  : (String)row[6];
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
+    String experimentName       = (String)row[17]  == null ? "" : (String)row[17];
+    AppUser submitter           = (AppUser)row[18];
+
+    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(filter.getCodeRequestCategory());
 
     String labName = Lab.formatLabName(labLastName, labFirstName);
     
+    
+    String shortName = AppUser.formatShortName(submitter.getLastName(), submitter.getFirstName()) + "-" + requestNumber;
+
+    String label = shortName + " " + this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH);
+    
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              idRequest.toString());
-    requestNode.setAttribute("label",                  requestNumber);
+    requestNode.setAttribute("label",                  label);
     requestNode.setAttribute("requestSubmitDate",      createDate == null ? ""  : this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH));
     requestNode.setAttribute("idLab",                  idLab == null ? "" : idLab.toString());
     requestNode.setAttribute("lab",                    labName);
-  
+    requestNode.setAttribute("icon",                   requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+   
+    
     return requestNode;
   
   }
