@@ -199,6 +199,9 @@
 				if ( this.failedCheckbox.selected ) {
 					params.status = 'FAILED' ;
 				}
+				if (this.pendingRedoCheckbox.selected) {
+					params.hasPendingRedo = 'Y';
+				}
 				
 				if ( this.capSeqCheckbox.selected ) {
 					params.codeRequestCategory = 'CAPSEQ' ;
@@ -294,6 +297,9 @@
 				if ( this.failedCheckbox.selected ) {
 					return false ;
 				}
+				if ( this.pendingRedoCheckbox.selected) {
+					return false ;
+				}
 				if ( this.capSeqCheckbox.selected ) {
 					return false;
 				}
@@ -362,30 +368,42 @@
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
+					this.pendingRedoCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 2) {
 					this.newCheckbox.selected = false;
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
+					this.pendingRedoCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 3) {
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
+					this.pendingRedoCheckbox.selected = false;
 					
 				}  else if (checkBoxNumber == 4) {
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
 					this.submittedCheckbox.selected  = false;
 					this.failedCheckbox.selected  = false;
+					this.pendingRedoCheckbox.selected = false;
 					
 				}   else if (checkBoxNumber == 5) {
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
+					this.pendingRedoCheckbox.selected = false;
+					
+				}   else if (checkBoxNumber == 6) {
+					this.newCheckbox.selected = false;
+					this.processingCheckbox.selected = false;
+					this.submittedCheckbox.selected  = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
 					
 				}   
 			} 	
@@ -527,7 +545,17 @@
 						toggleStatusCheckboxes( 2 );
 						this.getList();
 					</mx:click>
-					
+				</mx:CheckBox>
+				
+				<mx:CheckBox label = "Pending Redos"
+							 id = "pendingRedoCheckbox"
+							 paddingLeft = "2"
+							 horizontalGap = "0"
+							 styleName = "labelSmall">
+					<mx:click>
+						toggleStatusCheckboxes( 6 );
+						this.getList();
+					</mx:click>
 				</mx:CheckBox>
 				
 				<mx:CheckBox label = "Complete"
