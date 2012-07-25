@@ -718,4 +718,38 @@ public class Sample extends HibernateDetailObject {
     }
     return well;
   }
+  
+  public String getRedoFlag() {
+    boolean redoFlag = false;
+    if (this.getWells() != null) {
+      for (PlateWell well : (Set<PlateWell>)this.getWells()) {
+        if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
+            redoFlag = true;
+        }
+       }
+    }
+    return redoFlag ? "Y" : "N";
+  }
+  
+  public String getReactionPlateNames() {
+    TreeMap<Integer, Plate> rxnPlates = new TreeMap<Integer, Plate>();
+    if (this.getWells() != null) {
+      for (PlateWell well : (Set<PlateWell>)this.getWells()) {
+        if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+            rxnPlates.put(well.getIdPlate(), well.getPlate());
+        }
+      }
+    }
+    
+    String rxnPlateNames = "";
+    for (Integer idPlate : rxnPlates.keySet()) {
+      Plate plate = rxnPlates.get(idPlate);
+      if (rxnPlateNames.length() > 0) {
+        rxnPlateNames += ", ";
+      }
+      rxnPlateNames += plate.getLabel();
+    }
+    return rxnPlateNames;
+    
+  }
 }
