@@ -15,6 +15,8 @@ public class ChromatogramFilter extends DetailObject {
   
   private String                requestNumber;
   private Integer               idInstrumentRun;
+  private String                runName;
+  private String                plateName;
   
   private String                getAll = "N";
 
@@ -81,6 +83,8 @@ public class ChromatogramFilter extends DetailObject {
         idRequest != null ||
         requestNumber != null ||
         idInstrumentRun != null ||
+        (runName != null && runName.equals("Y")) ||
+        (plateName != null && plateName.equals("Y")) ||
         (capSeq != null && capSeq.equals("Y")) ||
         (mitSeq != null && mitSeq.equals("Y")) ||
         (lastWeek != null && lastWeek.equals("Y")) ||
@@ -185,6 +189,21 @@ public class ChromatogramFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" run.idInstrumentRun = ");
       queryBuf.append(idInstrumentRun);
+    }
+    
+    
+    if (runName != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" run.label = '");
+      queryBuf.append(runName);
+      queryBuf.append("' ");
+    }
+    
+    if (plateName != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" plate.label = '");
+      queryBuf.append(plateName);
+      queryBuf.append("' ");
     }
     
     // Cap seq
@@ -353,6 +372,22 @@ public class ChromatogramFilter extends DetailObject {
   public void setReleased(String released)
   {
     this.released = released;
+  }
+
+  public String getRunName() {
+    return runName;
+  }
+
+  public void setRunName(String runName) {
+    this.runName = runName;
+  }
+
+  public String getPlateName() {
+    return plateName;
+  }
+
+  public void setPlateName(String plateName) {
+    this.plateName = plateName;
   }
   
 
