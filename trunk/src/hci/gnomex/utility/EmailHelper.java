@@ -36,10 +36,13 @@ public class EmailHelper {
       }
     }
     
+    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+
+    
     if (send) {
       MailUtil.send(request.getAppUser().getEmail(), 
           null,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          contactEmailCoreFacility, 
           subject, 
           emailFormatter.format(),
           true);

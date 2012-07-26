@@ -2018,10 +2018,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
     
+    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
+    
     if (send) {
       MailUtil.send(requestParser.getRequest().getAppUser().getEmail(), 
           null,
-          (requestParser.isExternalExperiment() ? dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY)), 
+          (requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
           subject, 
           emailFormatter.format(),
           true);      
@@ -2074,8 +2077,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     String subject = "Estimated Microarray charges for request " + requestNumber;
      
+    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
     
-    String senderEmail = requestParser.isExternalExperiment() ? dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String senderEmail = requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility;
     
     if (contactEmail == null || contactEmail.length() == 0) {
       contactEmail = ccEmail;
