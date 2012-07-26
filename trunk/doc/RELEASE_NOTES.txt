@@ -54,6 +54,7 @@
 * Fix abort when editting Mitochondrial Sequencing or Fragment Analysis requests which already have samples on reaction plates.  (bspiglejr)
 * Allow duplicate sample names on DNA Sequencing type experiments. (bspiglejr)
 * Fix Distribute Data Tracks bug caused when Analysis file without file extension encountered (tdisera)
+* Updated plate report to show assay or primer information for FA and MS experiment types. (mbowler)
 
 
 5.4.5 (July 1, 2012)

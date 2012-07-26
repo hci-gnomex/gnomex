@@ -1,7 +1,9 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Assay;
 import hci.gnomex.model.InstrumentRun;
+import hci.gnomex.model.Primer;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 
@@ -19,32 +21,18 @@ public class PlateReportHTMLFormatter {
 
   private Element          plateNode;
   private InstrumentRun    ir;
-  private List<String>     requestNumbers = new ArrayList<String>();
-  private List<Integer>    requestSampleNo = new ArrayList<Integer>();
+  private List<String>     wellGroupIds = new ArrayList<String>();
+  private List<Integer>    groupNumSamples = new ArrayList<Integer>();
   
-  private DictionaryHelper dictionaryHelper;
   private SecurityAdvisor  secAdvisor;
 
-  public PlateReportHTMLFormatter(SecurityAdvisor secAdvisor, Element plateNode, InstrumentRun ir, DictionaryHelper dictionaryHelper) {
+  public PlateReportHTMLFormatter(SecurityAdvisor secAdvisor, Element plateNode, InstrumentRun ir) {
     this.secAdvisor = secAdvisor;
     this.plateNode = plateNode;
     this.ir = ir;
-    this.dictionaryHelper = dictionaryHelper;
   }
 
-  public Element makeIntroNote(String note) {
-    Element table = new Element("TABLE");   
-    Element row = new Element("TR");
-    Element cell = new Element("TD");
-    cell.setAttribute("CLASS", "noborder");
-    cell.addContent(note);
-    row.addContent(cell);
-    table.addContent(row);
-
-    return table;
-  }
-
-
+  // Run information above plate grid
   public Element makeRunTable() {
     
     String creator = "";
@@ -81,33 +69,26 @@ public class PlateReportHTMLFormatter {
 
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
-    table.addContent(makeRow("Run Name",     runLabel,
-        "Run ID",   runId));
+    table.addContent(makeRow("Run Name", runLabel, "Run ID", runId));
 
-    table.addContent(makeRow("Create Date",   createDate,
-        "Created By",    creator));
+    table.addContent(makeRow("Create Date", createDate, "Created By", creator));
 
     return table;
   }
 
-
-  public void addPlateTable(Element parentNode) {
-
-    addPlateTable(parentNode, null);  
-
-  }
-
-  private void addPlateTable( Element parentNode, String captionStyle ) {
+  // Colored Plate Table
+  public Element makePlateTable(  ) {
 
     Element table = new Element( "TABLE" );
     table.setAttribute( "CLASS", "grid" );
     table.setAttribute( "CELLPADDING", "0" );
     table.setAttribute( "CELLSPACING", "0" );
+    table.setAttribute( "STYLE", "table-layout:fixed" );
 
     // Add column numbers
     Element rowh = new Element( "TR" );
     table.addContent( rowh );
-    this.addPlateHeaderCell( rowh, "" );
+    this.addPlateRowHeaderCell( rowh, "" );
     this.addPlateHeaderCell( rowh, "1" );
     this.addPlateHeaderCell( rowh, "2" );
     this.addPlateHeaderCell( rowh, "3" );
@@ -130,57 +111,99 @@ public class PlateReportHTMLFormatter {
         table.addContent( row );
 
         // Add row letter
-        addPlateHeaderCell( row, String.valueOf( letter ) );
+        addPlateRowHeaderCell( row, String.valueOf( letter ) );
 
         for( int count = 0; count < 12; count ++ ) {
           if( i.hasNext() ) {
             Element well = (Element) i.next();
 
-
             String idPlateWellString = well.getAttributeValue("idPlateWell");
             String sampleName = well.getAttributeValue( "sampleName" );
-            String idRequest = well.getAttributeValue( "idRequest" );
-            String requestNumber = well.getAttributeValue( "requestNumber" );
+            
 
             if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals( "Y" ) ) {
               sampleName = "Control";
               addControlWellCell( row );
             
             } else {
-
-              // Add request number to list of request numbers
-              if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
-                if ( !requestNumbers.contains( idRequest ) ) {
-                  requestNumbers.add( idRequest );
-                  requestSampleNo.add( 1 );
-                } else {
-                  int index = requestNumbers.indexOf( idRequest );
-                  int val = requestSampleNo.get( index );
-                  int newVal = val+1;
-                  requestSampleNo.set( index, newVal );
+              
+              String idRequest = well.getAttributeValue( "idRequest" );
+              String requestNumber = well.getAttributeValue( "requestNumber" );
+              
+              if ( well.getAttributeValue( "idAssay" ) != null && !well.getAttributeValue( "idAssay" ).equals("") ) {
+                
+                String idAssay = well.getAttributeValue( "idAssay" );
+                String assayName = well.getAttributeValue( "assayName" );
+                
+                // Add assay number to list of group numbers
+                if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
+                  if ( !wellGroupIds.contains( idAssay ) ) {
+                    wellGroupIds.add( idAssay );
+                    groupNumSamples.add( 1 );
+                  } else {
+                    int index = wellGroupIds.indexOf( idAssay );
+                    int val = groupNumSamples.get( index );
+                    int newVal = val+1;
+                    groupNumSamples.set( index, newVal );
+                  }
                 }
+
+                this.addColoredWellCell( row,
+                    idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
+                        sampleName, assayName, requestNumber, idAssay);
+
+              } else if ( well.getAttributeValue( "idPrimer" ) != null && !well.getAttributeValue( "idPrimer" ).equals("") ) {
+                
+                String idPrimer = well.getAttributeValue( "idPrimer" );
+                String primerName = well.getAttributeValue( "primerName" );
+                
+                // Add request number to list of group numbers
+                if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
+                  if ( !wellGroupIds.contains( idPrimer ) ) {
+                    wellGroupIds.add( idPrimer );
+                    groupNumSamples.add( 1 );
+                  } else {
+                    int index = wellGroupIds.indexOf( idPrimer );
+                    int val = groupNumSamples.get( index );
+                    int newVal = val+1;
+                    groupNumSamples.set( index, newVal );
+                  }
+                }
+
+                this.addColoredWellCell( row,
+                    idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
+                        sampleName, primerName, requestNumber, idPrimer);
+
+              } else {
+
+                // Add request number to list of group numbers
+                if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
+                  if ( !wellGroupIds.contains( idRequest ) ) {
+                    wellGroupIds.add( idRequest );
+                    groupNumSamples.add( 1 );
+                  } else {
+                    int index = wellGroupIds.indexOf( idRequest );
+                    int val = groupNumSamples.get( index );
+                    int newVal = val+1;
+                    groupNumSamples.set( index, newVal );
+                  }
+                }
+
+                this.addColoredWellCell( row,
+                    idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
+                        sampleName, requestNumber, idRequest);
+              
               }
-              this.addColoredWellCell( row,
-                  idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
-                      sampleName,
-                      requestNumber, idRequest);
             }
           }
         }
       }
     }
-
-    parentNode.addContent( table );
+    return table;
   }
 
-
-  public void addRequestTable(Element parentNode, Map requestMap) {
-
-    addRequestTable(parentNode, requestMap, null);  
-
-  }
-
-  private void addRequestTable(Element parentNode, Map requestMap, String captionStyle) {
+  // Request detail table
+  public Element makeRequestTable(Map requestMap) {
 
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
@@ -196,15 +219,15 @@ public class PlateReportHTMLFormatter {
     this.addHeaderCell(rowh, "Request date");
 
     if ( requestMap != null ) {
-      for ( Iterator i = requestNumbers.iterator(); i.hasNext(); ) {
+      for ( Iterator i = wellGroupIds.iterator(); i.hasNext(); ) {
         String idRequestString = (String) i.next();
         Request req = 
           (Request) requestMap.get(idRequestString);
         if ( req == null ) {
           break;
         }
-        int index = requestNumbers.indexOf( idRequestString );
-        Integer val = requestSampleNo.get( index );
+        int index = wellGroupIds.indexOf( idRequestString );
+        Integer val = groupNumSamples.get( index );
 
         Element row = new Element("TR");
         table.addContent(row);
@@ -218,8 +241,87 @@ public class PlateReportHTMLFormatter {
 
       }
     }
+    return table;
+  }
+  
+  // Assay detail table
+  public Element makeAssayTable(Map assayMap) {
 
-    parentNode.addContent(table);
+    Element table = new Element("TABLE");
+    table.setAttribute("CLASS",       "grid");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
+
+    Element rowh = new Element("TR");
+    table.addContent(rowh);
+    this.addHeaderCell(rowh, "Assay ID", "left");
+    this.addHeaderCell(rowh, "Assay Label" );
+    this.addHeaderCell(rowh, "Description"    );
+    this.addHeaderCell(rowh, "Samples in Run"    );
+
+    if ( assayMap != null ) {
+      for ( Iterator i = wellGroupIds.iterator(); i.hasNext(); ) {
+        String idAssayString = (String) i.next();
+        Assay assay = (Assay) assayMap.get(idAssayString);
+        if ( assay == null ) {
+          break;
+        }
+        int index = wellGroupIds.indexOf( idAssayString );
+        Integer val = groupNumSamples.get( index );
+
+        Element row = new Element("TR");
+        table.addContent(row);
+        
+        // Need to add background color to this first cell.
+        this.addColoredCell(row, assay.getIdAssay() != null ? assay.getIdAssay().toString() : "&nbsp;", index);
+        this.addCell(row, assay.getDisplay() != null ? assay.getDisplay() : "&nbsp;");
+        this.addCell(row, assay.getDescription() != null ? assay.getDescription() : "&nbsp;");
+        this.addCell(row, val.toString());
+        
+      }
+    }
+    return table;
+  }
+  
+  // Primer detail table
+  public Element makePrimerTable(Map primerMap) {
+
+    Element table = new Element("TABLE");
+    table.setAttribute("CLASS",       "grid");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
+
+    Element rowh = new Element("TR");
+    table.addContent(rowh);
+    this.addHeaderCell(rowh, "Primer ID", "left");
+    this.addHeaderCell(rowh, "Primer Label" );
+    this.addHeaderCell(rowh, "Description" );
+    this.addHeaderCell(rowh, "Sequence");
+    this.addHeaderCell(rowh, "Samples in Run"    );
+
+    if ( primerMap != null ) {
+      for ( Iterator i = wellGroupIds.iterator(); i.hasNext(); ) {
+        String idPrimer = (String) i.next();
+        Primer primer = (Primer) primerMap.get(idPrimer);
+        if ( primer == null ) {
+          break;
+        }
+        int index = wellGroupIds.indexOf( idPrimer );
+        Integer val = groupNumSamples.get( index );
+
+        Element row = new Element("TR");
+        table.addContent(row);
+        
+        // Need to add background color to this first cell.
+        this.addColoredCell(row, primer.getIdPrimer() != null ? primer.getIdPrimer().toString() : "&nbsp;", index);
+        this.addCell(row, primer.getDisplay() != null ? primer.getDisplay() : "&nbsp;");
+        this.addCell(row, primer.getDescription() != null ? primer.getDescription() : "&nbsp;");
+        this.addCell(row, primer.getSequence() != null ? primer.getSequence() : "&nbsp;");
+        this.addCell(row, val.toString());
+        
+      }
+    }
+    return table;
   }
 
 
@@ -273,13 +375,15 @@ public class PlateReportHTMLFormatter {
     cell.addContent( cell2 );
     row.addContent(cell);
   } 
-  private void addColoredWellCell(Element row, String text1, String text2, String text3, String idRequest) {
-    int index = requestNumbers.indexOf( idRequest );
+  
+  private void addColoredWellCell(Element row, String text1, String text2, String text3, String groupId) {
+    int index = wellGroupIds.indexOf( groupId );
 
     Element cell = new Element("TD");
     cell.setAttribute("CLASS", "plate " + "colored" + (index+1));
     Element cell2 = new Element("DIV");
     cell2.setAttribute("CLASS", "ptext " + "colored0");
+    cell2.setAttribute("STYLE", "width:38px;max-width:38px;overflow:hidden");
     cell2.addContent(text1);
     cell2.addContent( new Element( "BR" ) );
     cell2.addContent(text2);
@@ -288,6 +392,26 @@ public class PlateReportHTMLFormatter {
     cell.addContent( cell2 );
     row.addContent(cell);
   } 
+  
+  private void addColoredWellCell(Element row, String text1, String text2, String text3, String text4, String groupId) {
+    int index = wellGroupIds.indexOf( groupId );
+
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "plate " + "colored" + (index+1));
+    Element cell2 = new Element("DIV");
+    cell2.setAttribute("CLASS", "ptext " + "colored0");
+    cell2.setAttribute("STYLE", "width:38px;max-width:38px;overflow:hidden");
+    cell2.addContent(text1);
+    cell2.addContent( new Element( "BR" ) );
+    cell2.addContent(text2);
+    cell2.addContent( new Element( "BR" ) );
+    cell2.addContent(text3);
+    cell2.addContent( new Element( "BR" ) );
+    cell2.addContent(text4);
+    cell.addContent( cell2 );
+    row.addContent(cell);
+  } 
+  
   private void addColoredCell(Element row, String value, int index) {
     Element cell = new Element("TD");
     cell.setAttribute("CLASS", "grid " + "colored" + (index+1));  
@@ -298,6 +422,10 @@ public class PlateReportHTMLFormatter {
     row.addContent(cell);
   } 
 
+  private void addPlateRowHeaderCell(Element row, String header) {
+    addPlateHeaderCell(row, header, "plategrid", 12);
+  }
+  
   private void addPlateHeaderCell(Element row, String header) {
     addPlateHeaderCell(row, header, "plategrid");
   }
