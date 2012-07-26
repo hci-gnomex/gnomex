@@ -10,22 +10,49 @@
 		 defaultButton="{lookupButton}"
 		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0">
 	
-	<mx:HBox width="100%" paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2">
+	<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2" verticalAlign="middle" width="100%">
 		<mx:Image source="assets/tv_chart.png"/>
-		<mx:Label id="titleLabel" styleName="titleLabel" text="Chromatograms" />
-		<mx:Spacer width="100%"/>
-		
+		<mx:Label id="titleLabel" styleName="titleLabel" text="Review Results "  fontWeight="bold"/>
+		<mx:Spacer width="30"/>
+
 		<mx:HBox horizontalGap="0"
 				 height="100%"
 				 verticalAlign="middle"
 				 verticalGap="0"
-				 width="140" id="hbox1a">
+				 id="hbox1aaa" paddingLeft="10">
+			<mx:Label text="Run Name" />
+			
+			<mx:TextInput id="runNameLookupField"
+						  fontSize="9"
+						  height="19"
+						  width="70"
+						  enter="{this.setRunNameDefaultButton();if (runNameLookupField.text != '') this.getList();}"
+						  change="{setRunNameDefaultButton()}" />
+			
+			<mx:Button id="runNameLookupButton"
+					   fontFamily="Arial"
+					   height="18"
+					   width="30"
+					   color="#400040"
+					   visible="true"
+					   icon="@Embed('../../assets/arrow_right.png')"
+					   click="{if (runNameLookupField.text != '') this.getList();}" />
+			
+		</mx:HBox>
+		
+
+		
+		<mx:HBox horizontalGap="0"
+				 verticalAlign="middle"
+				 verticalGap="0"
+				 id="hbox1a" paddingLeft="10">
 			<mx:Label text="Run #" />
 			
 			<mx:TextInput id="runNoLookupField"
 						  fontSize="9"
 						  height="19"
 						  width="40"
+						  enter="{this.setRunDefaultButton();if (runNoLookupField.text != '') this.getList();}"
 						  change="{setRunDefaultButton()}" />
 			
 			<mx:Button id="runLookupButton"
@@ -41,16 +68,42 @@
 		
 		
 		<mx:HBox horizontalGap="0"
-				 height="100%"
 				 verticalAlign="middle"
 				 verticalGap="0"
-				 width="150" id="hbox1">
+				  id="hbox1aa" paddingLeft="10">
+			<mx:Label text="Plate Name" />
+			
+			<mx:TextInput id="plateNameLookupField"
+						  fontSize="9"
+						  height="19"
+						  width="80"
+						  enter="{this.setPlateNameDefaultButton();if (plateNameLookupField.text != '') this.getList();}"
+						  change="{setPlateNameDefaultButton()}" />
+			
+			<mx:Button id="plateNameLookupButton"
+					   fontFamily="Arial"
+					   height="18"
+					   width="30"
+					   color="#400040"
+					   visible="true"
+					   icon="@Embed('../../assets/arrow_right.png')"
+					   click="{if (plateNameLookupField.text != '') this.getList();}" />
+			
+		</mx:HBox>
+		
+
+		
+		<mx:HBox horizontalGap="0"
+				 verticalAlign="middle"
+				 verticalGap="0"
+				 id="hbox1" paddingLeft="10">
 			<mx:Label text="Order #" />
 			
 			<mx:TextInput id="requestNoLookupField"
 						  fontSize="9"
 						  height="19"
 						  width="40"
+						  enter="{this.setDefaultButton();if (requestNoLookupField.text != '') this.getList();}"
 						  change="{setDefaultButton()}" />
 			
 			<mx:Button id="lookupButton"
@@ -63,6 +116,7 @@
 					   click="{if (requestNoLookupField.text != '') this.getList();}" />
 		
 		</mx:HBox>
+		<mx:Spacer width="100%"/>
 		<mx:LinkButton textDecoration="underline"
 					   label="Refresh"
 					   icon="@Embed('../../assets/action_refresh.gif')"
@@ -207,6 +261,8 @@
 				if ( currentState != userState.name ) {
 					params.idInstrumentRun = runNoLookupField.text != null ? runNoLookupField.text : '' ;
 					params.requestNumber = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
+					params.runName = runNameLookupField.text != null ? runNameLookupField.text : '';
+					params.plateName = plateNameLookupField.text != null ? plateNameLookupField.text : '';
 					params.capSeq = this.capSeqCheckbox.selected ? 'Y' : 'N' ;
 					params.mitSeq = this.mitSeqCheckbox.selected ? 'Y' : 'N' ;
 					params.lastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
@@ -398,6 +454,9 @@
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.requestNoLookupField.text != '' ) {
+					this.runNoLookupField.text = '';
+					this.runNameLookupField.text = '';
+					this.plateNameLookupField.text = '';
 					this.lastWeekCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
@@ -405,6 +464,7 @@
 					this.notReleasedCheckbox.selected = false;
 					this.releasedCheckbox.selected = false;
 				}
+				this.defaultButton = lookupButton;
 			}
 
 			
@@ -413,6 +473,9 @@
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.runNoLookupField.text != '' ) {
+					this.requestNoLookupField.text = '';
+					this.runNameLookupField.text = '';
+					this.plateNameLookupField.text = '';
 					this.lastWeekCheckbox.selected = false;
 					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
@@ -420,8 +483,48 @@
 					this.notReleasedCheckbox.selected = false;
 					this.releasedCheckbox.selected = false;
 				}
+				this.defaultButton =  this.runLookupButton;
+
+			}
+			
+			private function setRunNameDefaultButton():void {
+				if ( currentState != userState.name ) {
+					actionDictionary.source = dictXML.action; 
+				}
+				if ( this.runNameLookupField.text != '' ) {
+					this.requestNoLookupField.text = '';
+					this.runNoLookupField.text = '';
+					this.plateNameLookupField.text = '';
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected = false;
+					this.notReleasedCheckbox.selected = false;
+					this.releasedCheckbox.selected = false;
+				}
+				this.defaultButton = this.runNameLookupButton;
 			}
 
+
+			private function setPlateNameDefaultButton():void {
+				if ( currentState != userState.name ) {
+					actionDictionary.source = dictXML.action; 
+				}
+				if ( this.plateNameLookupField.text != '' ) {
+					this.requestNoLookupField.text = '';
+					this.runNoLookupField.text = '';
+					this.runNameLookupField.text = '';
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected = false;
+					this.notReleasedCheckbox.selected = false;
+					this.releasedCheckbox.selected = false;
+				}
+				this.defaultButton = this.plateNameLookupButton;
+
+			}
+			
 			private function fieldNumericSorter( field:String ):Function {
 				return function( obj1:Object, obj2:Object ):int {
 					var num:Number = (( Number )( obj1.attribute( field )) - ( Number )( obj2.attribute( field )));
