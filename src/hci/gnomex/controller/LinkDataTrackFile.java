@@ -185,6 +185,12 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
           AnalysisFile af = (AnalysisFile)i.next();
           int afPos = af.getFileName().lastIndexOf(".");
           String afBaseFileName = af.getFileName().substring(0, afPos);
+          // We may have file names without extensions, so handle this case.
+          if (afPos == -1) {
+            afBaseFileName = af.getFileName();
+          } else {
+            afBaseFileName = af.getFileName().substring(0, afPos);
+          }
           if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {
             if (lookForBai && af.getFileName().toUpperCase().endsWith(".BAI")) {
               idAnalysisFileOther = af.getIdAnalysisFile();
