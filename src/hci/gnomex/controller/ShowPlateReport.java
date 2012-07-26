@@ -1,25 +1,24 @@
-
 package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
+import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Assay;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Primer;
+import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PlateReportHTMLFormatter;
 
 import java.io.Serializable;
-import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
@@ -30,8 +29,6 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 public class ShowPlateReport extends GNomExCommand implements Serializable {
@@ -42,40 +39,16 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
 
   private Integer                        idPlate;
   private Plate                          plate;
+  private String                         codeReactionType;
   private InstrumentRun                  ir;
-  private String                         plateXMLString;
-  private Map                            reqMap = new HashMap();
+  private Map                            groupsMap = new HashMap();
   
-  private Element                        plateNode; 
   
-  private String                         appURL      = "";
-
-  private DictionaryHelper               dictionaryHelper;
-
-
-  public void validate() {
-  }
-
 
   public void loadCommand( HttpServletRequest request, HttpSession session ) {
     
     if (request.getParameter("idPlate") != null && !request.getParameter("idPlate").equals("")) {
       idPlate = Integer.valueOf( request.getParameter("idPlate") );
-    }
-    if (request.getParameter("plateXMLString") != null && !request.getParameter("plateXMLString").equals("")) {
-      plateXMLString = request.getParameter("plateXMLString");
-      
-      StringReader reader = new StringReader(plateXMLString);
-      
-      try {
-        SAXBuilder sax = new SAXBuilder();
-        Document plateDoc = sax.build(reader);
-        plateNode = plateDoc.getRootElement();
-      
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse plateXMLString", je );
-        this.addInvalidField( "plateXMLString", "Invalid xml");
-      }
     }
   }
 
@@ -86,7 +59,6 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(
           this.getUsername() );
-      dictionaryHelper = DictionaryHelper.getInstance( sess );
 
       
       // Get plate
@@ -94,63 +66,27 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
       if( plate == null ) {
         this.addInvalidField( "no plate", "Plate not found" );
       }
-
+      
       if( this.isValid() ) {
 
         if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
+          codeReactionType = plate.getCodeReactionType();
+          
           // Get instrument run
-          if( plate.getIdInstrumentRun() != null ) {
-            ir = ( InstrumentRun ) sess.get( InstrumentRun.class, Integer.valueOf( plate.getIdInstrumentRun() ) );
+          if( plate.getInstrumentRun() != null ) {
+            ir = plate.getInstrumentRun();
           }
+          
+          // Get plate xml
+          Element pNode = this.getPlateXML( plate, sess );
 
-          plate.excludeMethodFromXML("getPlateWells");
-          plate.excludeMethodFromXML( "getInstrumentRun" );
-          Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          
-          // Get the wells in row order
-          for( char row = 'A'; row <= 'H'; row ++ ) {
-            for ( int col = 1; col <= 12; col++ ) {
-              String queryStr = "SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate + "        AND pw.row='" + row + "'       AND pw.col=" + col;
-              PlateWell plateWell = (PlateWell) sess.createQuery( queryStr ).uniqueResult();
-              
-              Element node = new Element("PlateWell");
-              if ( plateWell != null ) {
-                plateWell.excludeMethodFromXML("getPlate");
-                
-                node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-                
-                node.setAttribute("requestSubmitDate", "");
-                node.setAttribute("requestSubmitter", "");
-                node.setAttribute("requestNumber", "");
-                
-                if ( plateWell.getIdRequest() != null ) {
-                  String idRequestString = plateWell.getIdRequest().toString();
-                  if ( idRequestString != null && !idRequestString.equals("")) {
-                    Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-                    if ( !reqMap.containsKey( idRequestString ) ) {
-                      reqMap.put(idRequestString, request);
-                    }
-                    if ( request != null ) {
-                      node.setAttribute("requestSubmitDate", request.getCreateDate().toString());
-                      node.setAttribute("requestSubmitter", request.getOwnerName());
-                      node.setAttribute("requestNumber", request.getNumber());
-                    }
-                  }
-                }
-              } else {
-                node.setAttribute( "idPlateWell", "0" );
-              }
-              pNode.addContent(node);
-            }
-          }
-          
           
           // HTML
           
           // HTML formatter
           PlateReportHTMLFormatter formatter = new PlateReportHTMLFormatter(
-              this.getSecAdvisor(), pNode, ir, dictionaryHelper );
+              this.getSecAdvisor(), pNode, ir );
 
           Element root = new Element( "HTML" );
           Document doc = new Document( root );
@@ -166,23 +102,19 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
           head.addContent( link );
           
           Element title = new Element( "TITLE" );
-          title.addContent( "Plate " + plate != null ? plate.getIdPlate().toString() : plateNode.getAttributeValue("idPlate") );
+          title.addContent( plate.getLabel() );
           head.addContent( title );
 
           Element body = new Element("BODY");
           root.addContent(body);
           
-          Element outerDiv = new Element("DIV");
-          outerDiv.setAttribute("id", "container");
-          body.addContent(outerDiv);
-          
-          Element maindiv = new Element("DIV");
+          Element maindiv = new Element("CENTER");
           maindiv.setAttribute("id", "containerForm");
-          outerDiv.addContent(maindiv);
+          body.addContent(maindiv);
           
           
           // Print link
-          Element printColRight = new Element("DIV");
+          Element printColRight = new Element("CENTER");
           printColRight.setAttribute("id", "printLinkColRight");
           maindiv.addContent(printColRight);
 
@@ -191,43 +123,56 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
           printLink.addContent("Print");
           printColRight.addContent(printLink);
 
-          Element ftr = new Element("DIV");
+          Element ftr = new Element("CENTER");
           ftr.setAttribute("id", "footer");            
           maindiv.addContent(ftr);
 
           
           // Plate header
+          // ID
           Element h2 = new Element( "H2" );
-          h2.addContent( "Plate " + ( plate != null ? plate.getIdPlate().toString() : plateNode.getAttributeValue("idPlate") ) ); 
+          h2.addContent( "Plate " + plate.getIdPlate().toString() ); 
           maindiv.addContent( h2 );
+          // Plate name
+          Element h4 = new Element( "h4" );
+          h4.addContent( plate.getLabel() );
+          maindiv.addContent( h4 );
           
-          if ( plate != null & !plate.getLabel().equals( "" ) ) {
-            Element h4 = new Element( "h4" );
-            h4.addContent( plate.getLabel() );
-            maindiv.addContent( h4 );
-          }
-          
-          
-          // Run information
+          // Run information table
           if ( ir != null ) {
             maindiv.addContent( new Element( "BR" ) );
             maindiv.addContent( formatter.makeRunTable() );
           }
           
-          // Plate table
+          // Colored plate table
           maindiv.addContent( new Element( "BR" ) );
-          formatter.addPlateTable( maindiv );
-
+          maindiv.addContent( formatter.makePlateTable() );
           maindiv.addContent( new Element( "BR" ) );
 
-          // Request information table
-          Element reqInf = new Element( "H5" );
-          reqInf.addContent( "Request Information:" );
-          maindiv.addContent( reqInf );
-
-          maindiv.addContent( new Element( "BR" ) );
-          formatter.addRequestTable(maindiv, reqMap);
-
+         
+          if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
+            // Request information table
+            Element reqInf = new Element( "H5" );
+            reqInf.addContent( "Request Information:" );
+            maindiv.addContent( reqInf );
+            maindiv.addContent( new Element( "BR" ) );
+            maindiv.addContent( formatter.makeRequestTable( groupsMap ) );
+          } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE ) ) {
+            // Primer information table
+            Element primerInf = new Element( "H5" );
+            primerInf.addContent( "Primer Information:" );
+            maindiv.addContent( primerInf );
+            maindiv.addContent( new Element( "BR" ) );
+            maindiv.addContent( formatter.makePrimerTable( groupsMap ) );
+          } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE ) ) {
+            // Assay information table
+            Element assayInf = new Element( "H5" );
+            assayInf.addContent( "Assay Information:" );
+            maindiv.addContent( assayInf );
+            maindiv.addContent( new Element( "BR" ) );
+            maindiv.addContent( formatter.makeAssayTable( groupsMap ) );
+          }
+          
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           out.setOmitEncoding( true );
@@ -283,7 +228,68 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
     return this;
   }
 
+  private Element getPlateXML( Plate plate, Session sess ) throws XMLReflectException {
+    
+    plate.excludeMethodFromXML("getPlateWells");
+    plate.excludeMethodFromXML( "getInstrumentRun" );
+    Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+    
+    // Get the wells in row order
+    for( char row = 'A'; row <= 'H'; row ++ ) {
+      for ( int col = 1; col <= 12; col++ ) {
+        String queryStr = "SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate 
+                       + "        AND pw.row='" + row + "'       AND pw.col=" + col;
+        PlateWell plateWell = (PlateWell) sess.createQuery( queryStr ).uniqueResult();
+        
+        Element node = new Element("PlateWell");
+        if ( plateWell != null ) {
+          
+          plateWell.excludeMethodFromXML("getPlate");
 
+          node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+          if ( plateWell.getIsControl().equals( "N" ) ) {
+
+            Request request = (Request) sess.get(Request.class, plateWell.getIdRequest());
+            Assay assay = plateWell.getAssay();
+            Primer primer = plateWell.getPrimer();
+
+            node.setAttribute("requestSubmitDate", request != null ? request.getCreateDate().toString() : "");
+            node.setAttribute("requestSubmitter", request != null ? request.getOwnerName() : "");
+            node.setAttribute("requestNumber", request != null ? request.getNumber() : "");
+            node.setAttribute("assayName", assay != null ? assay.getDisplay() : "");
+            node.setAttribute("primerName", primer != null ? primer.getDisplay() : "");
+
+            if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
+              if ( !groupsMap.containsKey( plateWell.getIdRequest().toString() ) && request != null ) {
+                groupsMap.put(plateWell.getIdRequest().toString(), request);
+              }
+            } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE ) ) {
+              if ( !groupsMap.containsKey( plateWell.getIdPrimer().toString() ) && primer != null ) {
+                groupsMap.put(plateWell.getIdPrimer().toString(), primer);
+              }
+            } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE ) ) {
+              if ( !groupsMap.containsKey( plateWell.getIdAssay().toString() ) && assay != null ) {
+                groupsMap.put(plateWell.getIdAssay().toString(), assay);
+              }
+            }
+
+          }
+
+        } else {
+          node.setAttribute( "idPlateWell", "0" );
+        }
+        pNode.addContent(node);
+      }
+    }
+    
+    return pNode;
+  }
+  
+  
+  public void validate() { 
+  }
+  
   /**
    * The callback method called after the loadCommand, and execute methods, this
    * method allows you to manipulate the HttpServletResponse object prior to
