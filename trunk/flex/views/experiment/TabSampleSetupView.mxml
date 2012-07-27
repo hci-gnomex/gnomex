@@ -970,8 +970,8 @@
                   <mx:Label text="(5) Select a Bioanalyzer Chip Type." width="340"/>
              </mx:AddChild>
              <mx:AddChild relativeTo="{hbox5}" position="before">
-                  <mx:HBox id="chipTypeBox"  width="100%" styleName="requiredBoxThick" >							
-                       <mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
+                  <mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
+                       <mx:DataGrid width="100%" height="100%" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
                        	<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot;)}</mx:dataProvider>
                        	<mx:columns>
                        	    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
