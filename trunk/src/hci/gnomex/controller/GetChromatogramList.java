@@ -50,6 +50,9 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
 
     }
 
+    if (!chromFilter.hasSufficientCriteria(this.getSecAdvisor())) {
+      this.addInvalidField("missingFilter", "Please provide an additional filter to limit the results returned.");
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -57,123 +60,128 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
     try {
       Document doc = new Document(new Element(listKind));
       
-      if (!chromFilter.hasSufficientCriteria(this.getSecAdvisor())) {
-        message = "Please select a filter";
-//        rootNode.setAttribute("message", message);
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      
+      StringBuffer buf = chromFilter.getQuery(this.getSecAdvisor());
+      log.info("Query for GetChromatogramList: " + buf.toString());
+      List chromats = sess.createQuery(buf.toString()).list();
 
-      } else {
-        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
-        StringBuffer buf = chromFilter.getQuery(this.getSecAdvisor());
-        log.info("Query for GetChromatogramList: " + buf.toString());
-        List chromats = sess.createQuery(buf.toString()).list();
+      boolean alt = false;
+      String runNumberPrev = "";
+      Integer idPlatePrev = new Integer(-1);
+      AppUser releaser = null;
+      for(Iterator i = chromats.iterator(); i.hasNext();) {
 
-        boolean alt = false;
-        String runNumberPrev = "";
-        Integer idPlatePrev = new Integer(-1);
-        AppUser releaser = null;
-        for(Iterator i = chromats.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
 
-          Object[] row = (Object[])i.next();
+        Integer idChromatogram = row[0] == null ? new Integer(0) : (Integer)row[0];
+        Integer idPlateWell = row[1] == null ? new Integer(0) : (Integer)row[1];
+        Integer idRequest = row[2] == null ? new Integer(0) : (Integer)row[2];
+        String  qualifiedFilePath    = row[3] == null ? "" : (String)row[3];
+        String  displayName    = row[4] == null ? "" : (String)row[4];
+        Integer readLength = row[5] == null ? new Integer(0) : (Integer)row[5];
+        Integer trimmedLength = row[6] == null ? new Integer(0) : (Integer)row[6];
+        Integer q20 = row[7] == null ? new Integer(0) : (Integer)row[7];
+        Integer q40 = row[8] == null ? new Integer(0) : (Integer)row[8];
+        Integer aSignalStrength = row[9] == null ? new Integer(0) : (Integer)row[9];
+        Integer cSignalStrength = row[10] == null ? new Integer(0) : (Integer)row[10];
+        Integer gSignalStrength = row[11] == null ? new Integer(0) : (Integer)row[11];
+        Integer tSignalStrength = row[12] == null ? new Integer(0) : (Integer)row[12];
+        String  releaseDate = this.formatDate( ( java.sql.Timestamp ) row[13] );
+        String wellRow = row[14] != null ? (String)row[14] : "";
+        String wellCol = row[15] != null ? ((Integer)row[15]).toString() : "";
+        String requestNumber = row[16] != null ? (String)row[16] : "";
+        String sampleName = row[17] != null ? (String)row[17] : "";
+        String submitterFirstName = row[18] != null ? (String)row[18] : "";
+        String submitterLastName = row[19] != null ? (String)row[19] : "";
+        String runNumber = row[20] != null ? ((Integer)row[20]).toString() : "";
+        String runName = row[21] != null ? (String)row[21] : "";
+        Integer idPlate = row[22] == null ? new Integer(0) : (Integer)row[22];
+        String plateLabel = row[23] != null ? (String)row[23] : "";
+        String redoFlag = row[24] != null ? (String)row[24] : "";
+        Integer idReleaser = row[25] != null ? (Integer)row[25] : new Integer(0);
+        String lane = row[26] != null ? ((Integer)row[26]).toString() : "";
+        Integer wellPos = row[27] != null ? (Integer)row[27] : null;
+        Integer quadrant = row[28] != null ? (Integer)row[28] : null;
 
-          Integer idChromatogram = row[0] == null ? new Integer(0) : (Integer)row[0];
-          Integer idPlateWell = row[1] == null ? new Integer(0) : (Integer)row[1];
-          Integer idRequest = row[2] == null ? new Integer(0) : (Integer)row[2];
-          String  qualifiedFilePath    = row[3] == null ? "" : (String)row[3];
-          String  displayName    = row[4] == null ? "" : (String)row[4];
-          Integer readLength = row[5] == null ? new Integer(0) : (Integer)row[5];
-          Integer trimmedLength = row[6] == null ? new Integer(0) : (Integer)row[6];
-          Integer q20 = row[7] == null ? new Integer(0) : (Integer)row[7];
-          Integer q40 = row[8] == null ? new Integer(0) : (Integer)row[8];
-          Integer aSignalStrength = row[9] == null ? new Integer(0) : (Integer)row[9];
-          Integer cSignalStrength = row[10] == null ? new Integer(0) : (Integer)row[10];
-          Integer gSignalStrength = row[11] == null ? new Integer(0) : (Integer)row[11];
-          Integer tSignalStrength = row[12] == null ? new Integer(0) : (Integer)row[12];
-          String  releaseDate = this.formatDate( ( java.sql.Timestamp ) row[13] );
-          String wellRow = row[14] != null ? (String)row[14] : "";
-          String wellCol = row[15] != null ? ((Integer)row[15]).toString() : "";
-          String requestNumber = row[16] != null ? (String)row[16] : "";
-          String sampleName = row[17] != null ? (String)row[17] : "";
-          String submitterFirstName = row[18] != null ? (String)row[18] : "";
-          String submitterLastName = row[19] != null ? (String)row[19] : "";
-          String runNumber = row[20] != null ? ((Integer)row[20]).toString() : "";
-          String runName = row[21] != null ? (String)row[21] : "";
-          Integer idPlate = row[22] == null ? new Integer(0) : (Integer)row[22];
-          String plateLabel = row[23] != null ? (String)row[23] : "";
-          String redoFlag = row[24] != null ? (String)row[24] : "";
-          Integer idReleaser = row[25] != null ? (Integer)row[25] : new Integer(0);
-          String lane = row[26] != null ? ((Integer)row[26]).toString() : "";
-          String wellPos = row[27] != null ? ((Integer)row[27]).toString() : "";
-          String quadrant = row[28] != null ? ((Integer)row[28]).toString() : "";
-          
-          if (!runNumber.equals(runNumberPrev)) {
-            alt = !alt;
-          } else if (!idPlate.equals(idPlatePrev)) {
-            alt = !alt;
-          }
-          
-          abiFileName = qualifiedFilePath + File.separator + displayName;
-          File abiFile = new File(qualifiedFilePath, displayName);
-
-          
-          double q20_len;
-          double q40_len;
-          
-          if ( readLength!=0 ) {
-            DecimalFormat twoDForm = new DecimalFormat("#.##");
-            q20_len = (double) q20/readLength;
-            q20_len = Double.valueOf(twoDForm.format(q20_len));
-            q40_len = (double) q40/readLength;
-            q40_len = Double.valueOf(twoDForm.format(q40_len));
-          } else {
-            q20_len = new Integer(0);
-            q40_len =  new Integer(0);
-          }
-          
-          releaser = (AppUser)sess.get(AppUser.class, idReleaser);
-          
-          String submitter = AppUser.formatShortName(submitterLastName, submitterFirstName);
-
-          
-          Element cNode = new Element("Chromatogram");
-          cNode.setAttribute("idChromatogram", idChromatogram.toString());
-          cNode.setAttribute("idPlateWell", idPlateWell.toString());
-          cNode.setAttribute("idRequest", idRequest.toString());
-          cNode.setAttribute("qualifiedFilePath", qualifiedFilePath);
-          cNode.setAttribute("displayName", displayName);
-          cNode.setAttribute("readLength", readLength.toString());
-          cNode.setAttribute("trimmedLength", trimmedLength.toString());
-          cNode.setAttribute("q20", q20.toString());
-          cNode.setAttribute("q40", q40.toString());
-          cNode.setAttribute("aSignalStrength", aSignalStrength.toString());
-          cNode.setAttribute("cSignalStrength", cSignalStrength.toString());
-          cNode.setAttribute("gSignalStrength", gSignalStrength.toString());
-          cNode.setAttribute("tSignalStrength", tSignalStrength.toString());
-          cNode.setAttribute("q20_len", "" + q20_len);
-          cNode.setAttribute("q40_len", "" + q40_len);
-          cNode.setAttribute("viewURL", getViewURL(idChromatogram));
-          cNode.setAttribute( "releaseDate", releaseDate );
-          cNode.setAttribute( "submitter", submitter );
-          cNode.setAttribute( "wellRow", wellRow );
-          cNode.setAttribute( "wellCol", wellCol );
-          cNode.setAttribute( "requestNumber", requestNumber );
-          cNode.setAttribute( "sampleName", sampleName );
-          cNode.setAttribute( "runNumber", runNumber );
-          cNode.setAttribute( "runName", runName );
-          cNode.setAttribute( "fileSize", Long.valueOf(abiFile.length()).toString() );
-          cNode.setAttribute("altColor",  new Boolean(alt).toString());
-          cNode.setAttribute("plateLabel",  plateLabel != null && !plateLabel.equals("") ? plateLabel : idPlate.toString());
-          cNode.setAttribute("redoFlag", redoFlag);
-          cNode.setAttribute("releaser", releaser != null ? releaser.getDisplayName() : "");
-          cNode.setAttribute("lane", lane);
-          cNode.setAttribute("wellPosition", wellPos);
-          cNode.setAttribute("quadrant", quadrant);
-          
-          doc.getRootElement().addContent(cNode);
-
-          runNumberPrev = runNumber;
-          idPlatePrev = idPlate;
+        // Convert well position and quadrant from 0-based to 1-based
+        String wellPosDisplay = "";
+        if (wellPos != null) {
+          wellPosDisplay = Integer.valueOf(wellPos.intValue() + 1).toString();
         }
+        String quadrantDisplay = "";
+        if (quadrant != null) {
+          quadrantDisplay = Integer.valueOf(quadrant.intValue() + 1).toString();
+        }
+        
+        
+        if (!runNumber.equals(runNumberPrev)) {
+          alt = !alt;
+        } else if (!idPlate.equals(idPlatePrev)) {
+          alt = !alt;
+        }
+        
+        abiFileName = qualifiedFilePath + File.separator + displayName;
+        File abiFile = new File(qualifiedFilePath, displayName);
+
+        
+        double q20_len;
+        double q40_len;
+        
+        if ( readLength!=0 ) {
+          DecimalFormat twoDForm = new DecimalFormat("#.##");
+          q20_len = (double) q20/readLength;
+          q20_len = Double.valueOf(twoDForm.format(q20_len));
+          q40_len = (double) q40/readLength;
+          q40_len = Double.valueOf(twoDForm.format(q40_len));
+        } else {
+          q20_len = new Integer(0);
+          q40_len =  new Integer(0);
+        }
+        
+        releaser = (AppUser)sess.get(AppUser.class, idReleaser);
+        
+        String submitter = AppUser.formatShortName(submitterLastName, submitterFirstName);
+
+        
+        Element cNode = new Element("Chromatogram");
+        cNode.setAttribute("idChromatogram", idChromatogram.toString());
+        cNode.setAttribute("idPlateWell", idPlateWell.toString());
+        cNode.setAttribute("idRequest", idRequest.toString());
+        cNode.setAttribute("qualifiedFilePath", qualifiedFilePath);
+        cNode.setAttribute("displayName", displayName);
+        cNode.setAttribute("readLength", readLength.toString());
+        cNode.setAttribute("trimmedLength", trimmedLength.toString());
+        cNode.setAttribute("q20", q20.toString());
+        cNode.setAttribute("q40", q40.toString());
+        cNode.setAttribute("aSignalStrength", aSignalStrength.toString());
+        cNode.setAttribute("cSignalStrength", cSignalStrength.toString());
+        cNode.setAttribute("gSignalStrength", gSignalStrength.toString());
+        cNode.setAttribute("tSignalStrength", tSignalStrength.toString());
+        cNode.setAttribute("q20_len", "" + q20_len);
+        cNode.setAttribute("q40_len", "" + q40_len);
+        cNode.setAttribute("viewURL", getViewURL(idChromatogram));
+        cNode.setAttribute( "releaseDate", releaseDate );
+        cNode.setAttribute( "submitter", submitter );
+        cNode.setAttribute( "wellRow", wellRow );
+        cNode.setAttribute( "wellCol", wellCol );
+        cNode.setAttribute( "requestNumber", requestNumber );
+        cNode.setAttribute( "sampleName", sampleName );
+        cNode.setAttribute( "runNumber", runNumber );
+        cNode.setAttribute( "runName", runName );
+        cNode.setAttribute( "fileSize", Long.valueOf(abiFile.length()).toString() );
+        cNode.setAttribute("altColor",  new Boolean(alt).toString());
+        cNode.setAttribute("plateLabel",  plateLabel != null && !plateLabel.equals("") ? plateLabel : idPlate.toString());
+        cNode.setAttribute("redoFlag", redoFlag);
+        cNode.setAttribute("releaser", releaser != null ? releaser.getDisplayName() : "");
+        cNode.setAttribute("lane", lane);
+        cNode.setAttribute("wellPosition", wellPosDisplay);
+        cNode.setAttribute("quadrant", quadrantDisplay);
+        
+        doc.getRootElement().addContent(cNode);
+
+        runNumberPrev = runNumber;
+        idPlatePrev = idPlate;
       }
 
 
