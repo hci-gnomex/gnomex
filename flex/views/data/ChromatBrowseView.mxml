@@ -639,7 +639,7 @@
 					 paddingLeft="5"
 					 paddingRight="5">
 				<mx:CheckBox id="capSeqCheckbox"
-							 label="Cap seq"
+							 label="Sanger seq"
 							 paddingRight="0"
 							 paddingLeft="2"
 							 horizontalGap="0"
@@ -772,7 +772,7 @@
 					
 					<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
 									   headerText="File"
-									   minWidth="150"
+									   minWidth="140"
 									   textDecoration="underline"
 									   color="#2017D8"
 									   draggable="false">
@@ -801,10 +801,10 @@
 										   width="70" minWidth="15" />
 					<mx:DataGridColumn dataField="@sampleName" 
 										   headerText="Sample"
-										   width="70" minWidth="15" />
+										   width="80" minWidth="15" />
 
 						
-					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{!this.releasedCheckbox.selected}"
+					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected}"
 									   width="90" minWidth="75" id="releasedCheckBox">
 						<mx:itemRenderer>
 							<mx:Component>

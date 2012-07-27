@@ -24,9 +24,35 @@
 				}
 			}
 			
+			private function clearFilters():void {
+				this.lastWeekCheckbox.selected = false;
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+
+				this.lastWeekCheckboxCreated.selected = false;
+				this.lastMonthCheckboxCreated.selected = false;
+				this.lastThreeMonthsCheckboxCreated.selected = false;
+				this.lastYearCheckboxCreated.selected  = false;
+
+				this.pendingCheckbox.selected = false;
+				this.runningCheckbox.selected  = false;
+				this.completeCheckbox.selected = false;
+				this.failedCheckbox.selected  = false;
+				
+				this.capSeqCheckbox.selected = false;
+				this.fragCheckbox.selected = false;
+				this.mitoCheckbox.selected  = false;
+				this.cherryCheckbox.selected = false;
+				
+				this.reactionCheckbox.selected = false;
+				this.sourceCheckbox.selected = false;
+
+			}
+			
 			private function toggleDateCheckboxes(checkBoxNumber:int):void {
 				this.lookupPlateNameField.text = '';
-				this.lookupRunNumberField.text = '';
+				this.lookupRunNameField.text = '';
 				
 				if (checkBoxNumber == 0) {
 					this.lastWeekCheckbox.selected = false;
@@ -81,7 +107,7 @@
 			
 			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
 				this.lookupPlateNameField.text = '';
-				this.lookupRunNumberField.text = '';
+				this.lookupRunNameField.text = '';
 				
 				if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
@@ -112,7 +138,7 @@
 			
 			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
 				this.lookupPlateNameField.text = '';
-				this.lookupRunNumberField.text = '';
+				this.lookupRunNameField.text = '';
 				
 				if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
@@ -143,7 +169,7 @@
 			
 			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
 				this.lookupPlateNameField.text = '';
-				this.lookupRunNumberField.text = '';
+				this.lookupRunNameField.text = '';
 				
 				if (checkBoxNumber == 1) {
 					this.allCheckbox.selected = false;
@@ -173,7 +199,7 @@
 			
 			private function toggleCodePlateType(checkBoxNumber:int):void{
 				this.lookupPlateNameField.text = '';
-				this.lookupRunNumberField.text = '';
+				this.lookupRunNameField.text = '';
 				if(checkBoxNumber == 0){
 					this.allCheckbox.selected = false;
 					this.sourceCheckbox.selected = false;
@@ -181,11 +207,13 @@
 				else if(checkBoxNumber == 1){
 					this.allCheckbox.selected = false;
 					this.reactionCheckbox.selected = false;
+					this.mitoCheckbox.selected = false;
+					this.capSeqCheckbox.selected = false;
 				}
 			}
 			
 			private function setDefaultButton():void {
-				if ( this.lookupPlateNameField.text != '' || this.lookupRunNumberField.text != '' ) {
+				if ( this.lookupPlateNameField.text != '' || this.lookupRunNameField.text != '' ) {
 					this.lastWeekCheckboxCreated.selected  = false;
 					this.lastMonthCheckboxCreated.selected = false;
 					this.lastThreeMonthsCheckboxCreated.selected = false;
@@ -219,7 +247,7 @@
 		<mx:VBox  width="100%" verticalGap="0"  >
 			<mx:HBox id = "filterBar"
 					 width="100%"
-					 horizontalGap = "10"
+					 horizontalGap = "4"
 					 paddingTop = "0"
 					 paddingBottom = "0"
 					 paddingLeft = "2"
@@ -314,7 +342,7 @@
 						 paddingLeft = "5"
 						 paddingRight = "5">
 					<mx:VBox verticalGap="0">
-						<mx:CheckBox label = "ABI Seq"
+						<mx:CheckBox label = "Sanger Seq"
 									 id = "capSeqCheckbox" selected="true"
 									 horizontalGap = "0"
 									 styleName = "labelSmall"
@@ -490,9 +518,10 @@
 					
 					<mx:VRule height="20" includeInLayout="{theViews.selectedChild == plateBrowseView}" visible="{theViews.selectedChild == plateBrowseView}"/>
 					
-					<mx:HBox horizontalGap="0" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+					<mx:VBox horizontalGap="0" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+							 verticalGap="0" 
 							 visible="{theViews.selectedChild == plateBrowseView}" paddingLeft="5" paddingRight="5"
-							 horizontalAlign = "right" verticalAlign="middle">
+							 horizontalAlign = "left" verticalAlign="middle">
 						<mx:CheckBox id="reactionCheckbox"
 									 label="Reaction"
 									 paddingLeft = "2"
@@ -517,7 +546,7 @@
 							</mx:click>
 						</mx:CheckBox>
 						
-					</mx:HBox>
+					</mx:VBox>
 					
 					<mx:VRule height="20"/>
 					<mx:HBox horizontalGap="0" paddingLeft="2" paddingRight="0"
@@ -528,17 +557,9 @@
 						<mx:TextInput id="lookupPlateNameField"
 									  fontSize="9"
 									  height="20"
-									  width="60"
-									  change="{setDefaultButton()}" />
+									  width="100"
+									  enter="{if (lookupPlateNameField.text != '') clearFilters();this.getList()}" />
 						
-						<mx:Button id="lookupButton"
-								   fontFamily="Arial"
-								   height="18"
-								   width="20"
-								   color="#400040"
-								   visible="true"
-								   icon="@Embed('../../assets/arrow_right.png')"
-								   click="{if (lookupPlateNameField.text != '') this.getList()}" />
 						
 					</mx:HBox>
 					
@@ -546,22 +567,15 @@
 							 includeInLayout="{theViews.selectedChild == runBrowseView}" horizontalAlign="right" 
 							 verticalAlign="middle" paddingLeft="5">
 						<mx:HBox>
-							<mx:Label text="Run #" />
+							<mx:Label text="Run Name" />
 							
-							<mx:TextInput id="lookupRunNumberField"
+							<mx:TextInput id="lookupRunNameField"
 										  fontSize="9"
 										  height="20"
-										  width="45"
-										  change="{setDefaultButton()}" />
+										  width="100"
+										  enter="{if (lookupRunNameField.text != '') clearFilters();this.getList()}"  />
 							
-							<mx:Button id="lookupButton1"
-									   fontFamily="Arial"
-									   height="18"
-									   width="20"
-									   color="#400040"
-									   visible="true"
-									   icon="@Embed('../../assets/arrow_right.png')"
-									   click="{if (lookupRunNumberField.text != '') this.getList()}" />
+
 							
 						</mx:HBox>
 						<mx:HBox>

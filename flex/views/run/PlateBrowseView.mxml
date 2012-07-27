@@ -123,7 +123,7 @@
 			
 			private function getPlateParameters():Object {
 				var params:Object = new Object;
-				params.notAddedToARun = "Y";
+
 				
 				if ( parentDocument.allCheckbox.selected ) {
 					return params;

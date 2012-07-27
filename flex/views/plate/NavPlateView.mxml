@@ -2441,12 +2441,12 @@
 					
 					<mx:RadioButtonGroup id="reactionTypeRadioGroup" />
 					<mx:RadioButton id="radioSEQ"
-									label="Capillary Sequencing"
+									label="Sanger Seq"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(SEQ)}"
 									selected="{reactionState==SEQ}"  styleName="labelSmall"/>
 					<mx:RadioButton id="radioMit"
-									label="Mitochondrial Sequencing"
+									label="Mitochondrial Seq"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(MIT)}"
 									selected="{reactionState==MIT}"  styleName="labelSmall"/>
