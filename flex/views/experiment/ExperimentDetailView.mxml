@@ -288,7 +288,6 @@
 			}
 			
 			if (showPlates) {
-//				this.redoFlagCol.visible = false;
 				
 				this.samplesGridConfirm.dataProvider = null;
 				sampleGroupingCollection = new GroupingCollection();
@@ -312,7 +311,6 @@
 				this.multiplexGroupNumberColumn.visible = false;
 
 			} else if (showSampleMultiplexGroup) {
-//				this.redoFlagCol.visible = false;
 
         		this.samplesGridConfirm.dataProvider = null;
         		sampleGroupingCollection = new GroupingCollection();
@@ -331,7 +329,6 @@
 				this.plateNameCol.visible = false;
 
         	} else {
-//				this.redoFlagCol.visible = true;
 
 				sampleGroupingCollection = null;
         		this.samplesGridConfirm.dataProvider = this.samples;
@@ -701,7 +698,7 @@
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
 					reactionPlateCol.visible = true;
-//					redoFlagCol.visible = true;
+					redoFlagCol.visible = true;
 
 				} else if (isMitSeqState()) {
 					concentrationCol.visible = false; 
@@ -719,7 +716,7 @@
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
 					reactionPlateCol.visible = true;
-//					redoFlagCol.visible = true;
+					redoFlagCol.visible = true;
 
 				} else if (isFragAnalState()) {
 					concentrationCol.visible = false; 
@@ -1240,11 +1237,11 @@
 							<mx:AdvancedDataGridColumn  headerText="Dest. Well" width="75" dataField="@destinationWell" editable="false" id="cherryDestinationWellCol"/>
 							
 							<mx:AdvancedDataGridColumn id="reactionPlateCol" headerText="Reaction Plates" width="140" dataField="@reactionPlateNames" editable="false" wordWrap="true" />
-							<mx:AdvancedDataGridColumn id="redoFlagCol" width="40" headerText="Redo">
+							<mx:AdvancedDataGridColumn id="redoFlagCol" width="40" headerText="Redo" dataField="@redoFlag" editable="false">
 								<mx:itemRenderer>
 									<mx:Component >
 										<mx:HBox  horizontalAlign="center" horizontalGap="1" >
-											<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
+											<mx:Image source="{data.hasOwnProperty('@redoFlag') &amp;&amp; data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
 											</mx:Image> 
 										</mx:HBox>
 									</mx:Component>
