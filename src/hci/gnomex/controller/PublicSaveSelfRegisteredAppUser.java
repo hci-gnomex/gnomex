@@ -92,10 +92,22 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
     }
     
+    if(appUserScreen.getFirstName() != null && appUserScreen.getLastName() != null){
+      if(!appUserScreen.getFirstName().matches("[A-Za-z]+") || !appUserScreen.getLastName().matches("[A-Za-z]+")){
+        this.addInvalidField("improperName", "First and last names may not contain digits");
+      }
+    }
+    
     if (uofuAffiliate && (appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals(""))) {
       this.addInvalidField("userNameRequiredField", "University Id is required");        
     }
-      
+    
+    if(appUserScreen.getuNID() != null){
+      if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().length() != 8 || !appUserScreen.getuNID().substring(1).matches("[0-9]+")){
+        this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with 'u' followed by 7 digits");
+      }
+    }
+     
     if (!uofuAffiliate && (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
       this.addInvalidField("userNameRequiredField", "User name is required");
     }
