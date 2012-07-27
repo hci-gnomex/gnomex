@@ -83,7 +83,8 @@ public class ChromatogramFilter extends DetailObject {
         (lastWeek.equals("N") && lastMonth.equals("N") && lastThreeMonths.equals("N")) &&
         (plateName == null || plateName.equals("")) &&
         (runName == null || runName.equals("")) &&
-        (requestNumber == null || requestNumber.equals(""))) {
+        (requestNumber == null || requestNumber.equals("")) &&
+        (idRequest == null)) {
       // If we are showing both released as unreleased, make sure that we have another
       // filter to limit the results
       hasLimitingCriteria = false;
