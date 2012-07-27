@@ -130,6 +130,8 @@ public class SaveTopic extends GNomExCommand implements Serializable {
     topic.setDescription(load.getDescription());
     topic.setIdLab(load.getIdLab());
     topic.setIdAppUser(load.getIdAppUser());
+    topic.setCodeVisibility(load.getCodeVisibility());
+    topic.setIdInstitution(load.getIdInstitution());
 
     // If parent annotation grouping is owned by a user group, this
     // child annotation grouping must be as well.

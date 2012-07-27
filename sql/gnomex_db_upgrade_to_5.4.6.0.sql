@@ -170,3 +170,20 @@ values ('default_visibility_experiment','','Default visibility for new Experimen
 alter table gnomex.CoreFacility add showProjectAnnotations char(1) NOT NULL Default 'Y';
 
 
+-- Add codeVisibility to Topic
+alter table gnomex.Topic add column codeVisibility VARCHAR(10) NOT NULL;
+alter table gnomex.Topic add
+CONSTRAINT FK_Topic_Visibility FOREIGN KEY  (codeVisibility)
+    REFERENCES gnomex.Visibility (codeVisibility)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
+-- Add idInstitution to Topic
+alter table gnomex.Topic add column idInstitution INT(10) NOT NULL;
+alter table gnomex.Topic add
+CONSTRAINT FK_Topic_Institution FOREIGN KEY  (idInstitution)
+    REFERENCES gnomex.Institution (idInstitution)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+

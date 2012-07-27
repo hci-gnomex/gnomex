@@ -63,7 +63,9 @@ public class TopicQuery implements Serializable {
   private HashMap<String, TreeMap<String, ?>>      topicToDataTracks;
   private HashMap<Integer, DataTrack>              dataTrackMap;
   private HashMap<Integer, Topic>                  topicMap;
-  private ArrayList<Integer>                       restrictedTopicList;
+  private ArrayList<Integer>                       restrictedRequestList;
+  private ArrayList<Integer>                       restrictedAnalysisList;
+  private ArrayList<Integer>                       restrictedDataTrackList;
 
 	@SuppressWarnings("unchecked")
 	
@@ -100,7 +102,7 @@ public class TopicQuery implements Serializable {
     queryBuf = this.getRequestQuery(secAdvisor);
     Logger.getLogger(this.getClass().getName()).fine("Request query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> requestRows = (List<Object[]>)query.list();
+    List<Object[]> returnedRequestRows = (List<Object[]>)query.list();
     
     // Run query to get requests with now visibility restrictions, organized under topics
     queryBuf = this.getRequestQuery(null);
@@ -112,7 +114,7 @@ public class TopicQuery implements Serializable {
     queryBuf = this.getAnalysisQuery(secAdvisor);
     Logger.getLogger(this.getClass().getName()).fine("Analysis query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> analysisRows = (List<Object[]>)query.list();
+    List<Object[]> returnedAnalysisRows = (List<Object[]>)query.list();
 
     // Run query to get analyses with no visibility restrictions, organized under topics
     queryBuf = this.getAnalysisQuery(null);
@@ -124,7 +126,7 @@ public class TopicQuery implements Serializable {
     queryBuf = this.getDataTrackQuery(secAdvisor);
     Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> dataTrackRows = (List<Object[]>)query.list();
+    List<Object[]> returnedDataTrackRows = (List<Object[]>)query.list();
 
     // Run query to get dataTracks with no visibility restrictions, organized under topics
     queryBuf = this.getDataTrackQuery(null);
@@ -134,7 +136,7 @@ public class TopicQuery implements Serializable {
 
     
 	  // Create an XML document
-	  Document doc = this.getTopicDocument(topicRows, requestRows, unrestrictedRequestRows, analysisRows, unrestrictedAnalysisRows, dataTrackRows, unrestrictedDataTrackRows, DictionaryHelper.getInstance(sess), secAdvisor);
+	  Document doc = this.getTopicDocument(topicRows, returnedRequestRows, unrestrictedRequestRows, returnedAnalysisRows, unrestrictedAnalysisRows, returnedDataTrackRows, unrestrictedDataTrackRows, DictionaryHelper.getInstance(sess), secAdvisor);
 	  return doc;
 		
 	}
@@ -154,6 +156,10 @@ public class TopicQuery implements Serializable {
 
 		addCriteria(TOPIC_LEVEL);
 		
+    if (secAdvisor != null) {
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "topic", null, addWhere, false, false);
+    }		
+    
 		queryBuf.append(" ORDER BY topic.name asc ");
 
 		return queryBuf;
@@ -262,36 +268,38 @@ public class TopicQuery implements Serializable {
 
 	
 	private Document getTopicDocument(List<Object[]> topicRows, 
-	    List<Object[]> requestRows, List<Object[]> unrestrictedRequestRows, 
-	    List<Object[]> analysisRows, List<Object[]> unrestrictedAnalysisRows, 
-	    List<Object[]> dataTrackRows, List<Object[]> unrestrictedDataTrackRows, 
+	    List<Object[]> returnedRequestRows, List<Object[]> unrestrictedRequestRows, 
+	    List<Object[]> returnedAnalysisRows, List<Object[]> unrestrictedAnalysisRows, 
+	    List<Object[]> returnedDataTrackRows, List<Object[]> unrestrictedDataTrackRows, 
 	    DictionaryHelper dictionaryHelper, SecurityAdvisor secAdvisor) throws Exception {
 	  
-    // Build a list of topics that contain items that are not be visible to this user.
-    // This list will be used later to remove any experiments, analyses, and data tracks 
-	  // under those topics since visibility for all items in a topic is restricted to the
-    // visibility for the most restricted item
-	  restrictedTopicList = new ArrayList<Integer>();
+    // Build a list of requests that are not be visible to this user.
+    // This list will be used later mark tag requests as restricted. 
+	  restrictedRequestList = new ArrayList<Integer>();
     for (Object[] row : unrestrictedRequestRows) {
-      Topic thisTopic = (Topic) row[0];
-      if(row[2] != null && !checkRequests(thisTopic, (Request) row[2], requestRows) && !restrictedTopicList.contains(thisTopic.getIdTopic())) {
-        restrictedTopicList.add(thisTopic.getIdTopic());
+      Request thisUnrestrictedRequest = (Request) row[2];
+      if(thisUnrestrictedRequest != null && checkForRestrictedRequest(thisUnrestrictedRequest, returnedRequestRows) && !restrictedRequestList.contains(thisUnrestrictedRequest.getIdRequest())) {
+        restrictedRequestList.add(thisUnrestrictedRequest.getIdRequest());
       }
-    }   
+    } 
+    // Same for Analyses
+    restrictedAnalysisList = new ArrayList<Integer>();
     for (Object[] row : unrestrictedAnalysisRows) {
-      Topic thisTopic = (Topic) row[0];
-      if(row[2] != null && !checkAnalyses(thisTopic, (Analysis) row[2], analysisRows) && !restrictedTopicList.contains(thisTopic.getIdTopic())) {
-        restrictedTopicList.add(thisTopic.getIdTopic());
+      Analysis thisUnrestrictedAnalysis = (Analysis) row[2];
+      if(thisUnrestrictedAnalysis != null && checkForRestrictedAnalysis(thisUnrestrictedAnalysis, returnedAnalysisRows) && !restrictedAnalysisList.contains(thisUnrestrictedAnalysis.getIdAnalysis())) {
+        restrictedAnalysisList.add(thisUnrestrictedAnalysis.getIdAnalysis());
       }
-    }   
+    } 
+    // Same for Data Tracks
+    restrictedDataTrackList = new ArrayList<Integer>();
     for (Object[] row : unrestrictedDataTrackRows) {
-      Topic thisTopic = (Topic) row[0];
-      if(row[2] != null && !checkDataTracks(thisTopic, (DataTrack) row[2], dataTrackRows) && !restrictedTopicList.contains(thisTopic.getIdTopic())) {
-        restrictedTopicList.add(thisTopic.getIdTopic());
+      DataTrack thisUnrestrictedDataTrack = (DataTrack) row[2];
+      if(thisUnrestrictedDataTrack != null && checkForRestrictedDataTrack(thisUnrestrictedDataTrack, returnedDataTrackRows) && !restrictedDataTrackList.contains(thisUnrestrictedDataTrack.getIdDataTrack())) {
+        restrictedDataTrackList.add(thisUnrestrictedDataTrack.getIdDataTrack());
       }
     }   
 	  
-		hashRequestsAnalysesDataTracks(topicRows, requestRows, analysisRows, dataTrackRows, dictionaryHelper);		
+		hashRequestsAnalysesDataTracks(topicRows, unrestrictedRequestRows, unrestrictedAnalysisRows, unrestrictedDataTrackRows, dictionaryHelper);		
 		
     Document doc = new Document(new Element("Folder"));
     Element root = doc.getRootElement();
@@ -314,43 +322,40 @@ public class TopicQuery implements Serializable {
 		return topDoc;
 		
 	}	
-	
-  private boolean checkRequests(Topic checkTopic, Request checkRequest, List<Object[]> rows) {
-    for (Object[] row : rows) {
-      Topic thisTopic = (Topic) row[0];
-      Request thisReq = (Request) row[2];
-      if(thisTopic.getIdTopic().intValue() == checkTopic.getIdTopic().intValue()
-          && thisReq.getIdRequest().intValue() == checkRequest.getIdRequest().intValue()) {
-        return true;
+
+  private boolean checkForRestrictedRequest(Request thisUnrestrictedRequest, List<Object[]> returnedRequestRows) {
+    for (Object[] row : returnedRequestRows) {
+      Request thisReturnedReq = (Request) row[2];
+      if(thisReturnedReq != null && thisReturnedReq.getIdRequest().intValue() == thisUnrestrictedRequest.getIdRequest().intValue()) {
+        return false;
       }
     }
-    return false;
+    // Return indicating restricted if thisUnrestrictedRequest is on the unrestricted list but not in returnedRequestRows
+    return true;
   }
   
-  private boolean checkAnalyses(Topic checkTopic, Analysis checkAnalysis, List<Object[]> rows) {
-    for (Object[] row : rows) {
-      Topic thisTopic = (Topic) row[0];
-      Analysis thisReq = (Analysis) row[2];
-      if(thisTopic.getIdTopic().intValue() == checkTopic.getIdTopic().intValue()
-          && thisReq.getIdAnalysis().intValue() == checkAnalysis.getIdAnalysis().intValue()) {
-        return true;
+  private boolean checkForRestrictedAnalysis(Analysis thisUnrestrictedAnalysis, List<Object[]> returnedAnalysisRows) {
+    for (Object[] row : returnedAnalysisRows) {
+      Analysis thisReturnedAnalysis = (Analysis) row[2];
+      if(thisReturnedAnalysis != null && thisReturnedAnalysis.getIdAnalysis().intValue() == thisUnrestrictedAnalysis.getIdAnalysis().intValue()) {
+        return false;
       }
     }
-    return false;
+    // Return indicating restricted if thisUnrestrictedAnalysis is on the unrestricted list but not in returnedAnalysisRows
+    return true;
   }
   
-  private boolean checkDataTracks(Topic checkTopic, DataTrack checkDataTrack, List<Object[]> rows) {
-    for (Object[] row : rows) {
-      Topic thisTopic = (Topic) row[0];
-      DataTrack thisReq = (DataTrack) row[2];
-      if(thisTopic.getIdTopic().intValue() == checkTopic.getIdTopic().intValue()
-          && thisReq.getIdDataTrack().intValue() == checkDataTrack.getIdDataTrack().intValue()) {
-        return true;
+  private boolean checkForRestrictedDataTrack(DataTrack thisUnrestrictedDataTrack, List<Object[]> returnedDataTrackRows) {
+    for (Object[] row : returnedDataTrackRows) {
+      DataTrack thisReturnedDataTrack = (DataTrack) row[2];
+      if(thisReturnedDataTrack != null && thisReturnedDataTrack.getIdDataTrack().intValue() == thisUnrestrictedDataTrack.getIdDataTrack().intValue()) {
+        return false;
       }
     }
-    return false;
+    // Return indicating restricted if thisUnrestrictedDataTrack is on the unrestricted list but not in returnedDataTrackRows
+    return true;
   }
-  
+   
 	private void hashRequestsAnalysesDataTracks(List<Object[]> topicRows, List<Object[]> requestRows, List<Object[]> analysisRows, List<Object[]> dataTrackRows, DictionaryHelper dictionaryHelper) {
 	  rootTopics           = new LinkedHashMap<Integer, TreeMap<String, ?>>();
 		topicToTopics        = new HashMap<String, TreeMap<String, ?>>();
@@ -399,12 +404,12 @@ public class TopicQuery implements Serializable {
 		// Now hash the request rows
 		for (Object[] row : requestRows) {
 			Topic dtTopic         = (Topic) row[0];
-			Topic parentTopic     = (Topic) row[1];
+			//Topic parentTopic     = (Topic) row[1];
 			Request req          = (Request) row[2];
 			
-			boolean isRestrictedTopic = restrictedTopicList.contains(dtTopic.getIdTopic());
 			
 			String folderKey       = dtTopic.getName()  + KEY_DELIM + dtTopic.getIdTopic();
+			/*
 			// Hash root topics
 			if (parentTopic == null) {
 
@@ -425,10 +430,11 @@ public class TopicQuery implements Serializable {
 				}
 				childTopicNameMap.put(folderKey, null);				
 			}
-			topicMap.put(dtTopic.getIdTopic(), dtTopic);				
+			topicMap.put(dtTopic.getIdTopic(), dtTopic);	
+			*/			
 
 			// Hash requests for a topic
-			if (req != null && !isRestrictedTopic) {
+			if (req != null) {
 				TreeMap<String, ?> dtNameMap = topicToRequests.get(folderKey);
 				if (dtNameMap == null) {
 					dtNameMap = new TreeMap<String, String>();
@@ -444,12 +450,12 @@ public class TopicQuery implements Serializable {
     // Now hash the analysis rows
     for (Object[] row : analysisRows) {
       Topic dtTopic         = (Topic) row[0];
-      Topic parentTopic     = (Topic) row[1];
+      //Topic parentTopic     = (Topic) row[1];
       Analysis an          = (Analysis) row[2];
       
-      boolean isRestrictedTopic = restrictedTopicList.contains(dtTopic.getIdTopic());
-      
       String folderKey       = dtTopic.getName()  + KEY_DELIM + dtTopic.getIdTopic();
+      
+      /*
       // Hash root topics
       if (parentTopic == null) {
 
@@ -470,10 +476,11 @@ public class TopicQuery implements Serializable {
         }
         childTopicNameMap.put(folderKey, null);       
       }
-      topicMap.put(dtTopic.getIdTopic(), dtTopic);        
+      topicMap.put(dtTopic.getIdTopic(), dtTopic);  
+      */      
 
       // Hash analysis for a topic
-      if (an != null && !isRestrictedTopic) {
+      if (an != null) {
         TreeMap<String, ?> dtNameMap = topicToAnalyses.get(folderKey);
         if (dtNameMap == null) {
           dtNameMap = new TreeMap<String, String>();
@@ -489,12 +496,11 @@ public class TopicQuery implements Serializable {
     // Now hash the dataTrack rows
     for (Object[] row : dataTrackRows) {
       Topic dtTopic         = (Topic) row[0];
-      Topic parentTopic     = (Topic) row[1];
+      //Topic parentTopic     = (Topic) row[1];
       DataTrack dt          = (DataTrack) row[2];
-      
-      boolean isRestrictedTopic = restrictedTopicList.contains(dtTopic.getIdTopic());
-     
+           
       String folderKey       = dtTopic.getName()  + KEY_DELIM + dtTopic.getIdTopic();
+      /*
       // Hash root dataTrack folders for a genome build
       if (parentTopic == null) {
 
@@ -515,10 +521,11 @@ public class TopicQuery implements Serializable {
         }
         childTopicNameMap.put(folderKey, null);       
       }
-      topicMap.put(dtTopic.getIdTopic(), dtTopic);        
+      topicMap.put(dtTopic.getIdTopic(), dtTopic);  
+      */      
 
       // Hash dataTracks for a topic
-      if (dt != null && !isRestrictedTopic) {
+      if (dt != null) {
         TreeMap<String, ?> dtNameMap = topicToDataTracks.get(folderKey);
         if (dtNameMap == null) {
           dtNameMap = new TreeMap<String, String>();
@@ -560,8 +567,16 @@ public class TopicQuery implements Serializable {
             Integer idRequest = Integer.valueOf(tokens1[1]);
             
             Request req = requestMap.get(idRequest);
-
-            Element reqNode = req.getXML(secAdvisor, dictionaryHelper).getRootElement();
+            
+            boolean isRestrictedRequest = restrictedRequestList.contains(req.getIdRequest());
+            
+            Element reqNode; 
+            
+            if(isRestrictedRequest) {
+              reqNode = req.getRestrictedVisibilityXML(secAdvisor, dictionaryHelper).getRootElement();
+            } else {
+              reqNode = req.getXML(secAdvisor, dictionaryHelper).getRootElement();
+            }
 
             reqNode.setAttribute("idTopic", childTopic != null ? childTopic.getIdTopic().toString() : ""); 
             
@@ -585,7 +600,17 @@ public class TopicQuery implements Serializable {
             
             Analysis an = analysisMap.get(idAnalysis);
             
-            Element anNode = an.getXML(secAdvisor, dictionaryHelper).getRootElement();
+            boolean isRestrictedAnalysis = restrictedAnalysisList.contains(an.getIdAnalysis());
+            
+            Element anNode; 
+            
+            if(isRestrictedAnalysis) {
+              anNode = new Element("Analysis");
+              anNode.setAttribute("number", "(Restricted Visibility)");
+              anNode.setAttribute("idAnalysis", an.getIdAnalysis().toString());
+            } else {
+              anNode = an.getXML(secAdvisor, dictionaryHelper).getRootElement();
+            }            
             
             anNode.setAttribute("idTopic", childTopic != null ? childTopic.getIdTopic().toString() : ""); 
             
@@ -608,8 +633,20 @@ public class TopicQuery implements Serializable {
             Integer idDataTrack = Integer.valueOf(tokens1[1]);
             
             DataTrack dt = dataTrackMap.get(idDataTrack);
+   
+            boolean isRestrictedDataTrack = restrictedDataTrackList.contains(dt.getIdDataTrack());
             
-            Element dtNode = dt.getXML(secAdvisor, dictionaryHelper, null, null).getRootElement();
+            Element dtNode; 
+            
+            if(isRestrictedDataTrack) {
+              dtNode = new Element("DataTrack");
+              dtNode.setAttribute("number", "(Restricted Visibility)");
+              dtNode.setAttribute("idDataTrack", dt.getIdDataTrack().toString());
+              dtNode.setAttribute("codeVisibility", dt.getCodeVisibility() != null ? dt.getCodeVisibility() : "");
+            } else {
+              dtNode = dt.getXML(secAdvisor, dictionaryHelper, null, null).getRootElement();
+            }             
+            
             dtNode.setAttribute("idTopic", childTopic != null ? childTopic.getIdTopic().toString() : ""); 
             
             labelNode.addContent(dtNode);
