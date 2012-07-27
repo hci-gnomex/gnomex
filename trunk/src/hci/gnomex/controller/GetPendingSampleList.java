@@ -217,10 +217,13 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // case of capillary sequencing).
       parentNode = requestNode;
       
+      
       int totalSampleCount = 0;
       for (Iterator i1 = assayMap.keySet().iterator(); i1.hasNext();) {
         String assayKey = (String)i1.next();
         List<Object[]> results = assayMap.get(assayKey);
+        
+        int plateCount = getPlateCount(results);
 
         idPlatePrev = new Integer(-1);
         boolean firstTime = true;
@@ -233,7 +236,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
             firstTime = false;
             parentNode.setAttribute("sampleCount", Integer.valueOf(results.size()).toString());
           }
-          addWellNode(row, dictionaryHelper, parentNode, results);
+          addWellNode(row, dictionaryHelper, parentNode, results, plateCount);
           totalSampleCount++;
         }
       }
@@ -297,7 +300,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     return n;      
   }
   
-  private void addWellNode(Object[] row, DictionaryHelper dictionaryHelper, Element parentNode, List<Object[]> results) {
+  private void addWellNode(Object[] row, DictionaryHelper dictionaryHelper, Element parentNode, List<Object[]> results, int plateCount) {
     
     Integer idRequest           = (Integer)row[0];
     String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
@@ -330,7 +333,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     Element wellParentNode = parentNode;
     
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
-    if (idAssay == null && idPrimer == null && idPlate != null) {
+    if (plateCount > 1 && idAssay == null && idPrimer == null && idPlate != null) {
       if (!idPlate.equals(idPlatePrev)) {
         plateNode = new Element("Plate");
         plateNode.setAttribute("label",        plateLabel);
@@ -374,6 +377,20 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     wellParentNode.addContent(n);
   
   }
+  
+  private int getPlateCount(List<Object[]> results) {
+    HashMap<Integer, Integer> plateMap = new HashMap<Integer, Integer>();
+    
+    for (Object[] row : results) {
+      Integer idPlate             = (Integer)row[15];
+      
+      if (idPlate != null) {
+        plateMap.put(idPlate, idPlate);
+     }
+    }
+    return plateMap.size();
+  }
+
   
   private int getSampleCountForPlate(Integer theIdPlate, List<Object[]> results) {
     int sampleCount = 0;
