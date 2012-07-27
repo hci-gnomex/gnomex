@@ -33,8 +33,24 @@ public class Topic extends DetailObject implements Serializable {
   private Date               createDate;
   private Lab                lab;
   private AppUser            appUser;  
+  private String             codeVisibility;
+  private Integer            idInstitution;
+  
+  private boolean            canUpdateVisibility;
 
-
+  
+  public String getCanUpdateVisibility() {
+    if (this.canUpdateVisibility) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+  
+  public void canUpdateVisibility(boolean canDo) {
+    canUpdateVisibility = canDo;
+  }
+  
   public Integer getIdTopic() {
     return idTopic;
   }
@@ -209,13 +225,22 @@ public class Topic extends DetailObject implements Serializable {
      root.setAttribute("idParentTopic",this.getIdParentTopic() != null ? this.getIdParentTopic().toString() : "");
      root.setAttribute("description", this.getDescription() != null ? this.getDescription() : "");	
      root.setAttribute("lab", this.getIdLab() != null ? dictionaryHelper.getLabObject(this.getIdLab()).getName() : "");
-     root.setAttribute("idLab",this.getIdLab() != null ? this.getIdLab().toString() : "");
+     root.setAttribute("idLab", this.getIdLab() != null ? this.getIdLab().toString() : "");
      root.setAttribute("appUser", this.getIdAppUser() != null ? dictionaryHelper.getAppUserObject(this.getIdAppUser()).getDisplayName() : "");
-     root.setAttribute("idAppUser",this.getIdAppUser() != null ? this.getIdAppUser().toString() : "");
+     root.setAttribute("idAppUser", this.getIdAppUser() != null ? this.getIdAppUser().toString() : "");
+     root.setAttribute("codeVisibility", this.getNonNullString(this.getCodeVisibility()));
+     root.setAttribute("idInstitution", this.getIdInstitution() != null ? this.getIdInstitution().toString() : "");
      root.setAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
      root.setAttribute("createDate", this.getCreateDate() != null ? DataTrackUtil.formatDate(this.getCreateDate()) : "");
 
      root.setAttribute("canWrite",    secAdvisor.canUpdate(this) ? "Y" : "N");
+     
+     if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
+       root.setAttribute("topicPublicNote",          "(Public) ");
+     } else {
+       root.setAttribute("topicPublicNote", "");
+     }
+     root.setAttribute("canUpdateVisibility", secAdvisor.canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
 
      return doc;
    }
@@ -245,7 +270,50 @@ public class Topic extends DetailObject implements Serializable {
        }       
      }     
      return hasPublicItems;     
-   }  
+   } 
+   
+   public Integer getIdInstitution() {
+     return idInstitution;
+   }
+
+
+   public void setIdInstitution(Integer idInstitution) {
+     this.idInstitution = idInstitution;
+   }
+   
+   public String getCodeVisibility() {
+     return codeVisibility;
+   }
+
+   
+   public void setCodeVisibility(String codeVisibility) {
+     this.codeVisibility = codeVisibility;
+   }
+   
+   
+   public String getIsVisibleToMembers() {
+     if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+       return "Y";
+     } else {
+       return "N";
+     }
+   }
+
+   public String getIsVisibleToMembersAndCollaborators() {
+     if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
+       return "Y";
+     } else {
+       return "N";
+     }
+   }
+
+   public String getIsVisibleToPublic() {
+     if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
+       return "Y";
+     } else {
+       return "N";
+     }
+   }
    
    public void registerMethodsToExcludeFromXML() {
      this.excludeMethodFromXML("getTopics");

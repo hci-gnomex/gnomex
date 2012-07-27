@@ -2659,13 +2659,17 @@ CREATE TABLE `gnomex`.`Topic` (
   `idLab` int(10) NOT NULL,
   `createdBy` VARCHAR(200) NOT NULL,
   `createDate` datetime default NULL,
-  `idAppUser` int(10)  NOT NULL,  
+  `idAppUser` int(10)  NOT NULL,
+  `codeVisibility` VARCHAR(10) NOT NULL,
+  `idInstitution` INT(10) NULL,  
   PRIMARY KEY (`idTopic`),
   KEY `FK_Topic_AppUser` (`idAppUser`),
   KEY `FK_Topic_Lab` (`idLab`),  
   KEY `FK_Topic_ParentTopic` (`idParentTopic`),  
   CONSTRAINT `FK_Topic_AppUser` FOREIGN KEY (`idAppUser`) REFERENCES `AppUser` (`idAppUser`),
   CONSTRAINT `FK_Topic_Lab` FOREIGN KEY (`idLab`) REFERENCES `Lab` (`idLab`),
+  CONSTRAINT `FK_Topic_Visibility` FOREIGN KEY (`codeVisibility`) REFERENCES `Visibility` (`codeVisibility`),
+  CONSTRAINT `FK_Topic_Institution` FOREIGN KEY (`idInstitution`) REFERENCES `Institution` (`idInstitution`),
   CONSTRAINT `FK_Topic_ParentTopic` FOREIGN KEY (`idParentTopic`) REFERENCES `Topic` (`idTopic`)
 ) ENGINE = INNODB;
 

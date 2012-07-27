@@ -1947,6 +1947,8 @@
         <property name="createDate"                  column="createDate"                 type="java.sql.Date"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
+        <property name="codeVisibility"              column="codeVisibility"             type="string"/>
+        <property name="idInstitution"               column="idInstitution"              type="integer"/>
 		        
         <set name="topics" table="Topic" lazy="true" cascade="all" order-by="name">
 			    <key column="idParentTopic"/>

@@ -1901,10 +1901,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       queryBuf.append(" ( ");
       
       // Add criteria for collaborator list
-      boolean criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
+      boolean criteriaAdded = false;
+      if(collabClassShortName != null && collabClassShortName.length() > 0) {
+        criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      }
+         
 
       // Add criteria with owner visibility
-      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
       criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
 
       // Add criteria for objects with members visibility

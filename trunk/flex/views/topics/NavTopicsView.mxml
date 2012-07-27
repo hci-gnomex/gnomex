@@ -402,6 +402,12 @@
 	}
 	
 	private function onTreeDoubleClick():void {
+		if ((this.browseTree.selectedItem.name() == "Request" && this.browseTree.selectedItem.@label == "(Restricted Visibility)")
+			|| ((this.browseTree.selectedItem.name() == "Analysis" || this.browseTree.selectedItem.name() == "DataTrack")  
+				&& this.browseTree.selectedItem.@number == "(Restricted Visibility)")) {
+			return;
+		}
+
 		if(this.browseTree.selectedItem.name() == "Request") {
 			parentApplication.showExperiment(browseTree.selectedItem.@idRequest);
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
@@ -414,8 +420,10 @@
 	public function selectView():void {
 		if (this.browseTree.selectedItem == null 
 			|| this.browseTree.selectedItem.name() == "Folder"
-			|| this.browseTree.selectedItem.name() == "Category") {
-			//removeButton.label = '';
+			|| this.browseTree.selectedItem.name() == "Category"
+			|| (this.browseTree.selectedItem.name() == "Request" && this.browseTree.selectedItem.@label == "(Restricted Visibility)")
+			|| ((this.browseTree.selectedItem.name() == "Analysis" || this.browseTree.selectedItem.name() == "DataTrack")  
+				&& this.browseTree.selectedItem.@number == "(Restricted Visibility)")) {
 			this.mainViewStack.selectedChild = this.blankView;
 			return;
 		}
@@ -959,10 +967,19 @@
 	}
 	
 	public function getTreeLabel(item:Object):String {
+		var retValue:String = "";
 		if (item.name() == "Analysis") { 
-			return item.@number + " (" + item.@name + ")";
+			retValue = item.@number;
+			if(retValue != "(Restricted Visibility)") {
+				retValue += " (" + item.@name + ")";
+			}
+			return retValue;
 		} else if (item.name() == "DataTrack") {
-			return item.@number + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
+			retValue = item.@number;
+			if(retValue != "(Restricted Visibility)") {
+				retValue = retValue + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
+			}
+			return retValue;
 		} else {
 			return item.@label;
 		}

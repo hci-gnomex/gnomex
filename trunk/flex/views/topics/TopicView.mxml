@@ -27,31 +27,106 @@
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>	
+
+	<mx:HTTPService             
+		id="getLab" 
+		url="GetLab.gx" 
+		destination="getLab" 
+		resultFormat="e4x"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get lab', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService> 
+	
 <mx:Script>
 <![CDATA[
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
+	import mx.collections.XMLListCollection;
 	
 	import views.util.StringUtil;
 	import views.util.WebLinksView;
+	import views.util.PromptXMLListCollection;
+	
+	[Bindable]
+	private var possibleInstitutions:PromptXMLListCollection;
 	
 	public function init():void {
 		if (parentDocument.browseTree.selectedItem.@canWrite == "Y") {
 			if (this.labStack != null) {
 				labStack.selectedIndex = 0;
 			}
+			radioOwnerVisibility.enabled = true;
+			radioMembersVisibility.enabled = true;
+			radioPublicVisibility.enabled = true;
+			topicName.editable = true;
+			descriptionRichText.textArea.editable = true;
+
 		} else {
 			if (this.labStack != null) {
 				labStack.selectedIndex = 1;
 			}
+			radioOwnerVisibility.enabled = false;
+			radioMembersVisibility.enabled = false;
+			radioPublicVisibility.enabled = false;
+			topicName.editable = false;
+			descriptionRichText.textArea.editable = false;
 		}
 		
 		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab);
+		
+		var params:Object = new Object();
+		params.idLab = parentDocument.browseTree.selectedItem.@idLab;
+		getLab.send(params);
+		
 		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == parentDocument.browseTree.selectedItem.@idAppUser);
 		this.dirtyTopic.resetDirty();
+		
+		this.visibilityRadioGroup.selectedValue = parentDocument.browseTree.selectedItem.@codeVisibility;
 	}
 	
+	private function onGetLab(event:ResultEvent):void {			
+		if (getLab.lastResult.name() == "OpenLabList") {
+			var emptyNode:XML = new XML("<Institution " +
+				" display=''" +
+				" idInstitution=''"  +
+				"/>");
+			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab).institutions.Institution.(@isActive == 'Y')));
+			this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
+			if (parentDocument.browseTree.selectedItem.@idInstitution != null && parentDocument.browseTree.selectedItem.@idInstitution != '') {
+				for each(var inst:Object in possibleInstitutions) {
+					if (inst.@idInstitution == parentDocument.browseTree.selectedItem.@idInstitution) {
+						this.institutionCombo.selectedItem =  inst;
+						break;
+					}
+				}
+			} else {		
+				var hasDefault:Boolean = false;
+				if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+					for each(inst in possibleInstitutions) {
+						if (inst.@isDefault == 'Y') {
+							this.institutionCombo.selectedItem =  inst;
+							hasDefault = true;
+							break;
+						}
+					}	
+				} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+					// Default to Member if institution selected but not enabled
+					this.visibilityRadioGroup.selectedValue = 'MEM';					
+				}					
+				if(!hasDefault) {
+					this.institutionCombo.selectedIndex = 0;
+				}						
+			}
+		}
+		if (parentDocument.browseTree.selectedItem.@canWrite != "Y") {
+			this.institutionCombo.enabled = false;
+			radioInstitutionVisibility.enabled = false;
+		}
+	}
+		
 	public function showLinks():void {
 		/*
 		var userLink:String =  "GNomEx User:\r"  + parentApplication.baseURL 
@@ -90,7 +165,10 @@
 		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
-		
+		params.codeVisibility         = this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "";
+		if (params.codeVisibility == 'INST') {
+			params.idInstitution      = this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@idInstitution : "";				
+		} 		
 		updateTopic.send(params);
 	}
 	
@@ -114,47 +192,79 @@
 ]]>
 </mx:Script>	
 	
-<mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
-	<mx:HBox width="100%" >
-		<mx:Label text="Name:" width="120"/>
-		<mx:TextInput id="topicName" width="450" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>
-	</mx:HBox>
-	<mx:HBox width="100%" >
-		<mx:Label text="Lab:" width="120" />
-		<mx:ViewStack id="labStack" width="100%">
-			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="dirtyTopic.setDirty()"></mx:ComboBox>
-				<mx:Label text="Owner:" paddingLeft="8"/>
-				<mx:ComboBox width="200" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" change="dirtyTopic.setDirty()"></mx:ComboBox>							         			
-			</mx:HBox>
-			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
-				<mx:Label text="{parentDocument.browseTree.selectedItem.@lab}"/>							         			
-				<mx:Label text="Owner:" paddingLeft="8"/>
-				<mx:Label text="{parentDocument.browseTree.selectedItem.@appUser}"/>							         			
-			</mx:HBox>
-		</mx:ViewStack>
-	</mx:HBox>
-	<mx:HBox width="100%" height="100%">
-		<mx:Label text="Description:" width="120"/>
-		<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
-							id="descriptionRichText" width="100%" 
-							htmlText="{parentDocument.browseTree.selectedItem.@description}" 
-							showControlBar="{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
-							change="this.dirtyTopic.setDirty()"
-							creationComplete="removeRichTextButtons()"
-							paddingLeft="0" paddingRight="0" paddingTop="0" 
-							roundedBottomCorners="false" paddingBottom="0" 
-							borderThicknessRight="0" borderThicknessLeft="0" 
-							borderThicknessBottom="0" borderThickness="0" 
-							borderThicknessTop="0" height="100%" minHeight="50"/>
-	</mx:HBox>
-	<mx:HBox width="100%" horizontalGap="0" >
-		<mx:Label text="Created by:" width="126"/>
-		<mx:Label text="{parentDocument.browseTree.selectedItem.@createdBy + ' ' + parentDocument.browseTree.selectedItem.@createDate}" width="100%"/>
-	</mx:HBox>
+<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="130"  styleName="panelBody">
+	<mx:VBox styleName="form" label="Info" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
+		<mx:HBox width="100%" >
+			<mx:Label text="Name:" width="120"/>
+			<mx:TextInput id="topicName" width="450" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>
+		</mx:HBox>
+		<mx:HBox width="100%" >
+			<mx:Label text="Lab:" width="120" />
+			<mx:ViewStack id="labStack" width="100%">
+				<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
+					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="dirtyTopic.setDirty()"></mx:ComboBox>
+					<mx:Label text="Owner:" paddingLeft="8"/>
+					<mx:ComboBox width="200" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" change="dirtyTopic.setDirty()"></mx:ComboBox>							         			
+				</mx:HBox>
+				<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
+					<mx:Label text="{parentDocument.browseTree.selectedItem.@lab}"/>							         			
+					<mx:Label text="Owner:" paddingLeft="8"/>
+					<mx:Label text="{parentDocument.browseTree.selectedItem.@appUser}"/>							         			
+				</mx:HBox>
+			</mx:ViewStack>
+		</mx:HBox>		<mx:HBox width="100%" height="100%">
+			<mx:Label text="Description:" width="120"/>
+			<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+								id="descriptionRichText" width="100%" 
+								htmlText="{parentDocument.browseTree.selectedItem.@description}" 
+								showControlBar="{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
+								change="this.dirtyTopic.setDirty()"
+								creationComplete="removeRichTextButtons()"
+								paddingLeft="0" paddingRight="0" paddingTop="0" 
+								roundedBottomCorners="false" paddingBottom="0" 
+								borderThicknessRight="0" borderThicknessLeft="0" 
+								borderThicknessBottom="0" borderThickness="0" 
+								borderThicknessTop="0" height="100%" minHeight="50"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" >
+			<mx:Label text="Created by:" width="126"/>
+			<mx:Label text="{parentDocument.browseTree.selectedItem.@createdBy + ' ' + parentDocument.browseTree.selectedItem.@createDate}" width="100%"/>
+		</mx:HBox>
+	</mx:VBox>
+		
+	<mx:VBox width="100%" height="100%" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+		<mx:HBox width="100%" horizontalGap="0" id="hbox1">
+			<mx:Text id="labelApplication" text="The level of visibility for this topic:&#xd;"/>
+			<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+			</mx:RadioButtonGroup>
+		</mx:HBox>
+		<mx:HBox paddingLeft="20" horizontalGap="10" width="100%">
+			<mx:VBox verticalGap="0">
+				<mx:RadioButtonGroup id="visibilityRadioGroup"/>
+				<mx:HBox horizontalGap="4" verticalAlign="middle">
+					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackOwner}"/>
+					<mx:RadioButton id="radioOwnerVisibility" value="OWNER" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" label="Owner       (the owner and the group manager)"/>								  
+				</mx:HBox>
+				<mx:HBox horizontalGap="4"  verticalAlign="middle">
+					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
+					<mx:RadioButton id="radioMembersVisibility" value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" label="Members   (all members of the group)"/>
+				</mx:HBox>
+				<mx:HBox horizontalGap="4"  verticalAlign="middle">
+					<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
+					<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 0}" label="Institution  (all groups that are part of institution)"/>
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
+					</mx:ComboBox>					
+				</mx:HBox>
+				<mx:HBox horizontalGap="4"  verticalAlign="middle">
+					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackPublic}"/>
+					<mx:RadioButton id="radioPublicVisibility" value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}"/>
+				</mx:HBox>
+				
+			</mx:VBox>
+		</mx:HBox>
 	
-</mx:VBox>
-
+	</mx:VBox>
+</mx:TabNavigator>
 <mx:ControlBar horizontalAlign="right" width="100%">
 	<util:DirtyNote id="dirtyTopic"/>
 	<mx:Button  label="Save" id="saveTopicButton"  click="save()" icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">

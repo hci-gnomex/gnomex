@@ -1072,7 +1072,21 @@ public class Request extends HibernateDetailObject {
       
     }
     return doc;
+  }
+  
+  public Document getRestrictedVisibilityXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
+    Document doc = new Document(new Element("Request"));
+    Element root = doc.getRootElement();
+    
+    String codeRequestCategory =  this.getNonNullString(this.getCodeRequestCategory());
+    RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+    
+    root.setAttribute("idRequest", this.getNonNullString(this.getIdRequest()));
+    root.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+    root.setAttribute("label", "(Restricted Visibility)");
+    return doc;
   }  
+ 
   
   public String isDNASeqExperiment() {
     return RequestCategory.isDNASeqCoreRequestCategory(this.getCodeRequestCategory()) == true ? "Y" : "N";
