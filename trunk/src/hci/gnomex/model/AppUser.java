@@ -135,7 +135,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   }
   
   public void setuNID(String uNID) {
-    this.uNID = uNID.toLowerCase();
+    this.uNID = uNID;
   }
   
   public Set getLabs() {
