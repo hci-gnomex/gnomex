@@ -104,7 +104,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     
     if(appUserScreen.getuNID() != null){
       if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().length() != 8 || !appUserScreen.getuNID().substring(1).matches("[0-9]+")){
-        this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with 'u' followed by 7 digits");
+        this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with lowercase 'u' followed by 7 digits");
       }
     }
      
