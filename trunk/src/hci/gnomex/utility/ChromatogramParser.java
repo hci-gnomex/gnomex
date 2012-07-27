@@ -327,19 +327,31 @@ public class ChromatogramParser extends DetailObject implements Serializable
         
         // Don't complete if there is a redo well on the request
         boolean hasRedo = false;
+        StringBuffer redoSamples = new StringBuffer();
         for (Sample s : (Set<Sample>)req.getSamples()) {
           for (PlateWell well : (Set<PlateWell>)s.getWells()) {
             // Only check source wells for redo.  The reaction well will be set to redo and not toggle back.
             if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
               if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
                 hasRedo = true;
-                break;
+                if (redoSamples.length() > 0) {
+                  redoSamples.append(", ");
+                }
+                redoSamples.append(s.getName());
               }
             }
           }
         }
         
         if (hasRedo) {
+          // We need to email the submitter that some of their samples are requeued for redo.
+          // When the chromatograms are release, they will receive email notification.
+          try {
+            EmailHelper.sendRedoEmail(sess, req, redoSamples, secAdvisor, launchAppURL, appURL, serverName);          
+          } catch (Exception e) {
+            log.warn("Cannot send confirmation email for request " + req.getNumber());
+          }
+
           continue;
         }
         
