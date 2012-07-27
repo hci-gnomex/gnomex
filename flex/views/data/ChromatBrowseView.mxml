@@ -15,6 +15,34 @@
 		<mx:Label id="titleLabel" styleName="titleLabel" text="Review Results "  fontWeight="bold"/>
 		<mx:Spacer width="30"/>
 
+		
+		
+		<mx:HBox horizontalGap="0"
+				 verticalAlign="middle"
+				 verticalGap="0"
+				 id="hbox1aa" paddingLeft="10">
+			<mx:Label text="Plate Name" />
+			
+			<mx:TextInput id="plateNameLookupField"
+						  fontSize="9"
+						  height="19"
+						  width="80"
+						  enter="{this.setPlateNameDefaultButton();if (plateNameLookupField.text != '') this.getList();}"
+						  change="{setPlateNameDefaultButton()}" />
+			
+			<mx:Button id="plateNameLookupButton"
+					   fontFamily="Arial"
+					   height="18"
+					   width="30"
+					   color="#400040"
+					   visible="false" includeInLayout="false"
+					   icon="@Embed('../../assets/arrow_right.png')"
+					   click="{if (plateNameLookupField.text != '') this.getList();}" />
+			
+		</mx:HBox>
+		
+		
+
 		<mx:HBox horizontalGap="0"
 				 height="100%"
 				 verticalAlign="middle"
@@ -31,67 +59,15 @@
 			
 			<mx:Button id="runNameLookupButton"
 					   fontFamily="Arial"
-					   height="18"
+					   height="18" 
 					   width="30"
 					   color="#400040"
-					   visible="true"
+					   visible="false" includeInLayout="false"
 					   icon="@Embed('../../assets/arrow_right.png')"
 					   click="{if (runNameLookupField.text != '') this.getList();}" />
 			
 		</mx:HBox>
 		
-
-		
-		<mx:HBox horizontalGap="0"
-				 verticalAlign="middle"
-				 verticalGap="0"
-				 id="hbox1a" paddingLeft="10">
-			<mx:Label text="Run #" />
-			
-			<mx:TextInput id="runNoLookupField"
-						  fontSize="9"
-						  height="19"
-						  width="40"
-						  enter="{this.setRunDefaultButton();if (runNoLookupField.text != '') this.getList();}"
-						  change="{setRunDefaultButton()}" />
-			
-			<mx:Button id="runLookupButton"
-					   fontFamily="Arial"
-					   height="18"
-					   width="30"
-					   color="#400040"
-					   visible="true"
-					   icon="@Embed('../../assets/arrow_right.png')"
-					   click="{if (runNoLookupField.text != '') this.getList();}" />
-			
-		</mx:HBox>
-		
-		
-		<mx:HBox horizontalGap="0"
-				 verticalAlign="middle"
-				 verticalGap="0"
-				  id="hbox1aa" paddingLeft="10">
-			<mx:Label text="Plate Name" />
-			
-			<mx:TextInput id="plateNameLookupField"
-						  fontSize="9"
-						  height="19"
-						  width="80"
-						  enter="{this.setPlateNameDefaultButton();if (plateNameLookupField.text != '') this.getList();}"
-						  change="{setPlateNameDefaultButton()}" />
-			
-			<mx:Button id="plateNameLookupButton"
-					   fontFamily="Arial"
-					   height="18"
-					   width="30"
-					   color="#400040"
-					   visible="true"
-					   icon="@Embed('../../assets/arrow_right.png')"
-					   click="{if (plateNameLookupField.text != '') this.getList();}" />
-			
-		</mx:HBox>
-		
-
 		
 		<mx:HBox horizontalGap="0"
 				 verticalAlign="middle"
@@ -102,7 +78,7 @@
 			<mx:TextInput id="requestNoLookupField"
 						  fontSize="9"
 						  height="19"
-						  width="40"
+						  width="50"
 						  enter="{this.setDefaultButton();if (requestNoLookupField.text != '') this.getList();}"
 						  change="{setDefaultButton()}" />
 			
@@ -111,7 +87,7 @@
 					   height="18"
 					   width="30"
 					   color="#400040"
-					   visible="true"
+					   visible="false" includeInLayout="false"
 					   icon="@Embed('../../assets/arrow_right.png')"
 					   click="{if (requestNoLookupField.text != '') this.getList();}" />
 		
@@ -259,7 +235,6 @@
 				var params:Object = new Object;
 				
 				if ( currentState != userState.name ) {
-					params.idInstrumentRun = runNoLookupField.text != null ? runNoLookupField.text : '' ;
 					params.requestNumber = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
 					params.runName = runNameLookupField.text != null ? runNameLookupField.text : '';
 					params.plateName = plateNameLookupField.text != null ? plateNameLookupField.text : '';
@@ -268,8 +243,7 @@
 					params.lastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
 					params.lastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
 					params.lastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
-					params.lastYear = this.lastYearCheckbox.selected ? 'Y' : 'N' ;
-					params.released = this.releasedCheckbox.selected ? 'Y' : notReleasedCheckbox.selected ? 'N' : ''
+					params.released = this.releasedCheckbox.selected ? 'Y' : 'N';
 				}
 				
 				if ( currentState == userState.name ) {
@@ -406,42 +380,23 @@
 
 			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
 				if ( currentState != userState.name ) {
-					this.runNoLookupField.text = "";
-					this.requestNoLookupField.text = "";
 					if ( checkBoxNumber == 1 ) {
 						this.lastMonthCheckbox.selected = false;
 						this.lastThreeMonthsCheckbox.selected = false;
-						this.lastYearCheckbox.selected = false;
 					} else if ( checkBoxNumber == 2 ) {
 						this.lastWeekCheckbox.selected = false;
 						this.lastThreeMonthsCheckbox.selected = false;
-						this.lastYearCheckbox.selected = false;
 					} else if ( checkBoxNumber == 3 ) {
 						this.lastWeekCheckbox.selected = false;
 						this.lastMonthCheckbox.selected = false;
-						this.lastYearCheckbox.selected = false;
-					} else if ( checkBoxNumber == 4 ) {
-						this.lastWeekCheckbox.selected = false;
-						this.lastMonthCheckbox.selected = false;
-						this.lastThreeMonthsCheckbox.selected = false;
-					}
+					} 
 				}
 			}
 
 
-			public function toggleReleaseCheckboxes( checkBoxNumber:int ):void {
-				this.runNoLookupField.text = "";
-				this.requestNoLookupField.text = "";
-				if ( checkBoxNumber == 0 ) {
-					this.notReleasedCheckbox.selected = false;
-				} else if ( checkBoxNumber == 1 ) {
-					this.releasedCheckbox.selected = false;
-				}
-			}
+			
 
 			public function toggleReactionCheckboxes( checkBoxNumber:int ):void {
-				this.runNoLookupField.text = "";
-				this.requestNoLookupField.text = "";
 				if ( checkBoxNumber == 0 ) {
 					this.mitSeqCheckbox.selected = false;
 				} else if ( checkBoxNumber == 1 ) {
@@ -454,53 +409,21 @@
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.requestNoLookupField.text != '' ) {
-					this.runNoLookupField.text = '';
 					this.runNameLookupField.text = '';
 					this.plateNameLookupField.text = '';
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-					this.notReleasedCheckbox.selected = false;
-					this.releasedCheckbox.selected = false;
 				}
 				this.defaultButton = lookupButton;
 			}
 
 			
-			private function setRunDefaultButton():void {
-				if ( currentState != userState.name ) {
-					actionDictionary.source = dictXML.action; 
-				}
-				if ( this.runNoLookupField.text != '' ) {
-					this.requestNoLookupField.text = '';
-					this.runNameLookupField.text = '';
-					this.plateNameLookupField.text = '';
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-					this.notReleasedCheckbox.selected = false;
-					this.releasedCheckbox.selected = false;
-				}
-				this.defaultButton =  this.runLookupButton;
 
-			}
-			
 			private function setRunNameDefaultButton():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.runNameLookupField.text != '' ) {
 					this.requestNoLookupField.text = '';
-					this.runNoLookupField.text = '';
 					this.plateNameLookupField.text = '';
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-					this.notReleasedCheckbox.selected = false;
-					this.releasedCheckbox.selected = false;
 				}
 				this.defaultButton = this.runNameLookupButton;
 			}
@@ -512,14 +435,7 @@
 				}
 				if ( this.plateNameLookupField.text != '' ) {
 					this.requestNoLookupField.text = '';
-					this.runNoLookupField.text = '';
 					this.runNameLookupField.text = '';
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					this.lastYearCheckbox.selected = false;
-					this.notReleasedCheckbox.selected = false;
-					this.releasedCheckbox.selected = false;
 				}
 				this.defaultButton = this.plateNameLookupButton;
 
@@ -749,39 +665,6 @@
 				
 			</mx:HBox>
 			<mx:VRule height="20" />
-			<mx:HBox horizontalGap="0"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="5">
-				<mx:CheckBox id="notReleasedCheckbox"
-							 label="Not released"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0"
-							 selected="true" >
-					<mx:click>
-						actionDictionary.source = dictXML.action;
-						toggleReleaseCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-				
-				</mx:CheckBox>
-				<mx:CheckBox id="releasedCheckbox"
-							 label="Released to user"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0">
-					<mx:click>
-						toggleReleaseCheckboxes( 0 );
-						this.getList();
-					</mx:click>
-				
-				</mx:CheckBox>
-			
-			</mx:HBox>
-			<mx:VRule height="20" />
 
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
@@ -825,18 +708,25 @@
 
 				</mx:CheckBox>
 
-				<mx:CheckBox id="lastYearCheckbox"
-							 label="year"
+			</mx:HBox>
+			<mx:VRule height="20" />
+			<mx:HBox horizontalGap="0"
+					 verticalAlign="middle"
+					 verticalGap="0"
+					 horizontalAlign="right"
+					 paddingLeft="5"
+					 paddingRight="5">
+				<mx:CheckBox id="releasedCheckbox"
+							 label="Already released"
 							 paddingRight="0"
 							 paddingLeft="2"
 							 horizontalGap="0">
 					<mx:click>
-						toggleDateCheckboxes( 4 );
 						this.getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
+				
 			</mx:HBox>
 
 		</mx:HBox>
@@ -892,32 +782,29 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					
-					<mx:DataGridColumn dataField="@sampleName" visible="{currentState == 'userState'}"
-									   headerText="Sample"
-									   width="80" minWidth="15" />
 						
+					<mx:DataGridColumn dataField="@plateLabel"
+										   headerText="Plate" 
+										   width="90" minWidth="20" />
+					<mx:DataGridColumn dataField="@quadrant"
+										   headerText="Quadrant"
+										   width="20" minWidth="20" />
 					<mx:DataGridColumn dataField="@runName"
 									   headerText="Run"
-									   width="50" minWidth="20" />
-					<mx:DataGridColumn dataField="@runNumber"
-										   headerText="Run #"
-										   width="30" minWidth="20" />
-						<mx:DataGridColumn dataField="@quadrant"
-										   headerText="Quadrant"
-										   width="30" minWidth="20" />
-						<mx:DataGridColumn dataField="@wellPosition"
+									   width="80" minWidth="20" />
+					<mx:DataGridColumn dataField="@wellPosition" 
 										   headerText="Well pos"
-										   width="30" minWidth="20" />
-					<mx:DataGridColumn dataField="@plateLabel"
-									   headerText="Plate" 
-									   width="50" minWidth="20" />
-					<mx:DataGridColumn dataField="@requestNumber"
-									   headerText="Order #"  visible="{currentState != 'userState'}"
-									   width="50" minWidth="15" />
+										   width="30" minWidth="10" />
+						
+						<mx:DataGridColumn dataField="@requestNumber" 
+										   headerText="Order #"
+										   width="70" minWidth="15" />
+					<mx:DataGridColumn dataField="@sampleName" 
+										   headerText="Sample"
+										   width="70" minWidth="15" />
 
 						
-					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{!this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
+					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{!this.releasedCheckbox.selected}"
 									   width="90" minWidth="75" id="releasedCheckBox">
 						<mx:itemRenderer>
 							<mx:Component>
@@ -938,7 +825,7 @@
 									   headerText="Releaser"
 									   width="85" minWidth="75"/>
 						
-						<mx:DataGridColumn width="75" headerText="Redo">
+						<mx:DataGridColumn width="60" headerText="Redo">
 							<mx:itemRenderer>
 								<mx:Component >
 									<mx:HBox  horizontalAlign="center" horizontalGap="1" >
@@ -951,7 +838,7 @@
 					
 					<mx:DataGridColumn dataField="@submitter"
 									   headerText="Submitter" minWidth="75"
-									   width="100" />
+									   width="70" />
 					
 					<mx:DataGridColumn dataField="@readLength"
 									   headerText="Length"
