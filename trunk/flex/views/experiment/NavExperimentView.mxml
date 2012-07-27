@@ -1414,7 +1414,7 @@
 						paddingLeft="2" horizontalGap="0" styleName="labelSmall" paddingRight="16">
 		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-					<mx:CheckBox label="ABI Seq" id="CapSeqCheckbox" 
+					<mx:CheckBox label="Sanger Seq" id="CapSeqCheckbox" 
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 horizontalGap="0" styleName="labelSmall" paddingLeft="2">
 						<mx:click>toggleRequestKindCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>

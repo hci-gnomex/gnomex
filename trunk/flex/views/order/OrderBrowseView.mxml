@@ -2,12 +2,82 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*"  
-		 defaultButton="{lookupButton}" verticalGap="0">
-<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="1">
-	<mx:Image source="assets/page.png"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Review Orders" fontWeight="bold"/>	
-	 
-	<mx:Spacer width="100%"/>
+		 verticalGap="0">
+<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="20">
+	<mx:HBox horizontalGap="0">
+		<mx:Image source="assets/page.png"/>
+		<mx:Label id="titleLabel" styleName="titleLabel" text="Review Orders" fontWeight="bold" paddingRight="50"/>			
+	</mx:HBox>
+	
+	<mx:HBox id = "statusCheckboxBar"
+			 horizontalGap = "0"
+			 height = "100%"
+			 verticalAlign = "middle"
+			 verticalGap = "0"
+			 horizontalAlign = "right"
+			 paddingLeft = "5">
+		<mx:CheckBox label = "New"
+					 id = "newCheckbox"
+					 horizontalGap = "0"
+					 styleName = "labelSmall"
+					 paddingLeft = "2" selected="false">
+			<mx:click>
+				toggleStatusCheckboxes( 1 );
+				this.getList();
+			</mx:click>
+			
+		</mx:CheckBox>
+		
+		<mx:CheckBox label = "Submitted"
+					 id = "submittedCheckbox"
+					 paddingLeft = "2"
+					 horizontalGap = "0"
+					 styleName = "labelSmall" selected="true">
+			<mx:click>
+				toggleStatusCheckboxes( 3 );
+				this.getList();
+			</mx:click>
+			
+		</mx:CheckBox>
+		
+		<mx:CheckBox label = "Processing"
+					 id = "processingCheckbox"
+					 paddingLeft = "2"
+					 horizontalGap = "0"
+					 styleName = "labelSmall">
+			<mx:click>
+				toggleStatusCheckboxes( 2 );
+				this.getList();
+			</mx:click>
+		</mx:CheckBox>
+		
+		
+		<mx:CheckBox label = "Complete"
+					 id = "completeCheckbox"
+					 paddingLeft = "2"
+					 horizontalGap = "0"
+					 styleName = "labelSmall">
+			<mx:click>
+				toggleStatusCheckboxes( 4 );
+				this.getList();
+			</mx:click>
+			
+		</mx:CheckBox>
+		
+		<mx:CheckBox label = "Failed"
+					 id = "failedCheckbox"
+					 paddingLeft = "2"
+					 horizontalGap = "0"
+					 styleName = "labelSmall">
+			<mx:click>
+				toggleStatusCheckboxes( 5 );
+				this.getList();
+			</mx:click>
+			
+		</mx:CheckBox>
+		
+	</mx:HBox>
+	<mx:VRule height = "20" />
 
 	<mx:HBox horizontalGap="0"
 			 height="100%"
@@ -16,23 +86,18 @@
 			 width="150" >
 		
 		<mx:Label text="Order #" />
-		
+
+		<mx:VRule height = "20" />
+
 		<mx:TextInput id="requestNoLookupField"
 					  fontSize="9"
 					  height="19"
 					  width="60"
-					  change="{setDefaultButton()}" />
+					  enter="{if (requestNoLookupField.text != '') this.getList()}" />
 		
-		<mx:Button id="lookupButton"
-				   fontFamily="Arial"
-				   height="18"
-				   width="30"
-				   color="#400040"
-				   visible="true"
-				   icon="@Embed('../../assets/arrow_right.png')"
-				   click="{if (requestNoLookupField.text != '') this.getList()}" />
 		
 	</mx:HBox>
+	<mx:Spacer width="100%"/>
 
 	<mx:LinkButton textDecoration = "underline"
 				   label = "Refresh"
@@ -199,8 +264,8 @@
 				if ( this.failedCheckbox.selected ) {
 					params.status = 'FAILED' ;
 				}
-				if (this.pendingRedoCheckbox.selected) {
-					params.hasPendingRedo = 'Y';
+				if (this.redoCheckbox.selected) {
+					params.hasRedo = 'Y';
 				}
 				
 				if ( this.capSeqCheckbox.selected ) {
@@ -297,7 +362,7 @@
 				if ( this.failedCheckbox.selected ) {
 					return false ;
 				}
-				if ( this.pendingRedoCheckbox.selected) {
+				if ( this.redoCheckbox.selected) {
 					return false ;
 				}
 				if ( this.capSeqCheckbox.selected ) {
@@ -358,7 +423,16 @@
 					this.createdLastThreeMonthsCheckbox.selected = false;
 					
 				}   
-			} 		 
+			} 		
+			
+			private function toggleOffStatusCheckboxes():void {
+				this.newCheckbox.selected = false;
+				this.processingCheckbox.selected = false;
+				this.submittedCheckbox.selected  = false;
+				this.completeCheckbox.selected = false;
+				this.failedCheckbox.selected  = false;
+				
+			}
 			
 			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
 				this.requestNoLookupField.text = "";
@@ -368,42 +442,30 @@
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
-					this.pendingRedoCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 2) {
 					this.newCheckbox.selected = false;
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
-					this.pendingRedoCheckbox.selected = false;
 					
 				} else if (checkBoxNumber == 3) {
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
-					this.pendingRedoCheckbox.selected = false;
 					
 				}  else if (checkBoxNumber == 4) {
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
 					this.submittedCheckbox.selected  = false;
 					this.failedCheckbox.selected  = false;
-					this.pendingRedoCheckbox.selected = false;
 					
 				}   else if (checkBoxNumber == 5) {
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
 					this.submittedCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
-					this.pendingRedoCheckbox.selected = false;
-					
-				}   else if (checkBoxNumber == 6) {
-					this.newCheckbox.selected = false;
-					this.processingCheckbox.selected = false;
-					this.submittedCheckbox.selected  = false;
-					this.completeCheckbox.selected = false;
-					this.failedCheckbox.selected  = false;
 					
 				}   
 			} 	
@@ -495,97 +557,29 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox  width="100%" verticalGap="0">
+	<mx:VBox  width="100%">
 		
 		<mx:HBox id = "filterBar"
 				 horizontalGap = "20"
 				 paddingTop = "0"
 				 paddingBottom = "4"
-				 paddingLeft = "0"
+				 paddingLeft = "181"
 				 horizontalAlign = "left"
 				 verticalAlign = "middle">
-			
-			<mx:HBox id = "statusCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5">
-				<mx:CheckBox label = "New"
-							 id = "newCheckbox"
-							 horizontalGap = "0"
-							 styleName = "labelSmall"
-							 paddingLeft = "2" selected="false">
-					<mx:click>
-						toggleStatusCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Submitted"
-							 id = "submittedCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall" selected="true">
-					<mx:click>
-						toggleStatusCheckboxes( 3 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Processing"
-							 id = "processingCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 2 );
-						this.getList();
-					</mx:click>
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Pending Redos"
-							 id = "pendingRedoCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 6 );
-						this.getList();
-					</mx:click>
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Complete"
-							 id = "completeCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 4 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Failed"
-							 id = "failedCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleStatusCheckboxes( 5 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-			</mx:HBox>
-			
+			<mx:CheckBox label = "Redos"
+						 id = "redoCheckbox"
+						 paddingLeft = "2"
+						 horizontalGap = "0"						
+						 styleName = "labelSmall">
+				<mx:click>
+					toggleOffStatusCheckboxes();
+					this.getList();
+				</mx:click>
+			</mx:CheckBox>
 			<mx:VRule height = "20" />
+			
 
+			
 			<mx:HBox id = "typeCheckboxBar"
 					 horizontalGap = "0"
 					 height = "100%"
@@ -595,7 +589,7 @@
 					 paddingLeft = "5"
 					 paddingRight = "5">
 				
-				<mx:CheckBox label = "ABI Seq"
+				<mx:CheckBox label = "Sanger Seq"
 							 id = "capSeqCheckbox"
 							 horizontalGap = "0"
 							 styleName = "labelSmall"
