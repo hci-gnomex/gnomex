@@ -56,6 +56,7 @@
 * Fix Distribute Data Tracks bug caused when Analysis file without file extension encountered (tdisera)
 * Updated plate report to show assay or primer information for FA and MS experiment types. (mbowler)
 * Added codeVisibility and idInstitution fields to Topics table, implemented visibility for Topic. (rcundick)
+* Fixed case where workflow changes saved in spite of the presence of extra lanes. (rcundick)
 
 
 5.4.5 (July 1, 2012)

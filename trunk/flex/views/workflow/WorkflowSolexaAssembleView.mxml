@@ -160,7 +160,8 @@
 			if (dirtyChannelWorkList.length > 0) {
 				var lastWorkItem:Object = dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1);
 				if (lastWorkItem.@channelNumber > maxFlowCellCount) {
-					Alert.show("Max " + maxFlowCellCount + " flow cell channels loaded.  Please remove extra lanes");			
+					Alert.show("Max " + maxFlowCellCount + " flow cell channels loaded.  Please remove extra lanes");	
+					return;
 				}	    			
 			}
 			
