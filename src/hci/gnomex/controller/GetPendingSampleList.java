@@ -1,18 +1,17 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.PendingSampleFilter;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,23 +23,11 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.PendingSampleFilter;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.ProjectRequestFilter;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.Visibility;
 
 
 public class GetPendingSampleList extends GNomExCommand implements Serializable {
@@ -101,14 +88,14 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // We hash these so that they will be excluded from the
       // pending sample list
       //
-      HashMap<Integer, Sample> samplesToFilter = new HashMap<Integer, Sample>(); 
+      HashMap<Integer, Integer> samplesToFilter = new HashMap<Integer, Integer>(); 
       StringBuffer buf = filter.getPendingSamplesAlreadyOnPlateQuery();
-      log.info("Pending samples alrady on plate GetPendingSampleList: " + buf.toString());
+      log.info("Pending samples already on plate GetPendingSampleList: " + buf.toString());
       Query query = sess.createQuery(buf.toString());
       List pendingSamplesAlreadyOnPlate = (List)query.list();
       for (Iterator i = pendingSamplesAlreadyOnPlate.iterator(); i.hasNext();) {
-        Sample s = (Sample)i.next();
-        samplesToFilter.put(s.getIdSample(), s);
+        Integer idSample = (Integer)i.next();
+        samplesToFilter.put(idSample, idSample);
       }
 
       //
@@ -166,18 +153,18 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     return this;
   }
   
-  private void hashResults(List rows, DictionaryHelper dictionaryHelper, Map<Integer, Sample>samplesToFilter) {
+  private void hashResults(List rows, DictionaryHelper dictionaryHelper, Map<Integer, Integer>samplesToFilter) {
     // Hash the pending tubes
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idRequest           = (Integer)row[0];
       Integer idAssay             = (Integer)row[13];
       Integer idPrimer            = (Integer)row[14];
-      Sample sample               = (Sample)row[9];
+      Integer idSample            = (Integer)row[9];
       
       // Filter out rows for samples already on reaction plate
       if (samplesToFilter != null) {
-        if (samplesToFilter.containsKey(sample.getIdSample())) {
+        if (samplesToFilter.containsKey(idSample)) {
           continue;
         }
       }
@@ -267,7 +254,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
     String experimentName       = (String)row[17]  == null ? "" : (String)row[17];
     AppUser submitter           = (AppUser)row[18];
-
+    
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(filter.getCodeRequestCategory());
 
     String labName = Lab.formatLabName(labLastName, labFirstName);
@@ -321,7 +308,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String labLastName          = (String)row[6]  == null ? ""  : (String)row[6];
     String labFirstName         = (String)row[7]  == null ? ""  : (String)row[7];
     AppUser submitter           = (AppUser)row[8];
-    Sample sample               = (Sample)row[9];
+    Integer idSample            = (Integer)row[9];
     String wellRow              = (String)row[10]  == null ? ""  : (String)row[10];
     Integer wellCol             = (Integer)row[11];
     Integer wellIndex           = (Integer)row[12];
@@ -330,6 +317,9 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     Integer idPrimer            = (Integer)row[14];
     Integer idPlate             = (Integer)row[15];
     String plateLabel           = (String)row[16]  == null ? ""  : (String)row[16];
+    
+    String  sampleName          = (String)row[19];
+
     
     if (idPlate != null) {
       if (plateLabel == null || plateLabel.trim().equals("")) {
@@ -356,10 +346,10 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       }
     }
     Element n = new Element("Well");
-    n.setAttribute("sampleName",           sample.getName());
+    n.setAttribute("sampleName",     sampleName != null ? sampleName : "");
     n.setAttribute("idRequest",      idRequest != null ? idRequest.toString() : "");
     n.setAttribute("idLab",          idLab != null ? idLab.toString() : "");
-    n.setAttribute("idSample",       sample.getIdSample().toString());
+    n.setAttribute("idSample",       idSample != null ? idSample.toString() : "");
     n.setAttribute("type",           requestCategory.getRequestCategory());
     n.setAttribute("row",            wellRow != null ? wellRow : "");
     n.setAttribute("col",            wellCol != null ? wellCol.toString() : "");
