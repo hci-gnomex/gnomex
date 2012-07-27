@@ -155,9 +155,9 @@ public class RequestEmailBodyFormatter extends DetailObject{
       
     }
     Element centera = new Element("CENTER");
-
     
-    centera.addContent(formatter.makeIntroNote(introNote.toString()));
+    
+    body.addContent(formatter.makeIntroNote(introNote.toString()));
     Element hLine = new Element("HR");
     hLine.setAttribute("WIDTH", "640");
     centera.addContent(hLine);

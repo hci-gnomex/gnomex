@@ -76,6 +76,7 @@ public class RequestHTMLFormatter {
    Element row = new Element("TR");
    Element cell = new Element("TD");
    cell.setAttribute("CLASS", "noborder");
+   cell.setAttribute("ALIGN", "LEFT");
    cell.addContent(note);
    row.addContent(cell);
    table.addContent(row);
