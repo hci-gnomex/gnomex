@@ -217,11 +217,7 @@
 				params.notAddedToARun = "Y"; 
 				params.codeReactionType = reactionState;
 				
-				if ( allCheckbox.selected ) { return params; }
 				
-				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N';
-				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N';
-				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N';
 				
 				return params;
 			}
@@ -2518,7 +2514,9 @@
 							 paddingRight="5"
 							 paddingLeft="0"
 							 horizontalGap="0"
-							 styleName="labelSmall">
+							 styleName="labelSmall"
+							 visible="{tabNav.selectedChild == runTab}"
+							 includeInLayout="{tabNav.selectedChild == runTab}">
 					
 					<mx:click>
 						toggleDateCheckboxes( 0 );
@@ -2527,7 +2525,9 @@
 					
 				</mx:CheckBox>
 				
-				<mx:VRule height="20" />
+				<mx:VRule height="20" 
+						  visible="{tabNav.selectedChild == runTab}"
+						  includeInLayout="{tabNav.selectedChild == runTab}" />
 				
 				<mx:HBox id="statusCheckboxBar"
 						 horizontalGap="0"
@@ -2535,15 +2535,18 @@
 						 paddingRight="5"
 						 verticalAlign="middle"
 						 verticalGap="0"
-						 horizontalAlign="right">
+						 horizontalAlign="right"
+						 visible="{tabNav.selectedChild == runTab}"
+						 includeInLayout="{tabNav.selectedChild == runTab}">
 					
 					<mx:CheckBox label="Pending"
 								 id="pendingCheckbox"
 								 horizontalGap="0"
 								 styleName="labelSmall"
-								 paddingLeft="2">
+								 paddingLeft="2"
+								 selected="true">
 						
-						<mx:click>
+						<mx:click> 
 							toggleStatusCheckboxes( 1 );
 							refreshRunList();
 						</mx:click>
@@ -2591,7 +2594,9 @@
 					
 				</mx:HBox>
 				
-				<mx:VRule height="20" id="vrule1" />
+				<mx:VRule height="20" id="vrule1" 						 
+						  visible="{tabNav.selectedChild == runTab}"
+						  includeInLayout="{tabNav.selectedChild == runTab}"/>
 				
 				<mx:HBox id="createDateCheckboxBar"
 						 horizontalGap="0"
@@ -2600,7 +2605,9 @@
 						 verticalGap="0"
 						 horizontalAlign="right"
 						 paddingLeft="5"
-						 paddingRight="5">
+						 paddingRight="5"
+						 visible="{tabNav.selectedChild == runTab}"
+						 includeInLayout="{tabNav.selectedChild == runTab}">
 					
 					<mx:CheckBox id="lastWeekCheckboxCreated"
 								 label="Created in last week"
@@ -2609,7 +2616,7 @@
 								 paddingLeft="0"
 								 styleName="labelSmall"
 								 paddingTop="0"
-								 selected="true">
+								 selected="false">
 						
 						<mx:click>
 							toggleCreateDateCheckboxes( 1 );
@@ -2650,9 +2657,13 @@
 					
 				</mx:HBox>
 				
-				<mx:VRule height="20" id="vrule2" />
+				<mx:VRule height="20" id="vrule2" 						 
+						  visible="{tabNav.selectedChild == runTab}"
+						  includeInLayout="{tabNav.selectedChild == runTab}" />
 				
-				<mx:HBox horizontalGap="0" id="hbox1">
+				<mx:HBox horizontalGap="0" id="hbox1" 
+						 visible="{tabNav.selectedChild == runTab}"
+						 includeInLayout="{tabNav.selectedChild == runTab}">
 					
 					<mx:CheckBox id="lastWeekCheckbox"
 								 label="Run in last week"
@@ -2824,7 +2835,7 @@
 					
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 						
-						<mx:Label styleName="titleLabel" text="Plates:" />
+						<mx:Label styleName="titleLabel" text="Plates" />
 						<mx:Spacer width="100%" height="100%" />
 						<mx:LinkButton label="Add Plate to Run"
 									   icon="@Embed('../../assets/add.png')"
@@ -2883,7 +2894,7 @@
 					
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 						
-						<mx:Label styleName="titleLabel" text="Runs:" />
+						<mx:Label styleName="titleLabel" text="Runs" />
 						<mx:Spacer width="100%" height="100%" />
 						
 					</mx:HBox>
