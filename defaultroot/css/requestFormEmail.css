@@ -212,6 +212,15 @@ td.grid {
       padding-right: 4;
       padding-left: 4; 
 }
+gd.noborder {
+	font-size: 9pt;
+	border-top: none;
+	border-color: #CDCDC1;
+	padding-top: 4;
+	padding-bottom: 4;
+	padding-right: 4;
+	padding-left: 4; 
+}
 
 
 td.gridleft {
