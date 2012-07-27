@@ -203,16 +203,16 @@ public class ChromatogramFilter extends DetailObject {
     
     if (runName != null){
       this.addWhereOrAnd();
-      queryBuf.append(" run.label = '");
+      queryBuf.append(" run.label like '");
       queryBuf.append(runName);
-      queryBuf.append("' ");
+      queryBuf.append("%' ");
     }
     
     if (plateName != null){
       this.addWhereOrAnd();
-      queryBuf.append(" plate.label = '");
+      queryBuf.append(" plate.label like '");
       queryBuf.append(plateName);
-      queryBuf.append("' ");
+      queryBuf.append("%' ");
     }
     
     // Cap seq

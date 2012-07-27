@@ -11,6 +11,7 @@ public class InstrumentRunFilter extends DetailObject {
 
   // Criteria
   private Integer               idInstrumentRun;
+  private String                runName;
 
   private String                getAll = "N";
 
@@ -57,6 +58,7 @@ public class InstrumentRunFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
     if (idInstrumentRun != null ||
+        (runName != null && !runName.equals("")) ||
         (status != null && !status.equals("")) ||
         (codeReactionType != null && !codeReactionType.equals("")) ||
         (runLastWeek != null && runLastWeek.equals("Y")) ||
@@ -100,6 +102,15 @@ public class InstrumentRunFilter extends DetailObject {
       queryBuf.append(" ir.idInstrumentRun =");
       queryBuf.append(idInstrumentRun);
     } 
+    
+    // Search by run name 
+    if (runName != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" ir.label like '");
+      queryBuf.append(runName);
+      queryBuf.append("%' ");
+    } 
+
 
     // Search by status
     if (status != null && !status.equals("")) {
@@ -362,6 +373,14 @@ public class InstrumentRunFilter extends DetailObject {
   public void setCreatedLastYear(String createdLastYear)
   {
     this.createdLastYear = createdLastYear;
+  }
+
+  public String getRunName() {
+    return runName;
+  }
+
+  public void setRunName(String runName) {
+    this.runName = runName;
   }
 
 }

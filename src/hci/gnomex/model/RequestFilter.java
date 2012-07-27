@@ -26,7 +26,7 @@ public class RequestFilter extends DetailObject {
   private String                codeRequestCategory;
   private String                status;
   
-  private String                hasPendingRedo = "N";
+  private String                hasRedo = "N";
   
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -105,9 +105,8 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" JOIN        req.submitter as submitter ");
     queryBuf.append(" JOIN        req.lab as lab ");
     
-    if (hasPendingRedo.equals("Y")) {
-      queryBuf.append(" JOIN        sample.wells as sourceWell ");
-      queryBuf.append(" LEFT JOIN   sourceWell.plate as sourcePlate ");
+    if (hasRedo.equals("Y")) {
+      queryBuf.append(" JOIN        sample.wells as well ");
     }
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
     
@@ -233,12 +232,10 @@ public class RequestFilter extends DetailObject {
   
   private void addWellCriteria() {
     // Search by redoFlag
-    if (hasPendingRedo.equals("Y")){
+    if (hasRedo.equals("Y")){
       this.addWhereOrAnd();
       queryBuf.append("(");
-      queryBuf.append(" sourceWell.redoFlag = 'Y'");
-      this.addWhereOrAnd();
-      queryBuf.append(" (sourcePlate is NULL OR sourcePlate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "') ");
+      queryBuf.append(" well.redoFlag = 'Y'");
       queryBuf.append(")");
     }    
   } 
@@ -373,12 +370,12 @@ public class RequestFilter extends DetailObject {
     this.status = status;
   }
 
-  public String getHasPendingRedo() {
-    return hasPendingRedo;
+  public String getHasRedo() {
+    return hasRedo;
   }
 
-  public void setHasPendingRedo(String hasPendingRedo) {
-    this.hasPendingRedo = hasPendingRedo;
+  public void setHasRedo(String hasRedo) {
+    this.hasRedo = hasRedo;
   }
 
 
