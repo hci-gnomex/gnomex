@@ -343,13 +343,13 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Get the billing items
           if (plugin != null) {
-            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser.getSampleAssays());
+            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null);
             billingItems.addAll(billingItemsForCategory);                
           }
         }
 
       }
-
+      
 
       Document doc = new Document(new Element("NewBilling"));
 
@@ -376,7 +376,8 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         if (bi.getInvoicePrice() != null) {
           grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
           billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));        
-        }            
+        }
+        billingItemNode.setAttribute("isDirty", "Y");
         requestNode.addContent(billingItemNode);
       }
       
