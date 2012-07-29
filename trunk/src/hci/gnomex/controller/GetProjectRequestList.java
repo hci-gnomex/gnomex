@@ -1,13 +1,12 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.ProjectRequestFilter;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -21,19 +20,11 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.ProjectRequestFilter;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Visibility;
 
 
 public class GetProjectRequestList extends GNomExCommand implements Serializable {
