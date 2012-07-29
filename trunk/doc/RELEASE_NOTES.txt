@@ -57,6 +57,9 @@
 * Updated plate report to show assay or primer information for FA and MS experiment types. (mbowler)
 * Added codeVisibility and idInstitution fields to Topics table, implemented visibility for Topic. (rcundick)
 * Fixed case where workflow changes saved in spite of the presence of extra lanes. (rcundick)
+* Fix null reference bug on 'Add Services' introduced with back button on Experiment Detail. (tdisera)
+* Rename 'Register Experiment' to 'Post Experiment Data'.  Rename 'New Order' to 'New Experiment Order'. (tdisera)
+* Don't show empty project folders for 'My Experiments' view (tdisera)
 
 
 5.4.5 (July 1, 2012)

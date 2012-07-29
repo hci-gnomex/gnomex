@@ -286,7 +286,7 @@
 				messageLabel.text =  "(" + getProjectRequestList.lastResult.@experimentCount +  " experiments)"; 
 			}
         	  
-        	if (getProjectRequestList.lastResult.Lab.length() == 0) {
+        	if (getProjectRequestList.lastResult..Request.length() == 0) {
         		browseTree.visible = false;
         		this.treeExpansionStack.visible = false;
 				
@@ -1023,7 +1023,7 @@
 				    selectedRequestNumber = null;
 				    
 				    if (currentState == "" || currentState == null) {
-				    	this.myLabsExperimentsCheckbox.selected = true;
+				    	this.myExperimentsCheckbox.selected = true;
 				    }
 				    this.refreshExperiments();
 				    

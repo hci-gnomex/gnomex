@@ -479,6 +479,9 @@
 			}
 			
 			private function selectDefaultUserProject():void {
+				if (parentDocument == null) {
+					return;
+				}
 				// Default the project dropdown to the the project owned by the user
 				if (idAppUser != null) {
 					for each(var project:Object in parentDocument.filteredProjectList) {
@@ -570,6 +573,10 @@
 			
 			public function checkSetupCompleteness():void {
 				var isComplete:Boolean = false;
+				if (parentDocument == null) {
+					return;
+				}
+				
 				if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
 					isComplete = true;
 				} else if (idAppUser != null &&  idAppUser != '' &&
