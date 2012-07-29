@@ -94,7 +94,8 @@
 			var itemToSelect:XML = new XML(
 			   "<Topic " +
 			     " idLab='" + (labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : '') + "'" +
-			     " idTopic='" + saveTopic.lastResult.@idTopic + "'" +
+				 " idTopic='" + saveTopic.lastResult.@idTopic + "'" +
+				 " codeVisibility='" + saveTopic.lastResult.@codeVisibility + "'" +
 			    "/>");
 			if (parentView is NavTopicsView) {
 				NavTopicsView(parentView).refreshTopicsAndSelect(itemToSelect);
@@ -127,6 +128,7 @@
 		params.description            = "";
 		params.idLab                  = selectedIdLab;
 		params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
+		params.codeVisibility         = "MEM";
 		
 		saveTopic.send(params);
 	}   

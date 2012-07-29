@@ -2,7 +2,7 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
-<mx:Label id="titleLabel" styleName="titleLabel" text=""/>
+<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina HiSeq 2000 Flow Cells"/>
 	 
    <mx:HTTPService  
     id="getFlowCellList" 
@@ -26,9 +26,10 @@
       
 <mx:Script> 
 	<![CDATA[
-		import mx.controls.dataGridClasses.DataGridColumn;
+		import hci.flex.controls.DropdownLabel;
+		
 		import mx.controls.Alert;
-		import mx.rpc.events.ResultEvent;
+		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.events.CloseEvent;
 		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
@@ -36,13 +37,19 @@
 		import mx.events.PropertyChangeEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		import hci.flex.controls.DropdownLabel;
 		
 		import views.workflow.EditFlowCellWindow;
 		
 		[Bindable]
-		public var codeSequencingPlatform:String = "";
+		public var codeSequencingPlatform:String = "HISEQ";
 		private var addWindow:EditFlowCellWindow;
+		
+		public function clearAndRefreshList():void {
+			if(getFlowCellList.lastResult != null) {
+				flowCells.removeAll();
+			}
+			getFlowCellList.send();
+		}
 		
 		private function init():void {
 			this.getFlowCellList.send();
@@ -141,16 +148,16 @@
       	  </mx:HBox>
 
 	      <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
-	      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+	      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0" selected="false"  >
 	    		<mx:click>toggleDateCheckboxes(1);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   selected="true">
+	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
 	    		<mx:click>toggleDateCheckboxes(2);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   selected="false">
+	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="true">
 	    		<mx:click>toggleDateCheckboxes(3);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
 	    		<mx:click>toggleDateCheckboxes(4);this.getFlowCellList.send();</mx:click>
 	    	</mx:CheckBox>
 		  </mx:HBox>          	  
