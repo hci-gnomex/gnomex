@@ -2383,9 +2383,9 @@
 			      <mx:HBox width="100%" horizontalGap="6"  verticalAlign="middle" styleName="customLinkBar" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
 					  <mx:LinkButton id="homeLink" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
 					  <mx:VRule height="20" id="submitRequestRule"/>
-					  <mx:LinkButton id="submitRequestLink" label="New Order" click="{theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
+					  <util:LinkButtonTwoLines id="submitRequestLink" label="New Experiment Order" click="{theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="110" icon="@Embed(source='assets/flask_add.png')"/>
 					  <mx:VRule height="20" id="amendRequestRule" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"/>
-					  <util:LinkButtonTwoLines  id="amendRequestLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}" label="Add Services to Request" click="{theViews.selectedChild = amendRequestView}" width="100" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
+					  <util:LinkButtonTwoLines  id="amendRequestLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}" label="Add Services to Order" click="{theViews.selectedChild = amendRequestView}" width="100" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
 					  <mx:VRule height="20" id="experimentsRule"/>
 					  <mx:LinkButton id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="95" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
 					  <mx:VRule height="20" id="analysisRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" />
@@ -2422,11 +2422,11 @@
 						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 						</util:WelcomeView>  
 			
-					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Order'}" 
+					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>
 	
-					    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Request" 
+					    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Order" 
 					    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>
 			            		
@@ -2508,7 +2508,6 @@
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
-	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
 			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
@@ -2564,15 +2563,15 @@
 			<mx:RemoveChild target="{billingRule}"/>
 			<mx:RemoveChild target="{workflowLink}"/>
 			<mx:RemoveChild target="{workflowRule}"/>
-			<mx:SetProperty target="{submitRequestLink}" name="label" value="Register Experiment"/>
-			<mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
+			<mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
+			<mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
 		</mx:State>
 
 		 <mx:State name="ManagerESState" basedOn="ManagerState">
 			 <mx:RemoveChild target="{amendRequestView}"/>
 			 <mx:RemoveChild target="{amendRequestLink}"/>
 			 <mx:RemoveChild target="{amendRequestRule}"/>
-			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Register Experiment"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
 			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
 		 </mx:State>
 
@@ -2580,8 +2579,8 @@
 			 <mx:RemoveChild target="{amendRequestView}"/>
 			 <mx:RemoveChild target="{amendRequestLink}"/>
 			 <mx:RemoveChild target="{amendRequestRule}"/>
-			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Register Experiment"/>
-			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
+			 <mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
 		 </mx:State>
 		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
 			 <mx:AddChild relativeTo="{submitRequestLink}" position="after">
