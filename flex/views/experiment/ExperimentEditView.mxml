@@ -4662,6 +4662,8 @@
 	</mx:XMLList>
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
+			<mx:Image source="{requestIcon}" id="image1"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Post Experiment Data'}" fontWeight="bold" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
 
@@ -4879,8 +4881,6 @@
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
 				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" paddingTop="4" verticalAlign="middle" paddingLeft="4">
-					<mx:Image source="{requestIcon}"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}" fontWeight="bold" paddingRight="50"/>
 					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
 					<mx:LinkButton label="Download Files" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
@@ -5177,9 +5177,9 @@
             <mx:SetStyle target="{agreeCheckbox}" name="textRollOverColor" value="#3A940E"/>
             <mx:SetStyle target="{agreeCheckbox}" name="textSelectedColor" value="#3A940E"/>
         </mx:State>
-        <mx:State name="AmendState">
+        <mx:State name="AmendState"> 
             <mx:AddChild relativeTo="{seqSetupView}" position="before">
-                <mx:VBox id="amendSetupView" label="Add services" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
+                <mx:VBox id="amendSetupView" label="Choose the services you want to add" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
                 	<mx:RadioButtonGroup id="radioGroupAmendType"/>
                 	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
                 		<mx:Label text="(1) Verify your lab group." width="194"/>
@@ -5275,7 +5275,8 @@
 			<mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
             <mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{notesView}"/>
-            <mx:SetProperty target="{titleLabel}" name="text" value="Add services to existing experiment "/>
+			<mx:SetProperty target="{titleLabel}" name="text" value="Add Services to an Order"/>
+			<mx:SetProperty target="{image1}" name="source" value="assets/flask_edit.png"/>
 			
         </mx:State>
         <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
