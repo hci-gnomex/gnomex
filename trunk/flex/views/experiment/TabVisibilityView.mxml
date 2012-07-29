@@ -125,6 +125,7 @@
 						this.institutionCombo.selectedIndex = 0;
 					}	
 				}
+				checkVisibilitySetupCompleteness();
 			}
 		}
 

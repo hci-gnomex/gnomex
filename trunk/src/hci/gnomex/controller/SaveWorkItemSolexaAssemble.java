@@ -170,11 +170,11 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             flowCell.setNumber("FC" + flowCell.getIdFlowCell());
             
             String sequencingPlatform = "";
-            if(codeStepNext.equals(Step.SEQ_RUN)) {
+            if(codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_GAIIX_SEQUENCING_PLATFORM;
-            } else if (codeStepNext.equals(Step.HISEQ_RUN)) {
+            } else if (codeStepNext.equals(Step.HISEQ_DATA_PIPELINE)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_HISEQ_2000_SEQUENCING_PLATFORM;
-            } else {
+            } else if (codeStepNext.equals(Step.MISEQ_DATA_PIPELINE)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM;
             }
             flowCell.setCodeSequencingPlatform(sequencingPlatform);          

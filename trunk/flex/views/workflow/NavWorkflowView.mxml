@@ -214,7 +214,7 @@
 					<mx:HRule>
 					</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}"/>
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow">
@@ -227,7 +227,7 @@
 					<mx:HRule>
 					</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{miSeqViews.selectedChild=this.blankMiSeq;detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{miSeqViews.selectedChild=this.blankMiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}"/>
 				</mx:VBox>
 			</mx:Canvas>			
 			<mx:Canvas id="microarrayTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Microarray workflow"> 
@@ -249,7 +249,7 @@
 					<mx:HRule>
 					</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{solexaViews.selectedChild=this.blankSolexa;detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{solexaViews.selectedChild=this.blankSolexa;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}"/>
 				</mx:VBox>
 			</mx:Canvas>
 			
