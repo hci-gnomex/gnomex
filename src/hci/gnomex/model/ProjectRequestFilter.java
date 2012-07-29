@@ -316,8 +316,8 @@ public class ProjectRequestFilter extends DetailObject {
 
   private void addRequestCriteria() {
 
-    // if not a time search, then show empty folders.
-    if (!lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
+    // if not a time search or a search scoped to 'my experiments', then show empty folders.
+    if (idAppUser == null && !lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
       this.addWhereOrAnd();
       queryBuf.append("( req.idRequest is null OR ( 1=1 ");
     }
