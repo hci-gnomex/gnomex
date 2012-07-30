@@ -39,7 +39,7 @@ public class GetPlate extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    if (request.getParameter("idPlate") != null) {
+    if (request.getParameter("idPlate") != null && !request.getParameter( "idPlate" ).equals( "0" )) {
       idPlate = new Integer(request.getParameter("idPlate"));
     } else {
       this.addInvalidField("idPlate", "idPlate is required");
@@ -56,13 +56,7 @@ public class GetPlate extends GNomExCommand implements Serializable {
 
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-        Plate p = null;
-
-        if (idPlate == null || idPlate.intValue() == 0) {
-          p = new Plate();
-        } else {
-          p = (Plate)sess.get(Plate.class, idPlate);
-        }
+        Plate p = (Plate)sess.get(Plate.class, idPlate);
 
         if (p == null) {
           this.addInvalidField("missingPlate", "Cannot find plate idPlate=" + idPlate );
@@ -90,7 +84,9 @@ public class GetPlate extends GNomExCommand implements Serializable {
         for(Iterator i = plateWells.iterator(); i.hasNext();) {
           PlateWell plateWell = (PlateWell)i.next();
           plateWell.excludeMethodFromXML("getPlate");
-
+          plateWell.excludeMethodFromXML("getSample");
+          plateWell.excludeMethodFromXML("getAssay");
+          plateWell.excludeMethodFromXML("getPrimer");
           Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
           if ( plateWell.getAssay() != null ) {
