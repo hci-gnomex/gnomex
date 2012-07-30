@@ -217,8 +217,6 @@
 				params.notAddedToARun = "Y"; 
 				params.codeReactionType = reactionState;
 				
-				
-				
 				return params;
 			}
 			
@@ -1189,6 +1187,7 @@
 					currentState = viewStateRun.name;
 				}
 				
+				this.resetDirty();
 				// Save all the run attributes
 				run.idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
 				run.runDate = getInstrumentRun.lastResult.InstrumentRun.@runDate;
@@ -1204,7 +1203,6 @@
 				if ( plateList == null || plateList.length == 0 ) {
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
 					callLater( switchActivePlate );
-					this.resetDirty();
 					return;
 				}
 				
@@ -1215,19 +1213,17 @@
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
 					callLater( switchActivePlate );
 					colorPlateByGroup();
-					this.resetDirty();
 					return;
 				}
 				
 				// Move to the next plate or add a new one if needed.
 				if ( plateStack.numChildren > plateStack.selectedIndex + 1 ) {
-					plateStack.selectedIndex = plateStack.selectedIndex + 1;
+					plateLinkBar.selectedIndex = plateStack.selectedIndex = plateStack.selectedIndex + 1;
 					callLater( switchActivePlate );
 				} else {
 					addPlate();
 				}
 				callLater( loadRun, new Array( plateList ));
-				this.resetDirty();
 				return;
 			}
 			
@@ -1312,11 +1308,15 @@
 					} else if ( currentState.substr( 0, 4 ) == 'edit' ) {
 						if ( buildState == PLATE ) {
 							removeRun();
+						} else {
+							this.setDirty();
 						}
 					} else if ( currentState.substr( 0, 3 ) == 'new' ) {
 						if ( buildState == PLATE ) {
 							removeRun();
 							switchToEditState();
+						} else {
+							this.setDirty();
 						}
 					}
 					loadPlateObject( selection );
@@ -1340,6 +1340,7 @@
 				if ( getPlate.lastResult.name() == "PlateList" ) {
 					currentState = viewStatePlate.name;
 					toggleBuildState( PLATE );
+					this.resetDirty();
 					loadPlateObject( getPlate.lastResult.Plate );
 				} else {
 					Alert.show( "An error occurred while getting the plate." );
@@ -1350,11 +1351,14 @@
 			// Loads a plate from an plate xml object
 			private function loadPlateObject( plateObject:Object ):void {
 				
-				// Checks that current plate is empty - if not, adds a plate
-				
 				if ( buildState == RUN ) {
 					if ( plateObject.@quadrant != "-1" && plateObject.@quadrant != plateStack.selectedIndex ) {
-						this.addPlate();
+						if (plateObject.@quadrant < numberOfPlates ){
+							plateLinkBar.selectedIndex = plateStack.selectedIndex = plateObject.@quadrant;
+							activePlate = plateStack.selectedChild as Plate;
+						}else {
+							this.addPlate();
+						}
 						callLater( loadPlateObject, [ plateObject ]);
 						return;
 					}
@@ -1365,11 +1369,7 @@
 					}
 				}
 				
-				if ( buildState == PLATE ) {
-					this.resetDirty();
-				} else if ( buildState == RUN ) {
-					this.setDirty();
-				}
+
 				// This checks that the flex plate fill orientation is the
 				// same as the plate being loaded.
 				var orient:Boolean = false;
@@ -1505,12 +1505,10 @@
 					
 					var plate:Plate = plateArray[ i ] as Plate;
 					
-					if ( plate.getWellIDs().length != 0 ) {
-						if ( plate.idPlate != 0 ) {
-							plateXMLString += "<Plate " + 
-								" idPlate ='" + plate.idPlate + "'" + 
-								" quadrant='" + i + "'" +  "/>";
-						}
+					if ( plate.idPlate != -1 ) {
+						plateXMLString += "<Plate " + 
+							" idPlate ='" + plate.idPlate + "'" + 
+							" quadrant='" + i + "'" +  "/>";
 					}
 				}
 				plateXMLString += "</plates>"
@@ -1518,9 +1516,6 @@
 				
 				saveInstrumentRun.send( params );
 			}
-			
-			
-			private var loadRunAfterSave:Boolean = false;
 			
 			
 			private function onSaveInstrumentRun( event:ResultEvent ):void {
@@ -1600,6 +1595,7 @@
 					switchToEditState();
 					tabNav.selectedChild = plateTab;
 					removeRun();
+					this.resetDirty();
 					callLater( loadPlateObject, [ savePlate.lastResult.Plate ]);
 					
 				} else {
