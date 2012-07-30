@@ -1,6 +1,12 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.4.6.1
+---------------------
+* Fixed default visibility implementation for Data Track distributions. (rcundick)
+* Changed owner dropdown on Topics visibility to only show members and managers of the selected lab. (rcundick)
+* Fixed bug causing corrupted XML when isDefault flag set to null in lab institution list. (rcundick)
+
 5.4.6
 ---------------------
 * Can now choose External Commercial as pricing for a lab and add External Commercial pricing in the billing screen.  (bspiglejr)
