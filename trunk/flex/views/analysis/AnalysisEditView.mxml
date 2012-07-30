@@ -923,14 +923,13 @@
 					var display1:String = obj1.@displayName;
 					var display2:String = obj2.@displayName;
 					
-					if (display1 < display2) {
+					if (display1.toLowerCase() < display2.toLowerCase()) {
 						return -1;
-					} else if (display1 > display2) {
+					} else if (display1.toLowerCase() > display2.toLowerCase()) {
 						return 1;
 					} else {
 						return 0;
 					}
-					
 				}
 			}
 			
@@ -1083,7 +1082,7 @@
 					</mx:HBox>        
 					<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 						<mx:Label text="Owner"  width="100" fontWeight="normal"/>
-						<mx:ComboBox id="ownerCombo"
+						<util:ComboBoxDatProvChangeFix id="ownerCombo"
 									 labelField="@displayName" 
 									 change="this.dirty.setDirty();" 
 									 dataProvider="{appUsersForLab}" 

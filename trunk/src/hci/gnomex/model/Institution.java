@@ -51,6 +51,9 @@ public class Institution extends DictionaryEntry implements Serializable {
     this.labs = labs;
   }
   public String getIsDefault() {
+    if(isDefault == null) {
+      return "";
+    }
     return isDefault;
   }
   public void setIsDefault(String isDefault) {

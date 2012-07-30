@@ -3,7 +3,7 @@
 		  xmlns:mx="http://www.adobe.com/2006/mxml"     
 		  xmlns:views="views.*" 
 		  xmlns:util="views.util.*" 
-		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" xmlns:util1="util.*">
 	
 	
 	<mx:VBox width="100%" verticalGap="2">
@@ -49,9 +49,19 @@
 	import views.util.StringUtil;
 	import views.util.WebLinksView;
 	import views.util.PromptXMLListCollection;
+	import mx.collections.Sort;
 	
 	[Bindable]
 	private var possibleInstitutions:PromptXMLListCollection;
+	
+	[Bindable]
+	private var appUsersForLab:XMLListCollection;
+	private var appUserSort:Sort;
+	
+	private var idLab:String;
+	private var currentOwnerId:String;
+	
+
 	
 	public function init():void {
 		if (parentDocument.browseTree.selectedItem.@canWrite == "Y") {
@@ -75,13 +85,15 @@
 			descriptionRichText.textArea.editable = false;
 		}
 		
-		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab);
+		idLab = parentDocument.browseTree.selectedItem.@idLab;
+		labCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == idLab);
+		
+		currentOwnerId =  parentDocument.browseTree.selectedItem.@idAppUser != null ? parentDocument.browseTree.selectedItem.@idAppUser : "";
 		
 		var params:Object = new Object();
 		params.idLab = parentDocument.browseTree.selectedItem.@idLab;
 		getLab.send(params);
 		
-		ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == parentDocument.browseTree.selectedItem.@idAppUser);
 		this.dirtyTopic.resetDirty();
 		
 		this.visibilityRadioGroup.selectedValue = parentDocument.browseTree.selectedItem.@codeVisibility;
@@ -120,13 +132,61 @@
 					this.institutionCombo.selectedIndex = 0;
 				}						
 			}
+			
+			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+			emptyNode = <AppUser idAppUser='' displayName=''/>;
+			appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
+			for each (var mgr:Object in lab.managers.AppUser) {
+				if (!appUsersForLab.contains(mgr)) {
+					if(mgr.@isActive=='Y') {
+						appUsersForLab.addItem(mgr);
+					}
+									
+				}
+			}
+			appUsersForLab.addItemAt(emptyNode, 0);
+			
+			appUserSort = new Sort();
+			appUserSort.compareFunction = this.sortAppUsers;
+			appUsersForLab.sort = appUserSort;
+			appUsersForLab.refresh();
+			ownerCombo.dataProvider = appUsersForLab;
+			ownerCombo.selectedItem = emptyNode;
+			for each(var a:Object in appUsersForLab) {
+				if (a.@idAppUser == currentOwnerId) {
+					ownerCombo.selectedItem = a;
+					break;
+				}
+			}			
 		}
 		if (parentDocument.browseTree.selectedItem.@canWrite != "Y") {
 			this.institutionCombo.enabled = false;
 			radioInstitutionVisibility.enabled = false;
 		}
 	}
-		
+	
+	private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+		if (obj1 == null && obj2 == null) {
+			return 0;
+		} else if (obj1 == null) {
+			return 1;
+		} else if (obj2 == null) {
+			return -1;
+		} else {
+			var display1:String = obj1.@displayName;
+			var display2:String = obj2.@displayName;
+			
+			if (display1.toLowerCase() < display2.toLowerCase()) {
+				return -1;
+			} else if (display1.toLowerCase() > display2.toLowerCase()) {
+				return 1;
+			} else {
+				return 0;
+			}
+			
+		}
+	}
+	
 	public function showLinks():void {
 		/*
 		var userLink:String =  "GNomEx User:\r"  + parentApplication.baseURL 
@@ -188,6 +248,17 @@
 		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontFamilyCombo);
 		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontSizeCombo);
 	}
+	
+	private function labSelected():void {		
+		dirtyTopic.setDirty();
+		var params:Object = new Object();
+		idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
+		if(idLab.length > 0) {
+			currentOwnerId = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
+			params.idLab = idLab;
+			getLab.send(params);
+		}
+	}
 		
 ]]>
 </mx:Script>	
@@ -202,9 +273,9 @@
 			<mx:Label text="Lab:" width="120" />
 			<mx:ViewStack id="labStack" width="100%">
 				<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="dirtyTopic.setDirty()"></mx:ComboBox>
+					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="labSelected();"></mx:ComboBox>
 					<mx:Label text="Owner:" paddingLeft="8"/>
-					<mx:ComboBox width="200" id="ownerCombo" labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" change="dirtyTopic.setDirty()"></mx:ComboBox>							         			
+					<util:ComboBoxDatProvChangeFix width="200" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" change="dirtyTopic.setDirty()"></util:ComboBoxDatProvChangeFix>							         			
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
 					<mx:Label text="{parentDocument.browseTree.selectedItem.@lab}"/>							         			
