@@ -57,7 +57,7 @@ delete from PropertyDictionary where propertyName = 'datatrack_write_directory';
 -- Create new property for instrument_run_directory
 insert into PropertyDictionary (propertyName, propertyValue, forServerOnly, idCoreFacility)
 SELECT  'instrument_run_directory', '/path/to/gnomex/instrumentrun','Y', idCoreFacility
-from CoreFacility where coreFacilityName = 'DNA Sequencing';
+from CoreFacility where facility = 'DNA Sequencing';
 
 -- Add Septa SealType 
 insert into gnomex.SealType
@@ -187,3 +187,6 @@ CONSTRAINT FK_Topic_Institution FOREIGN KEY  (idInstitution)
     ON UPDATE NO ACTION;
 
 
+-- Set number of channels on HiSeq, MiSeq, GAII request categories
+update gnomex.RequestCategory set numberOfChannels = 8 where codeRequestCategory = 'HISEQ' or codeRequestCategory = 'SOLEXA';
+update gnomex.RequestCategory set numberOfChannels = 1 where codeRequestCategory = 'MISEQ';
