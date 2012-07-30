@@ -160,11 +160,11 @@ INSERT INTO gnomex.PriceCriteria (idPriceCriteria,filter1,filter2,idPrice) VALUE
  
  -- Properties for setting default visibility
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
-values ('default_visibility_analysis','','Default visibility for new Analysis. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
+values ('default_visibility_analysis','MEM','Default visibility for new Analysis. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
-values ('default_visibility_datatrack','','Default visibility for new Data Track. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
+values ('default_visibility_datatrack','MEM','Default visibility for new Data Track. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
-values ('default_visibility_experiment','','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
+values ('default_visibility_experiment','MEM','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
  
 -- Property for core facility
 alter table gnomex.CoreFacility add showProjectAnnotations char(1) NOT NULL Default 'Y';
