@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -16,6 +17,7 @@ import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingInvoiceHTMLFormatter;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -49,6 +51,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private Integer          idLab;
   private Integer          idBillingAccount;
   private Integer          idBillingPeriod;
+  private Integer          idCoreFacility;
   private String           action = "show";
   
  
@@ -71,6 +74,11 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+    }
+    if (request.getParameter("idCoreFacility") != null) {
+      idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
+    } else {
+      this.addInvalidField("idCoreFacility", "idCoreFacility is required");
     }
     if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
       action = request.getParameter("action");
@@ -96,17 +104,18 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
           Lab lab = (Lab)sess.get(Lab.class, idLab);
           BillingAccount billingAccount = (BillingAccount)sess.get(BillingAccount.class, idBillingAccount);
+          CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
           
           TreeMap requestMap = new TreeMap();
           TreeMap billingItemMap = new TreeMap();
           TreeMap relatedBillingItemMap = new TreeMap();
-          cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+          cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
           
           
           if (action.equals(ACTION_SHOW)) {
             this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           } else if (action.equals(ACTION_EMAIL)) {
-            this.sendInvoiceEmail(sess, lab.getContactEmail(), billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+            this.sendInvoiceEmail(sess, lab.getContactEmail(), coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           }
           
         } else {
@@ -152,7 +161,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   }
   
   
-  public static void cacheBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
+  public static void cacheBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
     throws Exception {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT req, bi ");
@@ -161,6 +170,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("WHERE  bi.idLab = " + idLab + " ");
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
     buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_PO + "')");
     
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -256,9 +266,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(dh.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME),
-        dh.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-        dh.getPropertyDictionary(PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         billingPeriod, 
         lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
 
@@ -292,6 +303,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         "ShowBillingInvoiceForm.gx?idLab=" + idLab +
         "&idBillingAccount=" + idBillingAccount + 
         "&idBillingPeriod=" + idBillingPeriod +
+        "&idCoreFacility=" + idCoreFacility +
         "&action=" + ACTION_EMAIL);
     String contactEmail = lab.getContactEmail();
     if (contactEmail == null || contactEmail.equals("")) {
@@ -341,15 +353,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
    
   }
   
-  private void sendInvoiceEmail(Session sess, String contactEmail,
+  private void sendInvoiceEmail(Session sess, String contactEmail, CoreFacility coreFacility,
       BillingPeriod billingPeriod, Lab lab,
       BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap,
       Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    String coreFacilityName = dh.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME);
     
-    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, 
+    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility,
         billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
     
@@ -373,8 +384,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     if (send) {
       try {
         MailUtil.send(contactEmail, 
-          null,
-          dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          emailFormatter.getCCList(sess, serverName),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
           subject, 
           emailFormatter.format(),
           true);
