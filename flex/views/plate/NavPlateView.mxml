@@ -118,7 +118,6 @@
 			
 			import views.renderers.WellContainer;
 			import views.util.DirtyNote;
-			
 			import views.util.IconUtility;
 
 			// Reaction type
@@ -829,12 +828,15 @@
 				
 				var item:Object = plateTree.selectedItem;
 				
-				if ( item.name() == "Plate" ) {
-					if ( item.@idRun == null || item.@idRun != run.idRun ) {
-						return false;
+				for each ( var p:Object in plateStack.getChildren()) {
+					var pl:Plate = p as Plate;
+					
+					if ( pl.idPlate == item.@idPlate ) {
+						return true;
 					}
 				}
-				return true;
+				
+				return false;
 			}
 			
 			
@@ -1206,7 +1208,8 @@
 					return;
 				}
 				
-				loadPlateObject( plateList.shift());
+				loadPlateById( plateList.shift().@idPlate );
+				
 				
 				// No plates left
 				if ( plateList.length == 0 ) {
@@ -1319,7 +1322,7 @@
 							this.setDirty();
 						}
 					}
-					loadPlateObject( selection );
+					loadPlateById( selection.@idPlate );
 				}
 			}
 			
@@ -1338,8 +1341,6 @@
 			private function onGetPlate( event:ResultEvent ):void {
 				
 				if ( getPlate.lastResult.name() == "PlateList" ) {
-					currentState = viewStatePlate.name;
-					toggleBuildState( PLATE );
 					this.resetDirty();
 					loadPlateObject( getPlate.lastResult.Plate );
 				} else {
@@ -2716,9 +2717,8 @@
 			</mx:HBox>
 			
 		</mx:VBox>
-		<mx:HDividedBox width="100%" 
+		<mx:HDividedBox width="100%"  
 						height="100%"
-						horizontalGap="2"
 						verticalAlign="middle">
 			
 			<mx:TabNavigator height="100%"

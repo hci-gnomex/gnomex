@@ -1032,6 +1032,8 @@
 				callLater( function():void {
 					
 					navPlateView.loadPlateById(idPlate);
+					navPlateView.toggleBuildState( "PLATE" );
+					navPlateView.switchToViewState();
 					navPlateView.tabNav.selectedChild = navPlateView.plateTab;
 				});
 				
