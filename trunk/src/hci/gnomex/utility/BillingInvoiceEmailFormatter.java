@@ -3,15 +3,23 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExFrontController;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.UserPermissionKind;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -25,23 +33,30 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   private BillingPeriod  billingPeriod;
   private Lab            lab;
   private BillingAccount billingAccount;
+  private CoreFacility   coreFacility;
   private Map            billingItemMap; 
   private Map            requestMap;
   private Map            relatedBillingItemMap;
+  private String         coreFacilityName;
+  private String         coreFacilityContactName;
+  private String         coreFacilityContactPhone;
 
 
   private DictionaryHelper dictionaryHelper;
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public BillingInvoiceEmailFormatter(Session sess, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) { 
+  public BillingInvoiceEmailFormatter(Session sess, CoreFacility coreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) { 
+    this.coreFacility = coreFacility;
     this.billingPeriod = billingPeriod;
     this.lab = lab;
     this.billingAccount = billingAccount;
     this.billingItemMap = billingItemMap;
     this.requestMap = requestMap;
     this.relatedBillingItemMap = relatedBillingItemMap;
-    
+    this.coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
+    this.coreFacilityContactName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
+    this.coreFacilityContactPhone = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_PHONE_CORE_FACILITY);
  
     this.dictionaryHelper = DictionaryHelper.getInstance(sess);
   }
@@ -55,12 +70,41 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
                      " - " + acctNum;
     return subject;
   }
- 
+  
+  public String getCCList(Session sess, String serverName) {
+    String ccList = "";
+    if (billingAccount.getIsPO() != null && billingAccount.getIsPO().equals("Y")) {
+      for (Iterator j = coreFacility.getManagers().iterator(); j.hasNext();) {
+        AppUser manager = (AppUser)j.next();
+        Boolean send = false;
+        if (manager.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+          if (manager.getEmail() != null && !manager.getEmail().equals("")) {
+            if (dictionaryHelper.isProductionServer(serverName)) {
+              send = true;
+            } else {
+              if (manager.getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+                send = true;
+              }
+            }     
+          }
+        }
+        if (send) {
+          if (ccList.length() != 0) {
+            ccList += ", ";
+          }
+          ccList += manager.getEmail();
+        }
+      }
+    }
+    if (ccList.length() == 0) {
+      ccList = null;
+    }
+    return ccList;
+  }
+
   public String format() throws Exception {
 
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME), 
-        this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-        this.dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(coreFacilityName, coreFacilityContactName, coreFacilityContactPhone,
         billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     
     Element root = new Element("HTML");

@@ -323,6 +323,7 @@
 			this.systemManager.addEventListener("BillingPeriodSelectEvent", billingPeriodSelected);
 			
  			var params:Object = new Object();
+			params.idCoreFacility = this.getSelectedCoreFacilityId();
  			if(this.lastSelectedBillingPeriod == null) {
 	 			var currentBillingPeriod:Object = null;
 				for each( de in billingPeriods) {
@@ -1215,6 +1216,9 @@
 				Alert.show("Please select a billing period.");
 				return;    	
 			}
+			if (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == "") {
+				
+			}
 			if (this.requestTree.selectedItem != null) {
 				var labNode:Object = null;
 				if (this.requestTree.selectedItem.name() == "Request") {
@@ -1232,7 +1236,8 @@
 						//'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
 						'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 						'&idLab=' + labNode.@idLab +
-						'&idBillingAccount=' + labNode.@idBillingAccount);
+						'&idBillingAccount=' + labNode.@idBillingAccount +
+						'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 					navigateToURL(url, '_blank');			
 					
 				} else {
@@ -1846,6 +1851,13 @@
 			billingStatusCombo.selectedItem = billingStatusCombo.prompt;
 		}
 
+		private function getSelectedCoreFacilityId():String {
+			if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+				return parentApplication.coreFacilitiesICanManage[0].@value;
+			} else {
+				return coreFacilityCombo.selectedItem.@value;
+			}
+		}
  	]]>
  </mx:Script>	
 
@@ -1918,7 +1930,7 @@
 						
 					</mx:VBox>
 					
-					<mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 2}" visible="{parentApplication.coreFacilitiesICanManage.length() > 2}">
+					<mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}">
 						<mx:Label text="Core Facility" />
 						<mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.coreFacilitiesICanManage}"
 									 labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()"/>

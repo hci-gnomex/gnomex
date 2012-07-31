@@ -260,6 +260,10 @@
     <property name="facilityName" column="facilityName" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
     <property name="showProjectAnnotations" column="showProjectAnnotations" type="string"/>
+    <set name="managers" table="CoreFacilityManager" lazy="true" cascade="none">
+      <key column="idCoreFacility"/>
+      <many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+    </set>
   </class>
 	
   

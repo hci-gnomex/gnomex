@@ -6,6 +6,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
@@ -14,6 +15,7 @@ import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -49,23 +51,29 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     public BillingAccount getBillingAccount() {
       return billingAccount;
     }
+    public Integer getIdCoreFacility() {
+      return idCoreFacility;
+    }
     public LabAccountBillingPeriod(Lab lab, Integer idBillingPeriod,
-        BillingAccount billingAccount) {
+        BillingAccount billingAccount, Integer idCoreFacility) {
       super();
       this.lab = lab;
       this.idBillingPeriod = idBillingPeriod;
       this.billingAccount = billingAccount;
+      this.idCoreFacility = idCoreFacility;
     }
     
     private Lab lab;
     private Integer idBillingPeriod;
     private BillingAccount billingAccount;
+    private Integer idCoreFacility;
     
     public int hashCode() {
       return new HashCodeBuilder()
       .append(getLab().getIdLab())
       .append(getIdBillingPeriod())
       .append(getBillingAccount().getIdBillingAccount())
+      .append(getIdCoreFacility())
       .toHashCode();
     }
     
@@ -76,6 +84,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           .append(this.getLab().getIdLab(), castOther.getLab().getIdLab())
           .append(this.getIdBillingPeriod(), castOther.getIdBillingPeriod())
           .append(this.getBillingAccount().getIdBillingAccount(), castOther.getBillingAccount().getIdBillingAccount())
+          .append(this.getIdCoreFacility(), castOther.getIdCoreFacility())
           .isEquals();
   }    
 
@@ -173,7 +182,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
             sess.refresh(bi);
             // This item should not contribute to decision to send billing statement if previously approved
             if (!(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && (bi.getCurrentCodeBillingStatus().equals(BillingStatus.APPROVED)))) {
-              LabAccountBillingPeriod labp = new LabAccountBillingPeriod(bi.getLab(), bi.getBillingPeriod().getIdBillingPeriod(), bi.getBillingAccount());
+              LabAccountBillingPeriod labp = new LabAccountBillingPeriod(bi.getLab(), bi.getBillingPeriod().getIdBillingPeriod(), bi.getBillingAccount(), bi.getIdCoreFacility());
               labAccountBillingPeriodMap.put(labp, null);              
             }
 
@@ -188,7 +197,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           
           for(Iterator<LabAccountBillingPeriod> i = labAccountBillingPeriodMap.keySet().iterator(); i.hasNext();) {
             LabAccountBillingPeriod labp = (LabAccountBillingPeriod) i.next();
-            this.checkToSendInvoiceEmail(sess, labp.getLab(), labp.getIdBillingPeriod(), labp.getBillingAccount());
+            this.checkToSendInvoiceEmail(sess, labp.getLab(), labp.getIdBillingPeriod(), labp.getBillingAccount(), labp.getIdCoreFacility());
           }       
           
           this.xmlResult = "<SUCCESS/>";
@@ -221,11 +230,11 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void checkToSendInvoiceEmail(Session sess, Lab lab, Integer idBillingPeriod, BillingAccount billingAccount) {
+  private void checkToSendInvoiceEmail(Session sess, Lab lab, Integer idBillingPeriod, BillingAccount billingAccount, Integer idCoreFacility) {
     if (lab != null && lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
-      if (this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount())) {
+      if (this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount(), idCoreFacility)) {
         try {
-          sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount);        
+          sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility);        
         } catch (Exception e) {
           log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
         }
@@ -237,18 +246,19 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     }
   }
   
-  private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount) throws Exception {
+  private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount, Integer idCoreFacility) throws Exception {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     BillingPeriod billingPeriod = dictionaryHelper.getBillingPeriod(idBillingPeriod);
+    CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
 
     TreeMap requestMap = new TreeMap();
     TreeMap billingItemMap = new TreeMap();
     TreeMap relatedBillingItemMap = new TreeMap();
-    ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), billingItemMap, relatedBillingItemMap, requestMap);
+    ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
     
-    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
     
     boolean send = false;
@@ -263,8 +273,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     
     if (send) {
       MailUtil.send(lab.getContactEmail(), 
-          null,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          emailFormatter.getCCList(sess, serverName),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
           subject, 
           emailFormatter.format(),
           true); 
@@ -273,7 +283,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   }  
 
   
-  private boolean readyToInvoice(Session sess, Integer idBillingPeriod, Lab lab, Integer idBillingAccount) {
+  private boolean readyToInvoice(Session sess, Integer idBillingPeriod, Lab lab, Integer idBillingAccount, Integer idCoreFacility) {
     boolean readyToInvoice = false;
     
     if (lab != null && idBillingAccount != null) {
@@ -287,6 +297,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       buf.append("WHERE  bi.idBillingPeriod = " + idBillingPeriod + " ");
       buf.append("AND    bi.idLab = " + lab.getIdLab());
       buf.append("AND    bi.idBillingAccount = " + idBillingAccount);
+      buf.append("AND    bi.idCoreFacility = " + idCoreFacility);
       buf.append("GROUP BY bi.codeBillingStatus ");
       
       List countList = sess.createQuery(buf.toString()).list();
@@ -297,7 +308,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         String codeBillingStatus = (String)countRow[0];
         Integer count = (Integer)countRow[1];
         
-        if (codeBillingStatus.equals(BillingStatus.APPROVED)) {
+        if (codeBillingStatus.equals(BillingStatus.APPROVED) || codeBillingStatus.equals(BillingStatus.APPROVED_PO)) {
           approvedCount = count.intValue();
         } else {
           otherCount += count.intValue();
