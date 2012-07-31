@@ -57,7 +57,7 @@ delete from PropertyDictionary where propertyName = 'datatrack_write_directory';
 -- Create new property for instrument_run_directory
 insert into PropertyDictionary (propertyName, propertyValue, forServerOnly, idCoreFacility)
 SELECT  'instrument_run_directory', '/path/to/gnomex/instrumentrun','Y', idCoreFacility
-from CoreFacility where facility = 'DNA Sequencing';
+from CoreFacility where facilityName = 'DNA Sequencing';
 
 -- Add Septa SealType 
 insert into gnomex.SealType
