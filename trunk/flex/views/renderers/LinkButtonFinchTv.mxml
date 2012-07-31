@@ -32,6 +32,7 @@
 
 			override public function set data( value:Object ):void {
 				super.data = value;
+				init();
 			}
 
 

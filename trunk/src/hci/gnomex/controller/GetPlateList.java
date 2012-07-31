@@ -104,41 +104,6 @@ public class GetPlateList extends GNomExCommand implements Serializable {
             pNode.setAttribute("codePlateType", codePlateType);
             pNode.setAttribute( "icon", ReactionType.getIcon(codeReactionType));
 
-
-
-            List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
-
-            for(Iterator i2 = plateWells.iterator(); i2.hasNext();) {
-              PlateWell plateWell = (PlateWell)i2.next();
-              plateWell.excludeMethodFromXML("getPlate");
-              plateWell.excludeMethodFromXML("getSample");
-              plateWell.excludeMethodFromXML("getAssay");
-              plateWell.excludeMethodFromXML("getPrimer");
-              Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-
-              if ( plateWell.getAssay() != null ) {
-                node.setAttribute( "label", plateWell.getAssay().getDisplay() );
-              } else if ( plateWell.getPrimer() != null ) {
-                node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
-              }
-
-              node.setAttribute("requestSubmitDate", "");
-              node.setAttribute("requestSubmitter", "");
-
-              if ( plateWell.getIdRequest() != null ) {
-                String idRequestString = plateWell.getIdRequest().toString();
-                if ( idRequestString != null && !idRequestString.equals("")) {
-                  Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-                  if ( request != null ) {
-                    node.setAttribute("requestSubmitDate", request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
-                    node.setAttribute("requestSubmitter", request.getOwnerName());
-                  }
-                }
-              }
-
-              pNode.addContent(node);
-            }
-
             doc.getRootElement().addContent(pNode);
 
           }

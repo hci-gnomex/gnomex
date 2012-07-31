@@ -4,7 +4,10 @@
 5.4.7
 ---------------------
 * Require admins with abilities to manage > 1 core facility choose the core facility in the Billing view. (bspiglejr)
-* When invoice (for PO billing account) sent to billing contact, also send a copy to billing admins for the core facility. (bspiglejr)  
+* When invoice (for PO billing account) sent to billing contact, also send a copy to billing admins for the core facility. (bspiglejr)
+* Changed GetPlateList and GetPlate to speed up Fill Plate and Review Plates and Runs screens. (mbowler)
+* Fixed a problem with 'Show all' on Plate review screen. (mbowler)
+* Added divider lines to Plate Editor to make resizing the sections easier. (mbowler)  
 
 5.4.6 (July 30, 2012)
 ---------------------

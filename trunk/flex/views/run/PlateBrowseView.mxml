@@ -60,7 +60,7 @@
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
-				if ( plateGrid.selectedItem.@codeReactionType == "CHERRY" ) {
+				if ( plateGrid.selectedItem.@codeReactionType == "CHERRY" || plateGrid.selectedItem.@codePlateType == "SOURCE" ) {
 					return;
 				}
 				var idPlate:String = plateGrid.selectedItem.@idPlate;
@@ -126,6 +126,7 @@
 
 				
 				if ( parentDocument.allCheckbox.selected ) {
+					params.getAll = "Y";
 					return params;
 				}
 				

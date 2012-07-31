@@ -62,7 +62,10 @@ public class GetPlate extends GNomExCommand implements Serializable {
           this.addInvalidField("missingPlate", "Cannot find plate idPlate=" + idPlate );
         }
 
-
+        if ( p.getInstrumentRun() == null ) {
+          p.setQuadrant( -1 );
+        }
+        
         Document doc = new Document(new Element("PlateList"));
 
         p.excludeMethodFromXML("getPlateWells");
@@ -76,6 +79,8 @@ public class GetPlate extends GNomExCommand implements Serializable {
         } else {
           pNode.setAttribute( "creator", creator);
         }
+        
+        
 
         Element pwNode = new Element("plateWells");
 
