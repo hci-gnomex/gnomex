@@ -179,7 +179,7 @@ CONSTRAINT FK_Topic_Visibility FOREIGN KEY  (codeVisibility)
     ON UPDATE NO ACTION;
     
 -- Add idInstitution to Topic
-alter table gnomex.Topic add column idInstitution INT(10) NOT NULL;
+alter table gnomex.Topic add column idInstitution INT(10)  NULL;
 alter table gnomex.Topic add
 CONSTRAINT FK_Topic_Institution FOREIGN KEY  (idInstitution)
     REFERENCES gnomex.Institution (idInstitution)
