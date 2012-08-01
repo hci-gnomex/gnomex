@@ -1074,16 +1074,6 @@
 				return item.groupLabel;
 			}
 		}
-		
-		public function getTopicIcon(item:Object):Class {
-			return parentApplication.iconTopic;
-		}
-		
-		private function goToTopic():void {  
-			if (this.topicsTree.selectedItem.name() == "Topic") {
-				parentApplication.showTopicForNumber(topicsTree.selectedItem.@idTopic);	 
-			}	
-		}
 
 	]]>
 </mx:Script>
@@ -1383,19 +1373,20 @@
 				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUploadData == 'Y'}" >
 				</experiment:ExperimentDownloadView>
 				
-				<mx:VBox verticalGap="0" width="100%" height="100%" id="topicsTab" label="Topics">
-					<mx:Tree width="100%" height="100%" dataProvider="{sortedTopics}" id="topicsTree" 
-							 showRoot="false" 
-							 dragEnabled="true"
-							 dropEnabled="false"
-							 dragMoveEnabled="false"
-							 iconFunction="getTopicIcon" 
-							 doubleClickEnabled="true" 
-							 itemDoubleClick="goToTopic()"
-							 labelField="@name" >						
-					</mx:Tree>
-				</mx:VBox>
-						   
+				<mx:HBox width="100%" horizontalGap="0" id="topicsTab" label="Topics">
+					<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
+						<mx:Repeater id="topicRepeater" dataProvider="{sortedTopics}">
+							<mx:HBox horizontalGap="6" width="100%">
+								<mx:LinkButton label="{topicRepeater.currentItem.@name}" 
+											   paddingTop="0" paddingBottom="2" 
+											   textDecoration="underline"
+											   icon="{parentApplication.iconTopic}"
+											   click="{parentApplication.showTopicForNumber(event.currentTarget.getRepeaterItem().@idTopic)}" >
+								</mx:LinkButton>
+							</mx:HBox>
+						</mx:Repeater>
+					</mx:VBox>
+				</mx:HBox>						   
 			</mx:TabNavigator>
 			
 		
