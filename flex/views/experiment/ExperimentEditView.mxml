@@ -2078,7 +2078,10 @@
 			} else {
 				
 				currentState = 'MicroarrayEditState';
-				this.filteredMicroarrayAppList.refresh();
+				if(this.filteredMicroarrayAppList != null) {
+					this.filteredMicroarrayAppList.refresh();
+				}
+				
 				this.hybSetupView.currentState = 'EditState';
 				this.annotationView.checkSecurity();			
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
@@ -2111,7 +2114,8 @@
 			}
 			
 			if (theTab.contains(visibilityView)) {
-				this.visibilityView.currentState = "EditState";							
+				this.visibilityView.currentState = "EditState";	
+				this.visibilityView.enabled = true;
 			}
 
 			this.getRequestCategoryName();
