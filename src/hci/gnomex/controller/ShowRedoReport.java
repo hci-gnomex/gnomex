@@ -6,24 +6,15 @@ import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Assay;
-import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Primer;
-import hci.gnomex.model.ReactionType;
-import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.PlateReportHTMLFormatter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -129,12 +120,14 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
           maindiv.addContent( new Element( "BR" ) );
           maindiv.addContent( makeTable() );
 
+          
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           out.setOmitEncoding( true );
           this.xmlResult = out.outputString( doc );
           this.xmlResult = this.xmlResult.replaceAll( "&amp;", "&" );
           this.xmlResult = this.xmlResult.replaceAll( "�", "&micro" );
 
+          
           // Injust the <script> for java script handling of alternate style
           // sheets
           this.xmlResult = this.xmlResult.replaceAll( "JAVASCRIPT_GOES_HERE",
@@ -194,9 +187,7 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Dest. Well" );
     this.addHeaderCell(rowh, "Source Plate" );
-    this.addHeaderCell(rowh, "Source Plate ID" );
     this.addHeaderCell(rowh, "Source Well"    );
-    this.addHeaderCell(rowh, "Source Well ID"    );
     this.addHeaderCell(rowh, "Sample Name");
 
     if( wellsNode != null ) {
@@ -206,20 +197,15 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
 
         String destWellName = well.getAttributeValue( "wellName" );
         String sourcePlateName = well.getAttributeValue( "sourcePlateName" );
-        String sourceIdPlate = well.getAttributeValue("sourceIdPlate");
         String sourceWellName = well.getAttributeValue( "sourceWellName" );
-        String sourceIdPlateWell = well.getAttributeValue("sourceIdPlateWell");
         String sampleName = well.getAttributeValue( "sampleName" );
                        
         Element row = new Element("TR");
         table.addContent(row);
         
-        // Need to add background color to this first cell.
         this.addCell( row, destWellName );
         this.addCell( row, sourcePlateName );
-        this.addCell( row, sourceIdPlate );
         this.addCell( row, sourceWellName );
-        this.addCell( row, sourceIdPlateWell );
         this.addCell( row, sampleName );
         
       }  
@@ -286,27 +272,15 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
 
       node = redoWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
-      // Not sure if request and assay information are wanted for the redo report
-//      Request request = (Request) sess.get(Request.class, redoWell.getIdRequest());
-//      Assay assay = redoWell.getAssay();
-//      Primer primer = redoWell.getPrimer();
-//
-//      node.setAttribute("requestSubmitDate", request != null ? request.getCreateDate().toString() : "");
-//      node.setAttribute("requestSubmitter", request != null ? request.getOwnerName() : "");
-//      node.setAttribute("requestNumber", request != null ? request.getNumber() : "");
-//      node.setAttribute("assayName", assay != null ? assay.getDisplay() : "");
-//      node.setAttribute("primerName", primer != null ? primer.getDisplay() : "");
-
       if ( sourceWell != null ) {
-        
+
         Plate sourcePlate = sourceWell.getPlate();
         node.setAttribute("sourceIdPlateWell", sourceWell.getIdPlateWell() != null ? sourceWell.getIdPlateWell().toString() : "");
         node.setAttribute("sourceIdPlate", sourcePlate.getIdPlate() != null ? sourcePlate.getIdPlate().toString() : "");
         node.setAttribute("sourceWellName", sourceWell.getWellName() != null ? sourceWell.getWellName() : "");
-        node.setAttribute("sourcePlateName", sourcePlate.getLabel() != null ? sourcePlate.getLabel() : "");
-
+        node.setAttribute("sourcePlateName", sourcePlate.getLabel() != null ? sourcePlate.getLabel() : ""); 
       }
-      
+
       pNode.addContent( node );
     }
 

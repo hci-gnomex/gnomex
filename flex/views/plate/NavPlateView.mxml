@@ -396,7 +396,7 @@
 			// and make it visible
 			private function addPlate():void {
 				
-				// Don't allow more than 4 full runs
+				// Don't allow more than 4 plates
 				if ( numberOfPlates >= 4 ) {
 					return;
 				}
@@ -407,13 +407,11 @@
 				
 				// Make the newly added plate the one that is selected. And orient
 				// the plate column- or row-wise
-				callLater( function():void {
-					plateLinkChange();
-					plateLinkBar.selectedIndex = plateStack.selectedIndex = ( numberOfPlates - 1 );
-					activePlate = plateStack.selectedChild as Plate;
-					activePlate.nowFillByCol = fillColWise;
-					activePlate.repopulatePlate();
-				});
+				plateLinkChange();
+				plateLinkBar.selectedIndex = plateStack.selectedIndex = ( numberOfPlates - 1 );
+				switchActivePlate();
+				activePlate.nowFillByCol = fillColWise;
+				activePlate.repopulatePlate();
 			}
 			
 			
@@ -691,7 +689,7 @@
 				}
 				// Set selected index on link bar, and change selected plate
 				plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
-				callLater( switchActivePlate );
+				switchActivePlate();
 			}
 			
 			
@@ -701,11 +699,10 @@
 				
 				activePlate = plateStack.selectedChild as Plate;
 				
-				callLater( function():void {
-					setUpColorPicker();
-					toggleFillOrientation();
-					displayPlateInfo();
-				});
+				setUpColorPicker();
+				toggleFillOrientation();
+				colorPlateByGroup();
+				displayPlateInfo();
 			}
 			
 			
@@ -1101,7 +1098,6 @@
 						activePlate.nowFillByCol = fillColWise;
 						activePlate.repopulatePlate();
 						switchActivePlate();
-						callLater( colorPlateByGroup );
 						
 						if ( numberOfPlates >= 4 ) {
 							return;
@@ -1114,7 +1110,7 @@
 						// Fill existing plates first.
 						if ( plateStack.numChildren > plateStack.selectedIndex + 1 ) {
 							plateStack.selectedIndex = plateStack.selectedIndex + 1;
-							callLater( switchActivePlate );
+							switchActivePlate();
 						} else {
 							addPlate();
 						}
@@ -1129,24 +1125,18 @@
 				activePlate.repopulatePlate();
 				switchActivePlate();
 				sampleTree.selectedItem = null;
-				callLater( function():void {
-					colorPlateByGroup();
-					numSamples.text = getSamplesCount();
-				});
+				numSamples.text = getSamplesCount();
 			}
 			
 			
 			// --------------------------------
 			// Getting run and plate lists
 			// --------------------------------
-			private function onGetInstrumentRunList( event:ResultEvent ):void {
-				
+			private function onGetInstrumentRunList( event:ResultEvent ):void {	
 				runTree.selectedIndex = -1;
 			}
 			
-			
-			private function onGetPlateList( event:ResultEvent ):void {
-				
+			private function onGetPlateList( event:ResultEvent ):void {	
 				plateTree.selectedIndex = -1;
 			}
 			
@@ -1204,40 +1194,33 @@
 					currentState = viewStateRun.name;
 				}
 				
-				this.resetDirty();
-				// Save all the run attributes
-				run.idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
-				run.runDate = getInstrumentRun.lastResult.InstrumentRun.@runDate;
-				run.createDate = getInstrumentRun.lastResult.InstrumentRun.@createDate;
-				run.codeInstrumentRunStatus = getInstrumentRun.lastResult.InstrumentRun.@codeInstrumentRunStatus;
-				run.comments = getInstrumentRun.lastResult.InstrumentRun.@comments;
-				run.label = getInstrumentRun.lastResult.InstrumentRun.@label;
-				run.codeReactionType = getInstrumentRun.lastResult.InstrumentRun.@codeReactionType;
-				run.creator = getInstrumentRun.lastResult.InstrumentRun.@creator;
-				run.codeSealType = getInstrumentRun.lastResult.InstrumentRun.@codeSealType;
-				
-				// If no plates in the run
-				if ( plateList == null || plateList.length == 0 ) {
-					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
-					callLater( switchActivePlate );
-					return;
+				if ( plateList != null && plateList.length > 0 ) {
+					loadPlateObject( plateList.shift() );
 				}
 				
-				loadPlateById( plateList.shift().@idPlate );
-				
-				
-				// No plates left
-				if ( plateList.length == 0 ) {
+				if ( plateList == null || plateList.length == 0 ) {
+					this.resetDirty();
+					
+					// Save all the run attributes
+					run.idRun = getInstrumentRun.lastResult.InstrumentRun.@idInstrumentRun;
+					run.runDate = getInstrumentRun.lastResult.InstrumentRun.@runDate;
+					run.createDate = getInstrumentRun.lastResult.InstrumentRun.@createDate;
+					run.codeInstrumentRunStatus = getInstrumentRun.lastResult.InstrumentRun.@codeInstrumentRunStatus;
+					run.comments = getInstrumentRun.lastResult.InstrumentRun.@comments;
+					run.label = getInstrumentRun.lastResult.InstrumentRun.@label;
+					run.codeReactionType = getInstrumentRun.lastResult.InstrumentRun.@codeReactionType;
+					run.creator = getInstrumentRun.lastResult.InstrumentRun.@creator;
+					run.codeSealType = getInstrumentRun.lastResult.InstrumentRun.@codeSealType;
+					
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
-					callLater( switchActivePlate );
-					colorPlateByGroup();
+					switchActivePlate();
 					return;
 				}
 				
 				// Move to the next plate or add a new one if needed.
 				if ( plateStack.numChildren > plateStack.selectedIndex + 1 ) {
 					plateLinkBar.selectedIndex = plateStack.selectedIndex = plateStack.selectedIndex + 1;
-					callLater( switchActivePlate );
+					switchActivePlate();
 				} else {
 					addPlate();
 				}
@@ -1258,7 +1241,6 @@
 			private function loadSelectedRun():void {
 				
 				var idString:String = runTree.selectedItem != null ? runTree.selectedItem.@idInstrumentRun : "";
-				
 				if ( idString == null || "" ) {
 					return;
 				}
@@ -1301,6 +1283,7 @@
 						}
 					} else {
 						plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
+						switchActivePlate();
 						runTree.selectedItem = XML(runTree.selectedItem).parent();
 					}
 				}
@@ -1356,7 +1339,6 @@
 			private function onGetPlate( event:ResultEvent ):void {
 				
 				if ( getPlate.lastResult.name() == "PlateList" ) {
-					this.resetDirty();
 					loadPlateObject( getPlate.lastResult.Plate );
 				} else {
 					Alert.show( "An error occurred while getting the plate." );
@@ -1387,10 +1369,11 @@
 					}
 				}
 				
-
 				// This checks that the flex plate fill orientation is the
 				// same as the plate being loaded.
 				var reorient:Boolean = false;
+				
+				activePlate = plateStack.selectedChild as Plate;
 				
 				// Get plate information
 				activePlate.idPlate = plateObject.@idPlate;
@@ -1433,16 +1416,13 @@
 				
 				if ( reorient ) {
 					fillColWise = !fillColWise;
-					toggleFillOrientation();
 				}
-				activePlate.repopulatePlate();
+
 				switchActivePlate();
 				sampleTree.selectedItem = null;
-				callLater( function():void {
-					colorPlateByGroup();
-					numSamples.text = getSamplesCount();
-					displayPlateInfo();
-				});
+				
+				numSamples.text = getSamplesCount();
+				displayPlateInfo();
 			}
 			
 			
@@ -1475,14 +1455,9 @@
 			
 			
 			private function checkFormComplete():Boolean {
-				if ( sealComboBox.selectedIndex == -1 ) {
+				if ( sealComboBox.selectedIndex == -1 || statusComboBox.selectedIndex == -1 ) {
 					return false;
 				}
-				
-				if ( statusComboBox.selectedIndex == -1 ) {
-					return false;
-				}
-				
 				if ( runNameText.text == null || runNameText.text == '' ) {
 					return false;
 				}
@@ -1516,7 +1491,6 @@
 				if ( statusComboBox.selectedIndex != -1 ) {
 					params.codeInstrumentRunStatus = statusComboBox.selectedItem.@codeInstrumentRunStatus.toString();
 				}
-				params.disassociatePlates = 'Y';
 				
 				var plateXMLString:String = "<plates>"
 				for ( var i:int = 0; i < numberOfPlates; i++ ) {
@@ -1664,11 +1638,8 @@
 				}
 				switchActivePlate();
 				sampleTree.selectedItem = null;
-				callLater( function():void {
-					colorPlateByGroup();
-					numSamples.text = getSamplesCount();
-					displayPlateInfo();
-				});
+				numSamples.text = getSamplesCount();
+				displayPlateInfo();
 			}
 			
 			
@@ -1682,11 +1653,8 @@
 				activePlate.removeAllWells();
 				
 				setUpColorPicker();
-				callLater( function():void {
-					
-					numSamples.text = getSamplesCount();
-					displayPlateInfo();
-				});
+				numSamples.text = getSamplesCount();
+				displayPlateInfo();
 			}
 			
 			
@@ -1722,15 +1690,12 @@
 				}
 				
 			}
-			
-			
 			private function onPromptToRemovePlate( event:CloseEvent ):void {
 				
 				if ( event.detail == Alert.YES ) {
 					removePlate();
 				}
 			}
-			
 			
 			// Function to delete plate
 			private function removePlate():void {
@@ -1740,33 +1705,29 @@
 					return;
 				}
 				
+				activePlate = plateStack.selectedChild as Plate;
 				removeAll();
+				activePlate.resetPlate();
 				
 				if ( buildState == RUN ) {
 					removeFromRun( activePlate.idPlate );
-					activePlate.resetPlate();
 					this.setDirty();
 				}
 				
 				if ( plateStack.selectedIndex != numberOfPlates - 1 || numberOfPlates == 1 ) {
 					return;
 				}
+				
 				plateArray[ numberOfPlates - 1 ].visible = false;
-				var plate:Object = plateArray[ numberOfPlates - 1 ];
-				var p:Plate = plate as Plate;
-				removeFromRun( p.idPlate );
-				p.resetPlate();
 				plateArray.pop();
 				numberOfPlates--;
-				
-				callLater( function():void {
-					plateLinkChange();
-					plateLinkBar.selectedIndex = plateStack.selectedIndex = ( numberOfPlates - 1 );
-					activePlate = plateStack.selectedChild as Plate;
-					activePlate.nowFillByCol = fillColWise;
-					activePlate.repopulatePlate();
-					displayPlateInfo();
-				});
+								
+				plateLinkChange();
+				plateLinkBar.selectedIndex = plateStack.selectedIndex = ( numberOfPlates - 1 );
+				switchActivePlate();
+				activePlate.nowFillByCol = fillColWise;
+				activePlate.repopulatePlate();
+
 			}
 			
 			
@@ -1856,17 +1817,16 @@
 					}
 				}
 				
-				callLater( function():void {
-					plateLinkChange();
-					plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
-					activePlate = plateStack.selectedChild as Plate;
-					activePlate.nowFillByCol = fillColWise;
-					activePlate.repopulatePlate();
-					if ( reactionState == SEQ && currentState.substr(0,3) == "new" ) {
-						activePlate.getWell(95).setControl(true);
-					}
-					displayPlateInfo();
-				});
+				plateLinkChange();
+				plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
+				switchActivePlate();
+				activePlate.nowFillByCol = fillColWise;
+				activePlate.repopulatePlate();
+				if ( reactionState == SEQ && currentState.substr(0,3) == "new" ) {
+					activePlate.getWell(95).setControl(true);
+				}
+				displayPlateInfo();
+
 			}
 			
 			

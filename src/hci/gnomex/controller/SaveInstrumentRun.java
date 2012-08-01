@@ -45,7 +45,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   
   private String                plateXMLString;
   
-  private String                disassociatePlates = null;
+  private String                disassociatePlates = "Y";
   
   public void validate() {
   }
@@ -163,9 +163,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
             if ( plate != null) {
               plate.setIdInstrumentRun( idInstrumentRun );
               plate.setQuadrant( Integer.valueOf( quadrant ) );
-              if ( ir.getCodeSealType() != null ) {
-                plate.setCodeSealType( ir.getCodeSealType() );
-              }
+              plate.setCodeSealType( ir.getCodeSealType() );
             }
           }      
         }
