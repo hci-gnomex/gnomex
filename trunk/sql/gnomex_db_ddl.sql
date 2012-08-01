@@ -317,6 +317,8 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `totalDollarAmount` DECIMAL(12,2) NULL,
   `purchaseOrderForm` LONGBLOB NULL,
   `orderFormFileType` VARCHAR(10) NULL,
+  `shortAcct` VARCHAR(10) NULL,
+  `startDate` DATETIME NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)

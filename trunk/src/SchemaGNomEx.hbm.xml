@@ -196,6 +196,8 @@
 		<property name="totalDollarAmount" column="totalDollarAmount" type="big_decimal"/>
 		<property name="orderFormFileType" column="orderFormFileType" type="string"/>
 		<property name="purchaseOrderForm" column="purchaseOrderForm" type="binary"/>
+		<property name="shortAcct" column="shortAcct" type="string"/>
+    <property name="startDate" column="startDate" type="date"/>
 	</class>
 	
 	<!-- hci.gnomex.model.BillingItem -->

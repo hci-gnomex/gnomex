@@ -80,11 +80,18 @@ public class BillingAccountParser extends DetailObject implements Serializable {
       billingAccount.setAccountNumberYear(n.getAttributeValue("accountNumberYear"));
     } 
     
+    if (n.getAttributeValue("startDate") != null && !n.getAttributeValue("startDate").equals("")) {
+      billingAccount.setStartDate(this.parseDate(n.getAttributeValue("startDate")));
+    } else {
+      billingAccount.setStartDate(null);
+    }
+    
     if (n.getAttributeValue("expirationDate") != null && !n.getAttributeValue("expirationDate").equals("")) {
       billingAccount.setExpirationDate(this.parseDate(n.getAttributeValue("expirationDate")));
     } else {
       billingAccount.setExpirationDate(null);
     }
+    
     if (n.getAttributeValue("idFundingAgency") != null && !n.getAttributeValue("idFundingAgency").equals("")) {
       billingAccount.setIdFundingAgency(new Integer(n.getAttributeValue("idFundingAgency")));
     } else {
@@ -101,6 +108,12 @@ public class BillingAccountParser extends DetailObject implements Serializable {
       totalDollarAmount = totalDollarAmount.replaceAll("\\$", "");
       totalDollarAmount = totalDollarAmount.replaceAll(",", "");
       billingAccount.setTotalDollarAmount(new BigDecimal(totalDollarAmount));
+    }
+
+    if (n.getAttributeValue("shortAcct") != null && !n.getAttributeValue("shortAcct").equals("")) {
+      billingAccount.setShortAcct(n.getAttributeValue("shortAcct"));
+    } else {
+      billingAccount.setShortAcct(null);
     }
         
     if (n.getAttributeValue("isApproved") != null && !n.getAttributeValue("isApproved").equals("")) {

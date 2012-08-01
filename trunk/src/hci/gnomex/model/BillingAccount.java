@@ -31,6 +31,8 @@ public class BillingAccount extends HibernateDetailObject {
   private BigDecimal totalDollarAmount;
   private String     orderFormFileType;
   private byte []     purchaseOrderForm;
+  private Date       startDate;
+  private String     shortAcct;
   
   public byte [] getPurchaseOrderForm() {
     return purchaseOrderForm;
@@ -221,7 +223,10 @@ public class BillingAccount extends HibernateDetailObject {
     return this.formatDate(this.expirationDate, this.DATE_OUTPUT_SLASH); 
   }
 
-
+  public String getStartDateOther() {
+    return this.formatDate(this.startDate, this.DATE_OUTPUT_SLASH);
+  }
+  
   public Integer getIdFundingAgency() {
     return idFundingAgency;
   }
@@ -362,6 +367,21 @@ public class BillingAccount extends HibernateDetailObject {
     }
   }
 
+  public Date getStartDate() {
+    return startDate;
+  }
+  
+  public void setStartDate(Date date) {
+    startDate = date;
+  }
+  
+  public String getShortAcct() {
+    return shortAcct;
+  }
+  
+  public void setShortAcct(String acct) {
+    shortAcct = acct;
+  }
   
   public BigDecimal getTotalDollarAmountRemaining() {
     if (totalDollarAmount != null && totalChargesToDate != null) {
