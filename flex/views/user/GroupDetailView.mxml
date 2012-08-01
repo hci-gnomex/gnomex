@@ -156,6 +156,7 @@
 					" idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
 					" accountName='" + accountName.text + "'" +
 					" expirationDateOther=''" + 
+					" startDateOther=''" +
 					" accountNumberBus=''" + 
 					" accountNumberOrg=''" + 
 					" accountNumberFund=''" + 
@@ -164,6 +165,7 @@
 					" accountNumberAccount=''" + 
 					" accountNumberAu=''" + 
 					" accountNumberYear=''" +  
+					" shortAcct=''" +
 					" isDirty='Y'" +
 					" isPO='N'" +
 					" isApproved='Y'" +
@@ -245,6 +247,11 @@
 			private function getExpirationDateString(item:Object,col:int):String
 			{
 				return item.@expirationDateOther.toString();
+			}
+			
+			private function getStartDateString(item:Object,col:int):String
+			{
+				return item.@startDateOther.toString();
 			}
 			
 			
@@ -373,6 +380,7 @@
 				
 				for each(var acct:Object in billingAccounts) {
 					acct.@expirationDate = acct.@expirationDateOther;
+					acct.@startDate = acct.@startDateOther;
 				}
 				
 				params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
@@ -501,7 +509,8 @@
 				
 				// PO checkbox, account name, expiration date, and total amount are always editable
 				if (event.dataField == '@isPO' || event.dataField == '@accountName' 
-					|| event.dataField == '@expirationDate' || event.dataField == '@totalDollarAmountDisplay') {
+					|| event.dataField == '@expirationDate' || event.dataField == '@totalDollarAmountDisplay'
+					|| event.dataField == '@startDate' || event.dataField == '@shortAcct') {
 					return;
 				}
 				
@@ -861,6 +870,13 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
+						<mx:DataGridColumn dataField="@startDate" width="75"
+										   headerText="Start"  
+										   itemEditor="views.renderers.DateFieldStartDate" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getStartDateString"
+										   editorDataField="selectedDate"/>
 						<mx:DataGridColumn dataField="@expirationDate" width="75"
 										   headerText="Expires"  
 										   itemEditor="views.renderers.DateFieldExpiration" 
@@ -882,6 +898,7 @@
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50"/>
 						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
 					</mx:columns>
 				</mx:DataGrid>
@@ -902,6 +919,13 @@
 										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isApproved', true)}" >
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
+						<mx:DataGridColumn dataField="@startDate" width="75"
+										   headerText="Start"  
+										   itemEditor="views.renderers.DateFieldStartDate" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getStartDateString"
+										   editorDataField="selectedDate"/>
 						<mx:DataGridColumn dataField="@expirationDate" width="75"
 										   headerText="Expires"  
 										   itemEditor="views.renderers.DateFieldExpiration" 
@@ -922,6 +946,7 @@
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Short" dataField="@shortAcct" width="50"/>
 						<mx:DataGridColumn headerText="Created"  editable="false" dataField="@createDate" width="30"/>
 						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
 						<mx:DataGridColumn headerText="UID"  dataField="@submitterUID" width="10"/>

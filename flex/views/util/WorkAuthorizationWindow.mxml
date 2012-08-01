@@ -47,6 +47,7 @@
 			}
 			var params:Object = new Object();
 			params.accountName = this.accountName.text;
+			params.startDate = this.startDatePicker.text;
 			params.expirationDate = this.expirationDatePicker.text;
 			params.idLab = this.labCombo.selectedItem.@idLab;
 			params.accountNumberBus = this.bus.text;
@@ -199,6 +200,9 @@
         	</mx:ComboBox>
         </mx:HBox>
         <mx:HBox width="100%" verticalAlign="middle">
+			<mx:Label text="Start Date:" width="120"/>
+			<mx:DateField id="startDatePicker"></mx:DateField>
+			<mx:Spacer width="20"/>
         	<mx:Label text="Effective Until:" width="120"/>
         	<mx:DateField id="expirationDatePicker"></mx:DateField>
         	<mx:Spacer width="20"/>

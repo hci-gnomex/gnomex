@@ -10,6 +10,9 @@
 * Added divider lines to Plate Editor to make resizing the sections easier. (mbowler)  
 * Fixed bugs where visibility tab not enabled on b2b, error null pointer error on displaying certain experiments. (rcundick)
 * Added a redo report on the plate editor. (mbowler)
+* Added shortAcct and startDate to BillingAccount. (bspiglejr)
+* Add startDate to work authorization form. (bspiglejr)
+* Add startDate and shortAcct to detail group view for edit. (bspiglejr)
 
 5.4.6 (July 30, 2012)
 ---------------------
