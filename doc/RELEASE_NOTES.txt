@@ -13,6 +13,9 @@
 * Added shortAcct and startDate to BillingAccount. (bspiglejr)
 * Add startDate to work authorization form. (bspiglejr)
 * Add startDate and shortAcct to detail group view for edit. (bspiglejr)
+* Implemented default visibility for topics. (rcundick)
+* Insured that topic detail shows when new topic created. (rcundick) 
+* Underline links on topic tabs for Exp, Analysis, Data Tracks and enable single click hyperlink. (rcundick)
 
 5.4.6 (July 30, 2012)
 ---------------------

@@ -2,19 +2,26 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.Institution;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Topic;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -119,8 +126,6 @@ public class SaveTopic extends GNomExCommand implements Serializable {
       topic.setCreatedBy(this.getSecAdvisor().getUID());
       topic.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
       isNewTopic = true;
-      
-      
     } else {
       topic = (Topic)sess.load(Topic.class, load.getIdTopic());
       
@@ -132,10 +137,29 @@ public class SaveTopic extends GNomExCommand implements Serializable {
     topic.setIdAppUser(load.getIdAppUser());
     topic.setCodeVisibility(load.getCodeVisibility());
     topic.setIdInstitution(load.getIdInstitution());
-
-    // If parent annotation grouping is owned by a user group, this
-    // child annotation grouping must be as well.
-    if (!isNewTopic) {
+    
+    if(isNewTopic) {
+      PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+      String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_TOPIC);
+      if (defaultVisibility != null && defaultVisibility.length() > 0) {
+        topic.setCodeVisibility(defaultVisibility);
+        if(defaultVisibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
+          if (topic.getIdLab() != null) {
+            Lab lab = (Lab)sess.load(Lab.class, topic.getIdLab());
+            Hibernate.initialize(lab.getInstitutions());
+            Iterator it = lab.getInstitutions().iterator();
+            while(it.hasNext()) {
+              Institution thisInst = (Institution) it.next();
+              if(thisInst.getIsDefault().compareTo("Y") == 0) {
+                topic.setIdInstitution(thisInst.getIdInstitution());            
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // If parent annotation grouping is owned by a user group, this
+      // child annotation grouping must be as well.
       if (topic.getParentTopic() != null &&
           topic.getParentTopic().getIdLab() != null) {
 
@@ -144,14 +168,7 @@ public class SaveTopic extends GNomExCommand implements Serializable {
           throw new Exception("Topic '" + load.getName() + "' must belong to lab '" + 
               DictionaryHelper.getInstance(sess).getLabObject(topic.getParentTopic().getIdLab()).getName() + "'");
         }
-      } 
-      
+      }   
     }
-
   }  
-  
- 
-  
-  
-
 }

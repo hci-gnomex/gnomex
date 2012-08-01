@@ -59,6 +59,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        DEFAULT_VISIBILITY_EXPERIMENT       = "default_visibility_experiment";
   public static final String        DEFAULT_VISIBILITY_ANALYSIS         = "default_visibility_analysis";
   public static final String        DEFAULT_VISIBILITY_DATATRACK        = "default_visibility_datatrack";
+  public static final String        DEFAULT_VISIBILITY_TOPIC            = "default_visibility_topic";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";

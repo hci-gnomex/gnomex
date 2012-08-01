@@ -138,6 +138,7 @@
 	public var topicNumber:String = "";
 
 	public var isInitialized:Boolean = false;
+	public var treatAsTopicClick:Boolean = false;
 	
 	public var dataTrackNumber:String = "";
 	
@@ -315,6 +316,10 @@
 		var items:XMLList = getTopicList.lastResult.Folder..Category;
 		for each(var category:Object in items) {
 			browseTree.expandItem(category, true);
+		}
+		if(treatAsTopicClick) {
+			treatAsTopicClick = false;
+			onTreeClick();
 		}
 	}
 	
@@ -536,6 +541,7 @@
 	public function refreshTopicsAndSelect(itemToSelect:XML):void {
 		treeItemToSelect = itemToSelect;
 		refreshTopics();
+		treatAsTopicClick = true;
 	}
 
 	public function refreshTopics():void {
