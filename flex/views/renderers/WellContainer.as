@@ -177,7 +177,7 @@ package views.renderers {
 					plateView.colorPick.selectedIndex = plateView.colorPick.getLabelIndex( this.groupId );
 					plateView.colorPick.dispatchEvent( new FlexEvent( FlexEvent.VALUE_COMMIT ));
 					event.stopPropagation();
-				} else if ( plateView.currentState.substr(0, 4) != 'view' ) {
+				} else if ( plateView.currentState.substr(0, 4) != 'view' && plateView.buildState != 'RUN' ) {
 					this.setControl( this.isControl == "N" );
 					plateView.setDirty();
 				}

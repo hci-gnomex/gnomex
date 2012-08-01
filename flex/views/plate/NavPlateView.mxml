@@ -647,6 +647,21 @@
 				navigateToURL( url, '_blank' );
 			}
 			
+			// Create and show a printable redo report
+			private function createRedoReport():void {
+				
+				var params:URLVariables = new URLVariables();
+				params.idPlate = activePlate.idPlate;
+				
+				var url:URLRequest = new URLRequest();
+				url.url = 'ShowRedoReport.gx';
+				url.data = params;
+				
+				var loader:URLLoader = new URLLoader();
+				loader.load( url );
+				navigateToURL( url, '_blank' );
+			}
+			
 			
 			// Create the .plt run file
 			private function createPltFiles():void {
@@ -1351,8 +1366,9 @@
 			
 			// Loads a plate from an plate xml object
 			private function loadPlateObject( plateObject:Object ):void {
-				
+								
 				if ( buildState == RUN ) {
+					// Put plate in the correct quadrant
 					if ( plateObject.@quadrant != "-1" && plateObject.@quadrant != plateStack.selectedIndex ) {
 						if (plateObject.@quadrant < numberOfPlates ){
 							plateLinkBar.selectedIndex = plateStack.selectedIndex = plateObject.@quadrant;
@@ -1363,6 +1379,7 @@
 						callLater( loadPlateObject, [ plateObject ]);
 						return;
 					}
+					// Add a new plate if the current quadrant already has a plate
 					if ( plateObject.@quadrant == "-1" && activePlate.idPlate != -1 ) {
 						this.addPlate();
 						callLater( loadPlateObject, [ plateObject ]);
@@ -1373,7 +1390,7 @@
 
 				// This checks that the flex plate fill orientation is the
 				// same as the plate being loaded.
-				var orient:Boolean = false;
+				var reorient:Boolean = false;
 				
 				// Get plate information
 				activePlate.idPlate = plateObject.@idPlate;
@@ -1409,12 +1426,12 @@
 					
 					if ( ind == 1 ) {
 						if ( wc.col != pw.@col ) {
-							orient = true;
+							reorient = true;
 						}
 					}
 				}
 				
-				if ( orient ) {
+				if ( reorient ) {
 					fillColWise = !fillColWise;
 					toggleFillOrientation();
 				}
@@ -2940,7 +2957,7 @@
 				
 				<mx:VBox styleName="panelBox" width="100%" verticalAlign="middle">
 					
-					<mx:HBox verticalAlign="middle" width="100%">
+					<mx:HBox verticalAlign="middle" width="100%" horizontalGap="1">
 						
 						<mx:Label text="Run:" fontWeight="bold" fontSize="10"  id="label4"/>
 						<mx:Label id="runNumberLabel" text="{run.label}"/>
@@ -2962,16 +2979,29 @@
 										groupName="fillOrientation"
 										selected="{fillColWise}"
 										click="{this.setDirty();fillColWise = true;toggleFillOrientation();}" />
+						<mx:Spacer width="15" height="100%"  id="spacer5"/>
 						<mx:LinkButton label="Create PLT file"
+									   paddingRight="1"
+									   paddingLeft="1"
 									   click="createPltFiles()"
 									   textDecoration="underline"
 									   id="pltButton" 
 									   visible="{run.idRun != '0' &amp;&amp; !this.isDirty}"
 									   includeInLayout="{run.idRun != '0' &amp;&amp; !this.isDirty}"/>
 						<mx:LinkButton label="Plate Report"
+									   paddingRight="1"
+									   paddingLeft="1"
 									   click="createPlateReport()"
 									   textDecoration="underline"
-									   id="printButton"
+									   id="plateReportButton"
+									   visible="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"
+									   includeInLayout="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"/>
+						<mx:LinkButton label="Redo Report"
+									   paddingRight="1"
+									   paddingLeft="1"
+									   click="createRedoReport()"
+									   textDecoration="underline"
+									   id="redoReportButton"
 									   visible="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"
 									   includeInLayout="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"/>
 						
@@ -3124,7 +3154,7 @@
 						<mx:VBox backgroundColor="#ffffff"
 								 height="100%"
 								 id="plateInfoBox"
-								 label="Plate Information"
+								 label="Plate Info"
 								 width="100%">
 							
 							<mx:HBox width="100%"
@@ -3275,7 +3305,7 @@
 						<mx:VBox backgroundColor="#ffffff"
 								 height="100%"
 								 id="runInfoBox"
-								 label="Run Information"
+								 label="Run Info"
 								 width="100%">
 							
 							<mx:HBox width="100%"
@@ -3632,17 +3662,21 @@
 			<mx:RemoveChild target="{samplesTab}" />
 			<mx:RemoveChild target="{removeOrderButton}" />
 			<mx:RemoveChild target="{newPlateButton}"/>
+			<mx:RemoveChild target="{orientationLabel}"/>
+			<mx:RemoveChild target="{radioRow}"/>
+			<mx:RemoveChild target="{radioCol}"/>
 		</mx:State>
 		
 		<mx:State id="newState" name="newState">
 			<mx:RemoveChild target="{sealTextHBox}" />
 			<mx:RemoveChild target="{runSealTextHBox}" />
 			<mx:RemoveChild target="{statusTextHBox}" />
-			<mx:RemoveChild target="{printButton}" />
+			<mx:RemoveChild target="{plateReportButton}" />
 			<mx:RemoveChild target="{pltButton}" />
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Build Run" />
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
+			<mx:RemoveChild target="{redoReportButton}"/>
 		</mx:State>
 		<mx:State id="newStateRun" name="newStateRun" basedOn="newState">
 			<mx:RemoveChild target="{savePlateButton}" />
@@ -3650,6 +3684,9 @@
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Remove Plate" />
 			<mx:RemoveChild target="{removeOrderButton}" />
 			<mx:RemoveChild target="{newPlateButton}"/>
+			<mx:RemoveChild target="{orientationLabel}"/>
+			<mx:RemoveChild target="{radioRow}"/>
+			<mx:RemoveChild target="{radioCol}"/>
 		</mx:State>
 		<mx:State id="newStatePlate" name="newStatePlate" basedOn="newState">
 			<mx:SetProperty target="{runTitleLabel}" name="text" value="Fill Plate" />
