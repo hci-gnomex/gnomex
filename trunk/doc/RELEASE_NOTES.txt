@@ -8,6 +8,7 @@
 * Changed GetPlateList and GetPlate to speed up Fill Plate and Review Plates and Runs screens. (mbowler)
 * Fixed a problem with 'Show all' on Plate review screen. (mbowler)
 * Added divider lines to Plate Editor to make resizing the sections easier. (mbowler)  
+* Fixed bugs where visibility tab not enabled on b2b, error null pointer error on displaying certain experiments. (rcundick)
 
 5.4.6 (July 30, 2012)
 ---------------------
