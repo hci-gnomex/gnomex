@@ -342,23 +342,6 @@
 				}
 			}
 			
-			
-			// Function to set the sample object for some well
-			public function addSampleToWell( index:int, sample:Object ):void {
-				
-				for each ( var well:WellContainer in getWells()) {
-					if ( well.position == index ) {
-						if ( well.isControl == "Y" ) {
-							well.setControl( false );
-						}
-						well.setSample( sample );
-						well.plateView = this.parentDocument as NavPlateView;
-						
-						break;
-					}
-				}
-			}
-			
 			public function addSourceWell( index:int, wo:Object ):void {
 				
 				for each ( var well:WellContainer in getWells()) {
@@ -481,6 +464,7 @@
 							well.setLabel(( well.position + 1 ).toString());
 							well.row = alph.charAt( row - 1 );
 							well.col = col;
+							well.setToolTip();
 							ind++;
 						}
 					}
@@ -494,6 +478,7 @@
 							well.setLabel(( well.position + 1 ).toString());
 							well.row = alph.charAt( row - 1 );
 							well.col = col;
+							well.setToolTip();
 							ind++;
 						}
 					}

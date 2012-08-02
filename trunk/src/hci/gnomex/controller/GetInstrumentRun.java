@@ -109,7 +109,8 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
             PlateWell plateWell = (PlateWell)i1.next();
             plateWell.excludeMethodFromXML("getPlate");
             plateWell.excludeMethodFromXML( "getSample" );
-            
+            plateWell.excludeMethodFromXML("getAssay");
+            plateWell.excludeMethodFromXML("getPrimer");
             Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
             if ( plateWell.getAssay() != null ) {
@@ -118,24 +119,18 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
               node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
             }
 
-            // Add Request information
+            node.setAttribute("requestSubmitDate", "");
+            node.setAttribute("requestSubmitter", "");
+
             if ( plateWell.getIdRequest() != null ) {
-              Request request = (Request) sess.get(Request.class, plateWell.getIdRequest());
+              String idRequestString = plateWell.getIdRequest().toString();
+              if ( idRequestString != null && !idRequestString.equals("")) {
+                Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
                 if ( request != null ) {
                   node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
                   node.setAttribute("requestSubmitter", request.getOwnerName());
                 }
-            }
-            // Add sample
-            if ( plateWell.getSample() != null ) {
-              Sample sample = plateWell.getSample();
-              sample.excludeMethodFromXML( "getASourceWell" );
-              sample.excludeMethodFromXML( "getSourceWells" );
-              sample.excludeMethodFromXML( "getAssays" );
-              sample.excludeMethodFromXML( "getADestinationWell" );
-              Element sampleNode = sample.toXMLDocument( null, DetailObject.DATE_OUTPUT_SQL ).getRootElement();
-
-              node.addContent( sampleNode );
+              }
             }
             
             pwNode.addContent(node);

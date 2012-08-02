@@ -38,20 +38,16 @@ package views.renderers {
 		public var submitter:String;
 		public var submitDate:String;
 		
+		public var sourceWell:Object;
+		public var hasSample:Boolean = false;
+		
 		// Renderer Fields
 		public var color:uint = 0xFFFFFF;
 		public var groupId:String;
 		
-		// Sample object
-		public var sample:Object;
-		public var hasSample:Boolean = false;
-		
-		// Sample object
-		public var sourceWell:Object;
 		
 		
-		// Temporary constructor - just takes a 'sample name'
-		// Later, the constructor will take a well object
+		// Constructor
 		public function WellContainer( label:String ):void {
 			
 			super();
@@ -75,26 +71,13 @@ package views.renderers {
 			addEventListener( DragEvent.DRAG_DROP, dropOnWell );
 			addEventListener( DragEvent.DRAG_EXIT, dragExitWell );
 		}
-				
 		
-		// function to get back the sample and its information
 		public function getSample():Object {
-			return sample;
+			return this.sourceWell;
 		}
 		
-		
-		// function to set the sample
-		public function setSample( sample:Object ):void {
-			this.sample = sample;
-			if ( sample != null ) {
-				this.idSample = sample.@idSample != null ? sample.@idSample : 0;
-				this.sampleName = sample.@name != null ? sample.@name : '';
-				this.groupId = sample.@idRequest != null ? sample.@idRequest : '';
-				this.hasSample = true;
-				this.isControl = "N";
-				sample.@isOnPlate = true;
-				
-			} else {
+		public function loadSourceWell( pw:Object ):void {
+			if ( pw == null ) {
 				this.sourceWell = null;
 				
 				this.idSample =  0;
@@ -108,14 +91,6 @@ package views.renderers {
 				this.submitDate = '';
 				
 				this.hasSample = false;
-			}
-			this.setToolTip();
-		}
-		
-		public function loadSourceWell( pw:Object ):void {
-			if ( pw == null ) {
-				setSample( null );
-				sourceWell = null;
 				return;
 			}
 			
@@ -133,7 +108,6 @@ package views.renderers {
 			} else {
 				this.groupId = idRequest.toString();
 			}
-			
 			this.codeReactionType = pw.@codeReactionType != null ? pw.@codeReactionType : '' ;
 			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
 			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
@@ -146,7 +120,7 @@ package views.renderers {
 			this.setToolTip();
 			this.hasSample = true;
 		}
-				
+		
 		// Drag and Drop functions
 		public function dragOverWell( event:Event ):void {
 			DragManager.acceptDragDrop(event.currentTarget as UIComponent );
@@ -184,7 +158,7 @@ package views.renderers {
 			}
 		}
 		
-
+		
 		public function setToolTip():void {
 			this.toolTip = getToolTip();
 		}
@@ -247,7 +221,7 @@ package views.renderers {
 				isControl = "Y";
 				setLabel("C");
 				setColor(0x484848);
-				setSample( null );
+				loadSourceWell( null );
 			} else {
 				isControl = "N";
 				setColor(0xFFFFFF);
