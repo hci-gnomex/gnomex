@@ -287,6 +287,10 @@
 					mx.managers.PopUpManager.centerPopUp(addWindow);
 					addWindow.setFocus();
 				}
+				if ( event.columnIndex == 1 && chromatogramGrid.selectedItem != null ) {
+					var url:URLRequest = new URLRequest( chromatogramGrid.selectedItem.@viewURL );
+					navigateToURL( url, '_blank' );
+				}
 				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					chromatogramGrid.selectedIndex = -1;
 				}
@@ -760,15 +764,22 @@
 									   headerRenderer="views.renderers.CheckBoxHeader"
 									   draggable="false"/>
 					
-					<mx:DataGridColumn dataField="@idChromatogram"
-									   headerText=""
+					<mx:DataGridColumn headerText=""
 									   textAlign="center"
+									   editable="false"
 									   resizable="false"
 									   sortable="false"
-									   itemRenderer="views.renderers.LinkButtonFinchTv"
 									   width="35" 
 									   minWidth="35"
-									   draggable="false"/>
+									   draggable="false">
+										<mx:itemRenderer>
+											<mx:Component>
+												<mx:HBox horizontalAlign="center" >
+													<mx:Image source="@Embed(source='../../assets/tv_chart.png')" />
+												</mx:HBox>
+											</mx:Component>
+										</mx:itemRenderer>						
+					</mx:DataGridColumn>
 					
 					<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
 									   headerText="File"
