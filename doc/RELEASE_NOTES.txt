@@ -18,6 +18,32 @@
 * Underline links on topic tabs for Exp, Analysis, Data Tracks and enable single click hyperlink. (rcundick)
 * First plate is displayed when loading a run. (mbowler)
 * Fixes for several intermittent problems with loading runs with removed plates. (mbowler)
+* Add Invoice entity and allow updating of the invoice number in billing. (bspiglejr)
+
+deploy notes 
+--------------------
+* Run following script to create invoices after deploy (change rollback to commit)  (bspiglejr)
+begin transaction
+declare @identity int
+select @identity= (Coalesce(MAX(idInvoice),0)) from Invoice
+DBCC CHECKIDENT('Invoice', RESEED, @identity)
+
+insert into Invoice(idCoreFacility, idBillingPeriod, idBillingAccount)
+  select BillingItem.idCoreFacility, BillingItem.idBillingPeriod, BillingItem.idBillingAccount 
+    from BillingItem 
+    left join Invoice on Invoice.idCoreFacility=BillingItem.idCoreFacility
+            and Invoice.idBillingPeriod=BillingItem.idBillingPeriod
+            and Invoice.idBillingAccount=BillingItem.idBillingAccount
+    where Invoice.idInvoice is null
+    group by BillingItem.idCoreFacility, BillingItem.idBillingPeriod, BillingItem.idBillingAccount
+update Invoice set invoiceNumber=CONVERT(varchar(50), idInvoice) + 'I' where invoiceNumber is null
+update BillingItem set idInvoice = Invoice.idInvoice
+  from BillingItem
+  join Invoice on Invoice.idCoreFacility = BillingItem.idCoreFacility and Invoice.idBillingPeriod = BillingItem.idBillingPeriod
+    and Invoice.idBillingAccount = BillingItem.idBillingAccount
+  where BillingItem.idInvoice is null
+rollback transaction
+
 
 5.4.6 (July 30, 2012)
 ---------------------

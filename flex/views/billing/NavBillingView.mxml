@@ -138,6 +138,24 @@
          <idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
        </mx:request>
     </mx:HTTPService >          
+	
+	<mx:HTTPService 
+		id="getBillingInvoiceList" 
+		url="GetBillingInvoiceList.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetBillingInvoiceList(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get billing invoice list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>       	
+			<requestNumber>{requestNumberText.text}</requestNumber>
+			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
+			<idLab>{requestNumberText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
+		</mx:request>
+	</mx:HTTPService >  
     
     <mx:HTTPService 
     id="createBillingItems" 
@@ -209,6 +227,7 @@
 		import views.util.PickBillingPeriodView; 
 
         private var revisionNumber:int = 1;
+		private var invoiceMap:Dictionary;
  		
 		private var billingItems:XMLListCollection = new XMLListCollection();
 
@@ -239,6 +258,9 @@
         
         private var lastSelectedItem:Object = null;
         
+		[Bindable]
+		private var lastSelectedInvoice:Object = null;
+		
 		[Bindable]
         private var lastSelectedBillingPeriod:Object = null;
         
@@ -579,7 +601,6 @@
 				var approvedItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Approved');
 				jumpApproved.visible =  approvedItems.length() ? true : false;
 				
-				
 				getBillingItemList.send();
 			}  else {
 				var message:String = getBillingRequestList.lastResult.ERROR.@message;
@@ -592,11 +613,26 @@
 				this.billingItems = new XMLListCollection(getBillingItemList.lastResult.Request);
 				this.billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);			
 
+				getBillingInvoiceList.send();
+				
+			} else {
+				var message:String = getBillingItemList.lastResult.ERROR.@message;
+				Alert.show(message);
+			}			
+		} 
+		
+		private function onGetBillingInvoiceList(event:ResultEvent):void {
+			if (getBillingInvoiceList.lastResult.name() == "BillingInvoiceList") {
+				invoiceMap = new Dictionary();
+				for each (var inv:Object in getBillingInvoiceList.lastResult.Invoice) {
+					invoiceMap[inv.@idInvoice.toString()] = inv;
+				}
+				
 				reselectRequestTree();
 				this.onRequestNodeSelected();
 				
 			} else {
-				var message:String = getBillingItemList.lastResult.ERROR.@message;
+				var message:String = getBillingInvoiceList.lastResult.ERROR.@message;
 				Alert.show(message);
 			}			
 		} 
@@ -748,11 +784,17 @@
 		
 
  		private function onRequestNodeSelected():void {
+			lastSelectedInvoice = null;
  			if (this.requestTree.selectedItem == null) {
  				return;
  			}
 			billingStatusCombo.enabled = true;
  			lastSelectedItem = this.requestTree.selectedItem;
+			if (lastSelectedItem.hasOwnProperty("@idInvoice")) {
+				lastSelectedInvoice = invoiceMap[lastSelectedItem.@idInvoice.toString()];
+			} else {
+				lastSelectedInvoice = null;
+			}
  			gatherDisplayInfo(this.requestTree.selectedItem);
  		}
  		
@@ -1170,7 +1212,13 @@
  			} 
  			params.billingItemXMLString += "</RemoveList>";
 
- 			
+ 			params.billingItemXMLString += "<InvoiceList>";
+			for each(var invoice:XML in this.invoiceMap) {
+				if (invoice.hasOwnProperty("@isDirty") && invoice.@isDirty == "Y") {
+					params.billingItemXMLString += invoice.toXMLString();
+				}
+			}
+			params.billingItemXMLString += "</InvoiceList>";
  			saveBillingItemList.send(params);
   
  		}
@@ -1858,6 +1906,14 @@
 				return coreFacilityCombo.selectedItem.@value;
 			}
 		}
+		
+		public function invoiceNumberText_changeHandler():void {
+			if (this.lastSelectedInvoice != null) {
+				this.lastSelectedInvoice.@invoiceNumber = this.invoiceNumberText.text;
+				this.lastSelectedInvoice.@isDirty = "Y";
+				dirty.setDirty();
+			}
+		}
  	]]>
  </mx:Script>	
 
@@ -1894,6 +1950,11 @@
   			    	<mx:Label text="Filter"/>
 			    	<mx:Label text="by:"/>
 	            </mx:VBox>
+			    <mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}">
+				    <mx:Label text="Core Facility" />
+				    <mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.coreFacilitiesICanManage}"
+							     labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()"/>
+			    </mx:HBox>
 		    	<mx:VBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 					<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0">
 						<mx:HBox verticalGap="0" paddingTop="0" paddingLeft="0" horizontalGap="0" verticalAlign="middle">
@@ -1929,12 +1990,6 @@
 						</mx:HBox>
 						
 					</mx:VBox>
-					
-					<mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}">
-						<mx:Label text="Core Facility" />
-						<mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.coreFacilitiesICanManage}"
-									 labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()"/>
-					</mx:HBox>
 			   	
 		    	</mx:HBox> 
 				<mx:HBox horizontalGap="0" defaultButton="{lookupButton}">
@@ -2052,7 +2107,7 @@
   									<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}"/>
   									<mx:Spacer width="100%"/>
   								</mx:HBox>
-  								<mx:HBox  horizontalGap="0">
+  								<mx:HBox  horizontalGap="0" >
 	  								<mx:LinkButton label="New sheet" textDecoration="underline" click="showNewPriceSheetView()" textAlign="left" icon="@Embed(source='../../assets/pricesheet_add.png')" paddingLeft="0">
 	  								</mx:LinkButton>
 	  								<mx:LinkButton label="New category" textDecoration="underline" click="showNewPriceCategoryView()" textAlign="left" >
@@ -2068,13 +2123,25 @@
  
 			        	
         	<mx:VBox styleName="panelBox"  width="100%" height="100%">
-				<mx:HBox width="100%">
-					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
-					<mx:Spacer width="100%"/>
-					<mx:Label styleName="titleLabel" text="Batch Mode:"/>
-					<mx:ComboBox id="billingStatusCombo" prompt="- Change Status -" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
-								 labelField="@display" toolTip="Use this to change the status of every displayed billing item" change="billingStatusCombo_changeHandler(event)" enabled="false"/>
-				</mx:HBox>
+				<mx:VBox width="100%">
+					<mx:HBox width="100%">
+						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:HBox id="invoiceBox" visible="{lastSelectedInvoice != null}">
+							<mx:Label styleName="titleLabel" text="Invoice:"/>
+							<mx:Label id="invoiceNumberlabel" styleName="titleLabel" text="Number"/>
+							<mx:TextInput id="invoiceNumberText" change="invoiceNumberText_changeHandler()" width="120" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@invoiceNumber}" enabled="{this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Lab'}" />
+							<mx:Spacer width="10"/>
+							<mx:Label id="lastEmailDateLabel" styleName="titleLabel" text="Email Date"/>
+							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}"/>
+						</mx:HBox>
+						<mx:Spacer width="100%"/>
+						<mx:Label styleName="titleLabel" text="Batch Mode:"/>
+						<mx:ComboBox id="billingStatusCombo" prompt="- Change Status -" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
+									 labelField="@display" toolTip="Use this to change the status of every displayed billing item" change="billingStatusCombo_changeHandler(event)" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
 				
         		<mx:AdvancedDataGrid width="100%" height="100%"  
         			displayItemsExpanded="true"  

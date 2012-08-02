@@ -3,6 +3,7 @@ package hci.gnomex.utility;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Invoice;
 import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
@@ -31,6 +32,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
   private List<BillingItem>       billingItems = new ArrayList<BillingItem>();
   private List<BillingItem>       billingItemsToRemove = new ArrayList<BillingItem>();
   private Map<Integer, HashSet>   requestMap = new HashMap<Integer, HashSet>();
+  private List<Invoice>           invoices = new ArrayList<Invoice>();
   
   
   public BillingItemParser(Document doc) {
@@ -171,9 +173,27 @@ public class BillingItemParser extends DetailObject implements Serializable {
       }
     }
 
-    
-    
-   
+    for(Iterator i = billingItemListNode.getChildren("InvoiceList").iterator(); i.hasNext();) {
+      Element parentNode = (Element)i.next();
+      
+      for(Iterator i1 = parentNode.getChildren("Invoice").iterator(); i1.hasNext();) {
+        Element node = (Element)i1.next();
+        
+        
+        String idInvoice   = node.getAttributeValue("idInvoice");
+        
+        Invoice invoice = null;
+        if (idInvoice == null || idInvoice.equals("")) {
+          continue;
+        } else {
+          invoice = (Invoice)sess.load(Invoice.class, new Integer(idInvoice));
+          if (invoice.getInvoiceNumber() == null || !invoice.getInvoiceNumber().equals(node.getAttributeValue("invoiceNumber"))) {
+            invoice.setInvoiceNumber(node.getAttributeValue("invoiceNumber"));
+            invoices.add(invoice);
+          }
+        }
+      }
+    }
   }
  
   
@@ -192,6 +212,10 @@ public class BillingItemParser extends DetailObject implements Serializable {
   
   public HashSet getIdBillingPeriodsForRequest(Integer idRequest) {
     return (HashSet)requestMap.get(idRequest);
+  }
+  
+  public List<Invoice> getInvoices() {
+    return invoices;
   }
 
 }

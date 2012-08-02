@@ -341,6 +341,31 @@ CREATE TABLE `gnomex`.`BillingChargeKind` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`Invoice`;
+CREATE TABLE `gnomex`.`Invoice` (
+  idInvoice INT(10) NOT NULL AUTO_INCREMENT,
+  idCoreFacility INT(10) NOT NULL,
+  idBillingPeriod INT(10) NOT NULL,
+  idBillingAccount INT(10) NOT NULL,
+  invoiceNumber VARCHAR(50) NULL,
+  lastEmailDate DATETIME NULL,
+  PRIMARY KEY (`idInvoice`),
+  UNIQUE KEY `UN_InvoiceCorePeriodAccount` (idCoreFacility, idBillingPeriod, idBillingAccount),
+  CONSTRAINT `FK_Invoice_CoreFacility` FOREIGN KEY `FK_Invoice_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Invoice_BillingPeriod` FOREIGN KEY `FK_Invoice_BillingPeriod` (`idBillingPeriod`)
+    REFERENCES `gnomex`.`BillingPeriod` (`idBillingPeriod`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Invoice_BillingAccount` FOREIGN KEY `FK_Invoice_BillingAccount` (`idBillingAccount`)
+    REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`BillingItem`;
 CREATE TABLE `gnomex`.`BillingItem` (
   `idBillingItem` INT(10) NOT NULL AUTO_INCREMENT,
@@ -362,6 +387,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `completeDate` DATETIME NULL,
   `splitType` CHAR(1) NULL,
   `idCoreFacility` INT(10) NULL,
+  `idInvoice` INT(10) NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
@@ -397,6 +423,10 @@ CREATE TABLE `gnomex`.`BillingItem` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_BillingItem_CoreFacility` FOREIGN KEY  (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingItem_Invoice` FOREIGN KEY  (`idInvoice`)
+    REFERENCES `gnomex`.`Invoice` (`idInvoice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2714,7 +2744,6 @@ CREATE TABLE `DataTrackToTopic` (
   CONSTRAINT `FK_DataTrackToTopic_Topic` FOREIGN KEY (`idTopic`) REFERENCES `Topic` (`idTopic`),
   CONSTRAINT `FK_TopicDataTrack_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`)
 ) ENGINE=InnoDB;
-
 
 
 SET FOREIGN_KEY_CHECKS = 1;

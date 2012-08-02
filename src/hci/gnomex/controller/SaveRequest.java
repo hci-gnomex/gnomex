@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
@@ -764,6 +765,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               BillingItem bi = (BillingItem)ib.next();
               if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
                 bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());   
+                bi.resetInvoiceForBillingItem(sess);
                 reassignCount++;
               } else  {
                 unassignedCount++;
@@ -1958,7 +1960,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
      
       for(Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem)i.next();
-        sess.save(bi);
+        if (bi.resetInvoiceForBillingItem(sess)) {
+          sess.save(bi);
+        }
       }
     }    
   }
