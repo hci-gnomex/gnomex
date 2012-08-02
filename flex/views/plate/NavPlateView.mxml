@@ -83,15 +83,6 @@
 					useProxy="false">
 	</mx:HTTPService>
 	
-	<mx:HTTPService id="createRunFile"
-					url="CreateRunFile.gx"
-					resultFormat="e4x"
-					result="onCreateRunFile(event)"
-					showBusyCursor="true"
-					fault="parentApplication.onFailHttpRequest('Unable to create run file', event)"
-					method="POST"
-					useProxy="false">
-	</mx:HTTPService>
 	
 	
 	<mx:Script>
@@ -120,6 +111,7 @@
 			import views.util.DirtyNote;
 			import views.util.IconUtility;
 
+			
 			// Reaction type
 			[Bindable]
 			private var reactionState:String;
@@ -174,7 +166,6 @@
 				this.resetDirty();
 				
 				if ( !isInitialized ) {
-					
 					allPlates = new Array( P1R1, P2R1, P3R1, P4R1 );
 					addPlate(); // Add one starting plate
 					colorPick.addEventListener( FlexEvent.VALUE_COMMIT, groupPicked );
@@ -270,7 +261,7 @@
 				
 				if ( getPendingSampleList.lastResult.name() == "SampleList" ) {
 					numSamples.text = getSamplesCount();
-					expandAllNodes();
+					expandPendingSampleNodes();
 				} else {
 					Alert.show( "An error occurred while getting the sample list." );
 				}
@@ -354,19 +345,7 @@
 				}
 			}
 			
-			
-			private function onCreateRunFile( event:ResultEvent ):void {
-				
-				if ( createRunFile.lastResult.name() == "SUCCESS" ) {
-					Alert.show( "The .plt file has been created and the status has been updated to running." );
-					refreshLists();
-					removeRun();
-					callLater( loadRunById, [ run.idRun ]);
-				} else {
-					Alert.show( "An error occurred while creating the run file." );
-				}
-			}
-			
+						
 			// Function to populate the color picker's colors and labels.
 			private function setUpColorPicker():void {
 				
@@ -377,7 +356,7 @@
 				}
 			}
 			
-			// Color the different groups on the plate
+			// Color code by different groups
 			private function colorPlateByGroup():void {
 				
 				var indices:Array = new Array();
@@ -669,10 +648,12 @@
 				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
 					'?idInstrumentRun=' + run.idRun + '&codeReactionType=' + reactionState);
 				navigateToURL( url, '_blank' );
-				statusText.text = "RUNNING";
+				setDirty();
+				loadRunById(run.idRun);
+				Alert.show( "The .plt file has been created and the status has been updated to running." );
 			}
 			
-			
+						
 			// ------------------------------------
 			// Plate display and change handlers
 			// ------------------------------------
@@ -703,30 +684,51 @@
 				toggleFillOrientation();
 				colorPlateByGroup();
 				displayPlateInfo();
+				
+				if ( !isInitialized || getInstrumentRunList.lastResult == null ) {
+					return;
+				}
+				// Find the plate in the run or plate tree
+				collapseRunTree();
+				for each ( var pl:Object in getInstrumentRunList.lastResult..Plate.(@idInstrumentRun == run.idRun) ) {
+					if ( pl.@quadrant == plateStack.selectedIndex ) {
+						runTree.expandItem( XML(pl).parent(), true );
+						runTree.selectedItem = pl;
+						break;
+					}
+				}
+				for each ( var p:Object in getPlateList.lastResult..Plate ) {
+					if ( p.@idPlate == activePlate.idPlate ) {
+						plateTree.selectedItem = p;
+						break;
+					}
+				}
 			}
 			
 			
-			
+			private function collapseRunTree():void {
+				for each ( var group:Object in getInstrumentRunList.lastResult..InstrumentRun ) {
+					runTree.expandItem( group, false );
+				}
+			}
 			
 			// -------------------------------------
 			// Sample tree view functions
 			// -------------------------------------
 			// Expand and collapse nodes on sample tree
-			private function expandAllNodes():void {
+			private function expandPendingSampleNodes():void {
 				
 				sampleTree.expandItem( getPendingSampleList.lastResult, true );
 				
 				for each ( var group:Object in getPendingSampleList.lastResult..Status ) {
 					sampleTree.expandItem( group, true );
 				}
-				
 				for each ( var r:Object in getPendingSampleList.lastResult..Request ) {
 					var hasPlates:Boolean = false;
 					
 					for each ( var p:Object in r..Plate ) {
 						hasPlates = true;
 					}
-					
 					if ( reactionState != SEQ || hasPlates ) {
 						sampleTree.expandItem( r, true );
 					}
@@ -736,20 +738,17 @@
 			}
 			
 			
-			private function collapseNodes():void {
+			private function collapseSampleNodes():void {
 				
 				for each ( var group:Object in getPendingSampleList.lastResult..Status ) {
 					sampleTree.expandItem( group, false );
 				}
-				
 				for each ( var r:Object in getPendingSampleList.lastResult..Request ) {
 					sampleTree.expandItem( r, false );
 				}
-				
 				for each ( var r2:Object in getPendingSampleList.lastResult..Assay ) {
 					sampleTree.expandItem( r2, false );
 				}
-				
 				for each ( var r3:Object in getPendingSampleList.lastResult..Primer ) {
 					sampleTree.expandItem( r3, false );
 				}
@@ -768,7 +767,6 @@
 				if ( getPendingSampleList.lastResult == null ) {
 					return "";
 				}
-				
 				for each ( var s:Object in getPendingSampleList.lastResult..Well ) {
 					count++;
 					
@@ -847,7 +845,6 @@
 						return true;
 					}
 				}
-				
 				return false;
 			}
 			
@@ -863,7 +860,6 @@
 				DragManager.showFeedback( DragManager.LINK );
 			}
 			
-			
 			private function onDragOverPlate( event:DragEvent ):void {
 				event.preventDefault();
 				plateBox.drawFocus( true );
@@ -871,13 +867,11 @@
 				DragManager.showFeedback( DragManager.LINK );
 			}
 			
-			
 			private function onDragExitPlate( event:DragEvent ):void {
 				
 				event.preventDefault();
 				plateBox.drawFocus( false );
 			}
-			
 			
 			// Function to reorder selected samples in the order they appear in the
 			// tree regardless of the order highlighted
@@ -949,7 +943,6 @@
 			// (To reorder items in the sample tree)
 			private var _draggedItem:XML = null;
 			
-			
 			private function onDragEnterTree( event:DragEvent ):void {
 				
 				event.preventDefault();
@@ -960,7 +953,6 @@
 					_draggedItem = items[ 0 ];
 				DragManager.acceptDragDrop( UIComponent( event.currentTarget ));
 			}
-			
 			
 			private function dropOnTree( event:DragEvent ):void {
 				
@@ -974,7 +966,6 @@
 					sampleTree.dataDescriptor.addChildAt( node.parent(), _draggedItem, addToIndex );
 				}
 			}
-			
 			
 			private function onDragOver( event:DragEvent ):void {
 				
@@ -994,14 +985,12 @@
 				DragManager.showFeedback( DragManager.MOVE );
 			}
 			
-			
 			// Reset selected index after drag event
 			private function dragComplete( event:DragEvent ):void {
 				
 				plateBox.drawFocus( false );
 				sampleTree.selectedIndex = -1;
 			}
-			
 			
 			// This function mimics the drag & drop function - This way
 			// folders are treated appropriately without repeat adding of samples.
@@ -1077,9 +1066,7 @@
 							
 							if ( !activePlate.getWell( index ).hasSample && activePlate.getWell( index ).isControl != "Y" ) {
 								
-								activePlate.addSampleToWell( index, item );
 								item.@groupId = item.@idRequest;
-								
 								if ( reactionState == MIT || reactionState == FRAG ) {
 									item.@groupId = item.@label;
 								}
@@ -1231,22 +1218,17 @@
 			
 			// This uses the http service to get the run with the given id
 			public function loadRunById( idString:String ):void {
+				// If the run is already loaded and not changed, return
+				if ( run.idRun == idString && !this.isDirty) {
+					switchActivePlate();
+					return;
+				}
+				removeRun();
 				toggleBuildState( RUN );
 				var params:Object = new Object();
 				params.idInstrumentRun = idString;
 				getInstrumentRun.send( params );
 			}
-			
-			
-			private function loadSelectedRun():void {
-				
-				var idString:String = runTree.selectedItem != null ? runTree.selectedItem.@idInstrumentRun : "";
-				if ( idString == null || "" ) {
-					return;
-				}
-				loadRunById( idString );
-			}
-			
 			
 			private function loadFromRunTree( event:Event ):void {
 				
@@ -1255,24 +1237,22 @@
 				if ( selection == null ) {
 					return;
 				}
-				
 				if ( selection.name() == "InstrumentRun" ) {
+					// If the run is already loaded and not changed, return
 					if ( run.idRun == selection.@idInstrumentRun && !this.isDirty) {
+						switchActivePlate();
 						return;
 					}
-					
-					toggleBuildState( RUN );
-					
+					collapseRunTree();
 					if ( currentState.substr( 0, 3 ) == "new" ) {
 						switchToEditState();
-						loadSelectedRun();
-					} else {
-						removeRun();
-						loadSelectedRun();
+					} 
+					if ( selection.@idInstrumentRun != null ){
+						loadRunById( selection.@idInstrumentRun );
 					}
-					runTree.expandItem( selection, true );
 				}
 				if ( selection.name() == "Plate" ) {
+					collapseRunTree();
 					if ( run.idRun != selection.@idInstrumentRun || this.isDirty) {
 						loadRunById( selection.@idInstrumentRun )
 					}
@@ -1281,13 +1261,8 @@
 							plateLinkBar.selectedIndex = plateStack.selectedIndex = selection.@quadrant;
 							switchActivePlate();
 						}
-					} else {
-						plateLinkBar.selectedIndex = plateStack.selectedIndex = 0;
-						switchActivePlate();
-						runTree.selectedItem = XML(runTree.selectedItem).parent();
 					}
 				}
-				
 			}
 			
 			
@@ -1300,8 +1275,13 @@
 				}
 				if ( buildState == RUN && selectedPlateAdded() ) {
 					return;
+				} else {
+					// If the run is already loaded and not changed, return
+					if ( activePlate.idPlate == selection.@idPlate && !this.isDirty) {
+						switchActivePlate();
+						return;
+					}
 				}
-				
 				if ( selection.name() == "Plate" ) {
 					if ( currentState.substr( 0, 4 ) == 'view' ) {
 						removeRun();
@@ -1397,7 +1377,6 @@
 				for each ( var pw:Object in plateObject..PlateWell ) {
 					var ind:int = pw.@position;
 					
-					activePlate.addSampleToWell( ind, pw..Sample );
 					pw.@groupId = pw.@idRequest;
 					
 					if ( reactionState == MIT || reactionState == FRAG ) {
@@ -1444,12 +1423,10 @@
 					Alert.show( "Run name, seal type, and status are all required", "Form not complete" );
 					return;
 				}
-				
 				if ( !hasPlates ) {
 					Alert.show( "No plates have been added to the run.  Do you still want to save?", "No plates", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 					return;
 				}
-				
 				Alert.show( "Are you sure you want to save run?", "Confirm Save Run", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 			}
 			
@@ -1649,7 +1626,6 @@
 					return;
 				}
 				resetSamples();
-				
 				activePlate.removeAllWells();
 				
 				setUpColorPicker();
@@ -1662,7 +1638,6 @@
 				if ( getPendingSampleList.lastResult == null ) {
 					return;
 				}
-				
 				for each ( var s:Object in getPendingSampleList.lastResult..Well ) {
 					if ( s != null ) {
 						s.@isOnPlate = false;
@@ -1680,7 +1655,6 @@
 					removePlate();
 					return;
 				}
-				
 				if ( buildState == PLATE ) {
 					Alert.show( "Are you sure you want to clear this plate?", 
 						"Confirm Clear Plate", ( Alert.YES | Alert.NO ), this, onPromptToRemovePlate, iconWarning );
@@ -1727,7 +1701,6 @@
 				switchActivePlate();
 				activePlate.nowFillByCol = fillColWise;
 				activePlate.repopulatePlate();
-
 			}
 			
 			
@@ -1735,7 +1708,6 @@
 				if ( idPlate == 0 ) {
 					return;
 				}
-				
 				for each ( var plate:Object in plateTree.dataProvider ) {
 					if ( plate.@idPlate != null && plate.@idPlate == idPlate.toString()) {
 						plate.@idRun = "-1";
@@ -1953,36 +1925,6 @@
 					sampleTree.selectedItem = selection;
 					activePlate.highlightGroup( indices );
 				}
-			}
-			
-			
-			// Clicking the sample in the display field will display that well's information
-			private function sampleItemClick( event:Event ):void {
-				
-				var sample:Object = event.currentTarget.selectedItem;
-				
-				// Select that sample in sample tree
-				for each ( var req:Object in getPendingSampleList.lastResult..Request ) {
-					if ( req.@idRequest == sample.@idRequest ) {
-						sampleTree.expandItem( req, true );
-						
-						for each ( var samp:Object in req..Well ) {
-							if ( samp.@idSample == sample.@idSample ) {
-								sampleTree.selectedItem = samp;
-								
-								if ( sampleTree.selectedIndex > 0 ) {
-									sampleTree.scrollToIndex( sampleTree.selectedIndex );
-								}
-								break;
-							}
-						}
-					}
-				}
-				var index:int = 0;
-				
-				var indices:Array = new Array();
-				indices.push( index );
-				activePlate.highlightGroup( indices );
 			}
 			
 			
@@ -2776,7 +2718,7 @@
 									
 									<mx:LinkButton label="Collapse"
 												   color="#000000"
-												   click="{treeExpansionStack.selectedIndex = 1;this.collapseNodes();}"
+												   click="{treeExpansionStack.selectedIndex = 1;this.collapseSampleNodes();}"
 												   textDecoration="underline" />
 									
 								</mx:HBox>
@@ -2784,7 +2726,7 @@
 									
 									<mx:LinkButton label="Expand"
 												   color="#000000"
-												   click="{treeExpansionStack.selectedIndex = 0;this.expandAllNodes();}"
+												   click="{treeExpansionStack.selectedIndex = 0;this.expandPendingSampleNodes();}"
 												   textDecoration="underline" />
 									
 								</mx:HBox>
@@ -3250,7 +3192,8 @@
 											 variableRowHeight="true">
 									<mx:columns>
 										<mx:DataGridColumn textAlign = "center"
-														   dataField = "@wellPosition" />
+														   dataField = "@wellPosition"
+														   width = "40" />
 										<mx:DataGridColumn textAlign = "center"
 														   dataField = "@sampleName" />
 										<mx:DataGridColumn textAlign = "center"
@@ -3467,7 +3410,8 @@
 										 editable="false">
 								<mx:columns>
 									<mx:DataGridColumn textAlign = "center"
-													   dataField = "@wellPosition" />
+													   dataField = "@wellPosition" 
+													   width = "40" />
 									<mx:DataGridColumn textAlign = "center"
 													   dataField = "@sampleName" />
 									<mx:DataGridColumn textAlign = "center"
@@ -3519,7 +3463,8 @@
 										 editable="false">
 								<mx:columns>
 									<mx:DataGridColumn textAlign = "center"
-													   dataField = "@wellPosition" />
+													   dataField = "@wellPosition"
+													   width = "40" />
 									<mx:DataGridColumn textAlign = "center"
 													   dataField = "@sampleName" />
 									<mx:DataGridColumn textAlign = "center"

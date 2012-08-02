@@ -80,8 +80,6 @@ public class GetPlate extends GNomExCommand implements Serializable {
           pNode.setAttribute( "creator", creator);
         }
         
-        
-
         Element pwNode = new Element("plateWells");
 
         List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
