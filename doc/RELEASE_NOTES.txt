@@ -18,6 +18,7 @@
 * Underline links on topic tabs for Exp, Analysis, Data Tracks and enable single click hyperlink. (rcundick)
 * First plate is displayed when loading a run. (mbowler)
 * Fixes for several intermittent problems with loading runs with removed plates. (mbowler)
+* Fixed Finch TV icon renderering problems. (mbowler)
 * Add Invoice entity and allow updating of the invoice number in billing. (bspiglejr)
 
 deploy notes 
