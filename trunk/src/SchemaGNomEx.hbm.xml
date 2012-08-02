@@ -199,6 +199,18 @@
 		<property name="shortAcct" column="shortAcct" type="string"/>
     <property name="startDate" column="startDate" type="date"/>
 	</class>
+  
+  <!-- hci.gnomex.model.Invoice -->
+  <class name="hci.gnomex.model.Invoice" table="Invoice">
+    <id name="idInvoice" column="idInvoice" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    <property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
+    <property name="idBillingAccount" column="idBillingAccount" type="integer"/>
+    <property name="invoiceNumber" column="invoiceNumber" type="string"/>
+    <property name="lastEmailDate" column="lastEmailDate" type="date"/>
+  </class>  
 	
 	<!-- hci.gnomex.model.BillingItem -->
 	<class name="hci.gnomex.model.BillingItem" table="BillingItem">
@@ -228,6 +240,8 @@
     <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="notes" column="notes" type="string"/>
 	  <property name="splitType" column="splitType" type="string"/>
+    <property name="idInvoice" column="idInvoice" type="integer"/>
+    <many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
   </class>	
   
   <!-- hci.gnomex.model.Chromatogram -->

@@ -8,6 +8,9 @@ import java.text.NumberFormat;
 
 import javax.swing.text.NumberFormatter;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+
 import java.sql.Date;
 
 public class BillingItem extends HibernateDetailObject {
@@ -37,6 +40,8 @@ public class BillingItem extends HibernateDetailObject {
   private Date           completeDate;
   private String         splitType;
   private Integer        idCoreFacility;
+  private Integer        idInvoice;
+  private Invoice        invoice;
   
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -199,6 +204,7 @@ public class BillingItem extends HibernateDetailObject {
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getBillingPeriod");
     this.excludeMethodFromXML("getPriceCategory");
+    this.excludeMethodFromXML("getInvoice");
   }
 
   
@@ -316,5 +322,53 @@ public class BillingItem extends HibernateDetailObject {
   public void setIdCoreFacility(Integer idCoreFacility)
   {
     this.idCoreFacility = idCoreFacility;
+  }
+  
+  public Integer getIdInvoice() {
+    return idInvoice;
+  }
+  public void setIdInvoice(Integer id) {
+    idInvoice = id;
+  }
+  
+  public Invoice getInvoice() {
+    return invoice;
+  }
+  public void setInvoice(Invoice invoice) {
+    this.invoice = invoice;
+  }
+  
+  public Invoice getInvoiceForBillingItem(Session sess) {
+    Invoice inv = new Invoice();
+    String queryString = "from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
+    Query query = sess.createQuery(queryString);
+    query.setInteger("idCoreFacility", this.getIdCoreFacility());
+    query.setInteger("idBillingPeriod", this.getIdBillingPeriod());
+    query.setInteger("idBillingAccount", this.getIdBillingAccount());
+    Invoice existingInv = (Invoice)query.uniqueResult();
+    if (existingInv != null) {
+      inv = existingInv;
+    } else {
+      inv.setIdCoreFacility(this.getIdCoreFacility());
+      inv.setIdBillingPeriod(this.getIdBillingPeriod());
+      inv.setIdBillingAccount(this.getIdBillingAccount());
+    }
+    return inv;
+  }
+  
+  public Boolean resetInvoiceForBillingItem(Session sess) {
+    Invoice invFromIds = getInvoiceForBillingItem(sess);
+    if (getIdInvoice() == null || invFromIds.getIdInvoice() == null || !invFromIds.getIdInvoice().equals(getIdInvoice())) {
+      if (invFromIds.getIdInvoice() == null) {
+        // new invoice
+        sess.save(invFromIds);
+        invFromIds.setInvoiceNumber(invFromIds.getIdInvoice().toString() + "I");
+      }
+      this.setIdInvoice(invFromIds.getIdInvoice());
+      this.setInvoice(invFromIds);
+      return true;
+    } else {
+      return false;
+    }
   }
 }

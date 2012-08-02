@@ -101,7 +101,8 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.completedDate, ");
     queryBuf.append("        ba, ");
     queryBuf.append("        lab.isExternalPricing, ");
-    queryBuf.append("        lab.isExternalPricingCommercial ");
+    queryBuf.append("        lab.isExternalPricingCommercial, ");
+    queryBuf.append("        bi.idInvoice ");
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
@@ -159,6 +160,30 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" order by req.number, bi.idLab, bi.idBillingAccount, bi.idBillingItem");
 
     return queryBuf;
+  }
+  
+  public StringBuffer getBillingInvoiceQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        Invoice ");
+    queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.billingItems as bi ");
+    queryBuf.append(" JOIN        req.appUser as appUser ");
+    queryBuf.append(" JOIN        bi.billingAccount as ba ");
+    queryBuf.append(" JOIN        bi.lab as lab ");
+    queryBuf.append(" JOIN        bi.invoice as Invoice ");
+    
+    addRequestCriteria();
+    addBillingItemCriteria();
+    
+    this.addSecurityCriteria();
+    
+    queryBuf.append(" order by Invoice.idInvoice ");
+    
+    return queryBuf;
+    
   }
   
   private StringBuffer getBaseBillingItemQuery() {

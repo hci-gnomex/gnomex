@@ -120,6 +120,7 @@ public class ReassignBillingAccount extends GNomExCommand implements Serializabl
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
                 bi.setIdLab(idLab);
                 bi.setIdBillingAccount(idBillingAccount);
+                bi.resetInvoiceForBillingItem(sess);
               }
               
             }

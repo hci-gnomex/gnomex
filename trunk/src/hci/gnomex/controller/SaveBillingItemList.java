@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
@@ -150,8 +151,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           ArrayList billingItems = new ArrayList();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
+            billingItem.resetInvoiceForBillingItem(sess);
             sess.save(billingItem);
-            
             billingItems.add(billingItem);
 
           }
@@ -194,6 +195,10 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           }
           sess.flush();
 
+          for(Invoice invoice : parser.getInvoices()) {
+            sess.save(invoice);
+          }
+          sess.flush();
           
           for(Iterator<LabAccountBillingPeriod> i = labAccountBillingPeriodMap.keySet().iterator(); i.hasNext();) {
             LabAccountBillingPeriod labp = (LabAccountBillingPeriod) i.next();
