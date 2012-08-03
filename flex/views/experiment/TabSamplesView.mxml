@@ -582,7 +582,11 @@
 					numberOfSamples = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
 					numberOfSamplesWithoutControl = numberOfSamples;
 				} else {
-					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					if (parentDocument.isAmendState()) {
+						numberOfSamples = new Number(parentDocument.samples.length);
+					} else {
+						numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					}
 					numberOfSamplesWithoutControl = numberOfSamples;
 					if (hasPlates()) {
 						// Controls not included in number of samples so we have to adjust.
