@@ -20,6 +20,8 @@
 * Fixes for several intermittent problems with loading runs with removed plates. (mbowler)
 * Fixed Finch TV icon renderering problems. (mbowler)
 * Add Invoice entity and allow updating of the invoice number in billing. (bspiglejr)
+* Fixed description tab enable bug. (rundick)
+* Fixed Topic url construction bug. (rcundick)
 
 deploy notes 
 --------------------
