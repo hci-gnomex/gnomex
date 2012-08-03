@@ -690,6 +690,7 @@
 				} else {
 					if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
 						if (parentDocument.theTab.contains(parentDocument.seqSetupView)) {
+							parentDocument.seqSetupView.enabled = true;
 							parentDocument.seqSetupView.checkSeqAppSetupCompleteness();
 						}
 					}
