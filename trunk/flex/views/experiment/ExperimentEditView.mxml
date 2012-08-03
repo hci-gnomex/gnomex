@@ -2902,10 +2902,12 @@
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
-			request.@idAppUser = this.getIdAppUserSubmitter();
-			request.@idSubmitter = request.@idAppUser;
+			request.@idSubmitter = this.getIdAppUserSubmitter();
 			
 			if (!this.isAmendState()) {
+				// Only set the owner if this is not an amended request.
+				request.@idAppUser = request.@idSubmitter;
+
 				// If we are submitting a new request, grab the lab, billing, project
 				// from the setup tab
 				request.@idLab = setupView.labCombo.selectedItem.@idLab;
