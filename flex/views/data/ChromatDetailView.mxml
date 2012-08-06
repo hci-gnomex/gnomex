@@ -93,6 +93,10 @@
 			private var seqLabel:Label;
 			
 			public function init():void {
+				// Don't reload if you already are viewing that chromat
+				if ( selectedIdChromatogram == selectedChromat.@idChromatogram ) {
+					return;
+				}
 				if (selectedChromat != null){
 					selectedIdChromatogram = selectedChromat.@idChromatogram;
 					this.getChromatogram.send();
