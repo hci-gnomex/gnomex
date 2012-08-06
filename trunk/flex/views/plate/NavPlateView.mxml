@@ -175,6 +175,9 @@
 				} else {
 					refreshLists();
 				}
+				if ( currentState.substr(0,3) == "new" && reactionState == SEQ ){ 
+					activePlate.getWell(95).setControl(true);
+				}
 				isInitialized = true;
 			}
 			
