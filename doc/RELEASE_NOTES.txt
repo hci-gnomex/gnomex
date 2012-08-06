@@ -1,6 +1,7 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+
 5.4.7
 ---------------------
 * Require admins with abilities to manage > 1 core facility choose the core facility in the Billing view. (bspiglejr)
@@ -47,6 +48,16 @@ update BillingItem set idInvoice = Invoice.idInvoice
     and Invoice.idBillingAccount = BillingItem.idBillingAccount
   where BillingItem.idInvoice is null
 rollback transaction
+
+
+
+5.4.6.1 (Aug 5, 2012)
+--------------------
+* Fixed bug so that topics launch link uses correct base url (rcundick)
+* Fixed bug so that owner doesn't change when Add Services (rcundick)
+* Fixed bug so that description tab is enabled when submitting a request (rcundick)
+* Fixed bug so that visibility tab is enabled when editing a request (rcundick)
+* Fixed bug so that samples are not removed when Adding Services, converting a sample quality request to a HiSeq request (tdisera)
 
 
 5.4.6 (July 30, 2012)
