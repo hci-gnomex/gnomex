@@ -153,7 +153,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();    
+        this.getSecAdvisor().closeHibernateSession();    
       } catch(Exception e) {
         
       }
