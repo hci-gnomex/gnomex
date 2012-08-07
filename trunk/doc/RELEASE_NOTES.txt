@@ -24,6 +24,7 @@
 * Fixed description tab enable bug. (rcundick)
 * Fixed Topic url construction bug. (rcundick)
 * Fixed bug where owner changed when services added to request. (rcundick)
+* Fix bug where GetBillingItemList aborted when a request has billing items in other billing periods (bspiglejr) 
 
 deploy notes 
 --------------------
