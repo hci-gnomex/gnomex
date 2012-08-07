@@ -55,4 +55,18 @@ public class Invoice extends HibernateDetailObject {
   public void setLastEmailDate(Date date) {
     lastEmailDate = date;
   }
+  
+  public static String getBaseInvoiceNumber(String invoiceNumber) {
+    // Get rid of extraneous #
+    invoiceNumber = invoiceNumber.replaceAll("#", "");
+    
+    // Strip off revision number after "R"
+    invoiceNumber = invoiceNumber.toUpperCase();
+    String[] tokens = invoiceNumber.split("I");
+    if (tokens.length > 1) {
+      return tokens[0] + "I";
+    } else {
+      return invoiceNumber;
+    }
+  }
 }

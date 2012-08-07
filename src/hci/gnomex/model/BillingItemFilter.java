@@ -16,6 +16,7 @@ public class BillingItemFilter extends DetailObject {
   private Integer               idLab;
   private Integer               idBillingAccount;
   private String                requestNumber;
+  private String                invoiceLookupNumber;
   private Integer               idCoreFacility;
   
   
@@ -33,7 +34,8 @@ public class BillingItemFilter extends DetailObject {
         idCoreFacility == null &&
         idLab == null &&
         idBillingAccount == null &&
-        (requestNumber == null || requestNumber.equals(""))) {
+        (requestNumber == null || requestNumber.equals("")) &&
+        (invoiceLookupNumber == null || invoiceLookupNumber.equals(""))) {
       return false;
     } else {
       return true;
@@ -63,6 +65,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" JOIN       req.billingAccount as ba ");
     queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
     queryBuf.append(" LEFT JOIN  req.billingItems as bi ");
+    queryBuf.append(" LEFT JOIN  bi.invoice as inv ");
     queryBuf.append(" WHERE      bi.idBillingItem is NULL ");
     
     if (billingPeriod != null) {
@@ -106,6 +109,7 @@ public class BillingItemFilter extends DetailObject {
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
+    queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
     queryBuf.append(" JOIN        req.appUser as appUser ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     queryBuf.append(" JOIN        bi.lab as lab ");
@@ -167,20 +171,20 @@ public class BillingItemFilter extends DetailObject {
     queryBuf = new StringBuffer();
     
     queryBuf.append(" SELECT DISTINCT ");
-    queryBuf.append("        Invoice ");
+    queryBuf.append("        inv ");
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
     queryBuf.append(" JOIN        req.appUser as appUser ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     queryBuf.append(" JOIN        bi.lab as lab ");
-    queryBuf.append(" JOIN        bi.invoice as Invoice ");
+    queryBuf.append(" JOIN        bi.invoice as inv ");
     
     addRequestCriteria();
     addBillingItemCriteria();
     
     this.addSecurityCriteria();
     
-    queryBuf.append(" order by Invoice.idInvoice ");
+    queryBuf.append(" order by inv.idInvoice ");
     
     return queryBuf;
     
@@ -207,6 +211,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" LEFT JOIN   req.appUser as appUser ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
+    queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     queryBuf.append(" JOIN        bi.lab as lab ");
     
@@ -252,11 +257,16 @@ public class BillingItemFilter extends DetailObject {
       this.addWhereOrAnd();
       
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-      //queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "') ");
       queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "' OR req.number like '" + requestNumberBase + "R[0-9]' OR req.number = '" + requestNumberBase + "R') ");
     }     
     
-    
+    // Search by invoice number 
+    if (invoiceLookupNumber != null && 
+        !invoiceLookupNumber.equals("")){
+      this.addWhereOrAnd();
+      String invoiceLookupNumberBase = Invoice.getBaseInvoiceNumber(invoiceLookupNumber);
+      queryBuf.append(" (inv.invoiceNumber like '" + invoiceLookupNumber + "[0-9]' OR inv.invoiceNumber = '" + invoiceLookupNumber + "' OR inv.invoiceNumber like '" + invoiceLookupNumber + "I[0-9]' OR inv.invoiceNumber = '" + invoiceLookupNumber + "I') ");
+    }     
   }
   private void addBillingItemCriteria() {
 
@@ -316,6 +326,16 @@ public class BillingItemFilter extends DetailObject {
   
   public void setRequestNumber(String requestNumber) {
     this.requestNumber = requestNumber;
+  }
+
+  
+  public String getInvoiceLookupNumber() {
+    return invoiceLookupNumber;
+  }
+
+  
+  public void setInvoiceLookupNumber(String invoiceLookupNumber) {
+    this.invoiceLookupNumber = invoiceLookupNumber;
   }
 
   
