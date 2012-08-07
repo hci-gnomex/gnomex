@@ -10,6 +10,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -91,7 +93,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     try {
       
    
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
       
      
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -392,6 +394,18 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         
         note = "Billing invoice emailed to " + contactEmail + ".";
         
+        // Set last email date
+        String queryString="from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
+        Query query = sess.createQuery(queryString);
+        query.setParameter("idCoreFacility", idCoreFacility);
+        query.setParameter("idBillingPeriod", idBillingPeriod);
+        query.setParameter("idBillingAccount", idBillingAccount);
+        Invoice invoice = (Invoice)query.uniqueResult();
+        if (invoice != null) {
+          invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
+          sess.save(invoice);
+          sess.flush();
+        }
       } catch( Exception e) {
         log.error("Unable to send invoice email to " + contactEmail, e);
         note = "Unable to email invoice to " + contactEmail + " due to the following error: " + e.toString();        
