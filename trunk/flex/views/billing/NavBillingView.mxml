@@ -133,8 +133,9 @@
        <mx:request>
          <showOtherBillingItems>{spanOtherCheckbox.selected ? 'Y' : 'N'}</showOtherBillingItems>
          <requestNumber>{requestNumberText.text}</requestNumber>
+		 <invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
          <idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
-         <idLab>{requestNumberText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
+         <idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
          <idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
        </mx:request>
     </mx:HTTPService >          
@@ -149,11 +150,11 @@
 		method="POST"
 		useProxy="false">
 		<mx:request>
-			<idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>       	
 			<requestNumber>{requestNumberText.text}</requestNumber>
+			<invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
 			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
-			<idLab>{requestNumberText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
-			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
+			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null &amp;&amp; requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
 		</mx:request>
 	</mx:HTTPService >  
     
@@ -488,17 +489,23 @@
 				getPricingList.send();
 				
 			} else {
-				billingItemsDisplayed = new XMLListCollection();
-				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
-
-				if (requestNumberText.text != "") {
-					this.refreshBillingItemsByRequestNumber();
-				} else {
-					this.refreshBillingItems();
-				}
+				refreshBillingItemsImpl();
 			}
 			
 			
+		}
+		
+		private function refreshBillingItemsImpl():void {
+			billingItemsDisplayed = new XMLListCollection();
+			this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+			
+			if (invoiceNumberLookupText.text != "") {
+				this.refreshBillingItemsByInvoiceNumber();
+			} else if (requestNumberText.text != "") {
+				this.refreshBillingItemsByRequestNumber();
+			} else {
+				this.refreshBillingItems();
+			}
 		}
 		
 		private function refreshBillingItems():void {
@@ -522,6 +529,19 @@
 
 			var params:Object = new Object();
 			params.requestNumber = requestNumberText.text;
+			getBillingRequestList.send(params);
+		}
+		
+		private function refreshBillingItemsByInvoiceNumber():void {
+			//billingPeriodCombo.selectedItem = null;
+			lastSelectedBillingPeriod = null;
+			labCombo.selectedItem = null;
+			billingAccountCombo.selectedItem = null;
+			
+			this.dirty.resetDirty();
+			
+			var params:Object = new Object();
+			params.invoiceLookupNumber = invoiceNumberLookupText.text;
 			getBillingRequestList.send(params);
 		}
 		
@@ -1236,16 +1256,7 @@
         				setLastSelectedItemToNextNeighbor();
         			}
         		}
-        		billingItemsDisplayed = new XMLListCollection();
-        		billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
-        		
-        		if (requestNumberText.text == "") {
-	        		this.refreshBillingItems();    			    			
-        		} else {
-        			this.refreshBillingItemsByRequestNumber();
-        		}
-        		
-        		
+				refreshBillingItemsImpl();
         	} else {
         		Alert.show(saveBillingItemList.lastResult..ACTMESSAGE.@TEXT);
         	}        	
@@ -1850,6 +1861,7 @@
 				}
 			}
 			requestNumberText.text = "";
+			invoiceNumberLookupText.text = "";
 			refresh();					
 		}	
 		
@@ -1953,7 +1965,7 @@
 			    <mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}">
 				    <mx:Label text="Core Facility" />
 				    <mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.coreFacilitiesICanManage}"
-							     labelField="@display" change="requestNumberText.text = &quot;&quot;;refresh()"/>
+							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()"/>
 			    </mx:HBox>
 		    	<mx:VBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 					<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0">
@@ -1964,7 +1976,7 @@
 						<mx:ComboBox id="labCombo" 
 									 labelField="@name"
 									 dataProvider="{parentApplication.promptedLabList}"
-									 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
+									 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()">
 						</mx:ComboBox>				   
 					</mx:HBox>
 				      <mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="0" paddingRight="0">
@@ -1977,7 +1989,7 @@
 					<mx:VBox verticalGap="0">
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
-							 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;refresh()">
+							 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()">
 						</mx:ComboBox>
 						<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0">
 							<mx:RadioButton label="Acct name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
@@ -1992,34 +2004,24 @@
 					</mx:VBox>
 			   	
 		    	</mx:HBox> 
-				<mx:HBox horizontalGap="0" defaultButton="{lookupButton}">
-					<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" />
-					<mx:TextInput id="requestNumberText" width="55">
-					</mx:TextInput>			   	
-					<mx:Button id="lookupButton"  
-						height="18"
-						click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
-					
-					<!--util:MonthChooser
-						id="mChosenMonth" 
-						yearNavigationEnabled="true"
-						selectedDate="{chosenMonth}"
-						styleName="monthChooserStyles" headerStyleName="monthHeaderStyle" change="processMonthChooser();"
-						/-->
-					<!--mx:Button id="execBillingPeriodButton"  
-							   height="18"
-							   click="executeBillingPeriod()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/-->						
-					
-					<!--mx:ComboBox id="billingPeriodCombo" 
-								 labelField="@display"
-								 visible="true"  
-								 change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()" width="170">
-					</mx:ComboBox-->
-					<!--mx:ComboBox id="billingPeriodCombo" 
-								 labelField="@display"
-								 visible="false" width="170">
-					</mx:ComboBox-->					
-				</mx:HBox>
+			    <mx:VBox>
+					<mx:HBox horizontalGap="0" defaultButton="{lookupButton}">
+						<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" />
+						<mx:TextInput id="requestNumberText" width="55">
+						</mx:TextInput>			   	
+						<mx:Button id="lookupButton"  
+							height="18"
+							click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
+					</mx:HBox>
+				  	<mx:HBox horizontalGap="0" defaultButton="{invLookupButton}">
+						<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0" />
+						<mx:TextInput id="invoiceNumberLookupText" width="55">
+						</mx:TextInput>			   	
+						<mx:Button id="invLookupButton"  
+						    height="18"
+							click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
+			  		</mx:HBox>
+				</mx:VBox>
 
 		   </mx:HBox> 	
 	    </mx:VBox>

@@ -26,6 +26,7 @@
 * Fixed bug where owner changed when services added to request. (rcundick)
 * Fix bug where GetBillingItemList aborted when a request has billing items in other billing periods (bspiglejr) 
 * Set last email date on invoice when invoice is emailed.  (bspiglejr)
+* Allow search by invoice number on billing screen.  (bspiglejr)
 
 deploy notes 
 --------------------
