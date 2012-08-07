@@ -232,7 +232,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         labNode.setAttribute("name", labName);
         labNode.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
         labNode.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
-        labNode.setAttribute("idInvoice", idInvoice.toString());
+        if (idInvoice != null) {
+          labNode.setAttribute("idInvoice", idInvoice.toString());
+        }
         labNodeMap.put(labBillingName, labNode);
       }
       
@@ -263,7 +265,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
       node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
       node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
-      node.setAttribute("idInvoice", idInvoice.toString());
+      if (idInvoice != null) {
+        node.setAttribute("idInvoice", idInvoice.toString());
+      }
       
       // There can be multiple requests nodes for a given request number when
       // the request's billing items are split among multiple billing 
