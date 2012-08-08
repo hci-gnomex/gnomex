@@ -111,6 +111,12 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           Lab lab = (Lab)sess.get(Lab.class, idLab);
           BillingAccount billingAccount = (BillingAccount)sess.get(BillingAccount.class, idBillingAccount);
           CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
+          String queryString = "from Invoice where idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount and idCoreFacility=:idCoreFacility";
+          Query query = sess.createQuery(queryString);
+          query.setParameter("idBillingPeriod", billingPeriod.getIdBillingPeriod());
+          query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
+          query.setParameter("idCoreFacility", coreFacility.getIdCoreFacility());
+          Invoice invoice = (Invoice)query.uniqueResult();
           
           TreeMap requestMap = new TreeMap();
           TreeMap billingItemMap = new TreeMap();
@@ -119,7 +125,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           
           
           if (action.equals(ACTION_SHOW)) {
-            this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+            this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
           } else if (action.equals(ACTION_EMAIL)) {
             String contactEmail = this.emailAddress;
             if (contactEmail == null) {
@@ -272,7 +278,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   }
   
   private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
-      Lab lab, BillingAccount billingAccount, 
+      Lab lab, BillingAccount billingAccount, Invoice invoice,
       Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -281,7 +287,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         billingPeriod, 
-        lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+        lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
 
     Element root = new Element("HTML");
     Document doc = new Document(root);
@@ -371,8 +377,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
+    String queryString="from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("idCoreFacility", idCoreFacility);
+    query.setParameter("idBillingPeriod", idBillingPeriod);
+    query.setParameter("idBillingAccount", idBillingAccount);
+    Invoice invoice = (Invoice)query.uniqueResult();
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility,
-        billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+        billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
     
     String note = "";
@@ -404,12 +416,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         note = "Billing invoice emailed to " + contactEmail + ".";
         
         // Set last email date
-        String queryString="from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
-        Query query = sess.createQuery(queryString);
-        query.setParameter("idCoreFacility", idCoreFacility);
-        query.setParameter("idBillingPeriod", idBillingPeriod);
-        query.setParameter("idBillingAccount", idBillingAccount);
-        Invoice invoice = (Invoice)query.uniqueResult();
         if (invoice != null) {
           invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
           sess.save(invoice);
