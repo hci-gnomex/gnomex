@@ -31,6 +31,7 @@
 * Show invoice number on invoice.  (bspiglejr)
 * Show invoice number on month end report.  (bspiglejr)
 * Filter billing reports by core facility for super admins.  (bspiglejr)
+* Fix billing admin security for both core facilities.  (bspiglejr)
 
 deploy notes 
 --------------------

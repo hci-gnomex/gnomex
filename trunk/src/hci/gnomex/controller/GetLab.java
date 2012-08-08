@@ -70,12 +70,12 @@ public class GetLab extends GNomExCommand implements Serializable {
     
     // We want the billing accounts to show up if the user is authorized to submit
     // requests for this lab
-    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
+    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
       Hibernate.initialize(theLab.getBillingAccounts());
     }
     
     // We want the list of institutions to show up for the lab
-    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
+    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
       Hibernate.initialize(theLab.getInstitutions());
     }
     
@@ -160,7 +160,7 @@ public class GetLab extends GNomExCommand implements Serializable {
       
       Document doc = new Document(new Element("OpenLabList"));
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-      if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
+      if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         this.appendPossibleCollaborators(labNode, theLab);
       }
       this.appendSubmitters(labNode, theLab);

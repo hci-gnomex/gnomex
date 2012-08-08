@@ -18,6 +18,26 @@
 			<mx:SetStyle target="{hbox8}" name="horizontalGap" value="10"/>
 			<mx:RemoveChild target="{label2a}"/>
 		</mx:State>
+		<mx:State name="BillingAdminState" basedOn="AdminState">
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{button3}"/>
+			<mx:RemoveChild target="{dictionaryButton}"/>
+			<mx:RemoveChild target="{alignmentProfileButton}"/>
+			<mx:RemoveChild target="{sampleCharacteristicButton}"/>
+			<mx:RemoveChild target="{platformConfigButton}"/>
+			<mx:RemoveChild target="{organismButton}"/>
+			<mx:RemoveChild target="{button0}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (billing admin privileges)'}"/>
+			<mx:RemoveChild target="{hbox7}"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:RemoveChild target="{button18}"/>
+			<mx:RemoveChild target="{button19}"/>
+		</mx:State>
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{hbox8}" position="lastChild">
 				<mx:VBox height="100%" verticalGap="1" id="vbox13">
@@ -188,6 +208,19 @@
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild" target="{submitExternalExperimentButton}"/>
 		</mx:State>
+		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (billing admin privileges)'}"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{button11}"/>
+			<mx:RemoveChild target="{runButton}"/>
+			<mx:RemoveChild target="{dictionaryButton}"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{button15}"/>
+			<mx:RemoveChild target="{button16}"/>
+			<mx:RemoveChild target="{button17}"/>
+		</mx:State>
 	</mx:states>
 	<mx:Script>
 		<![CDATA[
@@ -220,6 +253,14 @@
 						currentState = "AdminDNASeqState"
 					} else {
 						currentState = "AdminState";
+					}
+				} else if (parentApplication.isBillingAdminState) {
+					if (parentApplication.isExternalDataSharingSite) {
+						currentState = "AdminESState";
+					} else if (parentApplication.isCoreDNASeq) {
+						currentState = "BillingAdminDNASeqState"
+					} else {
+						currentState = "BillingAdminState";
 					}
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
 					currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState";						

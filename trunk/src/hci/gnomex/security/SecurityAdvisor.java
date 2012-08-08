@@ -130,11 +130,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.loginDateTime = new SimpleDateFormat("MMM-dd HH:mm").format(System.currentTimeMillis());
     setGlobalPermissions();
   }
-  
+  /*
   public boolean isAdmin() {
     return this.hasPermission(CAN_ACCESS_ANY_OBJECT);
   }
-  
+  */
   public boolean isGuest() {
     return isGuest;
   }
@@ -1410,13 +1410,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     // Can administer users
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_ADMINISTER_USERS), null);
     }
 
     // Can access any requests
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_ACCESS_ANY_OBJECT), null);
     }
 
@@ -1674,7 +1676,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean isGroupIAmMemberOf(Integer idLab) {
     boolean isMyLab = false;
     
-    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+    if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
       isMyLab = true;
     } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       
@@ -1726,7 +1728,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean isGroupIManage(Integer idLab) {
     boolean isMyLab = false;
     
-    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+    if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
       isMyLab = true;
     } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         for(Iterator i = this.getAppUser().getManagingLabs().iterator(); i.hasNext();) {
@@ -1743,7 +1745,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public boolean isOwner(Integer idAppUserOfObject) {
-    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+    if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
       return true;
     } else if (isGuest) {
       return false;
