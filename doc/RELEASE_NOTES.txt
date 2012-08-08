@@ -52,6 +52,10 @@ update BillingItem set idInvoice = Invoice.idInvoice
   where BillingItem.idInvoice is null
 rollback transaction
 
+5.4.6.2 (Aug 7, 2012)
+---------------------
+* Fixed bug in GetBillingItemList that was causing class cast exception (bspigle)
+* Fixed bug in RequestParser that was causing sample annotations to not be saved (tdisera)
 
 
 5.4.6.1 (Aug 5, 2012)
