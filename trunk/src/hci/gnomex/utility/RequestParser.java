@@ -287,7 +287,7 @@ public class RequestParser implements Serializable {
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 
     
-    if (n.getChild("PropertiesEntries") != null) {
+    if (n.getChild("PropertyEntries") != null) {
       for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
         Element scNode = (Element)i1.next();
         if (scNode.getAttributeValue("isSelected").equals("true")) {
