@@ -194,6 +194,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String labIsExternalPricing = (String)row[11];
       String labIsExternalPricingCommercial = (String)row[12];
       Integer idInvoice           = (Integer)row[13];
+      String contactEmail         = (String)row[14];
       
       String labName = Lab.formatLabName(labLastName, labFirstName);
   
@@ -232,6 +233,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         labNode.setAttribute("name", labName);
         labNode.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
         labNode.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
+        labNode.setAttribute("contactEmail", contactEmail != null ? contactEmail : "");
         if (idInvoice != null) {
           labNode.setAttribute("idInvoice", idInvoice.toString());
         }

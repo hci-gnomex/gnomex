@@ -1262,7 +1262,7 @@
         	}        	
         }
         
-		public function showBillingInvoice():void {
+		public function showBillingInvoice(email:Boolean):void {
 			/*
 			if (billingPeriodCombo.selectedItem == null ||
 				billingPeriodCombo.selectedItem.@value == "") {
@@ -1275,9 +1275,11 @@
 				Alert.show("Please select a billing period.");
 				return;    	
 			}
-			if (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == "") {
-				
+			if (dirty.isDirty()) {
+				Alert.show("Please save or discard unsaved changes");
+				return;
 			}
+
 			if (this.requestTree.selectedItem != null) {
 				var labNode:Object = null;
 				if (this.requestTree.selectedItem.name() == "Request") {
@@ -1291,14 +1293,17 @@
 					labNode = this.requestTree.selectedItem; 
 				}
 				if (labNode != null) {
-					var url:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
-						//'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
-						'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
-						'&idLab=' + labNode.@idLab +
-						'&idBillingAccount=' + labNode.@idBillingAccount +
-						'&idCoreFacility=' + this.getSelectedCoreFacilityId());
-					navigateToURL(url, '_blank');			
-					
+					if (email) {
+						showBillingInvoiceEmailWindow(labNode);
+					} else {
+						var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
+							//'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
+							'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
+							'&idLab=' + labNode.@idLab +
+							'&idBillingAccount=' + labNode.@idBillingAccount +
+							'&idCoreFacility=' + this.getSelectedCoreFacilityId());
+						navigateToURL(showUrl, '_blank');
+					}
 				} else {
 					Alert.show("Please select a lab folder");
 				}
@@ -1926,6 +1931,23 @@
 				dirty.setDirty();
 			}
 		}
+		
+		private function showBillingInvoiceEmailWindow(labNode:Object):void {
+			var emailWindow:BillingInvoiceEmailWindow = BillingInvoiceEmailWindow(mx.managers.PopUpManager.createPopUp(this, BillingInvoiceEmailWindow, true));
+			mx.managers.PopUpManager.centerPopUp(emailWindow);
+			emailWindow.idBillingPeriod = lastSelectedBillingPeriod.@value;
+			emailWindow.labNode = labNode;
+			emailWindow.idCoreFacility = this.getSelectedCoreFacilityId();
+			emailWindow.currentState = "getEmailState";
+			emailWindow.emailText.text = labNode.@contactEmail;
+			emailWindow.setFocus();
+			emailWindow.emailText.setFocus();
+			emailWindow.addEventListener(CloseEvent.CLOSE, refreshAfterEmailSent);
+		}
+		
+		private function refreshAfterEmailSent(e:CloseEvent):void {
+			refresh();
+		}
  	]]>
  </mx:Script>	
 
@@ -1941,7 +1963,9 @@
  
 	    <mx:VBox width="100%" styleName="panelBox" horizontalGap="4" paddingTop="0" verticalGap="2" paddingRight="0" paddingLeft="0">
 	                    <mx:HBox backgroundSize="100%" width="100%" backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2">
-	                                    <mx:LinkButton label="Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
+										<mx:LinkButton label="Print Invoice" textDecoration="underline" icon="@Embed(source='../../assets/printer.png')" click="showBillingInvoice(false)"/>
+										<mx:VRule height="20"/>
+	                                    <mx:LinkButton label="Email Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice(true)"/>
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="glFileButton" label="Generate GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
 	                                    <mx:VRule height="20"/>

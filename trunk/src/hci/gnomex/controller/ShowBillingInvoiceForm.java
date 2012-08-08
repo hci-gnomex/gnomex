@@ -55,6 +55,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private Integer          idBillingPeriod;
   private Integer          idCoreFacility;
   private String           action = "show";
+  private String           emailAddress = null;
   
  
   public void validate() {
@@ -84,6 +85,9 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     }
     if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
       action = request.getParameter("action");
+    }
+    if (request.getParameter("emailAddress") != null && !request.getParameter("emailAddress").equals("")) {
+      emailAddress = request.getParameter("emailAddress");
     }
     serverName = request.getServerName();
   }
@@ -117,7 +121,11 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           if (action.equals(ACTION_SHOW)) {
             this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           } else if (action.equals(ACTION_EMAIL)) {
-            this.sendInvoiceEmail(sess, lab.getContactEmail(), coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+            String contactEmail = this.emailAddress;
+            if (contactEmail == null) {
+              contactEmail = lab.getContactEmail();
+            }
+            this.sendInvoiceEmail(sess, contactEmail, coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           }
           
         } else {
@@ -300,6 +308,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       
       
     // Show print and email link
+    /*
     Element emailLink = new Element("A");
     emailLink.setAttribute("HREF",
         "ShowBillingInvoiceForm.gx?idLab=" + idLab +
@@ -312,7 +321,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       contactEmail = "billing contact";
     }
     emailLink.addContent("Email " + contactEmail);
-
+*/
     Element printLink = new Element("A");
     printLink.setAttribute("HREF", "javascript:window.print()");
     printLink.addContent("Print page");
@@ -324,7 +333,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element cell = new Element("TD");
     cell.setAttribute("ALIGN", "RIGHT");
     row.addContent(cell);
-    cell.addContent(emailLink);    
+    //cell.addContent(emailLink);    
     cell.addContent("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     cell.addContent(printLink);            
 
@@ -366,7 +375,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
     
-    String note = "&nbsp";
+    String note = "";
     boolean send = false;
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {
@@ -411,6 +420,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         note = "Unable to email invoice to " + contactEmail + " due to the following error: " + e.toString();        
       } 
     }
+    /*
+    if (note.length() == 0) {
+      note = "&nbsp";
+    }
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
@@ -434,6 +447,11 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element h = new Element("H3");
     h.addContent(note);   
     body.addContent(h);      
+    */
+    Element root = new Element("BillingInvoiceEmail");
+    Document doc = new Document(root);
+    root.setAttribute("note", note);
+    root.setAttribute("title", "Email Billing Invoice - " + lab.getName() + " " + billingAccount.getAccountName());
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     out.setOmitEncoding(true);
