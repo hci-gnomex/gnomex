@@ -6,12 +6,13 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.controls.Alert;
 		
 		public var idBillingPeriod:Object;
+		public var idCoreFacility:Object;
 		
 		[Bindable]
 		public var billingPeriod:String;
@@ -22,6 +23,7 @@
 		private function run():void {
 			var url:URLRequest = new URLRequest('ShowBillingGLInterface.gx' +
 						'?idBillingPeriod=' + idBillingPeriod + 
+						'&idCoreFacility=' + idCoreFacility +
 						'&grandTotalPrice=' + grandTotalPrice +
 						'&revisionNumber=' + revision.text);
 			navigateToURL(url, '_blank');	

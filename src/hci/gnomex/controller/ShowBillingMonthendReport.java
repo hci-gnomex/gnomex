@@ -42,6 +42,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingMonthendReport.class);
   
   
+  private Integer          idCoreFacility;
   private Integer          idBillingPeriod;
   private String           codeBillingStatus;
   private SecurityAdvisor  secAdvisor;
@@ -63,6 +64,12 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+    }
+
+    if (request.getParameter("idCoreFacility") != null) {
+      idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
+    } else {
+      this.addInvalidField("idCoreFacility", "idCoreFacility is required");
     }
     
 
@@ -117,6 +124,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           buf.append("LEFT JOIN bi.invoice as inv ");
           buf.append("WHERE     bi.codeBillingStatus = '" + codeBillingStatus + "' ");
           buf.append("AND       bi.idBillingPeriod = " + idBillingPeriod + " ");
+          buf.append("AND       bi.idCoreFacility = " + idCoreFacility + " ");
           
           if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
             buf.append(" AND ");
