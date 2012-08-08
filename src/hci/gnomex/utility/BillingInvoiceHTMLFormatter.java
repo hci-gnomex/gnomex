@@ -8,6 +8,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -32,6 +33,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private BillingPeriod  billingPeriod;
   private Lab            lab;
   private BillingAccount billingAccount;
+  private Invoice        invoice;
   private Map            billingItemMap; 
   private Map            relatedBillingItemMap;
   private Map            requestMap; 
@@ -40,10 +42,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private String         contactNameCoreFacility;
   private String         contactPhoneCoreFacility;
   
- public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+ public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
    this.billingPeriod  = billingPeriod;
    this.lab            = lab;
    this.billingAccount = billingAccount;
+   this.invoice        = invoice;
    this.billingItemMap = billingItemMap;
    this.relatedBillingItemMap = relatedBillingItemMap;
    this.requestMap     = requestMap;
@@ -83,6 +86,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     table.addContent(makeRow(lab.getName()));
     table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
     table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback")); 
+    table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
     
     return table;
  }

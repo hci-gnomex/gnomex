@@ -28,6 +28,7 @@
 * Set last email date on invoice when invoice is emailed.  (bspiglejr)
 * Allow search by invoice number on billing screen.  (bspiglejr)
 * Allow users to update email address before billing invoice email is sent.  (bspiglejr)
+* Show invoice number on invoice.  (bspiglejr)
 
 deploy notes 
 --------------------

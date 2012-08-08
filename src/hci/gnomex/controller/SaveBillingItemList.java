@@ -32,6 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -261,9 +262,15 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     TreeMap requestMap = new TreeMap();
     TreeMap billingItemMap = new TreeMap();
     TreeMap relatedBillingItemMap = new TreeMap();
+    String queryString="from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("idCoreFacility", idCoreFacility);
+    query.setParameter("idBillingPeriod", idBillingPeriod);
+    query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
+    Invoice invoice = (Invoice)query.uniqueResult();
     ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
     
-    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
     
     boolean send = false;
@@ -283,7 +290,13 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           subject, 
           emailFormatter.format(),
           true); 
-     
+      
+      // Set last email date
+      if (invoice != null) {
+        invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
+        sess.save(invoice);
+        sess.flush();
+      }
     }
   }  
 

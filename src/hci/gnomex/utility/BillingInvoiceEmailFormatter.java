@@ -8,6 +8,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -34,6 +35,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   private Lab            lab;
   private BillingAccount billingAccount;
   private CoreFacility   coreFacility;
+  private Invoice        invoice;
   private Map            billingItemMap; 
   private Map            requestMap;
   private Map            relatedBillingItemMap;
@@ -46,13 +48,14 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public BillingInvoiceEmailFormatter(Session sess, CoreFacility coreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) { 
-    this.coreFacility = coreFacility;
-    this.billingPeriod = billingPeriod;
-    this.lab = lab;
+  public BillingInvoiceEmailFormatter(Session sess, CoreFacility coreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) { 
+    this.coreFacility   = coreFacility;
+    this.billingPeriod  = billingPeriod;
+    this.lab            = lab;
     this.billingAccount = billingAccount;
+    this.invoice        = invoice;
     this.billingItemMap = billingItemMap;
-    this.requestMap = requestMap;
+    this.requestMap     = requestMap;
     this.relatedBillingItemMap = relatedBillingItemMap;
     this.coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
     this.coreFacilityContactName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
@@ -105,7 +108,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   public String format() throws Exception {
 
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(coreFacilityName, coreFacilityContactName, coreFacilityContactPhone,
-        billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+        billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     
     Element root = new Element("HTML");
     Document doc = new Document(root);
