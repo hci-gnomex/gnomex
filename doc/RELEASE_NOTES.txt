@@ -27,6 +27,7 @@
 * Fix bug where GetBillingItemList aborted when a request has billing items in other billing periods (bspiglejr) 
 * Set last email date on invoice when invoice is emailed.  (bspiglejr)
 * Allow search by invoice number on billing screen.  (bspiglejr)
+* Allow users to update email address before billing invoice email is sent.  (bspiglejr)
 
 deploy notes 
 --------------------
