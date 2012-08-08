@@ -645,6 +645,9 @@
 			public var isAdminState:Boolean = false;
 			
 			[Bindable]
+			public var isBillingAdminState:Boolean = false;
+			
+			[Bindable]
 			public var siteTitle:String = "";
 
 			[Bindable]
@@ -1505,13 +1508,24 @@
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
 				} else if (hasPermission("canAccessAnyObject")) {
-					isAdminState = true;
-					if (this.isExternalDataSharingSite) {
-						currentState = "AdminESState";
-					} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
-						currentState = "AdminDNASeqState";
+					if (hasPermission("canWriteAnyObject")) {
+						isAdminState = true; // real admin
+						if (this.isExternalDataSharingSite) {
+							currentState = "AdminESState";
+						} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+							currentState = "AdminDNASeqState";
+						} else {
+							currentState = "AdminState";
+						}
 					} else {
-						currentState = "AdminState";
+						isBillingAdminState = true;  // billing admin
+						if (this.isExternalDataSharingSite) {
+							currentState = "AdminESState";
+						} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+							currentState = "BillingAdminDNASeqState";
+						} else {
+							currentState = "BillingAdminState";
+						}
 					}
 				} else if (hasGroupsToManage()) {
 					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";
@@ -2513,6 +2527,31 @@
 			
 		
 	 	</mx:State>
+		 <mx:State name="BillingAdminState" basedOn="enabledState">
+			 <mx:SetStyle target="{hbox2}" name="horizontalGap" value="0"/>
+			 <mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
+			 <mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
+			 <mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
+			 <mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
+			 <mx:SetStyle target="{navBar}" name="verticalGap"/>
+			 <mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
+			 <mx:RemoveChild target="{submitRequestView}"/>
+			 <mx:RemoveChild target="{submitRequestLink}"/>
+			 <mx:RemoveChild target="{submitRequestRule}"/>
+			 <mx:RemoveChild target="{amendRequestView}"/>
+			 <mx:RemoveChild target="{amendRequestLink}"/>
+			 <mx:RemoveChild target="{amendRequestRule}"/>
+			 <mx:RemoveChild target="{navWorkflowView}"/>
+			 <mx:RemoveChild target="{workflowLink}"/>
+			 <mx:RemoveChild target="{workflowRule}"/>
+			 <mx:RemoveChild target="{analysisLink}"/>
+			 <mx:RemoveChild target="{analysisRule}"/>
+			 <mx:RemoveChild target="{dataTracksLink}"/>
+			 <mx:RemoveChild target="{dataTracksRule}"/>
+			 <mx:RemoveChild target="{topicsLink}"/>
+			 <mx:RemoveChild target="{topicsRule}"/>
+			 
+		 </mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
 			<mx:RemoveChild target="{billingLink}"/>
@@ -2581,6 +2620,7 @@
 			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
 			 <mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
 		 </mx:State>
+		 
 		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
 			 <mx:AddChild relativeTo="{submitRequestLink}" position="after">
 			 	<mx:VRule height="20" id="ordersRule"/>
@@ -2617,6 +2657,26 @@
 			 <mx:AddChild relativeTo="{runsRule}" position="after">
 				 <util:LinkButtonTwoLines width="95"  id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
 			 </mx:AddChild>
+
+		 </mx:State>
+		 
+		 <mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
+			 <mx:RemoveChild target="{submitRequestView}"/>
+			 <mx:RemoveChild target="{submitRequestLink}"/>
+			 <mx:RemoveChild target="{submitRequestRule}"/>
+			 <mx:RemoveChild target="{amendRequestView}"/>
+			 <mx:RemoveChild target="{amendRequestLink}"/>
+			 <mx:RemoveChild target="{amendRequestRule}"/>
+			 <mx:RemoveChild target="{fillPlateRule}"/>
+			 <mx:RemoveChild target="{fillPlateLink}"/>
+			 <mx:RemoveChild target="{fillRunRule}"/>
+			 <mx:RemoveChild target="{fillRunLink}"/>
+			 <mx:RemoveChild target="{dataRule}"/>
+			 <mx:RemoveChild target="{dataLink}"/>
+			 <mx:RemoveChild target="{runsRule}"/>
+			 <mx:RemoveChild target="{runsLink}"/>
+			 <mx:RemoveChild target="{ordersRule}"/>
+			 <mx:RemoveChild target="{ordersLink}"/>
 
 		 </mx:State>
 
