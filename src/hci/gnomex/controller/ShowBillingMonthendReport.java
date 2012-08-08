@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -108,13 +109,14 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
 
           StringBuffer buf = new StringBuffer();
-          buf.append("SELECT req, bi ");
-          buf.append("FROM   Request req ");
-          buf.append("JOIN   req.billingItems bi ");
-          buf.append("JOIN   bi.lab as lab ");
-          buf.append("JOIN   bi.billingAccount as ba ");
-          buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
-          buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+          buf.append("SELECT    req, bi, inv ");
+          buf.append("FROM      Request req ");
+          buf.append("JOIN      req.billingItems bi ");
+          buf.append("JOIN      bi.lab as lab ");
+          buf.append("JOIN      bi.billingAccount as ba ");
+          buf.append("LEFT JOIN bi.invoice as inv ");
+          buf.append("WHERE     bi.codeBillingStatus = '" + codeBillingStatus + "' ");
+          buf.append("AND       bi.idBillingPeriod = " + idBillingPeriod + " ");
           
           if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
             buf.append(" AND ");
@@ -127,11 +129,13 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           List results = sess.createQuery(buf.toString()).list();
           TreeMap requestMap = new TreeMap();
           TreeMap billingItemMap = new TreeMap();
+          TreeMap invoiceMap = new TreeMap();
           
           for(Iterator i = results.iterator(); i.hasNext();) {
-            Object[] row = (Object[])i.next();
+            Object[] row   =  (Object[])i.next();
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
+            Invoice inv    =  (Invoice)row[2];  
             
             // Exclude any requests that have billing items with status
             // other than status provided in parameter.
@@ -161,6 +165,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
               billingItemMap.put(key, billingItems);
             }
             billingItems.add(bi);
+            invoiceMap.put(bi.getIdBillingItem(), inv);
           }
           
 
@@ -178,19 +183,20 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             columns.add(makeReportColumn("Lab", 1));
             columns.add(makeReportColumn("Account Number", 2));
             columns.add(makeReportColumn("Account Name", 3));
-            columns.add(makeReportColumn("Request Date", 4));
-            columns.add(makeReportColumn("Complete Date", 5));
-            columns.add(makeReportColumn("Req ID", 6));
-            columns.add(makeReportColumn("Client", 7));
-            columns.add(makeReportColumn("Service", 8));
-            columns.add(makeReportColumn("Product", 9));
-            columns.add(makeReportColumn("Category", 10));
-            columns.add(makeReportColumn("Description", 11));
-            columns.add(makeReportColumn("Notes", 12));
-            columns.add(makeReportColumn("Percent", 13));
-            columns.add(makeReportColumn("Qty", 14));
-            columns.add(makeReportColumn("Unit Price", 15));
-            columns.add(makeReportColumn("Total Price", 16));
+            columns.add(makeReportColumn("Invoice #", 4));
+            columns.add(makeReportColumn("Request Date", 5));
+            columns.add(makeReportColumn("Complete Date", 6));
+            columns.add(makeReportColumn("Req ID", 7));
+            columns.add(makeReportColumn("Client", 8));
+            columns.add(makeReportColumn("Service", 9));
+            columns.add(makeReportColumn("Product", 10));
+            columns.add(makeReportColumn("Category", 11));
+            columns.add(makeReportColumn("Description", 12));
+            columns.add(makeReportColumn("Notes", 13));
+            columns.add(makeReportColumn("Percent", 14));
+            columns.add(makeReportColumn("Qty", 15));
+            columns.add(makeReportColumn("Unit Price", 16));
+            columns.add(makeReportColumn("Total Price", 17));
             
             tray.setColumns(columns);
             
@@ -211,6 +217,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
               
               for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
+                Invoice inv = (Invoice)invoiceMap.get(bi.getIdBillingItem());
 
                 String acctNum = bi.getBillingAccount().getAccountNumber();
                 String acctName = bi.getBillingAccount().getAccountName();
@@ -234,6 +241,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
                 values.add(bi.getLabName());
                 values.add(acctNum);
                 values.add(acctName);
+                values.add(inv.getInvoiceNumber());
                 values.add(this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
                 values.add(this.formatDate(completeDate, this.DATE_OUTPUT_SLASH));
                 values.add(request.getNumber());
