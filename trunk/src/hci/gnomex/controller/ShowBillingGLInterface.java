@@ -47,6 +47,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   
   
   private Integer                  idBillingPeriod;
+  private Integer                  idCoreFacility;
   private BigDecimal               expectedGrandTotalPrice;
   private Integer                  revisionNumber = new Integer(1);
   private SecurityAdvisor          secAdvisor;
@@ -74,6 +75,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+    }
+
+    if (request.getParameter("idCoreFacility") != null) {
+      idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
+    } else {
+      this.addInvalidField("idCoreFacility", "idCoreFacility is required");
     }
 
     if (request.getParameter("grandTotalPrice") != null) {
@@ -134,6 +141,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           buf.append("JOIN   bi.billingAccount as ba ");
           buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+          buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
           if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
             buf.append(" AND ");
             secAdvisor.appendCoreFacilityCriteria(buf, "bi");
@@ -333,7 +341,13 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             buf.append("JOIN   bi.billingAccount as ba ");
             buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
             buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-            results = sess.createQuery(buf.toString()).list();
+            buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
+            if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+              buf.append(" AND ");
+              secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+              buf.append(" ");
+            }
+           results = sess.createQuery(buf.toString()).list();
             if (results.size() > 0) {
               BigDecimal totalPriceExternalPO = (BigDecimal)results.get(0);
               if (totalPriceExternalPO != null) {

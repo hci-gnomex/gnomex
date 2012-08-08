@@ -1335,6 +1335,7 @@
 				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
 					    '?codeBillingStatus=' + statusNode.@status +
+						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
 						//'&idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
 						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
 					navigateToURL(url, '_blank');			
@@ -1396,6 +1397,7 @@
     		runWindow.setFocus();
 			//runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
 			runWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
+			runWindow.idCoreFacility = this.getSelectedCoreFacilityId();
 			//runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
 			runWindow.billingPeriod = lastSelectedBillingPeriod.@billingPeriod;
     		runWindow.grandTotalPrice = this.grandTotalPrice;

@@ -30,6 +30,7 @@
 * Allow users to update email address before billing invoice email is sent.  (bspiglejr)
 * Show invoice number on invoice.  (bspiglejr)
 * Show invoice number on month end report.  (bspiglejr)
+* Filter billing reports by core facility for super admins.  (bspiglejr)
 
 deploy notes 
 --------------------
