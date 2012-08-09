@@ -57,6 +57,11 @@ update BillingItem set idInvoice = Invoice.idInvoice
   where BillingItem.idInvoice is null
 rollback transaction
 
+5.4.6.2 (Aug 8, 2012)
+---------------------
+* Fixed bug On Add Services... admin was assigned as submitter when converting a QC request to another kind of request. (tdisera)
+* To avoid insufficient permission error on Add Services, further refined logic for Add Services so that normal user is assigned as submitter (and owner) when converting QC request to another kinds of request. (tdisera)
+
 5.4.6.2 (Aug 7, 2012)
 ---------------------
 * Fixed bug in GetBillingItemList that was causing class cast exception (bspigle)

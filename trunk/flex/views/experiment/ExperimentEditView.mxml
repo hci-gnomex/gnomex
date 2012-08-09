@@ -2865,7 +2865,7 @@
 		
 		private function getIdAppUserSubmitter():Object {
 			var idAppUserSubmitter:Object = null;
-			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.isAdminState)) {
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
 				// If a non-admin user is converting a QC request
 				// to a microarray or sequencing request, make the user the 
 				//  submitter of
@@ -2875,13 +2875,13 @@
 			} else if (!this.isAmendState()) {
 				idAppUserSubmitter = this.setupView.idAppUser;
 			} else {
-				idAppUserSubmitter = request.@idAppUser;
+				idAppUserSubmitter = request.@idSubmitter;
 			}
 			return idAppUserSubmitter;
 		}
 		
 		public function getSubmitterName():String {
-			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.isAdminState)) {
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
 				// If a non-admin user is converting a QC request
 				// to a microarray or sequencing request, make the user the 
 				//  submitter of
@@ -2891,9 +2891,27 @@
 			} else if (!isAmendState()) {
 				return setupView.getAppUserName();
 			} else {
-				return request.@ownerName.toString();
+				return request.@submitterName.toString();
 			} 
 		}
+			
+		private function getIdAppUserOwner():Object {
+			var idAppUserOwner:Object = null;
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
+				// If a non-admin user is converting a QC request
+				// to a microarray or sequencing request, make the user the 
+				//  submitter of
+				// the request, as he/she may be amending a request
+				// originally submitted by someone else.
+				idAppUserOwner = parentApplication.getIdAppUser();				
+			} else if (!this.isAmendState()) {
+				idAppUserOwner = this.setupView.idAppUser;
+			} else {
+				idAppUserOwner = request.@idAppUser;
+			}
+			return idAppUserOwner;
+		}
+
 		
 		private function initializeRequestXML():void {			
 			// Determine if this is an external experiment submission
@@ -2902,11 +2920,14 @@
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
-			request.@idSubmitter = this.getIdAppUserSubmitter();
+			if (!this.isEditState()) {
+				request.@idSubmitter = this.getIdAppUserSubmitter();
+				request.@idAppUser = this.getIdAppUserOwner();
+			}
+			
+
 			
 			if (!this.isAmendState()) {
-				// Only set the owner if this is not an amended request.
-				request.@idAppUser = request.@idSubmitter;
 
 				// If we are submitting a new request, grab the lab, billing, project
 				// from the setup tab
