@@ -324,7 +324,7 @@ public class ProjectRequestFilter extends DetailObject {
     // Search by user 
     if (idAppUser != null){
       this.addWhereOrAnd();
-      queryBuf.append(" req.idAppUser = ");
+      queryBuf.append(" req.idSubmitter = ");
       queryBuf.append(idAppUser);
     } 
     //  Search by idRequest 
