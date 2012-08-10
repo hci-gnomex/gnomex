@@ -119,6 +119,7 @@
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
 			
+			import mx.collections.Sort;
 			import mx.controls.Alert;
 			import mx.controls.listClasses.ListBase;
 			import mx.core.DragSource;
@@ -131,18 +132,17 @@
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import mx.collections.Sort;
 			
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ExperimentDetailView;
 			import views.experiment.ExperimentDetailWindow;
 			import views.protocol.ProtocolsView;
+			import views.topics.NavTopicsView;
 			import views.util.FileUtil;
-			import views.util.StringUtil;
+			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
-
-			import views.util.OrganismEvent; 
+			import views.util.StringUtil; 
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -507,15 +507,23 @@
 					getAnalysis.send(parms);
 					
 					execValidateAndSaveAnalysis = false; 
-					parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
-					parentApplication.navAnalysisView.refreshAnalysis();
-					
-					parentApplication.navAnalysisView.showEditView = true;
-					parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
+					if(parentDocument is NavAnalysisView) {
+						parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+						parentApplication.navAnalysisView.refreshAnalysis();
+						
+						parentApplication.navAnalysisView.showEditView = true;
+						parentApplication.navAnalysisView.analysisDetailView.refreshSavedAnalysis(analysis.@idAnalysis);							
+					} else if (parentDocument is NavTopicsView) {
+						parentApplication.navTopicsView.analysisDetailView.refreshSavedAnalysis(analysis.@idAnalysis);
+						parentApplication.navTopicsView.analysisViews.selectedChild = parentApplication.navTopicsView.analysisDetailView;
+					}
+		 				
 				} else {
 					execValidateAndSaveAnalysis = false; 
-					parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
-					parentApplication.navAnalysisView.refreshAnalysis();				
+					if(parentDocument is NavAnalysisView) {
+						parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+						parentApplication.navAnalysisView.refreshAnalysis();						
+					}
 					Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
@@ -766,32 +774,9 @@
 			}
 			
 			private function showViewWindow():void {
-				parentDocument.theViews.selectedChild = parentDocument.detailView;
-				parentDocument.detailView.setupForm(this.analysis);
+				parentDocument.analysisViews.selectedChild = parentDocument.analysisDetailView;
+				parentDocument.analysisDetailView.setupForm(this.analysis);
 			}
-			
-			 /* private function showUploadWindow():void {
-				uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
-				uploadWindow.addEventListener(CloseEvent.CLOSE, refreshDownloadView);
-				PopUpManager.centerPopUp(uploadWindow);
-				uploadWindow.init(this.analysis);
-			}
-			
-			private function showOrganizeWindow():void {
-				uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
-				uploadWindow.theTab.selectedIndex = 1;
-				uploadWindow.addEventListener(CloseEvent.CLOSE, refreshDownloadView);
-				PopUpManager.centerPopUp(uploadWindow);
-				uploadWindow.init(parentDocument.selectedAnalysis);
-			}
-			
-			private function showUploadFDTWindow():void {
-				uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
-				uploadWindow.addEventListener(CloseEvent.CLOSE, refreshDownloadView);
-				PopUpManager.centerPopUp(uploadWindow);
-				uploadWindow.init(this.analysis);
-				uploadWindow.uploadFilesStack.selectedIndex = 1;
-			}  */
 			
 			public function clearUploadWindowVar():void {
 				uploadWindow = null;

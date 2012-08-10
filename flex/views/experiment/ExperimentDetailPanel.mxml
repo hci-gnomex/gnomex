@@ -9,7 +9,7 @@
 
 			private function backToNavOrder():void {
 				if (parentDocument is NavOrderView) {
-					parentDocument.theViews.selectedChild = parentDocument.browseView;
+					parentDocument.experimentViews.selectedChild = parentDocument.browseView;
 				}
 			}
 

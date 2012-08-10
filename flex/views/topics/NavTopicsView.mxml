@@ -460,9 +460,10 @@
 			var params:Object = new Object();
 			params.idRequest = this.browseTree.selectedItem.@idRequest;
 			getRequest.send(params);
-			experimentDetailView.editButton.enabled = false;
-			experimentDetailView.detail.hideButtonsBox.visible = false;
-			this.mainViewStack.selectedChild = this.experimentDetailView;  
+			//experimentDetailView.editButton.enabled = false;
+			//experimentDetailView.detail.hideButtonsBox.visible = false;
+			mainViewStack.selectedChild = experimentViews; 
+			experimentViews.selectedChild = experimentDetailView;
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
 			analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
 			selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
@@ -470,11 +471,12 @@
 			parms.idAnalysis = selectedIdAnalysis; 
 			getAnalysis.send(parms);
 			selectedIdLab = browseTree.selectedItem.@idLab;
-			analysisDetailView.edtButton.enabled = false;
-			analysisDetailView.dstButton.enabled = false;
-			analysisDetailView.hideButtonsBox.visible = false;
-			analysisDetailView.hideButtonsBox.includeInLayout = false;
-			this.mainViewStack.selectedChild = this.analysisDetailView;  
+			//analysisDetailView.edtButton.enabled = false;
+			//analysisDetailView.dstButton.enabled = false;
+			//analysisDetailView.hideButtonsBox.visible = false;
+			//analysisDetailView.hideButtonsBox.includeInLayout = false;
+			this.mainViewStack.selectedChild = this.analysisViews;  
+			analysisViews.selectedChild = this.analysisDetailView;  
 		}
 	}
 	
@@ -1107,12 +1109,30 @@
 			<topics:TopicLinkView id="topicLinkView" width="100%" height="100%" creationPolicy="all">
 			</topics:TopicLinkView>
 	
-			<experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
-			</experiment:ExperimentDetailPanel>
+			<!--experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
+			</experiment:ExperimentDetailPanel-->
+			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
+				
+				<experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
+				</experiment:ExperimentDetailPanel>
+				
+				<experiment:ExperimentEditView id="experimentEditView" width="100%" height="100%">
+				</experiment:ExperimentEditView>
+				
+			</mx:ViewStack>
 			
-			<analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
-			</analysis:AnalysisDetailView>			
-			
+			<!--analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
+			</analysis:AnalysisDetailView-->			
+			<mx:ViewStack id="analysisViews" visible="true" width="100%" height="100%">			
+				
+				<analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
+				</analysis:AnalysisDetailView>
+				
+				<analysis:AnalysisEditView id="analysisEditView" width="100%" height="100%">
+				</analysis:AnalysisEditView>
+				
+				
+			</mx:ViewStack>			
 		</mx:ViewStack>
 
     </mx:HDividedBox>	

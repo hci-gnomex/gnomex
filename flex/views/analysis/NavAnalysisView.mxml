@@ -209,9 +209,9 @@
    			}
 			        	
         	if (this.shortcutToDownloadTab) {
-        		this.theViews.selectedChild = this.detailView;
+        		this.analysisViews.selectedChild = this.analysisDetailView;
         	} else if (this.shortcutToAnalysisListTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.analysisViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         	}
         	
@@ -292,11 +292,11 @@
         	}
         	
         	if (this.shortcutToDownloadTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.analysisViews.selectedChild = this.browseView;
         		this.shortcutToDownloadTab = false;
         		this.browseTree.selectedIndex = 0;
         	} else if (this.shortcutToAnalysisListTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.analysisViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         		this.shortcutToAnalysisListTab = false;
         		this.browseTree.selectedIndex = 0;
@@ -500,8 +500,8 @@
 			}
 			
 			if (browseTree.selectedItem.name() == 'Analysis') {
-				detailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
-				editView.titleLabel.text = "Edit Analysis " + browseTree.selectedItem.@number;
+				analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
+				analysisEditView.titleLabel.text = "Edit Analysis " + browseTree.selectedItem.@number;
 				selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
 				var parms:Object = new Object();
 				parms.idAnalysis = selectedIdAnalysis; 
@@ -532,14 +532,14 @@
 					
 				}
 				
-				theViews.selectedIndex=0;
+				analysisViews.selectedIndex=0;
 			} 
 			
 			browseView.analysisNumberCombo.selectedIndex = -1;
 			browseView.browseList.refresh();
 			refreshAnalysisNumbers(browseView.browseList);
 			browseView.refreshVisibilityList();
-			theViews.visible = true;
+			analysisViews.visible = true;
 			
 			
 		}
@@ -628,10 +628,10 @@
         		return;
         	}
         	
-			editView.dirty.resetDirty();
+			analysisEditView.dirty.resetDirty();
         	
 		    if (this.showDownloads) {
-		    	theViews.visible = true;
+		    	analysisViews.visible = true;
 		    	this.showDownloads = false;
 		    	return;
 		    }
@@ -649,37 +649,37 @@
 				params.searchPublicProjects = this.publicProjectsCheckbox ? "Y" : "N"; 
 				getAnalysisGroupList.send(params);
 				
-			    detailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
+			    analysisDetailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
 			    
 			    
 			}
 			
 			if (showEditView) {	
-				editView.setupEditForm(this.selectedAnalysis);
-				theViews.selectedChild = editView;
+				analysisEditView.setupEditForm(this.selectedAnalysis);
+				analysisViews.selectedChild = analysisEditView;
 				showEditView = false;
 				if(addAnalysisGroup != null) {
 					if(removeIdAnalysisGroup != null) {
 						var item:Object;
 						var i:int = 0;	
-						for each(item in editView.analysisGroups) {
+						for each(item in analysisEditView.analysisGroups) {
 							if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
-								editView.analysisGroups.removeItemAt(i);
+								analysisEditView.analysisGroups.removeItemAt(i);
 								break;						
 							}
 							i++;
 						}					
 						
 					}
-					editView.analysisGroups.addItem(addAnalysisGroup);
-					editView.parentIdLab = parentIdLab;
-					editView.setExecValidateAndSaveAnalysis();
+					analysisEditView.analysisGroups.addItem(addAnalysisGroup);
+					analysisEditView.parentIdLab = parentIdLab;
+					analysisEditView.setExecValidateAndSaveAnalysis();
 					addAnalysisGroup = null;
 				}
 			} else {
-			    theViews.selectedChild = detailView;				
-				detailView.setupForm(this.selectedAnalysis);
-				detailView.updateUploadFormAnalysisObj();
+			    analysisViews.selectedChild = analysisDetailView;				
+				analysisDetailView.setupForm(this.selectedAnalysis);
+				analysisDetailView.updateUploadFormAnalysisObj();
 			}
 
 			parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
@@ -691,7 +691,7 @@
 			}
 			browseView.refreshButtonStack();
 
-		    theViews.visible = true;
+		    analysisViews.visible = true;
 		}
 
 		private function onGetAnalysisGroup(event:ResultEvent):void {
@@ -886,7 +886,7 @@
         		selectedIdAnalysisGroup = null;
         		browseView.buttonStack.selectedChild = browseView.browseButtonView;
 	    		this.refreshAnalysis();
-	    		theViews.selectedChild = browseView;
+	    		analysisViews.selectedChild = browseView;
 	    	} else {
 	    		Alert.show(deleteAnalysis.lastResult..ACTMESSAGE.@TEXT);
 	    	}
@@ -899,7 +899,7 @@
         		selectedIdAnalysisGroup = null;
         		browseView.buttonStack.selectedChild = browseView.browseButtonView;
 	    		this.refreshAnalysis();
-	    		theViews.selectedChild = browseView;
+	    		analysisViews.selectedChild = browseView;
 	    	} else {
 	    		Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
 	    	}
@@ -1130,15 +1130,15 @@
 	   
 
 		
-	     <mx:ViewStack id="theViews" visible="true" width="100%" height="100%">
+	     <mx:ViewStack id="analysisViews" visible="true" width="100%" height="100%">
 
 	        <analysis:AnalysisBrowseView id="browseView"  width="100%" height="100%">
 	        </analysis:AnalysisBrowseView>
 
-	        <analysis:AnalysisDetailView id="detailView" width="100%" height="100%">
+	        <analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
 	        </analysis:AnalysisDetailView>
 	        
-	        <analysis:AnalysisEditView id="editView" width="100%" height="100%">
+	        <analysis:AnalysisEditView id="analysisEditView" width="100%" height="100%">
 	        </analysis:AnalysisEditView>
 
 

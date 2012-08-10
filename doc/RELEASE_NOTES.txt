@@ -5,7 +5,8 @@
 ---------------------
 * Replaced topics icons. (rcundick)
 * Updated Lucene indexing to include topics. (rcundick)
-* Updated Ludene search results to include topics. (rcundick)
+* Updated Lucene search results to include topics. (rcundick)
+* Enabled edit mode for experiments and analysis from within Topics view. (rcundick)
 
 5.4.7
 ---------------------

@@ -550,37 +550,37 @@
 			 //parms.idRequest = this.selectedExperiment.@idRequest;
 			 //parentDocument.getRequest.send(parms);
            	 
-           	 parentDocument.parentDocument.editView.request = this.selectedExperiment;
-           	 parentDocument.parentDocument.editView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
-			 parentDocument.parentDocument.editView.selectedAssaysCollection = this.assays;
+           	 parentDocument.parentDocument.experimentEditView.request = this.selectedExperiment;
+           	 parentDocument.parentDocument.experimentEditView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
+			 parentDocument.parentDocument.experimentEditView.selectedAssaysCollection = this.assays;
 
-           	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
-			 if (parentDocument.parentDocument.editView.theTab.contains(parentDocument.parentDocument.editView.annotationView)) {
-				 parentDocument.parentDocument.editView.annotationView.onPropertyRefreshed(null);
-				 parentDocument.parentDocument.editView.annotationView.checkSecurity();
+           	 parentDocument.parentDocument.experimentViews.selectedChild = parentDocument.parentDocument.experimentEditView;
+			 if (parentDocument.parentDocument.experimentEditView.theTab.contains(parentDocument.parentDocument.experimentEditView.annotationView)) {
+				 parentDocument.parentDocument.experimentEditView.annotationView.onPropertyRefreshed(null);
+				 parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 			 } 
 			 
-			 if (parentDocument.parentDocument.editView.samplesView.hasPlates()) {
-				 parentDocument.parentDocument.editView.samplesView.fillPlates();
+			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates()) {
+				 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
 			 }
 			 
 			 if (this.isCherryPickState()) {
 				 var numDestinationWells:int = Number(this.selectedExperiment.@numDestinationWells.toString());
-				 parentDocument.parentDocument.editView.cherryPlateList = this.selectedExperiment.cherryPlateList.Plate;
-				 parentDocument.parentDocument.editView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
+				 parentDocument.parentDocument.experimentEditView.cherryPlateList = this.selectedExperiment.cherryPlateList.Plate;
+				 parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 			 }
 			 
 			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
 			 
 			 
-			 parentDocument.parentDocument.editView.removeDataListeners();
-			 parentDocument.parentDocument.editView.setupEditForm( this.selectedExperiment);
-			 parentDocument.parentDocument.editView.titleLabel.text = editTitle;
-			 callLater(parentDocument.parentDocument.editView.setupDataListeners);
+			 parentDocument.parentDocument.experimentEditView.removeDataListeners();
+			 parentDocument.parentDocument.experimentEditView.setupEditForm( this.selectedExperiment);
+			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
+			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 			 
-			 //parentDocument.editView.removeDataListeners();
-           	 //parentDocument.editView.initializeData();
-           	 //callLater(parentDocument.editView.setupDataListeners);
+			 //parentDocument.experimentEditView.removeDataListeners();
+           	 //parentDocument.experimentEditView.initializeData();
+           	 //callLater(parentDocument.experimentEditView.setupDataListeners);
 		}
 		
 
