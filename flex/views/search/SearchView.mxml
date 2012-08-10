@@ -91,6 +91,7 @@
 			params.isAnalysisOnlySearch = this.AnalysesRadioButton.selected ? "Y" : "N";
 			params.isProtocolOnlySearch = this.ProtocolsRadioButton.selected ? "Y" : "N";
 			params.isDataTrackOnlySearch = this.DataTracksRadioButton.selected ? "Y" : "N";
+			params.isTopicOnlySearch = this.TopicsRadioButton.selected ? "Y" : "N";
 
 			if (this.ExperimentsRadioButton.selected) {
 				params.searchList = this.experimentSearchList;
@@ -100,6 +101,8 @@
 				params.searchList = this.protocolSearchList;
 			} else if (this.DataTracksRadioButton.selected) {
 				params.searchList = this.dataTrackSearchList;
+			} else if (this.TopicsRadioButton.selected) {
+				params.searchList = this.topicSearchList;
 			} else {
 				params.searchList = this.allObjectsSearchList;
 			}
@@ -138,6 +141,8 @@
 				buildSearchListDisplay(this.protocolSearchList);
 			} else if (this.DataTracksRadioButton.selected) {
 				buildSearchListDisplay(this.dataTrackSearchList);
+			} else if (this.TopicsRadioButton.selected) {
+				buildSearchListDisplay(this.topicSearchList);
 			} else {
 				buildSearchListDisplay(this.allObjectsSearchList);
 			}
@@ -221,6 +226,7 @@
 			this.AnalysesRadioButton.selected = false;
 			this.ProtocolsRadioButton.selected = false;
 			this.DataTracksRadioButton.selected = false;
+			this.TopicsRadioButton.selected = false;
 			this.AllObjectsRadioButton.selected = true;
 			searchTypeChange();
 		}
@@ -244,6 +250,8 @@
 				this.searchGrid.dataProvider = protocolSearchList;
 			} else if (this.DataTracksRadioButton.selected) {
 				this.searchGrid.dataProvider = dataTrackSearchList;
+			} else if (this.TopicsRadioButton.selected) {
+				this.searchGrid.dataProvider = topicSearchList;
 			} else {
 				this.searchGrid.dataProvider = allObjectsSearchList;
 			}
@@ -257,6 +265,7 @@
 	<mx:XMLListCollection id="analysisSearchList" source="{this.getSearchMetaInformation.lastResult.AnalysisSearchList.Field}"/>
 	<mx:XMLListCollection id="dataTrackSearchList" source="{this.getSearchMetaInformation.lastResult.DataTrackSearchList.Field}"/>
 	<mx:XMLListCollection id="protocolSearchList" source="{this.getSearchMetaInformation.lastResult.ProtocolSearchList.Field}"/>
+	<mx:XMLListCollection id="topicSearchList" source="{this.getSearchMetaInformation.lastResult.TopicSearchList.Field}"/>
 
 <mx:HBox width="100%">
 	<mx:Label text="Keywords:" textAlign="left"/>
@@ -281,6 +290,9 @@
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
 			<mx:RadioButton label="Data Tracks" selected="false" id="DataTracksRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Topics" selected="false" id="TopicsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.isTopicsSupported}">
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
 		</mx:HBox>

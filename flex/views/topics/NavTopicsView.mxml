@@ -1017,8 +1017,8 @@
 								 toolTip="New topic" 
 								 click="{newTopic()}" 
 								 id="linkbutton1"  textAlign="left" 
-								 disabledIcon="@Embed(source='../../assets/topic_new_disable.png')" 
-								 icon="@Embed(source='../../assets/topic_new.png')"/>
+								 disabledIcon="@Embed(source='../../assets/topic_tag_new_disable.png')" 
+								 icon="@Embed(source='../../assets/topic_tag_new.png')"/>
 				<mx:VRule height="20" id="vrule1" width="2" 							   
 						  visible="{currentState != 'GuestState'}"
 						  includeInLayout="{currentState != 'GuestState'}"/>

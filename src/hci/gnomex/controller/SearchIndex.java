@@ -14,6 +14,8 @@ import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
 import hci.gnomex.lucene.ProtocolIndexHelper;
 import hci.gnomex.lucene.SearchListParser;
+import hci.gnomex.lucene.TopicFilter;
+import hci.gnomex.lucene.TopicIndexHelper;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
@@ -27,6 +29,8 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,9 +58,6 @@ import org.jdom.input.SAXBuilder;
 
 
 public class SearchIndex extends GNomExCommand implements Serializable {
-  
- 
-  
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndex.class);
 
@@ -64,15 +65,18 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private boolean isAnalysisOnlySearch = false;
   private boolean isProtocolOnlySearch = false;
   private boolean isDataTrackOnlySearch = false;
+  private boolean isTopicOnlySearch = false;
   
   private ExperimentFilter experimentFilter = null;
   private ProtocolFilter   protocolFilter = null;
   private AnalysisFilter   analysisFilter = null;
   private DataTrackFilter  dataTrackFilter = null;
+  private TopicFilter  topicFilter = null;
   
   private String listKind = "SearchList";
   
   private String serverName = "";
+
 
   private Map labMap        = null;
   private Map projectMap    = null;
@@ -88,12 +92,18 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private Map labToAnalysisGroupMap = null;
   private Map analysisGroupToAnalysisMap = null;
   
+
   private Map labDataTrackMap = null;
   private Map dataTrackFolderMap = null;
   private Map dataTrackMap = null;
   private Map labToDataTrackFolderMap = null;
   private Map dataTrackFolderToDataTrackMap = null;
   private List<Integer> dataTrackIds = null;
+  
+
+  private Map labTopicMap = null;
+  private Map topicMap = null;
+  private List<Integer> topicIds = null;
   
   private ArrayList rankedRequestNodes = null;
 
@@ -102,6 +112,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private ArrayList rankedAnalysisNodes = null;
   
   private ArrayList rankedDataTrackNodes = null;
+  
+  private ArrayList labTopicNodes = null;
+  private ArrayList rankedTopicNodes = null;
+  private ArrayList topicNodesForLabs = null;
+  
+  boolean topicsSupported = false;
   
   public void validate() {
   }
@@ -112,8 +128,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
       listKind = request.getParameter("listKind");
     }
-
-    
     
     if (request.getParameter("isExperimentOnlySearch") != null && request.getParameter("isExperimentOnlySearch").equals("Y")) {
       isExperimentOnlySearch = true;
@@ -126,6 +140,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }    
     if (request.getParameter("isDataTrackOnlySearch") != null && request.getParameter("isDataTrackOnlySearch").equals("Y")) {
       isDataTrackOnlySearch = true;
+    }    
+    if (request.getParameter("isTopicOnlySearch") != null && request.getParameter("isTopicOnlySearch").equals("Y")) {
+      isTopicOnlySearch = true;
     }    
    
     serverName = request.getServerName();
@@ -147,6 +164,10 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     errors = this.loadDetailObject(request, dataTrackFilter);
     this.addInvalidFields(errors);    
     
+    topicFilter = new TopicFilter();
+    errors = this.loadDetailObject(request, topicFilter);
+    this.addInvalidFields(errors);    
+    
     if (request.getParameter("searchList") != null && !request.getParameter("searchList").equals("")) {
       String searchXMLString = request.getParameter("searchList");
       searchXMLString = searchXMLString.replaceAll("&", "&amp;");
@@ -161,12 +182,14 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         analysisFilter.setSearchListText(searchListParser.getSearchText());
         protocolFilter.setSearchListText(searchListParser.getSearchText());
         dataTrackFilter.setSearchListText(searchListParser.getSearchText());
+        topicFilter.setSearchListText(searchListParser.getSearchText());
         experimentFilter.setIdLabList(searchListParser.getIdLabList());
         experimentFilter.setIdOrganismList(searchListParser.getIdOrganismList());
         analysisFilter.setIdLabList(searchListParser.getIdLabList());
         analysisFilter.setIdOrganismList(searchListParser.getIdOrganismList());
         dataTrackFilter.setIdLabList(searchListParser.getIdLabList());
         dataTrackFilter.setIdOrganismList(searchListParser.getIdOrganismList());
+        topicFilter.setIdLabList(searchListParser.getIdLabList());
       } catch (Exception je ) {
         log.error( "Cannot parse searchXMLString", je );
         this.addInvalidField( "searchXMLString", "Invalid search xml");
@@ -181,9 +204,15 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
-
       
-      if (!isAnalysisOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
+      
+      if (ph.getProperty(PropertyDictionary.TOPICS_SUPPORTED) != null && ph.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
+        topicsSupported = true;
+      }
+      
+      
+      
+      if (!isAnalysisOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
         //
         // Experiments
         //
@@ -232,7 +261,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
       
       
-      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch) {
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
+
         //
         // Protocols
         //
@@ -258,7 +288,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         }
       }
 
-      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch) {
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch && !isTopicOnlySearch) {
         //
         // Data Tracks
         //
@@ -304,7 +334,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
       
       
-      if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
+      if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
         //
         // Analysis
         //
@@ -348,6 +378,51 @@ public class SearchIndex extends GNomExCommand implements Serializable {
             this.buildAnalysisGroupMap(analysisIndexReader);
           }
         }
+      }
+      
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && topicsSupported) {
+        //
+        // Topics
+        //
+        IndexReader topicIndexReader = IndexReader.open(ph.getQualifiedProperty(PropertyDictionary.LUCENE_TOPIC_INDEX_DIRECTORY, serverName));      
+        Searcher topicSearcher = new IndexSearcher(topicIndexReader);
+        
+        //  Build a Query object
+        String topicSearchText = topicFilter.getSearchText().toString();
+        
+        // Build a Query to represent the security filter
+        String topicSecuritySearchText = this.buildTopicSecuritySearch();
+
+        if (topicSearchText != null && topicSearchText.trim().length() > 0) {
+          log.debug("Lucene topic search: " + topicSearchText);
+          QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+          myQueryParser.setAllowLeadingWildcard(true);
+          Query query = myQueryParser.parse(topicSearchText);          
+          
+          // Build security filter        
+          QueryWrapperFilter filter = this.buildSecurityQueryFilter(topicSecuritySearchText);
+
+          // Search for the query
+          Hits hits = null;
+          if (filter == null) {
+             hits = topicSearcher.search(query);
+          } else {
+             hits = topicSearcher.search(query, filter);
+          }  
+          
+          processTopicHits(hits, topicSearchText);
+          
+        } else {
+          if (topicSecuritySearchText != null) {
+            QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+            myQueryParser.setAllowLeadingWildcard(true);
+            Query query = myQueryParser.parse(topicSecuritySearchText);          
+            Hits hits = topicSearcher.search(query);
+            processTopicHits(hits, topicSecuritySearchText);
+          } else {
+            this.buildTopicGroupMap(topicIndexReader);
+          }
+        }        
       }
       
 
@@ -430,6 +505,16 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     // Map search results
     this.buildDataTrackMap(hits);
+    
+  }
+  
+  private void processTopicHits(Hits hits, String searchText) throws Exception {
+    
+    // Show hits
+    showTopicHits(hits, searchText);
+    
+    // Map search results
+    this.buildTopicMap(hits);
     
   }
   
@@ -547,6 +632,27 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
   }
   
+  private void buildTopicMap(Hits hits) throws Exception{
+    
+    labTopicMap = new HashMap();
+    topicMap = new HashMap();
+    labTopicNodes = new ArrayList();
+    rankedTopicNodes = new ArrayList();
+    topicNodesForLabs = new ArrayList();
+    
+    topicIds = new ArrayList<Integer>();
+    for (int i = 0; i < hits.length(); i++) {
+      org.apache.lucene.document.Document doc = hits.doc(i);
+      Integer idTopic  = doc.get(TopicIndexHelper.ID_TOPIC).equals("unknown") ? null : new Integer(doc.get(TopicIndexHelper.ID_TOPIC));
+      if (idTopic != null) {
+        topicIds.add(idTopic);
+      }
+      float score = hits.score(i);
+      mapTopicDocument(doc, i, score);
+      
+    }
+  }  
+  
   private void buildDataTrackGroupMap(IndexReader indexReader) throws Exception{
     
     labDataTrackMap = new HashMap();
@@ -561,6 +667,21 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       mapDataTrackDocument(doc, -1, -1);      
     }
   }
+  
+  private void buildTopicGroupMap(IndexReader indexReader) throws Exception{
+    
+    labTopicMap = new HashMap();
+    topicMap = new HashMap();
+    labTopicNodes = new ArrayList();
+    rankedTopicNodes = new ArrayList();
+    topicNodesForLabs= new ArrayList();
+    
+    for (int i = 0; i < indexReader.numDocs(); i++) {
+      org.apache.lucene.document.Document doc = indexReader.document(i);
+      mapTopicDocument(doc, -1, -1);      
+    }
+  }
+
   
   private void mapProtocolDocument(org.apache.lucene.document.Document doc, int rank, float score) {
     
@@ -853,7 +974,35 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
 
   }
-  
+ 
+  private void mapTopicDocument(org.apache.lucene.document.Document doc, int rank, float score) {
+    Integer idLab    = doc.get(TopicIndexHelper.ID_LAB) == null ? -1 : new Integer(doc.get(TopicIndexHelper.ID_LAB));
+    Integer idTopic  = doc.get(TopicIndexHelper.ID_TOPIC).equals("unknown") ? null : new Integer(doc.get(TopicIndexHelper.ID_TOPIC));
+    
+    Element labNode = (Element)labTopicMap.get(idLab);
+    if (labNode == null) {
+      Element node = new Element("Lab");
+      node.setAttribute("idLab", idLab.toString());
+      node.setAttribute("labName", doc.get(TopicIndexHelper.LAB_NAME) == null ? "unknown" : doc.get(TopicIndexHelper.LAB_NAME));
+      node.setAttribute("label", doc.get(TopicIndexHelper.LAB_NAME) == null ? "unknown" : doc.get(TopicIndexHelper.LAB_NAME));
+      labTopicNodes.add(node);
+      labTopicMap.put(idLab, node);
+    }
+
+    if (idTopic != null) {
+      Element topicNode = (Element)topicMap.get(idTopic);
+      if (topicNode == null) {
+        Element node = new Element("Topic");
+        Element labTopicNode = new Element("LabTopic");
+        buildTopicNode(node, idTopic, doc, score, rank); 
+        buildTopicNode(labTopicNode, idTopic, doc, score, rank); 
+        topicMap.put(idTopic, node);
+        rankedTopicNodes.add(node);
+        topicNodesForLabs.add(labTopicNode);
+      }        
+    }
+  }  
+ 
   private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeApplication, Document doc, float score, int rank, DictionaryHelper dh) {
     RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
     
@@ -987,18 +1136,41 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
 
   }
+ 
+  
+  private void buildTopicNode(Element node, Integer idTopic, Document doc, float score, int rank) {
+    node.setAttribute("idTopic", idTopic.toString());
+    node.setAttribute("label", doc.get(TopicIndexHelper.TOPIC_NAME));
+    node.setAttribute("createDate", doc.get(TopicIndexHelper.CREATE_DATE) != null ? doc.get(TopicIndexHelper.CREATE_DATE) : "");
+    node.setAttribute("codeVisibility",  doc.get(TopicIndexHelper.CODE_VISIBILITY) != null ? doc.get(TopicIndexHelper.CODE_VISIBILITY) : "");
+    node.setAttribute("public",  doc.get(TopicIndexHelper.CODE_VISIBILITY) != null && doc.get(TopicIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Public" : "");
+    node.setAttribute("publicNote", doc.get(TopicIndexHelper.PUBLIC_NOTE) != null ? doc.get(TopicIndexHelper.PUBLIC_NOTE) : "");
+    node.setAttribute("name", doc.get(TopicIndexHelper.TOPIC_NAME) != null ?  doc.get(TopicIndexHelper.TOPIC_NAME) : "");
+    node.setAttribute("ownerFirstName", doc.get(TopicIndexHelper.OWNER_FIRST_NAME) != null ? doc.get(TopicIndexHelper.OWNER_FIRST_NAME) : "");
+    node.setAttribute("ownerLastName", doc.get(TopicIndexHelper.OWNER_LAST_NAME) != null ? doc.get(TopicIndexHelper.OWNER_LAST_NAME) : "");
+    node.setAttribute("idLab", doc.get(TopicIndexHelper.ID_LAB) != null ? doc.get(TopicIndexHelper.ID_LAB) : "" );
+    node.setAttribute("labName", doc.get(TopicIndexHelper.LAB_NAME) != null ? doc.get(TopicIndexHelper.LAB_NAME) : "" );
+    node.setAttribute("description", doc.get(TopicIndexHelper.DESCRIPTION) != null ? doc.get(TopicIndexHelper.DESCRIPTION) : "" );
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
+  } 
   
   private org.jdom.Document buildXMLDocument() throws Exception {
     org.jdom.Document xmlDoc = new org.jdom.Document(new Element(listKind));
     
-    if (!isAnalysisOnlySearch && !isDataTrackOnlySearch && !isProtocolOnlySearch) {
+    if (!isAnalysisOnlySearch && !isDataTrackOnlySearch && !isProtocolOnlySearch && !isTopicOnlySearch) {
       buildProjectRequestList(xmlDoc.getRootElement());
       buildRequestList(xmlDoc.getRootElement());      
     }
-    if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch) {
+    if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
       buildProtocolList(xmlDoc.getRootElement());
     }
-    if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch) {
+    if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch && !isTopicOnlySearch) {
      // buildDataTrackFolderList(doc.getRootElement());
       DataTrackQuery q = new DataTrackQuery(dataTrackIds);
       Element qElem = q.getDataTrackDocument(this.getSecAdvisor().getReadOnlyHibernateSession(this.username), this.getSecAdvisor()).getRootElement();
@@ -1006,9 +1178,13 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       xmlDoc.getRootElement().addContent(qElem);
       buildDataTrackList(xmlDoc.getRootElement());
     }
-    if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch) {
+    if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
       buildAnalysisGroupList(xmlDoc.getRootElement());
       buildAnalysisList(xmlDoc.getRootElement());      
+    }
+    if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isAnalysisOnlySearch && topicsSupported) {
+      buildLabTopicList(xmlDoc.getRootElement());      
+      buildTopicList(xmlDoc.getRootElement());      
     }
     
     return xmlDoc;
@@ -1018,70 +1194,63 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private void buildProjectRequestList(Element root) {
     Element parent = new Element("ProjectRequestList");
     root.addContent(parent);
-    
+
     // For each lab
     for(Iterator i = labToProjectMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
-      
+
       String []tokens = key.split("---");
       Integer idLab = new Integer(tokens[1]);
-      
+
       Element labNode = (Element)labMap.get(idLab);
       Map projectIdMap = (Map)labToProjectMap.get(key);
-      
-      
+
+
       parent.addContent(labNode);
-      
+
       // For each project in lab
       for(Iterator i1 = projectIdMap.keySet().iterator(); i1.hasNext();) {
         String projectKey = (String)i1.next();
 
-        
+
         Integer idProject = (Integer)projectIdMap.get(projectKey);
 
         Element projectNode = (Element)projectMap.get(idProject);
         Map codeMap = (Map)projectToRequestCategoryMap.get(idProject);
-        
+
         labNode.addContent(projectNode);
-        
-        
+
+
         // For each request category in project
         if (codeMap != null) {
           for(Iterator i2 = codeMap.keySet().iterator(); i2.hasNext();) {
             String code = (String)i2.next();
             Element categoryNode = (Element)categoryMap.get(code);
             Map idRequestMap = (Map)categoryToRequestMap.get(code);
-            
+
             if (categoryNode != null) {
-              
+
               if (this.experimentFilter.getShowCategory().equals("Y")) {
                 projectNode.addContent(categoryNode);                
               }
-              
+
               // For each request in request category
               for(Iterator i3 = idRequestMap.keySet().iterator(); i3.hasNext();) {
                 String requestKey = (String)i3.next();
                 Integer idRequest = (Integer)idRequestMap.get(requestKey);
                 Element requestNode = (Element)requestMap.get(idRequest);
-                
+
                 if (this.experimentFilter.getShowCategory().equals("Y")) {
                   categoryNode.addContent(requestNode);                  
                 } else {
                   projectNode.addContent(requestNode);
                 }
-                
               }              
             }
-            
           }
-          
         }
-          
-        }
-      
+      }
     }
-
-    
   }
 
   private void buildAnalysisGroupList(Element root) {
@@ -1220,6 +1389,52 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
   }
   
+  private void buildTopicList(Element root) {
+    Element parent = new Element("TopicList");
+    root.addContent(parent);
+    
+    // For each data track node
+    for(Iterator i = rankedTopicNodes.iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      parent.addContent(node);
+    }
+    
+  }
+  
+  private void buildLabTopicList(Element root) {
+    Element parent = new Element("LabTopicList");
+    root.addContent(parent);
+    
+    Collections.sort(labTopicNodes,new Comparator<Element>() {
+      public int compare(Element node1, Element node2) {
+        String labName1 = node1.getAttributeValue("labName");
+        String labName2 = node2.getAttributeValue("labName");
+          return labName1.toLowerCase().compareTo(labName2.toLowerCase());
+      }
+    });
+
+    Collections.sort(topicNodesForLabs,new Comparator<Element>() {
+      public int compare(Element node1, Element node2) {
+        String topicName1 = node1.getAttributeValue("name");
+        String topicName2 = node2.getAttributeValue("name");
+          return topicName1.toLowerCase().compareTo(topicName2.toLowerCase());
+      }
+    });
+
+    for(Iterator j = labTopicNodes.iterator(); j.hasNext();) {
+      Element nodeLab = (Element)j.next();
+      String idLab = nodeLab.getAttributeValue("idLab");
+      for(Iterator i = topicNodesForLabs.iterator(); i.hasNext();) {
+        Element labTopicNode = (Element)i.next();
+        String idTopicLab = labTopicNode.getAttributeValue("idLab");
+        if(idTopicLab.length() > 0 && idTopicLab.compareTo(idLab)==0) {
+          nodeLab.addContent(labTopicNode);          
+        }    
+      }  
+      parent.addContent(nodeLab);
+    }
+  }
+  
   private String buildSecuritySearch() throws Exception {
     boolean scopeToGroup = true;
     if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
@@ -1298,6 +1513,35 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, 
                                                                     DataTrackIndexHelper.ID_DATATRACK + ":unknown" );
+
+    
+    if (addedFilter) {
+      log.debug("Security filter: " + searchText.toString());
+      return searchText.toString();           
+    } else {
+      return null;
+    }
+  }
+  
+  private String buildTopicSecuritySearch() throws Exception {
+    boolean scopeToGroup = true;
+    if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
+      scopeToGroup = false;
+    }
+    
+   
+    StringBuffer searchText = new StringBuffer();
+    
+    boolean addedFilter = this.getSecAdvisor().buildLuceneSecurityFilter(searchText, 
+                                                                    TopicIndexHelper.ID_LAB,
+                                                                    TopicIndexHelper.ID_INSTITUTION,
+                                                                    null,
+                                                                    null,
+                                                                    TopicIndexHelper.ID_APPUSER,
+                                                                    TopicIndexHelper.CODE_VISIBILITY,
+                                                                    scopeToGroup,
+                                                                    null, 
+                                                                    TopicIndexHelper.ID_TOPIC + ":unknown" );
 
     
     if (addedFilter) {
@@ -1410,5 +1654,32 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
 
   }
+  
+  private void showTopicHits(Hits hits, String searchText) throws Exception {
 
+    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+      // Examine the Hits object to see if there were any matches
+      int hitCount = hits.length();
+      if (hitCount == 0) {
+          System.out.println(
+              "No matches were found for \"" + searchText + "\"");
+      }
+      else {
+          System.out.println("Hits for \"" + searchText + "\""  + ":");
+
+          // Iterate over the Documents in the Hits object
+          for (int i = 0; i < hitCount; i++) {
+              org.apache.lucene.document.Document doc = hits.doc(i);
+              float score = hits.score(i);
+
+              // Print the value that we stored in the "title" field. Note
+              // that this Field was not indexed, but (unlike the
+              // "contents" field) was stored verbatim and can be
+              // retrieved.
+              System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get(TopicIndexHelper.TOPIC_NAME) + " visibility=" + doc.get(TopicIndexHelper.CODE_VISIBILITY));
+          }
+      }
+      System.out.println();      
+    }
+  }
 }

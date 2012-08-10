@@ -1,6 +1,11 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.4.7.1
+---------------------
+* Replaced topics icons. (rcundick)
+* Updated Lucene indexing to include topics. (rcundick)
+* Updated Ludene search results to include topics. (rcundick)
 
 5.4.7
 ---------------------

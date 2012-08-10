@@ -47,6 +47,8 @@
     	private var protocolHitLabel:String = "Protocols";
 		[Bindable] 
 		private var dataTrackHitLabel:String = "Data Tracks";
+		[Bindable] 
+		private var topicHitLabel:String = "Topics";
         
         [Bindable]
         public var simpleSearchText:String = null;
@@ -63,6 +65,17 @@
 		public function init():void {
 			this.searchView.scopeSearch();
 			this.searchView.checkSecurity();
+			
+			if (!parentApplication.isTopicsSupported) {
+				// If topics not supported then remove topics windows from viewstacks
+				if (resultsViewStack.contains(resultsTopicView)) {
+					resultsViewStack.removeChild(resultsTopicView);
+				}
+				
+				if (resultsTreeViewStack.contains(resultsTopicTreeView)) {
+					resultsTreeViewStack.removeChild(resultsTopicTreeView);
+				}				
+			}
 			
 			if (!isInitialized) {
 				this.getSlideProductList.send();
@@ -114,6 +127,7 @@
         	analysisHitLabel = "Analysis (" + searchAnalysisList.length + " hits)";
         	protocolHitLabel = "Protocols (" + searchProtocolList.length + " hits)";
 			dataTrackHitLabel = "Data Tracks (" + searchDataTrackList.length + " hits)";
+			topicHitLabel = "Topics (" + searchTopicList.length + " hits)";
         	this.searchResultsView.enabled = true;
 
         }
@@ -172,6 +186,11 @@
 			shrinkWindow();
 		}
 		
+		private function onTopicRowSelected():void  {
+			parentApplication.showTopicForNumber(this.resultTopicGrid.selectedItem.@idTopic);
+			shrinkWindow();
+		}
+		
 		
 		private function onDataTrackNodeSelected():void  {
 			if (resultsDataTrackTree.selectedItem.name() == "DataTrack") {
@@ -179,6 +198,15 @@
 				shrinkWindow();
 			}
 		}
+		
+		private function onTopicNodeSelected():void  {
+			if (resultsTopicTree.selectedItem.name() == "LabTopic") {
+				parentApplication.showTopicForNumber(this.resultsTopicTree.selectedItem.@idTopic);
+				shrinkWindow();
+			}
+		}
+		
+		
         private function onProtocolRowSelected():void  {
         	parentApplication.showProtocol(resultsProtocolGrid.selectedItem.@idProtocol, 
         	                               this.resultsProtocolGrid.selectedItem.@className);
@@ -242,6 +270,8 @@
 	  			return "Analysis hits";
 			} else if (item.name() == "DataTrackFolderList") {
 				return "Data Track hits";
+			} else if (item.name() == "LabTopicList") {
+				return "Topic hits";
 	  		}else {
 	  			return item.@label;
 	  		}
@@ -264,6 +294,8 @@
 					this.resultsTreeViewStack.selectedIndex = 2;	
 				} else if (this.searchDataTrackList.length > 0) {
 					this.resultsTreeViewStack.selectedIndex = 3;
+				} else if (parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
+					this.resultsTreeViewStack.selectedIndex = 4;
 				} else {
 					this.resultsTreeViewStack.selectedIndex = 0;				
 				} 
@@ -279,6 +311,8 @@
 					resultsViewStack.selectedIndex = 2;
 				} else if (this.searchDataTrackList.length > 0) {
 					this.resultsViewStack.selectedIndex = 3;
+				} else if (parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
+					this.resultsViewStack.selectedIndex = 4;
 				} else {
 					resultsViewStack.selectedIndex = 0;
 				} 
@@ -310,6 +344,7 @@
     <mx:XMLListCollection id="searchProtocolList" source="{searchView.searchGNomEx.lastResult.ProtocolList.Protocol}"/>
     <mx:XMLListCollection id="searchAnalysisList" source="{searchView.searchGNomEx.lastResult.AnalysisList.Analysis}"/>
 	<mx:XMLListCollection id="searchDataTrackList" source="{searchView.searchGNomEx.lastResult.DataTrackList.DataTrack}"/>
+	<mx:XMLListCollection id="searchTopicList" source="{searchView.searchGNomEx.lastResult.TopicList.Topic}"/>
 <mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingBottom="0"  verticalGap="0" paddingTop="0" backgroundColor="#FEFEFE" backgroundAlpha="0.5">
 
 
@@ -440,6 +475,23 @@
 							</mx:VBox>
 						</mx:VBox>
 						
+						<mx:VBox id="resultsTopicView" label="{topicHitLabel}" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0" visible="{parentApplication.isTopicsSupported}">
+							<mx:VBox id="listTopicView" width="100%" height="100%">
+								<mx:DataGrid  dataProvider="{searchTopicList}"  width="100%" height="100%"  id="resultTopicGrid" doubleClickEnabled="true"  doubleClick="onTopicRowSelected()">
+									<mx:columns>
+										<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
+										<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
+										<mx:DataGridColumn headerText="Group" width="60" dataField="@labName"/>
+										<mx:DataGridColumn headerText="Topic Name" width="70" dataField="@name"/>
+										<mx:DataGridColumn headerText="Visibility"  width="30" dataField="@codeVisibility" 
+														   editable="false" 
+														   rendererIsEditor="true" 
+														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"/>
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:VBox>
+						</mx:VBox>
+						
 					</mx:ViewStack>
 				</mx:VBox>
 
@@ -502,6 +554,18 @@
 										 labelField="@label" 
 										 doubleClickEnabled="true" doubleClick="onDataTrackNodeSelected()"
 										 iconFunction="parentApplication.getDataTrackTreeIcon"
+										 labelFunction="getTreeLabel"
+										 showRoot="true" >
+								</mx:Tree>
+							</mx:VBox>
+						</mx:VBox>
+						<mx:VBox id="resultsTopicTreeView" label="{topicHitLabel}"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0" >
+							<mx:VBox id="treeTopicView" width="100%" height="100%">
+								<mx:Tree id="resultsTopicTree" width="100%" height="100%" 
+										 dataProvider="{searchView.searchGNomEx.lastResult.LabTopicList}"
+										 labelField="@label" 
+										 doubleClickEnabled="true" doubleClick="onTopicNodeSelected()"
+										 iconFunction="parentApplication.getTopicTreeIcon"
 										 labelFunction="getTreeLabel"
 										 showRoot="true" >
 								</mx:Tree>

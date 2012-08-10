@@ -532,7 +532,7 @@
 			public var iconSmallDelete:Class;
 
 			[Bindable]
-			[Embed(source="assets/topic.png")]
+			[Embed(source="assets/topic_tag.png")]
 			public var iconTopic:Class;		
 	        
 	        [Bindable]
@@ -2227,6 +2227,14 @@
 				}
 			}     
 
+			public function getTopicTreeIcon(item:Object):Class {
+				if (item.name() == "Lab") {
+					return iconDataTrackFolderForGroup;
+				} else {
+					return iconTopic;
+				}
+			}
+			
 			public function getSampleProperty(idProperty:String):Object {
 				var property:XML = null;
 				for each(var prop:XML in propertyList) {
@@ -2406,7 +2414,7 @@
 					  <mx:VRule height="20" id="dataTracksRule" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}" /> 
 					  <util:LinkButtonTwoLines id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
 					  <mx:VRule height="20" id="topicsRule" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
-					  <mx:LinkButton id="topicsLink" label="Topics" click="{theViews.selectedChild = navTopicsView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/topic.png')" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
+					  <mx:LinkButton id="topicsLink" label="Topics" click="{theViews.selectedChild = navTopicsView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/topic_tag.png')" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
 					  <mx:VRule height="20" id="workflowRule" visible="{showCoreGenomicsLinks}"  includeInLayout="{showCoreGenomicsLinks}" />
 					  <mx:LinkButton id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
 					  <mx:VRule height="20" id="billingRule"/>
