@@ -2,13 +2,18 @@ package hci.gnomex.lucene;
 
 import hci.dictionary.model.DictionaryEntry;
 import hci.framework.model.DetailObject;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.Topic;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -26,6 +31,7 @@ import java.util.Map;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.xml.sax.EntityResolver;
@@ -46,8 +52,11 @@ import org.xml.sax.SAXException;
 public class BuildSearchIndex extends DetailObject {
 
 
-  private BatchDataSource dataSource = new BatchDataSource();
+  private BatchDataSource dataSource;
   private Session sess;
+  
+  private String orionPath = "";
+  private String schemaPath = "";
   
   private PropertyDictionaryHelper propertyHelper;
   private Map dictionaryMap;
@@ -69,6 +78,7 @@ public class BuildSearchIndex extends DetailObject {
   private Map datatrackCollaboratorMap;
   private Map datatrackAnnotationMap;
   private Map<Integer, DataTrackFolderPath> dataTrackFolderMap;
+  private Map topicMap;
   
   
 
@@ -79,8 +89,18 @@ public class BuildSearchIndex extends DetailObject {
       if (args[i].equals("-server")) {
         serverName = args[++i];
         System.out.println("servername = " + serverName);
+      } else if (args[i].equals ("-orionPath")) {
+        orionPath = args[++i];
+      } else if (args[i].equals ("-schemaPath")) {
+        schemaPath = args[++i];
       }
     }
+    if(orionPath.length() > 0 && schemaPath.length() > 0) {
+      dataSource = new BatchDataSource(orionPath, schemaPath);      
+    } else {
+      dataSource = new BatchDataSource();
+    }
+    
   }
   public static void main(String[] args)
   {
@@ -104,6 +124,9 @@ public class BuildSearchIndex extends DetailObject {
       
       System.out.println(new Date() + " building lucene datatrack index...");
       app.buildDataTrackIndex();
+      
+      System.out.println(new Date() + " building lucene topic index...");
+      app.buildTopicIndex();
       
       System.out.println(new Date() + " disconnecting...");
       System.out.println();
@@ -289,6 +312,30 @@ public class BuildSearchIndex extends DetailObject {
     }
     datatrackIndexWriter.optimize();
     datatrackIndexWriter.close();
+  }
+  
+  
+  private void buildTopicIndex() throws Exception{
+
+    IndexWriter topicIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_TOPIC_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    
+    // Get data track data
+    getTopicData(sess);
+    
+    //
+    // Write Topic Lucene Index.
+    // (A document for each protocol)
+    //
+    for( Iterator i = topicMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      Integer idTopic = new Integer(key);
+      Object[] row = (Object[])topicMap.get(key);
+      
+      Document doc = buildTopicDocument(idTopic, row);
+      topicIndexWriter.addDocument(doc);
+    }
+    topicIndexWriter.optimize();
+    topicIndexWriter.close();
   }
   
   
@@ -664,6 +711,7 @@ public class BuildSearchIndex extends DetailObject {
     }    
     
   }
+  
   private void getDataTrackFolderPaths(Session sess) throws Exception {
     this.dataTrackFolderMap = new HashMap<Integer, DataTrackFolderPath>();
  
@@ -749,6 +797,40 @@ public class BuildSearchIndex extends DetailObject {
     }
   }
   
+  private void getTopicData(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT t.idTopic, ");
+    buf.append("       t.name, ");
+    buf.append("       t.description, ");
+    buf.append("       t.codeVisibility, ");
+    buf.append("       t.idAppUser,  ");
+    buf.append("       t.idInstitution, ");
+    buf.append("       lab.lastName,  ");
+    buf.append("       lab.firstName,  ");
+    buf.append("       owner.firstName, ");
+    buf.append("       owner.lastName, ");
+    buf.append("       t.createDate, ");
+    buf.append("       t.idLab  ");
+  
+    
+    buf.append("FROM        Topic as t ");
+    buf.append("LEFT JOIN   t.lab as lab ");
+    buf.append("LEFT JOIN   t.appUser as owner ");
+
+
+    buf.append("ORDER BY t.name");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    topicMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idTopic = (Integer)row[0];
+      String key = idTopic.toString();
+      
+      topicMap.put(key, row);
+    }
+  }
   
   private void getProjectAnnotations(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
@@ -847,8 +929,7 @@ public class BuildSearchIndex extends DetailObject {
       }
       rows.add(row);
     }   
-  }
-  
+  }  
   
   private void getRequestCollaborators(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
@@ -1358,8 +1439,52 @@ public class BuildSearchIndex extends DetailObject {
           collaborators.append(row[1] != null  ? " COLLAB-" + ((Integer)row[1]).toString() + "-COLLAB " : "");
         }          
       }
-    }
+    } 
     
+    /* RC_8.2
+    // Get the current request (if applicable) to obtain the list of topics it belongs to
+    StringBuffer requestTopics = new StringBuffer();
+    if(idRequest != null) {
+      Map topicsUsedMap = new HashMap();    // Keep track of topics already found for this request
+
+      Request request = (Request)sess.get(Request.class, idRequest);
+      Hibernate.initialize(request.getTopics());
+      if(request.getTopics() != null) {
+        // If topics exist for this request then iterate through the list
+        Iterator<?> it = request.getTopics().iterator();
+        while(it.hasNext()) {
+          Topic t = (Topic) it.next();
+          Integer topicInt = (Integer)topicsUsedMap.get(t.getIdTopic());
+          if(topicInt == null) {
+            // If this topic not yet used, add it's name and description field (if present)
+            topicsUsedMap.put(t.getIdTopic(), new Integer(1));
+            requestTopics.append(t.getName() + " ");
+            if(t.getDescription() != null) {
+              String str = Constants.HTML_BRACKETS.matcher(t.getDescription()).replaceAll("");
+              if(str.length() > 0) {
+                requestTopics.append(str + " ");
+              }
+            }
+            while(t.getParentTopic() != null) {
+              // Repeat for any parents that are not already on the list
+              t = t.getParentTopic();
+              topicInt = (Integer)topicsUsedMap.get(t.getIdTopic());
+              if(topicInt == null) {
+                topicsUsedMap.put(t.getIdTopic(), new Integer(1));
+                requestTopics.append(t.getName() + " ");
+                if(t.getDescription() != null) {
+                  String str = Constants.HTML_BRACKETS.matcher(t.getDescription()).replaceAll("");
+                  if(str.length() > 0) {
+                    requestTopics.append(str + " ");
+                  }
+                }              
+              }         
+            }
+          }
+        }
+      }  
+    } 
+    */
 
     // Combine all text into one search field
     StringBuffer text = new StringBuffer();
@@ -1398,7 +1523,12 @@ public class BuildSearchIndex extends DetailObject {
     text.append(labRequest);
     text.append(" ");        
     text.append(requestNumber);
-    text.append(" ");        
+    text.append(" "); 
+    
+    /* RC_8.2
+    text.append(requestTopics.toString());
+    text.append(" "); 
+    */       
 
     
     Map nonIndexedFieldMap = new HashMap();
@@ -1512,8 +1642,6 @@ public class BuildSearchIndex extends DetailObject {
     Integer idAppUser             = (Integer)row[21];
     Integer idInstitution         = (Integer)row[22];
     
-    
-
     //
     // Obtain annotations on analysis
     //
@@ -1577,9 +1705,52 @@ public class BuildSearchIndex extends DetailObject {
         }          
       }
     }
-        
-   
     
+    /*  RC_8.2
+    // Get the current analysis (if applicable) to obtain the list of topics it belongs to
+    StringBuffer analysisTopics = new StringBuffer();
+    if(idAnalysis != null) {
+      Map topicsUsedMap = new HashMap();    // Keep track of topics already found for this request
+
+      Analysis analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
+      Hibernate.initialize(analysis.getTopics());
+      if(analysis.getTopics() != null) {
+        // If topics exist for this analysis then iterate through the list
+        Iterator<?> it = analysis.getTopics().iterator();
+        while(it.hasNext()) {
+          Topic t = (Topic) it.next();
+          Integer topicInt = (Integer)topicsUsedMap.get(t.getIdTopic());
+          if(topicInt == null) {
+            // If this topic not yet used, add it's name and description field (if present)
+            topicsUsedMap.put(t.getIdTopic(), new Integer(1));
+            analysisTopics.append(t.getName() + " ");
+            if(t.getDescription() != null) {
+              String str = Constants.HTML_BRACKETS.matcher(t.getDescription()).replaceAll("");
+              if(str.length() > 0) {
+                analysisTopics.append(str + " ");
+              }
+            }
+            while(t.getParentTopic() != null) {
+              // Repeat for any parents that are not already on the list
+              t = t.getParentTopic();
+              topicInt = (Integer)topicsUsedMap.get(t.getIdTopic());
+              if(topicInt == null) {
+                topicsUsedMap.put(t.getIdTopic(), new Integer(1));
+                analysisTopics.append(t.getName() + " ");
+                if(t.getDescription() != null) {
+                  String str = Constants.HTML_BRACKETS.matcher(t.getDescription()).replaceAll("");
+                  if(str.length() > 0) {
+                    analysisTopics.append(str + " ");
+                  }
+                }              
+              }         
+            }
+          }
+        }
+      }  
+    }
+    */
+      
     String agLabName = Lab.formatLabName(agLabLastName, agLabFirstName);
     String labName   = Lab.formatLabName(labLastName, labFirstName);
 
@@ -1642,6 +1813,10 @@ public class BuildSearchIndex extends DetailObject {
     buf.append(" ");
     buf.append(number);
     buf.append(" ");
+    /* RC_8.2
+    buf.append(analysisTopics.toString());
+    buf.append(" ");
+    */
     indexedFieldMap.put(AnalysisIndexHelper.TEXT, buf.toString());
     
     AnalysisIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
@@ -1740,8 +1915,51 @@ public class BuildSearchIndex extends DetailObject {
         }          
       }
     }
-        
-   
+    
+    /*  RC_8.2
+    // Get the current data track (if applicable) to obtain the list of topics it belongs to
+    StringBuffer dataTrackTopics = new StringBuffer();
+    if(idDataTrack != null) {
+      Map topicsUsedMap = new HashMap();    // Keep track of topics already found for this request
+
+      DataTrack dt = (DataTrack)sess.get(DataTrack.class, idDataTrack);
+      Hibernate.initialize(dt.getTopics());
+      if(dt.getTopics() != null) {
+        // If topics exist for this data track then iterate through the list
+        Iterator<?> it = dt.getTopics().iterator();
+        while(it.hasNext()) {
+          Topic t = (Topic) it.next();
+          Integer topicInt = (Integer)topicsUsedMap.get(t.getIdTopic());
+          if(topicInt == null) {
+            // If this topic not yet used, add it's name and description field (if present)
+            topicsUsedMap.put(t.getIdTopic(), new Integer(1));
+            dataTrackTopics.append(t.getName() + " ");
+            if(t.getDescription() != null) {
+              String str = Constants.HTML_BRACKETS.matcher(t.getDescription()).replaceAll("");
+              if(str.length() > 0) {
+                dataTrackTopics.append(str + " ");
+              }
+            }
+            while(t.getParentTopic() != null) {
+              // Repeat for any parents that are not already on the list
+              t = t.getParentTopic();
+              topicInt = (Integer)topicsUsedMap.get(t.getIdTopic());
+              if(topicInt == null) {
+                topicsUsedMap.put(t.getIdTopic(), new Integer(1));
+                dataTrackTopics.append(t.getName() + " ");
+                if(t.getDescription() != null) {
+                  String str = Constants.HTML_BRACKETS.matcher(t.getDescription()).replaceAll("");
+                  if(str.length() > 0) {
+                    dataTrackTopics.append(str + " ");
+                  }
+                }            
+              }         
+            }
+          }
+        }
+      }  
+    } 
+    */
     
     String dtfLabName = Lab.formatLabName(dtfLabLastName, dtfLabFirstName);
     String labName   = Lab.formatLabName(labLastName, labFirstName);
@@ -1801,6 +2019,10 @@ public class BuildSearchIndex extends DetailObject {
     buf.append(" ");
     buf.append(fileName);
     buf.append(" ");
+    /* RC_8.2
+    buf.append(dataTrackTopics.toString());
+    buf.append(" ");
+    */
     indexedFieldMap.put(DataTrackIndexHelper.TEXT, buf.toString());
     
     DataTrackIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
@@ -1808,6 +2030,57 @@ public class BuildSearchIndex extends DetailObject {
     return doc;
   }
   
+
+  private Document buildTopicDocument(Integer idTopic, Object[] row) {
+    
+    Document doc = new Document();
+        
+    String topicName              = (String)row[1];
+    String topicDesc              = (String)row[2];
+    String codeVisibility         = (String)row[3];
+    Integer idAppUser             = (Integer)row[4];
+    Integer idInstitution         = (Integer)row[5];
+    String labLastName            = (String)row[6];
+    String labFirstName           = (String)row[7];
+    String ownerFirstName         = (String)row[8];
+    String ownerLastName          = (String)row[9];
+    java.sql.Date createDate      = (java.sql.Date)row[10];
+    Integer idLab                 = (Integer)row[11];    
+    
+    String labName   = Lab.formatLabName(labLastName, labFirstName);
+
+    //if (codeVisibility != null && codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
+    //    publicNote = "(Public) ";
+    //}
+
+    
+    Map nonIndexedFieldMap = new HashMap();
+    nonIndexedFieldMap.put(TopicIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
+    nonIndexedFieldMap.put(TopicIndexHelper.OWNER_LAST_NAME, ownerLastName);
+    nonIndexedFieldMap.put(TopicIndexHelper.CREATE_DATE, createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_SQL) : null);
+
+    Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(TopicIndexHelper.ID_TOPIC, idTopic != null ? idTopic.toString() : "unknown");
+    indexedFieldMap.put(TopicIndexHelper.DESCRIPTION, topicDesc);
+    indexedFieldMap.put(TopicIndexHelper.TOPIC_NAME, topicName);
+    indexedFieldMap.put(TopicIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    indexedFieldMap.put(TopicIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
+    indexedFieldMap.put(TopicIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
+    indexedFieldMap.put(TopicIndexHelper.LAB_NAME, labName != null ? labName : "");
+    indexedFieldMap.put(TopicIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    
+    StringBuffer buf = new StringBuffer();
+    buf.append(topicName);
+    buf.append(" ");
+    buf.append(topicDesc);
+    buf.append(" ");
+
+    indexedFieldMap.put(DataTrackIndexHelper.TEXT, buf.toString());
+    
+    TopicIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
+    
+    return doc;
+  }
 
   
   // Bypassed dtd validation when reading data sources.

@@ -659,17 +659,6 @@
 			}
 		}
 	}	
-	/*
-	public function getTopicIcon(item:Object):Class {
-		return parentApplication.iconTopic;
-	}
-	
-	private function goToTopic():void {  
-		if (this.topicsTree.selectedItem.name() == "Topic") {
-			parentApplication.showTopicForNumber(topicsTree.selectedItem.@idTopic);	 
-		}	
-	}
-	*/
 	
 ]]>
 </mx:Script>
@@ -903,18 +892,6 @@
 				
 			</mx:VBox>
 		</mx:VBox>
-		<!--mx:VBox verticalGap="0" width="100%" height="100%" id="topicsTab" label="Topics">
-			<mx:Tree width="100%" height="100%" dataProvider="{sortedTopics}" id="topicsTree" 
-					 showRoot="false" 
-					 dragEnabled="true"
-					 dropEnabled="false"
-					 dragMoveEnabled="false"
-					 iconFunction="getTopicIcon" 
-					 doubleClickEnabled="true" 
-					 itemDoubleClick="goToTopic()"
-					 labelField="@name" >						
-			</mx:Tree>
-		</mx:VBox-->	
 		<mx:HBox width="100%" horizontalGap="0" id="topicsTab" label="Topics">
 			<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
 				<mx:Repeater id="topicRepeater" dataProvider="{sortedTopics}">
