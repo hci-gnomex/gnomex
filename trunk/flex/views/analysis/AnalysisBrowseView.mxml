@@ -122,8 +122,8 @@
   	private function onGetAnalysis(event:ResultEvent):void {
 		selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);
 		parentDocument.selectedAnalysis = selectedAnalysis;
-		parentDocument.theViews.selectedChild = parentDocument.detailView;
-		parentDocument.detailView.setupForm();
+		parentDocument.analysisViews.selectedChild = parentDocument.analysisDetailView;
+		parentDocument.analysisDetailView.setupForm();
 	}
 
 	private function onViewSwitch():void {

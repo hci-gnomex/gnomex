@@ -221,6 +221,7 @@
 			
 			import views.experiment.ConvertIlluminaRequestWindow;
 			import views.order.NavOrderView;
+			import views.topics.NavTopicsView;
 			import views.util.PromptXMLListCollection;
 			import views.util.StringUtil;
         
@@ -361,7 +362,7 @@
 					this.currentState = 'AmendState';
 					this.theTab.removeChild(downloadView);
 					this.nextButton.enabled = false;
-				} else if (this.id == "editView") {
+				} else if (this.id == "experimentEditView") {
 					this.currentState = "EditState";
 				} else if (!parentApplication.submitInternalExperiment()) {
 					this.currentState = "";
@@ -401,7 +402,7 @@
 
         	if (parentApplication.theViews.selectedChild == this) {
     	    	this.setupSubmitForm();
-        	} else if (this.id == "editView" && request != null) {
+        	} else if (this.id == "experimentEditView" && request != null) {
         		this.setupTheEditForm();
 				//  Grab the request application so that we know if we need to include avg Insert size or capLib fields
 				//  in the layout.
@@ -418,7 +419,7 @@
 		private function leave():void {
 			if (parentApplication.theViews.selectedChild == this) {
 				
-			} else if (this.id == "editView" && request != null) {
+			} else if (this.id == "experimentEditView" && request != null) {
 				this.theTab.selectedChild = this.samplesView;
 			}	
 		}
@@ -3167,7 +3168,7 @@
 			params.idProject = request.@idProject;
 			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
 			if (this.isMitSeqState()) {
-				params.primersXMLString = parentApplication.navExperimentView.detailView.detail.primers.toXMLString();
+				params.primersXMLString = parentApplication.navExperimentView.experimentDetailView.detail.primers.toXMLString();
 			}
 			if (this.isFragAnalState()) {
 				params.assaysXMLString = this.selectedAssaysCollection;
@@ -3393,10 +3394,14 @@
 				this.tabIndexToRestore = this.theTab.selectedIndex;
 				parentDocument.browseView.getList();
 				parentDocument.switchToOrderDetailView();
-			} else {
+			} else if (parentDocument is NavTopicsView) {
+				parentApplication.navTopicsView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);	
+				parentApplication.navTopicsView.experimentViews.selectedChild = parentApplication.navTopicsView.experimentDetailView;
+			}
+			else {
 				parentApplication.navExperimentView.showEditView = true;	
 				parentApplication.navExperimentView.refreshExperiments();
-			    parentApplication.navExperimentView.detailView.detail.refreshSavedExperiment(request.@idRequest);
+			    parentApplication.navExperimentView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);
 			}
 		}
 
@@ -3635,14 +3640,14 @@
 			
 		private function backToNavOrder():void {
 			if (parentDocument is NavOrderView) {
-				parentDocument.theViews.selectedChild = parentDocument.browseView;
+				parentDocument.experimentViews.selectedChild = parentDocument.browseView;
 			} 
 		}
 
 		private function showViewWindow():void {
-			parentDocument.theViews.selectedChild = parentDocument.detailView;
-			parentDocument.detailView.detail.setupForm(this.request);
-			parentDocument.detailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ')+ this.request.@number;
+			parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
+			parentDocument.experimentDetailView.detail.setupForm(this.request);
+			parentDocument.experimentDetailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ')+ this.request.@number;
 
 		}
 		
@@ -4911,9 +4916,9 @@
 					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
 					<mx:LinkButton label="Download Files" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 					<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
+								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.experimentDetailView.detail.showRelatedAnalysis()" textAlign="left">
 					</mx:LinkButton>
 					<mx:Spacer width="10"/>
 					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}"  fontSize="9"/>

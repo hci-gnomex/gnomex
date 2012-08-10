@@ -213,10 +213,10 @@
    				} 
    			}
    			if (this.shortcutToDownloadTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.experimentViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.downloadView;
         	} else if (this.shortcutToExperimentListTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.experimentViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         	}
 
@@ -345,11 +345,11 @@
         	callLater(reselectTreeItem);
         	
         	if (this.shortcutToDownloadTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.experimentViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.downloadView;
         		this.shortcutToDownloadTab = false;
         	} else if (this.shortcutToExperimentListTab) {
-        		this.theViews.selectedChild = this.browseView;
+        		this.experimentViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         		this.shortcutToExperimentListTab = false;
         	}
@@ -555,13 +555,13 @@
 			
 			if (browseTree.selectedItem.name() == 'Request') {
 				var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + browseTree.selectedItem.@requestNumber;
-				detailView.titleLabel.text = viewTitle;
-				detailView.navBackButton.visible = false;
-				detailView.navBackButton.includeInLayout = false;
+				experimentDetailView.titleLabel.text = viewTitle;
+				experimentDetailView.navBackButton.visible = false;
+				experimentDetailView.navBackButton.includeInLayout = false;
 
 				var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
-				if (editView != null && editView.titleLabel != null) {
-					editView.titleLabel.text = editTitle;
+				if (experimentEditView != null && experimentEditView.titleLabel != null) {
+					experimentEditView.titleLabel.text = editTitle;
 				}
 
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
@@ -598,25 +598,25 @@
 					browseView.refreshTrackList();
 					browseView.refreshVisibilityList();
 					
-					detailView.detail.refreshDownloadList();
+					experimentDetailView.detail.refreshDownloadList();
 					
 				}
 				
-				theViews.selectedIndex=0;
+				experimentViews.selectedIndex=0;
 			} 
 			
 			browseView.requestNumberCombo.selectedIndex = -1;
 			browseView.browseList.refresh();
 			refreshRequestNumbers(browseView.browseList);
 			browseView.refreshVisibilityList();
-			theViews.visible = true;
+			experimentViews.visible = true;
 			
 			
 		}
 		
 		public function showExperimentDownloads():void {
 			browseView.reloadDownloadList();
-			theViews.selectedChild = browseView;
+			experimentViews.selectedChild = browseView;
 			browseView.theViews.selectedChild = browseView.downloadView;
 			browseView.refreshButtonStack();
 		}
@@ -696,8 +696,8 @@
 			if(isSelected) {
 				descNode.@isSelected = "true";
 			}	
-			if (editView.theTab.contains(editView.annotationView)) {
-				editView.annotationView.showSampleAnnotationColumn("-1", isSelected);
+			if (experimentEditView.theTab.contains(experimentEditView.annotationView)) {
+				experimentEditView.annotationView.showSampleAnnotationColumn("-1", isSelected);
 			}
 			scXML.appendChild(descNode);
 		}          
@@ -725,7 +725,7 @@
         	
 		    if (this.showDownloads) {
 		    	this.showExperimentDownloads();
-		    	theViews.visible = true;
+		    	experimentViews.visible = true;
 		    	this.showDownloads = false;
 		    	return;
 		    }
@@ -746,24 +746,24 @@
 				params.searchPublicProjects = 'N';
 				getProjectRequestList.send(params);
 				
-			    detailView.titleLabel.text = (selectedExperiment.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + selectedRequestNumber;
+			    experimentDetailView.titleLabel.text = (selectedExperiment.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + selectedRequestNumber;
 			    
 			    
 			}
 			
 			if (showEditView) {
-				theViews.selectedChild = editView;
-				editView.removeDataListeners();
-				editView.setupEditForm(this.selectedExperiment);
-				callLater(editView.setupDataListeners);
+				experimentViews.selectedChild = experimentEditView;
+				experimentEditView.removeDataListeners();
+				experimentEditView.setupEditForm(this.selectedExperiment);
+				callLater(experimentEditView.setupDataListeners);
 				showEditView = false;						
 			} else {
-			    theViews.selectedChild = detailView;
-				detailView.detail.setupForm(this.selectedExperiment);
+			    experimentViews.selectedChild = experimentDetailView;
+				experimentDetailView.detail.setupForm(this.selectedExperiment);
 				
 			}
 
-		    theViews.visible = true;
+		    experimentViews.visible = true;
 		}
 
 		private function onGetRequestForDownload(event:ResultEvent):void {
@@ -798,7 +798,7 @@
 			params.showCategory = "N";
 			var call:Object = getProjectRequestList.send(params);
 			call.marker = "showDownloads";
- 		    theViews.visible = true;
+ 		    experimentViews.visible = true;
 		}
 		
 		private function onGetRequestFromNav(event:ResultEvent):void {
@@ -1143,7 +1143,7 @@
 	    private function onDeleteRequest(event:ResultEvent): void {
 	    	if (deleteRequest.lastResult.name() == "SUCCESS") {
 	    		this.refreshExperiments();
-	    		theViews.selectedChild = browseView;
+	    		experimentViews.selectedChild = browseView;
 	    	} else {
 	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
 	    	}
@@ -1152,7 +1152,7 @@
 		private function onSubmitRequest(event:ResultEvent): void {
 			if (submitRequest.lastResult.name() == "SUCCESS") {
 				this.refreshExperiments();
-				theViews.selectedChild = browseView;
+				experimentViews.selectedChild = browseView;
 			} else {
 				Alert.show(submitRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -1504,7 +1504,7 @@
 							</mx:HBox>
 							<mx:HBox>
 								<mx:LinkButton  label="Delete exp." id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
-												click="detailView.detail.promptToDeleteExperiment()"
+												click="experimentDetailView.detail.promptToDeleteExperiment()"
 												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
 									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 								</mx:LinkButton>
@@ -1520,15 +1520,15 @@
 	    
  
 		
-	     <mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
+	     <mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
 
 	        <experiment:ExperimentBrowseView id="browseView"  width="100%" height="100%">
 	        </experiment:ExperimentBrowseView>
 
-	        <experiment:ExperimentDetailPanel id="detailView" width="100%" height="100%">
+	        <experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
 	        </experiment:ExperimentDetailPanel>
 	        
-			<experiment:ExperimentEditView id="editView" width="100%" height="100%">
+			<experiment:ExperimentEditView id="experimentEditView" width="100%" height="100%">
 	        </experiment:ExperimentEditView>
 
          </mx:ViewStack>
