@@ -7,6 +7,8 @@
 * Updated Lucene indexing to include topics. (rcundick)
 * Updated Lucene search results to include topics. (rcundick)
 * Enabled edit mode for experiments and analysis from within Topics view. (rcundick)
+* Changed Add Services request list to filter by idSubmitter rather that idAppUser. (rcundick)
+* Restrict lab list on add topic to labs user is a member of for non-admin users. (rcundick)
 
 5.4.7
 ---------------------
