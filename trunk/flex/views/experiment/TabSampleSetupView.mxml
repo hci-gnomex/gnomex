@@ -270,8 +270,12 @@
         	} else if (parentDocument.isCapSeqState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
-					
 					isComplete = true;
+					if (this.containerTypePlate.selected) {
+						if (this.capSeqNumPlatesRadioGroup.selectedValue == null) {
+							isComplete = false;
+						}
+					}
 				}
 			} else if (parentDocument.isFragAnalState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
@@ -682,12 +686,25 @@
 		}
 		
 		private function onContainerTypeChange():void {
+			if (containerTypeRadioGroup.selectedValue == 'PLATE') {
+				if (this.capSeqNumPlatesRadioGroup.selectedValue == null) {
+					this.capSeqNumPlates1.selected = true;
+				}
+			} else {
+				this.capSeqNumPlatesRadioGroup.selection = null;
+			}
 			parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.showHideColumns();
 			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 				parentDocument.confirmView.showHideColumns();
+			}
+		}
+		
+		private function onCapSeqNumPlatesChanged():void {
+			if (capSeqNumPlatesRadioGroup.selectedValue != null) {
+				parentDocument.numCapSeqPlates = this.capSeqNumPlatesRadioGroup.selectedValue;
 			}
 		}
 		
@@ -1036,17 +1053,30 @@
              <mx:RemoveChild target="{samplePrepContainer}"/>
              <mx:AddChild relativeTo="{hbox6}" position="before">
                   <mx:HBox width="100%" horizontalGap="0">
-                       <mx:Label text="(2) The samples will be delivered in what container?" width="310"  id="label0"/>
-                       <mx:RadioButtonGroup id="containerTypeRadioGroup" selectedValue="TUBE"/>
-                       <mx:RadioButton id="containerTypeTube" label="Tubes" click="{callLater(onContainerTypeChange)}" value="TUBE" groupName="containerTypeRadioGroup"/>
-                       <mx:RadioButton id="containerTypePlate" label="Plate" click="{callLater(onContainerTypeChange)}" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
+                       <mx:Label text="(2) The samples will be delivered in what container?" width="334"  id="label0"/>
+                       <mx:RadioButtonGroup id="containerTypeRadioGroup" selectedValue="TUBE" change="{callLater(onContainerTypeChange)}"/>
+                       <mx:RadioButton id="containerTypeTube" label="Tubes" value="TUBE" groupName="containerTypeRadioGroup"/>
+                       <mx:RadioButton id="containerTypePlate" label="Plate" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
                   </mx:HBox>
              </mx:AddChild>
-             <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+			<mx:AddChild relativeTo="{hbox6}" position="before">
+				<mx:HBox horizontalGap="0" id="capSeqNumPlatesBox" verticalAlign="middle">
+					<mx:Label text="(3) If plates, how many plates will you be submitting?" width="334"  id="capSeqNumPlatesLabel" enabled="{containerTypePlate.selected}"/>
+					<mx:RadioButtonGroup id="capSeqNumPlatesRadioGroup" selectedValue="TUBE" change="onCapSeqNumPlatesChanged()" />
+					<mx:RadioButton id="capSeqNumPlates1" label="1" value="1" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
+					<mx:Spacer width="20"/>
+					<mx:RadioButton id="capSeqNumPlates2" label="2" value="2" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
+					<mx:Spacer width="20"/>
+					<mx:RadioButton id="capSeqNumPlates3" label="3" value="3" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
+					<mx:Spacer width="20"/>
+					<mx:RadioButton id="capSeqNumPlates4" label="4" value="4" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
+				</mx:HBox>
+			</mx:AddChild>
+             <mx:SetProperty target="{label8}" name="text" value="(4) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
              <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                   <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
-                  	<mx:Label text="(4) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
+                  	<mx:Label text="(5) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
                   	<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
                   				 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
                   	</mx:ComboBox>

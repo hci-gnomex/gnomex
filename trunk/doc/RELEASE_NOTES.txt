@@ -9,6 +9,7 @@
 * Enabled edit mode for experiments and analysis from within Topics view. (rcundick)
 * Changed Add Services request list to filter by idSubmitter rather that idAppUser. (rcundick)
 * Restrict lab list on add topic to labs user is a member of for non-admin users. (rcundick)
+* Allow all plates on multi-plate request (cap seq) to be partial (bspiglejr)
 
 5.4.7
 ---------------------

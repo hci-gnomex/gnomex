@@ -296,7 +296,7 @@
 				var gfCapSeq:GroupingField = new GroupingField();
 				gfCapSeq.name = "@plateName";
 				groupCapSeq.fields = [gfCapSeq];
-				gfCapSeq.compareFunction = sampleCompareFunction;
+				gfCapSeq.compareFunction = plateSampleCompareFunction;
 				sampleGroupingCollection.grouping  = groupCapSeq;
 				sampleGroupingCollection.refresh(); 
 				this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
@@ -385,7 +385,46 @@
 			}
 		}		
 
-		
+		private function plateSampleCompareFunction(a:XML, b:XML):int
+		{
+			if (a.hasOwnProperty("@plateName") && a.hasOwnProperty("@wellName") && b.hasOwnProperty("@plateName") && b.hasOwnProperty("@wellName")) {
+				var compVal:int = 0;
+				if (a.@plateName == b.@plateName) {
+					compVal = compVal = ObjectUtil.numericCompare(a.@wellName.toString().substr(1), b.@wellName.toString().substr(1));
+					if (compVal == 0) {
+						compVal = ObjectUtil.stringCompare(a.@wellName.toString(), b.@wellName.toString());
+					}
+				} else {
+					compVal = ObjectUtil.stringCompare(a.@plateName.toString(), b.@plateName.toString());
+				}
+				return compVal;
+			} else {
+				var aPersistFlag:Number = 0;
+				var aPosition:Number = 0;
+				if (a.@idSample.toString().indexOf("Sample") > -1) {
+					aPosition = a.@idSample.toString().substr(6);
+					aPersistFlag = 1;
+				} else {
+					aPosition = a.@idSample;
+				}
+				
+				var bPersistFlag:Number = 0;
+				var bPosition:Number = 0;
+				if (b.@idSample.toString().indexOf("Sample") > -1) {
+					bPosition = b.@idSample.toString().substr(6);
+					bPersistFlag = 1; // non-persistent samples sort after the persistent ones
+				} else {
+					bPosition = b.@idSample;
+				}
+				
+				if (aPersistFlag == bPersistFlag) {
+					return ObjectUtil.numericCompare(aPosition, bPosition);				
+				} else {
+					return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
+				}
+			}
+		}
+
 		private function showCy3LabelCols(isVisible:Boolean):void {
 			labelCol1.visible = isVisible;
 			labelCol2.visible = isVisible;
@@ -572,17 +611,34 @@
 			 
 			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
 			 
-			 
 			 parentDocument.parentDocument.experimentEditView.removeDataListeners();
 			 parentDocument.parentDocument.experimentEditView.setupEditForm( this.selectedExperiment);
 			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
+			 
+			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates()) {
+			 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
+			 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
+			 }
+			 
 			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 			 
 			 //parentDocument.experimentEditView.removeDataListeners();
            	 //parentDocument.experimentEditView.initializeData();
            	 //callLater(parentDocument.experimentEditView.setupDataListeners);
 		}
-		
+
+		private function countPlates():int {
+			var prevPlate:String = "xxxx";
+			var numPlates:int = 0;
+			for each (var s:Object in this.samples) {
+				if (s.@plateName != prevPlate) {
+					numPlates++;
+				}
+				prevPlate = s.@plateName;
+			}
+			
+			return numPlates;
+		}
 
 		public function refreshSavedExperiment(idRequest:Object):void {
 			 parentDocument.parentDocument.selectedIdRequest = idRequest;

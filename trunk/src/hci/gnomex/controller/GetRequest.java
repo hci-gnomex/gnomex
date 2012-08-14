@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -451,6 +453,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
                   }
                 }
               }
+              // Sort samples by plate and well
+              ArrayList sampleArray = new ArrayList(samples);
+              requestNode.getChild("samples").setContent(null);
+              Collections.sort(sampleArray, new PlateAndWellComparator());
+              requestNode.getChild("samples").setContent(sampleArray);
             } else {
               requestNode.setAttribute("containerType", "TUBE");
             }
@@ -717,5 +724,28 @@ public class GetRequest extends GNomExCommand implements Serializable {
     requestNode.setAttribute("onReactionPlate", onReactionPlate ? "Y" : "N");
     
   }
+
+  private static class PlateAndWellComparator implements Comparator {
+    public int compare(Object o1, Object o2) {
+        String p1 = ((Element)o1).getAttributeValue("plateName");
+        String p2 = ((Element)o2).getAttributeValue("plateName");
+        String w1 = ((Element)o1).getAttributeValue("wellName");
+        String w2 = ((Element)o2).getAttributeValue("wellName");
+
+        if (p1.equals(p2)) {
+          // Sort column first numerically, then row
+          Integer w1Int = new Integer(w1.substring(1));
+          Integer w2Int = new Integer(w2.substring(1));
+          if (w1Int.equals(w2Int)) {
+            return w1.compareTo(w2);
+          } else {
+            return w1Int.compareTo(w2Int);
+          }
+        } else {
+          return p1.compareTo(p2);
+        }
+    }
+  }
+
 
 }
