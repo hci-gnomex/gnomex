@@ -270,10 +270,10 @@
 			var node:XMLList = getTopicList.lastResult.Folder;
 			browseTree.expandItem(node[0], true);
 			for each(topic in getTopicList.lastResult.Folder.Topic) {
-				browseTree.expandItem(topic, true);
+			//	browseTree.expandItem(topic, true);
 				expandAllCategoryNodes(topic)
 			}
-			callLater(selectTreeItem);
+			//callLater(selectTreeItem);
 		}
 		
 	}
@@ -295,15 +295,6 @@
 		}
 	}
 	
-	//private function recurseExpandParent(item:XML):void {
-	//	if (item.name() != 'DataTrack') {
-	//		browseTree.expandItem(item, true);				
-	//	}
-	//	if (item.parent() != null) {
-	//		recurseExpandParent(item.parent());									
-	//	}
-		
-	//}
 	private function selectTreeItem():void {
 		if (itemToSelect != null) {
 			browseTree.selectedItem = itemToSelect;
