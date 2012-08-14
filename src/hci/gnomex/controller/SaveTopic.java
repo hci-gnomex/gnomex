@@ -91,11 +91,15 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         this.topic.setName(topicName);
         this.topic.setIdParentTopic(idParentTopic);
         
+        String visibilityMessage = checkAgainstParentVisibility(topic, sess);
+        
         sess.save(topic);
         sess.flush();
-
-        this.xmlResult = "<SUCCESS idTopic=\"" + topic.getIdTopic() + "\"/>";
-      
+        
+        this.xmlResult = "<SUCCESS idTopic=\"" + topic.getIdTopic() 
+            + "\" codeVisibility=\"" + topic.getCodeVisibility()
+            + "\" visibilityMsg=\"" + visibilityMessage + "\"/>";
+       
         setResponsePage(this.SUCCESS_JSP);
       
       } else {
@@ -117,6 +121,37 @@ public class SaveTopic extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private String checkAgainstParentVisibility(Topic topic, Session sess) throws Exception {
+    Topic parentTopic = null;
+    String retValue = "";
+    if(topic.getIdParentTopic() != null) {
+      parentTopic = (Topic)sess.load(Topic.class, topic.getIdParentTopic());
+      if(parentTopic != null && parentTopic.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
+        if(!topic.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
+          retValue = "the owner";               
+        }
+      }
+      if(parentTopic != null && parentTopic.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+        if(topic.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) || topic.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          retValue = "group members";          
+        }
+      }
+      if(parentTopic != null && parentTopic.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+        if(topic.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          retValue = "institution members";          
+        }
+      }
+    
+    }
+    
+    // If visibility of child less restrictive than parent then set child visibility to same as parent
+    if(parentTopic != null && retValue.length() > 0) {
+      topic.setCodeVisibility(parentTopic.getCodeVisibility());
+      topic.setIdInstitution(parentTopic.getIdInstitution());      
+    }
+    return retValue;
   }
   
   private void initializeTopic(Topic load, Session sess) throws Exception {
@@ -144,6 +179,7 @@ public class SaveTopic extends GNomExCommand implements Serializable {
       if (defaultVisibility != null && defaultVisibility.length() > 0) {
         topic.setCodeVisibility(defaultVisibility);
         if(defaultVisibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
+          boolean institutionSet = false;
           if (topic.getIdLab() != null) {
             Lab lab = (Lab)sess.load(Lab.class, topic.getIdLab());
             Hibernate.initialize(lab.getInstitutions());
@@ -151,24 +187,29 @@ public class SaveTopic extends GNomExCommand implements Serializable {
             while(it.hasNext()) {
               Institution thisInst = (Institution) it.next();
               if(thisInst.getIsDefault().compareTo("Y") == 0) {
-                topic.setIdInstitution(thisInst.getIdInstitution());            
+                topic.setIdInstitution(thisInst.getIdInstitution()); 
+                institutionSet = true;
               }
             }
+          }
+          if(!institutionSet) {
+            // If default visibility is VISIBLE_TO_INSTITUTION_MEMBERS but this lab
+            // is not a member of the institution then set default to VISIBLE_TO_GROUP_MEMBERS      
+            topic.setCodeVisibility(hci.gnomex.model.Visibility.VISIBLE_TO_GROUP_MEMBERS);
           }
         }
       }
     } else {
-      // If parent annotation grouping is owned by a user group, this
-      // child annotation grouping must be as well.
+      // A child topic must belong to the same group as the parent.
       if (topic.getParentTopic() != null &&
           topic.getParentTopic().getIdLab() != null) {
 
         if (load.getIdLab() == null ||
             !topic.getParentTopic().getIdLab().equals(load.getIdLab())) {
-          throw new Exception("Topic '" + load.getName() + "' must belong to lab '" + 
+          throw new Exception("Topic '" + load.getName() + "' must belong to group '" + 
               DictionaryHelper.getInstance(sess).getLabObject(topic.getParentTopic().getIdLab()).getName() + "'");
         }
-      }   
+      } 
     }
   }  
 }
