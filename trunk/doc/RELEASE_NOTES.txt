@@ -15,6 +15,7 @@
 * Changed initial topics tree display to only to expand to highest level of topics. (rcundick)
 * Change Billing GL File to allow some specific values by core facility.  (bspiglejr)
 * Change Billing Month End report title to use Core Facility name instead of "Microarray".  (bspiglejr)
+* Add example sheet download link for cap seq to the samples view as well as the download page.  (bspiglejr)
 
 5.4.7
 ---------------------

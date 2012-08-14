@@ -55,6 +55,9 @@
 		private var hasColumnNames:Boolean; 
 		private var	sampleSheetXML:XML;
 		
+		private var downloadRequest:URLRequest; 
+		private var downloadFileRef:FileReference; 
+
 		public function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
@@ -81,6 +84,23 @@
 			uploadSampleSheetWindow.init(this, numPlates, fieldList);
 		}
 		
+		private function downloadSampleSheetExample(fileName:String):void {
+			try {
+				downloadRequest = new URLRequest("doc/" + fileName);
+				downloadFileRef = new FileReference();
+				downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
+				downloadFileRef.download(downloadRequest, fileName);
+				
+			} catch (error:Error) {
+				Alert.show("Unable to download example sample sheet due to error. " + error.message);
+			}
+		}
+		
+		private function downloadCompleteHandler(event:Event):void
+		{
+			mx.controls.Alert.show("Example sample sheet downloaded.");
+		}
+
 		public function copyColumn():void {
 			var copySampleSheetColumnWindow:CopySampleSheetColumnView = CopySampleSheetColumnView(PopUpManager.createPopUp(this, CopySampleSheetColumnView, true));
 			PopUpManager.centerPopUp(copySampleSheetColumnWindow);
@@ -1088,6 +1108,8 @@
 			// handle assay columns for fragment analysis
 			manageFragAnalAssayColumns();
         	
+			// handle the download sample sheet events
+			
 			this.samplesGrid.validateNow();
         	callLater(this.checkSamplesCompleteness);
 
@@ -1303,6 +1325,11 @@
         public function showHideColumns():void {
 			isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			isEditState = parentDocument.isEditState();
+			
+			this.downloadExamplePlateButton.visible = hasPlates();
+			this.downloadExamplePlateButton.includeInLayout = hasPlates();
+			this.downloadExampleTubeButton.visible = parentDocument.isCapSeqState() && !hasPlates();
+			this.downloadExampleTubeButton.includeInLayout = parentDocument.isCapSeqState() && !hasPlates();
 			
 			buttonsContainer.visible = !parentDocument.isAmendState();
         	
@@ -1724,6 +1751,8 @@
 		    <mx:HBox width="100%">
 				<mx:HBox id="buttonsContainer" horizontalGap="2">
 					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
+					<mx:LinkButton textDecoration="underline" id="downloadExamplePlateButton" label="Download example sheet for plate" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+					<mx:LinkButton textDecoration="underline" id="downloadExampleTubeButton" label="Download example sheet for tube" click="{downloadSampleSheetExample('example_sample_sheet_tubes.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
