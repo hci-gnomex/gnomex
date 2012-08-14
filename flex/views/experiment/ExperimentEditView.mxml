@@ -350,6 +350,8 @@
 			
 		private var alertButtonWidth:Number = Alert.buttonWidth;
 
+		public var numCapSeqPlates:int = 0;
+		
 		private function init():void {
 			
 	 		// If this is the first time this instance
@@ -2455,8 +2457,7 @@
 						if (samples.length > lastSample) {
 							controlSample = samples.getItemAt(lastSample);
 						}
-						if (controlSample == null || !controlSample.hasOwnProperty("@name") || controlSample.@name == null || controlSample.@name == "" 
-							|| !controlSample.hasOwnProperty("@isControl") || controlSample.@isControl == null || controlSample.@isControl != 'Y') {
+						if (controlSample != null && controlSample.hasOwnProperty("@name") && controlSample.@name != null && controlSample.@name != "") {
 							warningMessage += "If you replace the control and the run fails, the results cannot be verified and we will not repeat the run.\n\n";
 							break;
 						}
@@ -2464,8 +2465,7 @@
 						var numSamplesOnPlate:int = 0;
 						for (var idx2:int = firstSample; idx2 <= lastSample; idx2++) {
 							var sampleToCount:Object = samples.getItemAt(idx2);
-							if ((!sampleToCount.hasOwnProperty("@isControl") || sampleToCount.@isControl == null || sampleToCount.@isControl != 'Y') 
-								&& (sampleToCount.hasOwnProperty("@name") && sampleToCount.@name != null && sampleToCount.@name != "")) {
+							if (sampleToCount.hasOwnProperty("@name") && sampleToCount.@name != null && sampleToCount.@name != "") {
 								numSamplesOnPlate = numSamplesOnPlate + 1;
 							}
 						}
@@ -2519,10 +2519,13 @@
 				sourceWells[s.@sourceWell.toString()] = sourceWellCount;
 				// check for sparse plates -- not allowed.
 				if (isCapSeqState() && this.request.@containerType == "PLATE") {
-					if (s.@name != '' && s.@isControl != 'Y' && capSeqFoundDeleted) {
+					if (prevSample == null || prevSample.@plateName != s.@plateName) {
+						capSeqFoundDeleted = false;
+					}
+					if (s.@name != '' && capSeqFoundDeleted) {
 						sparsePlate = true;
 					}
-					if (s.@name == '' && s.@isControl != 'Y') {
+					if (s.@name == '') {
 						capSeqFoundDeleted = true;
 					}
 				}
@@ -2562,7 +2565,7 @@
 			}
 
 			if (sparsePlate) {
-				errorMessage += "Early plates cannot be partial and plates may not be sparse.  Please make sure wells are contiguous and only the last plate is partial.\n\n";
+				errorMessage += "Empty wells can only exist at the end of the plate.\n\n";
 			}
 			
 			// If this is a new request or the request is being changed on
@@ -2999,9 +3002,7 @@
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
 				if (sample.@name != null && sample.@name != '') {
-					if (!this.isCapSeqState() || sample.@isControl != 'Y') { 
-						request.samples.appendChild(sample);
-					}
+					request.samples.appendChild(sample);
 				}
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
@@ -3106,9 +3107,6 @@
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
 				if ((this.isCapSeqState() || this.isCherryPickState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
-					continue;
-				}
-				if (this.isCapSeqState() && sample.@isControl == 'Y') {
 					continue;
 				}
 				request.samples.appendChild(sample);

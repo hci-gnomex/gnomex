@@ -60,14 +60,13 @@
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
 			var numPlates:int = 0;
 			if (hasPlates()) {
-				numPlates = (new Number(parentDocument.sampleSetupView.numberOfSamples.text) / 96) + 1; 
+				numPlates = parentDocument.numCapSeqPlates; 
 			}
 			var fieldList:Dictionary = null;
 			if (hasPlates()) {
 				fieldList = new Dictionary();
 				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
 				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
-				fieldList[this.isControlCol.dataField] = this.isControlCol;
 			}
 			if (parentDocument.isFragAnalState()) {
 				fieldList = new Dictionary();
@@ -183,10 +182,7 @@
 					Alert.show("Maximum number of samples reached.  Add Sample ignored.");
 					isValid = false;
 				} else {
-					var plateName:String = getPlateName(parentDocument.samples.length);
-					var isControl:String = getIsControl(parentDocument.samples.length);
-					var wellName:String = getWellName(parentDocument.samples.length);
-					emptyNode = getEmptyCapSeqNode(plateName, wellName, isControl); 
+					emptyNode = getEmptyCapSeqNode(parentDocument.samples.length); 
 				}				
 				
 			} else if (currentState != null && (currentState.indexOf('FragAnal') >= 0)) {
@@ -279,9 +275,12 @@
 			return isValid;
 		}
 		
-		private function getEmptyCapSeqNode(plateName:String, wellName:String, isControl:String):XML {
+		private function getEmptyCapSeqNode(idx:int):XML {
+			var plateName:String = getPlateName(idx);
+			var wellName:String = getWellName(idx);
+			var sampleId:String = "Sample" + idx;
 			var emptyNode:XML = new XML("<Sample " +
-				" idSample='" + "Sample" + getNextSampleId() + "'" +
+				" idSample='" + sampleId + "'" +
 				" name='' description='' " +
 				" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 				" canChangeSampleName='Y'" +
@@ -301,11 +300,8 @@
 				" treatment=''" +	
 				" plateName='" + plateName + "'" +
 				" wellName='" + wellName + "'" +
-				" isControl='" + isControl + "'" +
+				" isControl=''" +
 				"/>");
-			if (isControl == "Y") {
-				emptyNode.@name=this.DEFAULT_CONTROL_NAME;
-			}
 			return emptyNode;
 		}
 		
@@ -370,16 +366,6 @@
 			cherryWellName += cherryColNumber.toString();
 			
 			return cherryWellName;
-		}
-		
-		private function getIsControl(idx:int):String {
-			var isControl:String = "N";
-			if (parentDocument.request.@containerType == 'PLATE') {
-				if (idx % 96 == 95) {
-					isControl = "Y";
-				}
-			}
-			return isControl;
 		}
 		
 		private function getNextSampleId():Number {
@@ -470,7 +456,6 @@
 				for (var psIdx:int = 0; psIdx < parentDocument.samples.length; psIdx++) {
 					var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
 					plateSample.@plateName = getPlateName(psIdx);
-					plateSample.@isControl = getIsControl(psIdx);
 				}
 			}
 			
@@ -573,30 +558,23 @@
         	
 			var numberOfSamples:Number = 0;
 			var numberOfSamplesToAdd:Number = 0;
-			var numberOfSamplesWithoutControl:Number = 0;
 			if (parentApplication.submitInternalExperiment()) {
 				if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
 					return;
 				}
 				if (parentDocument.isCherryPickState()) {
 					numberOfSamples = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
-					numberOfSamplesWithoutControl = numberOfSamples;
+				} else if (hasPlates()) {
+					numberOfSamples = parentDocument.numCapSeqPlates * 96;
 				} else {
 					if (parentDocument.isAmendState()) {
 						numberOfSamples = new Number(parentDocument.samples.length);
 					} else {
 						numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
 					}
-					numberOfSamplesWithoutControl = numberOfSamples;
-					if (hasPlates()) {
-						// Controls not included in number of samples so we have to adjust.
-						numberOfSamples += int(numberOfSamples / 96) + 1;
-						if (numberOfSamples > 384) numberOfSamples=384
-					}
 				}
 			} else {
 				numberOfSamples = 1;
-				numberOfSamplesWithoutControl = numberOfSamples;
 			}
     		if (parentDocument.samples.length <= numberOfSamples) {
     			numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
@@ -604,14 +582,10 @@
 					addSample();
 				}
     		} else {
-				while (parentDocument.samples.length > numberOfSamplesWithoutControl) {
+				while (parentDocument.samples.length > numberOfSamples) {
 					parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
 				}
     		}
-			
-			if (hasPlates()) {
-				fillPlates();
-			}
 		}
 		
 		public function hasPlates():Boolean {
@@ -621,28 +595,20 @@
 		public function fillPlates():void {
 			if (hasPlates()) {
 				var startOfPlate:int = 0;
-				for(var idx:int = 0; idx < 4; idx++) {
-					var firstSample:Object = parentDocument.samples.getItemAt(startOfPlate);
-					if (startOfPlate + 95 >= parentDocument.samples.length) {
-						// Ok last plate and it's a partial plate.  Add samples to fill it up.
-						while(parentDocument.samples.length <= startOfPlate + 94) {
+				for(var idx:int = 0; idx < parentDocument.numCapSeqPlates; idx++) {
+					var curPlateName:String = getPlateName(startOfPlate);
+					for (var sampleIdx:int = startOfPlate; sampleIdx < startOfPlate + 96; sampleIdx++) {
+						if (sampleIdx >= parentDocument.samples.length) {
 							addSample();
-						}
-						var emptyNode:XML = this.getEmptyCapSeqNode(firstSample.@plateName, "H12", "Y");
-						parentDocument.samples.addItem(emptyNode);
-						break;
-					} else {
-						var lastSample:Object = parentDocument.samples.getItemAt(startOfPlate+95);
-						if (lastSample.@plateName != firstSample.@plateName) {
-							// Plate is not full -- insert control at end of plate.
-							var emptyNode1:XML = this.getEmptyCapSeqNode(firstSample.@plateName, "H12", "Y");
-							parentDocument.samples.addItemAt(emptyNode1, startOfPlate + 95);
+						} else {
+							var curSample:Object = parentDocument.samples.getItemAt(sampleIdx);
+							if (curSample.@plateName != curPlateName) {
+								var newSample:Object = this.getEmptyCapSeqNode(sampleIdx);
+								parentDocument.samples.addItemAt(newSample, sampleIdx);
+							}
 						}
 					}
 					startOfPlate += 96;
-					if (startOfPlate >= parentDocument.samples.length) {
-						break;
-					}
 				}
 			}
 		}
@@ -677,10 +643,10 @@
 		
 		private function onPromptToClearAllSamples(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
-            	parentDocument.samples.removeAll();
+				parentDocument.samples.removeAll();
             	parentDocument.lanes.removeAll();
 				if (hasPlates()) {
-					fillPlates(); // make sure at least one full plate.
+					fillPlates(); // Set up the plates as defined in sample setup
 				} else {
 					addSample();	// Add an initial blank sample to the gric
 				}
@@ -806,7 +772,7 @@
 					} 
 	        		 
         		} else if (currentState == 'CapSeqState') {
-					if (isEntered(sample, "@name")  && (!isEntered(sample, "@isControl") || sample.@isControl != 'Y')) {
+					if (isEntered(sample, "@name")) {
 						nameCompleteCount++;
 					}
 					completeCount++;
@@ -1112,7 +1078,22 @@
 				parentDocument.seqSetup1View.propagateBarcode();
 			}
 			
-			
+			setSamplesGridDataProvider();
+        		
+        	this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+        	this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+			this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+
+			// handle assay columns for fragment analysis
+			manageFragAnalAssayColumns();
+        	
+			this.samplesGrid.validateNow();
+        	callLater(this.checkSamplesCompleteness);
+
+		}
+
+		private function setSamplesGridDataProvider():void {
 			if (hasPlates()) {
 				this.samplesGrid.dataProvider = null;
 				sampleGroupingCollection = new GroupingCollection();
@@ -1137,57 +1118,45 @@
 				this.barcodeColumn.visible = false;
 				this.multiplexGroupNumberEditColumn.visible = false;
 			} else if (parentDocument.showSampleMultiplexGroup()) {
-        		this.samplesGrid.dataProvider = null;
-        		sampleGroupingCollection = new GroupingCollection();
-        		sampleGroupingCollection.source = parentDocument.samples;
-        		var group:Grouping = new Grouping();
-        		var gf:GroupingField = new GroupingField();
-        		gf.name = "@multiplexGroupNumber";
-        		group.fields = [gf];
+				this.samplesGrid.dataProvider = null;
+				sampleGroupingCollection = new GroupingCollection();
+				sampleGroupingCollection.source = parentDocument.samples;
+				var group:Grouping = new Grouping();
+				var gf:GroupingField = new GroupingField();
+				gf.name = "@multiplexGroupNumber";
+				group.fields = [gf];
 				gf.compareFunction = sampleCompareFunction;
-        		sampleGroupingCollection.grouping  = group;
-        		sampleGroupingCollection.refresh(); 
-        		this.samplesGrid.dataProvider = sampleGroupingCollection;
-        		
-        		this.samplesGrid.dragMoveEnabled = true;
-        		this.samplesGrid.dropEnabled = true;
-        		this.samplesGrid.dragEnabled = true;
-
-        		this.sampleRowNumberCol.visible = false;
-        		this.multiplexGroupNumberColumn.visible = true;
+				sampleGroupingCollection.grouping  = group;
+				sampleGroupingCollection.refresh(); 
+				this.samplesGrid.dataProvider = sampleGroupingCollection;
+				
+				this.samplesGrid.dragMoveEnabled = true;
+				this.samplesGrid.dropEnabled = true;
+				this.samplesGrid.dragEnabled = true;
+				
+				this.sampleRowNumberCol.visible = false;
+				this.multiplexGroupNumberColumn.visible = true;
 				switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
-        		this.barcodeColumn.visible = false;
+				this.barcodeColumn.visible = false;
 				this.multiplexGroupNumberEditColumn.visible = false;
 				this.plateNameCol.visible = false;
 				
-        	} else {
+			} else {
 				this.samplesGrid.sortableColumns = false;
-        		sampleGroupingCollection = null;
-        		this.samplesGrid.dataProvider = parentDocument.samples;
-        		
-        		this.samplesGrid.dragMoveEnabled = false;
-        		this.samplesGrid.dropEnabled = false;
-        		this.samplesGrid.dragEnabled = false;
-
-        		this.sampleRowNumberCol.visible = true;
+				sampleGroupingCollection = null;
+				this.samplesGrid.dataProvider = parentDocument.samples;
+				
+				this.samplesGrid.dragMoveEnabled = false;
+				this.samplesGrid.dropEnabled = false;
+				this.samplesGrid.dragEnabled = false;
+				
+				this.sampleRowNumberCol.visible = true;
 				this.multiplexGroupNumberColumn.visible = false;
-        		this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
+				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
 				this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState;
 				this.plateNameCol.visible = false;
-
-        	}
-        		
-        	this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-        	this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
-			this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-
-			// handle assay columns for fragment analysis
-			manageFragAnalAssayColumns();
-        	
-			this.samplesGrid.validateNow();
-        	callLater(this.checkSamplesCompleteness);
-
+				
+			}
 		}
 		
 		private function manageFragAnalAssayColumns():void {
@@ -1356,7 +1325,6 @@
 			
 			
 			wellNameCol.visible = (hasPlates() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) ? true : false;
-			isControlCol.visible = (hasPlates()) ? true : false;
 			plateNameCol.editable = false;
 			wellNameCol.editable = false;
 			
@@ -1793,9 +1761,6 @@
 					<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-					<util:AdvancedDataGridColumnWithType propertyType="CHECK" id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" 
-											   dataField="@isControl" rendererIsEditor="true" editorDataField="selected" itemRenderer="views.renderers.CheckBoxSampleIsControl">
-					</util:AdvancedDataGridColumnWithType>
 					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
 					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 											   id="sampleNameCol"

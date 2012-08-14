@@ -139,9 +139,7 @@
 			this.filteredSamples.removeAll();
 			for each(var sample:Object in parentDocument.samples) {
 				if (sample.@name != null && sample.@name != '') {
-					if (!parentDocument.isCapSeqState() || sample.@isControl != 'Y') {
-						this.filteredSamples.addItem(sample);
-					}
+					this.filteredSamples.addItem(sample);
 				}
 			}
 
@@ -174,7 +172,6 @@
 				wellNameCol.visible = true;
 			}
 			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') ? true : false;
-			isControlCol.visible = (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
 			// set all assay columns to not visible.
@@ -525,9 +522,6 @@
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>
 						<mx:DataGridColumn id="plateNameCol" visible="false" headerText="Plate" width="80" dataField="@plateName"/>
 						<mx:DataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-						<mx:DataGridColumn id="isControlCol" visible="false" editable="false" headerText="Control?" width="55" resizable="false" dataField="@isControl"
-										    labelFunction="blankNLabelFunction">
-						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
 						</mx:DataGridColumn>
 						
