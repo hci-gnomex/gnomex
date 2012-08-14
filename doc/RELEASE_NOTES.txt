@@ -13,6 +13,7 @@
 * Do not show billing account in experiment setup if the date is before the startDate.  (bspiglejr)
 * Implemented code to not allow broader visibility of child topics. (rcundick)
 * Changed initial topics tree display to only to expand to highest level of topics. (rcundick)
+* Change Billing GL File to allow some specific values by core facility.  (bspiglejr)
 
 5.4.7
 ---------------------

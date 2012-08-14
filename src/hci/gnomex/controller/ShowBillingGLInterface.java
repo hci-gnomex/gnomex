@@ -9,10 +9,12 @@ import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.report.constants.ReportFormats;
 import hci.report.model.Column;
 import hci.report.model.ReportRow;
@@ -60,8 +62,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   
   private String                   accountDescription = "";
   
-  private static final String    JOURNAL_ID = "SE090";
-  private static final String    JOURNAL_LINE_REF = "MICROARRAY";
+  private String                   journalId;
+  private String                   journalLineRef;
   private String                   journalEntry;
   
   
@@ -126,9 +128,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       
      
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-      journalEntry = this.JOURNAL_ID + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
-
+      journalId = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.PROPERTY_BILLING_GL_JOURNAL_ID);
+      journalLineRef = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.PROPERTY_BILLING_GL_JOURNAL_LINE_REF);
+      journalEntry = this.journalId + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
+      
       if (this.isValid()) { 
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
           
@@ -152,6 +157,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           List results = sess.createQuery(buf.toString()).list();
           TreeMap requestMap = new TreeMap();
           TreeMap billingItemMap = new TreeMap();
+          
+          CoreFacility core = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
           
           for(Iterator i = results.iterator(); i.hasNext();) {
             Object[] row = (Object[])i.next();
@@ -203,9 +210,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             // set up the ReportTray
             tray = new ReportTray();
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
-            tray.setReportTitle(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
-            tray.setReportDescription(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
-            tray.setFileName("umerge_microarray_" + periodFormat.format(billingPeriod.getStartDate()));
+            tray.setReportTitle(billingPeriod.getBillingPeriod() + " " + core.getFacilityName() + " Chargeback - GL Interface");
+            tray.setReportDescription(billingPeriod.getBillingPeriod() + " " + core.getFacilityName() + " Chargeback - GL Interface");
+            tray.setFileName("umerge_" + periodFormat.format(billingPeriod.getStartDate()));
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();
@@ -229,7 +236,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             header += getEmptyString(8, true);
             header += "HCI";
             header += getEmptyString(8, true);
-            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " HCI Microarray Billing", 30, true);
+            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + journalLineRef + " Billing", 30, true);
             header += "USD";
             header += getEmptyString(5, true);
             header += getEmptyString(8, true);
@@ -244,7 +251,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             headerX += getEmptyString(8, false);
             headerX += "HCI";
             headerX += getEmptyString(8, false);
-            headerX += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " HCI Microarray Billing", 30, false);
+            headerX += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + journalLineRef + " Billing", 30, false);
             headerX += "USD";
             headerX += getEmptyString(5, false);
             headerX += getEmptyString(8, false);
@@ -441,7 +448,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue("USD", 3)); // transaction currency code
     values.add(getFixedWidthValueRightJustify(amt, 16)); // transaction monetary amount
     values.add(getFixedWidthEmptyValue(16)); //statistics amount (blank)
-    values.add(getFixedWidthValue(this.JOURNAL_LINE_REF, 10)); //journal line ref
+    values.add(getFixedWidthValue(this.journalLineRef, 10)); //journal line ref
     values.add(getFixedWidthValue(description, 30)); //journal line description
     values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
     values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
@@ -484,8 +491,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue("USD", 3)); // transaction currency code
     values.add(getFixedWidthValueRightJustify(amt, 16)); // transaction monetary amount
     values.add(getFixedWidthEmptyValue(16)); //statistics amount (blank)
-    values.add(getFixedWidthValue(JOURNAL_LINE_REF, 10)); //journal line ref
-    values.add(getFixedWidthValue("HCI Microarray " + billingPeriod.getBillingPeriod(), 30)); //journal line description
+    values.add(getFixedWidthValue(journalLineRef, 10)); //journal line ref
+    values.add(getFixedWidthValue("HCI " + journalLineRef + " " + billingPeriod.getBillingPeriod(), 30)); //journal line description
     values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
     values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
     values.add(getFixedWidthEmptyValue(16)); // base currency amount (blank)
