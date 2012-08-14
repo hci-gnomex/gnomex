@@ -145,7 +145,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle("Total Billing By Lab Report");
             tray.setReportDescription("Total Billing By Lab Report" + " " + this.formatDate(startDate) + " - " + this.formatDate(endDate));
-            tray.setFileName("Microarry Total Billing By Lab");
+            tray.setFileName("Total Billing By Lab");
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();

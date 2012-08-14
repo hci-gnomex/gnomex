@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -132,6 +133,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             buf.append(" ");
           }
           
+          CoreFacility core = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
+          
           buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
           
           List results = sess.createQuery(buf.toString()).list();
@@ -182,9 +185,9 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             // set up the ReportTray
             tray = new ReportTray();
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
-            tray.setReportTitle(billingPeriod.getBillingPeriod() + " Microarray Chargeback");
-            tray.setReportDescription(billingPeriod.getBillingPeriod() + " Microarray Chargeback");
-            tray.setFileName("MicroarryBillingSummary_" + billingPeriod.getBillingPeriod());
+            tray.setReportTitle(billingPeriod.getBillingPeriod() + " " + core.getFacilityName() + " Chargeback");
+            tray.setReportDescription(billingPeriod.getBillingPeriod() + " " + core.getFacilityName() + " Chargeback");
+            tray.setFileName("BillingSummary_" + billingPeriod.getBillingPeriod());
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();
