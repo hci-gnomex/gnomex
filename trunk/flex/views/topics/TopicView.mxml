@@ -41,15 +41,15 @@
 	
 <mx:Script>
 <![CDATA[
+	import mx.collections.Sort;
+	import mx.collections.XMLListCollection;
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
-	import mx.collections.XMLListCollection;
 	
+	import views.util.PromptXMLListCollection;
 	import views.util.StringUtil;
 	import views.util.WebLinksView;
-	import views.util.PromptXMLListCollection;
-	import mx.collections.Sort;
 	
 	[Bindable]
 	private var possibleInstitutions:PromptXMLListCollection;
@@ -208,7 +208,7 @@
 	
 	private function save():void {
 		
-		if (labCombo.selectedItem == null || labCombo.selectedIndex == 0) {
+		if (labCombo.selectedItem == null) {
 			labCombo.setFocus();
 			Alert.show("Please select a Lab.");
 			return;        		
@@ -236,8 +236,20 @@
 	private function onUpdateTopic(event:ResultEvent):void {
 		if (updateTopic.lastResult.name() == "SUCCESS") {
 			this.dirtyTopic.resetDirty();
-			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
-			parentDocument.refreshTopics();			
+			var visibilityMsg:String = updateTopic.lastResult.@visibilityMsg;
+			if(visibilityMsg.length > 0) {
+				var outMsg:String = visibilityMsg = "A topic may not be given broader visiblity than its parent. Since the parent is currently only visible to " 
+					+ visibilityMsg + ", visibility for this topic has been set to the same level.";
+				if(visibilityMsg.indexOf("owner") < 1) {
+					visibilityMsg += " You may still change it to be more restrictive, if desired."
+				}
+				Alert.show(outMsg,
+					"Visibility Restriction");
+				parentDocument.refreshTopicsAndSelect(this.parentDocument.browseTree.selectedItem);
+			} else {
+				parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
+				parentDocument.refreshTopics();
+			}		
 		} else {
 			Alert.show(updateTopic.lastResult..ACTMESSAGE.@TEXT);
 		} 
@@ -273,7 +285,7 @@
 			<mx:Label text="Lab:" width="120" />
 			<mx:ViewStack id="labStack" width="100%">
 				<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" change="labSelected();"></mx:ComboBox>
+					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="200" labelField="@name" change="labSelected();"></mx:ComboBox>
 					<mx:Label text="Owner:" paddingLeft="8"/>
 					<util:ComboBoxDatProvChangeFix width="200" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" change="dirtyTopic.setDirty()"></util:ComboBoxDatProvChangeFix>							         			
 				</mx:HBox>

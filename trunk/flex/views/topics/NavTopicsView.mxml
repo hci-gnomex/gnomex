@@ -398,7 +398,7 @@
 	}
 	
 
-	private function onTreeClick():void {
+	public function onTreeClick():void {
 		this.treeItemToSelect = this.browseTree.selectedItem;
 		if (topicView.dirtyTopic != null) {
 			topicView.dirtyTopic.resetDirty();
