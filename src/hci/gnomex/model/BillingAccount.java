@@ -116,11 +116,15 @@ public class BillingAccount extends HibernateDetailObject {
   public String getIsActive() {
     Date now = new Date(System.currentTimeMillis());
     // No expiration date - account is always active 
-    if (expirationDate == null) {
+    if (expirationDate == null && startDate == null) {
       return "Y";
     }
     // Expiration date is today or past today - account is not active
     else if (now.compareTo(expirationDate) >= 0) {
+      return "N";
+    }
+    // start date is after today.  account is not active.
+    else if (now.compareTo(startDate) < 0) {
       return "N";
     }
     // Expiration date is earlier than today - account is active
