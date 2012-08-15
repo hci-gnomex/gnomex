@@ -47,7 +47,7 @@
 			}
 			
 			private function init():void {
-				if (this.theViews.selectedChild == browseView) {
+				if (this.experimentViews.selectedChild == browseView) {
 					this.browseView.init();
 				}
 			}
@@ -69,11 +69,11 @@
 
 				var title:String = 'Edit Experiment ' + selectedRequest.@number;
 
-				theViews.selectedChild = editView;
-				editView.removeDataListeners();
-				editView.setupEditForm(this.selectedRequest);
-				editView.titleLabel.text = title;
-				callLater(editView.setupDataListeners);
+				experimentViews.selectedChild = experimentEditView;
+				experimentEditView.removeDataListeners();
+				experimentEditView.setupEditForm(this.selectedRequest);
+				experimentEditView.titleLabel.text = title;
+				callLater(experimentEditView.setupDataListeners);
 			}
 			
 			
@@ -94,12 +94,12 @@
 				
 				var title:String = 'View Experiment ' + selectedRequest.@number;
 
-				detailView.detail.setupForm(this.selectedRequest);
+				experimentDetailView.detail.setupForm(this.selectedRequest);
 
-				theViews.selectedChild = detailView;
-				detailView.navBackButton.visible = true;
-				detailView.navBackButton.includeInLayout = true;
-				detailView.titleLabel.text = title;
+				experimentViews.selectedChild = experimentDetailView;
+				experimentDetailView.navBackButton.visible = true;
+				experimentDetailView.navBackButton.includeInLayout = true;
+				experimentDetailView.titleLabel.text = title;
 				
 			}
 			
@@ -115,7 +115,7 @@
 		
 			
 			
-			<mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
+			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
 				
 				<order:OrderBrowseView id="browseView"
 									   width="100%"
@@ -124,10 +124,10 @@
 									   label="Order List"
 									   icon="@Embed('../../assets/application_view_list.png')">
 				</order:OrderBrowseView>
-				<experiment:ExperimentEditView id="editView" width="100%" height="100%" label="Order Detail (Edit)"
+				<experiment:ExperimentEditView id="experimentEditView" width="100%" height="100%" label="Order Detail (Edit)"
 											   icon="@Embed(source='../../assets/tv_chart.png')">
 				</experiment:ExperimentEditView>
-				<experiment:ExperimentDetailPanel id="detailView" width="100%" height="100%" label="Order Detail"
+				<experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%" label="Order Detail"
 											   icon="@Embed(source='../../assets/tv_chart.png')">
 				</experiment:ExperimentDetailPanel>
 
