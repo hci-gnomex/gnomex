@@ -849,7 +849,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           && requestParser.getRequest().getAppUser().getEmail() != null
           && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
         try {
-          sendConfirmationEmail(sess);
+          // confirmation email for dna seq requests is sent at submit time.
+          if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+            sendConfirmationEmail(sess);
+          }
         } catch (Exception e) {
           String msg = "Unable to send confirmation email notifying submitter that request "
             + requestParser.getRequest().getNumber()
