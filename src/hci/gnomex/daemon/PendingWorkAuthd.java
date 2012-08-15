@@ -2,6 +2,7 @@ package hci.gnomex.daemon;
 
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
@@ -34,6 +35,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Level;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -62,6 +64,7 @@ public class PendingWorkAuthd extends TimerTask {
   
   private boolean runAsDaemon = false;
 
+  private boolean testNoMailServer = false;
   
   public PendingWorkAuthd(String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -71,14 +74,20 @@ public class PendingWorkAuthd extends TimerTask {
         wakeupHour = Integer.valueOf(args[++i]);
       } else if (args[i].equals ("-runAsDaemon")) {
         runAsDaemon = true;
+      } else if (args[i].equals("-testNoMailServer")) {
+        testNoMailServer = true;
       }
     } 
     
-    try {
-      mailProps = new BatchMailer().getMailProperties();
-    } catch (Exception e){
-      System.err.println("Cannot initialize mail properties");
-      System.exit(0);
+    if (testNoMailServer) {
+      mailProps = null;
+    } else {
+      try {
+        mailProps = new BatchMailer().getMailProperties();
+      } catch (Exception e){
+        System.err.println("Cannot initialize mail properties");
+        System.exit(0);
+      }
     }
   }
   
@@ -116,50 +125,30 @@ public class PendingWorkAuthd extends TimerTask {
       app.connect();
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-      String contactList = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName); 
-      String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName);
-      if(replyEmail == null || replyEmail.length() == 0) {
-        replyEmail = "DoNotReply@hci.utah.edu";
-      }
       
-      String subject = "Pending Work Authorizations";
-      
-      getPendingWorkAuthorizations(sess);
-      Iterator<String> it = waList.iterator();
-      boolean hasWorkAuthorizations = false;
-
-      StringBuffer tableRows = new StringBuffer("");
-      while(it.hasNext()) {
-        if(!hasWorkAuthorizations) {
-          tableRows.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='500'><span class='fontClassBold'>Account</span></td></tr>");
+      Connection myConn = null;
+      try {
+        myConn = sess.connection();
+        String queryString = "from CoreFacility";
+        Query query = sess.createQuery(queryString);
+        List coreFacilityList = query.list();
+        for(Iterator i = coreFacilityList.iterator(); i.hasNext(); ) {
+          CoreFacility facility = (CoreFacility)i.next();
+          mailReminders(sess, facility);
         }
-        tableRows.append((String) it.next());
-        hasWorkAuthorizations = true;
-      }
+      } catch (Exception ex) {
+        throw new RollBackCommandException();
+      } finally {
+        if(myConn != null) {
+          try {
+            myConn.close();        
+          } catch (SQLException e) {
+            System.out.println( e.toString() );
+            e.printStackTrace();
+          }
+        }
+      }         
 
-      if(!hasWorkAuthorizations) {
-        subject = "(No Pending Work Authorizations)";
-        tableRows.append("<tr><td align='center'><span class='fontClass'>There are no pending work authorizations at this time.</span></td></tr>");        
-      }
-      
-      // Build message body in html
-      StringBuffer body = new StringBuffer("");
-      
-      body.append("<html><head><title>Work Authorization Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
-      body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
-      body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
-      body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
-      body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
-      body.append("<table width='100%' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td valign='top' align='left'>");
-      if(hasWorkAuthorizations) {
-        body.append("<table cellpadding='0' cellspacing='0' border='0' bgcolor='#FFFFFF'>");
-        body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>The following work authorizations are waiting to be approved:</span></td></tr>");        
-        body.append("</table>");        
-      }
-      body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
-      body.append(tableRows.toString());
-      body.append("</table></td></tr></table></body></html>");
-      MailUtil.send(mailProps, contactList, "", replyEmail, subject, body.toString(), true);        
       app.disconnect();      
          
     } catch (Exception e) {
@@ -168,44 +157,75 @@ public class PendingWorkAuthd extends TimerTask {
     }
   }
   
+  private void mailReminders(Session sess, CoreFacility facility) throws Exception {
+    String contactList = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility()); 
+    String replyEmail = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
+    if(replyEmail == null || replyEmail.length() == 0) {
+      replyEmail = "DoNotReply@hci.utah.edu";
+    }
+    
+    String subject = "Pending Work Authorizations";
+    
+    getPendingWorkAuthorizations(sess, facility);
+    Iterator<String> it = waList.iterator();
+    boolean hasWorkAuthorizations = false;
+
+    StringBuffer tableRows = new StringBuffer("");
+    while(it.hasNext()) {
+      if(!hasWorkAuthorizations) {
+        tableRows.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='500'><span class='fontClassBold'>Account</span></td></tr>");
+      }
+      tableRows.append((String) it.next());
+      hasWorkAuthorizations = true;
+    }
+
+    if(!hasWorkAuthorizations) {
+      subject = "(No Pending Work Authorizations)";
+      tableRows.append("<tr><td align='center'><span class='fontClass'>There are no pending work authorizations at this time.</span></td></tr>");        
+    }
+    
+    // Build message body in html
+    StringBuffer body = new StringBuffer("");
+    
+    body.append("<html><head><title>Work Authorization Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
+    body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
+    body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
+    body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
+    body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
+    body.append("<table width='100%' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td valign='top' align='left'>");
+    if(hasWorkAuthorizations) {
+      body.append("<table cellpadding='0' cellspacing='0' border='0' bgcolor='#FFFFFF'>");
+      body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>The following work authorizations are waiting to be approved:</span></td></tr>");        
+      body.append("</table>");        
+    }
+    body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
+    body.append(tableRows.toString());
+    body.append("</table></td></tr></table></body></html>");
+    if (!testNoMailServer) {
+      MailUtil.send(mailProps, contactList, "", replyEmail, subject, body.toString(), true);
+    }
+  }
   
-  private void getPendingWorkAuthorizations(Session sess) throws Exception{
+  private void getPendingWorkAuthorizations(Session sess, CoreFacility facility) throws Exception{
     Connection myConn = null;
 
-    try 
-    {
-      myConn = sess.connection();
-  
-      StringBuffer hqlbuf = new StringBuffer("SELECT l from Lab l ");
-      hqlbuf.append(" join l.billingAccounts ba");
-      hqlbuf.append(" where ba.isApproved <> 'Y'");
-      hqlbuf.append(" order by l.lastName, l.firstName");
-      
-      waList = new ArrayList<String>();
-      
-      List results = sess.createQuery(hqlbuf.toString()).list();
-      for (Iterator i = results.iterator(); i.hasNext();) {
-        Lab thisLab = (Lab)i.next();
-        for(Iterator j = thisLab.getPendingBillingAccounts().iterator(); j.hasNext();) {
-          BillingAccount ba = (BillingAccount) j.next();
-          waList.add("<tr><td width='250'><span class='fontClass'>" + thisLab.getName() + "</span></td><td width='500'><span class='fontClass'>" + ba.getAccountNameAndNumber() + "</span></td></tr>");
-        }
-      }      
-    }
-
-    catch (Exception ex) {
-      throw new RollBackCommandException();
-    }
-    finally {
-      if(myConn != null) {
-        try {
-          myConn.close();        
-        } catch (SQLException e) {
-          System.out.println( e.toString() );
-          e.printStackTrace();
-        }
+    StringBuffer hqlbuf = new StringBuffer("SELECT l from Lab l ");
+    hqlbuf.append(" join l.billingAccounts ba");
+    hqlbuf.append(" join l.coreFacilities f");
+    hqlbuf.append(" where ba.isApproved <> 'Y' and f.idCoreFacility=:idCoreFacility");
+    hqlbuf.append(" order by l.lastName, l.firstName");
+    
+    waList = new ArrayList<String>();
+    Query query = sess.createQuery(hqlbuf.toString());
+    query.setParameter("idCoreFacility", facility.getIdCoreFacility());
+    List results = query.list();
+    for (Iterator i = results.iterator(); i.hasNext();) {
+      Lab thisLab = (Lab)i.next();
+      for(Iterator j = thisLab.getPendingBillingAccounts().iterator(); j.hasNext();) {
+        BillingAccount ba = (BillingAccount) j.next();
+        waList.add("<tr><td width='250'><span class='fontClass'>" + thisLab.getName() + "</span></td><td width='500'><span class='fontClass'>" + ba.getAccountNameAndNumber() + "</span></td></tr>");
       }
-    }         
+    }      
   }  
   
   private static Date getWakeupTime(){
