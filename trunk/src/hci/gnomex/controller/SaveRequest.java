@@ -1986,10 +1986,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
     } else {
       if (requestParser.isNewRequest()) {
-        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
+        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
         ".  You will receive email notification when the experiment is complete.");   
       } else {
-        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
+        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
         ".  You will receive email notification when the experiment is complete.");   
         
       }
@@ -2062,10 +2062,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
 
     if (requestParser.isNewRequest()) {
-      emailBody.append("An experiment request has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
+      emailBody.append("An experiment request has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
       ".");   
     } else {
-      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + 
+      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
       ".");   
       
     }
