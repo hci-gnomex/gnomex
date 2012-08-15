@@ -6,12 +6,14 @@ import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.VerifyLabUsersEmailFormatter;
 
@@ -62,7 +64,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     try {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       
       List<Lab> labs = new ArrayList<Lab>();
       if (this.idLab != null) {
@@ -137,7 +139,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
         
         
         String subject = "GNomEx user accounts for " + labName + (labName.contains("Lab") || labName.contains("lab") ? "" : " Lab");
-        this.sendEmail(sess, dh, sendTo, null, emailBody, subject);
+        this.sendEmail(sess, pdh, sendTo, null, emailBody, subject, l);
       }
       
     
@@ -180,7 +182,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     return this;
   }
   
-  private void sendEmail(Session sess, DictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject) throws NamingException, MessagingException {
+  private void sendEmail(Session sess, PropertyDictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject, Lab lab) throws NamingException, MessagingException {
     
    
     boolean send = false;
@@ -189,16 +191,20 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       send = true;
       theSubject = subject;
     } else {
-      if (sendTo.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (sendTo.equals(dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         theSubject = "TEST - " + subject;
       }
     }
     
+    String from = dictionaryHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    if (lab.getCoreFacilities().size() == 1) {
+      from = dictionaryHelper.getCoreFacilityProperty(((CoreFacility)lab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    }
     if (send) {
       MailUtil.send(sendTo, 
           ccTo,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          from, 
           theSubject, 
           emailBody,
           true);
