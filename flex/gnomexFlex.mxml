@@ -533,7 +533,25 @@
 
 			[Bindable]
 			[Embed(source="assets/topic_tag.png")]
-			public var iconTopic:Class;		
+			public var iconTopic:Class;
+			
+			[Bindable]
+			[Embed(source="assets/topic_tag_public.png")]
+			public var iconTopicPublic:Class;
+			
+			[Bindable]
+			[Embed(source="assets/topic_tag_members.png")]
+			public var iconTopicMember:Class;
+
+			
+			[Bindable]
+			[Embed(source="assets/topic_tag_institution.png")]
+			public var iconTopicInstitution:Class;
+			
+			[Bindable]
+			[Embed(source="assets/topic_tag_owner.png")]
+			public var iconTopicOwner:Class;			
+			
 	        
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]

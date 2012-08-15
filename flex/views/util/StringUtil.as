@@ -23,6 +23,28 @@ package views.util
 			return str;		    
 		}
 		
+		public static function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var display1:String = obj1.@displayName;
+				var display2:String = obj2.@displayName;
+				
+				if (display1.toLowerCase() < display2.toLowerCase()) {
+					return -1;
+				} else if (display1.toLowerCase() > display2.toLowerCase()) {
+					return 1;
+				} else {
+					return 0;
+				}
+				
+			}
+		}
+		
 		// Altered escape function to exclude spaces and other characters
 		// that are normally escaped for url but don't need to be escaped
 		// here.
