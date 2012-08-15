@@ -5,6 +5,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,22 +26,24 @@ import org.jdom.output.XMLOutputter;
 public class VerifyLabUsersEmailFormatter extends DetailObject{
   
   private String           labName;
+  private Lab              lab;
   private Map              managers; 
   private Map              members;
   private Map              collaborators;
 
   private StringBuffer     introNote = new StringBuffer();
 
-  private DictionaryHelper dictionaryHelper;
+  private PropertyDictionaryHelper dictionaryHelper;
   
 
-  public VerifyLabUsersEmailFormatter(Session sess, String labName, Map managers, Map members, Map collaborators) { 
+  public VerifyLabUsersEmailFormatter(Session sess, Lab lab, String labName, Map managers, Map members, Map collaborators) { 
+    this.lab = lab;
     this.labName = labName;
     this.managers = managers;
     this.members = members;
     this.collaborators = collaborators;
  
-    this.dictionaryHelper = DictionaryHelper.getInstance(sess);
+    this.dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
     
     introNote.append("The following list shows active accounts for the GNomEx microarray and next generation sequencing database.<br>");
     introNote.append("<b>After review of this list, please inform us of individuals that no longer work in your lab group so that<br>their accounts can be inactivated.</b><br>");
@@ -126,13 +130,27 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
   }
   
   private void formatFooter(Element body) {
+    String coreContacts = "";
+    String coreNames = "";
+    for(Iterator i = lab.getCoreFacilities().iterator(); i.hasNext(); ) {
+      CoreFacility facility = (CoreFacility)i.next();
+      if (!coreContacts.equals("")) {
+        coreContacts += ", ";
+      }
+      coreContacts += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
+      
+      if (!coreNames.equals("")) {
+        coreNames += ", ";
+      }
+      coreNames += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
+    }
     StringBuffer emailFooter = new StringBuffer();
     emailFooter.append("<br>");
     emailFooter.append("Thanks,");
     emailFooter.append("<br>");
-    emailFooter.append(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_NAME_CORE_FACILITY));
+    emailFooter.append(coreContacts);
     emailFooter.append("<br>");
-    emailFooter.append(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME));
+    emailFooter.append(coreNames);
      
     body.addContent(emailFooter.toString());
   }

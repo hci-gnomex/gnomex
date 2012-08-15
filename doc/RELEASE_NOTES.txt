@@ -25,6 +25,7 @@
 * Request confirmation email now has correct core facility name in intro.  (bspiglejr)
 * Get account information for gl account from core facility specific properties.  (bspiglejr)
 * Pending work authorization daemon now sends emails to appropriate core facility(s) for the billing account's lab.  (bspiglejr)
+* List appropriate core facility names/contacts in footer of user verification email.  (bspiglejr)
 
 5.4.7
 ---------------------
