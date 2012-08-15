@@ -517,8 +517,18 @@
 	
 
 	public function getTreeIcon(item:Object):Class {
-		if (item.name() == "Topic") {
-			return parentApplication.iconTopic;
+		if (item.name() == "Topic") {		
+			if (item.@codeVisibility == "MEM") {
+				return parentApplication.iconTopicMember;
+			} else if (item.@codeVisibility == "MEMCOL") {
+				return parentApplication.iconTopicMember;
+			} else if (item.@codeVisibility == "OWNER") {
+				return parentApplication.iconTopicOwner;
+			} else if (item.@codeVisibility == "INST") {
+				return parentApplication.iconTopicInstitution;
+			} else {
+				return parentApplication.iconTopicPublic;
+			}			
 		} else if (item.name() == "Request") {
 			return parentApplication.getTreeIcon(item);
 		} else if (item.name() == "Analysis") {

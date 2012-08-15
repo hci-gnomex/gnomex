@@ -182,7 +182,7 @@
 				<mx:VBox width="100%" verticalGap="0">
 					<mx:Label text="Lab:" fontWeight="bold">
 					</mx:Label>
-					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="{setDefaultVisibility()}">
+					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="100%" labelField="@name" change="{setDefaultVisibility()}">
 					</mx:ComboBox>
 				</mx:VBox>
 					<mx:VBox width="100%" verticalGap="0">
