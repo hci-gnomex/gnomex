@@ -185,6 +185,18 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
   
+  public String getQualifiedCoreFacilityProperty(String name, String serverName, Integer idCoreFacility) {
+    String property = "";
+    if (serverName != null && !serverName.equals("")) {
+      String qualifiedName = name + "_" + serverName;
+      property = this.getCoreFacilityProperty(idCoreFacility, qualifiedName);      
+    }
+    if (property == null || property.equals("")) {   
+      property = this.getCoreFacilityProperty(idCoreFacility, name);
+    }
+    return property;
+  }
+  
   public boolean isProductionServer(String serverName) {
     if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null &&
         this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
