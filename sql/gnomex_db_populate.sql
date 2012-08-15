@@ -856,9 +856,11 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (81, 'datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N'),
  (82, 'default_visibility_analysis','','Default visibility for new Analysis. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
  (83, 'default_visibility_datatrack','','Default visibility for new Data Track. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
- (84, 'default_visibility_experiment','','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
- (85, 'default_visibility_topic','','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
+ (84, 'default_visibility_experiment','','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ (85, 'default_visibility_topic','','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
  (86,'lucene_topic_index_directory','/home/gnomex/luceneIndex/Topic','The file directory for storing lucene index files on topic data.', 'Y'),
+ (87,'billing_gl_journal_line_ref','MICROARRAY','Line ref for generating gl file', 'Y'),
+ (88,'billing_gl_journal_id','SE090','journal id for generating gl file', 'Y');
  
 
 

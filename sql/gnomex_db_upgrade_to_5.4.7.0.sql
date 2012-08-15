@@ -6,6 +6,10 @@ alter table BillingAccount add column startDate DATETIME NULL;
 
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('default_visibility_topic','MEM','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
+values('billing_gl_journal_line_ref','MICROARRAY','Line ref for generating gl file', 'Y');
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
+values('billing_gl_journal_id','SE090','journal id for generating gl file', 'Y');
 
 -- Add Invoice table
 CREATE TABLE `gnomex`.`Invoice` (
