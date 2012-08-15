@@ -168,7 +168,7 @@ public class UsageReportd extends TimerTask {
       
       String toList = distributionList.toString();
       
-      String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName);
+      String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL, serverName);
       if(replyEmail == null || replyEmail.length() == 0) {
         replyEmail = "DoNotReply@hci.utah.edu";
       }
