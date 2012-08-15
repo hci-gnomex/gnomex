@@ -134,7 +134,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
         }
         
         // Format email body
-        VerifyLabUsersEmailFormatter emailFormatter = new VerifyLabUsersEmailFormatter(sess, labName, managers, members, collaborators);
+        VerifyLabUsersEmailFormatter emailFormatter = new VerifyLabUsersEmailFormatter(sess, l, labName, managers, members, collaborators);
         String emailBody = emailFormatter.format();
         
         
