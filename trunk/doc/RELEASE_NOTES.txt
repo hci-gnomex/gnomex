@@ -23,6 +23,7 @@
 * From address on public self register user now takes core facility into account.  (bspiglejr)
 * Confirmation email on billing account approval now handles core facilities correctly.  (bspiglejr)
 * Request confirmation email now has correct core facility name in intro.  (bspiglejr)
+* Get account information for gl account from core facility specific properties.  (bspiglejr)
 
 5.4.7
 ---------------------

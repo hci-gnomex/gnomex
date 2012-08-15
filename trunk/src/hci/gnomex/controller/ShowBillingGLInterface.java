@@ -130,8 +130,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-      journalId = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.PROPERTY_BILLING_GL_JOURNAL_ID);
-      journalLineRef = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.PROPERTY_BILLING_GL_JOURNAL_LINE_REF);
+      journalId = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_GL_JOURNAL_ID_CORE_FACILITY);
+      journalLineRef = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_GL_JOURNAL_LINE_REF_CORE_FACILITY);
       journalEntry = this.journalId + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
       
       if (this.isValid()) { 
@@ -337,7 +337,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             }
             
             // Show the microarray credit for the total billing (internal customers)
-            this.addMicroarrayTotal(billingPeriod, dh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
+            this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
             
             // Get the total price for all external PO billing items
             buf = new StringBuffer();
@@ -360,10 +360,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               if (totalPriceExternalPO != null) {
                 
                 // Show the microarray debit for the total billing (customers billed from POs)
-                this.addMicroarrayTotal(billingPeriod, dh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
+                this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
                 
                 // Show the microarray credit for the total billing (customers billed from POs)
-                this.addMicroarrayTotal(billingPeriod, dh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
+                this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
               }
 
               
@@ -462,7 +462,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     
   }
   
-  private void addMicroarrayTotal(BillingPeriod billingPeriod, DictionaryHelper dh, String account, BigDecimal totalAmt, boolean isCredit) {
+  private void addMicroarrayTotal(BillingPeriod billingPeriod, PropertyDictionaryHelper pdh, String account, BigDecimal totalAmt, boolean isCredit) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
@@ -477,12 +477,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
    
     
     values.add(getFixedWidthValue("L", 1)); // record type
-    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_BUSINESS_UNIT), 5));  // business unit
+    values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_BUSINESS_UNIT), 5));  // business unit
     values.add(getFixedWidthEmptyValue(6)); // journal line number (blank)
-    values.add(getFixedWidthValue(dh.getPropertyDictionary(account), 6)); // account
-    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_FUND), 5)); // fund
-    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_ORG), 10)); // dept id
-    values.add(getFixedWidthValue(dh.getPropertyDictionary(PropertyDictionary.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
+    values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, account), 6)); // account
+    values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_FUND), 5)); // fund
+    values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_ORG), 10)); // dept id
+    values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
     values.add(getFixedWidthEmptyValue(5));  // au (blank for credits)
     values.add(getFixedWidthEmptyValue(4)); // budget year (blank)
     values.add(getFixedWidthEmptyValue(15)); // project id
