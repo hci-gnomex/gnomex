@@ -1826,6 +1826,18 @@
             	}
             	return properties[name];
             }
+			
+			public function getCoreFacilityProperty(idCoreFacility:String, name:String):String {
+				var result:String = "";
+				if (properties != null) {
+					var qualName:String = idCoreFacility + "\t" + name;
+					result = properties[qualName];
+					if (result == "") {
+						result = properties[name];
+					}
+				}
+				return result;
+			}
             
             private function showProgress(interval:uint):void {
             	currentProgressInterval = currentProgressInterval + interval;

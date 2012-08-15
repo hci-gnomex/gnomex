@@ -859,8 +859,10 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (84, 'default_visibility_experiment','','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
  (85, 'default_visibility_topic','','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
  (86,'lucene_topic_index_directory','/home/gnomex/luceneIndex/Topic','The file directory for storing lucene index files on topic data.', 'Y'),
- (87,'billing_gl_journal_line_ref','MICROARRAY','Line ref for generating gl file', 'Y'),
- (88,'billing_gl_journal_id','SE090','journal id for generating gl file', 'Y');
+ (87,'billing_gl_journal_line_ref','','Always blank for open source GNomEx', 'Y'),
+ (88,'billing_gl_journal_id','','Always blank for open source GNomEx', 'Y'),
+ (89,'generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y');
+ 
  
 
 
