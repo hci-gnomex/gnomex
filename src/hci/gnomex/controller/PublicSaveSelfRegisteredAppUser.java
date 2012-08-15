@@ -102,7 +102,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       this.addInvalidField("userNameRequiredField", "University Id is required");        
     }
     
-    if(appUserScreen.getuNID() != null){
+    if(appUserScreen.getuNID() != null && !appUserScreen.getuNID().equals("") ){
       if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().length() != 8 || !appUserScreen.getuNID().substring(1).matches("[0-9]+")){
         this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with lowercase 'u' followed by 7 digits");
       }
@@ -145,7 +145,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-      coreFacilityEmail = propertyHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
       
       // Get core facilities.
       List activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
@@ -154,8 +153,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       } else if (facilityId != null && facilityId.length() > 0) {
         Integer id = Integer.parseInt(facilityId);
         facility = (CoreFacility)sess.load(CoreFacility.class, id);
-      } else if (!existingLab) {
-        this.addInvalidField("Core Facility", "Please choose a core facility");
       }
       
       AppUser appUser = null;
@@ -177,6 +174,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       if (existingLab) {
         requestedLab = (Lab)sess.load(Lab.class, requestedLabId);
         requestedLabName = requestedLab.getName();
+      }
+
+      if (facility == null) {
+        if (requestedLab == null || requestedLab.getCoreFacilities().size() != 1) {
+          coreFacilityEmail = propertyHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+        } else {
+          coreFacilityEmail = propertyHelper.getCoreFacilityProperty(((CoreFacility)requestedLab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+        }
+      } else {
+        coreFacilityEmail = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(),PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
       }
       
       if (this.isValid()) {
