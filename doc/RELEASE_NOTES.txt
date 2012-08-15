@@ -26,6 +26,7 @@
 * Get account information for gl account from core facility specific properties.  (bspiglejr)
 * Pending work authorization daemon now sends emails to appropriate core facility(s) for the billing account's lab.  (bspiglejr)
 * List appropriate core facility names/contacts in footer of user verification email.  (bspiglejr)
+* Send confirmation email to user for DNA Seq requests at submit time instead of save time.  (bspiglejr)
 
 5.4.7
 ---------------------
