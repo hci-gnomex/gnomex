@@ -36,8 +36,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_CORE_FACILITY_ORG           = "billing_core_facility_org";
   public static final String        BILLING_CORE_FACILITY_ACTIVITY      = "billing_core_facility_activity";
   public static final String        BILLING_PO_ACCOUNT                  = "billing_po_account";
-  public static final String        PROPERTY_BILLING_GL_JOURNAL_ID      = "billing_gl_journal_id";
-  public static final String        PROPERTY_BILLING_GL_JOURNAL_LINE_REF = "billing_gl_journal_line_ref";
+  public static final String        BILLING_GL_JOURNAL_ID_CORE_FACILITY = "billing_gl_journal_id_core_facility";
+  public static final String        BILLING_GL_JOURNAL_LINE_REF_CORE_FACILITY = "billing_gl_journal_line_ref_core_facility";
   public static final String        DATASET_PRIVACY_EXPIRATION          = "dataset_privacy_expiration";
   public static final String        DATASET_PRIVACY_EXPIRATION_WARNING  = "dataset_privacy_expiration_warning";
   public static final String        DATASET_PRIVACY_EXPIRATION_REPLY_EMAIL  = "dataset_privacy_expiration_reply_email";

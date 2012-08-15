@@ -7,9 +7,9 @@ alter table BillingAccount add column startDate DATETIME NULL;
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values ('default_visibility_topic','MEM','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N');
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
-values('billing_gl_journal_line_ref','','Always blank for open source GNomEx', 'Y');
+values('billing_gl_journal_line_ref_core_facility','','Always blank for open source GNomEx', 'Y');
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
-values('billing_gl_journal_id','','Always blank for open source GNomEx', 'Y');
+values('billing_gl_journal_id_core_facility','','Always blank for open source GNomEx', 'Y');
 insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly) 
 	values('generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y')
 
