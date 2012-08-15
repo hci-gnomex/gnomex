@@ -21,6 +21,7 @@
 * Use no reply from on change password email if user is associated with multiple core facilities (through labs).  (bspiglejr)
 * From address on verify users now uses generic address if lab associated with multiple facilities.  (bspiglejr)
 * From address on public self register user now takes core facility into account.  (bspiglejr)
+* Confirmation email on billing account approval now handles core facilities correctly.  (bspiglejr)
 
 5.4.7
 ---------------------
