@@ -5,6 +5,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PropertyDictionary;
@@ -14,6 +15,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PriceSheetCategoryParser;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 
 import java.io.Serializable;
@@ -108,7 +110,15 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
          
         sess.flush();
         
-        this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\"/>";
+        String coreNames = "";
+        for(Iterator i = lab.getCoreFacilities().iterator(); i.hasNext(); ) {
+          CoreFacility facility = (CoreFacility)i.next();
+          if (!coreNames.equals("")) {
+            coreNames += " and ";
+          }
+          coreNames += facility.getFacilityName();
+        }
+        this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityNames=\"" + coreNames + "\" />";
       
         this.sendConfirmationEmail(sess);
         
@@ -138,6 +148,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
   private void sendConfirmationEmail(Session sess) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    PropertyDictionaryHelper propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
     
     String launchBillingAccountDetail = this.launchAppURL + "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab();  
     
@@ -151,9 +162,26 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     boolean send = false;
     boolean testEmail = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
-    String coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
-    if (coreEmail == null || coreEmail.equals("")) {
-      coreEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String coreEmail = "";
+    String coreNames = "";
+    for(Iterator i = lab.getCoreFacilities().iterator(); i.hasNext();) {
+      CoreFacility facility = (CoreFacility)i.next();
+      String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
+      if (facilityEmail == null || facilityEmail.equals("")) {
+        facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+      }
+      if (facilityEmail != null && !facilityEmail.equals("")) {
+        if (!coreEmail.equals("")) {
+          coreEmail += ",";
+        }
+        coreEmail += facilityEmail;
+      }
+      
+      String facilityName = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
+      if (!coreNames.equals("")) {
+        coreNames += " and ";
+      }
+      coreNames += facilityName;
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
@@ -168,13 +196,13 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     }
     
     submitterNote.append("The following work authorization " +
-        "has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) +  
+        "has been submitted to the " + coreNames +  
         ".  After the account information is reviewed and approved, " +
         "you will be notified by email that experiment " +
         "requests can now be submitted against this account in GNomEx.");
 
     coreNote.append("The following work authorization " +
-        "has been submitted to the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) +  
+        "has been submitted to the " + coreNames +  
         " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
 
     body.append("\n");
@@ -188,13 +216,16 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     body.append("Submitter UID:       " + billingAccount.getSubmitterUID() + "\n");
     body.append("Submitter Email:     " + billingAccount.getSubmitterEmail() + "\n");
     
-
+    String replyEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    if (lab.getCoreFacilities().size() == 1) {
+      replyEmail = propertyDictionaryHelper.getCoreFacilityProperty(((CoreFacility)lab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    }
     if (send) {
       // Email submitter
       try {
         MailUtil.send(submitterEmail, 
             null,
-            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+            replyEmail, 
             submitterSubject, 
             submitterNote.toString() + body.toString(),
             false);             
@@ -212,7 +243,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         }
         MailUtil.send(submitterEmail, 
             null,
-            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+            replyEmail, 
             submitterSubject, 
             submitterNote.toString() + body.toString(),
             false);   
@@ -221,11 +252,10 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
       
       // Email core facility
-      if (dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY) != null &&
-          !dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY).equals("")) {
+      if (!coreEmail.equals("")) {
         MailUtil.send(coreEmail, 
             null,
-            dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
+            replyEmail,
             coreSubject,
             coreNote.toString() + body.toString(),
             false);           

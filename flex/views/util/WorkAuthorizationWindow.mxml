@@ -107,7 +107,7 @@
         	if (submitWorkAuthForm.lastResult.name() == "SUCCESS") {
         		Alert.show("Work authorization for account " + 
         		"'" + this.accountName.text + "'"+
-        		 " has been submitted to " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) +
+        		 " has been submitted to " + submitWorkAuthForm.lastResult.@coreFacilityNames +
         		 ".\n\n" + 
         		 "After the account information is reviewed and approved, " +
         		 "you will be notified by email that experiment " +

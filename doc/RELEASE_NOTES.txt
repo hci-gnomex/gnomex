@@ -17,6 +17,7 @@
 * Change Billing Month End report title to use Core Facility name instead of "Microarray".  (bspiglejr)
 * Add example sheet download link for cap seq to the samples view as well as the download page.  (bspiglejr)
 * Implemented Topics icons that show visibility state. (rcundick)
+* Work Auth submission emails and confirmations are now core facility specific.  (bspiglejr)
 
 5.4.7
 ---------------------
