@@ -18,6 +18,7 @@
 * Add example sheet download link for cap seq to the samples view as well as the download page.  (bspiglejr)
 * Implemented Topics icons that show visibility state. (rcundick)
 * Work Auth submission emails and confirmations are now core facility specific.  (bspiglejr)
+* Use no reply from on change password email if user is associated with multiple core facilities (through labs).  (bspiglejr)
 
 5.4.7
 ---------------------

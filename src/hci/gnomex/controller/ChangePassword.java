@@ -4,6 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncrypterService;
 
@@ -15,6 +17,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.Serializable;
 import java.sql.SQLException;
 
+import java.util.Iterator;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
@@ -140,7 +143,26 @@ public class ChangePassword extends GNomExCommand implements Serializable {
             sess.update(appUser);
             sess.flush(); 
 
-            labContactEmail = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+            Integer idCoreFacility = null;
+            for(Iterator i = appUser.getLabs().iterator(); i.hasNext();) {
+              Lab l = (Lab)i.next();
+              for(Iterator j = l.getCoreFacilities().iterator(); j.hasNext(); ) {
+                CoreFacility facility = (CoreFacility)j.next();
+                if (idCoreFacility == null) {
+                  idCoreFacility = facility.getIdCoreFacility();
+                } else if(!idCoreFacility.equals(facility.getIdCoreFacility())) {
+                  idCoreFacility = null;
+                  break;
+                }
+              }
+            }
+            
+            PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+            if (idCoreFacility == null) {
+              labContactEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+            } else {
+              labContactEmail = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+            }
             
             sendConfirmationEmail(appUser.getEmail(), randPwd);  
           }
