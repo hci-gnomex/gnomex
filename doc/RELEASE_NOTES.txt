@@ -19,6 +19,7 @@
 * Implemented Topics icons that show visibility state. (rcundick)
 * Work Auth submission emails and confirmations are now core facility specific.  (bspiglejr)
 * Use no reply from on change password email if user is associated with multiple core facilities (through labs).  (bspiglejr)
+* From address on verify users now uses generic address if lab associated with multiple facilities.  (bspiglejr)
 
 5.4.7
 ---------------------
