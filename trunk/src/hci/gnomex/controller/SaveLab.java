@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -353,6 +354,38 @@ public class SaveLab extends GNomExCommand implements Serializable {
   
           sess.flush();
           
+          //
+          // delete any empty projects where user is no longer associated with this lab
+          //
+          ArrayList<Integer> labAssociatedIds = new ArrayList<Integer>();
+          for(Iterator i=lab.getManagers().iterator();i.hasNext();) {
+            AppUser a = (AppUser)i.next();
+            labAssociatedIds.add(a.getIdAppUser());
+          }
+          for(Iterator i=lab.getCollaborators().iterator();i.hasNext();) {
+            AppUser a = (AppUser)i.next();
+            labAssociatedIds.add(a.getIdAppUser());
+          }
+          for(Iterator i=lab.getMembers().iterator();i.hasNext();) {
+            AppUser a = (AppUser)i.next();
+            labAssociatedIds.add(a.getIdAppUser());
+          }
+          String deleteProjectString = "select p from Project p " +
+            "where p.idLab is not null " +
+            "and p.idAppUser not in (:ids) " +
+            "and p.idProject not in (select d.idProject from ExperimentDesignEntry d) " +
+            "and p.idProject not in (select f.idProject from ExperimentFactorEntry f) " +
+            "and p.idProject not in (select q.idProject from QualityControlStepEntry q) " +
+            "and p.idProject not in (select r.idProject from Request r) " + 
+            "and p.idLab=:idLab ";
+          Query query = sess.createQuery(deleteProjectString);
+          query.setParameterList("ids", labAssociatedIds);
+          query.setParameter("idLab", lab.getIdLab());
+          List projectsToDelete = query.list();
+          for(Iterator i=projectsToDelete.iterator();i.hasNext();) {
+            sess.delete(i.next());
+          }
+          sess.flush();
           
           //
           // Create default user projects
