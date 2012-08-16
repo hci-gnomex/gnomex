@@ -224,12 +224,14 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   req.getNumber() + (req.getIsExternal().equals("Y") ? " registered" : " submitted");
     
     boolean send = false;
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      if (req.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+    if (req.getAppUser().getEmail() != null) {
+      if (dictionaryHelper.isProductionServer(serverName)) {
         send = true;
-        subject = "TEST - " + subject;
+      } else {
+        if (req.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+          send = true;
+          subject = "TEST - " + subject;
+        }
       }
     }
     
