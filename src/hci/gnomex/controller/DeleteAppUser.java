@@ -9,10 +9,12 @@ import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 
@@ -52,6 +54,31 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
       // Check permissions
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         AppUser appUser = (AppUser)sess.load(AppUser.class, idAppUser);
+        
+        // 
+        // Check projects.  Delete any empty ones.  Error if non-empty ones
+        //
+        String queryString = "select distinct project " +
+        		"from Project project " +
+        		"left join project.requests requests " +
+        		"left join project.experimentDesignEntries design " +
+        		"left join project.experimentFactorEntries factor " +
+        		"left join project.qualityControlStepEntries step " +
+        		"where project.idAppUser = :idAppUser and " +
+        		"(requests.idProject is not null or design.idProject is not null or factor.idProject is not null or step.idProject is not null) ";
+        Query query = sess.createQuery(queryString);
+        query.setParameter("idAppUser", appUser.getIdAppUser());
+        List projects = query.list();
+        if (projects.size() > 0) {
+          this.addInvalidField("Project", "User owns non-empty projects.  Delete aborted");
+          setResponsePage(this.ERROR_JSP);
+          return this;
+        }
+        
+        queryString = "delete Project project where project.idAppUser=:idAppUser";
+        query = sess.createQuery(queryString);
+        query.setParameter("idAppUser", appUser.getIdAppUser());
+        query.executeUpdate();
         
         //
         // Delete lab members
