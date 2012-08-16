@@ -567,6 +567,7 @@
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
+				this.enabled = false;	// disable selection while getting the request.
 				getRequest.send(parms);
 				selectedIdLab = null;
 				selectedIdProject = null;
@@ -703,6 +704,7 @@
 		}          
 		  
 		private function onGetRequest(event:ResultEvent):void {
+			this.enabled = true; // reenable browse after got request.
 			if (getRequest.lastResult.name() == "SUCCESS") {
 				if (selectedRequestNumber != null) {
 					Alert.show("Experiment " + selectedRequestNumber + " not found");					
