@@ -106,6 +106,8 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         // Remove channels
         //
         TreeSet channelsToDelete = new TreeSet(new ChannelComparator());
+        List requestNumbersToDelete = new ArrayList();
+        
         for(Iterator i = flowCell.getFlowCellChannels().iterator(); i.hasNext();) {
           FlowCellChannel existingChannel = (FlowCellChannel)i.next();
           if (!channelParser.getChannelMap().containsKey(existingChannel.getIdFlowCellChannel().toString())) {
@@ -119,9 +121,10 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
               sess.delete(x);
             }
             
-            // Dissociate Sequence Lanes from channel 
+            // Dissociate Sequence Lanes from channel and grab the request numbers so that we can update the flowcell notes
             for (Iterator i2 = existingChannel.getSequenceLanes().iterator(); i2.hasNext();) {
               SequenceLane lane = (SequenceLane) i2.next();
+              requestNumbersToDelete.add(lane.getSample().getRequest().getNumber());
               lane.setIdFlowCellChannel(null);
             }
           }
@@ -129,6 +132,30 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         for (Iterator i = channelsToDelete.iterator(); i.hasNext();) {
           FlowCellChannel channelToDelete = (FlowCellChannel)i.next();
           flowCell.getFlowCellChannels().remove(channelToDelete);
+        }
+        
+        //Grab all of the request numbers associated with the flowCell's channels
+        List existingRequestNums = new ArrayList();
+        for(Iterator i = flowCell.getFlowCellChannels().iterator(); i.hasNext();){
+          FlowCellChannel fc = (FlowCellChannel)i.next();
+          for(Iterator i2 = fc.getSequenceLanes().iterator(); i2.hasNext();){
+            SequenceLane lane = (SequenceLane)i2.next();
+            existingRequestNums.add(lane.getSample().getRequest().getNumber());
+          }
+        }
+        
+        //Now compare the request numbers of the updated flowcell to the request numbers that we may need to delete
+        //If there are no instances of the request number we need to delete in the existing request numbers list then
+        //remove that request number from the flow cell notes.
+        for(Iterator i = requestNumbersToDelete.iterator(); i.hasNext();){
+          String requestNumDeleted = (String)i.next();
+          int index = flowCell.getNotes().indexOf(requestNumDeleted);
+          if(!existingRequestNums.contains(requestNumDeleted) && index != -1){
+            requestNumDeleted += ",";
+            flowCell.setNotes(flowCell.getNotes().replace(requestNumDeleted, ""));
+            flowCell.setNotes(flowCell.getNotes().replace(requestNumDeleted.replace(",", ""), ""));
+            flowCell.setNotes(flowCell.getNotes().trim());
+          }
         }
 
         //
