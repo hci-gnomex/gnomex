@@ -78,6 +78,7 @@
 			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, EditFlowCellWindow, true));
 			this.addWindow.selectedFC = this.flowCellsGrid.selectedItem;
 			this.addWindow.parentView = this;
+			this.addWindow.addEventListener("changed", refresh);
 			mx.managers.PopUpManager.centerPopUp(this.addWindow);
 			addWindow.setFocus();
 		}
