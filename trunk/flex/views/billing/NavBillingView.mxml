@@ -273,6 +273,7 @@
         
         private var pricingNodeToSelect:String = null;
         private var pricingIdToSelect:Object = null;
+		private var selectedPrice:Object = null;
 		
 		private var minBillingYear:int = 4000;
 		private var maxBillingYear:int = 0;
@@ -568,17 +569,68 @@
 				this.pricingList = new XMLListCollection(getPricingList.lastResult.PriceSheet);
 				this.pricingTree.dataProvider = new HierarchicalData(pricingList);
 				this.pricingTree.dataProvider.refresh();
+				expandAppropriateNodes();
 				refreshBillingTimer.start();
-				
-
 			} else {
 				Alert.show("An error occurred while getting price sheet.");
 			}			
 		}
 		
+		private function expandAppropriateNodes():void {
+			var itemToSelect:XML = getItemToSelect();
+			
+			if (itemToSelect != null && (itemToSelect.name() == "PriceCategory" || itemToSelect.name() == "Price")) {
+				// If there is a tree item selected, expand so it and its ancestors.
+				recurseExpandParent(itemToSelect);
+				pricingTree.validateNow();
+				callLater(selectPricingTreeItem);
+			} else {
+				// If no item to select or we have selected organism or genome build, 
+				// expand out to first folder level for all organisms, genome build.
+				pricingTree.expandItem(getPricingList.lastResult, true);
+				for each(var priceCategory:Object in getPricingList.lastResult..PriceSheet) {
+					pricingTree.expandItem(priceCategory, true);  	
+				}
+				callLater(selectPricingTreeItem);
+			}
+			
+		}
+		
+		private function recurseExpandParent(item:XML):void {
+			if (item.name() != 'Price') {
+				pricingTree.expandItem(item, true);				
+			}
+			if (item.parent() != null) {
+				recurseExpandParent(item.parent());									
+			}
+			
+		}
+		
+		private function getItemToSelect():XML {
+			if (this.selectedPrice == null) {
+				return null;
+			} 
+			if (this.selectedPrice is XMLList && selectedPrice.length() == 0) {
+				return null;	
+			}
+			if (this.selectedPrice is XMLList && this.selectedPrice > 0) {
+				selectedPrice = selectedPrice[0];
+			}
+			
+			var item:XMLList = null;
+			if (selectedPrice.name() == "PriceCategory") {
+				item = getPricingList.lastResult..PriceCategory.(@idPriceCategory == selectedPrice.@idPriceCategory);
+			} else if (selectedPrice.name() == "Price") {
+				item = getPricingList.lastResult..Price.(@idPrice == selectedPrice.@idPrice);
+			}
+			if (item != null && item.length() > 0) {
+				return XML(item[0]);				
+			} else {
+				return null;
+			}
+			
+		}
 
-		
-		
 		private function onRefreshBillingTimerTimer(evt:TimerEvent):void {
 			refreshBillingTimer.stop();
 			selectPricingTreeItem();
@@ -1405,6 +1457,7 @@
 		
 		private function showPricingView():void {
 			var params:Object = new Object();
+			selectedPrice = pricingTree.selectedItem;
 			if (pricingTree.selectedItem.name() == "Price") {
 				params.idPrice =     this.pricingTree.selectedItem.@idPrice;
 				this.getPrice.send(params);
@@ -1950,6 +2003,10 @@
 		private function refreshAfterEmailSent(e:CloseEvent):void {
 			refresh();
 		}
+		
+		private function onPricingTreeClick():void{
+			this.selectedPrice = this.pricingTree.selectedItem;
+		}
  	]]>
  </mx:Script>	
 
@@ -2101,12 +2158,13 @@
 					</mx:LinkButton>
 					
 					<util:AdvancedDataGridAS id="pricingTree" width="100%" height="100%" 
-						 displayItemsExpanded="true" 
+						 displayItemsExpanded="false" 
 						 iconFunction="parentApplication.getTreeIcon" 
 						 dropEnabled="true"  
 						 dragEnabled="true" 
 						 dragMoveEnabled="true" 
-						 doubleClick="showPricingView()" 
+						 doubleClick="showPricingView()"
+						 click="onPricingTreeClick()"
 						 doubleClickEnabled="true" 
 						 showHeaders="true" 
 						 dragDrop="this.onDragDropPricing(event)"
