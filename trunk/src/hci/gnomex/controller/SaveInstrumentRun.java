@@ -200,8 +200,8 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
-      if ( well.getIdRequest()==null ) {
-        break;
+      if ( well.getIdRequest() == null ) {
+        continue;
       }
       if ( !well.getIdRequest().equals( "" ) && !requests.containsKey( well.getIdRequest() ) ) {
         Request req = (Request) sess.get(Request.class, well.getIdRequest());
