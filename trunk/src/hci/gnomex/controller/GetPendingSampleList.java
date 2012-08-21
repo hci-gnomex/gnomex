@@ -322,6 +322,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     String plateLabel           = (String)row[16]  == null ? ""  : (String)row[16];
     
     String  sampleName          = (String)row[19];
+    String  redoFlag            = (String)row[20];
 
     
     if (idPlate != null) {
@@ -360,6 +361,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("idPlate",        idPlate != null ? idPlate.toString() : "");
     n.setAttribute("requestSubmitDate",  createDate == null ? ""  : this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH));
     n.setAttribute("requestSubmitter",   submitter != null ? submitter.getDisplayName() : "");
+    n.setAttribute("redoFlag",       redoFlag != null ? redoFlag : "");
     
     if ( idAssay != null && idAssay.intValue() != -1 ) {
       n.setAttribute( "idAssay", idAssay.toString() );

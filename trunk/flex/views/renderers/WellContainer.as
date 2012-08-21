@@ -20,6 +20,8 @@ package views.renderers {
 	import views.renderers.WellLabel;
 	
 	public class WellContainer extends mx.containers.Box {
+		public var wellLabel:WellLabel = new WellLabel('');
+		
 		public var plateView:NavPlateView;
 		
 		// PlateWell Fields
@@ -33,6 +35,7 @@ package views.renderers {
 		public var codeReactionType:String;
 		public var idAssay:int;
 		public var idPrimer:int;
+		public var redoFlag:String = "N";
 		public var isControl:String = "N";
 		
 		public var submitter:String;
@@ -64,7 +67,7 @@ package views.renderers {
 			setStyle( 'borderStyle', 'solid' );
 			
 			toolTip = getToolTip();
-			addChild( new WellLabel( label ));
+			addChild( this.wellLabel );
 			addEventListener( MouseEvent.CLICK, onClick );
 			addEventListener( DragEvent.DRAG_ENTER, dragOverWell );
 			addEventListener( DragEvent.DRAG_OVER, dragOverWell );
@@ -113,7 +116,12 @@ package views.renderers {
 			this.sampleName = pw.@sampleName != null ? pw.@sampleName : '';
 			this.idAssay = pw.@idAssay != null ? pw.@idAssay : 0;
 			this.idPrimer = pw.@idPrimer != null ? pw.@idPrimer : 0;
-			
+			this.redoFlag = pw.@redoFlag != null ? pw.@redoFlag : "N";
+			if ( this.redoFlag == "Y" ) {
+				this.wellLabel.highlightLabel();
+			} else {
+				this.wellLabel.resetLabel();
+			}
 			this.submitter = pw.@requestSubmitter != null ? pw.@requestSubmitter : '';
 			this.submitDate = pw.@requestSubmitDate != null ?pw.@requestSubmitDate : '';
 			
@@ -171,6 +179,9 @@ package views.renderers {
 			
 			var str:String = "";
 			if ( sourceWell != null ) {
+				if ( this.redoFlag == "Y" ) {
+					str += "REDO\r";
+				}
 				str += 'Well ' + ( position + 1 ) + ', ' + row + col + "";
 				
 				if ( idPlateWell != 0 ) {
@@ -189,8 +200,7 @@ package views.renderers {
 		}
 		
 		// function to change the size of the circle
-		public function setRadius( radius:int ):void {
-			
+		public function setRadius( radius:int ):void {		
 			height = radius * 2;
 			width = radius * 2;
 			setStyle( 'cornerRadius', radius );
@@ -198,9 +208,7 @@ package views.renderers {
 		
 		
 		public function setLabel( label:String ):void {
-			
-			removeAllChildren();
-			addChild( new WellLabel( label ));
+			this.wellLabel.text = label;
 		}
 		
 		

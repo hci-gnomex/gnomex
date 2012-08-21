@@ -119,7 +119,9 @@ public class PlateReportHTMLFormatter {
 
             String idPlateWellString = well.getAttributeValue("idPlateWell");
             String sampleName = well.getAttributeValue( "sampleName" );
-            
+            if ( well.getAttributeValue( "redoFlag" ) != null && well.getAttributeValue( "redoFlag" ).equals( "Y" ) ) {
+              sampleName += " (Redo)";
+            }
 
             if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals( "Y" ) ) {
               sampleName = "Control";
@@ -147,7 +149,7 @@ public class PlateReportHTMLFormatter {
                     groupNumSamples.set( index, newVal );
                   }
                 }
-
+                
                 this.addColoredWellCell( row,
                     idPlateWellString != null && !idPlateWellString.equals( "0" ) ? idPlateWellString : "&nbsp;",
                         sampleName, assayName, requestNumber, idAssay);
