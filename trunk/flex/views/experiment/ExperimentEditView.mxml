@@ -2463,7 +2463,7 @@
 						}
 
 						var numSamplesOnPlate:int = 0;
-						for (var idx2:int = firstSample; idx2 <= lastSample; idx2++) {
+						for (var idx2:int = firstSample; idx2 <= lastSample && idx2 < samples.length; idx2++) {
 							var sampleToCount:Object = samples.getItemAt(idx2);
 							if (sampleToCount.hasOwnProperty("@name") && sampleToCount.@name != null && sampleToCount.@name != "") {
 								numSamplesOnPlate = numSamplesOnPlate + 1;
