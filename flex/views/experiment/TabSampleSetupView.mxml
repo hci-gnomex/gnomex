@@ -686,14 +686,15 @@
 		}
 		
 		private function onContainerTypeChange():void {
+			parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
 			if (containerTypeRadioGroup.selectedValue == 'PLATE') {
 				if (this.capSeqNumPlatesRadioGroup.selectedValue == null) {
-					this.capSeqNumPlates1.selected = true;
+					this.capSeqNumPlatesRadioGroup.selectedValue="1";
+					this.onCapSeqNumPlatesChanged();
 				}
 			} else {
 				this.capSeqNumPlatesRadioGroup.selection = null;
 			}
-			parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.showHideColumns();
@@ -705,6 +706,7 @@
 		private function onCapSeqNumPlatesChanged():void {
 			if (capSeqNumPlatesRadioGroup.selectedValue != null) {
 				parentDocument.numCapSeqPlates = this.capSeqNumPlatesRadioGroup.selectedValue;
+				parentDocument.samplesView.initializeSamplesGrid();
 			}
 		}
 		
