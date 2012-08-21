@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExFrontController;
 import net.sf.samtools.*;
+import net.sf.samtools.SAMFileReader.ValidationStringency;
 
 
 public class DataTrackUtil {
@@ -251,7 +252,9 @@ public class DataTrackUtil {
    * @return null if no problems, otherwise an error.*/
   public static String checkBamFile(File bamFile) {
     String message = null;
+    SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
     SAMFileReader reader = null;
+    
     Pattern oneTwoDigit = Pattern.compile("\\w{1,2}");
     try {
       reader = new SAMFileReader(bamFile);
