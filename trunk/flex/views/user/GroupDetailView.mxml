@@ -383,6 +383,11 @@
 					acct.@startDate = acct.@startDateOther;
 				}
 				
+				for each(var pendingAcct:Object in pendingBillingAccounts) {
+					pendingAcct.@expirationDate = pendingAcct.@expirationDateOther;
+					pendingAcct.@startDate = pendingAcct.@startDateOther;
+				}
+				
 				params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
 				params.institutionsXMLString = "<institutions>" + institutions.toXMLString() + "</institutions>";
 				params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
