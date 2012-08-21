@@ -58,7 +58,7 @@
 				return;
 			}
 			if(seqRunTypeCombo.selectedIndex <= 0) {
-				Alert.show("Please select a Seq Run Type");
+				Alert.show("Please select a Sequence Lane Type");
 				return;
 			}
 
@@ -189,7 +189,7 @@
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox id="spContainer" width="100%" horizontalAlign="left" verticalAlign="middle">
-			<mx:Label text="Seq Run Type" width="120"/>
+			<mx:Label text="Seq Lane Type" width="120"/>
 			<mx:ComboBox width="365" id="seqRunTypeCombo"
 						 labelField="@display" 
 						 change="getAlignmentProfilesCheck();"

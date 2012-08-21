@@ -89,7 +89,7 @@
 					horizontalScrollPolicy="auto"  alpha="0" showHeaders="true">
 					<mx:columns>
 					    <mx:DataGridColumn editable="false" headerText="Lane"   resizable="false" width="80" dataField="@number"/>
-			             <mx:DataGridColumn  width="140" headerText="Seq Run Type"  editable="true" dataField="@idSeqRunType"
+			             <mx:DataGridColumn  width="140" headerText="Sequence Lane Type"  editable="true" dataField="@idSeqRunType"
 			             	rendererIsEditor="true" 
 			             	itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>
 			             <mx:DataGridColumn  headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
