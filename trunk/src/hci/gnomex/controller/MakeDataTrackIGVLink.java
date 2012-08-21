@@ -154,39 +154,42 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 
 			//make final url
 			StringBuilder sb = new StringBuilder();
-
+			
+			String launch;
+			if (launchIGV) launch= "http://www.broadinstitute.org/igv/projects/current/igv.php?maxHeapSize=1800m&";
+			else launch ="http://localhost:60151/load?merge=true&";
+			sb.append(launch);
 
 			//add genome
 			sb.append("genome="+ucscGenomeBuildName);
 
-			//add name(s), might be two 
+			//add name(s), might be two, replace spaces with +, strip white space
 			sb.append("&name=");
-			sb.append(names.get(0));
+			StringBuilder toEncode = new StringBuilder();
+			toEncode.append(stripBadNameCharacters(names.get(0)));
 			if (names.size() !=1) {
-				sb.append(",");
-				sb.append(names.get(1));
+				toEncode.append(",");
+				toEncode.append(stripBadNameCharacters(names.get(1)));
 			}
+			String parsedNames = URLEncoder.encode(toEncode.toString(), "UTF-8");
+			sb.append(parsedNames);
 
 			//add file link(s), might be two
 			if (launchIGV) sb.append("&sessionURL=");
 			else sb.append("&file=");
 
-			sb.append(fileURLs.get(0));
+			toEncode = new StringBuilder();
+			toEncode.append(fileURLs.get(0));
 			if (fileURLs.size() !=1) {
-				sb.append(",");
-				sb.append(fileURLs.get(1));
+				toEncode.append(",");
+				toEncode.append(fileURLs.get(1));
 			}
+			String parsedURLs = URLEncoder.encode(toEncode.toString(), "UTF-8");
+			sb.append(parsedURLs);
 
-			//remove any returns
-			String message =  URLEncoder.encode(TO_STRIP.matcher(sb.toString()).replaceAll(" ") , "UTF-8");
+			//System.out.println("IGV Launch URL : "+sb);
 
-			String launch;
-			if (launchIGV) launch= "http://www.broadinstitute.org/igv/projects/current/igv.php?maxHeapSize=1800m&";
-			else launch ="http://localhost:60151/load?merge=true&";
-
-System.out.println("IGV Launch URL unconverted : "+launch+sb.toString());			
-
-			return launch+message;
+			return sb.toString();
 
 		} catch (Exception e) {
 			throw e;      
@@ -194,6 +197,12 @@ System.out.println("IGV Launch URL unconverted : "+launch+sb.toString());
 			if (sess != null) sess.close();
 		}
 
+	}
+	
+	public static String stripBadNameCharacters(String name){
+		name = name.trim();
+		name.replaceAll(",", "_");
+		return name;
 	}
 
 	public void setLaunchIGV(boolean launchIGV) {
