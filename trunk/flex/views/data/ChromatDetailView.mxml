@@ -811,7 +811,7 @@
               <mx:LineSeries dataProvider="{aTraceArray}" displayName="A" xField="x" yField="y" >
                 <mx:lineStroke>
                   <mx:Stroke 
-                    color="#0000CC" 
+					  color="#00CC00" 
                     weight=".25" 
                     />
                 </mx:lineStroke>
@@ -821,7 +821,7 @@
               <mx:LineSeries dataProvider="{cTraceArray}" displayName="C" xField="x" yField="y" >
                 <mx:lineStroke>
                   <mx:Stroke 
-                    color="#00CC00" 
+					color="#0000CC"
                     weight=".25" 
                     />
                 </mx:lineStroke>
@@ -831,7 +831,7 @@
               <mx:LineSeries dataProvider="{gTraceArray}" displayName="G" xField="x" yField="y" >
                 <mx:lineStroke>
                   <mx:Stroke 
-                    color="#CC0000" 
+                    color="#303030" 
                     weight=".25" 
                     />
                 </mx:lineStroke>
@@ -841,7 +841,7 @@
               <mx:LineSeries dataProvider="{tTraceArray}" displayName="T" xField="x" yField="y" >
                 <mx:lineStroke>
                   <mx:Stroke 
-                    color="#303030" 
+                    color="#CC0000" 
                     weight=".25" 
                     />
                 </mx:lineStroke>
