@@ -265,7 +265,7 @@
 				downloadExpandedFilesButtonView.visible = false;
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
-			this.theTab.selectedIndex = 0;
+//			this.theTab.selectedIndex = 0;
 		}
 		
 		public function initializeBarcoding():void {
@@ -1739,8 +1739,6 @@
 		</mx:AddChild>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
 		<mx:SetProperty target="{parentDocument.requestFormButton}" name="includeInLayout" value="false"/>
-		<mx:SetProperty target="{parentDocument.submitExperimentButton}" name="includeInLayout" value="true"/>
-		<mx:SetProperty target="{parentDocument.submitExperimentButton}" name="visible" value="true"/>
 		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
 		<mx:SetProperty target="{noteToBioBox}" name="includeInLayout" value="false"/>
 	</mx:State>

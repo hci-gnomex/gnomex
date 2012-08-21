@@ -32,14 +32,14 @@
 			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8" width="100%">
 				<mx:HBox width="100%"  horizontalGap="2" horizontalAlign="left" verticalAlign="middle">
 					   <mx:Text id="submitWarning" text="Order not yet submitted" 
-								visible="{submitExperimentButton.enabled}"
-							 includeInLayout="{submitExperimentButton.visible}" styleName="warningLabelSevere"/>
+							visible="{submitExperimentButton.enabled &amp;&amp; submitExperimentButton.visible}"
+							 includeInLayout="{submitExperimentButton.enabled  &amp;&amp; submitExperimentButton.visible }" styleName="warningLabelSevere"/>
 						<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
 									click="detail.promptToSubmitExperiment()"
 									visible="false"
 									includeInLayout="false"
 									toolTip="Submit experiment" 
-									enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@codeRequestStatus == &quot;NEW&quot; &amp;&amp; detail.selectedExperiment.@canUpdate==&quot;Y&quot; ? true : false}" 
+									enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == &quot;Y&quot; &amp;&amp; detail.selectedExperiment.@codeRequestStatus == &quot;NEW&quot; &amp;&amp; detail.selectedExperiment.@canUpdate==&quot;Y&quot; ? true : false}" 
 									textDecoration="underline">
 							<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
 						</mx:LinkButton>
