@@ -10,6 +10,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingItemParser;
@@ -152,6 +153,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           ArrayList billingItems = new ArrayList();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
+            if (billingItem.getIdCoreFacility() == null) {
+              if (billingItem.getIdRequest() != null) {
+                Request req = (Request)sess.load(Request.class, billingItem.getIdRequest());
+                billingItem.setIdCoreFacility(req.getIdCoreFacility());
+              }
+            }
             billingItem.resetInvoiceForBillingItem(sess);
             sess.save(billingItem);
             billingItems.add(billingItem);
