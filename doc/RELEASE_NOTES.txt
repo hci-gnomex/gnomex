@@ -28,6 +28,7 @@
 * List appropriate core facility names/contacts in footer of user verification email.  (bspiglejr)
 * Send confirmation email to user for DNA Seq requests at submit time instead of save time.  (bspiglejr)
 * Delete empty projects owned by user when user is deleted or removed from associated lab (member/collaborator/manager).  (bspiglejr)
+* Show which wells are redos on plate editor and plate report. (mbowler)
 
 5.4.7
 ---------------------

@@ -14,6 +14,17 @@ package views.renderers
 			setStyle('fontSize', 7);
 			setStyle('textAlign','center');
 		}
+				
+		public function resetLabel():void{
+			setStyle('fontWeight', 'normal');
+		}
+		
+		
+		public function highlightLabel():void{
+			setStyle('fontWeight', 'bold');
+			this.textField.background = true;
+			this.textField.backgroundColor = 0xD3D3D3;
+		}
 		
 		override protected function updateDisplayList(
 			unscaledWidth:Number, unscaledHeight:Number): void {
