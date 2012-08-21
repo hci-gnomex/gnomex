@@ -64,6 +64,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        DEFAULT_VISIBILITY_DATATRACK        = "default_visibility_datatrack";
   public static final String        DEFAULT_VISIBILITY_TOPIC            = "default_visibility_topic";
   public static final String        GENERIC_NO_REPLY_EMAIL              = "generic_no_reply_email";
+  public static final String        PERFORMANCE_LOG_ENABLED             = "performance_log_enabled";
+  public static final String        PERFORMANCE_LOG_CUTOFF_MILLISECONDS = "performance_log_cutoff_milliseconds";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";

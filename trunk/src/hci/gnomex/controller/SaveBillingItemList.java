@@ -16,8 +16,10 @@ import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LogLongExecutionTimes;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -108,6 +110,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   
   private DictionaryHelper             dictionaryHelper = null;
   
+  private transient LogLongExecutionTimes executionLogger = null;
+  
   public void validate() {
   }
   
@@ -145,11 +149,15 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
         
+        executionLogger = new LogLongExecutionTimes(log, PropertyDictionaryHelper.getInstance(sess), "SaveBillingItemList");
+        LogItem li = null;
+        
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
+          li = executionLogger.startLogItem("Parse");
           parser.parse(sess);
-          
-          //this.getCheckInvoiceMap(sess, parser);
-          
+          executionLogger.endLogItem(li);
+
+          li = executionLogger.startLogItem("Initial Save");
           ArrayList billingItems = new ArrayList();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
@@ -166,7 +174,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           }
           
           sess.flush();
-
+          executionLogger.endLogItem(li);
+          
+          li = executionLogger.startLogItem("Set PO Status");
           for(Iterator i = billingItems.iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
             
@@ -185,7 +195,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           }
           
           sess.flush();
+          executionLogger.endLogItem(li);
 
+          li = executionLogger.startLogItem("Check Approved");
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem bi = (BillingItem)i.next();
             sess.refresh(bi);
@@ -196,17 +208,22 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
             }
 
           }
+          executionLogger.endLogItem(li);
           
+          li = executionLogger.startLogItem("Delete Items");
           for(Iterator i = parser.getBillingItemsToRemove().iterator(); i.hasNext();) {
             BillingItem bi = (BillingItem)i.next();
             sess.delete(bi);
           }
           sess.flush();
-
+          executionLogger.endLogItem(li);
+          
+          li = executionLogger.startLogItem("Save Invoices");
           for(Invoice invoice : parser.getInvoices()) {
             sess.save(invoice);
           }
           sess.flush();
+          executionLogger.endLogItem(li);
           
           for(Iterator<LabAccountBillingPeriod> i = labAccountBillingPeriodMap.keySet().iterator(); i.hasNext();) {
             LabAccountBillingPeriod labp = (LabAccountBillingPeriod) i.next();
@@ -221,7 +238,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           setResponsePage(this.ERROR_JSP);
         }
 
-
+        this.executionLogger.LogTimes();
       }catch (Exception e){
         log.error("An exception has occurred in SaveBillingItem ", e);
         e.printStackTrace();
@@ -260,7 +277,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   }
   
   private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount, Integer idCoreFacility) throws Exception {
-    
+    LogItem li = this.executionLogger.startLogItem("Format Email");
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     BillingPeriod billingPeriod = dictionaryHelper.getBillingPeriod(idBillingPeriod);
@@ -289,7 +306,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         subject = "(TEST) " + subject;
       }
     }
+    this.executionLogger.endLogItem(li);
     
+    li = this.executionLogger.startLogItem("Send email");
     if (send) {
       MailUtil.send(lab.getContactEmail(), 
           emailFormatter.getCCList(sess, serverName),
@@ -305,10 +324,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         sess.flush();
       }
     }
+    this.executionLogger.endLogItem(li);
   }  
 
   
   private boolean readyToInvoice(Session sess, Integer idBillingPeriod, Lab lab, Integer idBillingAccount, Integer idCoreFacility) {
+    LogItem li = this.executionLogger.startLogItem("readyToInvoice");
     boolean readyToInvoice = false;
     
     if (lab != null && idBillingAccount != null) {
@@ -345,7 +366,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       }
       
     }
-    
+    this.executionLogger.endLogItem(li);
     return readyToInvoice;
     
   }
