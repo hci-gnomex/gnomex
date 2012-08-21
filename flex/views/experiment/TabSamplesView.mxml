@@ -1901,7 +1901,7 @@
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 									<mx:Label text="Existing #"/> 
-									<mx:Label text="Seq Runs"/> 
+									<mx:Label text="Seq Lanes"/> 
 								</mx:VBox> 
 							</mx:Component>
 						</mx:headerRenderer>
@@ -1917,7 +1917,7 @@
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 									<mx:Label text="# Seq"/> 
-									<mx:Label text="Runs"/>
+									<mx:Label text="Lanes"/>
 								</mx:VBox> 
 							</mx:Component>
 						</mx:headerRenderer>
@@ -1934,8 +1934,8 @@
 						<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-									<mx:Label text="Additional"/> 
-									<mx:Label text="# Seq Runs"/> 
+									<mx:Label text="Addtl #"/> 
+									<mx:Label text="Seq Lanes"/> 
 								</mx:VBox> 
 							</mx:Component>
 						</mx:headerRenderer>
@@ -1991,10 +1991,19 @@
 					
 					
  	                        
-	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
+	 				<mx:AdvancedDataGridColumn headerText="Sample Sequence Lane Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 						rendererIsEditor="false" editorDataField="value" 
                         itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"
-						itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', false).newInstance(), '')}"/>                 											
+						itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', false).newInstance(), '')}">
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+									<mx:Label text="Sample Sequence Lane"/>
+									<mx:Label text="Type"/>
+								</mx:VBox> 
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:AdvancedDataGridColumn>
 	 				<mx:AdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState' &amp;&amp; parentApplication.isInternalExperimentSubmission}"  width="70" dataField="@idNumberSequencingCycles" 
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
