@@ -1042,6 +1042,7 @@
 		
 		public function propagateContainerType(containerType:String):void {
 			var idx:int = 0;
+			parentDocument.samples.disableAutoUpdate();
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@containerType = containerType;
 				if (containerType == 'Plate') {
@@ -1051,6 +1052,7 @@
 				}
 				idx++;
 			}
+			parentDocument.samples.enableAutoUpdate();
 		}
 		
 		public function propagateOrganism(idOrganism:String):void {
