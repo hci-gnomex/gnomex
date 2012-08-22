@@ -1,7 +1,6 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
-
 5.4.7
 ---------------------
 * Require admins with abilities to manage > 1 core facility choose the core facility in the Billing view. (bspiglejr)
@@ -60,6 +59,7 @@
 * Show which wells are redos on plate editor and plate report. (mbowler)
 * Don't show 'Submit' warning unless DNA Seq Core Experiment detail. (tdisera)
 * Workaround tab overlap problem on Experiment Detail by not changing tab on refresh. (tdisera)
+* No longer update sample prepInstructions when request corePrepInstructions are changed.  (bspiglejr)
 
 deploy notes 
 --------------------
