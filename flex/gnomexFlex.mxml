@@ -2664,7 +2664,7 @@
 			 	<mx:VRule height="20" id="ordersRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{ordersRule}" position="after">
-			 	<util:LinkButtonTwoLines id="ordersLink" label="Review Orders" click="{theViews.selectedChild = navOrderView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/page.png')"/>
+			 	<util:LinkButtonTwoLines id="ordersLink" label="Review Orders" click="{theViews.selectedChild = navOrderView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/review.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{ordersLink}" position="after">
@@ -2685,7 +2685,7 @@
 			 	<mx:VRule height="20" id="dataRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{dataRule}" position="after">
-			 	<util:LinkButtonTwoLines id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart.png')"/>
+			 	<util:LinkButtonTwoLines id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart_review.png')"/>
 			 </mx:AddChild>
 			 
 			 
@@ -2693,7 +2693,7 @@
 				 <mx:VRule height="20" id="runsRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{runsRule}" position="after">
-				 <util:LinkButtonTwoLines width="95"  id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run.png')"/>
+				 <util:LinkButtonTwoLines width="95"  id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_review.png')"/>
 			 </mx:AddChild>
 
 		 </mx:State>

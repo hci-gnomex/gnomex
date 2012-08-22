@@ -116,6 +116,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       String plateName = "";
       String instrumentRunName = "";
       String isRedo = "N";
+      String sampleName = "";
       
       if ( plateWell != null ) {
         isRedo = plateWell.getRedoFlag();
@@ -127,6 +128,9 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         if ( instrumentRun!=null && instrumentRun.getLabel()!=null ) {
           instrumentRunName = instrumentRun.getLabel();
         } 
+        if ( plateWell.getSampleName() != null ) {
+          sampleName = plateWell.getSampleName();
+        }
       }
       
       // Signal Strengths:
@@ -181,6 +185,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("runName", instrumentRunName);
         chromNode.setAttribute("plateName", plateName);
         chromNode.setAttribute("redoFlag", isRedo);
+        chromNode.setAttribute("sampleName", sampleName);
         
         // SEQUENCE
         if (includeSeqString) {
