@@ -239,7 +239,7 @@
 			this.dirtyTopic.resetDirty();
 			var visibilityMsg:String = updateTopic.lastResult.@visibilityMsg;
 			if(visibilityMsg.length > 0) {
-				var outMsg:String = visibilityMsg = "A topic may not be given broader visiblity than its parent. Since the parent is currently only visible to " 
+				var outMsg:String = visibilityMsg = "A topic may not be given broader visibility than its parent. Since the parent is currently only visible to " 
 					+ visibilityMsg + ", visibility for this topic has been set to the same level.";
 				if(visibilityMsg.indexOf("owner") < 1) {
 					visibilityMsg += " You may still change it to be more restrictive, if desired."
