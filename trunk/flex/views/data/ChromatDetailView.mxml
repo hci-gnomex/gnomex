@@ -392,7 +392,7 @@
             <mx:GridItem horizontalAlign="right" paddingRight="5">
               <mx:Label text="File name" fontWeight="bold"/>
             </mx:GridItem>
-            <mx:GridItem width="250">
+            <mx:GridItem paddingRight="10">
               <mx:Label text="{getChromatogram.lastResult.Chromatogram.@displayName}"/>
             </mx:GridItem>
 			  

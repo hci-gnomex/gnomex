@@ -14,7 +14,7 @@
 		<mx:Image source="assets/tv_chart.png"/>
 		<mx:Label id="titleLabel" styleName="titleLabel" text="Review Results "  fontWeight="bold"/>
 		<mx:Spacer width="30"/>
-
+		
 		
 		
 		<mx:HBox horizontalGap="0"
@@ -42,7 +42,7 @@
 		</mx:HBox>
 		
 		
-
+		
 		<mx:HBox horizontalGap="0"
 				 height="100%"
 				 verticalAlign="middle"
@@ -90,7 +90,7 @@
 					   visible="false" includeInLayout="false"
 					   icon="@Embed('../../assets/arrow_right.png')"
 					   click="{if (requestNoLookupField.text != '') this.getList();}" />
-		
+			
 		</mx:HBox>
 		<mx:Spacer width="100%"/>
 		<mx:LinkButton textDecoration="underline"
@@ -100,8 +100,8 @@
 					   click="{this.getList();}"  paddingLeft="8" id="linkbutton3"/>
 		
 	</mx:HBox>
-
-
+	
+	
 	<mx:HTTPService id="getChromatogramList"
 					url="GetChromatogramList.gx"
 					resultFormat="e4x"
@@ -111,7 +111,7 @@
 					method="POST"
 					useProxy="false">
 	</mx:HTTPService>
-
+	
 	<mx:HTTPService id="saveChromatogramList"
 					url="SaveChromatogramList.gx"
 					resultFormat="e4x"
@@ -131,7 +131,7 @@
 					method="POST"
 					useProxy="false">
 	</mx:HTTPService>
-
+	
 	<mx:HTTPService  
 		id="cacheFileDownloadList" 
 		url="CacheFileDownloadList.gx"
@@ -155,7 +155,7 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService>
-
+	
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
@@ -175,19 +175,19 @@
 			
 			import views.experiment.DownloadProgressView;
 			import views.util.FileUtil;
-
+			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
 			[Bindable]
 			public var iconWarning:Class;
 			
 			public var parentView:NavDataView;
-
+			
 			public var selectedList:ListCollectionView;
 			
 			[Bindable]
 			public var idRequest:String;
-
+			
 			[Bindable]
 			private var actionDictionary:XMLListCollection = new XMLListCollection();
 			
@@ -195,7 +195,7 @@
 									<action value="RELEASE"   display="Release data to user" />
 									<action value="REQUEUE"    display="Release and requeue samples" />
 								</actionDictionary>;
-
+			
 			
 			[Bindable]
 			public var selectedFiles:XMLListCollection;
@@ -213,7 +213,7 @@
 			
 			public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
 			
-
+			
 			private function init():void {
 				
 				if ( currentState == userState.name ) {
@@ -221,7 +221,9 @@
 					// isn't initialized yet.
 					
 				} else {
-					
+					if ( !initialized ) {
+						this.notReleasedCheckbox.selected = true;
+					}
 					actionDictionary.source = dictXML.action;
 					this.getList();
 				}
@@ -243,7 +245,11 @@
 					params.lastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
 					params.lastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
 					params.lastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
-					params.released = this.releasedCheckbox.selected ? 'Y' : 'N';
+					if ( this.releasedCheckbox.selected ) {
+						params.released = 'Y';
+					} else if ( this.notReleasedCheckbox.selected ) {
+						params.released = 'N';
+					}
 				}
 				
 				if ( currentState == userState.name ) {
@@ -254,7 +260,7 @@
 				return params;
 			}
 			
-
+			
 			private function onGetChromatogramList( event:ResultEvent ):void {
 				if ( event.result.name() == "ChromatogramList" ) {
 					selectedChromats.refresh();
@@ -262,9 +268,9 @@
 					return;
 				}
 				Alert.show( event.result..ERROR.@message.toString(), "Error getting chromatogram list" );
-
+				
 			}
-
+			
 			
 			private function gridItemClick( event:ListEvent ):void {
 				if ( currentState != userState.name ) {
@@ -297,7 +303,7 @@
 				
 				selectedChromats.refresh();
 			}
-
+			
 			private function selectionChange( event:ListEvent ):void {
 				for each ( var obj:Object in chromatogramGrid ) {
 					obj.@isSelected = false;
@@ -337,17 +343,17 @@
 					saveChromatogramList.send( params1 );
 				}
 			}
-
-
+			
+			
 			private function onSaveChromatogramList( event:ResultEvent ):void {
 				if ( event.result.name() == "SUCCESS" ) {
 					this.getList();
 					return;
 				}
 				Alert.show( event.result..ERROR.@message.toString(), "Error saving chromatogram list" );
-
+				
 			}
-
+			
 			
 			private function promptToDelete():void {
 				
@@ -376,12 +382,12 @@
 				
 			}
 			
-
+			
 			private function selectedFilterFunc( item:XML ):Boolean {
 				return item.@isSelected == true;
 			}
-
-
+			
+			
 			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
 				if ( currentState != userState.name ) {
 					if ( checkBoxNumber == 1 ) {
@@ -396,10 +402,8 @@
 					} 
 				}
 			}
-
-
 			
-
+			
 			public function toggleReactionCheckboxes( checkBoxNumber:int ):void {
 				if ( checkBoxNumber == 0 ) {
 					this.mitSeqCheckbox.selected = false;
@@ -407,7 +411,15 @@
 					this.capSeqCheckbox.selected = false;
 				}
 			}
-
+			
+			public function toggleReleaseCheckboxes( checkBoxNumber:int ):void {
+				if ( checkBoxNumber == 1 ) {
+					this.releasedCheckbox.selected = false;
+				} else if ( checkBoxNumber == 2 ) {
+					this.notReleasedCheckbox.selected = false;
+				}
+			}
+			
 			private function setDefaultButton():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
@@ -418,9 +430,8 @@
 				}
 				this.defaultButton = lookupButton;
 			}
-
 			
-
+						
 			private function setRunNameDefaultButton():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
@@ -431,8 +442,8 @@
 				}
 				this.defaultButton = this.runNameLookupButton;
 			}
-
-
+			
+			
 			private function setPlateNameDefaultButton():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
@@ -442,7 +453,7 @@
 					this.runNameLookupField.text = '';
 				}
 				this.defaultButton = this.plateNameLookupButton;
-
+				
 			}
 			
 			private function fieldNumericSorter( field:String ):Function {
@@ -557,7 +568,7 @@
 						selectedFiles.addItem(node);
 					}
 				}
-
+				
 				if (selectedFiles.length == 0) {
 					mx.controls.Alert.show("Please select the files to download.");
 				} else {
@@ -583,7 +594,7 @@
 				navigateToURL(url, '_self');					
 				
 			}
-
+			
 			
 			public function sortByQuadrantAndPosition(item1:Object, item2:Object):int {
 				var runNumber1:int = item1.@runNumber;
@@ -591,10 +602,10 @@
 				
 				var wellPos1:int = item1.@wellPosition;
 				var wellPos2:int = item2.@wellPosition;
-
+				
 				var quadrant1:int = item1.@quadrant;
 				var quadrant2:int = item2.@quadrant;
-
+				
 				if (runNumber1 > runNumber2) {
 					return 1;
 				} else if (runNumber2 > runNumber1) {
@@ -616,18 +627,18 @@
 					
 				}
 			}
-
-
-
+			
+			
+			
 		]]>
 	</mx:Script>
-
+	
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
-
+	
 	<mx:VBox paddingLeft="2" width="100%" verticalGap="0" id="vbox1">
 		
-
+		
 		<mx:HBox id="filterBar"
 				 horizontalGap="8"
 				 paddingTop="4"
@@ -635,7 +646,7 @@
 				 paddingLeft="0"
 				 horizontalAlign="left"
 				 verticalAlign="middle">
-
+			
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
 					 verticalGap="0"
@@ -669,7 +680,7 @@
 				
 			</mx:HBox>
 			<mx:VRule height="20" />
-
+			
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
 					 verticalGap="0"
@@ -685,9 +696,9 @@
 						toggleDateCheckboxes( 1 );
 						this.getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
+				
 				<mx:CheckBox id="lastMonthCheckbox"
 							 label="month"
 							 paddingRight="0"
@@ -697,9 +708,9 @@
 						toggleDateCheckboxes( 2 );
 						this.getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
+				
 				<mx:CheckBox id="lastThreeMonthsCheckbox"
 							 label="3 months"
 							 paddingRight="0"
@@ -709,9 +720,9 @@
 						toggleDateCheckboxes( 3 );
 						this.getList();
 					</mx:click>
-
+					
 				</mx:CheckBox>
-
+				
 			</mx:HBox>
 			<mx:VRule height="20" />
 			<mx:HBox horizontalGap="0"
@@ -720,207 +731,222 @@
 					 horizontalAlign="right"
 					 paddingLeft="5"
 					 paddingRight="5">
-				<mx:CheckBox id="releasedCheckbox"
-							 label="Already released"
+				<mx:CheckBox id="notReleasedCheckbox"
+							 label="Not released"
 							 paddingRight="0"
 							 paddingLeft="2"
-							 horizontalGap="0">
+							 horizontalGap="0" >
 					<mx:click>
+						toggleReleaseCheckboxes( 1 );
+						this.getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+				<mx:CheckBox id="releasedCheckbox"
+							 label="Released"
+							 paddingRight="0"
+							 paddingLeft="2"
+							 horizontalGap="0" >
+					<mx:click>
+						toggleReleaseCheckboxes( 2 );
 						this.getList();
 					</mx:click>
 					
 				</mx:CheckBox>
 				
 			</mx:HBox>
-
+			
 		</mx:HBox>
 	</mx:VBox>
-
 	
-
-		<mx:VBox width="100%" height="100%" verticalGap="1">
-			<util:DataGridAlternatingGroup id="chromatogramGrid"
-							 allowMultipleSelection="true"
-							 itemClick="gridItemClick(event)"
-							 click="{selectedChromats.refresh()}"
-							 change="selectionChange(event)"
-							 width="100%"
-							 height="100%"
-							 dataProvider="{chromats}"
-							 sortArrowSkin="mx.skins.ProgrammaticSkin">
-					<util:columns>
-						
-					<mx:DataGridColumn id="checkBoxColumn"
-									   textAlign="center"
-									   width="30"
-									   minWidth="30"
-									   resizable="false"
-									   sortable="false"
-									   editable="true"
-									   rendererIsEditor="true"
-									   dataField="@isSelected"
-									   editorDataField="selected"
-									   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
-									   headerRenderer="views.renderers.CheckBoxHeader"
-									   draggable="false"/>
-					
-					<mx:DataGridColumn headerText=""
-									   textAlign="center"
-									   editable="false"
-									   resizable="false"
-									   sortable="false"
-									   width="35" 
-									   minWidth="35"
-									   draggable="false">
-										<mx:itemRenderer>
-											<mx:Component>
-												<mx:HBox horizontalAlign="center" >
-													<mx:Image source="@Embed(source='../../assets/tv_chart.png')" />
-												</mx:HBox>
-											</mx:Component>
-										</mx:itemRenderer>						
-					</mx:DataGridColumn>
-					
-					<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
-									   headerText="File"
-									   minWidth="140"
-									   textDecoration="underline"
-									   color="#2017D8"
-									   draggable="false">
-						<mx:headerRenderer>
-							<mx:Component>
-								<mx:Label text="Label" textDecoration="none" color="#000000" />
-							</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-						
-					<mx:DataGridColumn dataField="@plateLabel"
-										   headerText="Plate" 
-										   width="90" minWidth="20" />
-					<mx:DataGridColumn dataField="@quadrant"
-										   headerText="Quadrant"
-										   width="20" minWidth="20" />
-					<mx:DataGridColumn dataField="@runName"
-									   headerText="Run"
-									   width="80" minWidth="20" />
-					<mx:DataGridColumn dataField="@wellPosition" 
-										   headerText="Well pos"
-										   width="30" minWidth="10" />
-						
-						<mx:DataGridColumn dataField="@requestNumber" 
-										   headerText="Order #"
-										   width="70" minWidth="15" />
-					<mx:DataGridColumn dataField="@sampleName" 
-										   headerText="Sample"
-										   width="80" minWidth="15" />
-
-						
-					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected}"
-									   width="90" minWidth="75" id="releasedCheckBox">
-						<mx:itemRenderer>
-							<mx:Component>
-								<mx:HBox  horizontalAlign="center" horizontalGap="1" >
-									<mx:Image source="{data.@releaseDate != '' ? parentApplication.iconCheck : ''}">
-									</mx:Image> 
-								</mx:HBox>
-							</mx:Component>
-						</mx:itemRenderer>
-					</mx:DataGridColumn>
-						
-					
+	
+	
+	<mx:VBox width="100%" height="100%" verticalGap="1">
+		<util:DataGridAlternatingGroup id="chromatogramGrid"
+									   allowMultipleSelection="true"
+									   itemClick="gridItemClick(event)"
+									   click="{selectedChromats.refresh()}"
+									   change="selectionChange(event)"
+									   width="100%"
+									   height="100%"
+									   dataProvider="{chromats}"
+									   sortArrowSkin="mx.skins.ProgrammaticSkin">
+			<util:columns>
+				
+				<mx:DataGridColumn id="checkBoxColumn"
+								   textAlign="center"
+								   width="30"
+								   minWidth="25"
+								   resizable="false"
+								   sortable="false"
+								   editable="true"
+								   rendererIsEditor="true"
+								   dataField="@isSelected"
+								   editorDataField="selected"
+								   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
+								   headerRenderer="views.renderers.CheckBoxHeader"
+								   draggable="false"/>
+				
+				<mx:DataGridColumn headerText=""
+								   textAlign="center"
+								   editable="false"
+								   resizable="false"
+								   sortable="false"
+								   width="35" 
+								   minWidth="30"
+								   draggable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox horizontalAlign="center" >
+								<mx:Image source="@Embed(source='../../assets/tv_chart.png')" />
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>						
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
+								   headerText="File"
+								   minWidth="85"
+								   textDecoration="underline"
+								   color="#2017D8"
+								   draggable="false">
+					<mx:headerRenderer>
+						<mx:Component>
+							<mx:Label text="Label" textDecoration="none" color="#000000" />
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn dataField="@idChromatogram"
+								   headerText="ID"
+								   width="35" minWidth="20" />
+				<mx:DataGridColumn dataField="@plateLabel"
+								   headerText="Plate" 
+								   width="90" minWidth="20" />
+				<mx:DataGridColumn dataField="@quadrant"
+								   headerText="Quad"
+								   width="35" minWidth="20" />
+				<mx:DataGridColumn dataField="@runName"
+								   headerText="Run"
+								   width="80" minWidth="20" />
+				<mx:DataGridColumn dataField="@wellPosition" 
+								   headerText="Well #"
+								   width="40" minWidth="10" />
+				
+				<mx:DataGridColumn dataField="@requestNumber" 
+								   headerText="Order #"
+								   visible="{this.currentState != 'userState'}"
+								   width="70" minWidth="15" />
+				<mx:DataGridColumn dataField="@sampleName" 
+								   headerText="Sample"
+								   width="80" minWidth="15" />
+				
+				
+					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
+									   width="90" id="releasedCheckBox">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+								<mx:Image source="{data.@releaseDate != '' ? parentApplication.iconCheck : ''}">
+								</mx:Image> 
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				
 					<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
-									   headerText="Released"
-									   width="90" minWidth="75" id="datagridcolumn2"/>
-						
+								   headerText="Released"
+								   width="90"  id="datagridcolumn2"/>
+				
 					<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
-									   headerText="Releaser"
-									   width="85" minWidth="75"/>
-						
-						<mx:DataGridColumn width="60" headerText="Redo">
-							<mx:itemRenderer>
-								<mx:Component >
-									<mx:HBox  horizontalAlign="center" horizontalGap="1" >
-										<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
-										</mx:Image> 
-									</mx:HBox>
-								</mx:Component>
-							</mx:itemRenderer>
-						</mx:DataGridColumn>
-					
-					<mx:DataGridColumn dataField="@submitter"
-									   headerText="Submitter" minWidth="75"
-									   width="70" />
-					
-					<mx:DataGridColumn dataField="@readLength"
-									   headerText="Length"
-									   width="75"
-									   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
-					
-					<mx:DataGridColumn dataField="@trimmedLength"
-									   headerText="Trim Len"
-									   width="75"
-									   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
-					
-					<mx:DataGridColumn dataField="@q20"
-									   headerText="q20"
-									   width="65"
-									   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
-					
-					<mx:DataGridColumn dataField="@q40"
-									   headerText="q40"
-									   width="65"
-									   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
-					
-					<mx:DataGridColumn dataField="@q20_len"
-									   headerText="q20/len"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('q20_len')" />
-					
-					<mx:DataGridColumn dataField="@q40_len"
-									   headerText="q40/len"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('q40_len')" />
-						
-					<mx:DataGridColumn headerText="Lane"
-									   dataField="@lane"
-									   width="65"/>
-					
-					<mx:DataGridColumn dataField="@aSignalStrength"
-									   headerText="A sig"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('aSignalStrength')" />
-					
-					<mx:DataGridColumn dataField="@cSignalStrength"
-									   headerText="C sig"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('cSignalStrength')" />
-					
-					<mx:DataGridColumn dataField="@gSignalStrength"
-									   headerText="G sig"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('gSignalStrength')" />
-					
-					<mx:DataGridColumn dataField="@tSignalStrength"
-									   headerText="T sig"
-									   width="70"
-									   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
-					
-	  	   		</util:columns>
+								   headerText="Releaser"
+								   width="85"/>
+				
+				<mx:DataGridColumn width="55" headerText="Redo">
+					<mx:itemRenderer>
+						<mx:Component >
+							<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+								<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
+								</mx:Image> 
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn dataField="@submitter"
+								   headerText="Submitter" 
+								   width="75" />
+				
+				<mx:DataGridColumn dataField="@readLength"
+								   headerText="Len"
+								   width="50"
+								   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
+				
+				<mx:DataGridColumn dataField="@trimmedLength"
+								   headerText="Trim Len"
+								   width="75"
+								   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
+				
+				<mx:DataGridColumn dataField="@q20"
+								   headerText="q20"
+								   width="58"
+								   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
+				
+				<mx:DataGridColumn dataField="@q40"
+								   headerText="q40"
+								   width="58"
+								   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
+				
+				<mx:DataGridColumn dataField="@q20_len"
+								   headerText="q20/len"
+								   width="70"
+								   sortCompareFunction="fieldNumericSorter('q20_len')" />
+				
+				<mx:DataGridColumn dataField="@q40_len"
+								   headerText="q40/len"
+								   width="70"
+								   sortCompareFunction="fieldNumericSorter('q40_len')" />
+				
+				<mx:DataGridColumn headerText="Lane"
+								   dataField="@lane"
+								   width="60"/>
+				
+				<mx:DataGridColumn dataField="@aSignalStrength"
+								   headerText="A sig"
+								   width="62"
+								   sortCompareFunction="fieldNumericSorter('aSignalStrength')" />
+				
+				<mx:DataGridColumn dataField="@cSignalStrength"
+								   headerText="C sig"
+								   width="62"
+								   sortCompareFunction="fieldNumericSorter('cSignalStrength')" />
+				
+				<mx:DataGridColumn dataField="@gSignalStrength"
+								   headerText="G sig"
+								   width="62"
+								   sortCompareFunction="fieldNumericSorter('gSignalStrength')" />
+				
+				<mx:DataGridColumn dataField="@tSignalStrength"
+								   headerText="T sig"
+								   width="62"
+								   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
+				
+			</util:columns>
 			
 			
-			</util:DataGridAlternatingGroup>		
-
-		</mx:VBox>
-
-
+		</util:DataGridAlternatingGroup>		
+		
+	</mx:VBox>
+	
+	
 	<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" id="controlbar1">
 		<mx:Label id="nSelectedChromats" text="{selectedChromats.length + ' selected'}" />
-
+		
 		<mx:ComboBox id="comboBox"
 					 prompt="- Select an action -"
 					 dataProvider="{actionDictionary}"
 					 labelField="@display" />
-
+		
 		<mx:LinkButton textDecoration="underline"
 					   label="Go"
 					   icon="@Embed('../../assets/bullet_go.png')"
@@ -928,7 +954,7 @@
 					   toolTip="Submit action"
 					   click="{submitAction()}" 
 					   enabled="{selectedChromats.length>0}"
-					    id="linkbutton1"/>
+					   id="linkbutton1"/>
 		
 		<mx:LinkButton textDecoration="underline"
 					   label="Delete"
@@ -939,9 +965,9 @@
 					   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
 		<mx:Spacer width="100%" id="spacer1"/>
 		<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"  fontStyle="italic"/>
-
+		
 	</mx:ControlBar>
-
+	
 	<mx:states>
 		<mx:State id="userState" name="userState">
 			<mx:RemoveChild target="{vbox1}"/>
@@ -954,10 +980,10 @@
 			<mx:SetProperty name="styleName"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:Button id="downloadButton" 
-				 	click="downloadFiles()" 
-				 	icon="@Embed('../../assets/download.png')" 
-				 	toolTip="Download selected files"
-				 	label="Download"/>
+						   click="downloadFiles()" 
+						   icon="@Embed('../../assets/download.png')" 
+						   toolTip="Download selected files"
+						   label="Download"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 

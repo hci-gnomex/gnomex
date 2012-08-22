@@ -293,7 +293,13 @@
 	<mx:XMLListCollection id = "runList" source = "{getInstrumentRunList.lastResult.InstrumentRun}" />
 	<mx:XMLListCollection id = "selectedRuns" source="{getInstrumentRunList.lastResult.InstrumentRun}" 
 						  filterFunction="selectedFilterFunc"/>
-	
+	<mx:VDividedBox width = "100%"
+					height = "100%"
+					styleName = "form"
+					paddingBottom = "4"
+					paddingLeft = "4"
+					paddingRight = "4"
+					paddingTop = "4">
 	<mx:VBox width = "100%" height = "100%" verticalGap = "1">
 		
 		<mx:HBox width = "100%" verticalAlign = "bottom">
@@ -389,7 +395,7 @@
 		</mx:DataGrid>
 		
 	</mx:VBox>
-	
+	</mx:VDividedBox>
 	<mx:ControlBar horizontalAlign = "left" width = "100%" paddingTop="2" paddingBottom="2">
 		<mx:Label id = "nSelectedRuns" text="{selectedRuns.length + ' selected'}" />
 		
