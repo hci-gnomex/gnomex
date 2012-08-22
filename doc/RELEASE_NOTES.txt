@@ -60,6 +60,9 @@
 * Don't show 'Submit' warning unless DNA Seq Core Experiment detail. (tdisera)
 * Workaround tab overlap problem on Experiment Detail by not changing tab on refresh. (tdisera)
 * No longer update sample prepInstructions when request corePrepInstructions are changed.  (bspiglejr)
+* Fixed filter issues and datagrid differences on plate and run review screen. (mbowler)
+* Updated columns and filter for chromatogram browse view. (mbowler)
+* Fixed problem with long file names on chromatogram detail view. (mbowler)
 
 deploy notes 
 --------------------

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" creationPolicy="all" 
-		 paddingTop="1" verticalGap="0" show="getList()"  xmlns:util="views.util.*" xmlns:run="views.run.*">
+		 paddingTop="1" verticalGap="0" show="init()"  xmlns:util="views.util.*" xmlns:run="views.run.*">
 	
 	<mx:TabBar dataProvider="{theViews}"
 			   childIndexChange="{toggleDateCheckboxes(0);(allCheckbox.selected = false);}"
@@ -11,6 +11,19 @@
 	
 	<mx:Script> 
 		<![CDATA[
+			
+			private var isInitialized:Boolean = false;
+			
+			public function init():void {
+				if ( !isInitialized ) {
+					pendingCheckbox.selected = true;
+					if(theViews.selectedChild == plateBrowseView){
+						lastWeekCheckboxCreated.selected = true;
+					}
+				}
+				getList();
+				isInitialized = true;
+			}
 			
 			public function getList():void{
 				if(theViews.selectedChild == null){
@@ -286,7 +299,7 @@
 								 id = "pendingCheckbox"
 								 horizontalGap = "0"
 								 styleName = "labelSmall"
-								 paddingLeft = "2" selected="{theViews.selectedChild == runBrowseView}">
+								 paddingLeft = "2" >
 						<mx:click>
 							toggleStatusCheckboxes( 1 );
 							getList();
@@ -407,7 +420,7 @@
 						<mx:HBox horizontalGap="0">
 							<mx:CheckBox id = "lastWeekCheckboxCreated"
 										 label = "Created in last week"
-										 paddingRight = "0" selected="{theViews.selectedChild == plateBrowseView}"
+										 paddingRight = "0" 
 										 horizontalGap = "0"
 										 paddingLeft = "0"
 										 styleName = "labelSmall" paddingTop="0">
