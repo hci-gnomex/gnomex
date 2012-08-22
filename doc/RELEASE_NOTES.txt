@@ -77,7 +77,7 @@ insert into Invoice(idCoreFacility, idBillingPeriod, idBillingAccount)
             and Invoice.idBillingAccount=BillingItem.idBillingAccount
     where Invoice.idInvoice is null
     group by BillingItem.idCoreFacility, BillingItem.idBillingPeriod, BillingItem.idBillingAccount
-update Invoice set invoiceNumber=CONVERT(varchar(50), idInvoice) + 'I' where invoiceNumber is null
+update Invoice set invoiceNumber= 'I' + CONVERT(varchar(50), idInvoice) where invoiceNumber is null
 update BillingItem set idInvoice = Invoice.idInvoice
   from BillingItem
   join Invoice on Invoice.idCoreFacility = BillingItem.idCoreFacility and Invoice.idBillingPeriod = BillingItem.idBillingPeriod

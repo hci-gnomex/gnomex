@@ -265,8 +265,7 @@ public class BillingItemFilter extends DetailObject {
     if (invoiceLookupNumber != null && 
         !invoiceLookupNumber.equals("")){
       this.addWhereOrAnd();
-      String invoiceLookupNumberBase = Invoice.getBaseInvoiceNumber(invoiceLookupNumber);
-      queryBuf.append(" (inv.invoiceNumber like '" + invoiceLookupNumber + "[0-9]' OR inv.invoiceNumber = '" + invoiceLookupNumber + "' OR inv.invoiceNumber like '" + invoiceLookupNumber + "I[0-9]' OR inv.invoiceNumber = '" + invoiceLookupNumber + "I') ");
+      queryBuf.append(" (inv.invoiceNumber like '%" + invoiceLookupNumber + "%') ");
     }     
   }
   private void addBillingItemCriteria() {
