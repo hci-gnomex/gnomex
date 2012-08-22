@@ -93,7 +93,7 @@
 					  fontSize="9"
 					  height="19"
 					  width="60"
-					  enter="{if (requestNoLookupField.text != '') this.getList()}" />
+					  enter="{requestNoLookupFieldEntered()}" />
 		
 		
 	</mx:HBox>
@@ -425,13 +425,24 @@
 				}   
 			} 		
 			
-			private function toggleOffStatusCheckboxes():void {
+			private function clearCheckBoxes():void {
 				this.newCheckbox.selected = false;
 				this.processingCheckbox.selected = false;
 				this.submittedCheckbox.selected  = false;
 				this.completeCheckbox.selected = false;
 				this.failedCheckbox.selected  = false;
 				
+				this.createdLastWeekCheckbox.selected  = false;
+				this.createdLastMonthCheckbox.selected = false; 
+				this.createdLastThreeMonthsCheckbox.selected = false;
+				this.createdLastYearCheckbox.selected  = false;
+
+				this.fragCheckbox.selected = false;
+				this.mitoCheckbox.selected  = false;
+				this.cherryCheckbox.selected = false;
+				this.capSeqCheckbox.selected = false;
+				
+				this.redoCheckbox.selected = false;
 			}
 			
 			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
@@ -548,7 +559,12 @@
 				}
 			}
 
-
+			private function requestNoLookupFieldEntered():void {
+				if (requestNoLookupField.text != '') {
+					this.clearCheckBoxes();
+					this.getList();
+				} 
+			}
 			
 		]]>
 	</mx:Script>    	
@@ -572,8 +588,7 @@
 						 horizontalGap = "0"						
 						 styleName = "labelSmall">
 				<mx:click>
-					toggleOffStatusCheckboxes();
-					this.getList();
+					this.requestNoLookupField.text = "";this.getList();
 				</mx:click>
 			</mx:CheckBox>
 			<mx:VRule height = "20" />

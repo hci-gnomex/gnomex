@@ -7,7 +7,6 @@
 		 xmlns:renderers="views.renderers.*"
 		 show="init()"
 		 initialize="init()"
-		 defaultButton="{lookupButton}"
 		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0">
 	
 	<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2" verticalAlign="middle" width="100%">
@@ -27,18 +26,7 @@
 						  fontSize="9"
 						  height="19"
 						  width="80"
-						  enter="{this.setPlateNameDefaultButton();if (plateNameLookupField.text != '') this.getList();}"
-						  change="{setPlateNameDefaultButton()}" />
-			
-			<mx:Button id="plateNameLookupButton"
-					   fontFamily="Arial"
-					   height="18"
-					   width="30"
-					   color="#400040"
-					   visible="false" includeInLayout="false"
-					   icon="@Embed('../../assets/arrow_right.png')"
-					   click="{if (plateNameLookupField.text != '') this.getList();}" />
-			
+						  enter="{plateNameFieldSearch()}" />
 		</mx:HBox>
 		
 		
@@ -54,17 +42,7 @@
 						  fontSize="9"
 						  height="19"
 						  width="70"
-						  enter="{this.setRunNameDefaultButton();if (runNameLookupField.text != '') this.getList();}"
-						  change="{setRunNameDefaultButton()}" />
-			
-			<mx:Button id="runNameLookupButton"
-					   fontFamily="Arial"
-					   height="18" 
-					   width="30"
-					   color="#400040"
-					   visible="false" includeInLayout="false"
-					   icon="@Embed('../../assets/arrow_right.png')"
-					   click="{if (runNameLookupField.text != '') this.getList();}" />
+						  enter="{runNameFieldSearch()}" />
 			
 		</mx:HBox>
 		
@@ -79,18 +57,7 @@
 						  fontSize="9"
 						  height="19"
 						  width="50"
-						  enter="{this.setDefaultButton();if (requestNoLookupField.text != '') this.getList();}"
-						  change="{setDefaultButton()}" />
-			
-			<mx:Button id="lookupButton"
-					   fontFamily="Arial"
-					   height="18"
-					   width="30"
-					   color="#400040"
-					   visible="false" includeInLayout="false"
-					   icon="@Embed('../../assets/arrow_right.png')"
-					   click="{if (requestNoLookupField.text != '') this.getList();}" />
-			
+						  enter="{requestNoFieldSearch()}" />
 		</mx:HBox>
 		<mx:Spacer width="100%"/>
 		<mx:LinkButton textDecoration="underline"
@@ -389,6 +356,7 @@
 			
 			
 			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
+				this.clearAllLookupFields();
 				if ( currentState != userState.name ) {
 					if ( checkBoxNumber == 1 ) {
 						this.lastMonthCheckbox.selected = false;
@@ -405,6 +373,7 @@
 			
 			
 			public function toggleReactionCheckboxes( checkBoxNumber:int ):void {
+				this.clearAllLookupFields();
 				if ( checkBoxNumber == 0 ) {
 					this.mitSeqCheckbox.selected = false;
 				} else if ( checkBoxNumber == 1 ) {
@@ -420,40 +389,56 @@
 				}
 			}
 			
-			private function setDefaultButton():void {
+			private function requestNoFieldSearch():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.requestNoLookupField.text != '' ) {
 					this.runNameLookupField.text = '';
 					this.plateNameLookupField.text = '';
+					clearAllCheckBoxes();
+					getList();
 				}
-				this.defaultButton = lookupButton;
 			}
 			
 						
-			private function setRunNameDefaultButton():void {
+			private function runNameFieldSearch():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.runNameLookupField.text != '' ) {
 					this.requestNoLookupField.text = '';
 					this.plateNameLookupField.text = '';
+					clearAllCheckBoxes();
+					getList();
 				}
-				this.defaultButton = this.runNameLookupButton;
 			}
 			
-			
-			private function setPlateNameDefaultButton():void {
+			private function clearAllLookupFields():void {
+				this.requestNoLookupField.text = '';
+				this.plateNameLookupField.text = '';
+				this.runNameLookupField.text = '';
+			}
+
+			private function clearAllCheckBoxes():void {
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastWeekCheckbox.selected = false;
+
+				this.mitSeqCheckbox.selected = false;
+				this.capSeqCheckbox.selected = false;
+			}
+
+			private function plateNameFieldSearch():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
 				}
 				if ( this.plateNameLookupField.text != '' ) {
 					this.requestNoLookupField.text = '';
 					this.runNameLookupField.text = '';
+					clearAllCheckBoxes();
+					getList();
 				}
-				this.defaultButton = this.plateNameLookupButton;
-				
 			}
 			
 			private function fieldNumericSorter( field:String ):Function {
