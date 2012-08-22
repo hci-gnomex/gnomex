@@ -39,9 +39,6 @@
 	}
 	
 	private function propagatePrepInstructions():void {
- 		for each (var sample:Object in parentDocument.samples) {
-			sample.@prepInstructions = noteToSeq.text;
-		}
 		parentDocument.confirmView.seqNotes.text = noteToSeq.text;
 		parentDocument.request.@corePrepInstructions = noteToSeq.text;
 	}
