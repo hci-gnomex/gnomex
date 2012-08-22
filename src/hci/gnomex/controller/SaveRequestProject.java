@@ -32,6 +32,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
   private Request    request;
   private Integer    idProject;
   private Integer    idRequest;
+  private Integer    idAppUser;
 
   
   
@@ -53,6 +54,13 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("idRequest", "idRequest is required");
     }
+    
+    if (request.getParameter("idAppUser") != null && !request.getParameter("idAppUser").equals("")) {
+      idAppUser = new Integer(request.getParameter("idAppUser"));
+    } else {
+      this.addInvalidField("idAppUser", "idAppUser is required");
+    }
+
     
   }
 
@@ -81,6 +89,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         
         request.setIdProject(idProject);       
         request.setIdLab(project.getIdLab());
+        request.setIdAppUser(idAppUser);
 
         sess.save(request);
         sess.flush();

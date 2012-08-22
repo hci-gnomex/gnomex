@@ -198,7 +198,7 @@
 			
 			
 			private function showEditWindow():void {
-				parentDocument.analysisEditView.setupEditForm(analysis);
+				parentDocument.analysisEditView.setupEditForm(analysis, false);
 				parentDocument.analysisViews.selectedChild = parentDocument.analysisEditView;
 			}
 			

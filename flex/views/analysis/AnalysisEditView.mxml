@@ -177,7 +177,6 @@
 			
 			private var uploadWindow:AnalysisUploadWindow = null;
 			
-			
 			private function onCloseWindow():void {
 				if (dirty.isDirty()) {
 					promptToCloseOnDirty();
@@ -200,11 +199,15 @@
 				}
 			}	
 			
-			public function setupEditForm(theAnalysis:Object):void {
+			public function setupEditForm(theAnalysis:Object, skipGetInfo:Boolean):void {
 				initializeDataProviders();
 				
 				this.analysis = theAnalysis;
-				getLab.send();
+				
+				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
+				if(!skipGetInfo) {
+					getLab.send();
+				}
 				
 				// Build hybs & lanes collection.  Assign the idRequest to the Hybridization
 				// and SequenceLane node.
@@ -232,15 +235,19 @@
 				filteredGenomeBuildList.refresh();
 				//genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuildLite', analysis.@idGenomeBuild);
 				visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
-				privacyExpirationPicker.text = analysis.@privacyExpirationDate;
+				privacyExpirationPicker.text = analysis.@privacyExpirationDate;	
 				
-				this.getExperimentPickList.send();			
+				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
+				if(!skipGetInfo) {
+					this.getExperimentPickList.send();						
+				}
 				
 				files.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingFilesChange);
 				
 				if(execValidateAndSaveAnalysis) {
 					validateAndSaveAnalysis();
 				}
+				
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
@@ -456,6 +463,9 @@
 				params.idAnalysis         = analysis.@idAnalysis;
 				params.name               = this.analysisName.text;
 				params.description        = StringUtil.cleanRichTextHTML(this.description.htmlText);
+				
+				params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";
+
 				
 				// If the analysis was assigned to a new lab (through
 				// the drap operation, set the lab on the lab to
@@ -887,13 +897,20 @@
 					appUsersForLab.sort = appUserSort;
 					appUsersForLab.refresh();
 					ownerCombo.selectedItem = emptyNode;
-					for each(var a:Object in appUsersForLab) {
-						if (a.@idAppUser == analysis.@idAppUser) {
-							ownerCombo.selectedItem = a;
-							break;
-						}
-					}					
-					
+					var currentOwnerNotFound:Boolean = true;
+					var currentOwner:String = analysis.@idAppUser;
+					if(currentOwner != null && currentOwner.length > 0) {
+						for each(var a:Object in appUsersForLab) {
+							if (a.@idAppUser == analysis.@idAppUser) {
+								ownerCombo.selectedItem = a;
+								currentOwnerNotFound = false;
+								break;
+							}
+						}						
+					}
+					if(currentOwnerNotFound) {						
+						Alert.show("There is either no owner or the owner of this analysis is not a member its current lab group. Please select an owner from the dropdown on the Info tab and save.", "Owner Not Assigned");				
+					}
 				}
 			}
 			

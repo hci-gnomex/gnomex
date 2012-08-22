@@ -183,7 +183,7 @@
 		} 
 		if (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0) {
 			ownerCombo.setFocus();
-			Alert.show("Please select select the topic owner.");
+			Alert.show("Please select the topic owner.");
 			return;        		
 		} 
 		var selectedIdLab:String = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";

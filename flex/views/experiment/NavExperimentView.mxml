@@ -138,6 +138,7 @@
         import mx.events.DragEvent;
         import mx.managers.DragManager;
         import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
         
         public var selectedIdRequest:Object;
         public var selectedRequestNumber:Object;
@@ -1089,6 +1090,13 @@
 		}
 		
 	    public function promptToReassignProject():void {
+			var changePrompt:ProjectChangePrompt = ProjectChangePrompt(PopUpManager.createPopUp(this.experimentViews, ProjectChangePrompt, true));
+			PopUpManager.centerPopUp(changePrompt);
+			var message:String = "Reassign experiment " + dragRequest.@requestNumber +
+				" to project " + dropProject.@projectName + "?";
+			changePrompt.init(this, message, dropProject.@idLab, dragRequest.@idAppUser);
+			/*
+			
 	   		var message:String = "Reassign experiment " + dragRequest.@requestNumber +
 	               " to project " + dropProject.@projectName + "?";
 	
@@ -1096,18 +1104,20 @@
 						null, 
 						(Alert.YES | Alert.NO), this, 
 						onPromptToReassignProject);
+			*/
 			
 		}
 		
-		private function onPromptToReassignProject(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
+		public function onPromptToReassignProject(result:String, idOwner:String):void {
+            if (result=="Yes") {
 	            selectedProject = dropProject;
 	            selectedIdProject = dropProject.@idProject;
 	            selectedIdLab = dropProject.@idLab;
 	            
 	            var params:Object = new Object();
 	            params.idRequest = dragRequest.@idRequest;
-	            params.idProject = dropProject.@idProject;
+				params.idProject = dropProject.@idProject;
+				params.idAppUser = idOwner;
 	                  		
            		saveRequestProject.send(params);
             } else {

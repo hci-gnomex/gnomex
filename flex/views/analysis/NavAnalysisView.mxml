@@ -655,7 +655,7 @@
 			}
 			
 			if (showEditView) {	
-				analysisEditView.setupEditForm(this.selectedAnalysis);
+				analysisEditView.setupEditForm(this.selectedAnalysis, addAnalysisGroup != null);
 				analysisViews.selectedChild = analysisEditView;
 				showEditView = false;
 				if(addAnalysisGroup != null) {
@@ -744,7 +744,8 @@
 			}
 		}
 		
-		private function showNewAnalysisWindow():void {  
+		private function showNewAnalysisWindow():void {
+			parentIdLab = null
 			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
 		 	PopUpManager.centerPopUp(this.analysisAddWindow);		
 		 	
@@ -949,8 +950,8 @@
 	    				removeIdAnalysisGroup = null;
 	    			}
 	    			addAnalysisGroup = new XML("<AnalysisGroup " +
-			    	" idAnalysisGroup='" + parentXML.@idAnalysisGroup + "'" +
-			    	" name='"            + parentXML.@name + "'" + "/>");
+			    	" idAnalysisGroup=\"" + parentXML.@idAnalysisGroup + "\"" +
+			    	" name=\""            + parentXML.@name + "\"" + "/>");
 	    			onBrowseTree();
 	    		}   		
 	    		

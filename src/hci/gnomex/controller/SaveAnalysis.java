@@ -777,6 +777,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setCodeVisibility(analysisScreen.getCodeVisibility());
     analysis.setIdInstitution(analysisScreen.getIdInstitution());
     analysis.setPrivacyExpirationDate(analysisScreen.getPrivacyExpirationDate());
+    analysis.setIdAppUser(analysisScreen.getIdAppUser());
   }
   
   private static String getAnalysisDirectory(String baseDir, Analysis analysis) {
