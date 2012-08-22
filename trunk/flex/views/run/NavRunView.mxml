@@ -61,6 +61,7 @@
 				this.reactionCheckbox.selected = false;
 				this.sourceCheckbox.selected = false;
 
+				this.allCheckbox.selected = false;
 			}
 			
 			private function toggleDateCheckboxes(checkBoxNumber:int):void {
@@ -252,6 +253,19 @@
 				}
 			}
 			
+			private function lookupPlateNameFieldEntered():void {
+				if (lookupPlateNameField.text != '') {
+					clearFilters();
+					this.getList();
+				}
+			}
+			
+			private function lookupRunNameFieldEntered():void {
+				if (lookupRunNameField.text != '') {
+					clearFilters();
+					this.getList();	
+				}
+			}
 			
 		]]>
 	</mx:Script> 
@@ -571,7 +585,7 @@
 									  fontSize="9"
 									  height="20"
 									  width="100"
-									  enter="{if (lookupPlateNameField.text != '') clearFilters();this.getList()}" />
+									  enter="{lookupPlateNameFieldEntered()}" />
 						
 						
 					</mx:HBox>
@@ -586,7 +600,7 @@
 										  fontSize="9"
 										  height="20"
 										  width="100"
-										  enter="{if (lookupRunNameField.text != '') clearFilters();this.getList()}"  />
+										  enter="{lookupRunNameFieldEntered()}"  />
 							
 
 							
