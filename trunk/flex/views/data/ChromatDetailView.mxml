@@ -157,7 +157,7 @@
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting chromatogram");
 				} 
 			}
-						
+			
 			private function getTraces():void{
 				// Traces
 				traceMax = 0;
@@ -380,552 +380,562 @@
 			}
 			
 		]]>
-  </mx:Script>    	
-  
-  
-  <mx:VBox width="100%" height="100%"    minHeight="0" verticalScrollPolicy="auto">
-    <mx:Accordion width="100%"   resizeToContent="true" id="accordion1">
-      <mx:Canvas label="General Information" width="100%" height="100%" id="dataGridAccordion" minHeight="0" >
-        <mx:Grid minHeight="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" horizontalGap="1" verticalGap="1">
-          
-          <mx:GridRow >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="File name" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem paddingRight="10">
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@displayName}"/>
-            </mx:GridItem>
-			  
-			  <mx:GridItem horizontalAlign="right" paddingRight="5">
-				  <mx:Label text="Order #" fontWeight="bold"/>
-			  </mx:GridItem>
-			  <mx:GridItem >
-				  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@requestNumber}"/>
-			  </mx:GridItem>
-          </mx:GridRow>
-          
-          <mx:GridRow >
-			  <mx:GridItem horizontalAlign="right" paddingRight="5">
-				  <mx:Label text="Submitter" fontWeight="bold"/>
-			  </mx:GridItem>
-			  <mx:GridItem >
-				  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@user}"/>
-			  </mx:GridItem>
-			  <mx:GridItem horizontalAlign="right" paddingRight="5">
-				  <mx:Label text="Plate Well" fontWeight="bold"/>
-			  </mx:GridItem>
-			  <mx:GridItem  horizontalScrollPolicy="off" >
-				  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@wellRowCol + ' - ' + getChromatogram.lastResult.Chromatogram.@idPlateWell}"/>
-			  </mx:GridItem>
-          </mx:GridRow>
-          
-			<mx:GridRow  >
-				<mx:GridItem horizontalAlign="right" paddingRight="5">
-					<mx:Label text="Run Name" fontWeight="bold"/>
-				</mx:GridItem>
-				<mx:GridItem >
-					<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runName}"/>
-				</mx:GridItem>
-				<mx:GridItem horizontalAlign="right" paddingRight="5">
-					<mx:Label text="Plate Name" fontWeight="bold"/>
-				</mx:GridItem>
-				<mx:GridItem >
-					<mx:Label text="{getChromatogram.lastResult.Chromatogram.@plateName}"/>
-				</mx:GridItem>
-			</mx:GridRow>
+	</mx:Script>    	
+	
+	
+	<mx:VBox width="100%" height="100%"    minHeight="0" verticalScrollPolicy="auto">
+		<mx:Accordion width="100%"   resizeToContent="true" id="accordion1">
+			<mx:Canvas label="General Information" width="100%" height="100%" id="dataGridAccordion" minHeight="0" >
+				<mx:Grid minHeight="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" horizontalGap="1" verticalGap="1">
+					
+					<mx:GridRow >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="File name" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem paddingRight="10">
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@displayName}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Sample Name" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@sampleName}"/>
+						</mx:GridItem>
+						
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Plate Well" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem  horizontalScrollPolicy="off" >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@wellRowCol + ' - ' + getChromatogram.lastResult.Chromatogram.@idPlateWell}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Submitter" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@user}"/>
+						</mx:GridItem>
+						
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Order #" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@requestNumber}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow  >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Run Name" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runName}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Plate Name" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@plateName}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Run Start" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStart}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Run Stop" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStop}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow  >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Instr. Model" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrModel}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Instr. Name" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrName}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow  >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Lane" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@lane}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Number of Lanes" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@numberOfLanes}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Spacing" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@spacing}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Signal Strengths" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@signalStrengths}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow >
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Mobility" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@mobility}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" paddingRight="5">
+							<mx:Label text="Comments" fontWeight="bold"/>
+						</mx:GridItem>
+						<mx:GridItem >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@comments}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</mx:Canvas>
 			
-          <mx:GridRow  >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Instr. Model" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrModel}"/>
-            </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Instr. Name" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrName}"/>
-            </mx:GridItem>
-          </mx:GridRow>
-          
-          <mx:GridRow >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Run Start" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStart}"/>
-            </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Run Stop" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStop}"/>
-            </mx:GridItem>
-          </mx:GridRow>
-          
-          <mx:GridRow  >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Lane" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@lane}"/>
-            </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Number of Lanes" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@numberOfLanes}"/>
-            </mx:GridItem>
-          </mx:GridRow>
-          
-          <mx:GridRow >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Spacing" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@spacing}"/>
-            </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Signal Strengths" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@signalStrengths}"/>
-            </mx:GridItem>
-          </mx:GridRow>
-          
-          <mx:GridRow >
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Mobility" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@mobility}"/>
-            </mx:GridItem>
-            <mx:GridItem horizontalAlign="right" paddingRight="5">
-              <mx:Label text="Comments" fontWeight="bold"/>
-            </mx:GridItem>
-            <mx:GridItem >
-              <mx:Label text="{getChromatogram.lastResult.Chromatogram.@comments}"/>
-            </mx:GridItem>
-          </mx:GridRow>
-        </mx:Grid>
-      </mx:Canvas>
-      
-      <mx:Canvas  width="100%" height="0" minHeight="0" />
-      
-    </mx:Accordion>
-    
-    <mx:Accordion width="100%" resizeToContent="true"  id="accordion2">
-      <mx:Canvas label="Quality" width="100%" height="100%" minHeight="0">
-        <mx:VBox width="100%">
-          
-          <!--MAYBE ADD A TRIMMED REGION BAR-->
-          <mx:LineChart id="qualityGraph" 
-                        gutterBottom="40" 
-                        gutterTop="20" 
-                        gutterLeft="65" 
-                        gutterRight="20" width="100%" dataProvider="{qualArray}" height="215" >
-            
-            <mx:annotationElements >
-              <mx:CartesianDataCanvas id="trimCanvas"  />
-            </mx:annotationElements>
-            
-            <mx:seriesFilters>
-              <mx:Array/>
-            </mx:seriesFilters>
-            
-            <mx:verticalAxis>
-              <mx:LinearAxis 
-                title="Quality" 
-                id="qy" minimum="0" maximum="60" interval="10"/>
-            </mx:verticalAxis>
-            <mx:verticalAxisRenderers>
-              <mx:AxisRenderer labelRotation="-90" axis="{qy}"/>
-            </mx:verticalAxisRenderers>
-            
-            <mx:horizontalAxis>
-              <mx:LinearAxis 
-                title="Position"  minimum="0" maximum="{qualArray.length}" interval="100"
-                />
-            </mx:horizontalAxis>
-            
-            <mx:series>
-              <mx:LineSeries displayName="Quality Values" xField="x" yField="y" >
-                <mx:lineStroke>
-                  <mx:Stroke 
-                    color="#000060" 
-                    weight=".5" 
-                    />
-                </mx:lineStroke>
-                
-              </mx:LineSeries>
-              
-              <mx:LineSeries displayName="Q20 Reference Line" dataProvider="{q20Array}" xField="x" yField="y" >
-                <mx:lineStroke>
-                  <mx:Stroke 
-                    color="0xC0C0C0" 
-                    weight="5" 
-                    alpha=".5"
-                    />
-                </mx:lineStroke>
-                
-              </mx:LineSeries>
-            </mx:series>
-            
-          </mx:LineChart>
-         
-          
-          <mx:HBox horizontalAlign="center" width="100%">
-            <mx:Legend  direction="horizontal">
-              <mx:LegendItem label="Quality Values" fontWeight="bold">
-                <mx:fill>
-                  <mx:SolidColor color="#000060"/>
-                </mx:fill>
-                <mx:stroke>
-                  <mx:Stroke color="#000060"/>
-                </mx:stroke>
-              </mx:LegendItem>
-              <mx:LegendItem label="Q20 Reference Line" fontWeight="bold">
-                <mx:fill>
-                  <mx:SolidColor color="0xC0C0C0"/>
-                </mx:fill>
-                <mx:stroke>
-                  <mx:Stroke color="0xC0C0C0" weight="2"/>
-                </mx:stroke>
-              </mx:LegendItem>
-              <mx:LegendItem label="Trim Cutoffs" fontWeight="bold">
-                <mx:fill>
-                  <mx:SolidColor color="0xCC0000"/>
-                </mx:fill>
-                <mx:stroke>
-                  <mx:Stroke color="0xCC0000" weight="2"/>
-                </mx:stroke>
-              </mx:LegendItem>
-            </mx:Legend>
-          </mx:HBox>
-          
-          
-            <mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="125" horizontalGap="1" verticalGap="1">
-              
-              <mx:GridRow >
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Read Length" fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem width="100">
-                  <mx:Label text="{getChromatogram.lastResult.Chromatogram.@readLength}"/>
-                </mx:GridItem>
-              </mx:GridRow>
-              
-              <mx:GridRow >
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Trimmed Length" fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem >
-                  <mx:Label text="{getChromatogram.lastResult..Trim.@trimLength}"/>
-                </mx:GridItem>
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Trimmed Pos." fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem >
-                  <mx:Label text="{getChromatogram.lastResult..Trim.@trimPos}"/>
-                </mx:GridItem>
-              </mx:GridRow>
-              
-              <mx:GridRow  >
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Q20" fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem >
-                  <mx:Label text="{getChromatogram.lastResult..Quality.@q20}"/>
-                </mx:GridItem>
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Q20/Length" fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem >
-                  <mx:Label text="{getChromatogram.lastResult..Quality.@q20_len}"/>
-                </mx:GridItem>
-              </mx:GridRow>
-              
-              <mx:GridRow  >
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Q40" fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem >
-                  <mx:Label text="{getChromatogram.lastResult..Quality.@q40}"/>
-                </mx:GridItem>
-                <mx:GridItem horizontalAlign="right" paddingRight="5">
-                  <mx:Label text="Q40/Length" fontWeight="bold"/>
-                </mx:GridItem>
-                <mx:GridItem >
-                  <mx:Label text="{getChromatogram.lastResult..Quality.@q40_len}"/>
-                </mx:GridItem>
-              </mx:GridRow>
-              
-            </mx:Grid>
-          
-          
-        </mx:VBox>
-      </mx:Canvas>
-      
-      <mx:Canvas  width="100%" height="0" minHeight="0"/>
-      
-    </mx:Accordion>
-    
-    
-    <mx:Accordion width="100%" resizeToContent="true"  id="accordion3">
-      <mx:Canvas label="Trace" width="100%" height="100%" minHeight="0">
-        <mx:HBox  width="100%" horizontalGap="2">
-          
-        <mx:VBox height="100%" paddingRight="0" paddingLeft="5">
-          <mx:Spacer height="85" width="100%" />
-          <mx:VSlider height="100%" id="vZoomSlider" invertThumbDirection="true"
-                      minimum=".5" maximum="5" value="1" 
-                      change="dragVZoom(event);" 
-                      liveDragging="false" dataTipFormatFunction="vZoomSliderDataTipFunc"/>
-          <mx:Spacer height="55" width="100%" />
-        </mx:VBox>
-          
-        <mx:VBox width="100%">
-          
-          <!--Quality bar chart-->
-          <mx:ColumnChart id="seqGraph" dataProvider="{baseCallArray}" 
-                        gutterBottom="16" 
-                        gutterTop="10" 
-                        gutterLeft="25" 
-                        gutterRight="20" 
-                        width="100%"  
-                        height="85" 
-                        showDataTips="true" 
-                        itemRollOverColor="haloSilver"
-                        dataTipFunction="qualityDataTipFunction">
-            
-            <mx:annotationElements >
-              <mx:CartesianDataCanvas id="seqLabelCanvas"  />
-            </mx:annotationElements>
-            
-            <mx:seriesFilters>
-              <mx:Array/>
-            </mx:seriesFilters>
-            
-            <mx:backgroundElements>
-              <mx:Array/>
-            </mx:backgroundElements> 
-            
-            <mx:verticalAxis>
-              <mx:LinearAxis 
-                id="sy"
-                minimum="-15" 
-                maximum="60" />
-            </mx:verticalAxis>
-            
-            <mx:verticalAxisRenderers>
-              <mx:AxisRenderer 
-                axis="{sy}" 
-                tickPlacement="none" 
-                visible="false"
-                showLabels="false"/>
-            </mx:verticalAxisRenderers>
-            
-            <mx:horizontalAxis>
-              <mx:LinearAxis 
-                id="sx" 
-                minimum="{traceXMin}" 
-                maximum="{traceXMax}"
-                interval="500" labelFunction="{baseLabelFunction}"/>
-            </mx:horizontalAxis>
-            
-            <mx:horizontalAxisRenderers>
-              <mx:AxisRenderer 
-                axis="{sx}" showLine="false" 
-                tickPlacement="none"/>
-            </mx:horizontalAxisRenderers>
-            
-            <mx:series>
-              
-              <mx:ColumnSeries id="qs"  yField="qual" xField="x"  >
-                
-                <mx:fill >
-                  <mx:SolidColor color="0x336699" />
-                </mx:fill>
-                <mx:stroke >
-                  <mx:Stroke color="0x336699" weight="1.25"/>
-                </mx:stroke>
-                
-              </mx:ColumnSeries>     
-              
-              <mx:LineSeries dataProvider="{q20TraceArray}" xField="x" yField="y" interactive="false">
-                <mx:lineStroke>
-                  <mx:Stroke 
-                    color="0xC0C0C0" 
-                    weight=".25" />
-                </mx:lineStroke>
-              </mx:LineSeries>
-              
-            </mx:series>
-            
-          </mx:ColumnChart>
-          
-          
-          
-          <!--Base Traces-->
-          <mx:LineChart id="traceGraph" 
-                        gutterBottom="0" 
-                        gutterTop="0" 
-                        gutterLeft="25" 
-                        gutterRight="20" width="100%"  height="215" >
-            
-            <mx:seriesFilters>
-              <mx:Array/>
-            </mx:seriesFilters>
-            
-            <mx:verticalAxis>
-              <mx:LinearAxis minimum="0" maximum="{traceMax}"
-                id="ty"/>
-            </mx:verticalAxis>
-            
-            <mx:verticalAxisRenderers>
-              <mx:AxisRenderer 
-                axis="{ty}" 
-                tickPlacement="none"
-                visible="false"
-                showLabels="false" labelRotation="180"/>
-            </mx:verticalAxisRenderers>
-            
-            <mx:horizontalAxis>
-              <mx:LinearAxis 
-                id="tx" 
-                minimum="{traceXMin}" 
-                maximum="{traceXMax}" 
-                interval="1000" />
-            </mx:horizontalAxis>
-            
-            <mx:horizontalAxisRenderers>
-              <mx:AxisRenderer 
-                axis="{tx}"
-                showLabels="false"
-                tickPlacement="none"/>
-            </mx:horizontalAxisRenderers>
-            
-            
-            <mx:series>
-              <mx:LineSeries dataProvider="{aTraceArray}" displayName="A" xField="x" yField="y" >
-                <mx:lineStroke>
-                  <mx:Stroke 
-					  color="#00CC00" 
-                    weight=".25" 
-                    />
-                </mx:lineStroke>
-                
-              </mx:LineSeries>
-              
-              <mx:LineSeries dataProvider="{cTraceArray}" displayName="C" xField="x" yField="y" >
-                <mx:lineStroke>
-                  <mx:Stroke 
-					color="#0000CC"
-                    weight=".25" 
-                    />
-                </mx:lineStroke>
-                
-              </mx:LineSeries>
-              
-              <mx:LineSeries dataProvider="{gTraceArray}" displayName="G" xField="x" yField="y" >
-                <mx:lineStroke>
-                  <mx:Stroke 
-                    color="#303030" 
-                    weight=".25" 
-                    />
-                </mx:lineStroke>
-                
-              </mx:LineSeries>
-              
-              <mx:LineSeries dataProvider="{tTraceArray}" displayName="T" xField="x" yField="y" >
-                <mx:lineStroke>
-                  <mx:Stroke 
-                    color="#CC0000" 
-                    weight=".25" 
-                    />
-                </mx:lineStroke>
-                
-              </mx:LineSeries>
-                            
-            </mx:series>
-            
-          </mx:LineChart>
-          
-          <mx:HBox id="hSlidersBox" horizontalAlign="center" width="100%">
-            <mx:Spacer height="100%" width="75" />
-            
-            <mx:HSlider id="traceSlider" width="100%" 
-                        change="dragTrace(event);" 
-                        liveDragging="false" 
-                        maximum="{aTraceArray.length-sliderSpacing - 1}"
-                        minimum="0" dataTipFormatFunction="traceSliderDataTipFunc" height="100%"/> 
-            <mx:HSlider id="hZoomSlider" width="100%" 
-                        change="dragHZoom(event);" 
-                        liveDragging="false" 
-                        maximum="2500" value="1250" dataTipFormatFunction="hZoomSliderDataTipFunc"
-                        minimum="500"  height="100%"/> 
-            
-            <mx:Spacer height="100%" width="75" />
-          </mx:HBox>
-          
-          <mx:HBox horizontalAlign="center" width="100%">
-            <mx:Legend dataProvider="{traceGraph}" direction="horizontal"/>
-          </mx:HBox>
-          
-          
-          
-        </mx:VBox>
-        </mx:HBox>
-      </mx:Canvas>
-      
-      <mx:Canvas  width="100%" height="0" minHeight="0"/>
-      
-    </mx:Accordion>
-    
-    
-    <mx:Accordion width="100%"   resizeToContent="true" id="accordion4">
-      <mx:Canvas label="Sequence" width="100%" height="100%" id="sequenceAccordion" minHeight="0" >
-        <mx:VBox width="100%">
+			<mx:Canvas  width="100%" height="0" minHeight="0" />
 			
-            <mx:Text paddingBottom="20" paddingLeft="40" paddingRight="40" paddingTop="20" 
-                     id='sequenceTextBox' width="100%" letterSpacing="2">
-              <mx:htmlText >
-                <![CDATA[
-                  Sequence
-                ]]>
-              </mx:htmlText>
-            </mx:Text>
-        
-		  <mx:HBox horizontalAlign="center" width="100%">
-			  <mx:Legend  direction="horizontal">
-				  <mx:LegendItem label="High quality bases" fontWeight="bold">
-					  <mx:fill>
-						  <mx:SolidColor color="black"/>
-					  </mx:fill>
-					  <mx:stroke>
-						  <mx:Stroke color="black"/>
-					  </mx:stroke>
-				  </mx:LegendItem>
-				  <mx:LegendItem label="Low quality trimmed bases" fontWeight="bold" color="0xCC0000">
-					  <mx:fill>
-						  <mx:SolidColor color="0xCC0000"/>
-					  </mx:fill>
-					  <mx:stroke>
-						  <mx:Stroke color="0xCC0000" weight="2"/>
-					  </mx:stroke>
-				  </mx:LegendItem>
-			  </mx:Legend>
-		  </mx:HBox>
-        </mx:VBox>
-      </mx:Canvas>
-      
-      <mx:Canvas  width="100%" height="0" minHeight="0" />
-      
-    </mx:Accordion>
-    
-  </mx:VBox>
-  
+		</mx:Accordion>
+		
+		<mx:Accordion width="100%" resizeToContent="true"  id="accordion2">
+			<mx:Canvas label="Quality" width="100%" height="100%" minHeight="0">
+				<mx:VBox width="100%">
+					
+					<!--MAYBE ADD A TRIMMED REGION BAR-->
+					<mx:LineChart id="qualityGraph" 
+								  gutterBottom="40" 
+								  gutterTop="20" 
+								  gutterLeft="65" 
+								  gutterRight="20" width="100%" dataProvider="{qualArray}" height="215" >
+						
+						<mx:annotationElements >
+							<mx:CartesianDataCanvas id="trimCanvas"  />
+						</mx:annotationElements>
+						
+						<mx:seriesFilters>
+							<mx:Array/>
+						</mx:seriesFilters>
+						
+						<mx:verticalAxis>
+							<mx:LinearAxis 
+								title="Quality" 
+								id="qy" minimum="0" maximum="60" interval="10"/>
+						</mx:verticalAxis>
+						<mx:verticalAxisRenderers>
+							<mx:AxisRenderer labelRotation="-90" axis="{qy}"/>
+						</mx:verticalAxisRenderers>
+						
+						<mx:horizontalAxis>
+							<mx:LinearAxis 
+								title="Position"  minimum="0" maximum="{qualArray.length}" interval="100"
+								/>
+						</mx:horizontalAxis>
+						
+						<mx:series>
+							<mx:LineSeries displayName="Quality Values" xField="x" yField="y" >
+								<mx:lineStroke>
+									<mx:Stroke 
+										color="#000060" 
+										weight=".5" 
+										/>
+								</mx:lineStroke>
+								
+							</mx:LineSeries>
+							
+							<mx:LineSeries displayName="Q20 Reference Line" dataProvider="{q20Array}" xField="x" yField="y" >
+								<mx:lineStroke>
+									<mx:Stroke 
+										color="0xC0C0C0" 
+										weight="5" 
+										alpha=".5"
+										/>
+								</mx:lineStroke>
+								
+							</mx:LineSeries>
+						</mx:series>
+						
+					</mx:LineChart>
+					
+					
+					<mx:HBox horizontalAlign="center" width="100%">
+						<mx:Legend  direction="horizontal">
+							<mx:LegendItem label="Quality Values" fontWeight="bold">
+								<mx:fill>
+									<mx:SolidColor color="#000060"/>
+								</mx:fill>
+								<mx:stroke>
+									<mx:Stroke color="#000060"/>
+								</mx:stroke>
+							</mx:LegendItem>
+							<mx:LegendItem label="Q20 Reference Line" fontWeight="bold">
+								<mx:fill>
+									<mx:SolidColor color="0xC0C0C0"/>
+								</mx:fill>
+								<mx:stroke>
+									<mx:Stroke color="0xC0C0C0" weight="2"/>
+								</mx:stroke>
+							</mx:LegendItem>
+							<mx:LegendItem label="Trim Cutoffs" fontWeight="bold">
+								<mx:fill>
+									<mx:SolidColor color="0xCC0000"/>
+								</mx:fill>
+								<mx:stroke>
+									<mx:Stroke color="0xCC0000" weight="2"/>
+								</mx:stroke>
+							</mx:LegendItem>
+						</mx:Legend>
+					</mx:HBox>
+					
+					
+					<mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="125" horizontalGap="1" verticalGap="1">
+						
+						<mx:GridRow >
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Read Length" fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem width="100">
+								<mx:Label text="{getChromatogram.lastResult.Chromatogram.@readLength}"/>
+							</mx:GridItem>
+						</mx:GridRow>
+						
+						<mx:GridRow >
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Trimmed Length" fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem >
+								<mx:Label text="{getChromatogram.lastResult..Trim.@trimLength}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Trimmed Pos." fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem >
+								<mx:Label text="{getChromatogram.lastResult..Trim.@trimPos}"/>
+							</mx:GridItem>
+						</mx:GridRow>
+						
+						<mx:GridRow  >
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Q20" fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem >
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q20}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Q20/Length" fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem >
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q20_len}"/>
+							</mx:GridItem>
+						</mx:GridRow>
+						
+						<mx:GridRow  >
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Q40" fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem >
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q40}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" paddingRight="5">
+								<mx:Label text="Q40/Length" fontWeight="bold"/>
+							</mx:GridItem>
+							<mx:GridItem >
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q40_len}"/>
+							</mx:GridItem>
+						</mx:GridRow>
+						
+					</mx:Grid>
+					
+					
+				</mx:VBox>
+			</mx:Canvas>
+			
+			<mx:Canvas  width="100%" height="0" minHeight="0"/>
+			
+		</mx:Accordion>
+		
+		
+		<mx:Accordion width="100%" resizeToContent="true"  id="accordion3">
+			<mx:Canvas label="Trace" width="100%" height="100%" minHeight="0">
+				<mx:HBox  width="100%" horizontalGap="2">
+					
+					<mx:VBox height="100%" paddingRight="0" paddingLeft="5">
+						<mx:Spacer height="85" width="100%" />
+						<mx:VSlider height="100%" id="vZoomSlider" invertThumbDirection="true"
+									minimum=".5" maximum="5" value="1" 
+									change="dragVZoom(event);" 
+									liveDragging="false" dataTipFormatFunction="vZoomSliderDataTipFunc"/>
+						<mx:Spacer height="55" width="100%" />
+					</mx:VBox>
+					
+					<mx:VBox width="100%">
+						
+						<!--Quality bar chart-->
+						<mx:ColumnChart id="seqGraph" dataProvider="{baseCallArray}" 
+										gutterBottom="16" 
+										gutterTop="10" 
+										gutterLeft="25" 
+										gutterRight="20" 
+										width="100%"  
+										height="85" 
+										showDataTips="true" 
+										itemRollOverColor="haloSilver"
+										dataTipFunction="qualityDataTipFunction">
+							
+							<mx:annotationElements >
+								<mx:CartesianDataCanvas id="seqLabelCanvas"  />
+							</mx:annotationElements>
+							
+							<mx:seriesFilters>
+								<mx:Array/>
+							</mx:seriesFilters>
+							
+							<mx:backgroundElements>
+								<mx:Array/>
+							</mx:backgroundElements> 
+							
+							<mx:verticalAxis>
+								<mx:LinearAxis 
+									id="sy"
+									minimum="-15" 
+									maximum="60" />
+							</mx:verticalAxis>
+							
+							<mx:verticalAxisRenderers>
+								<mx:AxisRenderer 
+									axis="{sy}" 
+									tickPlacement="none" 
+									visible="false"
+									showLabels="false"/>
+							</mx:verticalAxisRenderers>
+							
+							<mx:horizontalAxis>
+								<mx:LinearAxis 
+									id="sx" 
+									minimum="{traceXMin}" 
+									maximum="{traceXMax}"
+									interval="500" labelFunction="{baseLabelFunction}"/>
+							</mx:horizontalAxis>
+							
+							<mx:horizontalAxisRenderers>
+								<mx:AxisRenderer 
+									axis="{sx}" showLine="false" 
+									tickPlacement="none"/>
+							</mx:horizontalAxisRenderers>
+							
+							<mx:series>
+								
+								<mx:ColumnSeries id="qs"  yField="qual" xField="x"  >
+									
+									<mx:fill >
+										<mx:SolidColor color="0x336699" />
+									</mx:fill>
+									<mx:stroke >
+										<mx:Stroke color="0x336699" weight="1.25"/>
+									</mx:stroke>
+									
+								</mx:ColumnSeries>     
+								
+								<mx:LineSeries dataProvider="{q20TraceArray}" xField="x" yField="y" interactive="false">
+									<mx:lineStroke>
+										<mx:Stroke 
+											color="0xC0C0C0" 
+											weight=".25" />
+									</mx:lineStroke>
+								</mx:LineSeries>
+								
+							</mx:series>
+							
+						</mx:ColumnChart>
+						
+						
+						
+						<!--Base Traces-->
+						<mx:LineChart id="traceGraph" 
+									  gutterBottom="0" 
+									  gutterTop="0" 
+									  gutterLeft="25" 
+									  gutterRight="20" width="100%"  height="215" >
+							
+							<mx:seriesFilters>
+								<mx:Array/>
+							</mx:seriesFilters>
+							
+							<mx:verticalAxis>
+								<mx:LinearAxis minimum="0" maximum="{traceMax}"
+											   id="ty"/>
+							</mx:verticalAxis>
+							
+							<mx:verticalAxisRenderers>
+								<mx:AxisRenderer 
+									axis="{ty}" 
+									tickPlacement="none"
+									visible="false"
+									showLabels="false" labelRotation="180"/>
+							</mx:verticalAxisRenderers>
+							
+							<mx:horizontalAxis>
+								<mx:LinearAxis 
+									id="tx" 
+									minimum="{traceXMin}" 
+									maximum="{traceXMax}" 
+									interval="1000" />
+							</mx:horizontalAxis>
+							
+							<mx:horizontalAxisRenderers>
+								<mx:AxisRenderer 
+									axis="{tx}"
+									showLabels="false"
+									tickPlacement="none"/>
+							</mx:horizontalAxisRenderers>
+							
+							
+							<mx:series>
+								<mx:LineSeries dataProvider="{aTraceArray}" displayName="A" xField="x" yField="y" >
+									<mx:lineStroke>
+										<mx:Stroke 
+											color="#00CC00" 
+											weight=".25" 
+											/>
+									</mx:lineStroke>
+									
+								</mx:LineSeries>
+								
+								<mx:LineSeries dataProvider="{cTraceArray}" displayName="C" xField="x" yField="y" >
+									<mx:lineStroke>
+										<mx:Stroke 
+											color="#0000CC"
+											weight=".25" 
+											/>
+									</mx:lineStroke>
+									
+								</mx:LineSeries>
+								
+								<mx:LineSeries dataProvider="{gTraceArray}" displayName="G" xField="x" yField="y" >
+									<mx:lineStroke>
+										<mx:Stroke 
+											color="#303030" 
+											weight=".25" 
+											/>
+									</mx:lineStroke>
+									
+								</mx:LineSeries>
+								
+								<mx:LineSeries dataProvider="{tTraceArray}" displayName="T" xField="x" yField="y" >
+									<mx:lineStroke>
+										<mx:Stroke 
+											color="#CC0000" 
+											weight=".25" 
+											/>
+									</mx:lineStroke>
+									
+								</mx:LineSeries>
+								
+							</mx:series>
+							
+						</mx:LineChart>
+						
+						<mx:HBox id="hSlidersBox" horizontalAlign="center" width="100%">
+							<mx:Spacer height="100%" width="75" />
+							
+							<mx:HSlider id="traceSlider" width="100%" 
+										change="dragTrace(event);" 
+										liveDragging="false" 
+										maximum="{aTraceArray.length-sliderSpacing - 1}"
+										minimum="0" dataTipFormatFunction="traceSliderDataTipFunc" height="100%"/> 
+							<mx:HSlider id="hZoomSlider" width="100%" 
+										change="dragHZoom(event);" 
+										liveDragging="false" 
+										maximum="2500" value="1250" dataTipFormatFunction="hZoomSliderDataTipFunc"
+										minimum="500"  height="100%"/> 
+							
+							<mx:Spacer height="100%" width="75" />
+						</mx:HBox>
+						
+						<mx:HBox horizontalAlign="center" width="100%">
+							<mx:Legend dataProvider="{traceGraph}" direction="horizontal"/>
+						</mx:HBox>
+						
+						
+						
+					</mx:VBox>
+				</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas  width="100%" height="0" minHeight="0"/>
+			
+		</mx:Accordion>
+		
+		
+		<mx:Accordion width="100%"   resizeToContent="true" id="accordion4">
+			<mx:Canvas label="Sequence" width="100%" height="100%" id="sequenceAccordion" minHeight="0" >
+				<mx:VBox width="100%">
+					
+					<mx:Text paddingBottom="20" paddingLeft="40" paddingRight="40" paddingTop="20" 
+							 id='sequenceTextBox' width="100%" letterSpacing="2">
+						<mx:htmlText >
+							<![CDATA[
+							Sequence
+							]]>
+						</mx:htmlText>
+					</mx:Text>
+					
+					<mx:HBox horizontalAlign="center" width="100%">
+						<mx:Legend  direction="horizontal">
+							<mx:LegendItem label="High quality bases" fontWeight="bold">
+								<mx:fill>
+									<mx:SolidColor color="black"/>
+								</mx:fill>
+								<mx:stroke>
+									<mx:Stroke color="black"/>
+								</mx:stroke>
+							</mx:LegendItem>
+							<mx:LegendItem label="Low quality trimmed bases" fontWeight="bold" color="0xCC0000">
+								<mx:fill>
+									<mx:SolidColor color="0xCC0000"/>
+								</mx:fill>
+								<mx:stroke>
+									<mx:Stroke color="0xCC0000" weight="2"/>
+								</mx:stroke>
+							</mx:LegendItem>
+						</mx:Legend>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Canvas>
+			
+			<mx:Canvas  width="100%" height="0" minHeight="0" />
+			
+		</mx:Accordion>
+		
+	</mx:VBox>
+	
 	<mx:states>
 		<mx:State name="userState">
 			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>

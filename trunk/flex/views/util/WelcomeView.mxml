@@ -191,15 +191,15 @@
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:LinkButton label="Review Plates and Runs"  click="reviewRuns()"  
-							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run.png')"/>
+							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run_review.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{button11}" position="before">
 				<mx:LinkButton label="Review Orders"  click="reviewOrders()"  
-							   styleName="dashboardButton" id="button16"  toolTip="Review pending orders" icon="@Embed(source='../../assets/page.png')"/>
+							   styleName="dashboardButton" id="button16"  toolTip="Review pending orders" icon="@Embed(source='../../assets/review.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:LinkButton label="Review Results"  click="reviewResults()"  
-							   styleName="dashboardButton" id="button17"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart.png')"/>
+							   styleName="dashboardButton" id="button17"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart_review.png')"/>
 			</mx:AddChild>
 			<mx:SetStyle target="{label7}" name="paddingTop" value="10"/>
 			<mx:SetProperty target="{label2}" name="text" value="Experiments"/>

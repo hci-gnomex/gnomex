@@ -815,7 +815,8 @@
 								   width="80" minWidth="20" />
 				<mx:DataGridColumn dataField="@wellPosition" 
 								   headerText="Well #"
-								   width="40" minWidth="10" />
+								   width="40" minWidth="10"
+								   sortCompareFunction="fieldNumericSorter('wellPosition')"/>
 				
 				<mx:DataGridColumn dataField="@requestNumber" 
 								   headerText="Order #"
