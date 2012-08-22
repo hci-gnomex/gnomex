@@ -228,12 +228,18 @@
 			appUsersForLab.refresh();
 			ownerCombo.dataProvider = appUsersForLab;
 			ownerCombo.selectedItem = emptyNode;
+			var currentOwnerNotFound:Boolean = true;
 			for each(var a:Object in appUsersForLab) {
 				if (a.@idAppUser == currentOwnerId) {
 					ownerCombo.selectedItem = a;
+					currentOwnerNotFound = false;
 					break;
 				}
-			}			
+			}
+			if(currentOwnerNotFound) {						
+				Alert.show("There is either no owner or the owner of this data track is not a member its current lab group. Please select an owner from the dropdown on the Visibility tab and save.", "Owner Not Assigned");				
+			}
+			
 		}
 	}
 	

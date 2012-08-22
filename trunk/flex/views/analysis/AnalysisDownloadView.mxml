@@ -111,7 +111,9 @@
 			}
 			
 			private function expandNodes():void {
-				downloadTree.expandItem(downloadList.getItemAt(0),true); 
+				if(downloadList.length > 0) {
+					downloadTree.expandItem(downloadList.getItemAt(0),true); 
+				}	
 			}
 			
 			private function getSelectedFolders():void {
@@ -353,15 +355,19 @@
 
 			public function getDirtyAnalysisFiles():XML{
 				var topNodeShallow:XML = new XML("<Analysis/>");
-				shallowCopy(downloadList[0] as XML, topNodeShallow);
-				recurseGetDirty(downloadList[0], topNodeShallow);
+				if(downloadList.length > 0) {
+					shallowCopy(downloadList[0] as XML, topNodeShallow);
+					recurseGetDirty(downloadList[0], topNodeShallow);					
+				}
 				return topNodeShallow;
 			}
 
 			public function getDataTrackAnalysisFiles():XML{
 				var topNodeShallow:XML = new XML("<Analysis/>");
-				shallowCopy(downloadList[0] as XML, topNodeShallow);
-				recurseGetDataTrack(downloadList[0], topNodeShallow);
+				if(downloadList.length > 0) {
+					shallowCopy(downloadList[0] as XML, topNodeShallow);
+					recurseGetDataTrack(downloadList[0], topNodeShallow);
+				}
 				return topNodeShallow;
 			}
 			

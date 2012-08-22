@@ -326,21 +326,21 @@
 			<mx:VBox verticalGap="0">
 				<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 				<mx:HBox horizontalGap="4" verticalAlign="middle">
-					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackOwner}"/>
+					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicOwner}"/>
 					<mx:RadioButton id="radioOwnerVisibility" value="OWNER" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" label="Owner       (the owner and the group manager)"/>								  
 				</mx:HBox>
 				<mx:HBox horizontalGap="4"  verticalAlign="middle">
-					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
+					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicMember}"/>
 					<mx:RadioButton id="radioMembersVisibility" value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" label="Members   (all members of the group)"/>
 				</mx:HBox>
 				<mx:HBox horizontalGap="4"  verticalAlign="middle">
-					<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
+					<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicInstitution}"/>
 					<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 0}" label="Institution  (all groups that are part of institution)"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
 					</mx:ComboBox>					
 				</mx:HBox>
 				<mx:HBox horizontalGap="4"  verticalAlign="middle">
-					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackPublic}"/>
+					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicPublic}"/>
 					<mx:RadioButton id="radioPublicVisibility" value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}"/>
 				</mx:HBox>
 				
