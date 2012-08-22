@@ -54,7 +54,7 @@ insert into Invoice(idCoreFacility, idBillingPeriod, idBillingAccount)
             and Invoice.idBillingAccount=BillingItem.idBillingAccount
     where Invoice.idInvoice is null
     group by BillingItem.idCoreFacility, BillingItem.idBillingPeriod, BillingItem.idBillingAccount;
-update Invoice set invoiceNumber=CONCAT(CAST(idInvoice AS CHAR),'I') where invoiceNumber is null;
+update Invoice set invoiceNumber=CONCAT('I',CAST(idInvoice AS CHAR)) where invoiceNumber is null;
 update BillingItem 
   join Invoice on Invoice.idCoreFacility = BillingItem.idCoreFacility and Invoice.idBillingPeriod = BillingItem.idBillingPeriod
     and Invoice.idBillingAccount = BillingItem.idBillingAccount
