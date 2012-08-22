@@ -6,8 +6,8 @@
 	<mx:HBox horizontalGap="10" verticalAlign="middle">
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" styleName="titleLabel" text="(REDO)" fontWeight="bold" 
-				  visible="{getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"
-				  includeInLayout="{getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"/>
+				  visible="{this.initialized &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"
+				  includeInLayout="{this.initialized &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"/>
 		<mx:LinkButton label="Back" id="backButton" click="{parentDocument.chromatViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>		
 	</mx:HBox>
 	
@@ -164,61 +164,33 @@
 				// A
 				var aTraceString:String = getChromatogram.lastResult..Trace.@aTrace;
 				var aArray:Array = aTraceString.split(",");
-				aTraceArray = new ArrayCollection();
-				
-				for ( var i:int=0; i < aArray.length; i++ ) {
-					if ( parseInt(aArray[i]) > traceMax ) {
-						traceMax = parseInt(aArray[i]);
-					}
-					aTraceArray.addItem({x:i, y:parseInt(aArray[i])});
-				}
+				aTraceArray = new ArrayCollection(aArray);
+				traceMax = Math.max.apply(null, aArray);
 				
 				// C
 				var cTraceString:String = getChromatogram.lastResult..Trace.@cTrace;
 				var cArray:Array = cTraceString.split(",");
-				cTraceArray = new ArrayCollection();
-				
-				for ( i=0; i < cArray.length; i++ ) {
-					if ( parseInt(cArray[i]) > traceMax ) {
-						traceMax = parseInt(cArray[i]);
-					}
-					cTraceArray.addItem({x:i, y:parseInt(cArray[i])});
-				}
+				cTraceArray = new ArrayCollection(cArray);
+				traceMax = Math.max.apply(null, cArray) > traceMax ? Math.max.apply(null, cArray) : traceMax;
 				
 				// G
 				var gTraceString:String = getChromatogram.lastResult..Trace.@gTrace;
 				var gArray:Array = gTraceString.split(",");
-				gTraceArray = new ArrayCollection();
-				
-				for ( i=0; i < gArray.length; i++ ) {
-					if ( parseInt(gArray[i]) > traceMax ) {
-						traceMax = parseInt(gArray[i]);
-					}
-					gTraceArray.addItem({x:i, y:parseInt(gArray[i])});
-				}
+				gTraceArray = new ArrayCollection(gArray);
+				traceMax = Math.max.apply(null, gArray) > traceMax ? Math.max.apply(null, gArray) : traceMax;
 				
 				// T
 				var tTraceString:String = getChromatogram.lastResult..Trace.@tTrace;
 				var tArray:Array = tTraceString.split(",");
-				tTraceArray = new ArrayCollection();
-				
-				for ( i=0; i < tArray.length; i++ ) {
-					if ( parseInt(tArray[i]) > traceMax ) {
-						traceMax = parseInt(tArray[i]);
-					}
-					tTraceArray.addItem({x:i, y:parseInt(tArray[i])});
-				}
+				tTraceArray = new ArrayCollection(tArray);
+				traceMax = Math.max.apply(null, tArray) > traceMax ? Math.max.apply(null, tArray) : traceMax;
 			}
 			
 			private function getQualAndSeq():void{
 				// Quality Graph
 				var qualString:String = getChromatogram.lastResult..Quality.@quality;
 				var qArray:Array = qualString.split(",");
-				qualArray = new ArrayCollection();
-				
-				for ( var i:int = 0; i < qArray.length; i++ ) {
-					qualArray.addItem({x:i, y:parseInt(qArray[i])});
-				}
+				qualArray = new ArrayCollection(qArray);
 				
 				var len:int = qualArray.length - 1;
 				q20Array = new ArrayCollection([{x:0, y:20}, {x:len, y:20}]);
@@ -237,7 +209,7 @@
 				var trimStop:int = parseInt(trimPos[1]);
 				var sequenceBoxString:String = '<font size="12" color="#CC0000">';
 				
-				for ( i =0; i < bcArray.length; i++ ) {
+				for ( var i:int = 0; i < bcArray.length; i++ ) {
 					if ( i == trimStart - 1 ) {
 						sequenceBoxString += '<font color="#000000"><B>';
 					}
@@ -560,7 +532,7 @@
 						</mx:horizontalAxis>
 						
 						<mx:series>
-							<mx:LineSeries displayName="Quality Values" xField="x" yField="y" >
+							<mx:LineSeries displayName="Quality Values" dataProvider="{qualArray}"  >
 								<mx:lineStroke>
 									<mx:Stroke 
 										color="#000060" 
@@ -818,7 +790,7 @@
 							
 							
 							<mx:series>
-								<mx:LineSeries dataProvider="{aTraceArray}" displayName="A" xField="x" yField="y" >
+								<mx:LineSeries dataProvider="{aTraceArray}" displayName="A"  >
 									<mx:lineStroke>
 										<mx:Stroke 
 											color="#00CC00" 
@@ -828,7 +800,7 @@
 									
 								</mx:LineSeries>
 								
-								<mx:LineSeries dataProvider="{cTraceArray}" displayName="C" xField="x" yField="y" >
+								<mx:LineSeries dataProvider="{cTraceArray}" displayName="C"  >
 									<mx:lineStroke>
 										<mx:Stroke 
 											color="#0000CC"
@@ -838,7 +810,7 @@
 									
 								</mx:LineSeries>
 								
-								<mx:LineSeries dataProvider="{gTraceArray}" displayName="G" xField="x" yField="y" >
+								<mx:LineSeries dataProvider="{gTraceArray}" displayName="G" >
 									<mx:lineStroke>
 										<mx:Stroke 
 											color="#303030" 
@@ -848,7 +820,7 @@
 									
 								</mx:LineSeries>
 								
-								<mx:LineSeries dataProvider="{tTraceArray}" displayName="T" xField="x" yField="y" >
+								<mx:LineSeries dataProvider="{tTraceArray}" displayName="T"  >
 									<mx:lineStroke>
 										<mx:Stroke 
 											color="#CC0000" 
