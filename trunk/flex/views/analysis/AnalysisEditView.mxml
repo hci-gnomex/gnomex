@@ -464,16 +464,16 @@
 				params.name               = this.analysisName.text;
 				params.description        = StringUtil.cleanRichTextHTML(this.description.htmlText);
 				
-				params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";
-
-				
 				// If the analysis was assigned to a new lab (through
-				// the drap operation, set the lab on the lab to
+				// the drag operation, set the lab on the lab to
 				// the "parent' lab.
 				if (parentIdLab != null) {
 					params.idLab  = parentIdLab;
+					params.idAppUser = analysis.@idAppUser;		// If drag operation then leave idAppUser just in case that person is a member of the new lab
+					parentIdLab = null;
 				} else {
 					params.idLab              = analysis.@idLab;
+					params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";
 				}
 				
 				params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
@@ -908,8 +908,11 @@
 							}
 						}						
 					}
-					if(currentOwnerNotFound) {						
-						Alert.show("There is either no owner or the owner of this analysis is not a member its current lab group. Please select an owner from the dropdown on the Info tab and save.", "Owner Not Assigned");				
+					if(currentOwnerNotFound) {	
+						var changePrompt:OwnerChangePrompt = OwnerChangePrompt(PopUpManager.createPopUp(parentApplication.mainArea, OwnerChangePrompt, true));
+						PopUpManager.centerPopUp(changePrompt);
+						changePrompt.init(this, analysis.@idAnalysis, analysis.@idLab);
+						//Alert.show("There is either no owner or the owner of this analysis is not a member its current lab group. Please select an owner from the dropdown on the Info tab and save.", "Owner Not Assigned");				
 					}
 				}
 			}
