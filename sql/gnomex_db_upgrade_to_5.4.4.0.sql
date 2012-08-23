@@ -12,7 +12,7 @@ CREATE TABLE `gnomex`.`SampleDropOffLocation` (
 ENGINE = INNODB;
 
 alter table Request add column idSampleDropOffLocation INT(10) NULL;
-alter table request add column codeRequestStatus VARCHAR(10) NULL;
+alter table Request add column codeRequestStatus VARCHAR(10) NULL;
 alter table Request add   
 CONSTRAINT `FK_Request_SampleDropOffLocation` FOREIGN KEY `FK_Request_SampleDropOffLocation` (`idSampleDropOffLocation`)
     REFERENCES SampleDropOffLocation (`idSampleDropOffLocation`)
