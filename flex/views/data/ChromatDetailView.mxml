@@ -6,8 +6,8 @@
 	<mx:HBox horizontalGap="10" verticalAlign="middle">
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" styleName="titleLabel" text="(REDO)" fontWeight="bold" 
-				  visible="{this.initialized &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"
-				  includeInLayout="{this.initialized &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"/>
+				  visible="{this.isInit &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"
+				  includeInLayout="{this.isInit &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"/>
 		<mx:LinkButton label="Back" id="backButton" click="{parentDocument.chromatViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>		
 	</mx:HBox>
 	
@@ -57,8 +57,8 @@
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.StringUtil;
 			
-			
-			
+			[Bindable]
+			private var isInit:Boolean = false;
 			[Bindable]
 			public var selectedIdChromatogram:int;
 			[Bindable]
@@ -121,6 +121,7 @@
 				var head4:Button = Button(accordion4.getHeaderAt(0));
 				head4.addEventListener(MouseEvent.CLICK, headerClickHandler);
 				
+				isInit = true;
 			}
 			
 			// This allows a click on a header to close that section

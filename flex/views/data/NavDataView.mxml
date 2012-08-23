@@ -34,7 +34,7 @@
 
 			<data:ChromatBrowseView label="Chromat List"
 									id="chromatBrowseView"
-									icon="@Embed('../../assets/application_view_list.png')"
+									icon="@Embed('../../assets/tv_chart_review.png')"
 									parentView="{this}" />
 			<data:ChromatDetailView id="chromatDetailView"
 									selectedChromat="{selectedChromat}"
