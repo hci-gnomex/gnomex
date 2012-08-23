@@ -121,10 +121,10 @@ command manually do the following
   >cd /path/to/orion/applications/gnomex
   
   For Windows environments:
-  >index_gnomex.cmd
+  >index_gnomex.cmd -orionPath /path/to/orion/
   
   For Unix environments:
-  >sh index_gnomex.sh
+  >sh index_gnomex.sh -orionPath /path/to/orion/
   
   
  
