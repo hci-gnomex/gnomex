@@ -99,7 +99,7 @@
     </mx:Script>
     <mx:VBox width="100%" height="100%" verticalGap="10"  verticalScrollPolicy="off" horizontalScrollPolicy="off">
 		<mx:HBox width="100%" >
-			<mx:TextArea id="message" wordWrap="true" fontSize="11" width="100%" backgroundColor="#ffffff" />
+			<mx:TextArea id="message" editable="false" wordWrap="true" fontSize="11" width="100%" backgroundColor="#DDDDDD"/>
 		</mx:HBox>				
 		<mx:HBox width="100%">
 			<mx:Label text="Owner" width="105"/>

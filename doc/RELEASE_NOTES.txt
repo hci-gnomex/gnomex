@@ -65,6 +65,7 @@
 * Fixed problem with long file names on chromatogram detail view. (mbowler)
 * Added warning to change  owner when lab changed for experiments, analyses, and data tracks. (rcundick)
 * Changed icons on Topics visibility tab to correspond to Topics instead of Data Tracks. (rcundick)
+* Implemented prompt for new owner on change analysis lab. (rcundick)
 
 deploy notes 
 --------------------
