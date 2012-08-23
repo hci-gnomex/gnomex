@@ -122,10 +122,10 @@ command manually do the following
   >cd /path/to/tomcat/webapps/gnomex/scripts
   
   For Windows environments:
-  >index_gnomex.cmd
+  >index_gnomex.cmd -orionPath /path/to/tomcat/
   
   For Unix environments:
-  >sh index_gnomex.sh
+  >sh index_gnomex.sh -orionPath /path/to/tomcat/
   
   
  
