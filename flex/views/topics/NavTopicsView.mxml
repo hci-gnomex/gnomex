@@ -451,6 +451,18 @@
 			var params:Object = new Object();
 			params.idRequest = this.browseTree.selectedItem.@idRequest;
 			getRequest.send(params);
+			
+			var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + browseTree.selectedItem.@requestNumber;
+			experimentDetailView.titleLabel.text = viewTitle;
+			experimentDetailView.navBackButton.visible = false;
+			experimentDetailView.navBackButton.includeInLayout = false;
+			
+			var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
+			if (experimentEditView != null && experimentEditView.titleLabel != null) {
+				experimentEditView.titleLabel.text = editTitle;
+			}			
+			
+			
 			//experimentDetailView.editButton.enabled = false;
 			//experimentDetailView.detail.hideButtonsBox.visible = false;
 			mainViewStack.selectedChild = experimentViews; 
