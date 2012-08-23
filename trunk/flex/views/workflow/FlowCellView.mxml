@@ -184,7 +184,7 @@
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
 							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
 				 			<mx:DataGridColumn  dataField="@createDate" headerText="Cluster Gen Date" width="110"/>
-							<mx:DataGridColumn  dataField="@idSeqRunType" headerText="Seq Run Type" width="100"
+							<mx:DataGridColumn  dataField="@idSeqRunType" headerText="Single vs Paired end" width="100"
 								labelFunction="getSeqRunType"/>
 							<mx:DataGridColumn  dataField="@notes" headerText="Content" width="300"  />
 						</mx:columns>				

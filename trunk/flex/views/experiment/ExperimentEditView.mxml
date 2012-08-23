@@ -4002,7 +4002,7 @@
 			} else if (this.currentState == "MicroarrayAmendState") {
 				this.titleLabel.text = "Adding Microarray services to Sample Quality Experiment ";	
 			} else if (this.currentState == "SolexaLaneAmendState") {
-				this.titleLabel.text = "Adding Illumina sample sequence lanes to Experiment ";			
+				this.titleLabel.text = "Adding Illumina sequence lanes to Experiment ";			
 			} else if (this.currentState == "CapSeqAmendState") {
 				this.titleLabel.text = "Adding Capillary Sequencing services to Experiment ";
 			}
@@ -5263,7 +5263,7 @@
 							    		label="{requestCategoryRepeater2.currentItem.@display}"  width="206"
 							    		value="{'ADD-LANES-' + requestCategoryRepeater2.currentItem.@value}" 
 							    		click="highlightAmendRequestCategory();setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()"  />							
-  									<mx:Text text="Adding sample Sequence Lanes only" width="100%" fontStyle="italic" fontWeight="normal"/>		
+  									<mx:Text text="Adding Sequence Lanes only" width="100%" fontStyle="italic" fontWeight="normal"/>		
 							  	 				
 								</mx:HBox>
 							</mx:Repeater>
