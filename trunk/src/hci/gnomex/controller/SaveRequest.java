@@ -845,27 +845,27 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     StringBuffer message = new StringBuffer();
     if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
       sess.refresh(requestParser.getRequest());
-      if (requestParser.getRequest().getAppUser() != null
-          && requestParser.getRequest().getAppUser().getEmail() != null
-          && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
-        try {
-          // confirmation email for dna seq requests is sent at submit time.
-          if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-            sendConfirmationEmail(sess);
+      if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+        if (requestParser.getRequest().getAppUser() != null
+            && requestParser.getRequest().getAppUser().getEmail() != null
+            && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
+          try {
+            // confirmation email for dna seq requests is sent at submit time.
+              sendConfirmationEmail(sess);
+          } catch (Exception e) {
+            String msg = "Unable to send confirmation email notifying submitter that request "
+              + requestParser.getRequest().getNumber()
+              + " has been submitted.  " + e.toString();
+            log.error(msg);
+            message.append(msg + "\n");
           }
-        } catch (Exception e) {
-          String msg = "Unable to send confirmation email notifying submitter that request "
-            + requestParser.getRequest().getNumber()
-            + " has been submitted.  " + e.toString();
+        } else {
+          String msg = ( "Unable to send confirmation email notifying submitter that request "
+                  + requestParser.getRequest().getNumber()
+                  + " has been submitted.  Request submitter or request submitter email is blank.");
           log.error(msg);
           message.append(msg + "\n");
         }
-      } else {
-        String msg = ( "Unable to send confirmation email notifying submitter that request "
-                + requestParser.getRequest().getNumber()
-                + " has been submitted.  Request submitter or request submitter email is blank.");
-        log.error(msg);
-        message.append(msg + "\n");
       }
       if (this.invoicePrice.length() > 0) {
         Lab lab = requestParser.getRequest().getLab();
