@@ -103,7 +103,24 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
             createBillingItems(sess, req);
             sess.flush();
-            sendConfirmationEmail(sess, req);
+          }
+          if (req.getAppUser() != null
+              && req.getAppUser().getEmail() != null
+              && !req.getAppUser().getEmail().equals("")) {
+            try {
+              // confirmation email for dna seq requests is sent at submit time.
+              sendConfirmationEmail(sess, req);
+            } catch (Exception e) {
+              String msg = "Unable to send confirmation email notifying submitter that request "
+                + req.getNumber()
+                + " has been submitted.  " + e.toString();
+              log.error(msg);
+            }
+          } else {
+            String msg = ( "Unable to send confirmation email notifying submitter that request "
+                    + req.getNumber()
+                    + " has been submitted.  Request submitter or request submitter email is blank.");
+            log.error(msg);
           }
         }
         // Set the complete date
@@ -130,7 +147,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       }
       
     } catch (Exception e){
-      log.error("An exception has occurred while emailing in ChangeRequestStatus ", e);
+      log.error("An exception has occurred in ChangeRequestStatus ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.toString());      
     } finally {
