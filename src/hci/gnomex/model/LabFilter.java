@@ -52,9 +52,8 @@ public class LabFilter extends DetailObject {
       queryBuf.append(" JOIN lab.appUsers as user ");
     }
     
-    // If the user is an admin (not a super admin), we need to filter lab list by core facility
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
-        secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    // If the user is not a super admin, we need to filter lab list by core facility
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
     }
     
@@ -140,24 +139,41 @@ public class LabFilter extends DetailObject {
   }
   
   private void addUnboundedSecurityCriteria() {
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
-        secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      // No criteria needed if this is a super user
+    } else if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
  
-    // Filter to show only labs associated with core facilities this admin manages
-    if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
-      throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
-    }
-    this.addWhereOrAnd();
-    queryBuf.append(" coreFacility.idCoreFacility in ( ");
-    for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
-      CoreFacility cf = (CoreFacility)i.next();
-      queryBuf.append(cf.getIdCoreFacility());
-      if (i.hasNext()) {
-        queryBuf.append(", ");
+      // Filter to show only labs associated with core facilities this admin manages
+      if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
+        throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
       }
-    }      
-    queryBuf.append(" )");        
-   }
+      this.addWhereOrAnd();
+      queryBuf.append(" coreFacility.idCoreFacility in ( ");
+      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        queryBuf.append(cf.getIdCoreFacility());
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }      
+      queryBuf.append(" )");        
+    } else {
+      
+      // Filter to show only labs associated with core facilities this user is associated with
+      if (secAdvisor.getCoreFacilitiesForMyLab().isEmpty()) {
+        throw new RuntimeException("User is not assigned to any labs.  Cannot apply appropriate filter to lab query.");
+      }
+      this.addWhereOrAnd();
+      queryBuf.append(" coreFacility.idCoreFacility in ( ");
+      for(Iterator i = secAdvisor.getCoreFacilitiesForMyLab().iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        queryBuf.append(cf.getIdCoreFacility());
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }      
+      queryBuf.append(" )");        
+    }
   }
   
   
