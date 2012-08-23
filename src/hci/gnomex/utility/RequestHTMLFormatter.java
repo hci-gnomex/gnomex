@@ -166,17 +166,6 @@ public class RequestHTMLFormatter {
   
   public void addSampleTable(Element parentNode, Set samples, String captionStyle) {
     
-    // If all of the prep instructions for the samples are the
-    // same, print instructions before the samples grid.
-    // Otherwise, we will show the instructions on each sample.
-    HashMap prepInstructionMap = new HashMap();
-    for(Iterator i = samples.iterator(); i.hasNext();) {
-      Sample s = (Sample)i.next();
-      String sp = s.getPrepInstructions() == null ? "" : s.getPrepInstructions();
-      
-      prepInstructionMap.put(sp, null);
-    }
-    
     boolean showMultiplexGroup = false;
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample s = (Sample)i.next();
@@ -191,17 +180,6 @@ public class RequestHTMLFormatter {
     sampleHeader.addContent("Samples");
     parentNode.addContent(sampleHeader);
     
-//    // Show global instructions
-//    if (prepInstructionMap.size() == 1) {
-//      String globalPrepInstructions = (String)prepInstructionMap.keySet().iterator().next();
-//      if (!globalPrepInstructions.equals("")) {
-//        Element prepHeader = new Element("H6");
-//        prepHeader.addContent(globalPrepInstructions);
-//        parentNode.addContent(prepHeader);
-//      }
-//    }
-
-
     Element table = new Element("TABLE");
     table.setAttribute("CLASS", "grid");
     table.setAttribute("CELLPADDING", "5");
@@ -274,9 +252,6 @@ public class RequestHTMLFormatter {
       }
       if (showSeqLibProtocol) {
           this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
-      }
-      if (prepInstructionMap.size()  > 1) {
-        this.addHeaderCell(rowh, "Prep Instructions", rowSpan, new Integer(1));        
       }
     } 
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
@@ -404,9 +379,6 @@ public class RequestHTMLFormatter {
         }
         if (showSeqLibProtocol) {
         	this.addCell(row, sample.getIdSeqLibProtocol() != null ? dictionaryHelper.getSeqLibProtocol(sample.getIdSeqLibProtocol()) : "&nbsp;");
-        }
-        if (prepInstructionMap.size() > 1) {
-          this.addInstructionsCell(row, sample.getPrepInstructions() != null && !sample.getPrepInstructions().trim().equals("") ? sample.getPrepInstructions() : "&nbsp;");          
         }
       }
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {        

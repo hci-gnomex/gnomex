@@ -853,7 +853,7 @@
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			    <mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
-					<mx:Label text="{'Pending Sequence Requests (' + workList.length + ')' }" fontWeight="bold"/>
+					<mx:Label text="{'Pending Sequence Lanes (' + workList.length + ')' }" fontWeight="bold"/>
 					<mx:Button id="removePendingLaneButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="promptForRemove()">
 						<mx:enabled>{pendingLanesGrid.selectedItem != null ? true : false}</mx:enabled>
 					</mx:Button>
