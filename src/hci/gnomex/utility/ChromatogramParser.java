@@ -369,9 +369,9 @@ public class ChromatogramParser extends DetailObject implements Serializable
         // If we don't have a released chromatogram for any of the samples on the
         // experiment, we don't want to mark the experiment as complete yet.
         boolean sampleMissingReleasedChrom = false;
-        for (PlateWell pw : plateWells) {
-          if (pw.getIdSample() != null) {
-            if (!releasedSamples.containsKey(pw.getIdSample())) {
+        for (Sample s : (Set<Sample>)req.getSamples()) {
+          if (s.getIdSample() != null) {
+            if (!releasedSamples.containsKey(s.getIdSample())) {
               sampleMissingReleasedChrom = true;
             }
           }
