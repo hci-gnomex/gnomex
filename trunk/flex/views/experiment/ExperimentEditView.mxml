@@ -4371,6 +4371,10 @@
 				}
 				params.idLab = parentDocument.selectedIdLab;
 				
+				if(parentDocument is NavTopicsView) {
+					return params;
+				}
+				
 				
 				if (parentDocument.currentState == 'AdminState' && parentDocument.allExperimentsCheckbox.selected) {
 					params.allExperiments = 'Y';
