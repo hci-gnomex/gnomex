@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" height="330" 
+	title="Add Analysis" height="330"
+	xmlns:util="views.util.*" 
 	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	 
     <mx:HTTPService 
@@ -39,6 +40,17 @@
             <labKeys>{labCombo.selectedItem.@idLab}</labKeys> 
     </mx:request> 
    </mx:HTTPService>
+	
+	<mx:HTTPService             
+		id="getLab" 
+		url="GetLab.gx" 
+		destination="getLab" 
+		resultFormat="e4x"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get lab', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService> 
 
 
 <mx:Script>
@@ -49,17 +61,25 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
+		import mx.collections.Sort;
 		
 		import views.util.AboutView;
 		import views.util.DateUtils;
 		import views.util.OrganismsWindow;
 		import views.util.OrganismEvent; 
+		import views.util.StringUtil;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
 
 		private var selectedIdAnalysisGroup:Object;
 		private var selectedIdLab:Object;
+		
+		[Bindable]
+		private var appUsersForLab:XMLListCollection;
+		private var appUserSort:Sort;
+		
+		private var idLab:String;
 		
 		
 		public function initializeData(idLab:Object, idAnalysisGroup:Object):void {
@@ -87,6 +107,7 @@
 				labCombo.selectedIndex = 0;
 				getAnalysisGroupList.send();
 			}
+			callGetLab();
 			
 			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
 				onOrganismRefreshed);		                                  
@@ -132,6 +153,11 @@
 		}
 	 	
 		private function validateAndSave():void {
+			if (parentApplication.navAnalysisView.currentState == "AdminState" && (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0)) {
+				ownerCombo.setFocus();
+				Alert.show("Please select the analysis owner.");
+				return;        		
+			} 
 			if(genomeBuilds.length == 0) {
 				var outMsg:String = "You have selected a genome build without adding it to the genome build list.  Create new analysis anyway?";
 				if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
@@ -158,6 +184,9 @@
 			
 			params.idAnalysis = 0;
 			params.idLab = labCombo.selectedItem.@idLab;
+			if(parentApplication.navAnalysisView.currentState == 'AdminState') {
+				params.idAppUser = ownerCombo.selectedItem.@idAppUser;
+			}
 			params.name = analysisName.text;
 			params.idOrganism = organismCombo.selectedItem.@idOrganism;
 			//params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
@@ -250,12 +279,57 @@
 						l.@isSelected = 'false';
 					}
 				}
+				callGetLab();
 			}
 			parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
 			callLater(parentApplication.navAnalysisView.refreshAnalysis);
 			getAnalysisGroupList.send();
 		}
 		
+		private function callGetLab():void {
+			if (parentApplication.navAnalysisView.currentState == "AdminState") {
+				var params:Object = new Object();
+				idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
+				if(idLab.length > 0) {
+					params.idLab = idLab;
+					getLab.send(params);
+				}				
+			}		
+		}
+		
+		private function onGetLab(event:ResultEvent):void {			
+			if (getLab.lastResult.name() == "OpenLabList") {		
+				var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+				appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
+				for each (var mgr:Object in lab.managers.AppUser) {
+					if (!appUsersForLab.contains(mgr)) {
+						if(mgr.@isActive=='Y') {
+							appUsersForLab.addItem(mgr);
+						}
+						
+					}
+				}
+				appUsersForLab.addItemAt(emptyNode, 0);
+				
+				appUserSort = new Sort();
+				appUserSort.compareFunction = StringUtil.sortAppUsers;
+				appUsersForLab.sort = appUserSort;
+				appUsersForLab.refresh();
+				ownerCombo.dataProvider = appUsersForLab;
+				ownerCombo.selectedItem = emptyNode;
+				
+				var a:Object;
+				// Set default owner to current user
+				for each(a in appUsersForLab) {
+					if (a.@idAppUser == parentApplication.idAppUser) {
+						ownerCombo.selectedItem = a;
+						break;
+					}
+				}					
+			}
+		}		
+			
 		private function onGetAnalysisGroupList(event:ResultEvent): void {
         	this.refreshAnalysisGroupForDropdown();		
   		}
@@ -311,14 +385,6 @@
 <mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
 <mx:XMLListCollection id="genomeBuilds"/>
 	<mx:VBox width="100%"  verticalGap="15" horizontalGap="10">
-		<!--mx:VBox width="100%" verticalGap="0">
-				<mx:Label text="Group"/>
-				<mx:ComboBox id="labCombo" 
-				 labelField="@name"
-				 dataProvider="{parentApplication.submitRequestLabList}"
-				 visible="true" width="450" change="refreshAnalysisGroups();checkCompleteness()">
-				</mx:ComboBox>
-		</mx:VBox-->
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:VBox verticalGap="0">
@@ -333,16 +399,6 @@
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
-		<!--mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
-			<mx:Label text="Analysis group" id="label1"/>
-			<mx:ComboBox width="450" id="analysisGroupCombo" 
-				dataProvider="{analysisGroupList}" 
-				labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
-			</mx:ComboBox>
-			<mx:HBox width="100%" horizontalAlign="right" id="hbox1">
-				<mx:LinkButton textDecoration="underline" color="#161FDA" id="newAnalysisGroupButton" label="New analysis group" click="currentState = &quot;NewAnalysisGroupState&quot;"/>
-			</mx:HBox>
-		</mx:VBox-->
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:VBox verticalGap="-5">
@@ -359,10 +415,14 @@
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
-		<!--mx:VBox height="100%" verticalGap="0" width="100%">
-			<mx:Label text="Analysis name"/>
-			<mx:TextInput id="analysisName" width="447" change="checkCompleteness()"/>
-		</mx:VBox-->
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisOwnerBox" 
+				 visible="{parentApplication.navAnalysisView.currentState == 'AdminState'}" 
+				 includeInLayout="{parentApplication.navAnalysisView.currentState == 'AdminState'}">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:Label width="115" text="Analysis owner"/>						
+				<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+			</mx:HBox>				
+		</mx:VBox>	
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:VBox verticalGap="0">

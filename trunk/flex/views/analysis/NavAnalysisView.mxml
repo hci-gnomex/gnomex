@@ -747,6 +747,12 @@
 		private function showNewAnalysisWindow():void {
 			parentIdLab = null
 			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
+			if (currentState == 'AdminState') {
+				this.analysisAddWindow.height = 360;				
+			} else {
+				this.analysisAddWindow.height = 330;				
+			}
+
 		 	PopUpManager.centerPopUp(this.analysisAddWindow);		
 		 	
 		 
