@@ -290,7 +290,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
         }
         
-        analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+        if(analysisScreen.getIdAppUser() == null) {
+          analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+        } else {
+          analysis.setIdAppUser(analysisScreen.getIdAppUser());
+        }  
         analysis.setIdSubmitter(this.getSecAdvisor().getIdAppUser());
       } else {
         analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());       
