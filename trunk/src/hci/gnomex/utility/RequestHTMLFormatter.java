@@ -812,13 +812,14 @@ public class RequestHTMLFormatter {
         Element row = new Element("TR");
         table.addContent(row);
 
-        String mutiplexGroupID = "";
+        String multiplexGroupID = "";
         if (!key.equals("")) {
           // The multiplex group identifier will be either the flow cell number and channel number
           // if the lane has been sequenced or the mutiplex group number.  This identifier is
           // in the third token of the key, separated by a dash.  
-          String[] tokens = key.split("-");
-          mutiplexGroupID = tokens[2];
+          //String[] tokens = key.split("-");
+          //mutiplexGroupID = tokens[2];
+          multiplexGroupID = key;
         }
 
 
@@ -827,10 +828,10 @@ public class RequestHTMLFormatter {
           this.addLeftCell(row, Integer.valueOf(nonMulitplexedLaneCount++).toString());
           this.addCell(row, lane.getNumber());
         } else if (i1.hasNext()) {
-          this.addBlankCell(row, firstLaneInMultiplex ? mutiplexGroupID : "&nbsp;");            
+          this.addBlankCell(row, firstLaneInMultiplex ? multiplexGroupID : "&nbsp;");            
           this.addLeftCell(row, lane.getNumber());
         } else {
-          this.addBottomBlankCell(row, firstLaneInMultiplex ? mutiplexGroupID : "&nbsp;");
+          this.addBottomBlankCell(row, firstLaneInMultiplex ? multiplexGroupID : "&nbsp;");
           this.addLeftCell(row, lane.getNumber());
         }
 

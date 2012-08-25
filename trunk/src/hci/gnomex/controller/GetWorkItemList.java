@@ -639,19 +639,23 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
             doc.getRootElement().addContent(requestNode);
             
+            HashMap seqTags = new HashMap();
             Element multiplexLaneNode = null;
             int multiplexLaneIdx = 1;
             String prevMultiplexGroupNumber = "%%%%%";
             for (Iterator i1 = theWorkItemNodes.iterator(); i1.hasNext();) {
               Element n = (Element)i1.next();
+              String barcodeSequence = n.getAttributeValue("barcodeSequence");
               String multiplexGroupNumber = n.getAttributeValue("multiplexGroupNumber");
-              if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber)) {
+              if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
                 multiplexLaneNode = new Element("MultiplexLane");
                 multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
                 requestNode.addContent(multiplexLaneNode);
+                seqTags.clear();
               }
               
               multiplexLaneNode.addContent(n);
+              seqTags.put(barcodeSequence, null);
               prevMultiplexGroupNumber = multiplexGroupNumber;
             }
           }

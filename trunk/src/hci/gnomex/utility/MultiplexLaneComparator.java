@@ -16,26 +16,27 @@ import java.util.Comparator;
         return 1;
       }
       
-      
-      
-      String[] tokens1 = key1.split("-");
-      Integer ordinal1 = Integer.valueOf(tokens1[0]);
-      Integer indexTagGroup1 = Integer.valueOf(tokens1[1]);
-      String other1 = tokens1[2];
-
-      String[] tokens2 = key2.split("-");
-      Integer ordinal2 = Integer.valueOf(tokens2[0]);
-      Integer indexTagGroup2 = Integer.valueOf(tokens2[1]);
-      String other2 = tokens2[2];
-      
-      if (ordinal1.equals(ordinal2)) {
-        if (indexTagGroup1.equals(indexTagGroup2)) {
-          return other1.compareTo(other2);
-        } else {
-          return indexTagGroup1.compareTo(indexTagGroup2);
-        } 
-      } else {
-        return ordinal1.compareTo(ordinal2);
+      Integer keyInt1 = null;
+      try {
+        keyInt1 = Integer.parseInt(key1);
+      } catch (NumberFormatException e) {        
       }
+      
+      Integer keyInt2 = null;
+      try {
+        keyInt2 = Integer.parseInt(key2);
+      } catch (NumberFormatException e) {        
+      }
+      
+      if (keyInt1 == null && keyInt2 == null) {
+        return key1.compareTo(key2);
+      } else if (keyInt1 == null ) {
+        return -1;
+      } else if (keyInt2 == null) {
+        return 1;
+      } else {
+        return keyInt1.compareTo(keyInt2);
+      }
+
     }
   }
