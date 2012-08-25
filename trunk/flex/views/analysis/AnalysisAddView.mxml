@@ -399,6 +399,14 @@
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisOwnerBox" 
+				 visible="{parentApplication.navAnalysisView.currentState == 'AdminState'}" 
+				 includeInLayout="{parentApplication.navAnalysisView.currentState == 'AdminState'}">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:Label width="115" text="Analysis owner"/>						
+				<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+			</mx:HBox>				
+		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:VBox verticalGap="-5">
@@ -415,14 +423,6 @@
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
-		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisOwnerBox" 
-				 visible="{parentApplication.navAnalysisView.currentState == 'AdminState'}" 
-				 includeInLayout="{parentApplication.navAnalysisView.currentState == 'AdminState'}">
-			<mx:HBox verticalGap="0" horizontalGap="0">
-				<mx:Label width="115" text="Analysis owner"/>						
-				<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
-			</mx:HBox>				
-		</mx:VBox>	
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:VBox verticalGap="0">
