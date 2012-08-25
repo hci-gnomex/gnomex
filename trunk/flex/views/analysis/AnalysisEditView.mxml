@@ -1092,7 +1092,7 @@
 									 change="this.dirty.setDirty();" 
 									 dataProvider="{appUsersForLab}" 
 									 enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-									 width="400"/>
+									 width="200"/>
 					</mx:HBox>
 										
 				</mx:VBox>
