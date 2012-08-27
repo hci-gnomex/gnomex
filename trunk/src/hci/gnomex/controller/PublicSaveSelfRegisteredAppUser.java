@@ -93,7 +93,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     
     if(appUserScreen.getFirstName() != null && appUserScreen.getLastName() != null){
-      if(!appUserScreen.getFirstName().matches("[A-Za-z]+") || !appUserScreen.getLastName().matches("[A-Za-z]+")){
+      //if(!appUserScreen.getFirstName().matches("[A-Za-z]+") || !appUserScreen.getLastName().matches("[A-Za-z]+")){
+      if(appUserScreen.getFirstName().matches(".*[0-9].*") || appUserScreen.getLastName().matches(".*[0-9].*")){
         this.addInvalidField("improperName", "First and last names may not contain digits");
       }
     }
@@ -102,7 +103,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       this.addInvalidField("userNameRequiredField", "University Id is required");        
     }
     
-    if(appUserScreen.getuNID() != null && appUserScreen.getuNID().length() > 0){
+    if(appUserScreen.getuNID() != null && !appUserScreen.getuNID().equals("") ){
       if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().length() != 8 || !appUserScreen.getuNID().substring(1).matches("[0-9]+")){
         this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with lowercase 'u' followed by 7 digits");
       }
