@@ -68,6 +68,7 @@
 * Implemented prompt for new owner on change analysis lab. (rcundick)
 * Added owner dropdown to add analysis window for admins only. (rcundick)
 * When more than 1 lane is added for a sample on Add services, sequence lanes for the same sample end up in the same lane. (tdisera)
+* Allow spaces in last name on New User Registration web page (rcundick)
 
 deploy notes 
 --------------------
