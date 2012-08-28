@@ -45,7 +45,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   
   private String                plateXMLString;
   
-  private String                disassociatePlates = "Y";
+  private String                disassociatePlates = "N";
   
   public void validate() {
   }
