@@ -1485,7 +1485,7 @@
 				}
 				plateXMLString += "</plates>"
 				params.plateXMLString = plateXMLString;
-				
+				params.disassociatePlates = "Y";
 				saveInstrumentRun.send( params );
 			}
 			
