@@ -37,6 +37,15 @@
 			<mx:RemoveChild target="{button4}"/>
 			<mx:RemoveChild target="{button18}"/>
 			<mx:RemoveChild target="{button19}"/>
+			<mx:RemoveChild target="{usageButton}"/>
+			<mx:RemoveChild target="{button6}"/>
+			<mx:RemoveChild target="{buttondownloadhint}"/>
+			<mx:RemoveChild target="{label7}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label7}"/>
+			<mx:RemoveChild target="{button20}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button20}"/>
+			<mx:RemoveChild target="{button21}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button21}"/>
 		</mx:State>
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{hbox8}" position="lastChild">
@@ -220,6 +229,13 @@
 			<mx:RemoveChild target="{button15}"/>
 			<mx:RemoveChild target="{button16}"/>
 			<mx:RemoveChild target="{button17}"/>
+			<mx:RemoveChild target="{label0}"/>
+			<mx:RemoveChild target="{label7}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label7}"/>
+			<mx:RemoveChild target="{button21}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button21}"/>
+			<mx:RemoveChild target="{button20}"/>
+			<mx:AddChild relativeTo="{button21}" position="before" target="{button20}"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
