@@ -443,6 +443,10 @@
 				  userDetailView.loginStack.selectedIndex = 0;
               	userDetailView.radioUniversityUser.selected = true;
               }
+			  if (fullUser.@codeUserPermissionKind != 'LAB' && fullUser.@codeUserPermissionKind != 'BILLING'
+				  && fullUser.@codeUserPermissionKind != 'ADMIN' && fullUser.@codeUserPermissionKind != 'SUPER') {
+				  userDetailView.permissionGroup.selection = null;
+			  }
               userDetailView.dirty.resetDirty();
               
             } else if (call.marker == "doneGetAppUserList") {
