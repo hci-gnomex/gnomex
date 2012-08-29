@@ -1,4 +1,4 @@
-Sample Name	Description
-sample abc	description for sample abc
-sample def	
-sample xyz	description for sample xyz
+Sample	Sample Name	Sample Description
+sample	abc	description for sample abc
+sample	"def	"	
+sample	xyz	description for sample xyz

@@ -1,7 +1,7 @@
-Well	Sample Name	Description
+Well	Sample Name	Sample Description
 A1	a	description for a
 B1	b	description for b
-C1	c	
+C1	c	description for c
 D1	d	
 E1	e	
 F1	f	
