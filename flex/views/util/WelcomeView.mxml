@@ -128,7 +128,16 @@
 			<mx:RemoveChild target="{label2a}"/>
 			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
 		</mx:State>
-		<mx:State name="ExternalUserState">
+		<mx:State name="UserState">
+			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
+				<mx:LinkButton id="userSampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
+							   click="showPropertyWindow()" 
+							   visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
+							   includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+							   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="ExternalUserState" basedOn="UserState">
 		</mx:State>
 		<mx:State name="AdminESState" basedOn="AdminState">
 			<mx:RemoveChild target="{button1}"/>
@@ -148,7 +157,7 @@
 			<mx:SetStyle target="{label2a}" name="paddingTop"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
 		</mx:State>
-		<mx:State name="UserESState">
+		<mx:State name="UserESState" basedOn="UserState">
 			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{label4}"/>
@@ -283,7 +292,7 @@
 				} else if (parentApplication.isExternalUser)  {
 					currentState = parentApplication.isExternalDataSharingSite ? "ExternalUserESState" : "ExternalUserState";
 				} else {
-					currentState = parentApplication.isExternalDataSharingSite ? "UserESState" : "";
+					currentState = parentApplication.isExternalDataSharingSite ? "UserESState" : "UserState";
 				}
 			}
 			

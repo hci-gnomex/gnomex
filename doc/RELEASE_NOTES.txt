@@ -8,6 +8,7 @@
 * Changes to plt file creation to ensure no duplicate chromatogram file names and fixed assay/primer label. (mbowler)
 * Fixed a bug where sometimes a plate would load as the wrong experiment type fom the plate review screen. (mbowler)
 * Fixed a bug where upon saving a plate, it wasn't correctly colored by assay or primer for FA or MS experiment types. (mbowler)
+* Configure Annotations button now available in Home view for non-admin users (non DNA Seq as well).  The button is in the General section.  (bspiglejr)
 
 deploy notes 
 --------------------
