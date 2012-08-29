@@ -61,15 +61,31 @@
 		public function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
+			var fieldList:Dictionary = null;
 			var numPlates:int = 0;
+			var nextPlate:int = 0;
 			if (hasPlates()) {
 				numPlates = parentDocument.numCapSeqPlates; 
-			}
-			var fieldList:Dictionary = null;
-			if (hasPlates()) {
 				fieldList = new Dictionary();
 				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
 				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
+				for each (var sample:Object in parentDocument.samples) {
+					var thisPlate:int = 0;
+					if (sample.@name != '') {
+						if (sample.@plateName == "Plate 1") thisPlate = 1;
+						if (sample.@plateName == "Plate 2") thisPlate = 2;
+						if (sample.@plateName == "Plate 3") thisPlate = 3;
+						if (sample.@plateName == "Plate 4") thisPlate = 4;
+					}
+					if (thisPlate > nextPlate) {
+						nextPlate = thisPlate;
+					}
+				}
+				if (nextPlate < 4) {
+					nextPlate = nextPlate + 1;
+				} else {
+					nextPlate = 0;
+				}
 			}
 			if (parentDocument.isFragAnalState()) {
 				fieldList = new Dictionary();
@@ -81,7 +97,7 @@
 					}
 				}
 			}
-			uploadSampleSheetWindow.init(this, numPlates, fieldList);
+			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList);
 		}
 		
 		private function downloadSampleSheetExample(fileName:String):void {
