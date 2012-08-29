@@ -141,11 +141,12 @@ public class SaveChromatogram extends GNomExCommand implements Serializable {
       if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
         if(isNew) {
+          ch = new Chromatogram();
+          sess.save( ch );
+          idChromatogram = ch.getIdChromatogram(); 
           if ( fileName!=null && !fileName.equals( "" )) {
-            ch = new Chromatogram();
-            sess.save( ch );
-            // SAVE FROM FILE, GET BACK ID, CONTINUE
-            idChromatogram = ch.getIdChromatogram(); 
+            // If a file exists, extract information from it and save to db 
+            // (like in SaveChromatogramFromFile)
           }
         } 
 
