@@ -452,7 +452,7 @@
 											    		
 							    		
 										<mx:DataGridColumn id = "onePass" 
-														   headerText="Clusters Pass Filters (M)"  
+														   headerText="Reads Pass Filters (M)"  
 														   width="100" 
 														   dataField="@read1ClustersPassedFilterM" 
 														   editable="true" 
@@ -460,7 +460,7 @@
 														   showDataTips="true">      
 														<mx:itemEditor>
 															<mx:Component>
-																<mx:TextInput restrict="0-9" /> 
+																<mx:TextInput restrict="0-9." /> 
 															</mx:Component>
 														</mx:itemEditor> 
 										    			<mx:headerRenderer> 
@@ -469,7 +469,7 @@
 																		 horizontalScrollPolicy="off"  
 																		 horizontalAlign="center" 
 																		 verticalAlign="middle">
-										    						<mx:Label text="Clusters"/>
+										    						<mx:Label text="Reads"/>
 										    						<mx:Label text="PF (M)"/>
 										    					</mx:VBox>
 										    				</mx:Component>

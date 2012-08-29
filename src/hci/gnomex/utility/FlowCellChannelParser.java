@@ -271,8 +271,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     if (n.getAttributeValue("read1ClustersPassedFilterM") != null
         && !n.getAttributeValue("read1ClustersPassedFilterM").equals("")){
       
-      channel.setRead1ClustersPassedFilterM(new Integer(
-          n.getAttributeValue("read1ClustersPassedFilterM")));
+      channel.setRead1ClustersPassedFilterM(new BigDecimal(n.getAttributeValue("read1ClustersPassedFilterM")));
     } else {
       channel.setRead1ClustersPassedFilterM(null);
     }
