@@ -1,5 +1,12 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
+5.4.8
+---------------------
+* Allow decimal points in Reads PF for flow cell channel (bspiglejr)
+
+deploy notes 
+--------------------
+* at deploy time:  alter table FlowCellChannel alter column [read1ClustersPassedFilterM] numeric(6,2)  
 
 5.4.7
 ---------------------
