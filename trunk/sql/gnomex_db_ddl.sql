@@ -798,7 +798,7 @@ CREATE TABLE `gnomex`.`FlowCellChannel` (
   `pipelineFailed` CHAR(1) NULL,
   `isControl` CHAR(1) NULL,
   `phiXErrorRate` DECIMAL(4, 4) NULL,
-  `read1ClustersPassedFilterM` INT(10) NULL,
+  `read1ClustersPassedFilterM` DECIMAL(6, 2) NULL,
   `read2ClustersPassedFilterM` INT(10) NULL,
   `q30Gb` DECIMAL(4,1) NULL,
   `q30Percent` DECIMAL(4,3) NULL,
