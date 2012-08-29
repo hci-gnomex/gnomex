@@ -5,6 +5,9 @@
 * Allow decimal points in Reads PF for flow cell channel (bspiglejr)
 * Add experiment_view_limit property to control the maximum number of experiments shown in experiment view.  Default is 1000.  (bspiglejr)
 * Add experiment_default_view property to control which view non-admin users see when opening experiment view.  Values are "my experiments", "my lab" or "all".  "my experiments is default.  (bspiglejr)
+* Changes to plt file creation to ensure no duplicate chromatogram file names and fixed assay/primer label. (mbowler)
+* Fixed a bug where sometimes a plate would load as the wrong experiment type fom the plate review screen. (mbowler)
+* Fixed a bug where upon saving a plate, it wasn't correctly colored by assay or primer for FA or MS experiment types. (mbowler)
 
 deploy notes 
 --------------------

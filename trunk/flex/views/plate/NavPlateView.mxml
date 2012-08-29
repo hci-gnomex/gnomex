@@ -645,7 +645,7 @@
 			
 			// Create the .plt run file
 			private function createPltFiles():void {
-				if ( reactionState != MIT && reactionState != SEQ ) {
+				if ( reactionState == CHERRY ) {
 					return;
 				}
 				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
@@ -699,6 +699,9 @@
 						runTree.selectedItem = pl;
 						break;
 					}
+				}
+				if ( getPlateList.lastResult == null ) {
+					return;
 				}
 				for each ( var p:Object in getPlateList.lastResult..Plate ) {
 					if ( p.@idPlate == activePlate.idPlate ) {
@@ -1331,7 +1334,13 @@
 			
 			// Loads a plate from an plate xml object
 			private function loadPlateObject( plateObject:Object ):void {
-								
+				
+				if ( reactionState != plateObject.@codeReactionType ){
+					toggleReactionType( plateObject.@codeReactionType );
+					callLater( loadPlateObject, [ plateObject ]);
+					return;
+				}
+				
 				if ( buildState == RUN ) {
 					// Put plate in the correct quadrant
 					if ( plateObject.@quadrant != "-1" && plateObject.@quadrant != plateStack.selectedIndex ) {

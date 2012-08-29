@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -231,7 +232,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                 String wellRow = well.getAttributeValue( "row" ) != null ? well.getAttributeValue("row") : "";
                 int wellCol = well.getAttributeValue( "col" ) != null ? Integer.valueOf( well.getAttributeValue("col") ) : 0;
 
-                // Add request number to list of request numbers
+
                 if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
                   
                   response.getOutputStream().print( row + String.format( "%02d", col ) + "\t" );
@@ -359,7 +360,16 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         if ( plateWell != null ) {
           plateWell.excludeMethodFromXML("getPlate");
 
+          plateWell.excludeMethodFromXML("getSample");
+          plateWell.excludeMethodFromXML("getAssay");
+          plateWell.excludeMethodFromXML("getPrimer");
           wellNode = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+          
+          if ( plateWell.getAssay() != null ) {
+            wellNode.setAttribute( "assay", plateWell.getAssay().getDisplay() );
+          } else if ( plateWell.getPrimer() != null ) {
+            wellNode.setAttribute( "primer", plateWell.getPrimer().getDisplay() );
+          }
 
         } else {
           wellNode.setAttribute( "idPlateWell", "0" );

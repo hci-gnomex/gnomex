@@ -2,7 +2,9 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.Assay;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Primer;
 import hci.gnomex.model.Sample;
 
 import java.io.Serializable;
@@ -91,6 +93,10 @@ public class PlateWellParser extends DetailObject implements Serializable
         && !n.getAttributeValue("idAssay").equals("0")) {
       try {
         well.setIdAssay(new Integer(n.getAttributeValue("idAssay"))); 
+        Assay assay = (Assay) sess.get(Assay.class,well.getIdAssay());
+        if ( assay != null ) {
+          well.setAssay( assay );
+        }
       } catch (NumberFormatException e) {
         well.setIdAssay(null);
       }
@@ -100,6 +106,10 @@ public class PlateWellParser extends DetailObject implements Serializable
         && !n.getAttributeValue("idPrimer").equals("0")) {
       try {
         well.setIdPrimer(new Integer(n.getAttributeValue("idPrimer"))); 
+        Primer primer = (Primer) sess.get(Primer.class,well.getIdPrimer());
+        if ( primer != null ) {
+          well.setPrimer( primer );
+        }
       } catch (NumberFormatException e) {
         well.setIdPrimer(null);
       }
