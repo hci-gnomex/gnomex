@@ -7,6 +7,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
@@ -14,6 +15,7 @@ import hci.gnomex.utility.PlateWellParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -196,6 +198,9 @@ public class SavePlate extends GNomExCommand implements Serializable {
         
         // Result XML
         Document doc = new Document(new Element("SUCCESS"));
+        
+        plate.excludeMethodFromXML("getPlateWells");
+        plate.excludeMethodFromXML( "getInstrumentRun" );
         Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
         String creator = plate.getCreator();
@@ -205,6 +210,8 @@ public class SavePlate extends GNomExCommand implements Serializable {
         } else {
           pNode.setAttribute( "creator", creator);
         }
+        
+        Element pwNode = new Element("plateWells");
 
         List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
 
@@ -214,16 +221,37 @@ public class SavePlate extends GNomExCommand implements Serializable {
         for(Iterator i = plateWells.iterator(); i.hasNext();) {
           PlateWell plateWell = (PlateWell)i.next();
           plateWell.excludeMethodFromXML("getPlate");
-
+          plateWell.excludeMethodFromXML("getSample");
+          plateWell.excludeMethodFromXML("getAssay");
+          plateWell.excludeMethodFromXML("getPrimer");
           Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
-          pNode.addContent(node);
-          if ( plateWell.getIdRequest()==null ) {
-            break;
+          if ( plateWell.getAssay() != null ) {
+            node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+          } else if ( plateWell.getPrimer() != null ) {
+            node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
           }
+          
+          node.setAttribute("requestSubmitDate", "");
+          node.setAttribute("requestSubmitter", "");
+
+          if ( plateWell.getIdRequest() != null ) {
+            String idRequestString = plateWell.getIdRequest().toString();
+            if ( idRequestString != null && !idRequestString.equals("")) {
+              Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+              if ( request != null ) {
+                node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
+                node.setAttribute("requestSubmitter", request.getOwnerName());
+              }
+            }
+          }
+
+          pwNode.addContent(node);
         }
 
         sess.flush();
+        
+        pNode.addContent(pwNode);
         doc.getRootElement().addContent(pNode);
 
 
