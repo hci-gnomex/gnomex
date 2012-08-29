@@ -11,6 +11,9 @@
 * Configure Annotations button now available in Home view for non-admin users (non DNA Seq as well).  The button is in the General section.  (bspiglejr)
 * Fix issue with entering lab during new user registration on firefox..  (bspiglejr)
 * Fixed bug where 96th well did not default to a control. (mbowler)
+* Added 'share web link' capability on Experiment, Analysis, and Data Track detail. (rcundick)
+* Implemented new Experiment, Analysis, Data Track, and Topics links that do not require detailWindow parameter (old format still works as before). (rcundick)
+* Added ability to change UCSC link in user profile window. (rcundick)
 
 deploy notes 
 --------------------

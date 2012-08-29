@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.utility.DictionaryHelper;
@@ -11,6 +12,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -88,6 +90,17 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  public static DataTrack getDataTrackFromDataTrackNumber(Session sess, String  dataTrackNumber) {
+    DataTrack dt = null;
+
+    StringBuffer buf = new StringBuffer("SELECT dt from DataTrack as dt where dt.fileName = '" + dataTrackNumber.toUpperCase() + "'");
+    List datatracks = sess.createQuery(buf.toString()).list();
+    if (datatracks.size() > 0) {
+      dt = (DataTrack)datatracks.get(0);      
+    }
+    return dt;
   }
 
 }

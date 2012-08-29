@@ -14,6 +14,8 @@
 						   icon="@Embed(source='../../assets/download.png')" 
 						   enabled="true" visible="false" includeInLayout="false"
 						   click="{parentDocument.treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
+			<mx:Spacer width="20"/>
+			<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
             <mx:Spacer width="100%"/>
 			<mx:Label text="Created " 
 					  visible="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}"
@@ -99,6 +101,7 @@
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
+	import views.util.WebLinksView;
 	
 	import views.admin.PropertyWindow;
 	import views.datatrack.FolderInfoWindow;
@@ -732,6 +735,16 @@
 			params.idLab = idLab;
 			getLab.send(params);
 		}
+	}
+	
+	public function showLinks():void {
+		var webLinksView:WebLinksView = new WebLinksView();
+		var topicNumber:String = "?dataTrackNumber=" + getDataTrack.lastResult.@number;
+		
+		PopUpManager.addPopUp(webLinksView, this, true);
+		PopUpManager.centerPopUp(webLinksView);
+		webLinksView.setTitleMessage("Data Track " + getDataTrack.lastResult.@number);
+		webLinksView.setUserLink(topicNumber);
 	}
 	
 ]]>

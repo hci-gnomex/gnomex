@@ -789,5 +789,16 @@ public class TopicQuery implements Serializable {
 
 	public void setIsVisibilityOwner(String isVisibilityOwner) {
     this.isVisibilityOwner = isVisibilityOwner;
-  }  
+  } 
+	
+  public static Topic getTopicFromTopicNumber(Session sess, String  topicNumber) {
+    Topic t = null;
+
+    StringBuffer buf = new StringBuffer("SELECT t from Topic as t where t.idTopic = '" + topicNumber + "'");
+    List topics = sess.createQuery(buf.toString()).list();
+    if (topics.size() > 0) {
+      t = (Topic)topics.get(0);      
+    }
+    return t;
+  }
 }

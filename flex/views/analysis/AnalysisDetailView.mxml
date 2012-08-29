@@ -45,6 +45,7 @@
 			import mx.events.CollectionEventKind;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import views.util.WebLinksView;
 			
 			import views.analysis.AnalysisEditView;
 			import views.analysis.DownloadProgressView;
@@ -397,6 +398,17 @@
 				parentApplication.showDistributeDataTrackWindow(parentDocument.selectedAnalysis);
 			}
 			
+			public function showLinks():void {
+				var webLinksView:WebLinksView = new WebLinksView();
+				var topicNumber:String = "?analysis" +
+					"Number=" + parentDocument.selectedAnalysis.@number;
+				
+				PopUpManager.addPopUp(webLinksView, this, true);
+				PopUpManager.centerPopUp(webLinksView);
+				webLinksView.setTitleMessage("Experiment " + parentDocument.selectedAnalysis.@number);
+				webLinksView.setUserLink(topicNumber);
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -436,6 +448,8 @@
 							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
 							   textAlign="left" fontSize="9" paddingLeft="0">    	        
 				</mx:LinkButton>				
+				<mx:Spacer width="5"/>
+				<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 				
 			</mx:HBox>
 			

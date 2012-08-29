@@ -29,6 +29,10 @@
     <![CDATA[ 
 		import hci.flex.controls.DropdownLabel;
 		
+		import mx.collections.ArrayCollection;
+		import mx.containers.ViewStack;
+		import mx.controls.Alert;
+		import mx.events.ItemClickEvent;
 		import mx.managers.CursorManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
@@ -38,7 +42,12 @@
 		[Embed(source='../../assets/application_side_expand.png')]
 		private const restoreIcon:Class;
 		
-
+		[Bindable]
+		private var searchResultsLinkBarProvider:ArrayCollection;  
+		
+		[Bindable]
+		private var searchResultsTreeLinkBarProvider:ArrayCollection;  
+		
     	[Bindable] 
     	private var experimentHitLabel:String = "Experiments";
     	[Bindable] 
@@ -66,16 +75,36 @@
 			this.searchView.scopeSearch();
 			this.searchView.checkSecurity();
 			
-			if (!parentApplication.isTopicsSupported) {
-				// If topics not supported then remove topics windows from viewstacks
-				if (resultsViewStack.contains(resultsTopicView)) {
-					resultsViewStack.removeChild(resultsTopicView);
-				}
-				
-				if (resultsTreeViewStack.contains(resultsTopicTreeView)) {
-					resultsTreeViewStack.removeChild(resultsTopicTreeView);
-				}				
+			// Build linkbar data providers containing items user allowed to see
+			searchResultsLinkBarProvider = new ArrayCollection();
+			searchResultsTreeLinkBarProvider = new ArrayCollection();
+
+			
+			searchResultsLinkBarProvider.addItem(experimentHitLabel);
+			searchResultsTreeLinkBarProvider.addItem(experimentHitLabel);
+			
+			if (parentApplication.showBioinformaticsLinks) {
+				searchResultsLinkBarProvider.addItem(analysisHitLabel);
+				searchResultsTreeLinkBarProvider.addItem(analysisHitLabel);				
 			}
+			
+			searchResultsLinkBarProvider.addItem(protocolHitLabel);
+			searchResultsTreeLinkBarProvider.addItem(protocolHitLabel);				
+
+			
+			if (parentApplication.showBioinformaticsLinks) {
+				searchResultsLinkBarProvider.addItem(dataTrackHitLabel);
+				searchResultsTreeLinkBarProvider.addItem(dataTrackHitLabel);				
+			}
+			
+			if (parentApplication.isTopicsSupported && parentApplication.showBioinformaticsLinks) {
+				searchResultsLinkBarProvider.addItem(topicHitLabel);
+				searchResultsTreeLinkBarProvider.addItem(topicHitLabel);				
+			}
+			
+			searchResultsLinkBar.dataProvider = searchResultsLinkBarProvider;
+			searchResultsTreeLinkBar.dataProvider = searchResultsTreeLinkBarProvider;
+
 			
 			if (!isInitialized) {
 				this.getSlideProductList.send();
@@ -123,11 +152,37 @@
         }
         
         public function setResultsCount():void {
-        	experimentHitLabel = "Experiments (" + searchList.length + " hits)";
-        	analysisHitLabel = "Analysis (" + searchAnalysisList.length + " hits)";
-        	protocolHitLabel = "Protocols (" + searchProtocolList.length + " hits)";
-			dataTrackHitLabel = "Data Tracks (" + searchDataTrackList.length + " hits)";
-			topicHitLabel = "Topics (" + searchTopicList.length + " hits)";
+			
+			for(var i:int=0; i < searchResultsLinkBarProvider.length; i++) {
+				var currentString:String = String(searchResultsLinkBarProvider.getItemAt(i));
+				var newString:String = "";
+				if(currentString.indexOf(experimentHitLabel) != -1) {
+					newString = experimentHitLabel + " (" + searchList.length + " hits)";
+					searchResultsLinkBarProvider.setItemAt(newString, i);
+					searchResultsTreeLinkBarProvider.setItemAt(newString, i);
+				}
+				if(currentString.indexOf(analysisHitLabel) != -1) {
+					newString = analysisHitLabel + " (" + searchAnalysisList.length + " hits)";
+					searchResultsLinkBarProvider.setItemAt(newString, i);
+					searchResultsTreeLinkBarProvider.setItemAt(newString, i);
+				}
+				if(currentString.indexOf(protocolHitLabel) != -1) {
+					newString = protocolHitLabel + " (" + searchProtocolList.length + " hits)";
+					searchResultsLinkBarProvider.setItemAt(newString, i);
+					searchResultsTreeLinkBarProvider.setItemAt(newString, i);
+				}
+				if(currentString.indexOf(dataTrackHitLabel) != -1) {
+					newString = dataTrackHitLabel + " (" + searchDataTrackList.length + " hits)";
+					searchResultsLinkBarProvider.setItemAt(newString, i);
+					searchResultsTreeLinkBarProvider.setItemAt(newString, i);
+				}
+				if(currentString.indexOf(topicHitLabel) != -1) {
+					newString = topicHitLabel + " (" + searchTopicList.length + " hits)";
+					searchResultsLinkBarProvider.setItemAt(newString, i);
+					searchResultsTreeLinkBarProvider.setItemAt(newString, i);
+				}
+			}
+
         	this.searchResultsView.enabled = true;
 
         }
@@ -287,36 +342,58 @@
 				buttonStack.selectedChild = resultButtonView;
 
 				if (searchList.length > 0) { 
-					this.resultsTreeViewStack.selectedIndex = 0;				
-				} else if (this.searchAnalysisList.length > 0) {
-					this.resultsTreeViewStack.selectedIndex = 1;	 			
+					this.resultsTreeViewStack.selectedIndex = 0;
+				} else if (parentApplication.showBioinformaticsLinks && this.searchAnalysisList.length > 0) {
+					this.resultsTreeViewStack.selectedIndex = 1;
 				} else if (this.searchProtocolList.length > 0) {
-					this.resultsTreeViewStack.selectedIndex = 2;	
-				} else if (this.searchDataTrackList.length > 0) {
+					this.resultsTreeViewStack.selectedIndex = 2;
+				} else if (parentApplication.showBioinformaticsLinks && this.searchDataTrackList.length > 0) {
 					this.resultsTreeViewStack.selectedIndex = 3;
-				} else if (parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
+				} else if (parentApplication.showBioinformaticsLinks && parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
 					this.resultsTreeViewStack.selectedIndex = 4;
 				} else {
-					this.resultsTreeViewStack.selectedIndex = 0;				
+					this.resultsTreeViewStack.selectedIndex = 0;
 				} 
 			} else {
 				this.searchResultsViewStack.selectedChild = this.searchResultsGridView;
 				buttonStack.selectedChild = resultButtonView;
 				
 				if (searchList.length > 0) { 
-					resultsViewStack.selectedIndex = 0;				
-				} else if (this.searchAnalysisList.length > 0) {
+					resultsViewStack.selectedIndex = 0;	
+				} else if (parentApplication.showBioinformaticsLinks && this.searchAnalysisList.length > 0) {
 					resultsViewStack.selectedIndex = 1;
 				} else if (this.searchProtocolList.length > 0) {
 					resultsViewStack.selectedIndex = 2;
-				} else if (this.searchDataTrackList.length > 0) {
+				} else if (parentApplication.showBioinformaticsLinks && this.searchDataTrackList.length > 0) {
 					this.resultsViewStack.selectedIndex = 3;
-				} else if (parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
+				} else if (parentApplication.showBioinformaticsLinks && parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
 					this.resultsViewStack.selectedIndex = 4;
 				} else {
 					resultsViewStack.selectedIndex = 0;
-				} 
+				}		
 			}
+		}
+		
+		private function setSelectedLinkBarLabel():void {
+			if (searchList.length > 0) { 
+				selectCorrespondingLinkBarLabel(searchResultsLinkBar, experimentHitLabel);
+				selectCorrespondingLinkBarLabel(searchResultsTreeLinkBar, experimentHitLabel);
+			} else if (parentApplication.showBioinformaticsLinks && this.searchAnalysisList.length > 0) {
+				selectCorrespondingLinkBarLabel(searchResultsLinkBar, analysisHitLabel);
+				selectCorrespondingLinkBarLabel(searchResultsTreeLinkBar, analysisHitLabel);
+			} else if (this.searchProtocolList.length > 0) {
+				selectCorrespondingLinkBarLabel(searchResultsLinkBar, protocolHitLabel);
+				selectCorrespondingLinkBarLabel(searchResultsTreeLinkBar, protocolHitLabel);
+			} else if (parentApplication.showBioinformaticsLinks && this.searchDataTrackList.length > 0) {
+				selectCorrespondingLinkBarLabel(searchResultsLinkBar, dataTrackHitLabel);
+				selectCorrespondingLinkBarLabel(searchResultsTreeLinkBar, dataTrackHitLabel);
+			} else if (parentApplication.showBioinformaticsLinks && parentApplication.isTopicsSupported && this.searchTopicList.length > 0) {
+				selectCorrespondingLinkBarLabel(searchResultsLinkBar, topicHitLabel);
+				selectCorrespondingLinkBarLabel(searchResultsTreeLinkBar, topicHitLabel);
+			} else {
+				selectCorrespondingLinkBarLabel(searchResultsLinkBar, experimentHitLabel);
+				selectCorrespondingLinkBarLabel(searchResultsTreeLinkBar, experimentHitLabel);
+			} 
 		}
 		
  		public function onViewSwitch():void {
@@ -332,8 +409,59 @@
 				showTree.selected = false;
 				toggleResultTreeView();
 				buttonStackTop.selectedChild = resultTopButtonView;
+				callLater(setSelectedLinkBarLabel);
 			} 
-	}  
+		}
+		
+		private function searchResultsLinkBarClick(event:ItemClickEvent):void {
+			resultsViewStack.selectedIndex = linkBarIdxToViewStackIdx(event.index);
+			selectSelectedLinkbarColor(LinkBar(event.target), event.index);
+		}
+		
+		private function searchResultsTreeLinkBarClick(event:ItemClickEvent):void {
+			resultsTreeViewStack.selectedIndex = linkBarIdxToViewStackIdx(event.index);
+			selectSelectedLinkbarColor(LinkBar(event.target), event.index);
+		}
+		
+		private function selectSelectedLinkbarColor(linkbar:LinkBar, index:int):void {
+			for(var i:int=0; i<linkbar.numChildren; i++){      
+				var curItem:LinkButton = LinkButton(linkbar.getChildAt(i));
+				if(i == index) {
+					curItem.setStyle("color", 0x0000FF);
+				} else {
+					curItem.setStyle("color", 0x000000); 
+				}   
+			}			
+		}
+		
+		private function linkBarIdxToViewStackIdx(linkBarIdx:int):int {
+			var linkBarLabel:String = String(searchResultsLinkBarProvider.getItemAt(linkBarIdx));
+			if(linkBarLabel.indexOf(experimentHitLabel) != -1) {
+				return 0;
+			}
+			if(linkBarLabel.indexOf(analysisHitLabel) != -1) {
+				return 1;
+			}
+			if(linkBarLabel.indexOf(protocolHitLabel) != -1) {
+				return 2;
+			}
+			if(linkBarLabel.indexOf(dataTrackHitLabel) != -1) {
+				return 3;
+			}
+			if(linkBarLabel.indexOf(topicHitLabel) != -1) {
+				return 4;
+			}
+			return 0;
+		}
+		
+		private function selectCorrespondingLinkBarLabel(linkbar:LinkBar, label:String):void {
+			for(var i:int=0; i < searchResultsLinkBarProvider.length; i++) {
+				var currentString:String = String(searchResultsLinkBarProvider.getItemAt(i));
+				if(currentString.indexOf(label) != -1) {
+					selectSelectedLinkbarColor(linkbar, i);
+				}
+			}
+		}
 
     ]]>
     </mx:Script>
@@ -391,7 +519,7 @@
 
 				<mx:VBox id="searchResultsGridView"  label="Results"   width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4">
 					<mx:HBox>
-						<mx:LinkBar dataProvider="{resultsViewStack}" styleName="formLinkBar"/>
+						<mx:LinkBar id="searchResultsLinkBar" styleName="formLinkBar" itemClick="searchResultsLinkBarClick(event)" textRollOverColor="#0000FF"/>
 					</mx:HBox>
 					
 					<mx:ViewStack id="resultsViewStack" width="100%" height="100%" >
@@ -501,7 +629,7 @@
 						 label="Results (tree)" 
 						 width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4"  >
 					<mx:HBox width="100%" paddingBottom="0" verticalAlign="bottom">
-						<mx:LinkBar dataProvider="{resultsTreeViewStack}" styleName="formLinkBar"/>
+						<mx:LinkBar id="searchResultsTreeLinkBar" styleName="formLinkBar" itemClick="searchResultsTreeLinkBarClick(event)" textRollOverColor="#0000FF"/>
 						<mx:HBox  width="100%" horizontalAlign="right" verticalAlign="bottom" paddingBottom="0">
 							<mx:LinkButton  label="Expand tree"  useHandCursor="true" click="expandAllNodes()" id="expand" toggle="true" paddingBottom="0" textDecoration="underline"/>		   
 							<mx:LinkButton  label="Collapse tree" click="collapseAllNodes()"  useHandCursor="true" selected="true" id="collapse" toggle="false" paddingBottom="0" textDecoration="underline"/>

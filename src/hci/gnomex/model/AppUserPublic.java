@@ -18,6 +18,7 @@ public class AppUserPublic extends HibernateDetailObject implements Serializable
   private String  phone;
   private String  department;
   private String  institute;
+  private String  ucscUrl;
 
   
   public String getDepartment() {
@@ -76,6 +77,13 @@ public class AppUserPublic extends HibernateDetailObject implements Serializable
     this.phone = phone;
   }
 
+  public String getUcscUrl() {
+    return ucscUrl;
+  }
+
+  public void setUcscUrl(String ucscUrl) {
+    this.ucscUrl = ucscUrl;
+  }  
   
   public String getDisplayName() {
     String name = "";

@@ -127,6 +127,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
       } else if (idRequest != null) {
         request = (Request)sess.get(Request.class, idRequest);
       } else {
+        request = GetRequest.getRequestFromRequestNumber(sess, requestNumber);
+        /*
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
         StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
         List requests = (List)sess.createQuery(buf.toString()).list();
@@ -139,6 +141,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         if (requests.size() > 0) {
           request = (Request)requests.get(0);
         }
+        */
       }      
       if (request != null) {
         // Make sure user has permission to view request
@@ -696,6 +699,23 @@ public class GetRequest extends GNomExCommand implements Serializable {
     return this;
   }
   
+  public static Request getRequestFromRequestNumber(Session sess, String  requestNumber) {
+    Request request = null;
+    String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
+    StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
+    List requests = (List)sess.createQuery(buf.toString()).list();
+    if (requests.size() == 0 && requestNumberBase.indexOf("R") == -1) {
+      // If nothing returned then try with "R" appended
+      requestNumberBase = requestNumberBase + "R";
+        buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
+        requests = (List)sess.createQuery(buf.toString()).list();
+    }
+    if (requests.size() > 0) {
+      request = (Request)requests.get(0);
+    }
+    return request;
+  }
+  
   private void flagPlateInfo(boolean isNewRequest, Request request, Element requestNode) {
     
     boolean onReactionPlate = false;
@@ -724,6 +744,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
     requestNode.setAttribute("onReactionPlate", onReactionPlate ? "Y" : "N");
     
   }
+  
+
 
   private static class PlateAndWellComparator implements Comparator {
     public int compare(Object o1, Object o2) {
