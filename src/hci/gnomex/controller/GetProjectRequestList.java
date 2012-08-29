@@ -4,9 +4,11 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProjectRequestFilter;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -30,8 +32,6 @@ import org.jdom.output.XMLOutputter;
 public class GetProjectRequestList extends GNomExCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectRequestList.class);
-  
-  private static int MAX_EXPERIMENT_COUNT           = 1000;
   
   private ProjectRequestFilter filter;
   private Element              rootNode = null;
@@ -149,6 +149,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         String prevCodeApplication = "999";
         
         
+        Integer maxExperiments = getMaxExperiments(sess);
         
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
@@ -206,7 +207,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           prevCodeRequestCategory = codeRequestCategory;
           prevCodeApplication = codeApplication;
           
-          if (experimentCount >= MAX_EXPERIMENT_COUNT) {
+          if (experimentCount >= maxExperiments) {
             break;
           }
         }
@@ -222,7 +223,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         }
      
         rootNode.setAttribute("experimentCount", Integer.valueOf(experimentCount).toString());
-        message = experimentCount == MAX_EXPERIMENT_COUNT ? "First " + MAX_EXPERIMENT_COUNT + " displayed" : ""; 
+        message = experimentCount == maxExperiments ? "First " + maxExperiments + " displayed" : ""; 
         rootNode.setAttribute("message", message);
         
       }
@@ -263,6 +264,18 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     return this;
   }
 
+  private Integer getMaxExperiments(Session sess) {
+    Integer maxExperiments = 1000;
+    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
+    if (prop != null && prop.length() > 0) {
+      try {
+        maxExperiments = Integer.parseInt(prop);
+      }
+        catch(NumberFormatException e) {
+      }    
+    }
+    return maxExperiments;
+  }
   
   private void addLabNode(Object[] row) {
     String labName = Lab.formatLabName((String)row[17], (String)row[18]);
