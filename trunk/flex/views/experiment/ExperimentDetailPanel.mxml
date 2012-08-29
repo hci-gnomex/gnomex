@@ -6,11 +6,23 @@
 	<mx:Script>
 		<![CDATA[
 			import views.order.NavOrderView;
+			import mx.managers.PopUpManager;
+			import views.util.WebLinksView;
 
 			private function backToNavOrder():void {
 				if (parentDocument is NavOrderView) {
 					parentDocument.experimentViews.selectedChild = parentDocument.browseView;
 				}
+			}
+			
+			public function showLinks():void {
+				var webLinksView:WebLinksView = new WebLinksView();
+				var topicNumber:String = "?requestNumber=" + detail.selectedExperiment.@number;
+				
+				PopUpManager.addPopUp(webLinksView, this, true);
+				PopUpManager.centerPopUp(webLinksView);
+				webLinksView.setTitleMessage("Experiment " + detail.selectedExperiment.@number);
+				webLinksView.setUserLink(topicNumber);
 			}
 
 		]]>
@@ -56,6 +68,7 @@
 									   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
 						</mx:LinkButton>
 					    <mx:Spacer width="5"/>
+						<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 				</mx:HBox>
 			</mx:HBox>
 			

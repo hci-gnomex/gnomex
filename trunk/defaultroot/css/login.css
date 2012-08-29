@@ -121,12 +121,21 @@ color: #696969;
 
 
 
+.topPanel {
+	float: top;
+	clear: both;
+	font-size: 10pt;
+	padding-bottom: 10px;
+	margin-bottom: 5px;
+	color: #ff0000;
+}
+
 .bottomPanel {
-  float: bottom;
-  clear: both;
-  font-size: 10pt;
-  padding-top: 10px;
-  margin-top: 5px;
+	float: bottom;
+	clear: both;
+	font-size: 10pt;
+	padding-top: 10px;
+	margin-top: 5px;
 }
 
 

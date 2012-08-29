@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="454" height="236" 
+	layout="vertical" width="560" height="146" 
 	xmlns:views="views.*" 
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
@@ -8,16 +8,10 @@
 	borderThickness="4" defaultButton="{btnClose}">
 	
 	<mx:VBox verticalGap="20" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%">
-		<mx:VBox width="100%">
-			<mx:Label text="GNomEx User:"/>
-			<mx:Label id="userLink" text="Not available"/>
+		<mx:VBox width="100%" verticalGap="15">
+			<mx:TextInput id="userLink" text="Not available" width="100%" fontSize="11"/>
 			<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center">
-				<mx:Button label="Copy To Clipboard" click="{System.setClipboard(userLink.text);}"  height="18"/>
-			</mx:HBox>
-			<mx:Label text="Guest:"/>
-			<mx:Label id="guestLink" text="Not available"/>
-			<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center">
-				<mx:Button label="Copy To Clipboard" click="{System.setClipboard(guestLink.text);}"  height="18"/>
+				<mx:Button label="Copy To Clipboard" click="{System.setClipboard(userLink.text);}"/>
 			</mx:HBox>
 		</mx:VBox> 
 		
@@ -35,14 +29,12 @@
 			import mx.controls.Alert; 
 			
 			public function setTitleMessage(titleMessage:String):void {
-				this.title = "Web Links for " + titleMessage;
+				this.title = "Web Link for " + titleMessage;
 			}
 			public function setUserLink(link:String):void {
 				this.userLink.text = parentApplication.baseURL + parentApplication.GNOMEX_USER_JSP + link;
 			}
-			public function setGuestLink(link:String):void {
-				this.guestLink.text = parentApplication.baseURL + parentApplication.GNOMEX_GUEST_JSP + link;
-			}
+
 
 		]]>
 	</mx:Script>

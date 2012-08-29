@@ -167,6 +167,7 @@
 		<property name="phone" column="phone" type="string"/>
 		<property name="department" column="department" type="string"/>
 		<property name="institute" column="institute" type="string"/>
+		<property name="ucscUrl" column="ucscUrl" type="string"/>
 	</class>	
 	
 	

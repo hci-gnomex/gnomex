@@ -283,16 +283,16 @@
 			<mx:RadioButton label="Experiments" selected="false" id="ExperimentsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
-			<mx:RadioButton label="Analyses" selected="false" id="AnalysesRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+			<mx:RadioButton label="Analyses" selected="false" id="AnalysesRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}">
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
 			<mx:RadioButton label="Protocols" selected="false" id="ProtocolsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
-			<mx:RadioButton label="Data Tracks" selected="false" id="DataTracksRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+			<mx:RadioButton label="Data Tracks" selected="false" id="DataTracksRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}">
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
-			<mx:RadioButton label="Topics" selected="false" id="TopicsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.isTopicsSupported}">
+			<mx:RadioButton label="Topics" selected="false" id="TopicsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.isTopicsSupported &amp;&amp; parentApplication.showBioinformaticsLinks}">
 				<mx:click>{searchTypeChange()}</mx:click>
 			</mx:RadioButton>
 		</mx:HBox>

@@ -207,6 +207,30 @@
 		useProxy="false">
 	</mx:HTTPService> 
 	
+	<mx:HTTPService  
+		id="checkDataTrackPermission" 
+		url="CheckDataTrackPermission.gx"
+		destination="checkDataTrackPermission"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onCheckDataTrackPermission(event)"
+		fault="onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="checkTopicPermission" 
+		url="CheckTopicPermission.gx"
+		destination="checkTopicPermission"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onCheckTopicPermission(event)"
+		fault="onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>	
+	
         <mx:Style source="css/gnomex_flex.css" />
 
         
@@ -1028,8 +1052,19 @@
 					theViews.visible = true;
 					theViews.selectedChild = navDataTrackView;
 					
+					// Check permission and show message if user doesn't have permission to view this data track
+					var parms:Object = new Object();
+					parms.dataTrackNumber = dataTrackNumber;
+					checkDataTrackPermission.send(parms);					
+					
 				}
 				
+			}
+			
+			private function onCheckDataTrackPermission(event:ResultEvent):void {
+				if (checkDataTrackPermission.lastResult.name() != "SUCCESS") {
+					Alert.show(checkDataTrackPermission.lastResult..ACTMESSAGE.@TEXT);
+				}
 			}
 
 			public function showInstrumentRun(idRun:String):void {
@@ -1075,22 +1110,33 @@
 			}
 			
 			public function showTopicForNumber(topicNumber:String):void {
-					navTopicsView.topicNumber = topicNumber;
-					navTopicsView.treatAsTopicClick = true;
-										
-					// We have to make sure that the first time a lookup
-					// occurs after launch, we refresh the topic
-					// through show event (init()).  The next time
-					// through, we will make the call directly.
-					if (navTopicsView.isInitialized) {
-						navTopicsView.refreshTopics()
-					}
-					
-					this.stateStack.selectedChild = theViews;
-					theViews.visible = true;
-					theViews.selectedChild = navTopicsView;
+				navTopicsView.topicNumber = topicNumber;
+				navTopicsView.treatAsTopicClick = true;
+									
+				// We have to make sure that the first time a lookup
+				// occurs after launch, we refresh the topic
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navTopicsView.isInitialized) {
+					navTopicsView.refreshTopics()
+				}
+				
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navTopicsView;
+				
+				// Check permission and show message if user doesn't have permission to view this topic
+				var parms:Object = new Object();
+				parms.topicNumber = topicNumber;
+				checkTopicPermission.send(parms);									
 			}
+				
 			
+			private function onCheckTopicPermission(event:ResultEvent):void {
+				if (checkTopicPermission.lastResult.name() != "SUCCESS") {
+					Alert.show(checkTopicPermission.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}			
 
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
@@ -1263,18 +1309,14 @@
             	}
             }
             public function launchExperimentDetail():Boolean {
-            	if (Application.application.parameters.launchWindow != null &&
-            	    Application.application.parameters.launchWindow == "ExperimentDetail" &&
-            	    Application.application.parameters.requestNumber != null ) {
+            	if (Application.application.parameters.requestNumber != null && Application.application.parameters.requestNumber != 'null') {
        				return true;
             	} else { 
             		return false;
             	}
             }
             public function launchAnalysisDetail():Boolean { 
-            	if (Application.application.parameters.launchWindow != null &&
-            	    Application.application.parameters.launchWindow == "AnalysisDetail" &&
-            	    Application.application.parameters.analysisNumber != null ) {
+            	if (Application.application.parameters.analysisNumber != null && Application.application.parameters.analysisNumber != 'null') {
        				return true;
             	} else {
             		return false;
@@ -1999,6 +2041,9 @@
 	        
 	        private function launchStartWindow():void {
 	        	if (launchExperimentDownloads()) {
+					// (Make sure call to launchExperimentDownloads() is before launchExperimentDetail()
+					// since launching to the detail window is now the default if no launchWindow
+					// parameter is included.
 	        		this.showExperimentDownload(getLaunchRequestNumber());
 	        	} else if (launchExperimentDetail()) {
 	        		this.showExperiment(getLaunchRequestNumber());

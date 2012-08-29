@@ -104,11 +104,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         Hibernate.initialize(a.getAnalysisGroups());
         
       }else {
-        analysisNumber = analysisNumber.replaceAll("#", "");
-        StringBuffer buf = new StringBuffer("SELECT a from Analysis as a where a.number = '" + analysisNumber.toUpperCase() + "'");
-        List analyses = sess.createQuery(buf.toString()).list();
-        if (analyses.size() > 0) {
-          a = (Analysis)analyses.get(0);
+        a = GetAnalysis.getAnalysisFromAnalysisNumber(sess, analysisNumber);
+        if(a != null) {
           Hibernate.initialize(a.getAnalysisGroups());
         }
       }
@@ -250,6 +247,17 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  public static Analysis getAnalysisFromAnalysisNumber(Session sess, String  analysisNumber) {
+    Analysis analysis = null;
+    analysisNumber = analysisNumber.replaceAll("#", "");
+    StringBuffer buf = new StringBuffer("SELECT a from Analysis as a where a.number = '" + analysisNumber.toUpperCase() + "'");
+    List analyses = sess.createQuery(buf.toString()).list();
+    if (analyses.size() > 0) {
+      analysis = (Analysis)analyses.get(0);      
+    }
+    return analysis;
   }
   
   private void appendDataTrackNodes(Session sess, Analysis a, Element aNode) throws UnknownPermissionException {
