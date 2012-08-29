@@ -152,7 +152,7 @@
 				return displayText;
 			}			
 			//public function init(showCCNumberField:Boolean, isSubmitExperiment:Boolean):void {
-			public function init(tabSamplesView:TabSamplesView, numPlates:int, specifiedFieldList:Dictionary = null):void {
+			public function init(tabSamplesView:TabSamplesView, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary = null):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
 				this.specifiedFieldList = specifiedFieldList;
@@ -166,6 +166,8 @@
 				
 				// If cap seq with > 1 plate then we need to ask which plate to upload.
 				if (numPlates > 1) {
+					this.width = 200;
+					this.height = 200;
 					vsMain.selectedChild = this.plates;
 					this.radioPlate1.visible = true;
 					this.radioPlate2.visible = true;
@@ -177,7 +179,13 @@
 					if (numPlates < 4) {
 						this.radioPlate4.visible = false;
 					}
+					if (nextPlate > 0 && nextPlate <= numPlates) {
+						this.radioGroupPlate.selectedValue = nextPlate;
+						this.plateContinueButton.enabled = true;
+					}
 				} else {
+					this.width = 738;
+					this.height = 406;
 					vsMain.selectedChild=intro;
 				}
 			}
@@ -207,6 +215,8 @@
 			
 			private function clickPlateContinueButton():void {
 				if (this.radioGroupPlate.selectedValue != null) {
+					this.width = 738;
+					this.height = 406;
 					var plateNumber:int = Number(this.radioGroupPlate.selectedValue);
 					this.startRow = (plateNumber - 1) * 96;
 					vsMain.selectedChild=intro;
