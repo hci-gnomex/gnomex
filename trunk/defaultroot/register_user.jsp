@@ -51,8 +51,12 @@
   function checkAlphaNumeric(e)
   {
      var KeyID = e.keyCode;
-     if(KeyID<32||(KeyID>=33 && KeyID<=47 )||(KeyID>=58 && KeyID<=64 )||(KeyID>=91 && KeyID<=96)||( KeyID>122))
+     if (KeyID == 0) {
+        KeyID = e.which;
+     }
+     if(KeyID<32||(KeyID>=33 && KeyID<=47 )||(KeyID>=58 && KeyID<=64 )||(KeyID>=91 && KeyID<=96)||( KeyID>122)) {
         return false;
+     }
   }
 
 <%
