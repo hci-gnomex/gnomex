@@ -241,10 +241,10 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                     fileName = idSample + "#" + sampleName + "#" + idPlate;
                     response.getOutputStream().print( fileName + "\t" );
                   } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
-                    fileName = sampleName + "_" + primer;
+                    fileName = sampleName + "_" + primer + "_" + idPlateWellString;
                     response.getOutputStream().print( fileName + "\t" );
                   } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
-                    fileName = sampleName + "_" + assay;
+                    fileName = sampleName + "_" + assay + "_" + idPlateWellString;
                     response.getOutputStream().print( fileName + "\t" );
                   }
                   
