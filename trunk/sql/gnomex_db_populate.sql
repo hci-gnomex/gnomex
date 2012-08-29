@@ -861,7 +861,9 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (86,'lucene_topic_index_directory','/home/gnomex/luceneIndex/Topic','The file directory for storing lucene index files on topic data.', 'Y'),
  (87,'billing_gl_journal_line_ref_core_facility','','Always blank for open source GNomEx', 'Y'),
  (88,'billing_gl_journal_id_core_facility','','Always blank for open source GNomEx', 'Y'),
- (89,'generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y');
+ (89,'generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y'),
+ (90,'experiment_default_view', 'my experiments', 'Indicates default experiment view for non-admin users.  Values are "my experiments", "my lab" or "all".', 'N'),
+ (91,'experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.', 'N');
  
  
 

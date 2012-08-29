@@ -137,8 +137,8 @@
         import mx.events.CloseEvent;
         import mx.events.DragEvent;
         import mx.managers.DragManager;
+        import mx.managers.PopUpManager;
         import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
         
         public var selectedIdRequest:Object;
         public var selectedRequestNumber:Object;
@@ -282,6 +282,9 @@
 
 			
 			if (getProjectRequestList.lastResult.@message != "") {
+				if (!parentApplication.isAdminState && !parentApplication.isBillingAdminState) {
+					Alert.show(getProjectRequestList.lastResult.@message);
+				}
 				messageLabel.text = "(" + getProjectRequestList.lastResult.@message + ")";
 			} else {
 				messageLabel.text =  "(" + getProjectRequestList.lastResult.@experimentCount +  " experiments)"; 
@@ -1026,7 +1029,25 @@
 				    selectedRequestNumber = null;
 				    
 				    if (currentState == "" || currentState == null) {
-				    	this.myExperimentsCheckbox.selected = true;
+						var prop:String = "";
+						prop = parentDocument.getProperty(parentApplication.PROPERTY_EXPERIMENT_DEFAULT_VIEW);
+						if (prop != null) prop = prop.toLowerCase();
+						if (prop == 'my lab') {
+							this.myExperimentsCheckbox.selected = false;
+							this.myLabsExperimentsCheckbox.selected = true;
+							this.publicExperimentsOtherGroupsCheckbox.selected = false;
+							this.userAllExperimentsCheckbox.selected = false;
+						} else if (prop == 'all') {
+							this.myExperimentsCheckbox.selected = false;
+							this.myLabsExperimentsCheckbox.selected = false;
+							this.publicExperimentsOtherGroupsCheckbox.selected = false;
+							this.userAllExperimentsCheckbox.selected = true;
+						} else {
+							this.myExperimentsCheckbox.selected = true;
+							this.myLabsExperimentsCheckbox.selected = false;
+							this.publicExperimentsOtherGroupsCheckbox.selected = false;
+							this.userAllExperimentsCheckbox.selected = false;
+						}
 				    }
 				    this.refreshExperiments();
 				    
