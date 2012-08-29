@@ -1993,6 +1993,10 @@
 					currentState = newState.name;
 				}
 				
+				if ( reactionState == SEQ ) {
+					activePlate.getWell(95).setControl(true);
+				}
+				
 				for each ( var obj:Object in statusComboBox.dataProvider ) {
 					if ( obj.@codeInstrumentRunStatus == "PENDING" ) {
 						statusComboBox.selectedItem = obj;
