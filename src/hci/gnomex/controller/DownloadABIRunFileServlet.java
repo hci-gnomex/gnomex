@@ -119,7 +119,8 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         ir = (InstrumentRun)sess.load(InstrumentRun.class, idInstrumentRun);
 
         String runName = ir.getLabel() != null && !ir.getLabel().equals("") ? ir.getLabel() : ir.getIdInstrumentRun().toString();
-        String runFileName = runName.replaceAll("\\s", "-") + ".plt";
+        runName = runName.replaceAll("\\s", "_");
+        String runFileName = runName + ".plt";
 
         // Check permissions 
         if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
@@ -178,7 +179,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         }
         String owner = "";
         AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(ir.getCreator()));
-        owner = user.getDisplayName() != null? user.getDisplayName() : "Core";
+        owner = user.getShortName() != null? user.getShortName() : "Core";
         
         if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
           response.getOutputStream().print( runName + "\t" + plateID + "\tSequencingAnalysis\t384-Well\t" + owner + "\t3730-1\t" + sealTypeText + "\t1234\t\r\n" );
@@ -223,7 +224,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                 String idPlateWellString = well.getAttributeValue("idPlateWell") != null ? well.getAttributeValue("idPlateWell") : "0";
                 String sampleName = well.getAttributeValue( "sampleName" ) != null ? well.getAttributeValue("sampleName") : "";
                 if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals("Y") ) {
-                  sampleName = "control";
+                  sampleName = "pGem";
                 }
                 String idSample = well.getAttributeValue( "idSample" ) != null ? well.getAttributeValue("idSample") : "";
                 String idPlate = well.getAttributeValue( "idPlate" ) != null ? well.getAttributeValue("idPlate") : "";
@@ -235,17 +236,24 @@ public class DownloadABIRunFileServlet extends HttpServlet {
 
                 if ( idPlateWellString != null && !idPlateWellString.equals( "0" ) ) {
                   
+                  if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals("Y") ) {
+                    idSample = idPlateWellString;
+                  }
+                  
                   response.getOutputStream().print( row + String.format( "%02d", col ) + "\t" );
                   
                   String fileName;
                   if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
                     fileName = idSample + "#" + sampleName + "#" + idPlate;
+                    fileName = fileName.replaceAll("\\s", "_");
                     response.getOutputStream().print( fileName + "\t" );
                   } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
                     fileName = sampleName + "_" + primer + "_" + idPlateWellString;
+                    fileName = fileName.replaceAll("\\s", "_");
                     response.getOutputStream().print( fileName + "\t" );
                   } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
                     fileName = sampleName + "_" + assay + "_" + idPlateWellString;
+                    fileName = fileName.replaceAll("\\s", "_");
                     response.getOutputStream().print( fileName + "\t" );
                   }
                   

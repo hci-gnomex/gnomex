@@ -752,7 +752,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Admins - Can only update requests from core facility user manages
       else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
         canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
-        if (req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+        if (req.isDNASeqExperiment().equals("Y") && !(req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) || req.getCodeRequestStatus().equals(RequestStatus.NEW)
+            || (req.getCodeRequestStatus().equals(RequestStatus.PROCESSING) && !req.onReactionPlate()))) {
           canUpdate = false;
         }
       }

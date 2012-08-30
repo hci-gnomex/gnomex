@@ -167,10 +167,16 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
             }
           }      
         }
-
         sess.flush();
-
-        this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\"/>";
+        
+        List plates = sess.createQuery( "SELECT p from Plate as p where p.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
+        if ( plates.size() == 0 ) {
+          sess.delete( ir );
+          sess.flush();
+          this.xmlResult = "<SUCCESS idInstrumentRun=\"-1\"/>";
+        } else {
+          this.xmlResult = "<SUCCESS idInstrumentRun=\"" + ir.getIdInstrumentRun() + "\"/>";
+        }
 
         setResponsePage(this.SUCCESS_JSP);
       } else {
