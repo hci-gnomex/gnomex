@@ -2133,19 +2133,16 @@
 			
 			private function isSampleAdded( item:XML ):Class {
 				
-
-				if(item is XML) {
-					// If icon path defined then use it
-					var itemIcon:String = item.@icon;
-					if(itemIcon != null && itemIcon.length > 0) {
-						return IconUtility.getClass(item, itemIcon, 16, 16);
-					}
-				}
 				
 				if ( sampleTree.dataDescriptor.hasChildren( item )) {
 					for each ( var well:Object in item..Well ) {
 						if ( well.@isOnPlate == null || well.@isOnPlate != true ) {
-							return notifyIcon;
+							var itemIcon:String = item.@icon;
+							if(itemIcon != null && itemIcon.length > 0) {
+								return IconUtility.getClass(item, itemIcon, 16, 16);
+							} else {
+								return notifyIcon;
+							}
 						}
 					}
 					return null;
