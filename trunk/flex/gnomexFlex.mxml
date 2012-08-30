@@ -1674,7 +1674,11 @@
             		if (prop.@value == '') {
             			continue; 
             		}
-            		properties[prop.@propertyName] = prop.@propertyValue;
+					var qualName:String = prop.@propertyName;
+					if (prop.hasOwnProperty("@idCoreFacility") && prop.@idCoreFacility != '') {
+						qualName = prop.@idCoreFacility + '\t' + qualName;
+					}
+            		properties[qualName] = prop.@propertyValue;
             	}
             	pricingURL = getProperty(PROPERTY_PRICING_URL);
 				bulletin = getProperty(PROPERTY_BULLETIN) != null ? getProperty(PROPERTY_BULLETIN) : '';
@@ -1779,7 +1783,24 @@
 					myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");		
 					coreFacilitiesICanManage = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
 				} else {
-					myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
+					var temp:XMLListCollection = new XMLListCollection();
+					for each (var core:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+						var found:Boolean = false;
+						for each (var core2:Object in temp) {
+							if (core.@idCoreFacility == '') {
+								found = true;
+								break;
+							} else if (core.@idCoreFacility == core2.@idCoreFacility) {
+								found = true;
+								break;
+							}
+						}
+						if (!found) {
+							temp.addItem(core);
+						}
+					}
+					myCoreFacilities = new XMLList(temp.toXMLString());
+					//myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
 					coreFacilitiesICanManage = new XMLList();
 					for each(var entry:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
 						for each (var entry1:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
@@ -1875,7 +1896,7 @@
 				if (properties != null) {
 					var qualName:String = idCoreFacility + "\t" + name;
 					result = properties[qualName];
-					if (result == "") {
+					if (result == null || result == "") {
 						result = properties[name];
 					}
 				}

@@ -214,7 +214,7 @@
         	<mx:TextInput width="100%" id="emailAddress"></mx:TextInput>
         </mx:HBox>
         <mx:VBox verticalGap="0" width="100%">
-    	    <mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Microarray Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
+    	    <mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
 	        <mx:CheckBox label="I agree" color="#1500DA" enabled="true" fontSize="11" width="100%" textAlign="center" id="iAgree"  fontWeight="bold" textRollOverColor="#3320E6" textSelectedColor="#3320E6"/>
         </mx:VBox>
     </mx:VBox>

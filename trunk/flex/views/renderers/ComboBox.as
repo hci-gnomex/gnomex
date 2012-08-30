@@ -52,7 +52,7 @@ package views.renderers
             		 		data.@isDirty="Y";
             		 	} else {
             		 		selectTheItem();
-			     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
+			     			Alert.show("This field cannot be changed.");
             		 	}
 		     		} else {
 	            		assignData();
@@ -64,7 +64,7 @@ package views.renderers
             		 	data.@isDirty="Y";
 		     		} else {		
             		 	selectTheItem();
-		     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
+		     			Alert.show("This field cannot be changed.");
 		     		}
             	}
             }	 
