@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
         width="100%"
         creationPolicy="all" show="init()"
-        height="100%" xmlns:util="views.util.*">
+        height="100%" xmlns:util="views.util.*" xmlns:renderers="views.renderers.*">
 
 
  
@@ -2056,11 +2056,14 @@
 							<mx:Label id="billingPeriodLabel" visible="true" text="Period"/>
 							<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130"/>					
 						</mx:HBox>						<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" width="39"/>
-						<mx:ComboBox id="labCombo" 
-									 labelField="@name"
-									 dataProvider="{parentApplication.promptedLabList}"
-									 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()">
-						</mx:ComboBox>				   
+						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+												  labelField="@name" 
+												  prompt="Select a lab..."
+												  width="150"
+												  change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()"
+												  close="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()"
+												  id="labCombo">
+						</renderers:FilterComboBox>   
 					</mx:HBox>
 				      <mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="0" paddingRight="0">
 				      	<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>

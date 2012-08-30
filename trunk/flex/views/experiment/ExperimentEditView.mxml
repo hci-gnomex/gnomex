@@ -697,7 +697,7 @@
 			if (this.isAmendState()) {
 				if (parentApplication.isAdminState) {
 	            	if (labCombo.dataProvider.length > 1) {
-						labCombo.selectedIndex = 1;
+						labCombo.selectedIndex = 0;
 						this.getLabForAddingServices.send();
 					}
 				}		
@@ -4941,12 +4941,15 @@
 				 	
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
-						<mx:ComboBox id="requestEditLabCombo"
-									 labelField="@name" 
-									 change="this.dirty.setDirty();refreshLab()" 
-									 dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
-									 enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-									 width="400"/>
+						<renderers:FilterComboBox id="requestEditLabCombo"
+												  labelField="@name" 
+												  change="this.dirty.setDirty();refreshLab()" 
+												  close="this.dirty.setDirty();refreshLab()" 
+												  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+												  width="400" 
+												  dataProvider="{parentApplication.submitRequestLabList.source}" 
+												  prompt="Select a lab..." >
+						</renderers:FilterComboBox>
 					</mx:HBox>
 					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
@@ -5217,12 +5220,14 @@
                 	<mx:RadioButtonGroup id="radioGroupAmendType"/>
                 	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
                 		<mx:Label text="(1) Verify your lab group." width="194"/>
-                		<mx:ComboBox  id="labCombo" dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
-                			selectedIndex="-1" labelField="@name" 
-                			width="340"
-							close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
-                			change="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}">
-                		</mx:ComboBox>
+						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+												  labelField="@name" 
+												  prompt="Select a lab..."
+												  width="340"
+												  close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
+												  change="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
+												  id="labCombo">
+						</renderers:FilterComboBox>
                 	</mx:HBox>
                 	<mx:HBox id="appUserContainer" width="100%" horizontalGap="8">
                 	       <mx:Text width="194">

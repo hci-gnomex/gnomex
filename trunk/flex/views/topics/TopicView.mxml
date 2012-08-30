@@ -3,6 +3,7 @@
 		  xmlns:mx="http://www.adobe.com/2006/mxml"     
 		  xmlns:views="views.*" 
 		  xmlns:util="views.util.*" 
+		  xmlns:renderers="views.renderers.*" 
 		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" xmlns:util1="util.*">
 	
 	
@@ -277,7 +278,14 @@
 			<mx:Label text="Lab:" width="120" />
 			<mx:ViewStack id="labStack" width="100%">
 				<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="200" labelField="@name" change="labSelected();"></mx:ComboBox>
+					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+											  labelField="@name" 
+											  prompt="Lab..."
+											  width="200"
+											  change="labSelected();" 
+											  close="labSelected();" 
+											  id="labCombo">
+					</renderers:FilterComboBox>
 					<mx:Label text="Owner:" paddingLeft="8"/>
 					<util:ComboBoxDatProvChangeFix width="200" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" change="dirtyTopic.setDirty()"></util:ComboBoxDatProvChangeFix>							         			
 				</mx:HBox>

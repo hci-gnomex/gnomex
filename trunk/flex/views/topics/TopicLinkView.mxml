@@ -4,6 +4,7 @@
 		  xmlns:views="views.*" 
 		  xmlns:datatrack="views.datatrack.*"
 		  xmlns:util="views.util.*" 
+		  xmlns:renderers="views.renderers.*" 
 		  xmlns:topics="views.topics.*" initialize="init();"
 		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
 	
@@ -285,7 +286,7 @@
 				titleLabel.text = "Add " + titleLabel_1.text + " (find and drag to topic)";
 				requestNumber.text = "";
 				var labSelected:Boolean = false;
-				if(labCombo.selectedItem != null && labCombo.selectedIndex > 0) {
+				if(labCombo.selectedItem != null && labCombo.selectedIndex > -1) {
 					labSelected = true;
 				}
 				searchParamsChange(labSelected);
@@ -667,7 +668,14 @@
 				</mx:ComboBox>
 				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange(false);" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
 			</mx:HBox>	
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="200" labelField="@name" prompt="Lab..." change="searchParamsChange(true);" ></mx:ComboBox>
+			<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+									  labelField="@name" 
+									  prompt="Lab..."
+									  width="200"
+									  change="searchParamsChange(true);" 
+									  close="searchParamsChange(true);" 
+									  id="labCombo">
+			</renderers:FilterComboBox>
 			<mx:HBox horizontalGap="2" paddingLeft="8">
 				<mx:Label text="Lookup by #" paddingLeft="8"/>
 				<mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="true"/>
