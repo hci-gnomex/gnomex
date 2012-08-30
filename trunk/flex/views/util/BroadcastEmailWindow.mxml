@@ -31,23 +31,31 @@
 
 <mx:Script>
 	<![CDATA[
+		import flash.net.URLRequest;
+		import flash.net.URLVariables;
+		
+		import mx.controls.Alert;
 		import mx.formatters.NumberFormatter;
+		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.controls.Alert;
-		import flash.net.URLVariables;
-		import flash.net.URLRequest;
 		  
 		[Bindable]	
 		private var fileSelected:Boolean = false;
 			    
+		[Bindable]
+		private var coreFacilitySelected:Boolean = false;
+		
 		private var fileRef:FileReference = null;
 		private var numberFormatter:NumberFormatter = new NumberFormatter();
 		private var uploadURLRequest:URLRequest = null;
 		
 		private function init():void {
 			getUploadURL.send();
+			// If only 1 core facility, they don't have to choose it.
+			if (parentDocument.coreFacilitiesICanManage.length() < 2) {
+				coreFacilitySelected = true;
+			}
 		}
 		
 		private function onGetUploadURL(event:ResultEvent):void {
@@ -108,6 +116,20 @@
 			 	params.subject = subject.text;
 			 	params.format = "text";
 			 	params.body = body.text;
+				var coreIds:String = "";
+				if (parentApplication.coreFacilitiesICanManage.length() < 2) {
+					coreIds = parentApplication.coreFacilitiesICanManage[0].@idCoreFacility;
+				} else {
+					for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+						if (coreFacilityCheckbox[x].selected == true) {
+							if (coreIds != '') {
+								coreIds = coreIds + ',';
+							}
+							coreIds = coreIds + parentApplication.coreFacilitiesICanManage[x].@idCoreFacility;
+						}
+					}
+				}
+				params.coreFacilityIds = coreIds;
 			 	this.sendBroadcastEmail.send(params);
 			}
 			
@@ -138,9 +160,30 @@
         	}
         }
 
+		private function onCoreFacilityClick():void {
+			this.coreFacilitySelected = false;
+			if (parentApplication.coreFacilitiesICanManage.length() < 2) {
+				this.coreFacilitySelected = true;
+			} else {
+				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+					if (coreFacilityCheckbox[x].selected == true) {
+						this.coreFacilitySelected = true;
+						break;
+					}
+				}
+			}
+		}
 	]]>
 </mx:Script>
 	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="coreFacilityHBox"
+				 visible="{parentDocument.coreFacilitiesICanManage.length() > 1}"
+				 includeInLayout="{parentDocument.coreFacilitiesICanManage.length() > 1}" >
+			<mx:Label text="Cores:" width="80"/>
+			<mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.coreFacilitiesICanManage}">
+				<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox" paddingTop="0" paddingBottom="1" click="{onCoreFacilityClick()}" />
+			</mx:Repeater>
+		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Subject:" width="80"/>
 			<mx:TextInput width="100%" id="subject"/>
@@ -167,7 +210,7 @@
 		</mx:VBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="{(fileSelected || this.body.text != '') &amp;&amp; subject.text != ''}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
+		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="{(fileSelected || this.body.text != '') &amp;&amp; subject.text != '' &amp;&amp; coreFacilitySelected}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 
