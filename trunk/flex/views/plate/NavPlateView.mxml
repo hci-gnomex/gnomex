@@ -455,7 +455,7 @@
 				var plateObject:Object = activePlate.plateObject;
 				var wellCount:int = 0;
 				
-				plateNumberText.text = activePlate.idPlate.toString();
+				plateNumberText.text = activePlate.idPlate.toString() != "-1" ? activePlate.idPlate.toString() : "";
 				plateNameText.text = activePlate.label;
 				plateCommentsText.text = activePlate.comments;
 				
@@ -1436,7 +1436,7 @@
 					return;
 				}
 				if ( !hasPlates ) {
-					Alert.show( "No plates have been added to the run.  Do you still want to save?", "No plates", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
+					Alert.show( "All plates have been removed from the run.  The run will be deleted.  Do you still want to save?", "Empty Run", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
 					return;
 				}
 				Alert.show( "Are you sure you want to save run?", "Confirm Save Run", ( Alert.YES | Alert.NO ), this, onPromptToSaveRun, iconWarning );
@@ -1505,7 +1505,12 @@
 					refreshLists();
 					
 					tabNav.selectedChild = runTab;
-					callLater( loadRunById, [ saveInstrumentRun.lastResult.@idInstrumentRun ]);
+					if ( saveInstrumentRun.lastResult.@idInstrumentRun == "-1" ) {
+						removeRun();
+						switchToNewState();
+					} else {
+						callLater( loadRunById, [ saveInstrumentRun.lastResult.@idInstrumentRun ]);
+					}
 					
 				} else {
 					Alert.show( "An error occurred while saving the instrument run." );
@@ -2006,7 +2011,7 @@
 				}
 				sealComboBox.selectedIndex = -1;
 				runSealComboBox.selectedIndex = -1;
-				
+				displayPlateInfo();
 				callLater( function():void {
 					if ( buildState == PLATE ) {
 						tabNav.selectedChild = samplesTab;

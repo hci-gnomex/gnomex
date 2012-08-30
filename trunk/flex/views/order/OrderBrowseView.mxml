@@ -178,10 +178,7 @@
 					parentView.selectedRequest = orderGrid.selectedItem;
 				}
 				
-				if ( event.columnIndex == 2 || event.columnIndex == 1) {
-					parentView.switchToOrderEditView();
-				}
-				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
+				if ( event.columnIndex != 0  ) {
 					orderGrid.selectedIndex = -1;
 				}
 				
@@ -816,7 +813,7 @@
 					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110"/>
 					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70"/>
 					
-					<mx:DataGridColumn dataField="@submitterName" headerText="Submitter" width="100"/>
+					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="100"/>
 
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
 

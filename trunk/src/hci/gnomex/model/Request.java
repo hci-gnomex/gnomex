@@ -1126,4 +1126,26 @@ public class Request extends HibernateDetailObject {
     }
     return assays;
   }
+  
+  public Boolean onReactionPlate() {
+    
+    boolean onReactionPlate = false;
+    
+    
+      // Find out if the samples are on a reaction plate.  If they
+      // are, flag the request so that appropriate warnings
+      // can be displayed if the data is changed.
+      for (Sample s : (Set<Sample>)this.getSamples()) {
+        for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+          if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+              onReactionPlate = true;
+              break;
+          }
+        }
+      }
+
+    return onReactionPlate;
+    
+  }
+  
 }

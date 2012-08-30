@@ -228,7 +228,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     // Admins - Can only update requests from core facility user manages
     else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
       canUpdate = this.getSecAdvisor().isCoreFacilityIManage(idCoreFacility);
-      if (isDNASeqExperiment && !codeRequestStatus.equals(RequestStatus.SUBMITTED) && !codeRequestStatus.equals(RequestStatus.NEW)) {
+      if (isDNASeqExperiment && !(codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.NEW)
+          || (codeRequestStatus.equals( RequestStatus.PROCESSING ) && node.getAttributeValue( "plateLabel").equals( "" )))) {
         canUpdate = false;
       }
     }
