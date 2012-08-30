@@ -370,6 +370,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
             AppUser a = (AppUser)i.next();
             labAssociatedIds.add(a.getIdAppUser());
           }
+          if (labAssociatedIds.size() == 0) {
+            labAssociatedIds.add(-1);
+          }
           String deleteProjectString = "select p from Project p " +
             "where p.idLab is not null " +
             "and p.idAppUser not in (:ids) " +
