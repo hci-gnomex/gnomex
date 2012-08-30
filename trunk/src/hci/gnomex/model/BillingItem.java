@@ -362,7 +362,7 @@ public class BillingItem extends HibernateDetailObject {
       if (invFromIds.getIdInvoice() == null) {
         // new invoice
         sess.save(invFromIds);
-        invFromIds.setInvoiceNumber("I" + invFromIds.getIdInvoice().toString());
+        invFromIds.setInvoiceNumber("I-" + invFromIds.getIdInvoice().toString());
       }
       this.setIdInvoice(invFromIds.getIdInvoice());
       this.setInvoice(invFromIds);
