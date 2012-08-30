@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 import com.oreilly.servlet.multipart.FilePart;
@@ -93,8 +95,26 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
       }
       
       
-      // Get a list of all active users with email accounts
-      List appUsers = sess.createQuery("SELECT a from AppUser a where a.isActive = 'Y' and a.email is not NULL and a.email != '' ORDER BY a.lastName, a.firstName ").list();
+      // Get a list of all active users with email accounts for selected cores.
+      String appUserQueryString = "SELECT a from AppUser a join a.labs l join l.coreFacilities c " +
+                                    " where a.isActive = 'Y' and a.email is not NULL and a.email != '' and c.idCoreFacility in (:ids) ORDER BY a.lastName, a.firstName ";
+      ArrayList<Integer> coreIds = new ArrayList<Integer>();
+      if (req.getParameter("coreFacilityIds") != null && !req.getParameter("coreFacilityIds").equals("")) {
+        String idsFromReq = req.getParameter("coreFacilityIds");
+        if (idsFromReq.indexOf(",") < 0) {
+          coreIds.add(Integer.parseInt(idsFromReq));
+        } else {
+          String[] ids = idsFromReq.split(",");
+          for(String id:ids) {
+            coreIds.add(Integer.parseInt(id));
+          }
+        }
+      } else {
+        coreIds.add(-1);
+      }
+      Query appUserQuery = sess.createQuery(appUserQueryString);
+      appUserQuery.setParameterList("ids", coreIds);
+      List appUsers = appUserQuery.list();
       
       
       if (req.getParameter("body") != null && !req.getParameter("body").equals("")) {
