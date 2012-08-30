@@ -4,6 +4,7 @@
 	xmlns:views="views.*" 
 	xmlns:experiment="views.experiment.*"
 	xmlns:util="views.util.*"
+	xmlns:renderers="views.renderers.*"
 	creationPolicy="all"  show="init()"
 	cornerRadius="10"  >
      
@@ -1192,7 +1193,7 @@
 		}
 	    
 	    private function getMembersOfLab():void {
-			if (this.browseLabCombo.selectedItem.@idLab != null) {
+			if (this.browseLabCombo.selectedItem != null && this.browseLabCombo.selectedItem.@idLab != null) {
 				getLab.send();				
 			}
 		}
@@ -1584,12 +1585,14 @@
 				<mx:CheckBox label="All experiments" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());"/>
 				<mx:VRule height="20"/>
 				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
-				<mx:ComboBox id="browseLabCombo" 
-					labelField="@name"
-					dataProvider="{parentApplication.promptedLabList}"
-					 change="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
-					 visible="true"  width="200">
-				</mx:ComboBox>
+				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+										  labelField="@name" 
+										  prompt="Select a lab..."
+										  width="200"
+										  change="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
+										  close="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
+										  id="browseLabCombo">
+				</renderers:FilterComboBox>
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">
 				<mx:Label id="userLabel" visible="true" text="Requester" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
 				<mx:ComboBox id="browseUserCombo" 

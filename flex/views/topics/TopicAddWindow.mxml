@@ -8,6 +8,7 @@
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconTopic}"
 	xmlns:util="views.util.*" 
+	xmlns:renderers="views.renderers.*" 
 	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
 
 	<mx:HTTPService             
@@ -203,7 +204,14 @@
 		</mx:HBox>		
 		<mx:HBox width="100%" >
 			<mx:Label text="Group" width="105"/>
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="308" labelField="@name" change="labSelected();"></mx:ComboBox>
+			<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+									  labelField="@name" 
+									  prompt="Lab..."
+									  width="308"
+									  change="labSelected();" 
+									  close="labSelected();" 
+									  id="labCombo">
+			</renderers:FilterComboBox>
 		</mx:HBox>		
 		<mx:HBox width="100%" >
 			<mx:Label text="Owner" width="105"/>

@@ -22,6 +22,7 @@
 * Fixed a bug where the plate information was still displayed after clicking 'New Plate'.  (mbowler)
 * Removed the '-1' on Plate ID when plate is new.  (mbowler)
 * Allow creation of work authorizations for all authorized core facilities at request creation time.  (bspiglejr)
+* Changed most of the lab and app user combo boxes to filter combo boxes. (mbowler)
 
 deploy notes 
 --------------------

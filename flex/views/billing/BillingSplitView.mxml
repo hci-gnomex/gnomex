@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
-	width="772" height="280" defaultButton="{saveButton}"> 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
+	width="772" height="280" defaultButton="{saveButton}" xmlns:renderers="views.renderers.*"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -108,7 +108,10 @@
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
 			}
 			var blankNode:XML = new XML("<BillingAccount idLab='' labName='' idBillingAccount='' accountName=''/>");
-			billingAccounts.addItemAt(blankNode, 0);			
+			billingAccounts.addItemAt(blankNode, 0);	
+			
+			billingAccountCombo.validateNow();
+			billingAccountCombo.selectedIndex = 0;
 		}
 		private function getLabName(item:Object,col:int):String
         {
@@ -301,7 +304,14 @@
 		</mx:HBox>
 		<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
 			<mx:Label text="Split with:"/>
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="160" labelField="@name" change="getLab.send()"></mx:ComboBox>
+			<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+									  labelField="@name" 
+									  prompt="Select a lab..."
+									  width="160"
+									  change="getLab.send()"
+									  close="getLab.send()"
+									  id="labCombo">
+			</renderers:FilterComboBox>
 			<mx:Label text="Account:" paddingLeft="4"/>
 			<mx:VBox verticalGap="0" width="100%">
 				<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"></mx:ComboBox>
