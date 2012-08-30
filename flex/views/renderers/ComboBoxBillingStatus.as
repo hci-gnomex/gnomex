@@ -80,7 +80,7 @@ package views.renderers
 			if (parentApplication.hasPermission("canManageBilling")) {
 		 		assignData();	
 		 	} else {
-     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
+     			Alert.show("This field cannot be changed.");
 		 	}
         } 
 	}

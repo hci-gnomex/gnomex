@@ -21,10 +21,27 @@
 * Removed link to edit view from order name on order review screen.  (mbowler)
 * Fixed a bug where the plate information was still displayed after clicking 'New Plate'.  (mbowler)
 * Removed the '-1' on Plate ID when plate is new.  (mbowler)
+* Allow creation of work authorizations for all authorized core facilities at request creation time.  (bspiglejr)
 
 deploy notes 
 --------------------
 * at deploy time:  alter table FlowCellChannel alter column [read1ClustersPassedFilterM] numeric(6,2)  
+* May wish to run following code to get work authorizations right.
+declare @idDNA int
+declare @idMicro int
+select @idDNA = idCoreFacility from CoreFacility where facilityName like '%DNA%'
+select @idMicro = idCoreFacility from CoreFacility where facilityName like '%Micro%'
+begin transaction
+select * from PropertyDictionary where propertyName like '%workauth2%'
+update PropertyDictionary set idCoreFacility=@idMicro where propertyName like '%workauth2%' and idCoreFacility is null
+update PropertyDictionary set propertyValue='Micro Array Work Authorization (external customers)' where idCoreFacility=1 and propertyName='workAuth2_name'
+insert into PropertyDictionary(propertyName, propertyValue, forServerOnly, idCoreFacility)
+  values('workauth2_url', 'doc/dnaseq_core_work_authorization_form.pdf', 'N', @idDNA)
+insert into PropertyDictionary(propertyName, propertyValue, forServerOnly, idCoreFacility)
+  values('workauth2_name', 'DNA Sequencing Work Authorization', 'N', @idDNA)
+select * from PropertyDictionary where propertyName like '%workauth2%'
+rollback transaction
+
 
 5.4.7
 ---------------------
