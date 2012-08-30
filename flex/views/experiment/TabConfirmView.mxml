@@ -58,6 +58,21 @@
 			parentDocument.getEstimatedBilling();
 			parentDocument.getMultiplexLanes();
 			
+			if(parentDocument.request.@captureLibDesignId != ""){
+				capLibDesignBox.visible = true;
+				capLibDesignBox.includeInLayout = true;
+				avgInsertSizeBox.includeInLayout = false;
+				capLibLabel.text = parentDocument.request.@captureLibDesignId;
+			}
+			
+			if(parentDocument.request.@avgInsertSizeFrom != ""){
+				avgInsertSizeBox.visible = true;
+				avgInsertSizeBox.includeInLayout = true;
+				capLibDesignBox.includeInLayout = false;
+				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' - ' + parentDocument.request.@avgInsertSizeTo;
+				
+			}
+			
 			submitterName = parentDocument.getSubmitterName();
 			
 			longDescriptionRowCount = 0;
@@ -481,6 +496,14 @@
 						<mx:Label id="experimentName" width="200" alpha="0.8"  text="{parentDocument.isAmendState() ? parentDocument.request.@name
 								  : ''}"/>
 					</mx:VBox>
+					<mx:VBox id="capLibDesignBox" visible="false" includeInLayout="false">
+						<mx:Label text="Capture Library Design Id" textDecoration="underline" height="16"/>
+						<mx:Label id="capLibLabel" alpha="0.8" text=""/>
+					</mx:VBox>
+					<mx:VBox id="avgInsertSizeBox" visible="false" includeInLayout="false">
+						<mx:Label text="Insert Ranges" textDecoration="underline" height="16"/>
+						<mx:Label id="avgInsertSizeLabel" alpha="0.8" text=""/>
+					</mx:VBox>
 					<mx:VBox id="sampleDropOffLocationVbox" visible="false">
 						<mx:Label text="Sample Drop Off Location" textDecoration="underline" height="16"/>
 						<mx:Label id="sampleDropOffLocation" width="200" alpha="0.8"  text="{parentDocument.sampleSetupView.sampleDropOffLocationCombo.selectedItem.@display}"/>
@@ -506,7 +529,7 @@
 						<mx:Label text="Note for Bioinformatics Group" textDecoration="underline"/>
 						<util:TextAreaWorkaround width="100%" editable="false"  id="bioNotes" backgroundAlpha="0.8" 
 												 backgroundColor="#FFFFFF"
-												 text="{parentDocument.isAmendState() ? parentDocument.request.@analysisInstructinos : ''}" borderColor="#E3E6E8"/>
+												 text="{parentDocument.isAmendState() ? parentDocument.request.@analysisInstructions : ''}" borderColor="#E3E6E8"/>
 					</mx:VBox>
 				</mx:HBox>
 			</mx:VBox>
