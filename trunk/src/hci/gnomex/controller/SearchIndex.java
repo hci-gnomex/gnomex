@@ -206,7 +206,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
       
       
-      if (ph.getProperty(PropertyDictionary.TOPICS_SUPPORTED) != null && ph.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
+      if (ph.getProperty(PropertyDictionary.TOPICS_SUPPORTED) != null && ph.getProperty(PropertyDictionary.TOPICS_SUPPORTED).equals("Y")) {
         topicsSupported = true;
       }
       
