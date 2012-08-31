@@ -31,31 +31,6 @@
 		useProxy="false">
 	</mx:HTTPService >
 	
-	<mx:HTTPService  
-		id="getUploadPurchaseOrderURL" 
-		url="UploadPurchaseOrderURL.gx"
-		resultFormat="e4x"
-		showBusyCursor="true" 
-		result="onGetUploadPurchaseOrderURL(event)" 
-		fault="parentApplication.onFailHttpRequest('Failed to get purchase order upload URL', event)"
-		method="POST"
-		useProxy="false">
-	</mx:HTTPService>
-	
-	<mx:HTTPService 
-		id="deletePurchaseForm" 
-		url="DeletePurchaseForm.gx"
-		destination="deletePurchaseForm"
-		showBusyCursor="true"
-		resultFormat="e4x"
-		result="onDeletePurchaseForm(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to delete group', event)"
-		useProxy="false">
-		<mx:request>
-			<idBillingAccount>{billingAccounts.getItemAt(billingAccountGrid.selectedIndex).@idBillingAccount}</idBillingAccount>
-		</mx:request>
-	</mx:HTTPService >
-	
 	<mx:HTTPService 
 		id="getLab" 
 		url="GetLab.gx"
@@ -114,8 +89,6 @@
 				appUsers.refresh();
 				
 				parentApplication.promptedAppUserList.refresh();
-				//Get the upload purchase order URL
-				getUploadPurchaseOrderURL.send();
 				
 				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 				
@@ -514,7 +487,10 @@
 				var theGrid:DataGrid = DataGrid(event.target);
 				// Mark that this billing account is dirty.  We will only warn about
 				// validation when the billing account has been changed.
-				setDirtyBillingAccount(theGrid.dataProvider.getItemAt(event.rowIndex));
+				
+				if(theGrid.columns[event.columnIndex].headerText != "Document"){
+					setDirtyBillingAccount(theGrid.dataProvider.getItemAt(event.rowIndex));
+				}
 				
 				// PO checkbox, account name, expiration date, and total amount are always editable
 				if (event.dataField == '@isPO' || event.dataField == '@accountName' 
@@ -539,74 +515,6 @@
 				
 			}
 			
-			public function prepareToUploadPDF(event:MouseEvent):void{
-				if(dirty.isDirty()){
-					Alert.show("Please save existing changes before attempting to upload a purchase order form.");
-					return;
-				}
-				else if(billingAccounts[billingAccountGrid.selectedIndex].@orderFormFileType != ''){
-					Alert.show("By uploading a new purchase form you will overwrite the existing purchase form.\n\nContinue anyway?",
-						null, (Alert.YES | Alert.NO), this, continueToUpload);
-				}
-				else{
-					uploadPDF();
-				}
-				
-			}
-			
-			private function continueToUpload(event:CloseEvent):void{
-				if (event.detail == Alert.YES) {
-					uploadPDF();
-				}
-			}
-			
-			private function uploadPDF():void{
-				fileRef.addEventListener(Event.SELECT, selectHandler);
-				fileRef.addEventListener(Event.COMPLETE, completeHandler);
-				fileRef.browse(new Array(new FileFilter("(*.pdf, *.doc, *.txt, *.html, *.zip, *.xls)", "*.pdf; *.doc; *.txt; *.html; *.zip; *.xls")));
-			}
-			
-			private function onGetUploadPurchaseOrderURL(event:ResultEvent):void{
-				if (getUploadPurchaseOrderURL.lastResult.name() == "UploadPurchaseOrderURL") {
-					uploadPurchaseOrderURL = getUploadPurchaseOrderURL.lastResult.@url;
-				}
-			}
-			
-			private function selectHandler(event:Event):void{
-				var request:URLRequest = new URLRequest(uploadPurchaseOrderURL);
-				request.method = URLRequestMethod.POST;
-				
-				var variables:URLVariables = new URLVariables();
-				variables.idBillingAccount = billingAccounts[billingAccountGrid.selectedIndex].@idBillingAccount;
-				request.data = variables;
-				fileRef.upload(request);
-			}
-			
-			private function completeHandler(event:Event):void{
-				billingAccounts[billingAccountGrid.selectedIndex].@orderFormFileType = fileRef.type;
-				Alert.show("File uploaded successfully");
-			}
-			
-			public function viewOrder(event:MouseEvent):void{
-				var billingAccount:int = (int)(billingAccounts[billingAccountGrid.selectedIndex].@idBillingAccount);
-				var url:URLRequest = new URLRequest('GetPurchaseOrderForm.gx?idBillingAccount=' + billingAccount);
-				url.method = URLRequestMethod.POST;
-				navigateToURL(url, '_blank');
-			}
-			
-			public function removeOrder(event:MouseEvent):void{
-				deletePurchaseForm.send();
-			}
-			
-			private function onDeletePurchaseForm(event:ResultEvent):void{
-				if(deletePurchaseForm.lastResult.name() == "SUCCESS"){
-					billingAccounts[billingAccountGrid.selectedIndex].@orderFormFileType = "";
-				}
-				else{
-					Alert.show(deletePurchaseForm.lastResult..ACTMESSAGE.@TEXT);
-				}
-			}
-			
 			public function initForNewLab():void {
 				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
 					var facility:Object = coreFacilities.getItemAt(x);
@@ -618,6 +526,19 @@
 						}
 					}
 				}
+			}
+			
+			public function showEditPurchaseOrderWindow(event:MouseEvent):void{
+				if(dirty.isDirty()){
+					Alert.show("Please save existing changes before attempting to upload/remove/view a purchase order form.");
+					return;
+				}
+				var editWindow:EditBillingDocumentWindow = EditBillingDocumentWindow(mx.managers.PopUpManager.createPopUp(this, EditBillingDocumentWindow, true));
+				editWindow.parentView = this;
+				mx.managers.PopUpManager.centerPopUp(editWindow);
+				this.setFocus();
+				
+				
 			}
 			
 			private function getSelectedCoreFacilities():XMLListCollection {
@@ -870,24 +791,26 @@
 										   itemRenderer="{views.renderers.CheckBoxIsPO.create()}" >
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
-						<mx:DataGridColumn headerText="Upload Document" editable="false" headerWordWrap="true" id="uploadForm">
+						<mx:DataGridColumn dataField="@expirationDate" width="75"
+										   headerText="Expires"  
+										   itemEditor="views.renderers.DateFieldExpiration" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getExpirationDateString"
+										   editorDataField="selectedDate"/>
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
+						<mx:DataGridColumn headerText="Document" width="100">
 							<mx:itemRenderer>
 								<mx:Component>
-									<mx:Button label="Upload" enabled="{data.@isPO == 'Y'}"  toolTip="Click to upload purchase order pdf" click="outerDocument.prepareToUploadPDF(event)"/>
-								</mx:Component>
-							</mx:itemRenderer>
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="View Document" headerWordWrap="true" editable="false">
-							<mx:itemRenderer>
-								<mx:Component>
-									<mx:LinkButton label="View" enabled="{data.@orderFormFileType != ''}" visible="{data.orderFormFileType != ''}" click="outerDocument.viewOrder(event)" color="#0000FF"/>
-								</mx:Component>
-							</mx:itemRenderer>
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Remove Document" id="removeDoc" headerWordWrap="true" editable="false">
-							<mx:itemRenderer>
-								<mx:Component>
-									<mx:LinkButton label="Remove" enabled="{data.@orderFormFileType != ''}" visible="{data.orderFormFileType != ''}" click="outerDocument.removeOrder(event)" color="#0000FF"/>
+									<mx:LinkButton label="View/Upload/Remove Document" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF" enabled="{data.@isPO == 'Y'}" />
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
@@ -898,29 +821,13 @@
 										   rendererIsEditor="false" 
 										   labelFunction="getStartDateString"
 										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="75"
-										   headerText="Expires"  
-										   itemEditor="views.renderers.DateFieldExpiration" 
-										   itemRenderer="mx.controls.Label" 
-										   rendererIsEditor="false" 
-										   labelFunction="getExpirationDateString"
-										   editorDataField="selectedDate"/>
 						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
 										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
 										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
 						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
 						<mx:DataGridColumn headerText="Total $ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="80"/>
-						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
-						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
-						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
-						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
-						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
-						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
-						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
-						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
 						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50"/>
-						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
 					</mx:columns>
 				</mx:DataGrid>
 				<mx:Spacer height="8"/>
