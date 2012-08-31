@@ -1426,7 +1426,7 @@
 				</mx:VBox>
     			</mx:Canvas>
 				
-				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUploadData == 'Y'}" >
+				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUploadData == 'Y'}" request="{this.selectedExperiment}" >
 				</experiment:ExperimentDownloadView>
 				
 				<mx:HBox width="100%" horizontalGap="0" id="topicsTab" label="Topics">
