@@ -3,6 +3,7 @@
 	layout="vertical" 
 	title="Add Analysis" height="330"
 	xmlns:util="views.util.*" 
+	xmlns:renderers="views.renderers.*" 
 	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	 
     <mx:HTTPService 
@@ -104,7 +105,7 @@
 			} 
 			
 			if (!foundLab) {
-				labCombo.selectedIndex = 0;
+				labCombo.selectedIndex = -1;
 				getAnalysisGroupList.send();
 			}
 			callGetLab();
@@ -271,7 +272,7 @@
 		private function refreshAnalysisGroups():void {
 			if (parentApplication.navAnalysisView.currentState == "AdminState") {
 				for each(var l:Object in parentApplication.navAnalysisView.labList) {
-					if (l.@idLab == labCombo.selectedItem.@idLab) {
+					if (labCombo.selectedItem != null && l.@idLab == labCombo.selectedItem.@idLab) {
 						l.@isSelected = 'true';
 						parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
 						parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
@@ -281,7 +282,9 @@
 				}
 				callGetLab();
 			}
-			parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
+			if ( labCombo.selectedItem != null ){
+				parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
+			}	
 			callLater(parentApplication.navAnalysisView.refreshAnalysis);
 			getAnalysisGroupList.send();
 		}
@@ -391,11 +394,14 @@
 					<mx:Label width="115" text="Group"/>
 				</mx:VBox>								
 				<mx:VBox verticalGap="0">
-					<mx:ComboBox id="labCombo"
-								 labelField="@name"
-								 dataProvider="{parentApplication.submitRequestLabList}"
-								 visible="true" width="336" change="refreshAnalysisGroups();checkCompleteness()">
-					</mx:ComboBox>
+					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+											  labelField="@name" 
+											  prompt="Select a lab..."
+											  width="336"
+											  change="refreshAnalysisGroups();checkCompleteness()" 
+											  close="refreshAnalysisGroups();checkCompleteness()"
+											  id="labCombo">
+					</renderers:FilterComboBox>
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
@@ -441,9 +447,14 @@
 					<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
 				</mx:VBox>								
 				<mx:VBox verticalGap="0">
-					<mx:ComboBox  width="336" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
-					<mx:dataProvider>{organisms}</mx:dataProvider>
-					</mx:ComboBox>
+					<renderers:FilterComboBox labelField="@display"
+											  prompt="Organism..."
+											  change="filteredGenomeBuildList.refresh();checkCompleteness();"
+											  close="filteredGenomeBuildList.refresh();checkCompleteness();"
+											  id="organismCombo"
+											  dataProvider="{organisms.source}"
+											  width="336">
+					</renderers:FilterComboBox>
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>
