@@ -2,6 +2,7 @@
 <mx:Canvas label="Sample setup" 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
+	xmlns:renderers="views.renderers.*"
 	 width="100%" height="100%" >
 <mx:Script>
 	<![CDATA[
@@ -840,10 +841,14 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
-				<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
-					<mx:dataProvider>{parentApplication.organismList}</mx:dataProvider>
-					<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
-				</mx:ComboBox> 
+				<renderers:FilterComboBox labelField="@display"
+										  prompt="Organism..."
+										  change="pickOrganism()"
+										  close="pickOrganism()"
+										  id="sampleOrganismCombo"
+										  dataProvider="{parentApplication.organismList.source}"
+										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
+				</renderers:FilterComboBox>
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>

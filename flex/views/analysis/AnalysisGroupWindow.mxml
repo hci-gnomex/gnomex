@@ -4,6 +4,7 @@
 	xmlns:views="views.*" 
 	xmlns:analysis="views.analysis.*"
 	xmlns:util="views.util.*"
+	xmlns:renderers="views.renderers.*"
 	showCloseButton="true" 
 	close="closeWindow()" 
 	title="New Analysis Group" 
@@ -34,7 +35,7 @@
 		private function onLabChange():void {
 			if (parentApplication.navAnalysisView.currentState == "AdminState") {
 				for each(var l:Object in parentApplication.navAnalysisView.labList) {
-					if (l.@idLab == labCombo.selectedItem.@idLab) {
+					if (labCombo.selectedItem != null && l.@idLab == labCombo.selectedItem.@idLab) {
 						l.@isSelected = 'true';
 						parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
 						parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
@@ -43,7 +44,9 @@
 					}
 				}
 			}
-			parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
+			if ( labCombo.selectedItem != null ) {
+				parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
+			}
 			callLater(parentApplication.navAnalysisView.refreshAnalysis);
 		}
 
@@ -78,11 +81,15 @@
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingLeft="4" paddingRight="4" >
-		<mx:ComboBox id="labCombo" 
-		 labelField="@name"
-		 dataProvider="{parentApplication.submitRequestLabList}"
-		 visible="true" width="220" change="onLabChange()">
-		</mx:ComboBox>
+		<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+								  labelField="@name" 
+								  prompt="Select a lab..."
+								  width="220"
+								  change="onLabChange()" 
+								  close="onLabChange()" 
+								  id="labCombo">
+		</renderers:FilterComboBox>
+		
 		
 		<analysis:AnalysisGroupView id="analysisGroupDetailView">
 		</analysis:AnalysisGroupView>
