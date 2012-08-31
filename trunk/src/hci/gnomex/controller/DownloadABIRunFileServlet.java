@@ -182,11 +182,11 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         owner = user.getShortName() != null? user.getShortName() : "Core";
         
         if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
-          response.getOutputStream().print( runName + "\t" + plateID + "\tSequencingAnalysis\t384-Well\t" + owner + "\t3730-1\t" + sealTypeText + "\t1234\t\r\n" );
+          response.getOutputStream().print( runName + "\t" + plateID + "\t\tSequencingAnalysis\t384-Well\t" + owner + "\t3730-1\t" + sealTypeText + "\t1234\t\r\n" );
         } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )){
-          response.getOutputStream().print( runName + "\t" + plateID + "\tSequencingAnalysis\t384-Well\t" + owner + "\t" + owner + "\t" + sealTypeText + "\t1234\t\r\n" );
+          response.getOutputStream().print( runName + "\t" + plateID + "\t\tSequencingAnalysis\t384-Well\t" + owner + "\t" + owner + "\t" + sealTypeText + "\t1234\t\r\n" );
         } else {
-          response.getOutputStream().print( runName + "\t" + plateID + "\t384-Well\tRegular\t" + owner + "\t" + owner + "\t" +  sealTypeText + "\t1234\t\n" );
+          response.getOutputStream().print( runName + "\t" + plateID + "\t\t384-Well\tRegular\t" + owner + "\t" + owner + "\t" +  sealTypeText + "\t1234\t\n" );
           response.getOutputStream().print( "AppServer\tAppInstance\t\n" );
           response.getOutputStream().print( "GeneMapper\tGeneMapper_Generic_Instance\t\n" );
         }
