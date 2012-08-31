@@ -25,7 +25,16 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   private Set      options = new TreeSet();
   private Set      organisms = new TreeSet();
   private Set      platforms = new TreeSet();
+  private Set      analysisTypes = new TreeSet();
   
+
+  public Set getAnalysisTypes() {
+    return analysisTypes;
+  }
+
+  public void setAnalysisTypes(Set analysisTypes) {
+    this.analysisTypes = analysisTypes;
+  }
 
   public String getDisplay() {
     String display = this.getNonNullString(getName());

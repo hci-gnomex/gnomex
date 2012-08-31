@@ -1752,6 +1752,23 @@ CREATE TABLE `gnomex`.`Property` (
 ENGINE = INNODB;
 
 
+-- Add table PropertyAnalysisType
+DROP TABLE IF EXISTS `gnomex`.`PropertyAnalysisType`;
+CREATE TABLE gnomex.PropertyAnalysisType ( 
+     idProperty	int(10),
+     idAnalysisType           INT(10),
+     PRIMARY KEY (idProperty, idAnalysisType),
+    CONSTRAINT FK_PropertyAnalysisType_Property FOREIGN KEY FK_PropertyAnalysisType_Property (idProperty)
+    REFERENCES gnomex.Property (idProperty)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_PropertyAnalysisType_AnalysisType FOREIGN KEY FK_PropertyAnalysisType_AnalysisType (idAnalysisType)
+    REFERENCES gnomex.AnalysisType (idAnalysisType)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`PropertyPlatform`;
 -- Add table PropertyOrganism
 DROP TABLE IF EXISTS `gnomex`.`PropertyOrganism`;
 CREATE TABLE gnomex.PropertyOrganism ( 
