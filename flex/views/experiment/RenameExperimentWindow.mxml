@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="370" title="Rename Experiment/Folder" height="98"
+				horizontalScrollPolicy="off" verticalScrollPolicy="off" xmlns:util="views.util.*">
+	
+	
+	<mx:HTTPService  
+		id="organizeExperimentUploadFiles" 
+		url="OrganizeExperimentUploadFiles.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onOrganizeExperimentUploadFiles(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to organize experiment upload files', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			public var fileList:XMLListCollection;
+			
+			[Bindable]
+			public var oldExperimentName:String = "";
+			
+			public var idRequest:Object;
+			
+			private function save():void{
+				var params:Object = new Object();
+				params.idRequest = idRequest;
+				
+				for each(var file:XML in fileList.children()){
+					if(file.@displayName == oldExperimentName){
+						var extension:String = file.@displayName;
+						if(nameExperiment.text.lastIndexOf(".") == -1){
+							file.@displayName = nameExperiment.text + extension.substring(extension.lastIndexOf("."));
+						}
+						else{
+							file.@displayName = nameExperiment.text;
+						}
+						break;
+					}
+				}
+				
+				params.filesXMLString = fileList.toXMLString();
+				organizeExperimentUploadFiles.send(params);
+			}
+			
+			private function onOrganizeExperimentUploadFiles(event:ResultEvent):void{
+				if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
+					mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+				}
+				else{
+					dispatchEvent(new Event("refreshUploadFiles", true));
+					PopUpManager.removePopUp(this);
+				}
+				
+			}
+
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%" height="100%">
+			<mx:Label text="Name:" width="49"/>
+			<mx:TextInput id="nameExperiment" width="100%" text="{oldExperimentName}" change="this.dirty.setDirty()"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:Spacer  width="100%" height="10"/>		
+			<util:DirtyNote id="dirty"/>
+			<mx:Button label="Save" id="saveButton"  enabled="true" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')"/>	      	
+			<mx:Button label="Close" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" />	      	
+		</mx:HBox>
+	</mx:VBox>
+	
+</mx:TitleWindow>
