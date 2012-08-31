@@ -4,7 +4,7 @@
 		<![CDATA[
 			import mx.collections.XMLListCollection;
 			import mx.managers.PopUpManager;
-
+			
 			import views.admin.PropertyWindow;
 
 			[Bindable]
@@ -219,12 +219,19 @@
 			
 			private function showPropertyConfigWindow():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
+				configWindow.addEventListener("updateProperties", updateProperties);
 				PopUpManager.centerPopUp(configWindow);
 				configWindow.showSampleAnnotations.selected = false;
 				configWindow.showAnalysisAnnotations.selected = true;
 				configWindow.showDataTrackAnnotations.selected = false;
 				configWindow.onPropertyRefreshed(null);
 				
+			}
+			
+			public function updateProperties(event:Event):void{
+				parentApplication.dictionaryManager.call("reload", "");
+				parentApplication.getPropertyList.send();
+				parentDocument.refreshAnalysis();
 			}
 		]]>
 	</mx:Script>
