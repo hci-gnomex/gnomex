@@ -68,6 +68,9 @@
     
     [Bindable]
     public var downloadSizeMessage:String = new String();
+	 
+	[Bindalbe]
+	public var request:Object;
     
     [Bindable]
     public var browseMessage:String = new String();
@@ -88,9 +91,8 @@
     private var filesExceedingMaxMessage:String = "";
   	
   	public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
-      
-    
-    private var dateFormatter:DateFormatter = new DateFormatter();
+	 
+	private var dateFormatter:DateFormatter = new DateFormatter();
         
     private function onGetRequestDownloadList(event:ResultEvent): void {
 		if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
@@ -270,7 +272,7 @@
 		 var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
 		 var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
 		 if (idRequest != null && idRequest != "") {
-			 ExperimentEditView.showExperimentUploadWindow(parentApplication.theBody, idRequest, requestNumber);		 
+			 ExperimentEditView.showExperimentUploadWindow(parentApplication.theBody, request, new ExperimentEditView, this);
 		 }
 	 }
 	 
@@ -278,7 +280,7 @@
 		 var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
 		 var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
 		 if (idRequest != null && idRequest != "") {
-			 ExperimentEditView.showExperimentOrganizeWindow(parentApplication.theBody, idRequest, requestNumber);		 
+			 ExperimentEditView.showExperimentOrganizeWindow(parentApplication.theBody, request, new ExperimentEditView, this);		 
 		 }
 	 }
 	 
@@ -286,7 +288,7 @@
 		 var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
 		 var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
 		 if (idRequest != null && idRequest != "") {
-			 ExperimentEditView.showExperimentUploadFDTWindow(parentApplication.theBody, idRequest, requestNumber);		 
+			 ExperimentEditView.showExperimentUploadFDTWindow(parentApplication.theBody, request);		 
 		 }
 	 }
 
