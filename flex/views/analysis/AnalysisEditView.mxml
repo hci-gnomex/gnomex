@@ -792,7 +792,7 @@
 				uploadWindow = null;
 			}
 			
-			private function refreshAnalysis():void {
+			public function refreshAnalysis():void {
 				// refresh analysis
 				var parms:Object = new Object();
 				parms.idAnalysis = analysis.@idAnalysis;
