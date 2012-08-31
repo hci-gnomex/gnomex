@@ -21,6 +21,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   protected Document   doc;
   protected Map        fileNameMap = new HashMap();
   protected List       newDirectoryNames = new ArrayList();
+  protected Map        filesToRename = new HashMap();
   
   public FileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -34,11 +35,14 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     Element root = this.doc.getRootElement();
     
     
-    for(Iterator i = root.getChildren("RequestDownload").iterator(); i.hasNext();) {
+    for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element folderNode = (Element)i.next();      
-      String requestNumber = folderNode.getAttributeValue("requestNumber");
-      String []keyTokens = folderNode.getAttributeValue("key").split("-");
-      String directoryName = keyTokens[3];
+      String fileName = folderNode.getAttributeValue("fileName");
+      String displayName = folderNode.getAttributeValue("displayName");
+      String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
+      if(!newFileName.equals(fileName)){
+        filesToRename.put(fileName, newFileName);
+      }
       
       // Keep track of all new folders
       recurseDirectories(folderNode, null);
@@ -51,12 +55,11 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   private void recurseDirectories(Element folderNode, String parentDir) {
     String directoryName = null;
     if (folderNode.getName().equals("RequestDownload")) {
-      String []keyTokens = folderNode.getAttributeValue("key").split("-");
-      directoryName = keyTokens[3];
+      directoryName = folderNode.getAttributeValue("fileName");
       
     } else {
       if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir"))
-      directoryName = folderNode.getAttributeValue("displayName");
+      directoryName = folderNode.getAttributeValue("fileName");
     }
     
     if (directoryName == null) {
@@ -86,12 +89,6 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       }
       fileNames.add(fileName);
     }
-
-    
-    for(Iterator i = folderNode.getChildren("RequestDownload").iterator(); i.hasNext();) {
-      Element childFolderNode = (Element)i.next();
-      recurseDirectories(childFolderNode, qualifiedDir);
-    }
     
     for(Iterator i = folderNode.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element childFolderNode = (Element)i.next();
@@ -103,7 +100,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   public List getNewDirectoryNames() {
     return newDirectoryNames;
   }
-  
+ 
   public List parseFilesToRemove() throws Exception {
     ArrayList fileNames = new ArrayList();
     
@@ -121,6 +118,9 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   public Map getFileNameMap() {
     return fileNameMap;
   }
-
-
+  
+  public Map getFilesToRenameMap(){
+    return filesToRename;
+  }
+  
 }
