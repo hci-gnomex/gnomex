@@ -23,7 +23,12 @@
 * Removed the '-1' on Plate ID when plate is new.  (mbowler)
 * Allow creation of work authorizations for all authorized core facilities at request creation time.  (bspiglejr)
 * Changed most of the lab and app user combo boxes to filter combo boxes. (mbowler)
+* Allow organization and deletion of files on the experiment view. (tcourdy)
+* Changed layout of group detail billing account view.  More important information is now up front. (tcourdy)
+* Changed the file upload feature on the group detail billing account view.  It now pops up a new window to complete the task which frees up more room in the grid. (tcourdy)
+* Fixed bug that wasn't showing the average insert size or capture lib design id on the confirmation tab when submitting a new experiment. (tcourdy)
 * Fixed bug in Topics search. (rcundick)
+
 
 deploy notes 
 --------------------
