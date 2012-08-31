@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.naming.NamingException;
@@ -35,6 +36,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
@@ -310,9 +312,36 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     for (Property property : dh.getPropertyList()) {
 
       if (property.getForAnalysis() == null || !property.getForAnalysis().equals("Y")) {
+        // Skip if this property isn't applicable to Analysis
         continue;
       }
+      
+      // Check to see if there are Analysis Type restrictions
+      Set analysisTypeRestrictions = property.getAnalysisTypes();
+      if(analysisTypeRestrictions != null && analysisTypeRestrictions.size() > 0) {
+        Integer at = analysis.getIdAnalysisType();
+        if(at != null) {
+          boolean atFound = false;
+          for(Iterator i = analysisTypeRestrictions.iterator(); i.hasNext();) {
+            AnalysisType thisAT = (AnalysisType)i.next();
+            if(at.compareTo(thisAT.getIdAnalysisType())==0) {
+              atFound = true;
+              break;
+            }
+          }
+          if(!atFound) {
+            // If the analysis type has been specified but is not on the "restrict by" list 
+            // then don't show the annotation. 
+            continue;
+          }
+        } else {
+          // If the analysis type has not been specified a "restrict by" list exists
+          // then don't show the annotation. 
+          continue;
+        }
+      }
 
+      // Find the analysis data corresponding to this property (if present) 
       PropertyEntry ap = null;
       for(Iterator i = analysis.getPropertyEntries().iterator(); i.hasNext();) {
         PropertyEntry propertyEntry = (PropertyEntry)i.next();

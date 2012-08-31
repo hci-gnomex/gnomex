@@ -28,7 +28,9 @@
 * Changed the file upload feature on the group detail billing account view.  It now pops up a new window to complete the task which frees up more room in the grid. (tcourdy)
 * Fixed bug that wasn't showing the average insert size or capture lib design id on the confirmation tab when submitting a new experiment. (tcourdy)
 * Fixed bug in Topics search. (rcundick)
-
+* Added feature to allow restriction of annotations by annotation type. (rcundick)
+* Added check to prevent use of "Sample Name" and "Organism" as annotation names. (rcundick)
+* Changed build.xml to include meta tags to eliminate browser caching for gnomexFlex.jsp and gnomexGuestFlex.jsp. (rcundick)
 
 deploy notes 
 --------------------

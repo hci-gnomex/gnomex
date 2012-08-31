@@ -1632,6 +1632,10 @@
 			<key column="idProperty"/>
 			<many-to-many column="codeRequestCategory" class="hci.gnomex.model.RequestCategory"/>			
 		</set>
+		<set name="analysisTypes" table="PropertyAnalysisType" lazy="false" cascade="none">
+			<key column="idProperty"/>
+			<many-to-many column="idAnalysisType" class="hci.gnomex.model.AnalysisType"/>			
+		</set>
 
 			
 	</class>

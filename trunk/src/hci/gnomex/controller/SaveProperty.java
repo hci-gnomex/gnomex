@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Property;
@@ -48,6 +49,9 @@ public class SaveProperty extends GNomExCommand implements Serializable {
   
   private String                         platformsXMLString;
   private Document                       platformsDoc;
+
+  private String                         analysisTypesXMLString;
+  private Document                       analysisTypesDoc;
 
   private Property                       propertyScreen;
   private boolean                        isNewProperty = false;
@@ -103,6 +107,18 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       } catch (JDOMException je ) {
         log.error( "Cannot parse platformsXMLString", je );
         this.addInvalidField( "platformsXMLString", "Invalid platformsXMLString");
+      }
+    }
+      
+    if (request.getParameter("analysisTypesXMLString") != null && !request.getParameter("analysisTypesXMLString").equals("")) {
+      analysisTypesXMLString = request.getParameter("analysisTypesXMLString");
+      StringReader reader = new StringReader(analysisTypesXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        analysisTypesDoc = sax.build(reader);     
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse analysisTypesXMLString", je );
+        this.addInvalidField( "analysisTypesXMLString", "Invalid analysisTypesXMLString");
       }
     }
       
@@ -224,6 +240,19 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         }
         sc.setPlatforms(platforms);
         
+        //
+        // Save property analysisTypes
+        //
+        TreeSet analysisTypes = new TreeSet(new AnalysisTypeComparator());
+        if (analysisTypesDoc != null) {
+          for(Iterator i = this.analysisTypesDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+            Element analysisTypeNode = (Element)i.next();
+            AnalysisType at = (AnalysisType)sess.load(AnalysisType.class, Integer.valueOf(analysisTypeNode.getAttributeValue("idAnalysisType")));
+            analysisTypes.add(at);
+          }
+        }
+        sc.setAnalysisTypes(analysisTypes);
+        
         
         sess.flush();
         
@@ -288,4 +317,14 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       
     }
   }
+  private class AnalysisTypeComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      AnalysisType a1 = (AnalysisType)o1;
+      AnalysisType a2 = (AnalysisType)o2;
+      
+      return a1.getIdAnalysisType().compareTo(a2.getIdAnalysisType());
+      
+    }
+  }
+
 }
