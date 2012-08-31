@@ -3,7 +3,7 @@
 				width="1022" height="522.1212" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
-				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				 showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
 				title="Configure Annotations">
 	
 <mx:HTTPService  
@@ -36,7 +36,6 @@
 		
 		import views.admin.PropertyEvent;
 		import views.util.DirtyNote;
-	
 		
 	private var idProperty:Object = null;
 		
@@ -292,8 +291,9 @@
 	private function onSaveProperty(event:ResultEvent): void {
 		if (saveProperty.lastResult.name() == "SUCCESS") {
 			idProperty = saveProperty.lastResult.@idProperty;
-
+			parentApplication.dictionaryManager.call("reload", "");
 			parentApplication.getPropertyList.send();
+			dispatchEvent(new Event("updateProperties"));
 		} else {
 			mx.controls.Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 		}
@@ -470,7 +470,7 @@
 			<mx:Button id="saveButton" label="Save"  enabled="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}"
 					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
 			</mx:Button>
-			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this);}"/>
 			
 		</mx:ControlBar>
 	</mx:VBox>
