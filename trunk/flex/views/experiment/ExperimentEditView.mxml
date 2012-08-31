@@ -3317,7 +3317,7 @@
 					(Alert.YES | Alert.NO | Alert.CANCEL), this, 
 					onPromptToUpload);
 			} else {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.request, this, this.downloadView);				
 			}
 			
 		}
@@ -3327,9 +3327,9 @@
 			Alert.noLabel = "No";
 			Alert.buttonWidth = alertButtonWidth;
 			if (event.detail==Alert.YES) {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.request, this, this.downloadView);				
 			} else if (event.detail == Alert.NO) {
-				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
+				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), this.request);				
 			}
 		}
 		
@@ -4241,33 +4241,28 @@
    			convertWindow.init(this.request);
     	}
     	
-    	public static function showExperimentUploadWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+    	public static function showExperimentUploadWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			experimentEditView.downloadView = experimentDownloadView;
+			uploadWindow.parentView = experimentEditView;
 			PopUpManager.centerPopUp(uploadWindow);
-			uploadWindow.init(idRequest, requestNumber);
+			uploadWindow.init(request);
     		
     	}
 			
-			
-		public static function showExperimenOrganizeWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+		public static function showExperimentOrganizeWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			experimentEditView.downloadView = experimentDownloadView;
+			uploadWindow.parentView = experimentEditView;
 			PopUpManager.centerPopUp(uploadWindow);
-			uploadWindow.init(idRequest, requestNumber);
-			uploadWindow.theTab.selectedIndex = 1;
-			
-		}
-			
-		public static function showExperimentOrganizeWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
-			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
-			PopUpManager.centerPopUp(uploadWindow);
-			uploadWindow.init(idRequest, requestNumber);
+			uploadWindow.init(request);
 			uploadWindow.theTab.selectedIndex = 1;
 		}
 
-		public static function showExperimentUploadFDTWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+		public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
 			PopUpManager.centerPopUp(uploadWindow);
-			uploadWindow.init(idRequest, requestNumber);
+			uploadWindow.init(request);
 			uploadWindow.uploadFilesStack.selectedIndex = 1;
 		}
 
@@ -4415,7 +4410,7 @@
 				return params;					
 			}
 			
-			private function getBrowseParametersOrderView():Object {
+			public function getBrowseParametersOrderView():Object {
 				var params:Object = new Object();
 				params.idRequest = request.@idRequest;
 				params.idLab = request.@idLab;
@@ -4427,6 +4422,7 @@
 				
 				return params;					
 			}
+			
 			
 			public function reloadDownloadList():void {
 				// Getting the download list is slow since we now show an expanded file
@@ -4741,7 +4737,7 @@
 			<experiment:TabConfirmView id="confirmView">				
 			</experiment:TabConfirmView>
 			
-			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" uploadButtonsVisible="true" removeFileButtonsVisible="true" visible="false" includeInLayout="false" >
+			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" uploadButtonsVisible="true" removeFileButtonsVisible="true" visible="false" includeInLayout="false" request="{this.request}" >
 			</experiment:ExperimentDownloadView>
 				
 		</mx:TabNavigator>
