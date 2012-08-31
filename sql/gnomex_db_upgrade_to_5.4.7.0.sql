@@ -11,9 +11,9 @@ values('billing_gl_journal_line_ref_core_facility','','Always blank for open sou
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly) 
 values('billing_gl_journal_id_core_facility','','Always blank for open source GNomEx', 'Y');
 insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly) 
-	values('generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y')
+	values('generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y');
 insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly) 
-	values('lucene_topic_index_directory', '/home/gnomex/luceneIndex/Topic', 'The file directory for storing lucene index files on topic data.', 'Y')
+	values('lucene_topic_index_directory', '/home/gnomex/luceneIndex/Topic', 'The file directory for storing lucene index files on topic data.', 'Y');
 
 -- Add Invoice table
 CREATE TABLE `gnomex`.`Invoice` (
