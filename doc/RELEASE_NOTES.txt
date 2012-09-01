@@ -31,6 +31,7 @@
 * Added feature to allow restriction of annotations by annotation type. (rcundick)
 * Added check to prevent use of "Sample Name" and "Organism" as annotation names. (rcundick)
 * Changed build.xml to include meta tags to eliminate browser caching for gnomexFlex.jsp and gnomexGuestFlex.jsp. (rcundick)
+* Reduced length of data track labels on data track navigation window. (rcundick)
 * Fixed bug that was causing the property list on the analysis annotation tab to not refresh properly after the user added a new property.(tcourdy)
 
 deploy notes 

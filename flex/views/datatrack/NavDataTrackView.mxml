@@ -235,7 +235,6 @@
 	import mx.rpc.events.ResultEvent;
 	
 	import views.datatrack.RefreshDAS2ProgressWindow;
-	
 	import views.renderers.TreeNodeRenderer;
 	
 	private static var alertButtonWidthDefault:Number = Alert.buttonWidth;
@@ -1640,7 +1639,8 @@
 	
 	public function getTreeLabel(item:Object):String {
 		if (item.name() == "DataTrack") {
-			return item.@number + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
+			return item.@number + " - " + item.@label;
+			
 		} else {
 			return item.@label;
 		}
