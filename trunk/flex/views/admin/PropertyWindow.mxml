@@ -309,14 +309,14 @@
 <mx:XMLListCollection id="analysisTypes" source="{propertyList.selectedItem.analysisTypes.AnalysisType}"/>
 <mx:VBox width="100%" height="100%" verticalGap="0">
 	
-	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')" verticalAlign="middle" horizontalGap="0">
-		<mx:LinkButton label="Add annotation" styleName="linkMenuButton" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
-		<mx:LinkButton label="Remove annotation" styleName="linkMenuButton" click="removeProperty()" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/menubar.png')" verticalAlign="middle" horizontalGap="0" height="30" backgroundSize="100%">
+		<mx:LinkButton label="Add annotation" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" color="#FFFFFF"/>
+		<mx:LinkButton label="Remove annotation" styleName="linkMenuButton" click="removeProperty()" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" color="#FFFFFF" fontSize="11"/>
 		<mx:VRule height="18"/> 
-		<mx:Label text="Show Annotations For:"  paddingLeft="10"/>
-		<mx:CheckBox label="Sample" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="false"/>
-		<mx:CheckBox label="Analysis" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false"/>
-		<mx:CheckBox label="DataTrack" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="false"/>
+		<mx:Label text="Show Annotations For:"  paddingLeft="10" color="#FFFFFF" fontSize="11"/>
+		<mx:CheckBox label="Sample" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="false" color="#FFFFFF"/>
+		<mx:CheckBox label="Analysis" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false" color="#FFFFFF"/>
+		<mx:CheckBox label="DataTrack" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="false" color="#FFFFFF"/>
 	</mx:HBox>
 	
 <mx:HDividedBox height="100%" width="100%" >

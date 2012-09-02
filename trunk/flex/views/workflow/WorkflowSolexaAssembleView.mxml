@@ -3,10 +3,10 @@
 	width="100%" height="100%"
 	xmlns:util="views.util.*">
 	
-<mx:HBox>
-	<mx:Image source="assets/text_align_justify.png"/>
+<mx:HBox verticalAlign="middle">
+	<mx:Image source="{parentApplication.iconSolexa}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
-		text=""/>
+		text="" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
 	<mx:TextArea styleName="instructionBox" wordWrap="false" height="20" paddingLeft="4" paddingRight="4" width="600">
 		<mx:htmlText><![CDATA[To assemble flow cell, drag ctrl or seq. req. onto flow cell.  To drag multiple, hold SHIFT or CTRL key while selecting.]]></mx:htmlText>
 	</mx:TextArea>	

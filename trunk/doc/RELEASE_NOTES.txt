@@ -54,7 +54,7 @@ select * from PropertyDictionary where propertyName like '%workauth2%'
 rollback transaction
 
 
-5.4.7
+5.4.7  (Aug 30, 2012)
 ---------------------
 * Require admins with abilities to manage > 1 core facility choose the core facility in the Billing view. (bspiglejr)
 * When invoice (for PO billing account) sent to billing contact, also send a copy to billing admins for the core facility. (bspiglejr)

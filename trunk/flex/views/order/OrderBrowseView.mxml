@@ -2,110 +2,8 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*"  
-		 verticalGap="0">
-<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="20">
-	<mx:HBox horizontalGap="0">
-		<mx:Image source="assets/review.png"/>
-		<mx:Label id="titleLabel" styleName="titleLabel" text="Review Orders" fontWeight="bold" paddingRight="50"/>			
-	</mx:HBox>
+		 verticalGap="3">
 	
-	<mx:HBox id = "statusCheckboxBar"
-			 horizontalGap = "0"
-			 height = "100%"
-			 verticalAlign = "middle"
-			 verticalGap = "0"
-			 horizontalAlign = "right"
-			 paddingLeft = "5">
-		<mx:CheckBox label = "New"
-					 id = "newCheckbox"
-					 horizontalGap = "0"
-					 styleName = "labelSmall"
-					 paddingLeft = "2" selected="false">
-			<mx:click>
-				toggleStatusCheckboxes( 1 );
-				this.getList();
-			</mx:click>
-			
-		</mx:CheckBox>
-		
-		<mx:CheckBox label = "Submitted"
-					 id = "submittedCheckbox"
-					 paddingLeft = "2"
-					 horizontalGap = "0"
-					 styleName = "labelSmall" selected="true">
-			<mx:click>
-				toggleStatusCheckboxes( 3 );
-				this.getList();
-			</mx:click>
-			
-		</mx:CheckBox>
-		
-		<mx:CheckBox label = "Processing"
-					 id = "processingCheckbox"
-					 paddingLeft = "2"
-					 horizontalGap = "0"
-					 styleName = "labelSmall">
-			<mx:click>
-				toggleStatusCheckboxes( 2 );
-				this.getList();
-			</mx:click>
-		</mx:CheckBox>
-		
-		
-		<mx:CheckBox label = "Complete"
-					 id = "completeCheckbox"
-					 paddingLeft = "2"
-					 horizontalGap = "0"
-					 styleName = "labelSmall">
-			<mx:click>
-				toggleStatusCheckboxes( 4 );
-				this.getList();
-			</mx:click>
-			
-		</mx:CheckBox>
-		
-		<mx:CheckBox label = "Failed"
-					 id = "failedCheckbox"
-					 paddingLeft = "2"
-					 horizontalGap = "0"
-					 styleName = "labelSmall">
-			<mx:click>
-				toggleStatusCheckboxes( 5 );
-				this.getList();
-			</mx:click>
-			
-		</mx:CheckBox>
-		
-	</mx:HBox>
-	<mx:VRule height = "20" />
-
-	<mx:HBox horizontalGap="0"
-			 height="100%"
-			 verticalAlign="middle"
-			 verticalGap="0"
-			 width="150" >
-		
-		<mx:Label text="Order #" />
-
-		<mx:VRule height = "20" />
-
-		<mx:TextInput id="requestNoLookupField"
-					  fontSize="9"
-					  height="19"
-					  width="60"
-					  enter="{requestNoLookupFieldEntered()}" />
-		
-		
-	</mx:HBox>
-	<mx:Spacer width="100%"/>
-
-	<mx:LinkButton textDecoration = "underline"
-				   label = "Refresh"
-				   click = "{this.getList();}"
-				   icon = "@Embed('../../assets/action_refresh.gif')"
-				   toolTip = "Refresh order list"  styleName="labelSmall"/>
-</mx:HBox>
-	 
 	
 	<mx:HTTPService 
 		id="getRequestList" 
@@ -570,160 +468,271 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox  width="100%">
+	<mx:VBox width="100%" styleName="panelBox"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+		<mx:VBox width="100%">
+			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="20">
+				<mx:HBox horizontalGap="0">
+					<mx:Image source="assets/review.png"/>
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" fontWeight="bold" paddingRight="50" fontFamily="Tahoma" fontSize="14"/>			
+				</mx:HBox>
+				
+				<mx:HBox id = "statusCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5">
+					<mx:CheckBox label = "New"
+								 id = "newCheckbox"
+								 horizontalGap = "0"
+								 styleName = "labelSmall"
+								 paddingLeft = "2" selected="false">
+						<mx:click>
+							toggleStatusCheckboxes( 1 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Submitted"
+								 id = "submittedCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" selected="true">
+						<mx:click>
+							toggleStatusCheckboxes( 3 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Processing"
+								 id = "processingCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 2 );
+							this.getList();
+						</mx:click>
+					</mx:CheckBox>
+					
+					
+					<mx:CheckBox label = "Complete"
+								 id = "completeCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 4 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Failed"
+								 id = "failedCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 5 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				<mx:VRule height = "20" />
+				
+				<mx:HBox horizontalGap="0"
+						 height="100%"
+						 verticalAlign="middle"
+						 verticalGap="0"
+						 width="150" >
+					
+					<mx:Label text="Order #" />
+					
+					<mx:VRule height = "20" />
+					
+					<mx:TextInput id="requestNoLookupField"
+								  fontSize="9"
+								  height="19"
+								  width="60"
+								  enter="{requestNoLookupFieldEntered()}" />
+					
+					
+				</mx:HBox>
+				<mx:Spacer width="100%"/>
+				
+				<mx:LinkButton textDecoration = "underline"
+							   label = "Refresh"
+							   click = "{this.getList();}"
+							   icon = "@Embed('../../assets/action_refresh.gif')"
+							   toolTip = "Refresh order list"  styleName="labelSmall"/>
+			</mx:HBox>
+			
+		</mx:VBox>
 		
-		<mx:HBox id = "filterBar"
-				 horizontalGap = "20"
-				 paddingTop = "0"
-				 paddingBottom = "4"
-				 paddingLeft = "181"
-				 horizontalAlign = "left"
-				 verticalAlign = "middle">
-			<mx:CheckBox label = "Redos"
-						 id = "redoCheckbox"
-						 paddingLeft = "2"
-						 horizontalGap = "0"						
-						 styleName = "labelSmall">
-				<mx:click>
-					this.requestNoLookupField.text = "";this.getList();
-				</mx:click>
-			</mx:CheckBox>
-			<mx:VRule height = "20" />
+		
+		
+		<mx:VBox  width="100%">
 			
-
-			
-			<mx:HBox id = "typeCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5"
-					 paddingRight = "5">
-				
-				<mx:CheckBox label = "Sanger Seq"
-							 id = "capSeqCheckbox"
-							 horizontalGap = "0"
-							 styleName = "labelSmall"
-							 paddingLeft = "2">
-					<mx:click>
-						toggleTypeCheckboxes( 1 );
-						getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox label = "Frag Analysis"
-							 id = "fragCheckbox"
+			<mx:HBox id = "filterBar"
+					 horizontalGap = "20"
+					 paddingTop = "0"
+					 paddingBottom = "4"
+					 paddingLeft = "145"
+					 horizontalAlign = "left"
+					 verticalAlign = "middle">
+				<mx:CheckBox label = "Redos"
+							 id = "redoCheckbox"
 							 paddingLeft = "2"
-							 horizontalGap = "0"
+							 horizontalGap = "0"						
 							 styleName = "labelSmall">
 					<mx:click>
-						toggleTypeCheckboxes( 2 );
-						getList();
+						this.requestNoLookupField.text = "";this.getList();
 					</mx:click>
-					
 				</mx:CheckBox>
+				<mx:VRule height = "20" />
 				
-				<mx:CheckBox label = "Mit Seq"
-							 id = "mitoCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleTypeCheckboxes( 3 );
-						getList();
-					</mx:click>
-					
-				</mx:CheckBox>
 				
-				<mx:CheckBox label = "Cherry Pick"
-							 id = "cherryCheckbox"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleTypeCheckboxes( 4 );
-						getList();
-					</mx:click>
+				
+				<mx:HBox id = "typeCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
 					
-				</mx:CheckBox>
+					<mx:CheckBox label = "Sanger Seq"
+								 id = "capSeqCheckbox"
+								 horizontalGap = "0"
+								 styleName = "labelSmall"
+								 paddingLeft = "2">
+						<mx:click>
+							toggleTypeCheckboxes( 1 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Frag Analysis"
+								 id = "fragCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleTypeCheckboxes( 2 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Mit Seq"
+								 id = "mitoCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleTypeCheckboxes( 3 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Cherry Pick"
+								 id = "cherryCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleTypeCheckboxes( 4 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+				</mx:HBox>
+				
+				
+				<mx:VRule height = "20" />
+				
+				
+				<mx:HBox id = "dateCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
+					<mx:CheckBox id = "createdLastWeekCheckbox"
+								 label = "Created in last week"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 paddingLeft = "2"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleCreateDateCheckboxes( 1 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "createdLastMonthCheckbox"
+								 label = "month"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleCreateDateCheckboxes( 2 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "createdLastThreeMonthsCheckbox"
+								 label = "3 months"
+								 paddingRight = "0"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleCreateDateCheckboxes( 3 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id = "createdLastYearCheckbox"
+								 label = "year"
+								 paddingLeft = "2"
+								 paddingRight = "0"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" 
+								 visible="false" 
+								 includeInLayout="false">
+						<mx:click>
+							toggleCreateDateCheckboxes( 4 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				
+				
 			</mx:HBox>
 			
 			
-			<mx:VRule height = "20" />
-
 			
-			<mx:HBox id = "dateCheckboxBar"
-					 horizontalGap = "0"
-					 height = "100%"
-					 verticalAlign = "middle"
-					 verticalGap = "0"
-					 horizontalAlign = "right"
-					 paddingLeft = "5"
-					 paddingRight = "5">
-				<mx:CheckBox id = "createdLastWeekCheckbox"
-							 label = "Created in last week"
-							 paddingRight = "0"
-							 horizontalGap = "0"
-							 paddingLeft = "2"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox id = "createdLastMonthCheckbox"
-							 label = "month"
-							 paddingRight = "0"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 2 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox id = "createdLastThreeMonthsCheckbox"
-							 label = "3 months"
-							 paddingRight = "0"
-							 paddingLeft = "2"
-							 horizontalGap = "0"
-							 styleName = "labelSmall">
-					<mx:click>
-						toggleCreateDateCheckboxes( 3 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox id = "createdLastYearCheckbox"
-							 label = "year"
-							 paddingLeft = "2"
-							 paddingRight = "0"
-							 horizontalGap = "0"
-							 styleName = "labelSmall" 
-							 visible="false" 
-							 includeInLayout="false">
-					<mx:click>
-						toggleCreateDateCheckboxes( 4 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-			</mx:HBox>
-
+		</mx:VBox>
 			
-		</mx:HBox>
-		
-		
-		
-	</mx:VBox>
+		</mx:VBox>
 	
 	
 		

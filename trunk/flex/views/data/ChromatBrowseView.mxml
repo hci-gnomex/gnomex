@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"
+<mx:VBox 
 		 xmlns:mx="http://www.adobe.com/2006/mxml"
 		 width="100%"
 		 height="100%"
@@ -7,68 +7,7 @@
 		 xmlns:renderers="views.renderers.*"
 		 show="init()"
 		 initialize="init()"
-		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0">
-	
-	<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2" verticalAlign="middle" width="100%">
-		<mx:Image source="assets/tv_chart_review.png"/>
-		<mx:Label id="titleLabel" styleName="titleLabel" text="Review Results "  fontWeight="bold"/>
-		<mx:Spacer width="30"/>
-		
-		
-		
-		<mx:HBox horizontalGap="0"
-				 verticalAlign="middle"
-				 verticalGap="0"
-				 id="hbox1aa" paddingLeft="10">
-			<mx:Label text="Plate Name" />
-			
-			<mx:TextInput id="plateNameLookupField"
-						  fontSize="9"
-						  height="19"
-						  width="80"
-						  enter="{plateNameFieldSearch()}" />
-		</mx:HBox>
-		
-		
-		
-		<mx:HBox horizontalGap="0"
-				 height="100%"
-				 verticalAlign="middle"
-				 verticalGap="0"
-				 id="hbox1aaa" paddingLeft="10">
-			<mx:Label text="Run Name" />
-			
-			<mx:TextInput id="runNameLookupField"
-						  fontSize="9"
-						  height="19"
-						  width="70"
-						  enter="{runNameFieldSearch()}" />
-			
-		</mx:HBox>
-		
-		
-		<mx:HBox horizontalGap="0"
-				 verticalAlign="middle"
-				 verticalGap="0"
-				 id="hbox1" paddingLeft="10">
-			<mx:Label text="Order #" />
-			
-			<mx:TextInput id="requestNoLookupField"
-						  fontSize="9"
-						  height="19"
-						  width="50"
-						  enter="{requestNoFieldSearch()}" />
-		</mx:HBox>
-		<mx:Spacer width="100%"/>
-		<mx:LinkButton textDecoration="underline"
-					   label="Refresh"
-					   icon="@Embed('../../assets/action_refresh.gif')"
-					   toolTip="Refresh chromatogram list"
-					   click="{this.getList();}"  paddingLeft="8" id="linkbutton3"/>
-		
-	</mx:HBox>
-	
-	
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="3">
 	<mx:HTTPService id="getChromatogramList"
 					url="GetChromatogramList.gx"
 					resultFormat="e4x"
@@ -621,128 +560,192 @@
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
 	
-	<mx:VBox paddingLeft="2" width="100%" verticalGap="0" id="vbox1">
-		
-		
-		<mx:HBox id="filterBar"
-				 horizontalGap="8"
-				 paddingTop="4"
-				 paddingBottom="4"
-				 paddingLeft="0"
-				 horizontalAlign="left"
-				 verticalAlign="middle">
+	<mx:VBox width="100%" styleName="panelBox" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+		<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2" verticalAlign="middle" width="100%">
+			<mx:Image source="assets/tv_chart_review.png"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="Results"  fontWeight="bold" fontFamily="Tahoma" fontSize="14"/>
+			<mx:Spacer width="30"/>
+			
+			
 			
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
 					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="5">
-				<mx:CheckBox id="capSeqCheckbox"
-							 label="Sanger seq"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0"
-							 selected="true" >
-					<mx:click>
-						actionDictionary.source = dictXML.action;
-						toggleReactionCheckboxes( 0 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				<mx:CheckBox id="mitSeqCheckbox"
-							 label="Mitochondrial seq"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0">
-					<mx:click>
-						toggleReactionCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
+					 id="hbox1aa" paddingLeft="10">
+				<mx:Label text="Plate Name" />
+				
+				<mx:TextInput id="plateNameLookupField"
+							  fontSize="9"
+							  height="19"
+							  width="80"
+							  enter="{plateNameFieldSearch()}" />
+			</mx:HBox>
+			
+			
+			
+			<mx:HBox horizontalGap="0"
+					 height="100%"
+					 verticalAlign="middle"
+					 verticalGap="0"
+					 id="hbox1aaa" paddingLeft="10">
+				<mx:Label text="Run Name" />
+				
+				<mx:TextInput id="runNameLookupField"
+							  fontSize="9"
+							  height="19"
+							  width="70"
+							  enter="{runNameFieldSearch()}" />
 				
 			</mx:HBox>
-			<mx:VRule height="20" />
+			
 			
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
 					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingRight="5"
-					 paddingLeft="5">
-				<mx:CheckBox id="lastWeekCheckbox"
-							 label="Created in last week"
-							 paddingRight="0"
-							 paddingLeft="0"
-							 horizontalGap="0">
-					<mx:click>
-						toggleDateCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
+					 id="hbox1" paddingLeft="10">
+				<mx:Label text="Order #" />
 				
-				<mx:CheckBox id="lastMonthCheckbox"
-							 label="month"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0">
-					<mx:click>
-						toggleDateCheckboxes( 2 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-				<mx:CheckBox id="lastThreeMonthsCheckbox"
-							 label="3 months"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0">
-					<mx:click>
-						toggleDateCheckboxes( 3 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
+				<mx:TextInput id="requestNoLookupField"
+							  fontSize="9"
+							  height="19"
+							  width="50"
+							  enter="{requestNoFieldSearch()}" />
 			</mx:HBox>
-			<mx:VRule height="20" />
-			<mx:HBox horizontalGap="0"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 horizontalAlign="right"
-					 paddingLeft="5"
-					 paddingRight="5">
-				<mx:CheckBox id="notReleasedCheckbox"
-							 label="Not released"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0" >
-					<mx:click>
-						toggleReleaseCheckboxes( 1 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				<mx:CheckBox id="releasedCheckbox"
-							 label="Released"
-							 paddingRight="0"
-							 paddingLeft="2"
-							 horizontalGap="0" >
-					<mx:click>
-						toggleReleaseCheckboxes( 2 );
-						this.getList();
-					</mx:click>
-					
-				</mx:CheckBox>
-				
-			</mx:HBox>
+			<mx:Spacer width="100%"/>
+			<mx:LinkButton textDecoration="underline"
+						   label="Refresh"
+						   icon="@Embed('../../assets/action_refresh.gif')"
+						   toolTip="Refresh chromatogram list"
+						   click="{this.getList();}"  paddingLeft="8" id="linkbutton3"/>
 			
 		</mx:HBox>
+		<mx:VBox paddingLeft="2" width="100%" verticalGap="0" id="vbox1" >
+			
+			
+			<mx:HBox id="filterBar"
+					 horizontalGap="8"
+					 paddingTop="4"
+					 paddingBottom="4"
+					 paddingLeft="0"
+					 horizontalAlign="left"
+					 verticalAlign="middle">
+				
+				<mx:HBox horizontalGap="0"
+						 verticalAlign="middle"
+						 verticalGap="0"
+						 horizontalAlign="right"
+						 paddingLeft="5"
+						 paddingRight="5">
+					<mx:CheckBox id="capSeqCheckbox"
+								 label="Sanger seq"
+								 paddingRight="0"
+								 paddingLeft="2"
+								 horizontalGap="0"
+								 selected="true" >
+						<mx:click>
+							actionDictionary.source = dictXML.action;
+							toggleReactionCheckboxes( 0 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					<mx:CheckBox id="mitSeqCheckbox"
+								 label="Mitochondrial seq"
+								 paddingRight="0"
+								 paddingLeft="2"
+								 horizontalGap="0">
+						<mx:click>
+							toggleReactionCheckboxes( 1 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				<mx:VRule height="20" />
+				
+				<mx:HBox horizontalGap="0"
+						 verticalAlign="middle"
+						 verticalGap="0"
+						 horizontalAlign="right"
+						 paddingRight="5"
+						 paddingLeft="5">
+					<mx:CheckBox id="lastWeekCheckbox"
+								 label="Created in last week"
+								 paddingRight="0"
+								 paddingLeft="0"
+								 horizontalGap="0">
+						<mx:click>
+							toggleDateCheckboxes( 1 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id="lastMonthCheckbox"
+								 label="month"
+								 paddingRight="0"
+								 paddingLeft="2"
+								 horizontalGap="0">
+						<mx:click>
+							toggleDateCheckboxes( 2 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox id="lastThreeMonthsCheckbox"
+								 label="3 months"
+								 paddingRight="0"
+								 paddingLeft="2"
+								 horizontalGap="0">
+						<mx:click>
+							toggleDateCheckboxes( 3 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				<mx:VRule height="20" />
+				<mx:HBox horizontalGap="0"
+						 verticalAlign="middle"
+						 verticalGap="0"
+						 horizontalAlign="right"
+						 paddingLeft="5"
+						 paddingRight="5">
+					<mx:CheckBox id="notReleasedCheckbox"
+								 label="Not released"
+								 paddingRight="0"
+								 paddingLeft="2"
+								 horizontalGap="0" >
+						<mx:click>
+							toggleReleaseCheckboxes( 1 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					<mx:CheckBox id="releasedCheckbox"
+								 label="Released"
+								 paddingRight="0"
+								 paddingLeft="2"
+								 horizontalGap="0" >
+						<mx:click>
+							toggleReleaseCheckboxes( 2 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				
+			</mx:HBox>
+		</mx:VBox>
+		
+		
 	</mx:VBox>
+	
+	
 	
 	
 	

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  xmlns:util="views.util.*"
 	width="100%" height="100%">
-<mx:HBox>
+<mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconExperiment}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Scan / Feature Extraction"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text="Scan / Feature Extraction" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
 </mx:HBox>
 	
 	<mx:HTTPService 

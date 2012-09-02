@@ -744,7 +744,7 @@
 			}
 		}
 		
-		private function showNewAnalysisWindow():void {
+		public function showNewAnalysisWindow():void {
 			parentIdLab = null
 			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
 			if (currentState == 'AdminState') {
@@ -1031,12 +1031,13 @@
 <mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
 <mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
-    <mx:VBox width="100%" height="100%">
-      <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%" id="vbox1">
+    <mx:VBox   width="100%" height="100%">
+      <mx:VBox styleName="panelBox"  height="32"  width="100%" id="vbox1" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
           <mx:HBox id="filterBox"  horizontalGap="6" verticalAlign="middle">
 			  
 			  <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 				  <mx:RadioButtonGroup id="analysisRadioGroup"/>
+				  <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis" fontFamily="Tahoma" fontSize="14" paddingRight="10" fontWeight="bold"/>
 				  <mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup"  letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
 					  <mx:click>this.refreshAnalysis()</mx:click>
 				  </mx:RadioButton>
@@ -1080,7 +1081,6 @@
 	  <mx:HDividedBox height="100%" width="100%"> 
 			<mx:VBox styleName="panelBox"  label="Analysis" width="278" height="100%" id="navPanel" >
 			    <mx:HBox width="100%">
-					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"/>
 					<mx:Label id="messageLabel" styleName="labelSmall" text="" width="100%" textAlign="right"/>
 				</mx:HBox>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
@@ -1156,6 +1156,9 @@
 	
 	<mx:states>
 		<mx:State name="GuestState">
+			<mx:AddChild target="{searchLabel}" position="before">
+				<mx:Label id="titleLabel2" styleName="titleLabel5" text="Analysis" fontFamily="Tahoma" fontSize="14" paddingRight="10" fontWeight="bold"/>
+			</mx:AddChild>
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
 			<mx:RemoveChild target="{linkbutton2}"/>
@@ -1166,7 +1169,7 @@
 		
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{linkbutton1}" position="before">
-				<mx:VBox verticalGap="0" width="200" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle">
+				<mx:VBox verticalGap="0" width="175" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle">
 					<mx:LinkButton label="Select Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0"/>
 					<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic"/>
 				</mx:VBox>
@@ -1178,14 +1181,22 @@
 				<mx:CheckBox label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{searchLabel}" position="before">
-				<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="10"/>
+				<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5"/>
 			</mx:AddChild>
-			<mx:SetProperty target="{vbox1}" name="height" value="48"/>
+			<mx:SetProperty target="{vbox1}" name="height" value="60"/>
 			<mx:SetStyle target="{filterBox}" name="verticalAlign" value="top"/>
 			<mx:SetStyle target="{hbox3}" name="verticalAlign" value="top"/>
-			<mx:SetStyle target="{searchLabel}" name="paddingLeft" value="10"/>
 			<mx:SetStyle target="{linkbutton1}" name="paddingLeft" value="0"/>
 			<mx:SetProperty target="{searchTextField}" name="width" value="120"/>
+			<mx:AddChild relativeTo="{showAllAnalysisCheckbox}" position="before">
+				<mx:Label id="titleLabel0" styleName="titleLabel" text="Analysis" fontFamily="Tahoma"  fontSize="14" paddingRight="10" fontWeight="bold"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{filterBox}" name="width" value="100%"/>
+			<mx:SetStyle target="{hbox3}" name="paddingLeft" value="4"/>
+			<mx:SetProperty target="{filterBox}" name="height" value="46"/>
+			<mx:SetStyle target="{searchLabel}" name="paddingLeft" value="8"/>
+			<mx:SetStyle target="{searchTextField}" name="backgroundColor" value="#FFFFFF"/>
+			<mx:SetStyle target="{vbox1}" name="backgroundImage" value="@Embed(source='../../assets/filterBarGrey.png')"/>
 		</mx:State>
 
 		

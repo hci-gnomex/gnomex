@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*"
+	xmlns:util="views.util.*" paddingTop="4"
 	xmlns:experiment="views.experiment.*" >
 	<mx:Script>
 		<![CDATA[
@@ -35,10 +35,10 @@
 			id="navBackButton" 
 			visible="true"
 			includeInLayout="true" 
-			paddingLeft="0" textAlign="left">    	        
+			paddingLeft="0" textAlign="left" paddingTop="0">    	        
 		</mx:LinkButton>				
 
-		<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+		<mx:HBox width="100%" horizontalGap="1"  paddingTop="0" verticalAlign="middle">
 			<mx:Image source="{detail.selectedExperiment.@icon}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel"  fontWeight="bold" paddingRight="50"/>
 			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8" width="100%">
@@ -68,7 +68,7 @@
 									   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
 						</mx:LinkButton>
 					    <mx:Spacer width="5"/>
-						<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Share"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 				</mx:HBox>
 			</mx:HBox>
 			

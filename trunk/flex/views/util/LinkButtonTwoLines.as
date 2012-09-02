@@ -50,7 +50,7 @@ public class LinkButtonTwoLines extends LinkButton
 
 		
 		// for it to be 2 lines worth of text
-		lineMetrics.height = 30;
+		lineMetrics.height = 40;
 		
 		return lineMetrics;
 		

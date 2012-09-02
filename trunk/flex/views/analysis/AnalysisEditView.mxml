@@ -1072,7 +1072,7 @@
 						<mx:HBox verticalGap="0" width="100%" horizontalScrollPolicy="off" horizontalGap="1">
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@labName}"  width="180"/>
 							<mx:LinkButton 
-								click="{Alert.show('Click on drag-n-drop hint (yellow box in left panel) for tip on how to reassign analysis to another group or move/copy analysis to another folder.')}" 
+								click="{Alert.show('Click on drag-n-drop hint (left panel) for tip on how to reassign analysis to another group or move/copy analysis to another folder.')}" 
 								textAlign="left" textDecoration="underline" icon="@Embed(source='../../assets/information.png')" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" width="20"/>
 							
 						</mx:HBox>

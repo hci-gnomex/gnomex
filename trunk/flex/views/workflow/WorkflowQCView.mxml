@@ -4,9 +4,9 @@
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
 	width="100%" height="100%" >
-<mx:HBox>
+<mx:HBox verticalAlign="middle">
 	<mx:Image source="@Embed('../../assets/chart_curve.png')"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Sample Quality"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text="Sample Quality" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
 </mx:HBox> 
 	
 	<mx:HTTPService 
