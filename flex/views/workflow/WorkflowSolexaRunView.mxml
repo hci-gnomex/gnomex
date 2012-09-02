@@ -5,10 +5,10 @@
 	xmlns:util="views.util.*" 
 	width="100%" height="100%" 
 >
-<mx:HBox>
+<mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconSolexa}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
-		text="{codeStepNext == 'SEQRUN' ? 'Illumina GAIIx Sequence Lane' : 'Illumina HiSeq Sequence Lane'}"/>
+		text="{codeStepNext == 'SEQRUN' ? 'Illumina GAIIx Sequence Lane' : 'Illumina HiSeq Sequence Lane'}" fontFamily="Tahoma" fontSize="14" fontWeight="bold"/>
 	
 </mx:HBox>
 

@@ -560,12 +560,12 @@
 	
     <mx:ViewStack id="navStack" width="260" height="100%">
 
- 		    <mx:TabNavigator id="navBar" height="100%" width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D">
+ 		    <mx:TabNavigator id="navBar" height="100%" fontFamily="Tahoma" fontSize="14" fontStyle="bold"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95">
 		      <mx:change>onTabChange()</mx:change>
-		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
+		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%" icon="@Embed(source='../../assets/user.png')">
 		        
 	
-		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000">
+		        <mx:VBox styleName="panelTabBody" fontFamily="Arial" fontSize="11" fontWeight="normal" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
 			          <mx:HBox width="100%" paddingTop="4">
 			       	      <mx:Label text="Search users:"/>
@@ -600,7 +600,7 @@
 		      </mx:Canvas>
 		      
 		      
-		      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%"  color="#000405">
+		      <mx:Canvas id="groupsView" fontFamily="Arial" fontSize="11" fontWeight="normal" label="Groups" width="100%" height="100%"  color="#000405" icon="@Embed(source='../../assets/group.png')">
 		      
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">

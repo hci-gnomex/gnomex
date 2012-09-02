@@ -19,9 +19,8 @@
 	xmlns:billing="views.billing.*"
 	xmlns:util="views.util.*"
 	xmlns:login="views.login.*"
-	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
-	 paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-	 backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()" applicationComplete="applicationCompleteHandler(event)">
+	paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
+	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF">
 
 
 
@@ -238,6 +237,7 @@
             
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
+			import mx.events.MenuEvent;
 			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
@@ -275,6 +275,9 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
 			import views.util.WorkAuthorizationWindow;
+			import views.util.ExperimentPlatformWindow;
+			import views.util.OrganismsWindow;
+			import views.admin.PropertyWindow;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -284,6 +287,11 @@
 			private var userPublicView:UserPublicView;
 			
 			private var cursorID:Number = 0;
+
+			[Bindable]
+			[Embed(source="assets/gnomex_logo4.png")]
+			public var iconLogo:Class;
+			
 
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -333,6 +341,11 @@
 	        [Bindable]
 	        [Embed(source="assets/flask_add.png")]
 	        public var iconSubmitExperiment:Class;
+
+			[Bindable]
+			[Embed(source="assets/flask_edit.png")]
+			public var iconEditExperiment:Class;
+			
 	        
 	        [Bindable]
 	        [Embed(source="assets/experiment_register.png")]
@@ -376,6 +389,10 @@
 	        [Embed(source="assets/basket.png")]
 	        public var iconCategory:Class;
 	        
+			[Bindable]
+			[Embed(source="assets/chart_bar.png")]
+			public var iconUsage:Class;
+			
 	        [Bindable]
 	        [Embed(source="assets/chart_line.png")]
 	        public var iconQC:Class;
@@ -432,6 +449,10 @@
 	        [Bindable]
 	        [Embed(source="assets/comment.png")]
 	        public var iconWarning:Class;
+			[Bindable]
+			[Embed(source="assets/page_white_wrench.png")]
+			public var iconConfig:Class;
+			
 	        
 	        [Bindable]
 	        [Embed(source="assets/asterisk_yellow.png")]
@@ -1413,7 +1434,7 @@
 					return "";
 				}
 			}
-			
+			  
             private function loggedInInit():void {
             	appProgressBar = new AppProgressView();
             	appProgressBar.currentState = "StartupState";
@@ -2439,7 +2460,50 @@
 			} else {
 				return false;
 			}
-		}						
+		}	
+			
+		private function onMoreMenu(event:MenuEvent):void {
+
+			
+			if (event.label == 'Analysis') {
+				theViews.selectedChild = navAnalysisView;
+			} else if (event.label == 'Data Tracks') {
+				theViews.selectedChild = this.navDataTrackView;
+			} else if (event.label == 'Experiments') {
+				theViews.selectedChild = this.navExperimentView;
+			} else if (event.label == 'Topics') {
+				theViews.selectedChild = this.navTopicsView;
+			} else if (event.label == 'New Analysis') {
+				theViews.selectedChild = navAnalysisView;
+				navAnalysisView.showNewAnalysisWindow();
+			} else if (event.label == "Add Services to Experiment Order") {
+				theViews.selectedChild = amendRequestView;
+			} else if (event.label == "Post Experiment Data To Repository") {
+				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
+				if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
+					this.submitRequestView.startNewRequest();
+				}
+				this.isInternalExperimentSubmission = false;
+				this.theViews.selectedChild = this.submitRequestView;
+				// If new experiment then initialize ShowCCNumber checkbox
+				this.submitRequestView.showCCNumberColumn = false;
+			} else if (event.label == "Track Usage") {
+				this.theViews.selectedChild = this.navUsageView;
+			} else if (event.label == "Manage Dictionaries") {
+				showDictionaries();
+			} else if (event.label == "Configure Experiment Platform") {
+				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(theBody, ExperimentPlatformWindow, true));
+				PopUpManager.centerPopUp(platformWindow);
+			} else if (event.label == "Configure Organisms and Genome Builds") {
+				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(theBody, OrganismsWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+			} else if (event.label == "Configure Annotations") {
+				var configAnnotWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(theBody, PropertyWindow, true));
+				PopUpManager.centerPopUp(configAnnotWindow);
+				
+			}
+		}
+
 
         ]]>
     </mx:Script>
@@ -2456,75 +2520,92 @@
 	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns" unique="true"/>
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
 
-	    <mx:VBox id="theBody"  dropShadowEnabled="true"  
+
+	    <mx:VBox id="theBody"   backgroundColor="#FFFFFF"
 	    	width="100%" height="100%" 
-	    	verticalGap="0" 
-	    	paddingTop="0" paddingLeft="0" 
-	    	paddingRight="0" paddingBottom="0">
+	    	verticalGap="4"  
+	    	paddingTop="0" paddingLeft="2" 
+	    	paddingRight="2" paddingBottom="2">
 	    
 
-		  <mx:VBox width="100%"  id="navBar" backgroundImage="@Embed(source='assets/navbar.png')" 
-		  	backgroundSize="100%" dropShadowColor="#2C2222" dropShadowEnabled="true" 
-		  	borderStyle="solid" borderColor="#858780" borderThickness="1" 
-		  	cornerRadius="4" verticalGap="0" 
-		  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+		  <mx:VBox width="100%"  id="navBar" 
+		  	 verticalGap="0" 
+	 	  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" cornerRadius="4">
 		  	 
-		      <mx:VBox width="100%" verticalGap="0"> 
+		      <mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 			      <mx:HBox width="100%"  
-				  horizontalAlign="left" verticalAlign="top" horizontalGap="10"  styleName="catalogPanel" 
+				  horizontalAlign="left" verticalAlign="middle" horizontalGap="10"  
 			      	paddingBottom="6" id="hbox1" 
-			      	paddingTop="2" 
-			      	paddingLeft="4" paddingRight="4">
+			      	paddingTop="6" 
+			      	paddingLeft="4" paddingRight="4" borderStyle="solid" borderColor="#B6BFC5">
 						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
-							<mx:Image source="assets/hciLogo_hOnly.png"/>
-							<mx:Label text="{'GNomEx ' + siteTitle}" id="appLabel" styleName="appTitle"/>
+							<mx:Image source="{iconLogo}"/>
 						</mx:HBox>
-					        <mx:HBox  horizontalGap="2" paddingLeft="20" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="100%">
-				              
-							  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"/>
-				              <mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
-				              <mx:Button id="lookupButton"  
-				              	fontFamily="Arial"  height="18" width="30"
-				               	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
-				            </mx:HBox>
-					        <mx:Spacer width="100%"/>
-				            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-				              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false" />
-			 	              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
-				              <mx:Button id="searchButton" height="18" click="callLater(search)"  visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30"/>
-				              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}" >
-				              </mx:LinkButton>
-				            </mx:HBox>
-				            <mx:Spacer width="100%"/>
-			        
-			        <mx:HBox horizontalAlign="right" verticalAlign="middle" horizontalGap="2" height="30" id="hbox2">
-			        	<mx:LinkButton label="Help" styleName="navLinkButtonSmall" visible="false" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1" />
-						<mx:LinkButton label="About" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" />
-						<mx:LinkButton label="Log Out" styleName="navLinkButtonSmall" visible="false" click="logout();" id="linkbutton3" />
-			        </mx:HBox>
-			      </mx:HBox>
+						<mx:Spacer width="100%"/>
+				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
+			              
+						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Tahoma" fontSize="14" color="#867D7D" fontWeight="bold"/>
+			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="56"  fontFamily="Arial" visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="14" borderThickness="2"/>
+			              <mx:Button id="lookupButton" 
+			              	 width="30"
+			               	 click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+			            </mx:HBox>
+				        <mx:Spacer width="100%"/>
+			            <mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
+			              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false"  fontFamily="Tahoma" fontSize="14"/>
+		 	              <mx:TextInput id="searchText"  width="118" visible="false"  borderStyle="solid" borderColor="#1691E7" fontFamily="Arial" fontSize="14" borderThickness="2"/>
+			              <mx:Button id="searchButton" height="18" click="callLater(search)"  visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline">
+			              </mx:LinkButton>
+			            </mx:HBox>
+			            <mx:Spacer width="100%"/>
+				        
+				        <mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
+				        	<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
+							<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
+							<mx:LinkButton label="Log Out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
+				        </mx:HBox>
+				      </mx:HBox>
 			      
-			      <mx:HBox width="100%" horizontalGap="6"  verticalAlign="middle" styleName="customLinkBar" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
-					  <mx:LinkButton id="homeLink" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
+			      <mx:HBox width="100%"  backgroundSize="100%"  height="48" backgroundImage="assets/menubar.png" horizontalGap="10"  verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false">
+
+					  
+					  <mx:LinkButton id="homeLink"  styleName="navLinkButton" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
 					  <mx:VRule height="20" id="submitRequestRule"/>
-					  <util:LinkButtonTwoLines id="submitRequestLink" label="New Experiment Order" click="{theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="110" icon="@Embed(source='assets/flask_add.png')"/>
-					  <mx:VRule height="20" id="amendRequestRule" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"/>
-					  <util:LinkButtonTwoLines  id="amendRequestLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}" label="Add Services to Order" click="{theViews.selectedChild = amendRequestView}" width="100" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask_add.png')"/>
-					  <mx:VRule height="20" id="experimentsRule"/>
-					  <mx:LinkButton id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="95" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
+					  <util:LinkButtonTwoLines  styleName="navLinkButton" id="submitRequestLink" label="New Experiment Order" click="{theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="125" icon="@Embed(source='assets/flask_add.png')"/>
+					  <mx:VRule height="20"  id="experimentsRule"/>
+					  <mx:LinkButton  styleName="navLinkButton" id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="103" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
+
 					  <mx:VRule height="20" id="analysisRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" />
-					  <mx:LinkButton id="analysisLink" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
+					  <mx:LinkButton styleName="navLinkButton" id="analysisLink" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
 					  <mx:VRule height="20" id="dataTracksRule" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}" /> 
-					  <util:LinkButtonTwoLines id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
-					  <mx:VRule height="20" id="topicsRule" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
-					  <mx:LinkButton id="topicsLink" label="Topics" click="{theViews.selectedChild = navTopicsView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/topic_tag.png')" visible="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}" includeInLayout="{this.isTopicsSupported &amp;&amp; showBioinformaticsLinks}"/>
+					  <util:LinkButtonTwoLines styleName="navLinkButton" id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
+
 					  <mx:VRule height="20" id="workflowRule" visible="{showCoreGenomicsLinks}"  includeInLayout="{showCoreGenomicsLinks}" />
-					  <mx:LinkButton id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="75" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
+					  <mx:LinkButton  styleName="navLinkButton" id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="82" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
 					  <mx:VRule height="20" id="billingRule"/>
-					  <mx:LinkButton id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
+					  <mx:LinkButton  styleName="navLinkButton" id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
 					  <mx:VRule height="20" id="usersRule"/>
-					  <util:LinkButtonTwoLines id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
-			      </mx:HBox>
+					  <util:LinkButtonTwoLines  styleName="navLinkButton"  id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
+
+					  <mx:VRule height="20" id="moreMenuRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}"/>
+					  <mx:MenuBar  height="45"  id="moreMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="100%"  styleName="NavMenuBar" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}">
+						  <mx:XMLList>
+							  <menuitem label="More..."   >
+								  <menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+								  <menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+								  <menuitem label="Topics"  icon="iconTopic"/>
+								  <menuitem label="Track Usage"  icon="iconUsage"/>
+								  <menuitem  label="Manage Dictionaries"  icon="iconConfig" />
+								  <menuitem label="Configure Annotations" icon="iconConfig" />
+								  <menuitem label="Configure Experiment Platform" icon="iconConfig" />
+								  <menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+							  </menuitem>
+						  </mx:XMLList>
+					  </mx:MenuBar> 
+
+				  
+				  </mx:HBox>
 	      	
 		      	
 		      </mx:VBox>
@@ -2532,7 +2613,7 @@
 		  </mx:VBox>  
 		      
 	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="6" paddingBottom="0" paddingLeft="0" 
+	    	height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0" verticalGap="0">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
@@ -2622,10 +2703,9 @@
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
-	 	    <mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFFFF"/>
-	 	    <mx:SetStyle target="{requestNumber}" name="backgroundAlpha" value="1.0"/>
-	 	    <mx:SetProperty target="{requestNumber}" name="height" value="20"/>
-	 	    <mx:SetProperty target="{searchText}" name="height" value="20"/>
+	 	    <mx:SetStyle target="{requestNumberLabel}" name="fontWeight" value="normal"/>
+	 	    <mx:SetStyle target="{searchLabel}" name="color" value="#867D7D"/>
+
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
 	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="0"/>
@@ -2634,7 +2714,7 @@
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
-	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
+	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="14"/>
 			
 		
 	 	</mx:State>
@@ -2649,9 +2729,6 @@
 			 <mx:RemoveChild target="{submitRequestView}"/>
 			 <mx:RemoveChild target="{submitRequestLink}"/>
 			 <mx:RemoveChild target="{submitRequestRule}"/>
-			 <mx:RemoveChild target="{amendRequestView}"/>
-			 <mx:RemoveChild target="{amendRequestLink}"/>
-			 <mx:RemoveChild target="{amendRequestRule}"/>
 			 <mx:RemoveChild target="{navWorkflowView}"/>
 			 <mx:RemoveChild target="{workflowLink}"/>
 			 <mx:RemoveChild target="{workflowRule}"/>
@@ -2659,8 +2736,7 @@
 			 <mx:RemoveChild target="{analysisRule}"/>
 			 <mx:RemoveChild target="{dataTracksLink}"/>
 			 <mx:RemoveChild target="{dataTracksRule}"/>
-			 <mx:RemoveChild target="{topicsLink}"/>
-			 <mx:RemoveChild target="{topicsRule}"/>
+			 <mx:SetStyle target="{hbox1}" name="paddingBottom" value="2"/>
 			 
 		 </mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
@@ -2676,6 +2752,7 @@
 			<mx:RemoveChild target="{workflowRule}"/>
 			<mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFCFC"/>
 	 		<mx:SetStyle target="{requestNumber}" name="backgroundAlpha" value="1.0"/>
+	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
 	 	</mx:State>
 	 	<mx:State name="ManagerState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
@@ -2686,50 +2763,51 @@
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 			<mx:RemoveChild target="{workflowLink}"/>
 			<mx:RemoveChild target="{workflowRule}"/>
+			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
 	 	</mx:State>
 	 	<mx:State name="UserNonSubmitterState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 			<mx:RemoveChild target="{submitRequestLink}"/>
 			<mx:RemoveChild target="{submitRequestRule}"/>
-	 		<mx:RemoveChild target="{amendRequestView}"/>
-			<mx:RemoveChild target="{amendRequestLink}"/>
-			<mx:RemoveChild target="{amendRequestRule}"/>
+			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
 	 	</mx:State>
 	 	<mx:State name="GuestState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 			<mx:RemoveChild target="{submitRequestLink}"/>
 			<mx:RemoveChild target="{submitRequestRule}"/>
-	 		<mx:RemoveChild target="{amendRequestView}"/>
-			<mx:RemoveChild target="{amendRequestLink}"/>
-			<mx:RemoveChild target="{amendRequestRule}"/>
 			<mx:RemoveChild target="{navUsageView}"/>
+			<mx:RemoveChild target="{moreMenuRule}"/>
+			<mx:RemoveChild target="{moreMenu}"/>
+			
+			<mx:AddChild relativeTo="{experimentsLink}" position="after">
+				<mx:VRule height="20" id="topicsRule"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{topicsRule}" position="after">
+				<mx:LinkButton id="topicsLink" label="Topics" styleName="navLinkButton" click="{theViews.selectedChild = navTopicsView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconTopic}"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
+			
 	 	</mx:State>
 
 		<mx:State name="AdminESState" basedOn="AdminState">
-			<mx:RemoveChild target="{amendRequestLink}"/>
-			<mx:RemoveChild target="{amendRequestRule}"/>
 			<mx:RemoveChild target="{billingLink}"/>
 			<mx:RemoveChild target="{billingRule}"/>
 			<mx:RemoveChild target="{workflowLink}"/>
 			<mx:RemoveChild target="{workflowRule}"/>
 			<mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
 			<mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
+			<mx:SetStyle target="{hbox1}" name="paddingBottom" value="4"/>
 		</mx:State>
 
 		 <mx:State name="ManagerESState" basedOn="ManagerState">
-			 <mx:RemoveChild target="{amendRequestView}"/>
-			 <mx:RemoveChild target="{amendRequestLink}"/>
-			 <mx:RemoveChild target="{amendRequestRule}"/>
 			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
 			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
 		 </mx:State>
 
 		 <mx:State name="UserESState" basedOn="UserState">
-			 <mx:RemoveChild target="{amendRequestView}"/>
-			 <mx:RemoveChild target="{amendRequestLink}"/>
-			 <mx:RemoveChild target="{amendRequestRule}"/>
 			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
 			 <mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
+			 <mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
 		 </mx:State>
 		 
 		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
@@ -2737,28 +2815,28 @@
 			 	<mx:VRule height="20" id="ordersRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{ordersRule}" position="after">
-			 	<util:LinkButtonTwoLines id="ordersLink" label="Review Orders" click="{theViews.selectedChild = navOrderView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/review.png')"/>
+			 	<mx:LinkButton id="ordersLink" label="Orders" styleName="navLinkButton" click="{theViews.selectedChild = navOrderView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/review.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{ordersLink}" position="after">
 			 	<mx:VRule height="20" id="fillPlateRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{fillPlateRule}" position="after">
-			 	<util:LinkButtonTwoLines id="fillPlateLink" label="Fill Plate" click="{navPlateView.toggleBuildState('PLATE'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
+			 	<util:LinkButtonTwoLines id="fillPlateLink" label="Fill Plate" styleName="navLinkButton" click="{navPlateView.toggleBuildState('PLATE'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="54" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{fillPlateLink}" position="after">
 				 <mx:VRule height="20" id="fillRunRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{fillRunRule}" position="after">
-				 <util:LinkButtonTwoLines id="fillRunLink" label="Build Run" click="{navPlateView.toggleBuildState('RUN'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_add.png')"/>
+				 <util:LinkButtonTwoLines id="fillRunLink" label="Build Run" styleName="navLinkButton" click="{navPlateView.toggleBuildState('RUN'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_add.png')"/>
 			 </mx:AddChild>
 			 
 			 <mx:AddChild relativeTo="{fillRunLink}" position="after">
 			 	<mx:VRule height="20" id="dataRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{dataRule}" position="after">
-			 	<util:LinkButtonTwoLines id="dataLink" label="Review Results" click="{theViews.selectedChild = navDataView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart_review.png')"/>
+			 	<mx:LinkButton id="dataLink" label="Results"  styleName="navLinkButton" click="{theViews.selectedChild = navDataView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart_review.png')"/>
 			 </mx:AddChild>
 			 
 			 
@@ -2766,8 +2844,30 @@
 				 <mx:VRule height="20" id="runsRule"/>
 			 </mx:AddChild>
 			 <mx:AddChild relativeTo="{runsRule}" position="after">
-				 <util:LinkButtonTwoLines width="95"  id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_review.png')"/>
+				 <util:LinkButtonTwoLines width="95"  styleName="navLinkButton" id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_review.png')"/>
 			 </mx:AddChild>
+			 
+			 <mx:RemoveChild target="{moreMenu}"/>
+			 <mx:RemoveChild target="{experimentsRule}"/>
+			 <mx:RemoveChild target="{experimentsLink}"/>
+			 
+			 <mx:AddChild relativeTo="{usersLink}"  position="after">
+				 <mx:VRule height="20" id="moreDNARule"/>
+			 </mx:AddChild>
+
+			 <mx:AddChild relativeTo="{moreDNARule}" position="after">
+				 <mx:MenuBar  height="45" styleName="NavMenuBar" id="moreDNASeqMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="100%"  >
+					 <mx:XMLList>
+						 <menuitem label="More..."   >
+							 <menuitem label="Experiments" icon="iconFlask" />
+							 <menuitem label="Track Usage" icon="iconUsage" />
+							 <menuitem  label="Manage Dictionaries" icon="iconConfig" />
+						 </menuitem>
+					 </mx:XMLList>
+				 </mx:MenuBar> 
+			</mx:AddChild>
+			 <mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="12"/>
+
 
 		 </mx:State>
 		 
@@ -2775,9 +2875,6 @@
 			 <mx:RemoveChild target="{submitRequestView}"/>
 			 <mx:RemoveChild target="{submitRequestLink}"/>
 			 <mx:RemoveChild target="{submitRequestRule}"/>
-			 <mx:RemoveChild target="{amendRequestView}"/>
-			 <mx:RemoveChild target="{amendRequestLink}"/>
-			 <mx:RemoveChild target="{amendRequestRule}"/>
 			 <mx:RemoveChild target="{fillPlateRule}"/>
 			 <mx:RemoveChild target="{fillPlateLink}"/>
 			 <mx:RemoveChild target="{fillRunRule}"/>

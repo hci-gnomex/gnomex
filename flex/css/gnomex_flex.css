@@ -82,7 +82,6 @@ DataGrid {
 Tree {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
-	dropShadowEnabled: true;
 	dropIndicatorSkin: ClassReference("views.renderers.ListDropIndicator");
 }
 
@@ -100,8 +99,6 @@ Panel {
    borderThicknessRight: 4;
    roundedBottomCorners: true;
    headerHeight: 22;
-   backgroundColor: #C3C2B7;
-   border-color: #C3C2B7;
    titleStyleName: panelTitle;
    controlBarStyleName: panelControlBar;
    statusStyleName: panelStatus;
@@ -131,8 +128,7 @@ Panel {
 } 
 
 .navBox {
-	backgroundColor: #C3C2B7;
-	borderColor: #C3C2B7;
+	
 	borderStyle: solid;
 	cornerRadius: 5;
 	horizontalGap: 12;
@@ -141,26 +137,29 @@ Panel {
 }
 
 TitleWindow {
-	borderColor: #C3C2B7;
-	backgroundColor: #C3C2B7;
+	borderColor: #FFFFFF;
+	backgroundColor: #ebe6f1;
 	cornerRadius: 4;
-	borderThicknessTop: 2;
-	borderThicknessBottom: 2;
-	borderThicknessLeft: 2;
-	borderThicknessRight: 2;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 0;
+	borderThicknessLeft: 0;
+	borderThicknessRight: 0;
 	titleStyleName: titleWindowTitle;
-	headerHeight: 22;
+	headerHeight: 20;
 	controlBarStyleName: titleWindowControlBar;
 	dropShadowEnabled: true;
 	borderAlpha: 1;
 	backgroundAlpha: 1;
 	backgroundSize: "100%";
+	statusStyleName: titleWindowStatus;
 }
 .titleWindowTitle
 { 
-	fontSize: 11;
+	fontSize: 14;
 	color: #000000;
-	fontWeight: normal;
+	fontWeight: bold;
+	fontFamily: Tahoma;
+
 }
 
 Alert {
@@ -190,16 +189,16 @@ Alert {
 
 
 TitleWindow {
-	headerColors: #C3C2B7, #C3C2B7; 
-	borderColor: #C3C2B7;
-	backgroundColor: #C3C2B7;
+	headerColors: #FFFFFF, #FFFFFF; 
+	borderColor: #FFFFFF;
+	backgroundColor: #FFFFFF;
 	cornerRadius: 4;
 	borderThicknessTop: 2;
 	borderThicknessBottom: 2;
 	borderThicknessLeft: 2;
 	borderThicknessRight: 2;
 	titleStyleName: titleWindowTitle;
-	headerHeight: 22;
+	headerHeight: 32;
 	controlBarStyleName: titleWindowControlBar;
 	dropShadowEnabled: true;
 	borderAlpha: 1.0;
@@ -208,15 +207,9 @@ TitleWindow {
 }
 
  
-HDividedBox {
-	horizontalGap: 6;
-}
 
 
-ApplicationControlBar {
-	fillColors: #548db8, #97b8d2; 
-	dropShadowEnabled: true;
-}
+
 .accordion {
 
 	headerStyleName: accordionHeader;
@@ -255,6 +248,15 @@ LinkBar {
 LinkButton
 {
    fontWeight: normal;	
+   fontSize: 11;
+}
+
+LinkButton.navLinkButton
+{
+	fontWeight: normal;	
+	fontSize: 12;
+	fontFamily: Tahoma;
+	color: #FFFFFF;
 }
 
 .normalLinkButton
@@ -308,31 +310,22 @@ TextArea {
 }
 
 .panelBox {
-	backgroundImage: Embed('../assets/panel1.png');
-	backgroundSize: "100%";
 	paddingTop: 4;
 	paddingBottom: 2;
 	paddingLeft: 4;
 	paddingRight: 4;
 	verticalGap: 4;
-	borderColor: #5F696F;
-	borderStyle: solid;
-	cornerRadius: 6;
+	backgroundColor: #ebe6f1;
 	dropShadowColor: #020000;
 	dropShadowEnabled: true;
 }
 
 .panelWelcomeBox {
-	backgroundImage: Embed('../assets/panelWelcome.png');
-	backgroundSize: "100%";
 	paddingTop: 4;
 	paddingBottom: 2;
 	paddingLeft: 4;
 	paddingRight: 4;
 	verticalGap: 4;
-	borderColor: #5F696F;
-	borderStyle: solid;
-	cornerRadius: 6;
 	dropShadowColor: #020000;
 	dropShadowEnabled: true;
 }
@@ -343,7 +336,6 @@ TextArea {
 	backgroundColor: #FFFFFF;
 	cornerRadius: 4;
 	borderStyle: solid;
-	dropShadowEnabled: true;
 }
 
 .formrule
@@ -355,14 +347,12 @@ TextArea {
 .formTabBody {
 	backgroundColor: #FFFFFF;
 	
-	dropShadowEnabled: true;
 	borderStyle: solid;
 	cornerRadius: 4;
 }
 .formTabBar {
 	backgroundColor: #FFFFFF;
 	borderStyle: none;
-	dropShadowEnabled: false;
 }
 
 .formLinkBar {
@@ -405,13 +395,13 @@ TextArea {
 	
 }
 .labelSmall {
-	fontSize: 9;
+	fontWeight: normal;	
+	fontSize: 10;
 }
 .navTabNavigator {
 	
 	backgroundAlpha:            1.0;
-	backgroundColor: #BFC1AF;
-	color: #74878B;
+	backgroundColor:  #d1d1d1;
 
 	tabStyleName: navTabHeader;
 	firstTabStyleName: navTabHeader;
@@ -423,19 +413,16 @@ TextArea {
 	cornerRadius: 6;
     paddingTop: 0; 
     paddingBottom: 4;
-    dropShadowEnabled: true;
 	backgroundSize: auto;
 	 
 }
 
 .panelTabBody {
-	backgroundColor: #BFC1AF;
+	backgroundColor:    #d1d1d1;
 }
 
 
 .navTabHeader {
-	backgroundImage: Embed('../assets/filterBar.png');
-	backgroundSize: "100%";
 	color: #000000;
 	fillAlphas:  .5, .5;
  	fontWeight: 		normal;
@@ -494,14 +481,14 @@ TextArea {
     barColor: #45C014;
     trackColors: #ffffff, #ffffff;
     paddingTop: 14;
-	trackHeight: 10;
+	trackHeight: 12;
 	verticalGap: 0;
-	paddingLeft: 14;
-	paddingRight: 14;
+	paddingLeft: 5;
+	paddingRight: 5;
 	verticalGap: 10;
-	fontSize: 12;
-	fontWeight: normal;
-	color: #ffffff;
+	fontSize: 16;
+	fontWeight: bold;
+	color: #90897B;
 	fontFamily: Verdana;
 }
 
@@ -627,7 +614,7 @@ Label.titleLabel
 .navLinkButtonSmall
 {
 	fontFamily: Verdana;
-	color: #ffffff;
+	color: #9E8D8D;
 	textAlign: right;
 	textDecoration: underline;
 	paddingLeft: 1;
@@ -666,11 +653,10 @@ Label.titleLabel
 }
 Label.welcomeLabel
 {
-	fontSize: 14;
-	color: #FFFFFF;
-	fontWeight: normal;
 	fontFamily: Verdana;
-	fontStyle: normal;
+	color: #9E8D8D;
+	fontSize: 14;
+	fontWeight: bold;
 }
 Label.appTitle
 {
@@ -684,7 +670,7 @@ Label.appTitle
 Text.welcomeUserLabel
 {
 	fontFamily: Verdana;
-	color: #453D33;
+	color: #9E8D8D;
 	fontSize: 12;
 	leading: 0;
 	fontWeight: normal;
@@ -700,8 +686,8 @@ Text.welcomeSessionLabel
 Text.navLabel
 {
 	fontFamily: Verdana;
-	color: #ffffff;
-	fontSize: 11;
+	color: #9E8D8D;
+	fontSize: 12;
 	leading: 0;
 }
 Text.navLabelSmall
@@ -745,7 +731,6 @@ Text.progressLabel
 
 .headerBar {
 	borderColor: #CACFD2; 
-	backgroundColor: #eeeedd;
 	borderStyle: solid;
 	cornerRadius: 6;
 	paddingLeft: 4;
@@ -788,8 +773,6 @@ Text.progressLabel
 {
 	borderStyle: solid;
 	borderThickness: 1;
-	dropShadowColor: #4A4949;
-	dropShadowEnabled: true;
 	paddingBottom: 4;
 	paddingLeft: 4;
 	paddingRight: 4;
@@ -819,4 +802,53 @@ Accordion {
 	color: #FFFFFF;
 	textRollOverColor: #FFFFFF;
 	disabledColor: #FFFFFF;
+}
+
+MenuBar {
+	backgroundAlpha: 0;
+	borderColor: #7B877B;
+	highlightAlphas: 0.02, 0;
+	fillAlphas: 1, 1;
+	fillColors: #B1B6C1, #222836, #3F495E, #3F495E;
+	rollOverColor: #00ff00;
+	selectionColor: #336633;
+	color: #ffffff;
+	themeColor: #996666;
+	fontFamily: Tahoma;
+	fontSize: 12;
+	
+	menuStyleName: menuItem;
+}
+
+.menuItem {
+	backgroundAlpha: 0;
+	borderColor: #7B877B;
+	highlightAlphas: 0.02, 0;
+	fillAlphas: 1, 1;
+	fillColors: #B1B6C1, #222836, #3F495E, #3F495E;
+	rollOverColor: #B3EDF2;
+	selectionColor: #336633;
+	color: #ffffff;
+	themeColor: #996666;
+	fontFamily: Tahoma;
+	fontSize: 12;
+	
+	
+	
+}
+MenuBar.linkMenuBar
+{
+	color: #6A5858;
+	fillAlphas: 0.0, 0.0, 0.0, 0.0;
+	textDecoration: underline;
+	menuStyleName: linkMenuItem;
+}
+.linkMenuItem
+{
+	color: #6A5858;
+	fillAlphas: 0.0, 0.0, 0.0, 0.0;
+	textDecoration: underline;
+}
+.titleWindowStatus
+{
 }

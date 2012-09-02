@@ -1018,9 +1018,8 @@
 </mx:Script>
 	
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
-	<mx:VBox backgroundImage="@Embed(source='../../assets/filterBar.png')" 
-			 backgroundSize="100%" width="100%" 
-			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+	<mx:VBox styleName="panelBox" width="100%" 
+			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" borderStyle="outset">
 
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="0">
@@ -1075,7 +1074,7 @@
 	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 		<mx:VBox styleName="panelBox"   width="320" height="100%" id="navPanel" >
 			<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Data Tracks">
-				<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+				<mx:VBox id="treeContainer"   width="100%" height="100%" paddingLeft="2" verticalGap="0" >
 					
 					<mx:Tree width="100%" height="100%" 
 							 dataProvider="{getTopicList.lastResult}" 
@@ -1093,7 +1092,7 @@
 							 dragMoveEnabled="true"
 							 dragDrop="onDragDrop(event);" 
 							 itemRenderer="views.renderers.TreeNodeRenderer"
-							 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
+							 iconFunction="getTreeIcon" backgroundAlpha="1" ></mx:Tree>
 					
 				</mx:VBox>
 				
@@ -1110,7 +1109,7 @@
 		
 		 
 		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="all">
-			<mx:Panel id="blankView" width="100%" height="100%"   borderThicknessBottom="27">			    	
+			<mx:Panel id="blankView" width="100%" height="100%"   >			    	
 			</mx:Panel>
 			
 			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">

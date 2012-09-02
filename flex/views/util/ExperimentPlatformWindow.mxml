@@ -520,12 +520,12 @@
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody">
-		<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
-			<mx:LinkButton label="Add experiment platform" styleName="linkMenuButton" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
-			<mx:LinkButton label="Remove experiment platform" styleName="linkMenuButton" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
-			<mx:LinkButton label="Refresh" styleName="linkMenuButton" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')"/>
+		<mx:HBox width="100%"  backgroundImage="@Embed(source='../../assets/menubar.png')" backgroundSize="100%" verticalAlign="middle" height="30">
+			<mx:LinkButton label="Add experiment platform" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" textDecoration="underline" color="#FFFFFF"/>
+			<mx:LinkButton label="Remove experiment platform" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" textDecoration="underline" color="#FFFFFF"/>
+			<mx:LinkButton label="Refresh" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="underline" color="#FFFFFF" />
 		</mx:HBox>
-		<mx:HDividedBox width="100%" height="100%">
+		<mx:HDividedBox width="100%" height="100%" paddingLeft="4" paddingRight="4">
 			<util:DisabledItemsList id="platformList" width="200" height="100%" labelField="@requestCategory" dataProvider="{platforms}" 
 									itemClick="{onSelectPlatform()}" disabledFunction="disablePlatformSelection" click="promptToDiscardChanges()">
 			</util:DisabledItemsList>
@@ -536,7 +536,7 @@
 				<mx:VBox width="100%" height="100%" styleName="panelBox" 
 						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
-						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="12">
+						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="8">
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Name" width="80"/>
 								<mx:TextInput  id="platformName"  width="100%" text="{requestCategory.@requestCategory}"  change="dirty.setDirty()"/>

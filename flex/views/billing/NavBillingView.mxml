@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
         width="100%"
         creationPolicy="all" show="init()"
-        height="100%" xmlns:util="views.util.*" xmlns:renderers="views.renderers.*">
+        height="100%" xmlns:util="views.util.*">
 
 
  
@@ -199,6 +199,7 @@
  	<![CDATA[
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
+		import mx.events.MenuEvent;
 		
 		import mx.collections.ArrayCollection;
 		import mx.collections.IHierarchicalCollectionView;
@@ -231,6 +232,11 @@
 		private var invoiceMap:Dictionary;
  		
 		private var billingItems:XMLListCollection = new XMLListCollection();
+		
+		[Bindable]
+		[Embed(source="../../assets/page.png")]
+		public var iconReports:Class;
+		
 
         [Bindable]
         private var billingAccounts:XMLListCollection = new XMLListCollection();
@@ -2007,6 +2013,27 @@
 		private function onPricingTreeClick():void{
 			this.selectedPrice = this.pricingTree.selectedItem;
 		}
+		
+		private function pickAccountDropdownLabel():void {
+			if (radioShowBillingAccountName.selected) {
+				billingAccountCombo.labelField = '@accountNameDisplay';	
+			} else {
+				billingAccountCombo.labelField = '@accountNumberDisplay';	
+			}
+				
+		}
+		private function onReportsMenu(event:MenuEvent):void {
+			
+			
+			if (event.label == 'Invoice Report') {
+				showBillingMonthendReport();
+			} else if (event.label == 'Billing by Lab and Experiment Platform') {
+				showBillingSummaryWindow();
+			} else if (event.label == 'Usage Report') {
+				this.showBillingUsageWindow();
+			}
+		}
+
  	]]>
  </mx:Script>	
 
@@ -2020,94 +2047,85 @@
  
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
  
-	    <mx:VBox width="100%" styleName="panelBox" horizontalGap="4" paddingTop="0" verticalGap="2" paddingRight="0" paddingLeft="0">
-	                    <mx:HBox backgroundSize="100%" width="100%" backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2">
-										<mx:LinkButton label="Print Invoice" textDecoration="underline" icon="@Embed(source='../../assets/printer.png')" click="showBillingInvoice(false)"/>
+	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+	                    <mx:HBox  verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2" width="100%" paddingLeft="4">
+							<mx:Text text="Billing"  fontFamily="Tahoma" fontSize="14" fontWeight="bold"/>			
+							<mx:LinkButton label="Print Invoice" textDecoration="underline" icon="@Embed(source='../../assets/printer.png')" click="showBillingInvoice(false)"/>
 										<mx:VRule height="20"/>
 	                                    <mx:LinkButton label="Email Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice(true)"/>
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="glFileButton" label="Generate GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
 	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton label="Monthend Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingMonthendReport()"/>
-	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton  id="summaryReportButton" label="Total Billing by Lab Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingSummaryWindow()"/>
-	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton  id="usageReportButton" label="Lab Usage Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingUsageWindow()"/>
-	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-	                                               click="refresh()" toolTip="Refresh"/>
+							
+							<mx:MenuBar itemClick="{onReportsMenu(event)}"  labelField="@label" iconField="@icon"   styleName="linkMenuBar">
+								<mx:XMLList>
+									<menuitem label="Reports..."  icon="iconReports" >
+										<menuitem label="Invoice Report" />
+										<menuitem label="Billing by Lab and Experiment Platform"  />
+										<menuitem label="Usage Report"  />
+									</menuitem>
+								</mx:XMLList>
+							</mx:MenuBar> 
+							<mx:Spacer width="100%"/>
+
+                            <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+                                       click="refresh()" toolTip="Refresh"/>
                 	
                 	
                 </mx:HBox>
 
-	      <mx:HBox horizontalGap="4" verticalAlign="top" paddingTop="4" paddingBottom="2">
-	            <mx:VBox verticalGap="0" horizontalAlign="right" paddingRight="4">
-  			    	<mx:Label text="Filter"/>
-			    	<mx:Label text="by:"/>
-	            </mx:VBox>
-			    <mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}">
+	      <mx:HBox horizontalGap="8" verticalAlign="top" paddingBottom="2" paddingLeft="4">
+			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
 				    <mx:Label text="Core Facility" />
-				    <mx:ComboBox id="coreFacilityCombo" width="150" dataProvider="{parentApplication.coreFacilitiesICanManage}"
+				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
 							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()"/>
-			    </mx:HBox>
-		    	<mx:VBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
-					<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0">
-						<mx:HBox verticalGap="0" paddingTop="0" paddingLeft="0" horizontalGap="0" verticalAlign="middle">
-							<mx:Label id="billingPeriodLabel" visible="true" text="Period"/>
+			    </mx:VBox>
+		    	<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
+					<mx:HBox horizontalGap="8" verticalAlign="middle" verticalGap="0">
+						<mx:VBox verticalGap="0" paddingTop="0" paddingLeft="0" verticalAlign="middle">
+							<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period"/>
 							<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130"/>					
-						</mx:HBox>						<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" width="39"/>
-						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
-												  labelField="@name" 
-												  prompt="Select a lab..."
-												  width="150"
-												  change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()"
-												  close="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()"
-												  id="labCombo">
-						</renderers:FilterComboBox>   
+						</mx:VBox>
+						<mx:VBox verticalGap="0">
+							<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0"/>
+							<mx:ComboBox id="labCombo" 
+										 labelField="@name"
+										 dataProvider="{parentApplication.promptedLabList}"
+										 visible="true"  width="180" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()">
+							</mx:ComboBox>				   
+						</mx:VBox>
 					</mx:HBox>
-				      <mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="0" paddingRight="0">
-				      	<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
-				      </mx:CheckBox>
 		    	</mx:VBox>  
 
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="left" paddingRight="0">
-					<mx:Label id="billingAccountLabel" visible="true" text="Account" paddingBottom="0"/>
-					<mx:VBox verticalGap="0">
-						<mx:ComboBox id="billingAccountCombo" 
-							labelField="@accountNameDisplay"
-							 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()">
-						</mx:ComboBox>
-						<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0">
-							<mx:RadioButton label="Acct name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+					<mx:VBox verticalGap="0"> 
+						<mx:HBox horizontalGap="1" paddingBottom="0" paddingTop="0">
+							<mx:RadioButton label="Account name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
 								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="Acct #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
-								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
+							<mx:RadioButton label="Account #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
+								<mx:click>{pickAccountDropdownLabel()}</mx:click>
 							</mx:RadioButton>
 							
 						</mx:HBox>
+						<mx:ComboBox id="billingAccountCombo" 
+							labelField="@accountNameDisplay"
+							 visible="true"  width="272" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()">
+						</mx:ComboBox>
 						
 					</mx:VBox>
 			   	
 		    	</mx:HBox> 
-			    <mx:VBox>
-					<mx:HBox horizontalGap="0" defaultButton="{lookupButton}">
-						<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" />
-						<mx:TextInput id="requestNumberText" width="55">
-						</mx:TextInput>			   	
-						<mx:Button id="lookupButton"  
-							height="18"
-							click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
-					</mx:HBox>
-				  	<mx:HBox horizontalGap="0" defaultButton="{invLookupButton}">
-						<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0" />
-						<mx:TextInput id="invoiceNumberLookupText" width="55">
-						</mx:TextInput>			   	
-						<mx:Button id="invLookupButton"  
-						    height="18"
-							click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
-			  		</mx:HBox>
-				</mx:VBox>
+		    	<mx:VBox verticalGap="0" verticalAlign="middle">
+					<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" />
+					<mx:TextInput id="requestNumberText" enter="refresh()" width="75">
+					</mx:TextInput>			   	
+		    	</mx:VBox>
+		    	<mx:VBox verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+					<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0" />
+					<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refresh()">
+					</mx:TextInput>			   	
+		    	</mx:VBox>
 
 		   </mx:HBox> 	
 	    </mx:VBox>
@@ -2215,9 +2233,13 @@
 				<mx:VBox width="100%">
 					<mx:HBox width="100%">
 						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
+						<mx:Spacer width="100%"/>
+						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="8" paddingRight="0">
+							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
+						</mx:CheckBox>
 					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:HBox id="invoiceBox" visible="{lastSelectedInvoice != null}" horizontalGap="0">
+					<mx:HBox width="100%" verticalAlign="middle">
+						<mx:HBox id="invoiceBox" visible="{lastSelectedInvoice != null}" horizontalGap="0" verticalAlign="middle">
 							<mx:Label styleName="titleLabel" text="Invoice:"/>
 							<mx:Label id="invoiceNumberlabel" styleName="titleLabel" text="Number"/>
 							<mx:TextInput id="invoiceNumberText" change="invoiceNumberText_changeHandler()" width="120" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@invoiceNumber}" enabled="{this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Lab'}" />
@@ -2327,7 +2349,7 @@
    
 				<mx:ControlBar width="100%">
 				
-				      <mx:HBox width="100%" horizontalAlign="right" horizontalGap="0">
+				      <mx:HBox width="100%" horizontalAlign="right" horizontalGap="0" verticalAlign="middle">
 				        <mx:HBox width="100%" horizontalGap="0">
 				        	<mx:LinkButton  label="Reassign" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
 				        		<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>

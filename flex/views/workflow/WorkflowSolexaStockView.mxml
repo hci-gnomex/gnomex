@@ -5,9 +5,9 @@
 	xmlns:util="views.util.*"
 	width="100%" height="100%" 
 >
-<mx:HBox>
+<mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconFlask}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Flow Cell Stock"/>	
+	<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Flow Cell Stock" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>	
 </mx:HBox>
 	
 	<mx:HTTPService 

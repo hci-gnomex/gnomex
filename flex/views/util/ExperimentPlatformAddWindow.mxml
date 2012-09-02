@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="366" height="150" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="360" height="150" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
     <mx:HTTPService 
     id="saveExperimentPlatform" 
     url="SaveExperimentPlatform.gx"
@@ -99,12 +99,12 @@
 </mx:Script>
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
 		    <mx:Text text="Name"/>
-			<mx:TextInput id="platformName" width="100%"/>
+			<mx:TextInput id="platformName" width="100%" backgroundColor="#FFFFFF"/>
 	</mx:HBox>
 	
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
 		<mx:Text text="Code Request Category"/>
-		<mx:TextInput id="codeRequestCategoryField" width="100%"/>
+		<mx:TextInput id="codeRequestCategoryField" width="100%" backgroundColor="#FFFFFF"/>
 	</mx:HBox>
 	
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">

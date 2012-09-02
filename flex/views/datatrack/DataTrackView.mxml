@@ -7,15 +7,36 @@
 		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
 	
 	
-	<mx:HBox horizontalGap="1" width="100%">
+	<mx:HBox horizontalGap="1" width="100%" verticalAlign="middle">
 			<mx:Image source="{getDataTrack.lastResult.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : (getDataTrack.lastResult.@codeVisibility == 'MEM' ? parentApplication.iconDataTrackMember : (getDataTrack.lastResult.@codeVisibility == 'MEMCOL' ? parentApplication.iconDataTrackMemberCollab : (getDataTrack.lastResult.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackPublic)))}"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Data Track ' + getDataTrack.lastResult.@number}" />
+			<mx:LinkButton  label="UCSC Browser" 
+						   icon="@Embed(source='../../assets/ucscFavicon.png')"
+						   disabledIcon="@Embed(source='../../assets/ucscFaviconDeselected.png')"  					        	
+						   toolTip="Create file link(s) for viewing the selected data track in the UCSC Genome Browser"
+						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackFiles.length !=0 &amp;&amp;  getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
+						   click="{parentDocument.createUCSCLink()}" 
+						   id="makeUCSCLinkButton"  paddingLeft="20" textDecoration="underline"/>
+			<mx:LinkButton label="IGV Browser" 
+						   icon="@Embed(source='../../assets/igv.png')"
+						   disabledIcon="@Embed(source='../../assets/igv_disable.png')"  					        	
+						   toolTip="Create file link(s) for viewing the selected data track in the IGV Genome Browser"
+						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackFiles.length !=0 &amp;&amp;  getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
+						   click="{parentDocument.createIGVLink()}" 
+						   id="makeIGVLinkButton"  textDecoration="underline"/>
+			<mx:LinkButton label="URL Links" 
+						   icon="@Embed(source='../../assets/icon_link.gif')"
+						   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"  					        	
+						   toolTip="Creates URL file link(s) for accessing the selected data tracks via HTTP"
+						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
+						   click="{parentDocument.createURLLinks()}" 
+						   id="makeURLLinksButton"   textDecoration="underline"/>
 			<mx:LinkButton styleName="linkMenuButton" label="Download" 
 						   icon="@Embed(source='../../assets/download.png')" 
 						   enabled="true" visible="false" includeInLayout="false"
 						   click="{parentDocument.treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
 			<mx:Spacer width="20"/>
-			<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+			<mx:LinkButton label="Share"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
             <mx:Spacer width="100%"/>
 			<mx:Label text="Created " 
 					  visible="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}"
