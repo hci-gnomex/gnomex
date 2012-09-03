@@ -1,122 +1,123 @@
 html {
-  font-size:14px;font-weight:normal;font-family:Helvetica,"Helvetica Neue","Microsoft Sans Serif",Arial;color:#FFFFFF;}
+	font-size:14px;font-weight:normal;font-family:Helvetica,"Helvetica Neue","Microsoft Sans Serif",Arial;color:#9E8D8D;}
 }
 
 
 h1 {
-  font-weight: normal;
-  font-size: 24pt;
-  margin-top: 10px;
+	font-weight: normal;
+	font-size: 24pt;
+	margin-top: 10px;
 }
 
 h3 {
-  font-weight: bold;
-  font-size: 11pt;
-  color: #696969;
-  padding-bottom: 5px;
-  margin-bottom: 5px;
-  padding-top: 0px;
-  margin-top: 0px;}
+	font-weight: bold;
+	font-size: 11pt;
+	color: #696969;
+	padding-bottom: 5px;
+	margin-bottom: 5px;
+	padding-top: 0px;
+	margin-top: 0px;}
 
 a {
-  color: #FFFFFF;
-  padding: 10px;
-  font-size: 11pt;
-  text-decoration: none;
-  }
+	color: #9E8D8D;
+	padding: 4px;
+	padding-top: 5px;
+	font-size: 12pt;
+	text-decoration: underline;
+}
 a:active {
-  color: #15c;
+	color: #15c;
 }
 a:hover {
-  text-decoration: underline;
+	text-decoration: underline;
 }
 
 a.login {
-  color: blue;
-  float: left;
-  padding-left: 0px;
-  padding-top: 15px;
-  padding-bottom: 2px;
+	color: blue;
+	float: left;
+	padding-left: 0px;
+	padding-top: 15px;
+	padding-bottom: 2px;
 }
 
 
 a.other {
-  color: blue;
-  padding-left: 1px;
-  padding-right: 1px;
-  padding-bottom: 0px;
-  padding-top: 0px;
-  font-size: 10pt;
-   
+	color: blue;
+	padding-left: 1px;
+	padding-right: 1px;
+	padding-bottom: 0px;
+	padding-top: 0px;
+	font-size: 10pt;
+	
 }
 
 .header-bar {
-  float: center;
-  width: 913px;
-  height: 82px;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  background: transparent url(../assets/navbar_wide.png) no-repeat;}
+	float: top;
+	width: 800px;
+	height: 50px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	background: transparent url(../assets/gnomex_logo4.png) no-repeat;}
 
 
 .box {
-  background-color: #ececd9;
-  overflow: auto;
-  padding: 10px;
-  width: 320px;
-  float: center;
-  color: #696969;
-  border: 1px solid #8B8970;
+	background-color: #ececd9;
+	overflow: auto;
+	padding: 10px;
+	width: 320px;
+	float: center;
+	color: #696969;
+	border: 1px solid #8B8970;
 }
 
 
 .boxMedium {
-  background-color: #ececd9;
-  border: 1px solid #8B8970;
-  overflow: auto;
-  padding: 10px;
-  width: 410px;
-  float: center;
-color: #696969;
+	background-color: #ececd9;
+	border: 1px solid #8B8970;
+	overflow: auto;
+	padding: 10px;
+	width: 410px;
+	float: center;
+	color: #696969;
 }
 
 
 .boxWide {
-  background-color: #ececd9;  
-  border: 1px solid #8B8970;
-  overflow: auto;
-  padding: 10px;
-  width: 435px;
-  float: center;
-color: #696969;
+	background-color: #ececd9;  
+	border: 1px solid #8B8970;
+	overflow: auto;
+	padding: 10px;
+	width: 435px;
+	float: center;
+	color: #696969;
 }
 
 .col1 {
-  clear:both;
-  float:left;
-  width: 100px;
-  padding-top: 2px;
-  margin-top: 2px;
-  padding-right: 2px;
-  margin-right: 2px;
+	clear:both;
+	float:left;
+	width: 100px;
+	padding-top: 2px;
+	margin-top: 2px;
+	padding-right: 2px;
+	margin-right: 2px;
 }
 
 .col1Wide {
-  clear:both;
-  float:left;
-  width: 180px;
-  padding-top: 2px;
-  margin-top: 2px;
-  padding-right: 2px;
-  margin-right: 2px;
+	clear:both;
+	float:left;
+	width: 180px;
+	padding-top: 2px;
+	margin-top: 2px;
+	padding-right: 2px;
+	margin-right: 2px;
 }
 
 .col2 {
-  float:left;
-  padding-top: 2px;
-  margin-top: 2px;
-  padding-right: 10px;
-  margin-right: 10px;
+	float:left;
+	padding-top: 2px;
+	margin-top: 2px;
+	padding-right: 10px;
+	margin-right: 10px;
 }
 
 
@@ -140,99 +141,99 @@ color: #696969;
 
 
 .buttonPanel {
-  float: right;
-  padding-top: 7px;
-  margin-top: 7px;
-  padding-right: 20px;
+	float: right;
+	padding-top: 7px;
+	margin-top: 7px;
+	padding-right: 20px;
 }
 
 input.submit {
-  font-size: 11pt;
-  color: #696969;
-  width: 70px;
-  height: 34px;
-  vertical-align: middle;
+	font-size: 11pt;
+	color: #696969;
+	width: 70px;
+	height: 34px;
+	vertical-align: middle;
 }  
 
 input.text {
-    height: 23px;
-    float: left;
-    font-size: 10pt;
-    color: #696969;
-    width: 185;  
+	height: 23px;
+	float: left;
+	font-size: 10pt;
+	color: #696969;
+	width: 185;  
 }
 
 
 
 input.text.textWide {
-  float: left;
-   width: 280px;
-    height: 23px;
-    font-size: 10pt;
-    color: #696969;
+	float: left;
+	width: 280px;
+	height: 23px;
+	font-size: 10pt;
+	color: #696969;
 }
 
 .textWide {
-  float: left;
-  width: 280px;
-  height: 23px;
-  font-size: 10pt;
+	float: left;
+	width: 280px;
+	height: 23px;
+	font-size: 10pt;
 }
 
 
 div.left {
-  float: left;
+	float: left;
 }
 
 div.leftInfo {
-  float: left;
-  clear: both;
-  padding-top: 5px;
-  margin-top: 5px;
+	float: left;
+	clear: both;
+	padding-top: 5px;
+	margin-top: 5px;
 }
 
 div.leftButton {
-  clear:both;
-  float: left;
-  padding-top: 7px;
-  margin-top: 7px;
-  border: none;
-  width: 150;
+	clear:both;
+	float: left;
+	padding-top: 7px;
+	margin-top: 7px;
+	border: none;
+	width: 150;
 }
 
 div.right {
 	float: right;
-        padding-right: 2px;
-        margin-right: 5px;
-        padding-top: 2px;
-        margin-top: 2px;
+	padding-right: 2px;
+	margin-right: 5px;
+	padding-top: 2px;
+	margin-top: 2px;
 }
 
 
 div.rightMenu {
 	float: right;
-        padding-right: 10px;
-        margin-right: 10px;
-        padding-top: 5px;
-        margin-top: 5px;
+	padding-right: 5px;
+	margin-right: 5px;
+	padding-top: 7px;
+	margin-top: 7px;
 }
 
 .containerMessage{
-  width: 400px;
-  height: 100px;
-  float: center;
-  clear: left;
-  background-color: #ececd9;
-  padding-top: 16px;
-  margin-top: 16px;
-  padding-bottom: 0px;
-  color: #696969;
-  border: 1px solid #8B8970;
+	width: 400px;
+	height: 100px;
+	float: center;
+	clear: left;
+	background-color: #ececd9;
+	padding-top: 16px;
+	margin-top: 16px;
+	padding-bottom: 0px;
+	color: #696969;
+	border: 1px solid #8B8970;
 }
 
 .message {
-  color: SeaGreen;
-  margin-top: 15px;
-  padding-top: 15px;
-  float: center;
+	color: SeaGreen;
+	margin-top: 15px;
+	padding-top: 15px;
+	float: center;
 }

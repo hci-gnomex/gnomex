@@ -37,7 +37,7 @@ session.invalidate();
       <a href="gnomexFlex.jsp">Login</a> |    
       <a href="change_password.jsp">Change password</a> |    
       <a href="reset_password.jsp">Reset password</a> |    
-      <a href="register_user.jsp">Create a new account</a> 
+      <a href="register_user.jsp">Sign up for an account</a> 
   </div>
 </div>
  <div class="containerMessage">
