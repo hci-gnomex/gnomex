@@ -65,7 +65,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
     Document doc = new Document(new Element(listKind));
     
     // If this is a guest user and the list is bounded, return an empty lab list
-    if (this.getSecAdvisor().isGuest() && !labFilter.isUnbounded()) {
+    if (this.getSecAdvisor().isGuest()/* && !labFilter.isUnbounded()*/) {
       
     } else {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());

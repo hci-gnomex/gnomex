@@ -1156,8 +1156,8 @@
 	
 	<mx:states>
 		<mx:State name="GuestState">
-			<mx:AddChild target="{searchLabel}" position="before">
-				<mx:Label id="titleLabel2" styleName="titleLabel5" text="Analysis" fontFamily="Tahoma" fontSize="14" paddingRight="10" fontWeight="bold"/>
+			<mx:AddChild relativeTo="{searchLabel}" position="before">
+				<mx:Label id="titleLabel2" text="Analysis"/>
 			</mx:AddChild>
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
