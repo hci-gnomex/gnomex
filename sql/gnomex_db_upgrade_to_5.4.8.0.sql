@@ -9,6 +9,9 @@ insert into PropertyDictionary(propertyName, propertyValue, propertyDescription,
   values('experiment_default_view', 'my experiments', 'Indicates default experiment view for non-admin users.  Values are "my experiments", "my lab" or "all".','N');
 insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly) 
   values('experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.','N');
+  
+insert into PropertyDictionary(propertyName, propertyDescription, forServerOnly)
+values('purchase_supplies_url', 'Link to purchase supplies for DNA SEQ CORE', 'N');
 
 -- Add table PropertyAnalysisType
 DROP TABLE IF EXISTS `gnomex`.`PropertyAnalysisType`;
