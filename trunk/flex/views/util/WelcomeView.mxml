@@ -431,6 +431,12 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsageView;
 			}
 			
+			private function openPurchaseSuppliesLink(event:MouseEvent):void{
+				var url:URLRequest = new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL));
+				url.method = URLRequestMethod.POST;
+				navigateToURL(url, '_blank');
+			}
+			
 		]]> 
 	</mx:Script>
 	
@@ -505,8 +511,13 @@
 							   label="Track Usage" styleName="dashboardButton" 
 							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
 				<mx:LinkButton label="Upload and Download Help" click="parentApplication.showUploadDownloadHints()" styleName="dashboardButton"  id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
+				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}">
+					<mx:HBox horizontalGap="2">
+						<mx:Label text="Purchasing" styleName="welcomeLabel"/>
+					</mx:HBox>
+					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')"/>
+				</mx:VBox>
 			</mx:VBox>
 		</mx:HBox>
-		
 	</mx:VBox>
 </mx:Canvas>
