@@ -132,7 +132,7 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf = new StringBuffer();
     
     // Get all samples that are in tubes (well with no idPlate) or plates
-    queryBuf.append(" SELECT     sample.idSample ");
+    queryBuf.append(" SELECT     sample.idSample, well.idAssay, well.idPrimer ");
     
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
