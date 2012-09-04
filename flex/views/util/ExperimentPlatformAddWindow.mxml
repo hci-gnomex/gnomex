@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="360" height="160" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="392" height="174" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+
     <mx:HTTPService 
     id="saveExperimentPlatform" 
     url="SaveExperimentPlatform.gx"
@@ -98,17 +99,17 @@
 	]]>
 </mx:Script>
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-		    <mx:Text text="Name"/>
-			<mx:TextInput id="platformName" width="100%" backgroundColor="#FFFFFF"/>
+		    <mx:Text text="Name" width="130"/>
+			<mx:TextInput id="platformName" width="100%" backgroundColor="#FFFFFF" borderColor="#797E81" borderStyle="inset" borderThickness="1"/>
 	</mx:HBox>
 	
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-		<mx:Text text="Code Request Category"/>
-		<mx:TextInput id="codeRequestCategoryField" width="100%" backgroundColor="#FFFFFF"/>
+		<mx:Text text="Code Request Category" width="130"/>
+		<mx:TextInput id="codeRequestCategoryField" width="100%" backgroundColor="#FFFFFF" borderColor="#898F93"/>
 	</mx:HBox>
 	
 	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-		<mx:Text text="Type"/>
+		<mx:Text text="Type" width="130"/>
 		<mx:ComboBox id="typeCombo" dataProvider="{platformTypes}" labelField="@label" width="100%" change="{updatePlatform()}"/>
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
