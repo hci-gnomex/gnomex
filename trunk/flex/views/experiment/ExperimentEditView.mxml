@@ -3645,7 +3645,7 @@
 		private function showViewWindow():void {
 			parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
 			parentDocument.experimentDetailView.detail.setupForm(this.request);
-			parentDocument.experimentDetailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ')+ this.request.@number;
+			parentDocument.experimentDetailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ')+ this.request.@number;
 
 		}
 		

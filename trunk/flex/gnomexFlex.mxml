@@ -289,7 +289,7 @@
 			private var cursorID:Number = 0;
 
 			[Bindable]
-			[Embed(source="assets/gnomex_logo4.png")]
+			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
 			
 
@@ -2524,21 +2524,21 @@
 
 	    <mx:VBox id="theBody"   backgroundColor="#FFFFFF"
 	    	width="100%" height="100%" 
-	    	verticalGap="4"  
+	    	verticalGap="0"  
 	    	paddingTop="0" paddingLeft="2" 
-	    	paddingRight="2" paddingBottom="2">
+	    	paddingRight="2" paddingBottom="2" borderStyle="outset">
 	    
 
 		  <mx:VBox width="100%"  id="navBar" 
 		  	 verticalGap="0" 
-	 	  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" cornerRadius="4">
+	 	  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" >
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 			      <mx:HBox width="100%"  
 				  horizontalAlign="left" verticalAlign="middle" horizontalGap="10"  
 			      	paddingBottom="6" id="hbox1" 
 			      	paddingTop="6" 
-			      	paddingLeft="4" paddingRight="4" borderStyle="solid" borderColor="#B6BFC5">
+			      	paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
 						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
 							<mx:Image source="{iconLogo}"/>
 						</mx:HBox>
@@ -2614,8 +2614,8 @@
 		  </mx:VBox>  
 		      
 	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" 
-	    	paddingRight="0" horizontalCenter="0" verticalGap="0">
+	    	height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
+	    	paddingRight="0" horizontalCenter="0" verticalGap="0" backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 			   
