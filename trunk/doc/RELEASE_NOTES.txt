@@ -34,6 +34,9 @@
 * Reduced length of data track labels on data track navigation window. (rcundick)
 * Fixed bug that was causing the property list on the analysis annotation tab to not refresh properly after the user added a new property.(tcourdy)
 * Added Purchase supplies link on the welcome view that is only shown if the link is present as a property and the user is part of a dna seq core lab.(tcourdy)
+* Fixed functionality problem with login as guest followed by logout and login as normal user. (rcundick)
+* Fixed actionscript error when deleting lanes from experiment. (rcundick)
+* Fixed bug when opening Analysis navigation window in guest state. (rcundick)
 
 deploy notes 
 --------------------

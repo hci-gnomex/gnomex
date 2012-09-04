@@ -2,19 +2,20 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequence Lanes" enabled="true" width="100%" height="100%">
 <mx:Script>	
 	<![CDATA[
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.core.DragSource;
 		import mx.events.CloseEvent;
 		import mx.events.DragEvent;
-		import mx.events.DragEvent;
 		import mx.managers.DragManager;
-        import mx.core.DragSource; 
-        import mx.events.CloseEvent;
-        import mx.controls.Alert;
-        import hci.flex.controls.DropdownLabel; 
-        import views.renderers.ComboBox;
-        import views.renderers.ComboBoxWorkflowStatus;
-        import mx.collections.XMLListCollection;
+		
+		import views.renderers.ComboBox;
+		import views.renderers.ComboBoxWorkflowStatus;
+
         
-        private var laneToDelete:Object = null;
+        private var lanesToDelete:XMLListCollection = null;
         		
 		private function addLane():void {
 			
@@ -68,15 +69,18 @@
 		}
 		private function deleteLane():void {
 			if (lanesGrid.selectedItems.length > 0) { 
+				lanesToDelete = new XMLListCollection();
 				for each(var lane:Object in lanesGrid.selectedItems) {
-					promptToDeleteLane(lane);
-				}
+					lanesToDelete.addItem(lane);
+				}				
+				promptToDeleteLane();
 			} 
 		}
 		
-		public function promptToDeleteLane(lane:Object):void {
+		public function promptToDeleteLane():void {
+			var lane:Object = lanesToDelete.getItemAt(0);
 			// If we user is not an admin, he can only delete
-			// lanes that are truly edittable
+			// lanes that are truly editable
 			if (!parentApplication.hasPermission("canWriteAnyObject")) {
 				if (canLaneBeChanged(lane)) {
 					// Okay to delete because it is a new lane or
@@ -85,12 +89,12 @@
 					// Not okay for non-admin to delete.
 					Alert.show("Insufficient permissions to delete lane " + lane.@number + 
 					  ".  Please contact the " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + 
-					  " to assit in modifying this experiment.");
+					  " to assist in modifying this experiment.");
 					return; 
 				}
 			}
 			
-			laneToDelete = lane;
+
 			if (lane.hasOwnProperty("@idFlowCellChannel") && lane.@idFlowCellChannel != null && lane.@idFlowCellChannel != "" ) {
 				Alert.show("Warning: Lane " + lane.@number + " is already loaded on flow cell " + lane.@flowCellNumber + "-" + lane.@flowCellChannelNumber +  
 				           " Remove lane anyway?",
@@ -122,10 +126,17 @@
 		
 		private function onPromptToDeleteLane(event:CloseEvent):void {
 			if (event.detail == Alert.YES) {
-				var index:int = parentDocument.lanes.getItemIndex(laneToDelete);			
+				var lane:Object = lanesToDelete.getItemAt(0);
+				var index:int = parentDocument.lanes.getItemIndex(lane);			
 				parentDocument.lanes.removeItemAt(index);
+				lanesToDelete.removeItemAt(0);
+				if(lanesToDelete.length > 0) {
+					promptToDeleteLane();
+					return;
+				}
 			}
-			laneToDelete = null;
+			lanesToDelete = null;
+
 		}
 		
 		
