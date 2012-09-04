@@ -559,7 +559,7 @@
 			} 
 			
 			if (browseTree.selectedItem.name() == 'Request') {
-				var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + browseTree.selectedItem.@requestNumber;
+				var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + browseTree.selectedItem.@requestNumber;
 				experimentDetailView.titleLabel.text = viewTitle;
 				experimentDetailView.navBackButton.visible = false;
 				experimentDetailView.navBackButton.includeInLayout = false;
@@ -753,7 +753,7 @@
 				params.searchPublicProjects = 'N';
 				getProjectRequestList.send(params);
 				
-			    experimentDetailView.titleLabel.text = (selectedExperiment.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + selectedRequestNumber;
+			    experimentDetailView.titleLabel.text = (selectedExperiment.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + selectedRequestNumber;
 			    
 			    
 			}
