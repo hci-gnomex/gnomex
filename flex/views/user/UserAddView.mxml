@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add User" width="344" height="110" defaultButton="{saveButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add User" width="344" height="115" defaultButton="{saveButton}">
     <mx:HTTPService 
     id="saveAppUser" 
     url="SaveAppUser.gx"
