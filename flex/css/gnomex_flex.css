@@ -138,20 +138,21 @@ Panel {
 
 TitleWindow {
 	borderColor: #FFFFFF;
-	backgroundColor: #ebe6f1;
+	backgroundColor: #FFFFFF;
 	cornerRadius: 4;
-	borderThicknessTop: 0;
-	borderThicknessBottom: 0;
-	borderThicknessLeft: 0;
-	borderThicknessRight: 0;
+	borderThicknessTop: 6;
+	borderThicknessBottom: 6;
+	borderThicknessLeft: 6;
+	borderThicknessRight: 6;
 	titleStyleName: titleWindowTitle;
 	headerHeight: 20;
 	controlBarStyleName: titleWindowControlBar;
 	dropShadowEnabled: true;
-	borderAlpha: 1;
-	backgroundAlpha: 1;
-	backgroundSize: "100%";
+	borderAlpha: 1.0;
+	backgroundAlpha: 1;	
 	statusStyleName: titleWindowStatus;
+	paddingTop: 4;
+	paddingBottom: 2;
 }
 .titleWindowTitle
 { 
@@ -191,19 +192,21 @@ Alert {
 TitleWindow {
 	headerColors: #FFFFFF, #FFFFFF; 
 	borderColor: #FFFFFF;
-	backgroundColor: #FFFFFF;
+	backgroundColor: #F0F0F0;
 	cornerRadius: 4;
 	borderThicknessTop: 2;
 	borderThicknessBottom: 2;
 	borderThicknessLeft: 2;
 	borderThicknessRight: 2;
 	titleStyleName: titleWindowTitle;
-	headerHeight: 32;
+	headerHeight: 22;
 	controlBarStyleName: titleWindowControlBar;
 	dropShadowEnabled: true;
-	borderAlpha: 1.0;
+	borderAlpha: 1;
 	backgroundAlpha: 1.0;
 	backgroundSize: "100%";
+	paddingBottom: 1;
+	paddingTop: 0;
 }
 
  
@@ -592,8 +595,8 @@ Label.titleLabel
 	horizontalGap: 1;
 	paddingTop: 2;
 	paddingBottom: 2;
-	rollOverColor: #F1F7CD;
-	selectionColor: #F8F79F;
+	rollOverColor: #AFF9FA;
+	selectionColor: #AFF9FA;
 }
 .warningLabel
 {
@@ -653,8 +656,8 @@ Label.titleLabel
 }
 Label.welcomeLabel
 {
-	fontFamily: Verdana;
-	color: #9E8D8D;
+	fontFamily: Tahoma;
+	color: #897979;
 	fontSize: 14;
 	fontWeight: bold;
 }
