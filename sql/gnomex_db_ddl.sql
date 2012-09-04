@@ -1754,10 +1754,10 @@ ENGINE = INNODB;
 
 -- Add table PropertyAnalysisType
 DROP TABLE IF EXISTS `gnomex`.`PropertyAnalysisType`;
-CREATE TABLE gnomex.PropertyAnalysisType ( 
-     idProperty	int(10),
-     idAnalysisType           INT(10),
-     PRIMARY KEY (idProperty, idAnalysisType),
+CREATE TABLE gnomex.PropertyAnalysisType (
+   idProperty INT(10) NOT NULL,
+   idAnalysisType INT(10) NOT NULL,
+   PRIMARY KEY (idProperty, idAnalysisType),
     CONSTRAINT FK_PropertyAnalysisType_Property FOREIGN KEY FK_PropertyAnalysisType_Property (idProperty)
     REFERENCES gnomex.Property (idProperty)
     ON DELETE NO ACTION

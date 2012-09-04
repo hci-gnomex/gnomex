@@ -15,15 +15,15 @@ values('purchase_supplies_url', 'Link to purchase supplies for DNA SEQ CORE', 'N
 
 -- Add table PropertyAnalysisType
 DROP TABLE IF EXISTS `gnomex`.`PropertyAnalysisType`;
-CREATE TABLE gnomex.PropertyAnalysisType ( 
-     idProperty	int(10),
-     idAnalysisType           INT(10),
-     PRIMARY KEY (idProperty, idAnalysisType),
-    CONSTRAINT FK_PropertyAnalysisType_Property FOREIGN KEY FK_PropertyAnalysisType_Property (idProperty)
+CREATE TABLE gnomex.PropertyAnalysisType (
+   idProperty INT(10) NOT NULL,
+   idAnalysisType INT(10) NOT NULL,
+   PRIMARY KEY (idProperty, idAnalysisType),
+    CONSTRAINT FK_PropertyAnalysisType_Property FOREIGN KEY  (idProperty)
     REFERENCES gnomex.Property (idProperty)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-    CONSTRAINT FK_PropertyAnalysisType_AnalysisType FOREIGN KEY FK_PropertyAnalysisType_AnalysisType (idAnalysisType)
+    CONSTRAINT FK_PropertyAnalysisType_AnalysisType FOREIGN KEY  (idAnalysisType)
     REFERENCES gnomex.AnalysisType (idAnalysisType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
