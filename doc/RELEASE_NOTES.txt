@@ -37,6 +37,7 @@
 * Fixed functionality problem with login as guest followed by logout and login as normal user. (rcundick)
 * Fixed actionscript error when deleting lanes from experiment. (rcundick)
 * Fixed bug when opening Analysis navigation window in guest state. (rcundick)
+* Fixed bug in GetPendingSampleList that was incorrectly removing wells based on samples already on reaction plate.  Needed to consider assays and primers.  (tdisera)
 
 deploy notes 
 --------------------
