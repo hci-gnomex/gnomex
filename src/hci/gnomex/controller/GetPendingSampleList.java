@@ -88,14 +88,23 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // We hash these so that they will be excluded from the
       // pending sample list
       //
-      HashMap<Integer, Integer> samplesToFilter = new HashMap<Integer, Integer>(); 
+      HashMap<Integer, List<Object[]>> samplesToFilter = new HashMap<Integer, List<Object[]>>(); 
       StringBuffer buf = filter.getPendingSamplesAlreadyOnPlateQuery();
       log.info("Pending samples already on plate GetPendingSampleList: " + buf.toString());
       Query query = sess.createQuery(buf.toString());
       List pendingSamplesAlreadyOnPlate = (List)query.list();
       for (Iterator i = pendingSamplesAlreadyOnPlate.iterator(); i.hasNext();) {
-        Integer idSample = (Integer)i.next();
-        samplesToFilter.put(idSample, idSample);
+        Object[] row = (Object[])i.next();
+        Integer idSample = (Integer)row[0];
+        Integer idAssay  = (Integer)row[1];
+        Integer idPrimer = (Integer)row[2];
+        
+        List<Object[]> theRows = samplesToFilter.get(idSample);
+        if (theRows == null) {
+          theRows = new ArrayList<Object[]>();
+          samplesToFilter.put(idSample, theRows);
+        }
+        theRows.add(row);
       }
 
       //
@@ -153,7 +162,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     return this;
   }
   
-  private void hashResults(List rows, DictionaryHelper dictionaryHelper, Map<Integer, Integer>samplesToFilter) {
+  private void hashResults(List rows, DictionaryHelper dictionaryHelper, Map<Integer, List<Object[]>>samplesToFilter) {
     // Hash the pending tubes
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -164,11 +173,43 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       
       // Filter out rows for samples already on reaction plate
       if (samplesToFilter != null) {
+
         if (samplesToFilter.containsKey(idSample)) {
-          continue;
+          List<Object[]> theRows = samplesToFilter.get(idSample);
+          
+          // Loop through all of the plate wells on reaction plates for this sample.
+          // For cap seq, we bypass if the sample is found.  For frag analysis,
+          // we bypass if there is a matching sample and assay found on a reaction
+          // plate.  For met seq, we bypass if we find a matching sample and
+          // primer on the reaction plate.
+          boolean found = false;
+          for (Object[] theRow : theRows) {
+            Integer idAssayOnPlate = (Integer)theRow[1];
+            Integer idPrimerOnPlate = (Integer)theRow[2];
+            if (idAssay != null) {
+              if (idAssayOnPlate != null && idAssay.equals(idAssayOnPlate)) {
+                found = true;
+                break;
+              }
+            } else if (idPrimer != null) {
+              if (idPrimerOnPlate != null && idPrimer.equals(idPrimerOnPlate)) {
+                found = true;
+                break;
+              }
+              
+            } else {
+              found = true;
+              break;
+            }
+          }
+          if (found) {
+            continue;
+          }
+
         }
       }
 
+      
       String assayKey = " ";
       if (idAssay != null && idAssay.intValue() != -1) {
         assayKey = DictionaryManager.getDisplay("hci.gnomex.model.Assay", idAssay.toString());
