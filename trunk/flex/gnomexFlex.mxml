@@ -237,7 +237,6 @@
             
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
-			import mx.events.MenuEvent;
 			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
@@ -252,6 +251,7 @@
 			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
 			import mx.managers.CursorManager;
 			import mx.managers.CursorManagerPriority;
 			import mx.managers.PopUpManager;
@@ -261,6 +261,7 @@
 			import views.admin.AlignmentProfileEvent;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
+			import views.admin.PropertyWindow;
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
@@ -270,14 +271,13 @@
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
 			import views.util.DownloadHints;
+			import views.util.ExperimentPlatformWindow;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
+			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
 			import views.util.WorkAuthorizationWindow;
-			import views.util.ExperimentPlatformWindow;
-			import views.util.OrganismsWindow;
-			import views.admin.PropertyWindow;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -808,6 +808,7 @@
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
 			public var PROPERTY_DEFAULT_VISIBILITY_DATATRACK :String      = "default_visibility_datatrack";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
+			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 
