@@ -12,6 +12,9 @@
         <property environment="env" />
         <property file="${basedir}/build.properties" />
     	
+		<tstamp>
+		    <format property="build.date" pattern="MMM-dd-yyyy HH:MM" locale="en,UK"/>
+		</tstamp> 
 
         <!-- Directories -->
        	<mkdir dir="${build.dir}" />
@@ -217,7 +220,7 @@
 			  <attribute name="class-path" value="log4j.jar"/>
 					<section name="gnomex">
 	  	      <attribute name="Built-By" value="${user.name}"/>
-  	  	    <attribute name="Implementation-Version" value="${gnomex_version}"/>
+  	  	    <attribute name="Implementation-Version" value="${gnomex_version}    (${build.date})"/>
 					</section>
     		</manifest>
 
