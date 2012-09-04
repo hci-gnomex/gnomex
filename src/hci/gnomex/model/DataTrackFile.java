@@ -32,7 +32,7 @@ public class DataTrackFile extends HibernateDetailObject {
   
   public String getAssociatedFilePath(String baseDir) {
     String filePath = "";
-    if (analysisFile != null) {
+    if (analysisFile != null && analysisFile.getAnalysis() != null && analysisFile.getAnalysis().getCreateDate() != null) {
       String createYear = Analysis.getCreateYear(analysisFile.getAnalysis().getCreateDate());
       String dirName = baseDir + "/" + createYear + "/" + analysisFile.getAnalysis().getNumber();
       if (analysisFile.getQualifiedFilePath() != null && !analysisFile.getQualifiedFilePath().equals("")) {
