@@ -3,7 +3,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" width="318" height="300"  
 	label="horizontal" 
 	xmlns:util="views.util.*"  backgroundAlpha="0.0" backgroundColor="#FFFFF"> 
-	 <mx:VBox   width="100%" height="100%" id="mainArea"  horizontalAlign="center" verticalAlign="top">
+	 <mx:VBox   width="100%" height="100%" id="mainArea"  horizontalAlign="center" verticalAlign="middle" backgroundColor="#FFFFFF" verticalGap="20" borderStyle="outset">
 		 <mx:Image source="assets/hciLogoSplash.png" scaleContent="false"/>
 		 
 		 <mx:Text text="Initializing GNomEx"  id="label1"  styleName="progressLabel" color="#7B6D64" fontFamily="Verdana" fontSize="16" fontWeight="normal"/>	 	
@@ -12,6 +12,7 @@
 	 	 <mx:State name="StartupState">
 	 	 	 <mx:SetProperty target="{label1}" name="text">
 	 	 	 </mx:SetProperty>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalAlign" value="middle"/>
 	 	 </mx:State>
 	 	 <mx:State name="LoadingState">
 	 	 	 <mx:RemoveChild target="{label1}"/>
@@ -27,6 +28,7 @@
 	 	 	 	         label="Loading application settings..." fontWeight="normal" fontSize="16" color="#7B6D64"/>
 	 	 	 </mx:AddChild>
 	 	 	 <mx:SetStyle target="{mainArea}" name="verticalGap" value="30"/>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalAlign" value="middle"/>
 	 	 </mx:State>
 	 	 <mx:State name="AuthenticationFailedState" basedOn="StartupState">
 	 	 	 <mx:SetProperty target="{label1}" name="text">

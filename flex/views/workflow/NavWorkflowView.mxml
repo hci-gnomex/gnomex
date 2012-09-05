@@ -200,40 +200,40 @@
         ]]>
     </mx:Script>
 
-	<mx:HDividedBox width="100%" height="100%">
+	<mx:HDividedBox width="100%" paddingTop="4" paddingBottom="4" paddingLeft="4" paddingRight="4" height="100%">
 
-		<mx:TabNavigator id="navBar" styleName="navTabNavigator" width="140"  height="100%" change="onTabChange()">
+		<mx:TabNavigator id="navBar" styleName="navTabNavigator" width="170"  height="100%" change="onTabChange()">
 			<mx:Canvas id="hiSeqTab" width="100%" height="100%" icon="{parentApplication.iconHiSeq}" toolTip="HiSeq workflow">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
-					<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4">
+					<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12">
 					</mx:LinkBar> 
 					
 					<mx:Spacer height="20"/>			  		
 					<mx:HRule>
 					</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="11"/>
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontFamily="Verdana" fontSize="12"/>
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
-					<mx:LinkBar dataProvider="miSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4">
+					<mx:LinkBar dataProvider="miSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12">
 					</mx:LinkBar> 
 					
 					<mx:Spacer height="20"/>			  		
 					<mx:HRule>
 					</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{miSeqViews.selectedChild=this.blankMiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="11"/>
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{miSeqViews.selectedChild=this.blankMiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12"/>
 				</mx:VBox>
 			</mx:Canvas>			
-			<mx:Canvas id="microarrayTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Microarray workflow"> 
+			<mx:Canvas id="microarrayTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Microarray workflow" fontSize="12"> 
 				<mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			  		<mx:Text text="Microarray and Sample Quality" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
 			  		
-			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()"  height="131" >
+			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12">
 			  		</mx:LinkBar>
 				
 				</mx:VBox>

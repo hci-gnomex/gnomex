@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="776" height="540"  
+	layout="vertical" width="776" height="470"  
 	xmlns:views="views.*"
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
 	title="{'GNomEx ' + parentApplication.version }" 
-	backgroundColor="#ffffff" fontSize="12">
+	backgroundColor="#ffffff" fontSize="14" alpha="1.0" fontFamily="Tahoma">
 	<mx:VBox width="100%" verticalGap="8" height="100%" fontSize="10" paddingTop="2" paddingLeft="2" styleName="form" paddingRight="2" paddingBottom="2" backgroundImage="@Embed(source='../../assets/welcome_background.png')" backgroundSize="100%" borderStyle="none">
-		<mx:HBox width="100%" horizontalAlign="center" id="hbox10">
+		<mx:HBox width="100%" horizontalAlign="center" id="hbox10" paddingTop="10" paddingBottom="10">
   			<mx:Image source="assets/gnomex_logo_small.png"/>
   		</mx:HBox>
 
-		<mx:VBox width="100%" verticalGap="2">
-			<mx:Text text="Functionality" fontWeight="bold" fontSize="11" paddingBottom="1"/>
+		<mx:VBox width="100%" verticalGap="2" fontSize="12">
+			<mx:Text text="Functionality" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="A LIMS for making and tracking requests for genomic analysis (e.g. Microarray hybridizations, massive parallel sequencing)"/>				
@@ -32,8 +32,8 @@
 			
 		</mx:VBox>
 			
-		<mx:VBox width="100%" verticalGap="1">		
-			<mx:Text text="Contact Info" fontWeight="bold" fontSize="11" paddingBottom="1"/>
+		<mx:VBox width="100%" verticalGap="1" fontSize="12">		
+			<mx:Text text="Contact Info" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="To report software bugs or give feedback, please email" width="320"/>				
@@ -46,8 +46,8 @@
 			</mx:HBox>
 		</mx:VBox>
 
-		<mx:VBox width="100%" verticalGap="1">
-			<mx:Text text="Credits" fontWeight="bold" fontSize="11" paddingBottom="1"/>
+		<mx:VBox width="100%" verticalGap="1" fontSize="12">
+			<mx:Text text="Credits" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="GNomEx was developed by Hunstman Cancer Institute Informatics and designed in conjuction with the Microarray Core Facility and the Microarray Bioinformatics Group." width="100%"/>
@@ -59,9 +59,9 @@
 			</mx:HBox>
 		</mx:VBox>
 		
-		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center" horizontalGap="60">
-			<mx:Image source="assets/hciInformatics.jpg"/>
-			<mx:Image source="assets/hcsLogo.jpg"/>
+		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center" horizontalGap="60" paddingTop="20">
+			<mx:Image source="assets/hciLogo.png"/>
+			<mx:Image source="assets/hcsLogoTransparent.gif"/>
 		</mx:HBox>
 	</mx:VBox>
 	<mx:Script>
