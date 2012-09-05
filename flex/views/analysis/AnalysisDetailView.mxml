@@ -428,15 +428,15 @@
 	</mx:XMLListCollection>
 	
 	<mx:HBox width="100%" verticalGap="20" verticalAlign="middle" horizontalGap="20">
-		<mx:HBox horizontalGap="1">
+		<mx:HBox horizontalGap="1" verticalAlign="middle">
 			<mx:Image source="{parentApplication.iconAnalysis}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="bottom">
 			
 			<mx:HBox  horizontalCenter="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
-				<mx:LinkButton id="edtButton" label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">
+				<mx:LinkButton id="edtButton" label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" paddingLeft="0" textAlign="left">
 					<mx:height>{analysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 					<mx:visible>{analysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>
@@ -446,10 +446,10 @@
 							   textDecoration="underline" 
 							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
 							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
-							   textAlign="left" fontSize="9" paddingLeft="0">    	        
+							   textAlign="left" paddingLeft="0">    	        
 				</mx:LinkButton>				
 				<mx:Spacer width="5"/>
-				<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+				<mx:LinkButton label="Share web link" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 				
 			</mx:HBox>
 			

@@ -1037,10 +1037,10 @@
 	<mx:HBox width="100%" verticalGap="10" verticalAlign="middle" horizontalGap="24">
 		<mx:HBox horizontalGap="1" verticalAlign="middle">
 			<mx:Image source="{parentApplication.iconAnalysis}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
+			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis"  fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
 		</mx:HBox>
 		<mx:HBox horizontalAlign="left">
-			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">    	        
+			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" textAlign="left">    	        
 			</mx:LinkButton>
 			<mx:LinkButton label="Distribute Data Tracks" 
 						   click="showDataTracks()" 
@@ -1048,10 +1048,10 @@
 						   textDecoration="underline" 
 						   visible="{analysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
 						   includeInLayout="{analysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
-						   textAlign="left" fontSize="9" paddingLeft="0">    	        
+						   textAlign="left" paddingLeft="0">    	        
 			</mx:LinkButton>				
 
-			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" fontSize="9" textAlign="left"/>
+			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" textAlign="left"/>
 		</mx:HBox>
 	</mx:HBox>
 	
@@ -1102,7 +1102,7 @@
 						<mx:VBox verticalGap="0">
 							<mx:Label text="Analysis Type" width="100" fontWeight="normal" paddingBottom="0">
 							</mx:Label>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>							
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>							
 						</mx:VBox>
 						<mx:VBox verticalGap="0" width="100%">
 							<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
@@ -1113,7 +1113,7 @@
 						<mx:VBox verticalGap="0">
 							<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
 							</mx:Label>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>														
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>														
 						</mx:VBox>
 						<mx:VBox verticalGap="0">
 							<mx:ComboBox  width="200" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
@@ -1124,7 +1124,7 @@
 						<mx:VBox  width="100" verticalGap="0">
 							<mx:Label text="Organism" fontWeight="normal">
 							</mx:Label>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" fontSize="10"/>
 						</mx:VBox>								
 						<mx:VBox verticalGap="0">
 							<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
@@ -1136,7 +1136,7 @@
 						<mx:VBox verticalGap="0" width="100">
 							<mx:Label text="Genome Builds" width="100%" fontWeight="normal">
 							</mx:Label>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>
 						</mx:VBox>
 						<mx:VBox verticalGap="0">																		
 							<mx:HBox verticalGap="0">
