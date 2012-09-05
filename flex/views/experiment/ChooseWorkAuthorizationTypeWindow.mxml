@@ -58,7 +58,7 @@
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" verticalGap="2" styleName="form" paddingTop="4" paddingLeft="4" paddingRight="4" >
-		<mx:LinkButton  label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
+		<mx:LinkButton includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
 			<mx:click>showWorkAuthForm()</mx:click>
 		</mx:LinkButton>
 		<mx:Repeater id="urlRepeater" dataProvider="{urlList}">

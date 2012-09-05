@@ -109,7 +109,7 @@
 				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button20"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
-				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button21"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
+				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" styleName="dashboardButton" id="button21"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:AddChild>
 			<mx:RemoveChild target="{button3}"/>
 			<mx:RemoveChild target="{button5}"/>
@@ -495,7 +495,7 @@
 					height="20"/>
 				<mx:Label text="Billing" id="label4" styleName="welcomeLabel"/>
 				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}" includeInLayout="{parentApplication.pricingURL != ''}"/>
-				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
+				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:VBox>
 			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox12">
 				<mx:HBox id="hbox5" horizontalGap="2">
