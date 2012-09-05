@@ -181,6 +181,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     // Hash map of assays chosen.  Build up the map
     Map<String, ArrayList<String>> sampleAssays = new HashMap<String, ArrayList<String>>();
     for (Sample sample : (Set<Sample>)req.getSamples()) {
+      sample.setIdSampleString(sample.getIdSample().toString());
       Integer idAssay = null;
       for (PlateWell well : (Set<PlateWell>)sample.getWells()) {
         if (well.getIdPrimer() == null && well.getIdAssay() == null) {
