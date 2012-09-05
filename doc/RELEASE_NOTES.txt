@@ -38,6 +38,7 @@
 * Fixed actionscript error when deleting lanes from experiment. (rcundick)
 * Fixed bug when opening Analysis navigation window in guest state. (rcundick)
 * Fixed bug in GetPendingSampleList that was incorrectly removing wells based on samples already on reaction plate.  Needed to consider assays and primers.  (tdisera)
+* Fixed save error bug that occurred in Illumina Pipeline workflow when Clusters Passed Filter (M) exceeded max (9999.99).  Provide informative warning message.  (tdisera)
 
 deploy notes 
 --------------------
