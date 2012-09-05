@@ -31,11 +31,6 @@
   1. Create a spreadsheet containing the columns you wish to populate. You do not need to include all of the columns on the sample view grid - just those to be filled in.
 ]]></mx:htmlText>
 					</mx:Text>
-					<mx:HBox width="100%" horizontalAlign="center">
-    					<mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}" label="Example sample sheet for plate" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" height="31"/>
-					    <mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}" label="Example sample sheet for tubes" click="{downloadSampleSheetExample('example_sample_sheet_tubes.xls')}"   color="#0000FF" height="31"/>
-					    <mx:LinkButton textDecoration="underline" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}" label="Example sample sheet" click="{downloadSampleSheetExample('example_sample_sheet.xls')}"   color="#0000FF" height="31"/>
-					</mx:HBox>
 					
 					<mx:Text width="100%" height="100">
 						<mx:htmlText><![CDATA[  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
