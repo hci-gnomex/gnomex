@@ -264,11 +264,11 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                   response.getOutputStream().print( comments + "\t" );
                   
                   if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
-                    response.getOutputStream().print( "Finch\tLongSeq50\tSeq_A\t\r\n");
+                    response.getOutputStream().print( "HCI\tLongSeq50\tSeq_A\t\r\n");
                   } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
-                    response.getOutputStream().print( "SMGF_Seq\tLongSeq50\tPCR\t\r\n");
+                    response.getOutputStream().print( "HCI\tLongSeq50\tPCR\t\r\n");
                   } else if ( codeReactionType.equals( ReactionType.FRAGMENT_ANALYSIS_REACTION_TYPE )) {
-                    response.getOutputStream().print( "\t\t\t\t\t\t\t\tSMGF_FA\tFragAnalysis-RCT_50_POP7\t\n");
+                    response.getOutputStream().print( "\t\t\t\t\t\t\t\tHCI\tFragAnalysis-RCT_50_POP7\t\n");
                   }
                 }
                 
