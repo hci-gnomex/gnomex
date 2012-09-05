@@ -19,7 +19,6 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private String   facilityName;
   private String   isActive;
   private String   showProjectAnnotations;
-  private Set      managers;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -66,16 +65,7 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
     showProjectAnnotations = val;
   }
   
-  public Set getManagers() {
-    return managers;
-  }
-  
-  public void setManagers(Set managers) {
-    this.managers = managers;
-  }
-  
   public void registerMethodsToExcludeFromXML() {
-    this.excludeMethodFromXML("getManagers");
     this.excludeMethodFromXML("getExcludedMethodsMap");
   }
 

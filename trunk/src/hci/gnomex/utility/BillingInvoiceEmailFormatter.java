@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -77,7 +78,11 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   public String getCCList(Session sess, String serverName) {
     String ccList = "";
     if (billingAccount.getIsPO() != null && billingAccount.getIsPO().equals("Y")) {
-      for (Iterator j = coreFacility.getManagers().iterator(); j.hasNext();) {
+      String queryString = "select distinct user from AppUser user join user.managingCoreFacilities cores where cores.idCoreFacility = :id";
+      Query query = sess.createQuery(queryString);
+      query.setParameter("id", coreFacility.getIdCoreFacility());
+      List managers = query.list();
+      for (Iterator j = managers.iterator(); j.hasNext();) {
         AppUser manager = (AppUser)j.next();
         Boolean send = false;
         if (manager.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
