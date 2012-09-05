@@ -56,6 +56,7 @@
         import mx.controls.Alert;
         import hci.flex.controls.DropdownLabel;
         import views.renderers.ComboBoxWorkflowStatus;
+		import mx.validators.NumberValidator;  
 
 		[Bindable]
         public var codeStepNext:String;
@@ -109,10 +110,49 @@
         
         
         private function save():void {
-        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+			if (!validate()) {
+				return;
+			}
+			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItem.send();
         }
+			
+		private function validate():Boolean {
+			var message:String = "";
+			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+			
+			var nv:NumberValidator = new NumberValidator();
+			nv.domain = "real";
+			nv.required = false;
+			nv.minValue = "0";
+			nv.maxValue = "9999";
+			nv.precision = 2;
+			nv.allowNegative = false;
+			nv.exceedsMaxError = "exceeds max (9999.99)";
+			nv.invalidCharError = "contains invalid characters.";
+			nv.negativeError = "cannot be negative.";
+			nv.precisionError = "has too many digits beyond the decimal point";
+			
+			var item:Object = null;
+			var vr:ValidationResultEvent  = null;
+			for each (item in dirtyItems) {
+				vr = nv.validate(item.@read1ClustersPassedFilterM);
+				if (vr.type == ValidationResultEvent.INVALID) {
+					message += "\nClusters Passed Filter (M) " + item.@read1ClustersPassedFilterM + " " + vr.message;
+					break;
+				}
+			} 
+			
+			
+			if (message != "") {
+				Alert.show(message);
+				return false;
+			} else {
+				return true;
+			}
+		}
+
         
         private function onGetWorkList(event:ResultEvent):void {
         	if (event.result.name() == "WorkItemList") {
@@ -223,7 +263,7 @@
 					<mx:DataGridColumn headerText="Q30 (%)" width="14" dataField="@q30PercentForDisplay" editable="true">
 						<mx:itemEditor>
 							<mx:Component>
-								<mx:TextInput restrict="0-9." /> 
+								<mx:TextInput restrict="0-100." /> 
 							</mx:Component>
 						</mx:itemEditor> 
 					</mx:DataGridColumn>			                
