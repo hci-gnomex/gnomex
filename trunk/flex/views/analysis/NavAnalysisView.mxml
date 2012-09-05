@@ -1056,7 +1056,7 @@
 			  </mx:HBox>
           	  <mx:HBox horizontalGap="0" verticalAlign="middle">
           	      <mx:Label text="Search" id="searchLabel" paddingLeft="6"/>
-	          	  <mx:TextInput id="searchTextField"/>     
+	          	  <mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF"/>     
 			      <mx:Button id="lookupButton"  
 			              	fontFamily="Arial"  height="18" width="30"
 			               	color="#400040" click="{if (searchTextField.text != '') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
@@ -1156,12 +1156,9 @@
 	
 	<mx:states>
 		<mx:State name="GuestState">
-			<mx:AddChild relativeTo="{searchLabel}" position="before">
-				<mx:Label id="titleLabel2" text="Analysis"/>
-			</mx:AddChild>
+
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
-			<mx:RemoveChild target="{linkbutton2}"/>
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
 			<mx:RemoveChild target="{hbox2}"/>
