@@ -117,8 +117,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
     this.isLabManager = isLabManager;
 
-    validate();
     setGlobalPermissions();    
+    validate();
   }
   
   private SecurityAdvisor() throws InvalidSecurityAdvisorException {
@@ -1334,7 +1334,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     globalPermissionMap = new HashMap();
     
    
-    if (isGuest) {
+    if (isGuest || appUser.getCodeUserPermissionKind() == null) {
       return;
     }
     
@@ -1779,6 +1779,21 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // user permission is required
     if (!isGuest && getAppUser().getCodeUserPermissionKind() == null) {
       throw new InvalidSecurityAdvisorException("UserPermissionKind required for SecurityAdvisor");
+    }
+    if (this.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      // No criteria needed if this is a super user
+    } else if (this.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+ 
+      // Filter to show only labs associated with core facilities this admin manages
+      if (this.getCoreFacilitiesIManage().isEmpty()) {
+        throw new InvalidSecurityAdvisorException("Admin is not assigned to any core facilities.");
+      }
+    } else if (!isGuest) {
+      
+      // Filter to show only labs associated with core facilities this user is associated with
+      if (this.getCoreFacilitiesForMyLab().isEmpty()) {
+        throw new InvalidSecurityAdvisorException("User is not assigned to any labs.");
+      }
     }
   }
   
