@@ -54,6 +54,7 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" req.idAppUser, ");
     queryBuf.append(" req.idLab, ");
     queryBuf.append(" req.idCoreFacility, ");
+    queryBuf.append(" req.corePrepInstructions, ");
     queryBuf.append(" count(sample.idSample) ");
     
     getQueryBody(queryBuf);
@@ -73,8 +74,9 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" lab.lastName, ");
     queryBuf.append(" req.idAppUser, ");
     queryBuf.append(" req.idLab, ");
-    queryBuf.append(" req.idCoreFacility ");
-
+    queryBuf.append(" req.idCoreFacility, ");
+    queryBuf.append(" req.corePrepInstructions ");
+    
     queryBuf.append(" order by req.idRequest ");
 
     return queryBuf;

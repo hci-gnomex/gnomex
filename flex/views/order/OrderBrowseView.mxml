@@ -826,7 +826,7 @@
 
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
 
-					<mx:DataGridColumn dataField = "@notes" headerText = "Notes" width = "120" />
+					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"  />
 					
 				</mx:columns>
 				
