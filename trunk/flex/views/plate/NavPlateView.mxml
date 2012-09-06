@@ -3011,7 +3011,7 @@
 										cornerRadius="10"
 										horizontalGap="1"
 										paddingLeft="0"
-										paddingRight="0" />
+										paddingRight="0" disabledColor="#397AD2"/>
 							
 						</mx:HBox>
 						
