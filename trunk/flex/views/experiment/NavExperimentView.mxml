@@ -1103,6 +1103,7 @@
 		             
 		             dropProject = p;
 		             dragRequest = items[i];
+					 selectedIdRequest = dragRequest.@idRequest;
 		           	 promptToReassignProject();
 		             
 		       	} 
@@ -1116,21 +1117,10 @@
 			PopUpManager.centerPopUp(changePrompt);
 			var message:String = "Reassign experiment " + dragRequest.@requestNumber +
 				" to project " + dropProject.@projectName + "?";
-			changePrompt.init(this, message, dropProject.@idLab, dragRequest.@idAppUser);
-			/*
-			
-	   		var message:String = "Reassign experiment " + dragRequest.@requestNumber +
-	               " to project " + dropProject.@projectName + "?";
-	
-			Alert.show(message, 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToReassignProject);
-			*/
-			
+			changePrompt.init(this, message, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount);			
 		}
 		
-		public function onPromptToReassignProject(result:String, idOwner:String):void {
+		public function onPromptToReassignProject(result:String, idOwner:String, idBillingAccount:String):void {
             if (result=="Yes") {
 	            selectedProject = dropProject;
 	            selectedIdProject = dropProject.@idProject;
@@ -1140,6 +1130,7 @@
 	            params.idRequest = dragRequest.@idRequest;
 				params.idProject = dropProject.@idProject;
 				params.idAppUser = idOwner;
+				params.idBillingAccount = idBillingAccount;
 	                  		
            		saveRequestProject.send(params);
             } else {
@@ -1154,6 +1145,10 @@
    			dragRequest = null;
        		if (saveRequestProject.lastResult.name() == "SUCCESS") {
 				this.refreshExperimentsAfterDrag();
+				// Inform if billing accounts reassigned on billing items
+				if (saveRequestProject.lastResult.@billingAccountMessage != '') {
+					Alert.show(saveRequestProject.lastResult.@billingAccountMessage);
+				}
 			
         	} else {
 				this.refreshExperimentsAfterDrag();

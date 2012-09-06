@@ -4836,7 +4836,7 @@
 					       	  dataProvider="{billingAccounts}" 
 					       	  change="{this.dirty.setDirty();}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
-					       	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"/>
+					       	  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"/>
 					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
@@ -4937,17 +4937,15 @@
 				 	
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
-						<renderers:FilterComboBox id="requestEditLabCombo"
+						<mx:ComboBox id="requestEditLabCombo"
 												  labelField="@name" 
 												  change="this.dirty.setDirty();refreshLab()" 
 												  close="this.dirty.setDirty();refreshLab()" 
-												  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 												  width="400" 
-												  dataProvider="{parentApplication.submitRequestLabList.source}" 
-												  prompt="Select a lab..." >
-						</renderers:FilterComboBox>
-					</mx:HBox>
-					
+												  dataProvider="{parentApplication.submitRequestLabList.source}" >
+						</mx:ComboBox>
+					</mx:HBox>					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
 						<mx:Label text="Project"  width="100" fontWeight="normal"/>
 						<mx:ComboBox id="requestEditProjectCombo"
@@ -4974,7 +4972,7 @@
 									 labelField="@displayName" 
 									 change="this.dirty.setDirty();" 
 									 dataProvider="{appUsersForLab}" 
-									 enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+									 enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 									 width="400"/>
 					</mx:HBox>
 						

@@ -48,6 +48,8 @@
 			import mx.events.PropertyChangeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import hci.flex.util.DictionaryManager;
+			import hci.flex.dictionary.DictionaryEvent;
 			
 			
 			[Bindable]
@@ -55,22 +57,30 @@
 			
 			public var codeRequestCategorySelected:Object = null;
 			
+			[Bindable]
+			public var dictionaryManager:DictionaryManager;
+			
 			private function init():void {
 				getExperimentPlatformList.send();
+				
+				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
+				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
+				dictionaryManager.call("load", "");
 				
 				this.sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
 				this.sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
 				
 			}
 			
+			public function onDictionariesLoaded(event:Event):void {	
+				
+			}		
 			
 			
 			private function closeWindow():void {
 				PopUpManager.removePopUp(this);
 				callLater(parentApplication.dictionaryManager.reload);
 			}
-			
-			
 			
 			private function onGetExperimentPlatformList(event:ResultEvent): void {
 				if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
@@ -239,9 +249,9 @@
 					requestCategory = platformList.selectedItem;
 					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
 					
-					vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
-					organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
-					coreFacilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',requestCategory.@idCoreFacility);
+					vendorCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
+					organismCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
+					coreFacilityCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',requestCategory.@idCoreFacility);
 					var expIconLst:XMLList = parentApplication.expIcons.item; 
 					iconCombo.selectedIndex = 0;
 					for(var i:Number = 0; i < expIconLst.length(); i++) {
@@ -517,7 +527,7 @@
 	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
 	<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
 	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
-	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
+	<mx:XMLListCollection id="coreFacilities" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody">
 		<mx:HBox width="100%"  backgroundImage="@Embed(source='../../assets/filterBarDarkGrey.png')" backgroundSize="100%" verticalAlign="middle" height="35">
@@ -562,7 +572,7 @@
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Vendor" width="80"/>
 								<mx:ComboBox  width="100%" 
-											  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" 
+											  dataProvider="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" 
 											  labelField="@display"
 											  close="{this.dirty.setDirty();}"
 											  id="vendorCombo"/>
@@ -614,7 +624,7 @@
 								<mx:Text text="Default Organism" 
 										 width="80" visible="{isInternalCheckbox.selected}" />
 								<mx:ComboBox width="100%" id="organismCombo"
-											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
+											 dataProvider="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
 											 labelField="@display" visible="{isInternalCheckbox.selected}" close="{this.dirty.setDirty();}"/>
 							</mx:HBox>
 							
@@ -652,10 +662,10 @@
 													   sortable="true" 
 													   editable="true" 
 													   rendererIsEditor="false"  
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
-													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
+													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
+													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
 									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="250"
-													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
+													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
 													   dataField="@idSeqLibProtocols"/>
 									<mx:DataGridColumn headerText="Min Insert Size" id="insertSizeMin" dataField="@avgInsertSizeFrom" editable="true"
 													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}"/>
@@ -665,21 +675,21 @@
 													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" editorDataField="selected" editable="false"/>
 									<mx:DataGridColumn headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
-													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
+													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="idHybProtocol" 
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"   
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
-													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
+													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="idScanProtocol"  
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"   
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
-													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
+													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="idFeatureExtractionProtocol"  
 													   editorDataField="value"  
 													   sortable="true" editable="true" rendererIsEditor="false"  
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
-													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>										
+													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="Active"  
 													   width="45"  
 													   editable="false"                      	
@@ -733,7 +743,7 @@
 														   dataField="@display" editable="true" >
 										</mx:DataGridColumn>
 										<mx:DataGridColumn headerText="Experiment Types"  
-														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
+														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
 														   dataField="@codeApplications" >
 										</mx:DataGridColumn>
 										<mx:DataGridColumn headerText="Active"  
