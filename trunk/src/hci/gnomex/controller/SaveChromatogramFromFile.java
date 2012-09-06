@@ -36,8 +36,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    // fileName parameter should not contain the path... 
-    // Will look in some default path for the file with this name.
+    // fileName parameter should not contain the path
     if (request.getParameter("fileName") != null && !request.getParameter("fileName").equals("")) {
       fileName = request.getParameter("fileName");
     } else {
@@ -64,10 +63,11 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
+      // Get the abi file and create a chromatogram read utility object
       File abiFile = new File(filePath, fileName);
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
       
-      // CreateDB  chromatogram object
+      // Create new DB chromatogram object
       Chromatogram chromatogram = new Chromatogram();
       sess.save(chromatogram);
       
@@ -78,61 +78,68 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       String idString = comments.substring(ind1+4, ind2);
       int idPlateWell = !idString.equals(null) ? Integer.parseInt(idString):0;
       
-      // Get the plate well object from db or create a new one
-      PlateWell well = null;
-      well = (PlateWell) sess.get(PlateWell.class, idPlateWell);
+      // Get the plate well object from db, make sure it exists
+      PlateWell well = (PlateWell) sess.get(PlateWell.class, idPlateWell);
       if (well==null) {
-        well = new PlateWell();
-        sess.save(well);
+        throw new Exception("Chromatogram is not associated with a plate well.");
       }
       idPlateWell = well.getIdPlateWell();
+
+      // Check that the chromat and plate well belong to a plate and a run
+      if ( well.getPlate() == null ) {
+        throw new Exception("Chromatogram does not belong to a plate.");
+      } else if ( well.getPlate().getInstrumentRun() == null ) {
+        throw new Exception("Chromatogram does not belong to an instrument run.");
+      }
       
       // Figure out the experiment directory the file is to go to.
       // If this is a control, the chromatogram will be placed in an instrument
-      // run directory.  Otherwise, the chromatogram will be places in the
+      // run directory.  Otherwise, the chromatogram will be placed in the
       // experiment directory.
       String destDir = "";
-      if (well.getIdRequest() == null) {
-        if (well.getPlate() == null || well.getPlate().getInstrumentRun() == null) {
-          throw new Exception("Chromatogram " + chromatogram.getIdChromatogram() + " does not belong to an instrument run");
-        }
+      
+      if ( well.getIsControl().equals( "Y" ) || well.getIdRequest() == null) {
+        // Control
         baseDir = PropertyDictionaryHelper.getInstance(sess).getInstrumentRunDirectory(serverName, this.idCoreFacility);
         destDir = baseDir + "/" + well.getPlate().getInstrumentRun().getCreateYear() + "/" + well.getPlate().getInstrumentRun().getIdInstrumentRun();
-        File dir = new File(destDir);
-        if (!dir.exists()) {
-          boolean success = dir.mkdirs();          
-          if (!success) {
-            throw new Exception("Unable to create instrument run directory " + destDir + " for chromatogram " +  chromatogram.getIdChromatogram());      
-          }
-        }
       } else {
+        // Non-controls / Chromat belongs to a request
         Request request = (Request)sess.load(Request.class, well.getIdRequest());
+        if ( request == null ) {
+          throw new Exception("The request associated with the plate well does not exist.");
+        }
         baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
         destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
       }
-
+      // Check for or create a new destination directory
+      File dir = new File(destDir);
+      if (!dir.exists()) {
+        boolean success = dir.mkdirs();          
+        if (!success) {
+          throw new Exception("Unable to create destination directory: " + destDir + " for chromatogram." );      
+        }
+      }
       
+      
+      // Parse chromatogram data from the file:
       // Signal Strengths:
       int aSignalStrength = chromatReader.getSignalStrengths()[1];
       int cSignalStrength = chromatReader.getSignalStrengths()[3];
       int gSignalStrength = chromatReader.getSignalStrengths()[0];
       int tSignalStrength = chromatReader.getSignalStrengths()[2];
-      
+      // Lane
       int lane = Integer.parseInt(chromatReader.getLane());
-      
-      // Q20, Q40
+      // Quality scores
       int q20 = chromatReader.getQ(20);
       int q40 = chromatReader.getQ(40);
-      
-      
+      // Trim length
       ChromatTrimUtil trimUtil = new ChromatTrimUtil(abiFile);
       int trimLength = trimUtil.getTrimInterval()[1]-trimUtil.getTrimInterval()[0] + 1;
       
       
-      // Set chromatogram variables
+      // Set chromatogram object attributes
       chromatogram.setIdPlateWell(idPlateWell);
       chromatogram.setPlateWell(well);
-      // idRequest could be parsed from ABI file itself too?
       chromatogram.setIdRequest(well.getIdRequest());
       chromatogram.setQualifiedFilePath(destDir);
       chromatogram.setDisplayName(abiFile.getName());
@@ -149,18 +156,15 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       sess.flush();
       
 
-      
       if (isValid())  {
+        // Success!
         this.xmlResult = "<SUCCESS idChromatogram=\"" + chromatogram.getIdChromatogram() + "\"" +
         " idRequest=\"" + chromatogram.getIdRequest() + "\"" +
         " destDir=\"" + destDir + "\"" +
         " />";
         setResponsePage(this.SUCCESS_JSP);
-      }
-      setResponsePage(this.SUCCESS_JSP);
-      if (isValid()) {
-        setResponsePage(this.SUCCESS_JSP);
       } else {
+        // Not successful :(
         setResponsePage(this.ERROR_JSP);
       }
 
