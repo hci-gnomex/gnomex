@@ -2,8 +2,8 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="Reassignment"
 	showCloseButton="true" 
-	width="440" 
-	height="140"
+	width="480" 
+	height="188"
 	close="closeWindow('No')"
 	xmlns:util="views.util.*" verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
@@ -31,6 +31,7 @@
 	import views.util.StringUtil;
 		
 	private var idLab:String;
+	private var idBillingAccount:String;
 	private var currentOwnerId:String;	
 		
 	[Bindable]
@@ -40,11 +41,12 @@
 	private var navExperimentView:NavExperimentView;
 		
 		
-	public	function init(navExperimentView:NavExperimentView, message:String, idLab:String, currentOwnerId:String):void {
+	public	function init(navExperimentView:NavExperimentView, message:String, idLab:String, currentOwnerId:String, idBillingAccount:String):void {
 		this.navExperimentView = navExperimentView;
 		this.message.text = message;
 		this.idLab = idLab;
 		this.currentOwnerId = currentOwnerId;
+		this.idBillingAccount = idBillingAccount;
 		
 		var params:Object = new Object();
 		params.idLab = idLab;
@@ -54,7 +56,19 @@
 	private function onGetLab(event:ResultEvent):void {	
 		if (getLab.lastResult.name() == "OpenLabList") {		
 			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
-			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			
+			var emptyNode:XML = <BillingAccount idBillingAccount='' accountName=''/>;
+			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+			billingAccounts.addItemAt(emptyNode, 0);
+			requestEditBillingAccountCombo.selectedItem = null;
+			for each(var ba:Object in billingAccounts) {
+				if (ba.@idBillingAccount == idBillingAccount) {
+					requestEditBillingAccountCombo.selectedItem = ba;
+					break;
+				}
+			}						
+			
+			emptyNode = <AppUser idAppUser='' displayName=''/>;
 			appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
 			for each (var mgr:Object in lab.managers.AppUser) {
 				if (!appUsersForLab.contains(mgr)) {
@@ -63,6 +77,12 @@
 					}
 					
 				}
+			}
+			if(appUsersForLab.length == 0) {
+				Alert.show("Sorry, in order to reassign this experiment you must change its owner to a member of the new lab group. However, you do not have permission to access the member list for this lab. Please contact an administrator.");
+				navExperimentView.onPromptToReassignProject("No", null, null);
+				PopUpManager.removePopUp(this);
+				return;
 			}
 			appUsersForLab.addItemAt(emptyNode, 0);
 			
@@ -86,26 +106,38 @@
 		if(closeStatus == "Yes") {
 			if (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0) {
 				ownerCombo.setFocus();
-				Alert.show("Please select select the experiment owner.");
+				Alert.show("Please select the experiment owner.");
+				return;        		
+			} 
+			if (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedIndex == 0) {
+				requestEditBillingAccountCombo.setFocus();
+				Alert.show("Please select the experiment billing account.");
 				return;        		
 			} 
 			
 		}
-		navExperimentView.onPromptToReassignProject(closeStatus, ownerCombo.selectedItem.@idAppUser);
+		navExperimentView.onPromptToReassignProject(closeStatus, ownerCombo.selectedItem.@idAppUser, requestEditBillingAccountCombo.selectedItem.@idBillingAccount);
 		PopUpManager.removePopUp(this);		
 	}
 		
 	]]>
     </mx:Script>
+	<mx:XMLListCollection id="billingAccounts" />
+	
     <mx:VBox width="100%" height="100%" verticalGap="10"  verticalScrollPolicy="off" horizontalScrollPolicy="off">
 		<mx:HBox width="100%" >
 			<mx:TextArea id="message" editable="false" wordWrap="true" fontSize="11" width="100%" backgroundColor="#DDDDDD"/>
 		</mx:HBox>				
 		<mx:HBox width="100%">
-			<mx:Label text="Owner" width="105"/>
-			<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+			<mx:Label text="Owner" width="50"/>
+			<util:ComboBoxDatProvChangeFix  width="409" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+		</mx:HBox>	
+		<mx:HBox width="100%">
+			<mx:Label text="Account" width="50"/>
+			<mx:ComboBox id="requestEditBillingAccountCombo"
+						 labelField="@accountName" width="409"
+						 dataProvider="{billingAccounts}" />
 		</mx:HBox>		
-
     </mx:VBox>
 
 	<mx:ControlBar horizontalAlign="right" height="29">

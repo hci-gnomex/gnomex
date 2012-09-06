@@ -1,5 +1,7 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
@@ -33,6 +35,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
   private Integer    idProject;
   private Integer    idRequest;
   private Integer    idAppUser;
+  private Integer    idBillingAccount;
 
   
   
@@ -61,11 +64,17 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       this.addInvalidField("idAppUser", "idAppUser is required");
     }
 
+    if (request.getParameter("idBillingAccount") != null && !request.getParameter("idBillingAccount").equals("")) {
+      idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
+    } else {
+      this.addInvalidField("idBillingAccount", "idBillingAccount is required");
+    }
+
     
   }
 
   public Command execute() throws RollBackCommandException {
-    
+    String billingAccountMessage = "";
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
@@ -90,13 +99,38 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         request.setIdProject(idProject);       
         request.setIdLab(project.getIdLab());
         request.setIdAppUser(idAppUser);
+        request.setIdBillingAccount(idBillingAccount);
+          
+        // Change the account on the billing items.
+        int reassignCount =  0;
+        int unassignedCount = 0;
+        for(Iterator ib = request.getBillingItems().iterator(); ib.hasNext();) {
+          BillingItem bi = (BillingItem)ib.next();
+          if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+            bi.setIdBillingAccount(request.getIdBillingAccount());   
+            bi.resetInvoiceForBillingItem(sess);
+            reassignCount++;
+          } else  {
+            unassignedCount++;
+          }
+        }
+        if (unassignedCount > 0) {
+          billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
+        } 
+        if (billingAccountMessage.length() > 0) {
+          billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
+        } else {
+          billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+        }
+        if (reassignCount > 0) {
+          sess.flush();
+        }
 
         sess.save(request);
         sess.flush();
 
-        
-
-        this.xmlResult = "<SUCCESS idRequest=\"" + request.getIdRequest() + "\"/>";
+        this.xmlResult = "<SUCCESS idRequest=\"" + request.getIdRequest() 
+        + "\" billingAccountMessage = \"" + billingAccountMessage + "\"/>";
       
         setResponsePage(this.SUCCESS_JSP);        
       } 
