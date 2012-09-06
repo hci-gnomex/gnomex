@@ -78,7 +78,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       Integer idAppUser               = (Integer)row[12];
       Integer idLab                   = (Integer)row[13];
       Integer idCoreFacility          = (Integer)row[14];
-      Integer numberOfSamples         = (Integer)row[15];
+      String  corePrepInstructions    = (String)row[15];
+      Integer numberOfSamples         = (Integer)row[16];
 
       String requestStatus = dh.getRequestStatus(codeRequestStatus);
       String labName = Lab.formatLabName(labLastName, labFirstName);
@@ -103,6 +104,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       node.setAttribute("createDate", createDate);
       node.setAttribute("ownerName", toString(ownerName));
       node.setAttribute("labName", toString(labName));
+      node.setAttribute("corePrepInstructions", toString(corePrepInstructions));
       node.setAttribute("numberOfSamples", toString(numberOfSamples));
       node.setAttribute("isSelected", "N");
           
