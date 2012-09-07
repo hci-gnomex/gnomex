@@ -2,7 +2,7 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
-<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina HiSeq 2000 Flow Cells" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
+<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina HiSeq 2000 Flow Cells" />
 	 
    <mx:HTTPService  
     id="getFlowCellList" 

@@ -2370,7 +2370,7 @@
 						  fontWeight="bold"
 						  id="runTitleLabel"
 						  text="Run"
-						  paddingRight="5"  fontFamily="Tahoma" fontSize="14"/>
+						  paddingRight="5" styleName="titleLabel"/>
 				<mx:HBox verticalAlign="middle" horizontalGap="4" paddingLeft="5">
 					
 					<mx:RadioButtonGroup id="reactionTypeRadioGroup" />
@@ -3627,8 +3627,6 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
-			<mx:SetStyle target="{runTitleLabel}" name="fontFamily" value="Tahoma"/>
-			<mx:SetStyle target="{runTitleLabel}" name="fontSize" value="14"/>
 			<mx:SetStyle target="{vbox1}" name="borderStyle" value="none"/>
 		</mx:State>
 		

@@ -807,10 +807,10 @@
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
 						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
-						<mx:DataGridColumn headerText="Document" width="100">
+						<mx:DataGridColumn headerText="Document"  width="100">
 							<mx:itemRenderer>
 								<mx:Component>
-									<mx:LinkButton label="View/Upload/Remove Document" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF" enabled="{data.@isPO == 'Y'}" />
+									<mx:LinkButton label="View / Upload" fontSize="11"  fontFamily="Arial" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF"   textDecoration="underline" icon="@Embed(source='../../assets/page.png')"/>
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>

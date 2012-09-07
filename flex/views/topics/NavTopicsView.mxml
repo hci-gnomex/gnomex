@@ -1023,6 +1023,7 @@
 
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="0" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+				<mx:Text text="Topics" styleName="titleLabel"/>
 				<mx:LinkButton   label="New topic" width="90"
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; (browseTree.selectedItem.name() == 'Folder' || browseTree.selectedItem.name() == 'Topic')}"
 								 visible="{currentState != 'GuestState'}"

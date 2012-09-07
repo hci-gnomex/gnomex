@@ -2590,7 +2590,7 @@
 					  <util:LinkButtonTwoLines  styleName="navLinkButton"  id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
 
 					  <mx:VRule height="20" id="moreMenuRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}"/>
-					  <mx:MenuBar  height="45"  id="moreMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="100%"  styleName="NavMenuBar" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}">
+					  <mx:MenuBar  height="45"  id="moreMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="70"  styleName="NavMenuBar" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}">
 						  <mx:XMLList>
 							  <menuitem label="More..."   >
 								  <menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
@@ -2857,7 +2857,7 @@
 			 </mx:AddChild>
 
 			 <mx:AddChild relativeTo="{moreDNARule}" position="after">
-				 <mx:MenuBar  height="45" styleName="NavMenuBar" id="moreDNASeqMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="100%"  >
+				 <mx:MenuBar  height="45" styleName="NavMenuBar" id="moreDNASeqMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="70"  >
 					 <mx:XMLList>
 						 <menuitem label="More..."   >
 							 <menuitem label="Experiments" icon="iconFlask" />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="238" height="94" creationComplete="init()"
-				title="Upload/Remove/View Document" verticalScrollPolicy="off" horizontalScrollPolicy="off"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="310" height="62" creationComplete="init()"
+				title="Billing Account Document" verticalScrollPolicy="off" horizontalScrollPolicy="off"
 				showCloseButton="true"
 				close="{mx.managers.PopUpManager.removePopUp(this)}">
 	
@@ -129,13 +129,11 @@
 		]]>
 	</mx:Script>
 	
-	<mx:VBox width="100%">
-		<mx:Text width="100%" color="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != '' ? 0xFF0000 : 0x0000FF }"   fontStyle="italic" text="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != '' ? 'There is currently a document uploaded for this account.' : 'There is currently no document uploaded for this account.' }"/>
-	</mx:VBox> 
-	<mx:HBox width="100%" height="100%">
-		<mx:Button width="100%" height="20" label="Upload" click="prepareToUploadPDF(event)"/>
-		<mx:Button width="100%" height="20" label="View" click="viewOrder(event)" enabled="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != ''}"/>
-		<mx:Button width="100%" height="20" label="Remove" click="removeOrder(event)" enabled="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != ''}"/>
+	
+	<mx:HBox width="100%" height="100%" verticalAlign="middle">
+		<mx:LinkButton width="100%" height="20" label="Upload" click="prepareToUploadPDF(event)" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" disabledIcon="@Embed(source='../../assets/upload_disable.png')"/>
+		<mx:LinkButton width="100%" height="20" label="View" click="viewOrder(event)" enabled="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != ''}" textDecoration="underline" icon="@Embed(source='../../assets/page_find.gif')" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')"/>
+		<mx:LinkButton width="100%" height="20" label="Remove" click="removeOrder(event)" enabled="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != ''}" textDecoration="underline" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')"/>
 	</mx:HBox>
 	
 </mx:TitleWindow>

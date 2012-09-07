@@ -6,7 +6,7 @@
 	xmlns:user="views.user.*" 
 	xmlns:util="views.util.*" 
 	creationPolicy="all" show="init()"
-	cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
+	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
  
 
@@ -556,11 +556,11 @@
     
     
 
- <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
+ <mx:HDividedBox height="100%" width="100%" paddingTop="6" paddingRight="0" paddingLeft="0" paddingBottom="6">    
 	
     <mx:ViewStack id="navStack" width="260" height="100%">
 
- 		    <mx:TabNavigator id="navBar" height="100%" fontFamily="Tahoma" fontSize="14" fontStyle="bold"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95">
+ 		    <mx:TabNavigator id="navBar" height="100%"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95">
 		      <mx:change>onTabChange()</mx:change>
 		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%" icon="@Embed(source='../../assets/user.png')">
 		        

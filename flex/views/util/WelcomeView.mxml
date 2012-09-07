@@ -17,6 +17,9 @@
 			<mx:RemoveChild target="{usageButton}"/>
 			<mx:SetStyle target="{hbox8}" name="horizontalGap" value="10"/>
 			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
 		</mx:State>
 		<mx:State name="BillingAdminState" basedOn="AdminState">
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
@@ -113,6 +116,9 @@
 			</mx:AddChild>
 			<mx:RemoveChild target="{button3}"/>
 			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{vbox14}"/>
+			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{vbox14}"/>
+			<mx:SetStyle target="{label8}" name="paddingTop" value="10"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
@@ -129,7 +135,8 @@
 			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
 		</mx:State>
 		<mx:State name="UserState">
-			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
+			<mx:SetStyle target="{label8}" name="paddingTop" value="10"/>
+			<mx:AddChild relativeTo="{button13}" position="before">
 				<mx:LinkButton id="userSampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
 							   click="showPropertyWindow()" 
 							   visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
@@ -156,6 +163,10 @@
 			<mx:RemoveChild target="{hbox3}"/>
 			<mx:SetStyle target="{label2a}" name="paddingTop"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{vbox14}"/>
 		</mx:State>
 		<mx:State name="UserESState" basedOn="UserState">
 			<mx:RemoveChild target="{button1}"/>
@@ -168,6 +179,11 @@
 			<mx:AddChild relativeTo="{button2}" position="before" target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{label2a}"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:AddChild relativeTo="{button7}" position="before" target="{userSampleCharacteristicButton}"/>
+			<mx:RemoveChild target="{vbox14}"/>
 		</mx:State>
 		<mx:State name="ExternalUserESState" basedOn="ExternalUserState">
 			<mx:RemoveChild target="{button1}"/>
@@ -186,10 +202,17 @@
 			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
 			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{vbox14}"/>
 		</mx:State>
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
 			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{hbox9}"/>
 		</mx:State>
 		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
@@ -511,11 +534,11 @@
 							   label="Track Usage" styleName="dashboardButton" 
 							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
 				<mx:LinkButton label="Upload and Download Help" click="parentApplication.showUploadDownloadHints()" styleName="dashboardButton"  id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
-				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}">
-					<mx:HBox horizontalGap="2">
-						<mx:Label text="Purchasing" styleName="welcomeLabel"/>
+				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" id="vbox14">
+					<mx:HBox horizontalGap="2" id="hbox9">
+						<mx:Label text="Purchasing" styleName="welcomeLabel" id="label8" paddingTop="10"/>
 					</mx:HBox>
-					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')"/>
+					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')" id="linkbutton1"/>
 				</mx:VBox>
 			</mx:VBox>
 		</mx:HBox>

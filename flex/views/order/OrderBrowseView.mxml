@@ -473,7 +473,7 @@
 			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="20">
 				<mx:HBox horizontalGap="0">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" fontWeight="bold" paddingRight="50" fontFamily="Tahoma" fontSize="14"/>			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" paddingRight="50" />			
 				</mx:HBox>
 				
 				<mx:HBox id = "statusCheckboxBar"

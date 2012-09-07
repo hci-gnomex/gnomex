@@ -6,7 +6,10 @@ HCI Teal = 00A9B9
 HCI Cream = F2EFD9
 */
 
-
+.titleLabel {
+	fontFamily: Arial;
+	fontSize: 14;
+}
 
 .errorTip { 
 			borderColor: #FFEA00;
@@ -158,8 +161,7 @@ TitleWindow {
 { 
 	fontSize: 14;
 	color: #000000;
-	fontWeight: bold;
-	fontFamily: Tahoma;
+	fontFamily: Arial;
 
 }
 
@@ -250,6 +252,7 @@ LinkBar {
 
 LinkButton
 {
+
    fontWeight: normal;	
    fontSize: 11;
 }
@@ -257,8 +260,8 @@ LinkButton
 LinkButton.navLinkButton
 {
 	fontWeight: normal;	
-	fontSize: 12;
-	fontFamily: Tahoma;
+	fontSize: 14;
+	fontFamily: Arial;
 	color: #FFFFFF;
 }
 
@@ -417,7 +420,9 @@ TextArea {
     paddingTop: 0; 
     paddingBottom: 4;
 	backgroundSize: auto;
-	 
+    fontFamily: Arial;
+	fontSize: 14;
+	selectedTabTextStyleName: tabNavigatorSelectedTabText;
 }
 
 .panelTabBody {
@@ -432,6 +437,8 @@ TextArea {
  	borderColor: #5F696F;
 	borderStyle: solid;
 	cornerRadius: 6;	
+	fontFamily: Arial;
+	fontSize: 14;
 
 }
 
@@ -817,10 +824,9 @@ MenuBar {
 	selectionColor: #336633;
 	color: #ffffff;
 	themeColor: #996666;
-	fontFamily: Tahoma;
-	fontSize: 12;
-	
+	fontFamily: Arial;
 	menuStyleName: menuItem;
+	fontSize: 14;
 }
 
 .menuItem {
@@ -833,10 +839,8 @@ MenuBar {
 	selectionColor: #336633;
 	color: #ffffff;
 	themeColor: #996666;
-	fontFamily: Tahoma;
-	fontSize: 12;
-	
-	
+	fontFamily: Arial;
+	fontSize: 14;
 	
 }
 MenuBar.linkMenuBar
@@ -854,4 +858,9 @@ MenuBar.linkMenuBar
 }
 .titleWindowStatus
 {
+}
+.tabNavigatorSelectedTabText
+{
+	fontFamily: Arial;
+	fontSize: 14;
 }

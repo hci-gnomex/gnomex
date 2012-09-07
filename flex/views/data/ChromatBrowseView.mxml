@@ -563,7 +563,7 @@
 	<mx:VBox width="100%" styleName="panelBox" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
 		<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2" verticalAlign="middle" width="100%">
 			<mx:Image source="assets/tv_chart_review.png"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="Results"  fontWeight="bold" fontFamily="Tahoma" fontSize="14"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="Results"  />
 			<mx:Spacer width="30"/>
 			
 			

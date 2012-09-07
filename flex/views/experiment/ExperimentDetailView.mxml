@@ -269,6 +269,11 @@
 			this.refreshDownloadList();
 
 //			this.theTab.selectedIndex = 0;
+			
+			// Need to refresh download list here; otherwise last selected experiment's
+			// files shown rather than current selection.
+			this.refreshDownloadList();				
+	
 		}
 		
 		public function initializeBarcoding():void {

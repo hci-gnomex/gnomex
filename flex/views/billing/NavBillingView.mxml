@@ -2049,7 +2049,7 @@
  
 	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
 	                    <mx:HBox  verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2" width="100%" paddingLeft="4">
-							<mx:Text text="Billing"  fontFamily="Tahoma" fontSize="14" fontWeight="bold"/>			
+							<mx:Text text="Billing"   styleName="titleLabel"/>			
 							<mx:LinkButton label="Print Invoice" textDecoration="underline" icon="@Embed(source='../../assets/printer.png')" click="showBillingInvoice(false)"/>
 										<mx:VRule height="20"/>
 	                                    <mx:LinkButton label="Email Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice(true)"/>
