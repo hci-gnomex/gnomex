@@ -2140,6 +2140,7 @@
 
 			}
 
+			this.refreshDownloadList();
 		    postSetupEditForm();
 
 		}
