@@ -1037,7 +1037,7 @@
 	<mx:HBox width="100%" verticalGap="10" verticalAlign="middle" horizontalGap="24">
 		<mx:HBox horizontalGap="1" verticalAlign="middle">
 			<mx:Image source="{parentApplication.iconAnalysis}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis"  fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis"  />
 		</mx:HBox>
 		<mx:HBox horizontalAlign="left">
 			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" textAlign="left">    	        

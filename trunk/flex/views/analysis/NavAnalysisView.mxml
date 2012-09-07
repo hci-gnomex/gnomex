@@ -1037,7 +1037,7 @@
 			  
 			  <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 				  <mx:RadioButtonGroup id="analysisRadioGroup"/>
-				  <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis" fontFamily="Tahoma" fontSize="14" paddingRight="10" fontWeight="bold"/>
+				  <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="10" />
 				  <mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup"  letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
 					  <mx:click>this.refreshAnalysis()</mx:click>
 				  </mx:RadioButton>
@@ -1186,7 +1186,7 @@
 			<mx:SetStyle target="{linkbutton1}" name="paddingLeft" value="0"/>
 			<mx:SetProperty target="{searchTextField}" name="width" value="120"/>
 			<mx:AddChild relativeTo="{showAllAnalysisCheckbox}" position="before">
-				<mx:Label id="titleLabel0" styleName="titleLabel" text="Analysis" fontFamily="Tahoma"  fontSize="14" paddingRight="10" fontWeight="bold"/>
+				<mx:Label id="titleLabel0" styleName="titleLabel" text="Analysis" paddingRight="10" />
 			</mx:AddChild>
 			<mx:SetProperty target="{filterBox}" name="width" value="100%"/>
 			<mx:SetStyle target="{hbox3}" name="paddingLeft" value="4"/>

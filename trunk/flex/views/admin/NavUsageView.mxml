@@ -164,7 +164,7 @@
 			<mx:HBox horizontalGap="1" verticalAlign="middle">
 				<mx:Image source="assets/chart_bar.png">
 				</mx:Image>
-				<mx:Label text=" Usage" fontWeight="bold" fontFamily="Tahoma" fontSize="14"/>
+				<mx:Label text=" Usage" styleName="titleLabel" />
 			</mx:HBox>
 			<mx:ComboBox width="200" selectedIndex="1"
 						 dataProvider="{parentApplication.myCoreFacilities}"

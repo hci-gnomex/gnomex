@@ -1384,7 +1384,7 @@
    <mx:VBox styleName="panelBox"    width="100%" verticalGap="0" borderColor="#030000" backgroundColor="#FFFFFF" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" borderStyle="none">
 	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1" >
 		<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0" verticalAlign="middle" >
-			<mx:Text text="Experiments" fontFamily="Tahoma" fontSize="14" fontWeight="bold" />
+			<mx:Text text="Experiments"   styleName="titleLabel"/>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
  				
 				<mx:RadioButtonGroup id="experimentRadioGroup"/>

@@ -7,7 +7,7 @@
 >
 <mx:HBox verticalAlign="middle">
 	<mx:Image source="@Embed('../../assets/chart_curve.png')"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="" fontFamily="Tahoma" fontWeight="bold" fontSize="14"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text="" />
 </mx:HBox>
 	
 	<mx:HTTPService 

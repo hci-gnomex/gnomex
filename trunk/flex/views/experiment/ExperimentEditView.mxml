@@ -2139,6 +2139,12 @@
 				
 
 			}
+			
+			
+			// Need to refresh download list here; otherwise last selected experiment's
+			// files shown rather than current selection.
+			this.refreshDownloadList();				
+
 
 			this.refreshDownloadList();
 		    postSetupEditForm();
