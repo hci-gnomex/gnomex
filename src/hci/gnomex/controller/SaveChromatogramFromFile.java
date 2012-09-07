@@ -28,6 +28,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
   private String  fileName;
   private String  filePath;
   private String  baseDir;
+  private Integer idPlateWell = 0;
   private Integer idCoreFacility;
 
 
@@ -49,6 +50,10 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       this.addInvalidField("filePath", "filePath is a required parameter");
     }
 
+    if (request.getParameter("idPlateWell") != null  && !request.getParameter("idPlateWell").equals("")) {
+      idPlateWell = Integer.valueOf( request.getParameter("filePath") );
+    } 
+    
     serverName = request.getServerName();
 
     idCoreFacility = DictionaryHelper.getIdCoreFacilityDNASeq();
@@ -71,12 +76,14 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       Chromatogram chromatogram = new Chromatogram();
       sess.save(chromatogram);
       
-      // Extract idPlateWell from comments
-      String comments = chromatReader.getComments();
-      int ind1 = comments.indexOf("<ID:");
-      int ind2 = comments.indexOf(">");
-      String idString = comments.substring(ind1+4, ind2);
-      int idPlateWell = !idString.equals(null) ? Integer.parseInt(idString):0;
+      // Extract idPlateWell from comments if one wasn't provided
+      if ( idPlateWell == 0 ) {
+        String comments = chromatReader.getComments();
+        int ind1 = comments.indexOf("<ID:");
+        int ind2 = comments.indexOf(">");
+        String idString = comments.substring(ind1+4, ind2);
+        idPlateWell = !idString.equals(null) ? Integer.parseInt(idString):0;
+      }
       
       // Get the plate well object from db, make sure it exists
       PlateWell well = (PlateWell) sess.get(PlateWell.class, idPlateWell);
