@@ -41,6 +41,9 @@ import javax.net.ssl.X509TrustManager;
  */
 public class SaveChromatogramsFromFiles {
   
+  private static  int     sleepInterval = 60000; // Number of milliseconds to sleep between running.  defaults to 60 seconds.
+
+  
   private String userName;
   private String password;
   
@@ -48,19 +51,34 @@ public class SaveChromatogramsFromFiles {
   private boolean debug = false;
   private String server;
   private String dropFilePath;
+  private String archiveFilePath;
 
   /**
    * @param args
    */
   public static void main(String[] args) {
 
-    SaveChromatogramsFromFiles createAnalysis = new SaveChromatogramsFromFiles(args);
-    createAnalysis.callServlet();
+    SaveChromatogramsFromFiles saveChromatograms = new SaveChromatogramsFromFiles(args);
+    
+
+    while (true) {
+      try {
+        Thread.sleep (sleepInterval);
+
+        saveChromatograms.run();
+      } 
+      catch (Exception e) {
+        System.out.println(getTimeStamp() + "Exception: " + e.getMessage());
+        break;
+      }
+    }
   }
   
   private SaveChromatogramsFromFiles(String[] args) {
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-h")) {
+      if (args[i].equals("-sleepSeconds")) {
+        sleepInterval = Integer.valueOf(args[++i])*1000;
+      } else if (args[i].equals("-h")) {
         printUsage();
         return;
       } else if (args[i].equals("-debug")) {
@@ -69,6 +87,8 @@ public class SaveChromatogramsFromFiles {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-dropFilePath")) {
         dropFilePath = args[++i];
+      } else if (args[i].equals("-archiveFilePath")) {
+        archiveFilePath = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
       } 
@@ -91,14 +111,19 @@ public class SaveChromatogramsFromFiles {
   private void printUsage() {
     System.out.println("java hci.gnomex.utility.SaveChromatogramsFromFiles " + "\n" +
         "[-debug] " + "\n" +
+        "[-sleepInterval <number of seconds to sleep between run>] " + "\n" +
         "[-properties <propertiesFileName>] " + "\n" +
         "-server <server> " + "\n" +
+        "-archiveFilePath <archiveFilePath>" + "\n" +
         "-dropFilePath <dropFilePath>" + "\n"  );
   }
   
-  private void callServlet() {
+  private void run() throws Exception {
 
-    
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");   
+    System.out.println("-------------------------------------------------------------------");
+    System.out.println(dateFormat.format(new Date(System.currentTimeMillis())) + " SaveChromatogramsFromFile started");
+
     BufferedReader in = null;
     String inputLine;    
     StringBuffer outputXML = new StringBuffer();
@@ -110,6 +135,10 @@ public class SaveChromatogramsFromFiles {
       
       // Make sure mandatory arguments were passed in
       if ( dropFilePath == null || dropFilePath.equals("")) {
+        this.printUsage();
+        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+      }
+      if ( archiveFilePath == null || archiveFilePath.equals("")) {
         this.printUsage();
         throw new Exception("Please specify all mandatory arguments.  See command line usage.");
       }
@@ -220,30 +249,22 @@ public class SaveChromatogramsFromFiles {
               destDir.mkdirs();
             }
                           
-            moveFile(f, destDirName);
+            moveFile(f, archiveFilePath, destDirName);
           } 
         }
         System.out.println();
         if (!success) {
-          throw new Exception("Unable to save chromatogram file file");
+          throw new Exception("Unable to save chromatogram file");
         }
 
       }
       
       
 
-    } catch (MalformedURLException e) {
-      printUsage();
-      e.printStackTrace();
-      System.err.println(e.toString());
-    } catch (IOException e) {
-      printUsage();
-      e.printStackTrace();
-      System.err.println(e.toString());
     } catch (Exception e) {
-      printUsage();
       e.printStackTrace();
       System.err.println(e.toString());
+      throw new Exception("Aborting SaveChromatogramsFromFile");
     } finally {
       if (in != null) {
         try {
@@ -269,12 +290,25 @@ public class SaveChromatogramsFromFiles {
     }
   }
 
-  private void moveFile(File sourceFile, String destDirName) throws Exception {
+  private void moveFile(File sourceFile, String archiveFilePath, String destDirName) throws Exception {
+    
+    // First let's backup the file to an archive dna seq drop folder
+    String archiveDir = archiveFilePath + File.separator + sourceFile.getParentFile().getName();
+    boolean success = new File(archiveDir).mkdirs();
+    if (!success) {
+      throw new Exception("Unable to create archive directory " + archiveDir);
+    }    
+    String archiveFileName =  archiveDir + File.separator + sourceFile.getName();
+    success = this.copyFile(sourceFile, archiveFileName);
+    if (!success) {
+      throw new Exception("Unable to copy file " + sourceFile.getCanonicalPath() + " to " + archiveFileName);
+    }
+    
     String destFileName = destDirName + File.separator + sourceFile.getName();
     
     // Try to move to file.  If we can't move it, copy then delete it.
     String operation = "java file rename";
-    boolean success = sourceFile.renameTo(new File(destFileName));
+    success = sourceFile.renameTo(new File(destFileName));
     if (!success) {
       // Java rename didn't work, possibly because we are trying to
       // move file across file systems.  Try "mv" command instead.      
@@ -383,6 +417,41 @@ public class SaveChromatogramsFromFiles {
 
     }
     
+    private boolean copyFile(File f, String targetFileName) {
+      FileChannel in = null;  
+      FileChannel out = null; 
+      boolean success = false;
+      try {  
+        in = new FileInputStream(f).getChannel();  
+        File outFile = new File(targetFileName);  
+        out = new FileOutputStream(outFile).getChannel(); 
+        in.transferTo(0, in.size(), out);
+        in.close();
+        in = null;
+        out.close();
+        out = null; 
+        success  = true;
+      } catch (Exception e) {
+        success = false;  
+      } finally {
+        if (in != null) {
+          try {
+            in.close();                
+          } catch (Exception e){
+          }
+        }
+        if (out != null) {  
+          try {
+            out.close();                
+          } catch (Exception e) {
+          }
+        }
+  
+      }   
+      return success;
+    
+  }
+
 
 
   private static class MyAuthenticator extends Authenticator {
