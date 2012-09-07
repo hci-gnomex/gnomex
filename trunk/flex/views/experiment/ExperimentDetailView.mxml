@@ -265,6 +265,9 @@
 				downloadExpandedFilesButtonView.visible = false;
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
+			
+			this.refreshDownloadList();
+
 //			this.theTab.selectedIndex = 0;
 		}
 		
