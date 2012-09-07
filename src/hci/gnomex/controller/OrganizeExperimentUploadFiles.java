@@ -121,17 +121,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
             }
           }
-          
-          //Rename files 
-          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
-            String file = (String)i.next();
-            File f1 = new File(file);
-            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
-            if(!f1.renameTo(f2)){
-              throw new Exception("Unable to rename file.  Invalid file name");
-            }
-            
-          }
 
 
           // Move files to designated folder
@@ -188,6 +177,17 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             }
 
           }
+          
+          //Rename files 
+//          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
+//            String file = (String)i.next();
+//            File f1 = new File(file);
+//            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
+//            if(!f1.renameTo(f2)){
+//              throw new Exception("Unable to rename file.  Invalid file name");
+//            }
+//            
+//          }
 
           // Remove files from file system
           if (filesToRemoveParser != null) {
