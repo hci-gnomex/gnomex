@@ -485,7 +485,7 @@ TextArea {
    backgroundColor: #A3BBCD;
    borderColor: #A3BBCD;
 }
-
+ 
 
 .appProgressBar {
     barColor: #45C014;
@@ -498,7 +498,7 @@ TextArea {
 	verticalGap: 10;
 	fontSize: 16;
 	fontWeight: bold;
-	color: #90897B;
+	color: #595350;
 	fontFamily: Verdana;
 }
 
@@ -663,8 +663,8 @@ Label.titleLabel
 }
 Label.welcomeLabel
 {
-	fontFamily: Tahoma;
-	color: #897979;
+	fontFamily: Verdana;
+	color: 	 #685D5D;
 	fontSize: 14;
 	fontWeight: bold;
 }
@@ -680,10 +680,9 @@ Label.appTitle
 Text.welcomeUserLabel
 {
 	fontFamily: Verdana;
-	color: #9E8D8D;
-	fontSize: 12;
-	leading: 0;
-	fontWeight: normal;
+	color: #685D5D;
+	fontSize: 16;
+	fontWeight: bold;
 }
 Text.welcomeSessionLabel
 {
@@ -708,10 +707,10 @@ Text.navLabelSmall
 }
 Text.progressLabel
 {
-	color: #ffffff;
+	color: #595350;
 	fontFamily: Verdana;
-	fontSize: 12;
-	fontWeight: normal;
+	fontSize: 16;
+	fontWeight: bold;
 	textAlign: center;
 }
 
@@ -818,8 +817,8 @@ MenuBar {
 	backgroundAlpha: 0;
 	borderColor: #7B877B;
 	highlightAlphas: 0.02, 0;
-	fillAlphas: 1, 1;
-	fillColors: #B1B6C1, #222836, #3F495E, #3F495E;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	fillColors: #888D96, #222836, #888D96, #2C4D92;
 	rollOverColor: #00ff00;
 	selectionColor: #336633;
 	color: #ffffff;
