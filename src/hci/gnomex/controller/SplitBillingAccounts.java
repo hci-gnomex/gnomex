@@ -157,6 +157,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setIdBillingPeriod(bi.getIdBillingPeriod());
                 billingItem.setDescription(bi.getDescription());
                 billingItem.setQty(bi.getQty());
+                billingItem.setIdCoreFacility(bi.getIdCoreFacility());
                 billingItem.setUnitPrice(bi.getUnitPrice());
                 billingItem.setPercentagePrice(percentage);
                 billingItem.setNotes(bi.getNotes());
