@@ -127,12 +127,11 @@
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label4}"/>
-			<mx:RemoveChild target="{button12}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
 			<mx:RemoveChild target="{label2a}"/>
 			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{button12}"/>
 		</mx:State>
 		<mx:State name="UserState">
 			<mx:SetStyle target="{label8}" name="paddingTop" value="10"/>
@@ -143,8 +142,23 @@
 							   includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
 							   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 			</mx:AddChild>
+			<mx:SetProperty target="{label8}" name="text" value="DNA Sequencing Core Facility"/>
 		</mx:State>
 		<mx:State name="ExternalUserState" basedOn="UserState">
+			<mx:SetProperty target="{button12}" name="toolTip" value="Pricing for Microarray and Genomics Analysis Core Facility"/>
+			<mx:SetStyle target="{vbox11}" name="backgroundColor" value="#FCED6C"/>
+			<mx:SetStyle target="{vbox11}" name="bottom" value="12"/>
+			<mx:SetStyle target="{vbox11}" name="left" value="12"/>
+			<mx:SetStyle target="{vbox11}" name="right"/>
+			<mx:SetStyle target="{vbox11}" name="top"/>
+			<mx:SetProperty target="{vbox11}" name="height" value="80"/>
+			<mx:SetProperty target="{vbox11}" name="width" value="80"/>
+			<mx:SetStyle target="{vbox11}" name="verticalAlign" value="middle"/>
+			<mx:SetStyle target="{text1}" name="top" value="4"/>
+			<mx:SetStyle target="{text2}" name="top" value="4"/>
+			<mx:SetStyle target="{text2}" name="right" value="4"/>
+			<mx:SetStyle target="{text2}" name="left"/>
+			<mx:SetProperty target="{text1}" name="width"/>
 		</mx:State>
 		<mx:State name="AdminESState" basedOn="AdminState">
 			<mx:RemoveChild target="{button1}"/>
@@ -189,7 +203,6 @@
 			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{label4}"/>
-			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{button8}"/>
 			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
@@ -220,7 +233,7 @@
 		</mx:State>
 		<mx:State name="AdminDNASeqState" basedOn="AdminState">
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:Label text="DNA Sequencing Core" id="label0" styleName="welcomeLabel"/>
+				<mx:Label text="DNA Sequencing Core Workflow" id="label0" styleName="welcomeLabel"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:LinkButton label="Fill Plate"  click="fillPlates('PLATE')"  
@@ -231,15 +244,15 @@
 							   styleName="dashboardButton" id="runButton"  toolTip="Build Run" icon="@Embed(source='../../assets/run_add.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:LinkButton label="Review Plates and Runs"  click="reviewRuns()"  
+				<mx:LinkButton label="Plates and Runs"  click="reviewRuns()"  
 							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run_review.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{button11}" position="before">
-				<mx:LinkButton label="Review Orders"  click="reviewOrders()"  
+				<mx:LinkButton label="Orders"  click="reviewOrders()"  
 							   styleName="dashboardButton" id="button16"  toolTip="Review pending orders" icon="@Embed(source='../../assets/review.png')"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:LinkButton label="Review Results"  click="reviewResults()"  
+				<mx:LinkButton label=" Results"  click="reviewResults()"  
 							   styleName="dashboardButton" id="button17"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart_review.png')"/>
 			</mx:AddChild>
 			<mx:SetStyle target="{label7}" name="paddingTop" value="10"/>
@@ -248,6 +261,10 @@
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild" target="{label2a}"/>
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild" target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{button20}"/>
+			<mx:SetProperty target="{label7}" name="visible" value="{parentApplication.isCoreGenomics}"/>
+			<mx:SetProperty target="{label8}" name="text" value="DNA Seq Core (miscellaneous)"/>
+
 		</mx:State>
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (billing admin privileges)'}"/>
@@ -266,13 +283,12 @@
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label7}"/>
 			<mx:RemoveChild target="{button21}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button21}"/>
-			<mx:RemoveChild target="{button20}"/>
-			<mx:AddChild relativeTo="{button21}" position="before" target="{button20}"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.dictionary.DictionaryEditor;
+			import mx.controls.Alert;
 			
 			import mx.managers.PopUpManager;
 			
@@ -387,8 +403,21 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.protocolsView;
 			}	
 			
-			private function showPricing():void {
-				navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_PRICING_URL)), '_blank');
+			private function showPricing():void {				
+				var pricingURL:String = parentApplication.getProperty(parentApplication.PROPERTY_PRICING_URL);
+				if (pricingURL == null || pricingURL == "") {
+					Alert.show("Please contact GNomEx support.  The pricing web page is not configured in GNomEx.");
+				} else {
+					navigateToURL(new URLRequest(pricingURL), '_blank');
+				}
+			}
+			private function showPricingDNASeqCore():void {
+				var pricingURL:String = parentApplication.getCoreFacilityProperty(parentApplication.idCoreFacilityDNASeq, parentApplication.PROPERTY_PRICING_URL);
+				if (pricingURL == null || pricingURL == "") {
+					Alert.show("Please contact GNomEx support.  The pricing web page for the DNA Sequencing Core Facility is not configured in GNomEx.");
+				} else {
+					navigateToURL(new URLRequest(pricingURL), '_blank');
+				}
 			}
 			
 			private function changePassword():void {
@@ -463,16 +492,16 @@
 		]]> 
 	</mx:Script>
 	
-	<mx:Text width="200" text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="12" top="12" id="text1"/>
+	<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="4" top="4" id="text1"/>
 	<mx:Text  bottom="2" right="2" text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
-	<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" left="300" top="12"/>
-	<mx:VBox   top="12" right ="12"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFFFFF" backgroundAlpha="1" id="vbox11">
-		<mx:Text text="{parentApplication.bulletin}" fontSize="11"  width="300" fontStyle="italic" />  			
+	<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="4" top="4" id="text2"/>
+	<mx:VBox   bottom="4" left ="4"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFF157" backgroundAlpha="1" id="vbox11" width="270" height="87" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center">
+		<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal" fontFamily="Verdana" textAlign="center"  width="100%" height="100%" />  			
 	</mx:VBox>
 	<mx:VBox    
 		width="100%" height="100%"  
 		verticalAlign="middle" horizontalAlign="center"  
-		paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="40" paddingTop="6" id="vbox10">
+		paddingRight="6" paddingLeft="6" paddingBottom="40" verticalGap="40" paddingTop="6" id="vbox10">
 
 		
 		<mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40" id="hbox8">
@@ -494,7 +523,7 @@
 							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
 							   styleName="dashboardButton" id="submitExternalExperimentButton"  toolTip="Submit an experiment to the GNomEx repository and upload associated raw data files" icon="@Embed(source='../../assets/experiment_register.png')"/>
 			</mx:VBox> 
-			<mx:VBox height="100%" verticalAlign="top"  horizontalAlign="left" id="vbox1" verticalGap="2" width="268">
+			<mx:VBox height="100%" verticalAlign="top"  visible="{parentApplication.isCoreGenomics &amp;&amp; parentApplication.showBioinformaticsLinks}"  includeInLayout="{parentApplication.isCoreGenomics &amp;&amp; parentApplication.showBioinformaticsLinks}" horizontalAlign="left" id="vbox1" verticalGap="2" width="268">
 				<mx:HBox id="hbox7" 
 						 visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
 						 horizontalGap="2" verticalAlign="middle">
@@ -516,9 +545,9 @@
 				<mx:Spacer
 					visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
 					height="20"/>
-				<mx:Label text="Billing" id="label4" styleName="welcomeLabel"/>
-				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}" includeInLayout="{parentApplication.pricingURL != ''}"/>
-				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
+				<mx:Label text="Billing" includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}"  id="label4" styleName="welcomeLabel"/>
+				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"/>
+				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" includeInLayout="{parentApplication.isCoreGenomics &amp;&amp; parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:VBox>
 			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox12">
 				<mx:HBox id="hbox5" horizontalGap="2">
@@ -536,9 +565,10 @@
 				<mx:LinkButton label="Upload and Download Help" click="parentApplication.showUploadDownloadHints()" styleName="dashboardButton"  id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
 				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" id="vbox14">
 					<mx:HBox horizontalGap="2" id="hbox9">
-						<mx:Label text="Purchasing" styleName="welcomeLabel" id="label8" paddingTop="10"/>
+						<mx:Label text="Miscellaneous - DNA Seq Core " styleName="welcomeLabel" id="label8" paddingTop="10"/>
 					</mx:HBox>
 					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')" id="linkbutton1"/>
+					<mx:LinkButton label="Pricing (DNA Sequencing Core)" visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}" click="showPricingDNASeqCore()" styleName="dashboardButton"  id="button22"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" />
 				</mx:VBox>
 			</mx:VBox>
 		</mx:HBox>
