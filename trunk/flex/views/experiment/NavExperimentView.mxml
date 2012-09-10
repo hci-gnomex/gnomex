@@ -1355,6 +1355,10 @@
 				this.lastThreeMonthsCheckbox.enabled = false;
 				this.lastYearCheckbox.enabled = false;
 				this.externalExperimentsOnlyCheckbox.enabled = false;
+				this.CapSeqCheckbox.enabled = false;
+				this.MitSeqCheckbox.enabled = false;
+				this.FragAnalCheckbox.enabled = false;
+				this.CherryPickingCheckbox.enabled = false;
 			} else {
 				this.browseLabCombo.enabled = true;
 				this.browseUserCombo.enabled = true;
@@ -1366,7 +1370,10 @@
 				this.lastThreeMonthsCheckbox.enabled = true;
 				this.lastYearCheckbox.enabled = true;
 				this.externalExperimentsOnlyCheckbox.enabled = true;
-				
+				this.CapSeqCheckbox.enabled = true;
+				this.MitSeqCheckbox.enabled = true;
+				this.FragAnalCheckbox.enabled = true;
+				this.CherryPickingCheckbox.enabled = true;
 			}
 		} 
 	}
