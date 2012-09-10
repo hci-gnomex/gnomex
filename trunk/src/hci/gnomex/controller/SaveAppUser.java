@@ -3,12 +3,15 @@ package hci.gnomex.controller;
 import hci.gnomex.lucene.SearchListParser;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -22,6 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -40,8 +46,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveAppUser.class);
   
 
-  private AppUser               appUserScreen;
-  private boolean              isNewAppUser = false;
+  private AppUser                         appUserScreen;
+  private boolean                         isNewAppUser = false;
   private ArrayList<CoreFacilityCheck>    managingCoreFacilityIds;
   
   
@@ -157,7 +163,37 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           
           if (this.isValid()) {
             appUser = (AppUser)sess.load(AppUser.class, appUserScreen.getIdAppUser());
-            initializeAppUser(appUser);                
+            String initialActiveStatus = appUser.getIsActive();
+            initializeAppUser(appUser);
+            String newActiveStatus = appUser.getIsActive();
+            if(newActiveStatus != null && newActiveStatus.compareTo("Y")==0) {
+              if(initialActiveStatus == null || initialActiveStatus.compareTo("Y")!=0) {
+                
+                Integer idCoreFacility = null;
+                for(Iterator i = appUser.getLabs().iterator(); i.hasNext();) {
+                  Lab l = (Lab)i.next();
+                  for(Iterator j = l.getCoreFacilities().iterator(); j.hasNext(); ) {
+                    CoreFacility facility = (CoreFacility)j.next();
+                    if (idCoreFacility == null) {
+                      idCoreFacility = facility.getIdCoreFacility();
+                    } else if(!idCoreFacility.equals(facility.getIdCoreFacility())) {
+                      idCoreFacility = null;
+                      break;
+                    }
+                  }
+                }
+                
+                PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+                String coreFacilityContactEmail;
+                if (idCoreFacility == null) {
+                  coreFacilityContactEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+                } else {
+                  coreFacilityContactEmail = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+                }
+                
+                sendAccountActivatedEmail(appUser, coreFacilityContactEmail);
+              }
+            }
           }
 
         }
@@ -218,6 +254,24 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail)  throws NamingException, MessagingException {
+    StringBuffer intro = new StringBuffer();
+    intro.append("Your GNomEx account has been approved and activated by the core facility staff.");
+    
+    if (appUser.getEmail().equals("bademail@bad.com")) {
+      throw new AddressException("'bademail@bad.com' not allowed");
+    }
+    
+    MailUtil.send(
+        appUser.getEmail(),
+        "",
+        coreFacilityContactEmail,
+        "GNomEx User Account Request Activated",
+        "Your GNomEx account has been approved and activated by the core facility staff.",
+        true
+      );
   }
   
   private void initializeAppUser(AppUser appUser) {

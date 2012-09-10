@@ -1644,12 +1644,10 @@ package views.renderers
 				{
 					if (selectedIndex == -1 && prompt )
 					{
-						trace( "333" );
 						if( _removeInputOnFocusOut ) textInput.text = prompt;
 					}
 					else if (!explicitText)
 					{
-						trace( "444" );
 						textInput.text = selectedLabel;
 					}
 				}
@@ -1692,7 +1690,6 @@ package views.renderers
 			}
 			if (promptChanged && prompt != null && selectedIndex == -1)
 			{
-				trace( "ffff" );
 				promptChanged = false;
 				textInput.text = prompt;
 			}
@@ -2166,7 +2163,6 @@ package views.renderers
 					invalidateProperties();
 				}
 				
-				trace( ce.kind, "ff" );
 				_filteredCollection = new ListCollectionView( ListCollectionView( collection ) );
 				_filteredCollection.filterFunction = _activeFilterFunction;
 				_filteredCollection.refresh();

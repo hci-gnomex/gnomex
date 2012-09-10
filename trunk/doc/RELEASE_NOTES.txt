@@ -45,6 +45,8 @@
 * Fixed permissions problem when topic owner tries to delete topic. (rcundick))
 * Added ability to filter experiment annotations by combination of request category and application. (rcundick)
 * Removed markup from description in analysis grid. (rcundick)
+* Implemented feature to notify user when requested account has been approved. (rcundick)
+* Removed trace messages from FilterComboBox renderer. (rcundick)
 
 
 deploy notes 
