@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="780" height="612"  
+	layout="vertical" width="860" height="612"  
 	xmlns:views="views.*"
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
@@ -56,6 +56,11 @@
 			    <mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="Application icons by"/>
 				<mx:LinkButton label="FamFamFam Silk Icons" click="navigateToURL(new URLRequest('http://www.famfamfam.com/lab/icons/silk/'), '_blank');" textDecoration="underline" color="#0000ff"/>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0"  verticalAlign="middle" width="100%">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Text text="Finch TV is available through Geospiza and can be downloaded at"/>
+				<mx:LinkButton label="http://www.geospiza.com/ftvdlinfo.html" click="navigateToURL(new URLRequest('http://www.geospiza.com/ftvdlinfo.html'), '_blank');" textDecoration="underline" color="#0000ff"/>
 			</mx:HBox>
 		</mx:VBox>
 		
