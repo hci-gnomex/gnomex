@@ -262,6 +262,8 @@
 		
 		[Bindable]
 		public var applicationName:String;
+			
+		public var codeApplication:String;
 				
 		[Bindable]
 		public var seqLibTreatmentsDisplay:String = "";
@@ -432,8 +434,11 @@
 		private function initializeData():void {
         	var dictionarySorter:Sort = new Sort();
     	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
+			codeApplication = '';
+			if(request != null) {
+				codeApplication = request.@codeApplication;
+			}
 			
-
 	        seqLibProtocolList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol'));
 	        seqLibProtocolList.sort = dictionarySorter;
 	        seqLibProtocolList.refresh();
@@ -1369,9 +1374,9 @@
 				filterByOrganism = true;	
 			}
 			
-			var filterByPlatform:Boolean = false;
-			if (property.descendants("RequestCategory").length() > 0) {
-				filterByPlatform = true;	
+			var filterByPlatformApplication:Boolean = false;
+			if (property.descendants("PlatformApplication").length() > 0) {
+				filterByPlatformApplication = true;	
 			}
 			
 			var keep:Boolean = false;
@@ -1390,13 +1395,14 @@
 			}
 			
 			if (keep) {
-				if (!filterByPlatform) {
+				if (!filterByPlatformApplication) {
 					keep = true;
 				} else {
 					keep = false;
 					if (this.getRequestCategory() != null) {
-						for each(var rc:XML in property.descendants("RequestCategory")) {
-							if (this.getRequestCategory().@codeRequestCategory.toString() == rc.@codeRequestCategory) {
+						for each(var pa:XML in property.descendants("PlatformApplication")) {
+							if (this.getRequestCategory().@codeRequestCategory.toString() == pa.@codeRequestCategory &&
+								this.codeApplication == pa.@codeApplication) {
 								keep = true;
 								break;
 							}
@@ -1466,12 +1472,12 @@
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', getAmendRequestCategory());				
 			} else if (!isEditState()) {
 				requestCategory = setupView.getRequestCategory();
-        	} else {
+			} else {
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
-        	}
-        	return requestCategory;			
+			}
+			return requestCategory;			
 		}
-        
+			
         private function filterSampleType(item:Object):Boolean {
         	if (item.@value == "") {
         		return true;
@@ -4037,6 +4043,7 @@
 			
 			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',request.@codeApplication);
 			applicationName = application.@display.toString();
+			codeApplication = application.@codeApplication;
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				

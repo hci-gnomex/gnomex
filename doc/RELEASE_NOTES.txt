@@ -42,6 +42,8 @@
 * Added feature to automatically prompt for billing account change when experiment dragged to different lab. (rcundick)
 * Enable lab, owner, billing account dropdown for experiments owned by regular user. (rcundick)
 * Fixed bug causing actionscript error when Experiment Platform editor closed. (rcundick)
+* Fixed permissions problem when topic owner tries to delete topic. (rcundick))
+* Added ability to filter experiment annotations by combination of request category and application. (rcundick)
 
 
 deploy notes 

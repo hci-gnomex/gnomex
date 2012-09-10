@@ -1624,17 +1624,28 @@
 			<key column="idProperty"/>
 			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>			
 		</set>
-		<set name="platforms" table="PropertyPlatform" lazy="false" cascade="none">
+		<set name="platformApplications" table="PropertyPlatformApplication" lazy="false" cascade="none">
 			<key column="idProperty"/>
-			<many-to-many column="codeRequestCategory" class="hci.gnomex.model.RequestCategory"/>			
+			<many-to-many column="idPlatformApplication" class="hci.gnomex.model.PlatformApplication"/>			
 		</set>
 		<set name="analysisTypes" table="PropertyAnalysisType" lazy="false" cascade="none">
 			<key column="idProperty"/>
 			<many-to-many column="idAnalysisType" class="hci.gnomex.model.AnalysisType"/>			
 		</set>
-
-			
 	</class>
+	
+	
+		<!-- hci.gnomex.model.PropertyOption -->
+	<class name="hci.gnomex.model.PlatformApplication" table="PlatformApplication">
+		<id name="idPlatformApplication" column="idPlatformApplication" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idProperty" column="idProperty" type="integer"/>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<many-to-one name="requestCategory" column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
+		<property name="codeApplication" column="codeApplication" type="string"/>
+		<many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
+	</class>	
 	
 		<!-- hci.gnomex.model.PropertyOption -->
 	<class name="hci.gnomex.model.PropertyOption" table="PropertyOption">

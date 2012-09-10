@@ -3,7 +3,10 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisType;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.Organism;
+import hci.gnomex.model.PlatformApplication;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyOption;
@@ -24,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.Document;
@@ -228,17 +232,59 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         
 
         //
-        // Save property platforms
+        // Save property platformApplications
         //
-        TreeSet platforms = new TreeSet(new RequestCategoryComparator());
+        TreeSet platformApplications = new TreeSet(new PlatformApplicationsComparator());
+        //TreeSet platformApplications = new TreeSet();
         if (platformsDoc != null) {
           for(Iterator i = this.platformsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
             Element platformNode = (Element)i.next();
-            RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, platformNode.getAttributeValue("codeRequestCategory"));
-            platforms.add(rc);
+            
+            // See if this PlatformApplication object already exists
+            StringBuffer queryBuf = new StringBuffer("select pa");
+            queryBuf.append(" from PlatformApplication as pa");
+            queryBuf.append(" where pa.idProperty = " + platformNode.getAttributeValue("idProperty") + " and");
+            queryBuf.append(" pa.codeRequestCategory = '" + platformNode.getAttributeValue("codeRequestCategory") + "' and");
+            queryBuf.append(" pa.codeApplication ");
+            if (platformNode.getAttributeValue("codeApplication").length() > 0) {
+              queryBuf.append("= '" + platformNode.getAttributeValue("codeApplication") + "'");
+            } else {
+              queryBuf.append("is null");
+            }  
+            
+            Query query = sess.createQuery(queryBuf.toString());
+            List paRows = (List)query.list();   
+            
+            PlatformApplication pa = null;
+            if (paRows.size() > 0) {
+              pa = (PlatformApplication) paRows.get(0);
+            } else {
+              pa = new PlatformApplication();
+              pa.setIdProperty(new Integer(platformNode.getAttributeValue("idProperty")));
+              pa.setCodeRequestCategory(platformNode.getAttributeValue("codeRequestCategory"));
+              if (platformNode.getAttributeValue("codeApplication").length() > 0) {
+                pa.setCodeApplication(platformNode.getAttributeValue("codeApplication"));
+              } else {
+                pa.setCodeApplication(null);
+              } 
+              sess.save(pa);
+              sess.flush();
+            }
+            // Reload to insure RequestCategory and Application objects are populated
+            Integer idPlatformApplication = pa.getIdPlatformApplication();
+            pa = (PlatformApplication)sess.load(PlatformApplication.class, idPlatformApplication); 
+           
+            RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, pa.getCodeRequestCategory()); 
+            pa.setRequestCategory(rc);
+            if(pa.getCodeApplication() != null) {
+              Application a = (Application)sess.load(Application.class, pa.getCodeApplication());
+              pa.setApplication(a);
+            }
+           
+            platformApplications.add(pa);
           }
         }
-        sc.setPlatforms(platforms);
+        sc.setPlatformApplications(platformApplications);
         
         //
         // Save property analysisTypes
@@ -308,12 +354,25 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       
     }
   }
-  private class RequestCategoryComparator implements Comparator, Serializable {
+  private class PlatformApplicationsComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
-      RequestCategory rc1 = (RequestCategory)o1;
-      RequestCategory rc2 = (RequestCategory)o2;
+      PlatformApplication pa1 = (PlatformApplication)o1;
+      PlatformApplication pa2 = (PlatformApplication)o2;
       
-      return rc1.getCodeRequestCategory().compareTo(rc2.getCodeRequestCategory());
+      int compVal = pa1.getRequestCategory().getRequestCategory().compareTo(pa2.getRequestCategory().getRequestCategory());
+      if(compVal==0) {
+        String paApplication1 = "";
+        String paApplication2 = "";
+        if(pa1.getApplication() != null && pa1.getApplication().getApplication() != null) {
+          paApplication1 = pa1.getApplication().getApplication();
+        }
+        if(pa2.getApplication() != null && pa2.getApplication().getApplication() != null) {
+          paApplication2 = pa2.getApplication().getApplication();
+        }
+        compVal = paApplication1.compareTo(paApplication2);
+      }
+      
+      return compVal;
       
     }
   }

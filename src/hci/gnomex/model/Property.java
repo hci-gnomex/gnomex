@@ -24,7 +24,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   private String   forDataTrack;
   private Set      options = new TreeSet();
   private Set      organisms = new TreeSet();
-  private Set      platforms = new TreeSet();
+  private Set      platformApplications = new TreeSet();
   private Set      analysisTypes = new TreeSet();
   
 
@@ -153,12 +153,12 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     this.description = description;
   }
 
-  public Set getPlatforms() {
-    return platforms;
+  public Set getPlatformApplications() {
+    return platformApplications;
   }
 
-  public void setPlatforms(Set platforms) {
-    this.platforms = platforms;
+  public void setPlatformApplications(Set platformApplications) {
+    this.platformApplications = platformApplications;
   }
 
   public String getIsRequired() {

@@ -1768,7 +1768,7 @@ CREATE TABLE gnomex.PropertyAnalysisType (
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`PropertyPlatform`;
+DROP TABLE IF EXISTS `gnomex`.`PropertyOrganism`;
 -- Add table PropertyOrganism
 DROP TABLE IF EXISTS `gnomex`.`PropertyOrganism`;
 CREATE TABLE gnomex.PropertyOrganism ( 
@@ -1800,6 +1800,42 @@ CREATE TABLE gnomex.PropertyPlatform (
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
+-- Add table PlatformApplication
+DROP TABLE IF EXISTS `gnomex`.`PlatformApplication`;
+CREATE TABLE gnomex.PlatformApplication (
+    idPlatformApplication INT(10) NOT NULL AUTO_INCREMENT,
+    idProperty INT(10) NOT NULL,
+    codeRequestCategory VARCHAR(10) NOT NULL,
+    codeApplication VARCHAR(10),
+    PRIMARY KEY (idPlatformApplication),
+    CONSTRAINT FK_PlatformApplication_Property FOREIGN KEY (idProperty)
+        REFERENCES gnomex.Property (idProperty)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT FK_PlatformApplication_RequestCategory FOREIGN KEY (codeRequestCategory)
+        REFERENCES gnomex.RequestCategory (codeRequestCategory)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT FK_PlatformApplication_Application FOREIGN KEY (codeApplication)
+        REFERENCES gnomex.Application (codeApplication)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT UNQ_PropertyPlatform_idProp_codeReq_app
+    UNIQUE (`idProperty`, `codeRequestCategory`, `codeApplication`)
+)  ENGINE=INNODB; 
+
+-- Add table PropertyPlatformApplication
+DROP TABLE IF EXISTS `gnomex`.`PropertyPlatformApplication`;
+CREATE TABLE gnomex.PropertyPlatformApplication ( 
+     idProperty	INT(10),
+     idPlatformApplication INT(10),
+     PRIMARY KEY (idProperty, idPlatformApplication),
+    CONSTRAINT FK_PropertyPlatformApplication_Property FOREIGN KEY FK_PropertyPlatformApplication_Property (idProperty)
+    REFERENCES gnomex.Property (idProperty)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_PropertyPlatformApplication_PlatformApplication FOREIGN KEY FK_PropertyPlatformApplication_PlatformApplication (idPlatformApplication)
+    REFERENCES gnomex.PlatformApplication (idPlatformApplication)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = INNODB;
 
 -- Add table PropertyOption
 DROP TABLE IF EXISTS `gnomex`.`PropertyOption`;
