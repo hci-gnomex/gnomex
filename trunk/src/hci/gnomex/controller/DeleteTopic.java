@@ -71,8 +71,8 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
         topic.recurseGetChildren(descendents);
 
 
-        // Make sure the user can write this data track folder and all of its
-        // descendant annotations and data track folders
+        // Make sure the user has permission to delete this topic and all of its
+        // descendant topics
         for(Iterator<?> i = descendents.iterator(); i.hasNext();) {
           DetailObject descendent = (DetailObject)i.next();
           if (!this.getSecAdvisor().canDelete(descendent)) {
@@ -80,22 +80,10 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
               this.addInvalidField("folderp", "Insufficient permision to delete this topic.");    
               break;
             } else if (descendent instanceof Topic){
-              Topic ag = (Topic)descendent;
-              this.addInvalidField("cfolderp", "Insufficent permission to delete child topic '" + ag.getName() + "'.");
+              Topic ct = (Topic)descendent;
+              this.addInvalidField("cfolderp", "Insufficent permission to delete child topic '" + ct.getName() + "'.");
               break;
-            } else if (descendent instanceof Request){
-              Request a = (Request)descendent;
-              this.addInvalidField("dtfolderp", "Insufficent permission to unlink child request '" + a.getName() + "'.");
-              break;
-            } else if (descendent instanceof Analysis){
-              Analysis a = (Analysis)descendent;
-              this.addInvalidField("dtfolderp", "Insufficent permission to unlink child analysis '" + a.getName() + "'.");
-              break;
-            } else if (descendent instanceof DataTrack){
-              DataTrack a = (DataTrack)descendent;
-              this.addInvalidField("dtfolderp", "Insufficent permission to unlink child data track '" + a.getName() + "'.");
-              break;
-            }     
+            }   
           }
         }
 

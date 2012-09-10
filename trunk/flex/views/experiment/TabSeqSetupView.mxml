@@ -176,6 +176,7 @@
 				application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
 				if (application != null && application is XMLList) {
 					this.parentDocument.applicationName = application[0].@display;
+					this.parentDocument.codeApplication = application[0].@codeApplication;
 					if(application[0].@hasCaptureLibDesign == 'Y'){ //If it is sure select we need to show the library capture id input box
 						libraryDesign.visible = true;
 						libraryDesign.includeInLayout = true;
@@ -205,10 +206,12 @@
 					}
 				} else if (application != null && application is XML) {
 					this.parentDocument.applicationName = application.@display;
+					this.parentDocument.codeApplication = application.@codeApplication;
 				}
 			} else {
 				this.seqAppBox.styleName = 'requiredBox';
 				this.parentDocument.applicationName = '';
+				this.parentDocument.codeApplication = '';	
 			}
 			
 			this.checkSeqAppSetupCompleteness();

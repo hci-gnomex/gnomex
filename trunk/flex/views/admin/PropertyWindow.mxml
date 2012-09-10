@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="1022" height="522.1212" 
+				width="1022" height="642" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
@@ -30,6 +30,9 @@
 		 
 <mx:Script>
 	<![CDATA[
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.Sort;
 		import mx.controls.Alert;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
@@ -37,275 +40,397 @@
 		import views.admin.PropertyEvent;
 		import views.util.DirtyNote;
 		
-	private var idProperty:Object = null;
+		private var idProperty:Object = null;
 		
-	private function setDirty():void {
-		if (saveButton.enabled) {
-			dirty.setDirty();
-		}
-	}
-	
-	private function init():void {
-		properties = new XMLListCollection();
-		for each(var sc:XML in parentApplication.propertyList) {
-			properties.addItem(sc.copy());
-		}
-		parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
-			onPropertyRefreshed);		                                  
-		parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
-			onPropertyRefreshed);
+		[Bindable]
+		public var filteredAppList:XMLListCollection;
 		
-	}	
+		private var filteredAppListSorter:Sort;
 			
-	public function onPropertyRefreshed(event:Event):void{
-		properties = new XMLListCollection();
-		for each(var sc:XML in parentApplication.propertyList) {
-			if ((this.showSampleAnnotations.selected && sc.@forSample == "Y")
-				|| (this.showDataTrackAnnotations.selected && sc.@forDataTrack == "Y")
-				|| (this.showAnalysisAnnotations.selected && sc.@forAnalysis == "Y")) {
-				
-				properties.addItem(sc.copy());
+		private function setDirty():void {
+			if (saveButton.enabled) {
+				dirty.setDirty();
 			}
 		}
-		reselectCharacteristic();
-		dirty.resetDirty();
-	}	
 		
-	private function reselectCharacteristic():void {
-		var found:Boolean = false;
-		if (idProperty != null) {
-			for each(var sc:Object in properties) {
-				if (sc.@idProperty == idProperty) {
-					propertyList.selectedItem = sc;
-					propertyList.scrollToIndex(propertyList.selectedIndex);
-					found = true;
+		private function init():void {
+			properties = new XMLListCollection();
+			for each(var sc:XML in parentApplication.propertyList) {
+				properties.addItem(sc.copy());
+			}
+			parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
+				onPropertyRefreshed);		                                  
+			parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
+				onPropertyRefreshed);
+			
+			// We use this technique xml.copy() to prevent duplication of applications 
+			// that somehow happens when we add services, then submit request or vice versa
+			filteredAppList           = new XMLListCollection();
+			for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
+				filteredAppList.addItem(i.copy());
+			}
+			filteredAppListSorter = new Sort();
+			filteredAppListSorter.compareFunction = this.sortApplication;
+			filteredAppList.sort = filteredAppListSorter;	
+			filteredAppList.filterFunction = filterApplication;
+			filteredAppList.refresh();	
+		}	
+				
+		public function onPropertyRefreshed(event:Event):void{
+			properties = new XMLListCollection();
+			for each(var sc:XML in parentApplication.propertyList) {
+				if ((this.showSampleAnnotations.selected && sc.@forSample == "Y")
+					|| (this.showDataTrackAnnotations.selected && sc.@forDataTrack == "Y")
+					|| (this.showAnalysisAnnotations.selected && sc.@forAnalysis == "Y")) {
+					
+					properties.addItem(sc.copy());
+				}
+			}
+			reselectCharacteristic();
+			dirty.resetDirty();
+		}	
+			
+		private function reselectCharacteristic():void {
+			var found:Boolean = false;
+			if (idProperty != null) {
+				for each(var sc:Object in properties) {
+					if (sc.@idProperty == idProperty) {
+						propertyList.selectedItem = sc;
+						propertyList.scrollToIndex(propertyList.selectedIndex);
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				theViews.selectedIndex = 1;
+			} else {
+				theViews.selectedIndex = 0;
+			}
+		}
+			
+		private function onSelectProperty():void {
+			if (propertyList.selectedItem != null) {
+				theViews.selectedIndex = 1;
+				
+				organismCombo.selectedItem = null;
+				platformCombo.selectedItem = null;
+				analysisTypeCombo.selectedItem = null;
+	
+				setOwnerCombo();
+	
+				dirty.resetDirty();
+			}
+		}
+			
+		private function setOwnerCombo():void {
+			this.ownerCombo.selectedItem = null;
+			this.ownerCombo.enabled = true;
+			for each(var user:XML in parentApplication.promptedAppUserList) {
+				if (user.@idAppUser == propertyList.selectedItem.@idAppUser) {
+					this.ownerCombo.selectedItem = user;
 					break;
 				}
 			}
+			this.ownerCombo.enabled = parentApplication.hasPermission("canWriteDictionaries") ? true : false;
 		}
-		if (found) {
-			theViews.selectedIndex = 1;
-		} else {
-			theViews.selectedIndex = 0;
-		}
-	}
-		
-	private function onSelectProperty():void {
-		if (propertyList.selectedItem != null) {
-			theViews.selectedIndex = 1;
 			
-			organismCombo.selectedItem = null;
-			platformCombo.selectedItem = null;
-			analysisTypeCombo.selectedItem = null;
-
-			setOwnerCombo();
-
-			dirty.resetDirty();
+		private function addOption():void {
+			var newOption:XML = new XML("<PropertyOption " +
+				" idPropertyOption='PropertyOption" + options.length + "'" +
+				" option='enter option here..'" +
+				" isActive='Y'" +
+				" sortOrder='" + (options.length + 1) + "'" +
+				" />");
+			options.addItem(newOption);
+			setDirty();
 		}
-	}
-		
-	private function setOwnerCombo():void {
-		this.ownerCombo.selectedItem = null;
-		this.ownerCombo.enabled = true;
-		for each(var user:XML in parentApplication.promptedAppUserList) {
-			if (user.@idAppUser == propertyList.selectedItem.@idAppUser) {
-				this.ownerCombo.selectedItem = user;
-				break;
+	
+		private function removeOption():void {
+			if (this.optionGrid.selectedItem != null) {
+				options.removeItemAt(options.getItemIndex(optionGrid.selectedItem));
+				setDirty();
 			}
 		}
-		this.ownerCombo.enabled = parentApplication.hasPermission("canWriteDictionaries") ? true : false;
-	}
+			 
+		private function addOrganism():void {
+			if (organismCombo.selectedItem != null && organismCombo.selectedItem.@value != '') {
+				organisms.addItem(organismCombo.selectedItem);
+				setDirty();			
+			}
+		}
 		
-	private function addOption():void {
-		var newOption:XML = new XML("<PropertyOption " +
-			" idPropertyOption='PropertyOption" + options.length + "'" +
-			" option='enter option here..'" +
-			" isActive='Y'" +
-			" sortOrder='" + (options.length + 1) + "'" +
-			" />");
-		options.addItem(newOption);
-		setDirty();
-	}
-
-	private function removeOption():void {
-		if (this.optionGrid.selectedItem != null) {
-			options.removeItemAt(options.getItemIndex(optionGrid.selectedItem));
-			setDirty();
+		private function removeOrganism():void {
+			if (this.organismsGrid.selectedItem != null) {
+				organisms.removeItemAt(organisms.getItemIndex(organismsGrid.selectedItem));
+				setDirty();
+			}
 		}
-	}
-		 
-	private function addOrganism():void {
-		if (organismCombo.selectedItem != null && organismCombo.selectedItem.@value != '') {
-			organisms.addItem(organismCombo.selectedItem);
-			setDirty();			
-		}
-	}
 	
-	private function removeOrganism():void {
-		if (this.organismsGrid.selectedItem != null) {
-			organisms.removeItemAt(organisms.getItemIndex(organismsGrid.selectedItem));
-			setDirty();
-		}
-	}
-
-		
-	private function addPlatform():void {
-		if (platformCombo.selectedItem != null && platformCombo.selectedItem.@value != '') {
-			platforms.addItem(platformCombo.selectedItem);
-			setDirty();			
-		}
-	}
-	
-	private function removePlatform():void {
-		if (this.platformsGrid.selectedItem != null) {
-			platforms.removeItemAt(platforms.getItemIndex(platformsGrid.selectedItem));
-			setDirty();
-		}
-	}
-	
-	private function addAnalysisType():void {
-		if (analysisTypeCombo.selectedItem != null && analysisTypeCombo.selectedItem.@value != '') {
-			analysisTypes.addItem(analysisTypeCombo.selectedItem);
-			setDirty();			
-		}
-	}
-	
-	private function removeAnalysisType():void {
-		if (this.analysisTypesGrid.selectedItem != null) {
-			analysisTypes.removeItemAt(analysisTypes.getItemIndex(analysisTypesGrid.selectedItem));
-			setDirty();
-		}
-	}
-		
-	private function addProperty():void {
-		var newCharacteristic:XML = new XML("<Property " +
-			" idProperty=''" +
-			" name='enter name here..'" +
-			" isActive='Y'" +
-			" canUpdate='Y'"  +
-			" canDelete='Y'" + 
-			" canRead='Y'" +
-			" mageOntologyCode=''" + 
-			" mageOntologyDefinition=''" + 
-			" description=''" + 
-			" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
-			" codePropertyType='TEXT'" +
-			" forAnalysis='" + (this.showAnalysisAnnotations.selected ? "Y" : "N") + "'" +
-			" forDataTrack='" + (this.showDataTrackAnnotations.selected ? "Y" : "N") + "'" +
-			" forSample='" + (this.showSampleAnnotations.selected ? "Y" : "N") + "'" +
-			" />");
-		properties.addItemAt(newCharacteristic, 0);
-		 
-		
-		propertyList.selectedItem = newCharacteristic;
-		propertyList.scrollToIndex(propertyList.selectedIndex);
-		idProperty = "";
-		
-		setOwnerCombo();
-		
-		setDirty();
-
-		this.onSelectProperty()
-	}
-		
-	private function removeProperty():void {
-		if (propertyList.selectedItem == null) {
-			return;
-		}
-		idProperty = "";
-		
-		var params:Object = new Object();
-		params.idProperty = propertyList.selectedItem.@idProperty;
-		deleteProperty.send(params);
-	}
-		
-	private function onDeleteProperty(event:ResultEvent): void {
-		if (deleteProperty.lastResult.name() == "SUCCESS") {
-			parentApplication.getPropertyList.send();
 			
-		} else {
-			mx.controls.Alert.show(deleteProperty.lastResult..ACTMESSAGE.@TEXT);
-		}
-	}
-		
-		
-	private function save():void {
-		if (propertyList.selectedItem == null) {
-			return;
-		}
-		
-		if(scName.text.toLowerCase() == "description") {
-			mx.controls.Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
-			return;
-		}
-		
-		if(scName.text.toLowerCase() == "sample name") {
-			mx.controls.Alert.show("'Sample Name' is a reserved term. Please select a different name for the annotation.");
-			return;
-		}
-		
-		if(scName.text.toLowerCase() == "organism") {
-			mx.controls.Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
-			return;
-		}
-		
-		if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
-			mx.controls.Alert.show("Please choose object the annotation applies to.");
-			this.sample.setFocus();
-			return;
+		private function addPlatform():void {
+			if (platformCombo.selectedItem != null && platformCombo.selectedIndex > 0) {
+				var codeRequestCategory:String = platformCombo.selectedItem.@codeRequestCategory;
+				var codeApplication:String = "";
+				var applicationDisplay:String = "";
+				if (applicationCombo.selectedItem != null && applicationCombo.selectedIndex > 0) {
+					codeApplication = applicationCombo.selectedItem.@codeApplication;
+					applicationDisplay = applicationCombo.selectedItem.@application;		
+				}
+				for each(var pa:XML in platformApplications) {
+					if(pa.@codeRequestCategory == codeRequestCategory && pa.@codeApplication == codeApplication) {
+						Alert.show('This item is already on the list.');
+						return;
+					}
+				}				
+				
+				var newPlatformApplication:XML = new XML("<PlatformApplication" +
+					" idProperty='" + propertyList.selectedItem.@idProperty + "'" +
+					" codeRequestCategory='" + codeRequestCategory  + "'" +
+					" display='" + platformCombo.selectedItem.@display  + "'" +
+					" codeApplication='" + codeApplication  + "'" +
+					" applicationDisplay='" + applicationDisplay  + "'" +
+					" />");
+				platformApplications.addItem(newPlatformApplication);
+				setDirty();			
+			}
 		}
 		
-		if ((!this.showSampleAnnotations.selected  || !this.sample.selected)
-			&& (!this.showAnalysisAnnotations.selected || !this.analysis.selected)
-			&& (!this.showDataTrackAnnotations.selected || !this.dataTrack.selected)) {
-			this.showSampleAnnotations.selected = true;
-			this.showAnalysisAnnotations.selected = true;
-			this.showDataTrackAnnotations.selected = true;
+		private function removePlatform():void {
+			if (this.platformsGrid.selectedItem != null) {
+				platformApplications.removeItemAt(platformApplications.getItemIndex(platformsGrid.selectedItem));
+				setDirty();
+			}
 		}
-		var params:Object = new Object();
-		params.idProperty = propertyList.selectedItem.@idProperty;
-		params.name = scName.text;
-		params.isActive = this.isActive.selected ? "Y" : "N";
-		params.isRequired = this.isRequired.selected ? "Y" : "N";
-		params.forSample = this.sample.selected ? "Y" : "N";
-		params.forDataTrack = this.dataTrack.selected ? "Y" : "N";
-		params.forAnalysis = this.analysis.selected ? "Y" : "N";
-		params.mageOntologyCode = mageOntologyCode.text;
-		params.mageOntologyDefinition = mageOntologyDefinition.text; 
-		params.description = description.text; 
-		if (parentApplication.hasPermission("canWriteDictionaries")) {
-			params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
-		} else {
-			params.idAppUser = parentApplication.getIdAppUser();
+		
+		private function addAnalysisType():void {
+			if (analysisTypeCombo.selectedItem != null && analysisTypeCombo.selectedItem.@value != '') {
+				analysisTypes.addItem(analysisTypeCombo.selectedItem);
+				setDirty();			
+			}
 		}
-		params.codePropertyType = this.characteristicTypeRadioGroup.selectedValue;
-		params.optionsXMLString = "<options>" + this.options.toXMLString() + "</options>";
-		params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
-		params.platformsXMLString = "<platforms>" + this.platforms.toXMLString() + "</platforms>";
-		params.analysisTypesXMLString = "<analysisTypes>" + this.analysisTypes.toXMLString() + "</analysisTypes>";
 		
-		saveProperty.send(params);
-		
-	}
-		
-	private function onSaveProperty(event:ResultEvent): void {
-		if (saveProperty.lastResult.name() == "SUCCESS") {
-			idProperty = saveProperty.lastResult.@idProperty;
-			parentApplication.dictionaryManager.call("reload", "");
-			parentApplication.getPropertyList.send();
-			dispatchEvent(new Event("updateProperties"));
-		} else {
-			mx.controls.Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
+		private function removeAnalysisType():void {
+			if (this.analysisTypesGrid.selectedItem != null) {
+				analysisTypes.removeItemAt(analysisTypes.getItemIndex(analysisTypesGrid.selectedItem));
+				setDirty();
+			}
 		}
-	}				
+			
+		private function addProperty():void {
+			var newCharacteristic:XML = new XML("<Property " +
+				" idProperty=''" +
+				" name='enter name here..'" +
+				" isActive='Y'" +
+				" canUpdate='Y'"  +
+				" canDelete='Y'" + 
+				" canRead='Y'" +
+				" mageOntologyCode=''" + 
+				" mageOntologyDefinition=''" + 
+				" description=''" + 
+				" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
+				" codePropertyType='TEXT'" +
+				" forAnalysis='" + (this.showAnalysisAnnotations.selected ? "Y" : "N") + "'" +
+				" forDataTrack='" + (this.showDataTrackAnnotations.selected ? "Y" : "N") + "'" +
+				" forSample='" + (this.showSampleAnnotations.selected ? "Y" : "N") + "'" +
+				" />");
+			properties.addItemAt(newCharacteristic, 0);
+			 
+			
+			propertyList.selectedItem = newCharacteristic;
+			propertyList.scrollToIndex(propertyList.selectedIndex);
+			idProperty = "";
+			
+			setOwnerCombo();
+			
+			setDirty();
+	
+			this.onSelectProperty()
+		}
+			
+		private function removeProperty():void {
+			if (propertyList.selectedItem == null) {
+				return;
+			}
+			idProperty = "";
+			
+			var params:Object = new Object();
+			params.idProperty = propertyList.selectedItem.@idProperty;
+			deleteProperty.send(params);
+		}
+			
+		private function onDeleteProperty(event:ResultEvent): void {
+			if (deleteProperty.lastResult.name() == "SUCCESS") {
+				parentApplication.getPropertyList.send();
+				
+			} else {
+				mx.controls.Alert.show(deleteProperty.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
+			
+			
+		private function save():void {
+			if (propertyList.selectedItem == null) {
+				return;
+			}
+			
+			if(scName.text.toLowerCase() == "description") {
+				mx.controls.Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
+				return;
+			}
+			
+			if(scName.text.toLowerCase() == "sample name") {
+				mx.controls.Alert.show("'Sample Name' is a reserved term. Please select a different name for the annotation.");
+				return;
+			}
+			
+			if(scName.text.toLowerCase() == "organism") {
+				mx.controls.Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
+				return;
+			}
+			
+			if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
+				mx.controls.Alert.show("Please choose object the annotation applies to.");
+				this.sample.setFocus();
+				return;
+			}
+			
+			if ((!this.showSampleAnnotations.selected  || !this.sample.selected)
+				&& (!this.showAnalysisAnnotations.selected || !this.analysis.selected)
+				&& (!this.showDataTrackAnnotations.selected || !this.dataTrack.selected)) {
+				this.showSampleAnnotations.selected = true;
+				this.showAnalysisAnnotations.selected = true;
+				this.showDataTrackAnnotations.selected = true;
+			}
+			var params:Object = new Object();
+			params.idProperty = propertyList.selectedItem.@idProperty;
+			params.name = scName.text;
+			params.isActive = this.isActive.selected ? "Y" : "N";
+			params.isRequired = this.isRequired.selected ? "Y" : "N";
+			params.forSample = this.sample.selected ? "Y" : "N";
+			params.forDataTrack = this.dataTrack.selected ? "Y" : "N";
+			params.forAnalysis = this.analysis.selected ? "Y" : "N";
+			params.mageOntologyCode = mageOntologyCode.text;
+			params.mageOntologyDefinition = mageOntologyDefinition.text; 
+			params.description = description.text; 
+			if (parentApplication.hasPermission("canWriteDictionaries")) {
+				params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
+			} else {
+				params.idAppUser = parentApplication.getIdAppUser();
+			}
+			params.codePropertyType = this.characteristicTypeRadioGroup.selectedValue;
+			params.optionsXMLString = "<options>" + this.options.toXMLString() + "</options>";
+			params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
+			params.platformsXMLString = "<platformApplications>" + this.platformApplications.toXMLString() + "</platformApplications>";
+			params.analysisTypesXMLString = "<analysisTypes>" + this.analysisTypes.toXMLString() + "</analysisTypes>";
+			
+			saveProperty.send(params);
+			
+		}
+			
+		private function onSaveProperty(event:ResultEvent): void {
+			if (saveProperty.lastResult.name() == "SUCCESS") {
+				idProperty = saveProperty.lastResult.@idProperty;
+				parentApplication.dictionaryManager.call("reload", "");
+				parentApplication.getPropertyList.send();
+				dispatchEvent(new Event("updateProperties"));
+			} else {
+				mx.controls.Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}	
+			
+		private function filterApplication(item:Object):Boolean {
+			var doesMatchRequestCategory:Boolean = false;
+			if (platformCombo.selectedItem != null && platformCombo.selectedItem.@value != '') {
+				var codeRequestCategory:String = platformCombo.selectedItem.@value;
+				if (item.@value == "") {
+					return false;
+				} 
+				
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				
+				var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
+				for each (var xref:Object in theApplications) {
+					if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
+						doesMatchRequestCategory = true;
+						break;
+					}
+				}
+			}
+			
+			
+			return doesMatchRequestCategory;
+		} 
 		
+		// Sort application by sortOrder field
+		private function sortApplication(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var app1:String = obj1.@application;
+				var app2:String = obj2.@application;
+				
+				app1 = app1.toLowerCase();
+				app2 = app2.toLowerCase();
+				
+				if (app1 < app2) {
+					return -1;
+				} else if (app1 > app2) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}			
+		}
+		
+		public function sortPlatformApplications(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var ed1:String = obj1.@display;
+				var ed2:String = obj2.@display;
+				
+
+				if (ed1 < ed2) {
+					return -1;
+				} else if (ed1 > ed2) {
+					return 1;
+				} else {
+					ed1 = obj1.@application;
+					ed2 = obj2.@application;					
+					if (ed1 < ed2) {
+						return -1;
+					} else if (ed1 > ed2) {
+						return 1;
+					} else {				
+						return 0;
+					}
+				}
+			}
+		}
+		
+		private function refreshApplicationFilter():void {
+			filteredAppList.filterFunction = filterApplication;
+			filteredAppList.refresh();
+		}
 	]]>
 </mx:Script>
 	
 <mx:XMLListCollection id="properties"/>
 <mx:XMLListCollection id="options" source="{propertyList.selectedItem.options.PropertyOption}"/>
 <mx:XMLListCollection id="organisms" source="{propertyList.selectedItem.organisms.Organism}"/>
-<mx:XMLListCollection id="platforms" source="{propertyList.selectedItem.platforms.RequestCategory}"/>
+<mx:XMLListCollection id="platformApplications" source="{propertyList.selectedItem.platformApplications.PlatformApplication}" sort="{platformApplicationSorter}"/>
+<mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 <mx:XMLListCollection id="analysisTypes" source="{propertyList.selectedItem.analysisTypes.AnalysisType}"/>
 <mx:VBox width="100%" height="100%" verticalGap="0">
 	
@@ -357,12 +482,12 @@
 					 </mx:HBox>
 				 </mx:VBox>
 			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0">
-				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
+			 <mx:HBox width="100%" verticalGap="0" horizontalGap="2">
+				 <mx:VBox   verticalGap="1" height="100%"  width="320">
 					 <mx:Text text="Only show for these organisms:" width="100%"/>
 					 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-					 	   <mx:HBox horizontalAlign="left" horizontalGap="6">
-					 	    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
+					 	   <mx:HBox horizontalAlign="left" horizontalGap="2">
+					 	    <mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
 					 	    </mx:ComboBox>
 					 	   	   <mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 					 	   	   	   <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
@@ -379,10 +504,12 @@
 					 </mx:VBox>
 				 </mx:VBox>
 				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-					 <mx:Text text="Only show for these platforms:" width="100%"/>
+					 <mx:Text text="Only show for these platforms/applications:" width="100%"/>
 					 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-						 <mx:HBox horizontalAlign="left" horizontalGap="6">
-							 <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" >			       	
+						 <mx:HBox horizontalAlign="left" horizontalGap="2">
+							 <mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();" >			       	
+							 </mx:ComboBox>
+							 <mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Application (optional)" >			       	
 							 </mx:ComboBox>
 							 <mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 								 <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
@@ -391,18 +518,30 @@
 										disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
 										enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformsGrid.selectedItem != null}" width="25"/>
 						 </mx:HBox>
-						 <mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platforms}" width="100%" height="65">
+						 <mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platformApplications}" width="100%" height="65">
 							 <mx:columns>
-								 <mx:DataGridColumn dataField="@display" headerText="Name"/>
+								 <mx:DataGridColumn dataField="@display"/>
+								 <mx:DataGridColumn dataField="@applicationDisplay"/>
+								 <!--mx:DataGridColumn headerText="Application"  
+													id="applicationCol"
+													dataField="@codeApplication"  
+													editorDataField="value" 
+													sortable="true" 
+													editable="true" 
+													rendererIsEditor="false"  
+													itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"                
+													itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication', null, true)}"/-->															 
 							 </mx:columns>
 						 </mx:DataGrid>			   	
 					 </mx:VBox>				 
-				 </mx:VBox>
-				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
+				 </mx:VBox>				 
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0" horizontalGap="2">
+				 <mx:VBox   verticalGap="1" height="100%"  width="320">
 					 <mx:Text text="Only show for these analysis types:" width="100%"/>
 					 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-						 <mx:HBox horizontalAlign="left" horizontalGap="6">
-							 <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display" >			       	
+						 <mx:HBox horizontalAlign="left" horizontalGap="2">
+							 <mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display" >			       	
 							 </mx:ComboBox>
 							 <mx:Button click="addAnalysisType()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 								 <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypeCombo.selectedItem != null &amp;&amp; analysisTypeCombo.selectedIndex > 0 ? true : false}</mx:enabled>
@@ -419,7 +558,6 @@
 					 </mx:VBox>				 
 				 </mx:VBox>				 
 			 </mx:HBox>
-			 
 			 <mx:HBox >
 				 <mx:Spacer width="80"/>
 				 <mx:CheckBox label="Required (Annotation must be filled in)" id="isRequired"  click="setDirty()">
