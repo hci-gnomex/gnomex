@@ -6,8 +6,7 @@ package views.util
 		public static const  MB:Number = Math.pow(1024,2) ;
 		public static const  GB:Number = Math.pow(1024,3);		
 
-		public function StringUtil()
-		{
+		public function StringUtil() {
 		}
 		
 		public static function cleanRichTextHTML(htmlText:String):String {
@@ -21,6 +20,22 @@ package views.util
 			str = str.replace(pattern, "");
 			
 			return str;		    
+		}
+		
+		public static function stripHTMLText(htmlText:String):String {
+			var pattern:RegExp = /<P.*?>/g;
+			var str:String = htmlText.replace(pattern, "");
+			pattern = /<\/P.*?>/g;
+			str = str.replace(pattern, "");
+			pattern = /<B.*?>/g;
+			str = str.replace(pattern, "");
+			pattern = /<\/B.*?>/g;
+			str = str.replace(pattern, "");			
+			pattern = /<U.*?>/g;
+			str = str.replace(pattern, "");
+			pattern = /<\/U.*?>/g;
+			str = str.replace(pattern, "");					
+			return StringUtil.cleanRichTextHTML(str);
 		}
 		
 		public static function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
