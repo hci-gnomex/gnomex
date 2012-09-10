@@ -34,7 +34,7 @@
 	import views.util.DownloadHints;
 	import mx.core.IFlexDisplayObject;
 	import hci.flex.controls.DropdownLabel;
-
+	import views.util.StringUtil; 
 
 
     [Bindable]
@@ -123,7 +123,7 @@
 		selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);
 		parentDocument.selectedAnalysis = selectedAnalysis;
 		parentDocument.analysisViews.selectedChild = parentDocument.analysisDetailView;
-		parentDocument.analysisDetailView.setupForm();
+		parentDocument.analysisDetailView.setupForm(selectedAnalysis);
 	}
 
 	private function onViewSwitch():void {
@@ -284,6 +284,11 @@
     		return 0;
     	}
     }
+		
+		
+	public function formatDescriptionField(item:Object, col:DataGridColumn):String {
+		return StringUtil.stripHTMLText(item.@description);
+	}
  	]]>
  	
  </mx:Script>
@@ -360,12 +365,11 @@
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisProtocol').DictionaryEntry,'@display', '@value', '@idAnalysisProtocol')}"/>                 
 				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50" sortCompareFunction="sortOrganism"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry,'@display', '@value','@idOrganism')}"/>                 
-				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+				       	<mx:DataGridColumn headerText="Description" labelFunction="formatDescriptionField" width="100" dataField="@description"/>
 			         </mx:columns>
 			       </mx:DataGrid> 	    
 		       </mx:VBox>
 			      
-				
 	 			<analysis:AnalysisVisibilityView id="visibilityView" label="Visibility">
 				</analysis:AnalysisVisibilityView>
 				
