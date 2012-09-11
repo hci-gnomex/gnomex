@@ -331,7 +331,6 @@
 		private function onSaveProperty(event:ResultEvent): void {
 			if (saveProperty.lastResult.name() == "SUCCESS") {
 				idProperty = saveProperty.lastResult.@idProperty;
-				parentApplication.dictionaryManager.call("reload", "");
 				parentApplication.getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));
 			} else {
