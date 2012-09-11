@@ -558,10 +558,22 @@
 				}
 				
 				if(downloadTree.selectedItem != null){
-					renameWindow.oldExperimentName = downloadTree.selectedItem.@displayName;
+					var selectedNode:XML = XML(downloadTree.selectedItem);
+					if(selectedNode.name() == "RequestDownload"){
+						renameWindow.oldExperimentName = selectedNode.@key;
+					}
+					else{
+						renameWindow.oldExperimentName = downloadTree.selectedItem.@displayName;
+					}
 				}
 				else{
-					renameWindow.oldExperimentName = filesGrid.selectedItem.@displayName;
+					var filesGridNode:XML = XML(filesGrid.selectedItem);
+					if(filesGridNode.name() == "RequestDownload"){
+						renameWindow.oldExperimentName = filesGridNode.@key;
+					}
+					else{
+						renameWindow.oldExperimentName = filesGrid.selectedItem.@displayName;
+					}
 				}
 				renameWindow.fileList = this.downloadList;
 				renameWindow.idRequest = this.idRequest;
@@ -615,7 +627,7 @@
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
 					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
-					<mx:LinkButton id="renameFileButton" label="Rename file" textDecoration="underline" paddingLeft="0" click="renameFile(event)" enabled="{((filesGrid.selectedItem != null) || (this.downloadTree.selectedItem != null)) &amp;&amp; this.downloadTree.selectedIndex != 0}"/>
+					<mx:LinkButton id="renameFileButton" label="Rename" textDecoration="underline" paddingLeft="0" click="renameFile(event)" enabled="{((filesGrid.selectedItem != null) || (this.downloadTree.selectedItem != null)) &amp;&amp; this.downloadTree.selectedIndex != 0}"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 					
 				</mx:HBox>
