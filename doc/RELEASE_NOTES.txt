@@ -47,6 +47,8 @@
 * Removed markup from description in analysis grid. (rcundick)
 * Implemented feature to notify user when requested account has been approved. (rcundick)
 * Removed trace messages from FilterComboBox renderer. (rcundick)
+* Performance enhancements to GetChromatogram. (mbowler)
+* Changed Submitter to request submitter instead of user from chromatogram file on ChromatogramDetailScreen. (mbowler)
 
 
 deploy notes 

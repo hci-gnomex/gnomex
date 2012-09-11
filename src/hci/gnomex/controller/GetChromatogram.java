@@ -96,10 +96,14 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       }
             
       idChromatogram =  c!=null ? c.getIdChromatogram():0;
-      
+
+
       File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getDisplayName());
 
+
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
+
+
       
       // Get idPlateWell from the db, if db chromatogram not found, parse it from the abi comments:
       String comments = chromatReader.getComments();
@@ -111,13 +115,15 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       } else {
         idPlateWellString = comments.substring(ind1+4, ind2);
       }
+
       
       PlateWell plateWell = (PlateWell) sess.load( PlateWell.class, Integer.valueOf( idPlateWellString ) );
       String plateName = "";
       String instrumentRunName = "";
       String isRedo = "N";
       String sampleName = "";
-      
+
+
       if ( plateWell != null ) {
         isRedo = plateWell.getRedoFlag();
         Plate plate = plateWell.getPlate();
@@ -132,7 +138,8 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           sampleName = plateWell.getSampleName();
         }
       }
-      
+
+
       // Signal Strengths:
       String aSignalStrength = new Integer(chromatReader.getSignalStrengths()[1]).toString();
       String cSignalStrength = new Integer(chromatReader.getSignalStrengths()[3]).toString();
@@ -141,17 +148,19 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       // Stringify all signal strengths
       String signalStrengths = "A=" + aSignalStrength + ", C=" + cSignalStrength +
                              ", G=" + gSignalStrength + ", T=" + tSignalStrength;
-      
+
+
       // Run Times
       String runStart = chromatReader.getStartDate() + "  " + chromatReader.getStartTime();
       String runStop  = chromatReader.getStopDate()  + "  " + chromatReader.getStopTime();
-      
-     
+
+
       Request request = null;
       if (c.getIdRequest() != null) {
          request = (Request)sess.load(Request.class, c.getIdRequest());
       }
-      
+
+
       String wellRowCol = "";
       if (c.getPlateWell() != null) {
         wellRowCol = c.getPlateWell().getRow() != null ? c.getPlateWell().getRow() : "";
@@ -174,7 +183,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("readLength", new Integer(chromatReader.getSeq().toString().length()).toString());
         chromNode.setAttribute("signalStrengths", signalStrengths);
         chromNode.setAttribute("mobility", chromatReader.getMobility());
-        chromNode.setAttribute("user", chromatReader.getUser());
+        chromNode.setAttribute("user", request.getAppUser().getDisplayName() );
         chromNode.setAttribute("instrModel", chromatReader.getInstrModel());
         chromNode.setAttribute("instrName", chromatReader.getInstrName());
         chromNode.setAttribute("lane", chromatReader.getLane());
@@ -187,6 +196,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("redoFlag", isRedo);
         chromNode.setAttribute("sampleName", sampleName);
         
+        
         // SEQUENCE
         if (includeSeqString) {
           Element seqNode = new Element("Sequence");
@@ -195,8 +205,8 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           
           chromNode.addContent(seqNode);
         }
-        
-        
+
+
         // QUALITY
         Element qualNode = new Element("Quality");
         
@@ -216,7 +226,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         }
         
         chromNode.addContent(qualNode);
-        
+
 
         // TRACE
         if (includeTrace) {
@@ -229,6 +239,8 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           traceNode.setAttribute("baseCalls", chromatReader.getBaseCalls());
           
           chromNode.addContent(traceNode);
+
+
         }
         
         
@@ -239,7 +251,8 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         trimNode.setAttribute("trimPos", String.valueOf(trimUtil.getTrimInterval()[0]) + "-" + String.valueOf(trimUtil.getTrimInterval()[1]));
         
         chromNode.addContent(trimNode);
-        
+
+
 
         doc.getRootElement().addContent(chromNode);
         

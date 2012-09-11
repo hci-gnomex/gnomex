@@ -325,20 +325,18 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
   public String getBaseCalls() {
     
       int[] baseCalls = trace.getBasecalls();
-      String bc = "" + baseCalls[0];
-      for ( int i = 1; i < baseCalls.length; i++) {
-        bc += "," + baseCalls[i];
-      }
+      String bc = Arrays.toString( baseCalls );
+      bc = bc.substring( 1, bc.length()-1 );
+      bc = bc.replaceAll( " ", "" );
       return bc;
   }
 
   public String getATrace() {
     try {
       int[] aTrace = trace.getTrace(DNATools.a());
-      String at = "" + aTrace[0];
-      for ( int i = 1; i < aTrace.length; i++) {
-        at += "," + aTrace[i];
-      }
+      String at = Arrays.toString( aTrace );
+      at = at.substring( 1, at.length()-1 );
+      at = at.replaceAll( " ", "" );
       return at;
     }
     catch (Exception e) {
@@ -350,10 +348,9 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
   public String getCTrace() {
     try {
       int[] cTrace = trace.getTrace(DNATools.c());
-      String ct = "" + cTrace[0];
-      for ( int i = 1; i < cTrace.length; i++) {
-        ct += "," + cTrace[i];
-      }
+      String ct = Arrays.toString( cTrace );
+      ct = ct.substring( 1, ct.length()-1 );
+      ct = ct.replaceAll( " ", "" );
       return ct;
     }
     catch (Exception e) {
@@ -365,10 +362,9 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
   public String getGTrace() {
     try {
       int[] gTrace = trace.getTrace(DNATools.g());
-      String gt = "" + gTrace[0];
-      for ( int i = 1; i < gTrace.length; i++) {
-        gt += "," + gTrace[i];
-      }
+      String gt = Arrays.toString( gTrace );
+      gt = gt.substring( 1, gt.length()-1 );
+      gt = gt.replaceAll( " ", "" );
       return gt;
     }
     catch (Exception e) {
@@ -380,10 +376,9 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
   public String getTTrace() {
     try {
       int[] tTrace = trace.getTrace(DNATools.t());
-      String tt = "" + tTrace[0];
-      for ( int i = 1; i < tTrace.length; i++) {
-        tt += "," + tTrace[i];
-      }
+      String tt = Arrays.toString( tTrace );
+      tt = tt.substring( 1, tt.length()-1 );
+      tt = tt.replaceAll( " ", "" );
       return tt;
     }
     catch (Exception e) {
