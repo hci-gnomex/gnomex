@@ -196,7 +196,7 @@
         		parentApplication.navExperimentView.selectedProject = null;
         		parentApplication.navExperimentView.selectedIdProject = null;
         		parentApplication.navExperimentView.refreshExperiments();
-        		parentApplication.navExperimentView.theViews.visible = false;
+        		parentApplication.navExperimentView.experimentViews.visible = false;
         		parentApplication.navExperimentView.browseView.buttonStack.selectedChild = parentDocument.browseButtonView;
         	} else {
         		Alert.show(deleteProject.lastResult..ACTMESSAGE.@TEXT);
