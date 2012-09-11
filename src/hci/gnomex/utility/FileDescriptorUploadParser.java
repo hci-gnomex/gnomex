@@ -21,7 +21,8 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   protected Document   doc;
   protected Map        fileNameMap = new HashMap();
   protected List       newDirectoryNames = new ArrayList();
-  protected Map       filesToRename = new HashMap();
+  protected Map        filesToRename = new HashMap();
+  protected Map        foldersToRename = new HashMap();
   
   public FileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -40,22 +41,20 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       String requestNumber = folderNode.getAttributeValue("requestNumber");
       String []keyTokens = folderNode.getAttributeValue("key").split("-");
       String directoryName = keyTokens[3];
+      if(folderNode.getAttribute("newName") != null && !folderNode.getAttribute("newName").equals("")){
+        foldersToRename.put(directoryName, folderNode.getAttributeValue("newName"));
+      }
+   
       
       // Keep track of all new folders
       recurseDirectories(folderNode, null); 
       
     }
    
-    for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
-      Element folderNode = (Element)i.next();
-      String fileName = folderNode.getAttributeValue("fileName");
-      String displayName = folderNode.getAttributeValue("displayName");
-      String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
-      if(!newFileName.equals(fileName) && !fileName.equals("")){
-        filesToRename.put(fileName, newFileName);
-      }
-   
-  }
+    if(root.getChildren("FileDescriptor").iterator().hasNext()){
+      recurseDirectories(root, null);
+    }
+
  }
   
   private void recurseDirectories(Element folderNode, String parentDir) {
@@ -64,8 +63,10 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       String []keyTokens = folderNode.getAttributeValue("key").split("-");
       directoryName = keyTokens[3];
       
-    } else {
-      if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir"))
+    } else if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir")) {
+      directoryName = folderNode.getAttributeValue("displayName");
+    }
+    else if(folderNode.getName().equals("Request")){
       directoryName = folderNode.getAttributeValue("displayName");
     }
     
@@ -81,13 +82,20 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     // Get the files to be moved
     for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element fileNode = (Element)i1.next();
+      //Check to see if we need to rename anything
+      String fileName = fileNode.getAttributeValue("fileName");
+      String displayName = fileNode.getAttributeValue("displayName");
+      String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
+      if(!newFileName.equals(fileName) && !fileName.equals("")){
+        filesToRename.put(fileName, newFileName);
+      }
 
       // Ignore new directories here.
       if (fileNode.getAttributeValue("isNew") != null && fileNode.getAttributeValue("isNew").equals("Y")) {
         continue;
       }
       
-      String fileName = fileNode.getAttributeValue("fileName");
+      fileName = fileNode.getAttributeValue("fileName");
       
       List fileNames = (List)fileNameMap.get(qualifiedDir);
       if (fileNames == null) {
@@ -97,10 +105,14 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       fileNames.add(fileName);
     }
 
-    
-    for(Iterator i = folderNode.getChildren("RequestDownload").iterator(); i.hasNext();) {
-      Element childFolderNode = (Element)i.next();
-      recurseDirectories(childFolderNode, qualifiedDir);
+    if(!folderNode.getName().equals("Request")){
+      for(Iterator i = folderNode.getChildren("RequestDownload").iterator(); i.hasNext();) {
+        Element childFolderNode = (Element)i.next();
+        if(childFolderNode.getAttribute("newName") != null && !childFolderNode.getAttribute("newName").equals("")){
+          foldersToRename.put(directoryName, childFolderNode.getAttributeValue("newName"));
+        }
+        recurseDirectories(childFolderNode, qualifiedDir);
+      }
     }
     
     for(Iterator i = folderNode.getChildren("FileDescriptor").iterator(); i.hasNext();) {
@@ -134,6 +146,10 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   
   public Map getFilesToRenameMap(){
     return filesToRename;
+  }
+  
+  public Map getFoldersToRenameMap(){
+    return foldersToRename;
   }
 
 
