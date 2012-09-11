@@ -532,7 +532,7 @@ public class PropertyDictionaryHelper implements Serializable {
     }
     String tempStr = inputPath;
     // Change all file separators to forward slash
-    tempStr.replaceAll("\\\\", "/");
+    tempStr = tempStr.replaceAll("\\\\", "/");
     
     // And then see if there is a separator at the end of the string
     if(tempStr.charAt(tempStr.length()-1) != '/') {
