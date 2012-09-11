@@ -102,7 +102,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
         Request request = (Request)sess.load(Request.class, idRequest);
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
-        baseDir += File.separator + request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
+        baseDir += request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
 
         if (this.getSecAdvisor().canUploadData(request)) {
 
@@ -121,19 +121,25 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
             }
           }
-
-
+          
           // Move files to designated folder
           tryLater = new ArrayList();
           for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
             String directoryName = (String)i.next();
             List fileNames = (List)parser.getFileNameMap().get(directoryName);
+            String targetDirName = "";
 
             for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String)i1.next();
 
               File sourceFile = new File(fileName);
-              String targetDirName = baseDir + File.separator + directoryName;
+              
+              if(baseDir.contains(directoryName)){
+                targetDirName = baseDir + File.separator;
+              }
+              else{
+                targetDirName = baseDir + File.separator + directoryName;
+              }
               File targetDir = new File(targetDirName);
 
               if (!targetDir.exists()) {
@@ -170,29 +176,45 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                     }
                   }
                 } else {
-                  throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                  //throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
                 }
               }
 
             }
-
+            
           }
           
           //Rename files 
-//          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
-//            String file = (String)i.next();
-//            File f1 = new File(file);
-//            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
-//            if(!f1.renameTo(f2)){
-//              throw new Exception("Unable to rename file.  Invalid file name");
-//            }
-//            
-//          }
+          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
+            String file = (String)i.next();
+            File f1 = new File(file);
+            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
+            if(!f2.exists() && !f1.renameTo(f2)){
+              throw new Exception("Unable to rename file.  Invalid file name");
+            }
+            
+            if(f1.exists() && f1.list().length == 0){
+              f1.delete();
+            }
+            
+          }
+          
+          //Rename Folders
+          for(Iterator i = parser.getFoldersToRenameMap().keySet().iterator(); i.hasNext();) {
+            String folder = (String)i.next();
+            File f1 = new File(baseDir + File.separator + folder);
+            File f2 = new File(baseDir + File.separator + (String)parser.getFoldersToRenameMap().get(folder));
+            if(!f1.renameTo(f2)){
+              throw new Exception("Unable to rename folder.  Invalid folder name");
+            }
+            
+          }
 
           // Remove files from file system
           if (filesToRemoveParser != null) {
             for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
               String fileName = (String)i.next();
+              File f = new File(fileName);
 
               // Remove references of file in TransferLog
               String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + idRequest + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
@@ -204,14 +226,28 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               if (transferLogs.size() == 1) {
                 TransferLog transferLog = (TransferLog)transferLogs.get(0);
                 sess.delete(transferLog);
-              } 
+              }
+              
+              //The "file" might be a directory so we have to delete all of the files underneath it first
+              if(f.isDirectory()){
+                String [] fileList = f.list();
+                for(String file : fileList){
+                  boolean success = new File(fileName + File.separator + file).delete();
+                  if (!success) {
+                    throw new Exception("Unable to delete file " + fileName + File.separator + file);
+                }
+                  else{
+                    filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+                  }
+                
+              }
+              }
 
-              boolean success = new File(fileName).delete();
+              boolean success = f.delete();
               if (!success) { 
                 // File was not successfully deleted
                 throw new Exception("Unable to delete file " + fileName);
               }
-
 
             }
             sess.flush();
@@ -228,6 +264,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               }
             }
           }
+          
+          sess.flush();
           
           
           
