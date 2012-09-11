@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
@@ -13,6 +14,7 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -201,7 +204,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
   private void changeRequestStatus( Session sess, InstrumentRun ir, String status ) {
     
     // Get any requests on that run
-    Map requests = new HashMap();
+    Map<Integer, Request> requests = new HashMap<Integer, Request>();
     List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
@@ -214,19 +217,109 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         requests.put( req.getIdRequest(), req );
       }
     }
+
+    HashMap<Integer, Integer> inCompleteRequests = this.getInCompleteRequests(sess, status, requests);
     
     // Change request Status 
     for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
-      int idReq = (Integer) i.next();
-      Request req = (Request) sess.get(Request.class, idReq );
-      req.setCodeRequestStatus( status );
-      if ( status.equals( RequestStatus.COMPLETED ) ) {
-        if ( req.getCompletedDate() == null ) {
-          req.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+      Integer idReq = (Integer) i.next();
+      if (!inCompleteRequests.containsKey(idReq)) {
+        Request req = (Request) sess.get(Request.class, idReq );
+        req.setCodeRequestStatus( status );
+        if ( status.equals( RequestStatus.COMPLETED ) ) {
+          if ( req.getCompletedDate() == null ) {
+            req.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+          }
         }
       }
     }
     sess.flush();
+  }
+  
+  private HashMap<Integer, Integer> getInCompleteRequests(Session sess, String status, Map<Integer, Request> requests) {
+    HashMap<Integer, Integer> inCompleteRequests = new HashMap<Integer, Integer>();
+    if (status.equals( RequestStatus.COMPLETED)) {
+      // Get well information for all requests that are on this run.
+      String wellString = "Select plate.codePlateType, well.idRequest, well.idSample, well.redoFlag, well.idAssay, well.idPrimer, run.codeInstrumentRunStatus "
+                          + " from PlateWell well left join well.plate plate left join plate.instrumentRun run "
+                          + " where well.idRequest in (:ids) and (well.isControl is null or well.isControl = 'N') ";
+      Query wellQuery = sess.createQuery(wellString);
+      wellQuery.setParameterList("ids", requests.keySet());
+      List wells = wellQuery.list();
+      HashMap<Integer, HashMap<String, String>> requestStatusMap = new HashMap<Integer, HashMap<String, String>>();
+      HashMap<Integer, Integer> requestRedoMap = new HashMap<Integer, Integer>();
+      for(Iterator i = wells.iterator(); i.hasNext(); ) {
+        Object[] row = (Object[])i.next();
+        String codePlateType = (String)row[0];
+        Integer idRequest = (Integer)row[1];
+        Integer idSample = (Integer)row[2];
+        String redoFlag = (String)row[3];
+        Integer idAssay = (Integer)row[4];
+        Integer idPrimer = (Integer)row[5];
+        String runStatus = (String)row[6];
+        if (redoFlag != null && redoFlag.equals("Y")) {
+          // Right now will not happen, cannot set non-chromo wells to redo.
+          requestRedoMap.put(idRequest, idRequest);
+        }
+        if (!requestRedoMap.containsKey(idRequest)) {
+          HashMap<String, String> wellStatusMap = requestStatusMap.get(idRequest);
+          if (wellStatusMap == null) {
+            wellStatusMap = new HashMap<String, String>();
+            requestStatusMap.put(idRequest, wellStatusMap);
+          }
+          String wellKey = this.getWellStatusKey(idSample, idAssay, idPrimer);
+          if (codePlateType == null || codePlateType.equals(PlateType.SOURCE_PLATE_TYPE)) {
+            // This is a source plate.  Add it as incomplete if not there yet.
+            if (!wellStatusMap.containsKey(wellKey)) {
+              wellStatusMap.put(wellKey, "N");
+            }
+          } else {
+            // Reaction plate.  If on a complete run then complete the well.
+            if (runStatus != null && runStatus.equals(InstrumentRunStatus.COMPLETE)) {
+              wellStatusMap.put(wellKey, "Y");
+            }
+          }
+        }
+      }
+      
+      for(Integer idRequest:requests.keySet()) {
+        if (requestRedoMap.containsKey(idRequest)) {
+          // Redos are always incomplete
+          inCompleteRequests.put(idRequest, idRequest);
+        } else {
+          HashMap<String, String> wellStatusMap = requestStatusMap.get(idRequest);
+          if (wellStatusMap == null || wellStatusMap.size() == 0) {
+            // Should never happen.
+            inCompleteRequests.put(idRequest, idRequest);
+          } else {
+            for(String value:wellStatusMap.values()) {
+              if (value.equals("N")) {
+                inCompleteRequests.put(idRequest, idRequest);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return inCompleteRequests;
+  }
+  
+  private String getWellStatusKey(Integer idSample, Integer idAssay, Integer idPrimer) {
+    // Cases:
+    // Fragment Analysis -- idSample + idAssay defines the well
+    // Mitochondrial Sequencing -- idSample + idPrimer defines the well (note this will probably not happen -- done through chromos)
+    // Otherwise -- idSample alone defines the well.
+    String key = idSample.toString();
+    if (idAssay != null) {
+      key += "\t" + idAssay.toString();
+    }
+    if (idPrimer != null) {
+      key += "\t" + idPrimer.toString();
+    }
+    
+    return key;
   }
   
   private void disassociatePlates( Session sess, InstrumentRun ir ) {
