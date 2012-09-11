@@ -1355,7 +1355,7 @@
 			var keep:Boolean = false;
 			
 			var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
-			if(sce.@idProperty == "-1") {
+			if(sce.@idProperty == "-1" || property == null) {
 				return true;	// Special case for "Description" field which is not a "real" property 
 			}
 			if (this.isApplicableProperty(property)) {
