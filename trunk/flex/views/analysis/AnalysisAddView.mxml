@@ -398,7 +398,6 @@
 											  labelField="@name" 
 											  prompt="Select a lab..."
 											  width="336"
-											  change="refreshAnalysisGroups();checkCompleteness()" 
 											  close="refreshAnalysisGroups();checkCompleteness()"
 											  id="labCombo">
 					</renderers:FilterComboBox>
@@ -449,7 +448,6 @@
 				<mx:VBox verticalGap="0">
 					<renderers:FilterComboBox labelField="@display"
 											  prompt="Organism..."
-											  change="filteredGenomeBuildList.refresh();checkCompleteness();"
 											  close="filteredGenomeBuildList.refresh();checkCompleteness();"
 											  id="organismCombo"
 											  dataProvider="{organisms.source}"

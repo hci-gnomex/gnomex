@@ -85,7 +85,6 @@
 								  labelField="@name" 
 								  prompt="Select a lab..."
 								  width="220"
-								  change="onLabChange()" 
 								  close="onLabChange()" 
 								  id="labCombo">
 		</renderers:FilterComboBox>

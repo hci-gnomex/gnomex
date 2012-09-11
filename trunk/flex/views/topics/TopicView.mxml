@@ -282,7 +282,6 @@
 											  labelField="@name" 
 											  prompt="Lab..."
 											  width="200"
-											  change="labSelected();" 
 											  close="labSelected();" 
 											  id="labCombo">
 					</renderers:FilterComboBox>
