@@ -253,6 +253,14 @@
 					mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
 				} else {
 					refreshFiles();
+					var params:Object = new Object();
+					params.idRequest = request.@idRequest;
+					params.idLab = request.@idLab;
+					params.lastYear = 'Y';
+					params.isMicroarray  = "N";
+					params.isNextGenSeq  = "N";
+					params.isBioanalyzer = "N";
+					parentView.downloadView.getRequestDownloadList.send(params);
 				} 	 
 			}
 			private function getFilesGridRowNumber(item:Object,col:int):String
@@ -627,7 +635,7 @@
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
 					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
-					<mx:LinkButton id="renameFileButton" label="Rename" textDecoration="underline" paddingLeft="0" click="renameFile(event)" enabled="{((filesGrid.selectedItem != null) || (this.downloadTree.selectedItem != null)) &amp;&amp; this.downloadTree.selectedIndex != 0}"/>
+					<mx:LinkButton id="renameFileButton" label="Rename" textDecoration="underline" paddingLeft="0" click="renameFile(event)" enabled="{((filesGrid.selectedItem != null) || (this.downloadTree.selectedItem != null)) &amp;&amp; this.downloadTree.selectedIndex != 0}" toolTip="Rename selected file or folder"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 					
 				</mx:HBox>
