@@ -308,7 +308,6 @@
 									  labelField="@name" 
 									  prompt="Select a lab..."
 									  width="160"
-									  change="getLab.send()"
 									  close="getLab.send()"
 									  id="labCombo">
 			</renderers:FilterComboBox>

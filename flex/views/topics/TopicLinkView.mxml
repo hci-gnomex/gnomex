@@ -672,7 +672,6 @@
 									  labelField="@name" 
 									  prompt="Lab..."
 									  width="200"
-									  change="searchParamsChange(true);" 
 									  close="searchParamsChange(true);" 
 									  id="labCombo">
 			</renderers:FilterComboBox>

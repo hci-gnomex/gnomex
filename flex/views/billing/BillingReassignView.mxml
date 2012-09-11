@@ -129,7 +129,6 @@
 			<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 									  labelField="@name" 
 									  prompt="Select a lab..."
-									  change="refreshLab()"
 									  close="refreshLab()"
 									  id="labCombo" enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
 									  width="500">

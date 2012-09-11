@@ -5233,7 +5233,6 @@
 												  prompt="Select a lab..."
 												  width="340"
 												  close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
-												  change="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
 												  id="labCombo">
 						</renderers:FilterComboBox>
                 	</mx:HBox>

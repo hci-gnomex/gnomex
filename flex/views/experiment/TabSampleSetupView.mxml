@@ -843,7 +843,6 @@
 				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
 				<renderers:FilterComboBox labelField="@display"
 										  prompt="Organism..."
-										  change="pickOrganism()"
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
 										  dataProvider="{parentApplication.organismList.source}"
