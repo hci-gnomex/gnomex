@@ -1377,6 +1377,19 @@
 			}
 		} 
 	}
+			
+	private function groupSelected():void {
+		if(browseLabCombo.selectedIndex >= 0) {
+			this.allExperimentsCheckbox.selected = false;
+			this.browseUserCombo.selectedIndex = 0;
+			selectedIdLab=null;
+			selectedIdProject=null;
+			selectedIdRequest=null;
+			selectedRequestNumber=null;
+			getProjectRequestList.send(getBrowseParameters());
+			getMembersOfLab();			
+		}
+	}
 		
        ]]>
     </mx:Script> 
@@ -1590,9 +1603,8 @@
 				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
 										  labelField="@name" 
 										  prompt="Select a lab..."
-										  width="160"
-										  change="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
-										  close="{this.allExperimentsCheckbox.selected = false;this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
+										  width="160" 
+										  close="{groupSelected()}"  
 										  id="browseLabCombo">
 				</renderers:FilterComboBox>
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">

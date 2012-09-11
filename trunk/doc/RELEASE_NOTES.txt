@@ -49,6 +49,8 @@
 * Removed trace messages from FilterComboBox renderer. (rcundick)
 * Performance enhancements to GetChromatogram. (mbowler)
 * Changed Submitter to request submitter instead of user from chromatogram file on ChromatogramDetailScreen. (mbowler)
+* Fixed actioscript error when deleting empty project. (rcundick)
+* Fixed ConcurrentModificationException when looking up experiments by group. (rcundick)
 
 
 deploy notes 
