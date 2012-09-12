@@ -743,7 +743,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         
         billingAccountMessage = "";
-        if (!requestParser.isExternalExperiment()  && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+        if (!requestParser.isExternalExperiment()  && 
+            !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
+            !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
           sess.refresh(requestParser.getRequest());
 
           // Create the billing items
