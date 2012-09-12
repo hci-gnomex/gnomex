@@ -397,16 +397,15 @@
 				return -1;
 			} else {
 				var ed1:String = obj1.@display;
-				var ed2:String = obj2.@display;
-				
+				var ed2:String = obj2.@display;			
 
 				if (ed1 < ed2) {
 					return -1;
 				} else if (ed1 > ed2) {
 					return 1;
 				} else {
-					ed1 = obj1.@application;
-					ed2 = obj2.@application;					
+					ed1 = obj1.@applicationDisplay;
+					ed2 = obj2.@applicationDisplay;					
 					if (ed1 < ed2) {
 						return -1;
 					} else if (ed1 > ed2) {
