@@ -146,14 +146,6 @@
 		</mx:State>
 		<mx:State name="ExternalUserState" basedOn="UserState">
 			<mx:SetProperty target="{button12}" name="toolTip" value="Pricing for Microarray and Genomics Analysis Core Facility"/>
-			<mx:SetStyle target="{vbox11}" name="backgroundColor" value="#FCED6C"/>
-			<mx:SetStyle target="{vbox11}" name="bottom" value="12"/>
-			<mx:SetStyle target="{vbox11}" name="left" value="12"/>
-			<mx:SetStyle target="{vbox11}" name="right"/>
-			<mx:SetStyle target="{vbox11}" name="top"/>
-			<mx:SetProperty target="{vbox11}" name="height" value="80"/>
-			<mx:SetProperty target="{vbox11}" name="width" value="80"/>
-			<mx:SetStyle target="{vbox11}" name="verticalAlign" value="middle"/>
 			<mx:SetStyle target="{text1}" name="top" value="4"/>
 			<mx:SetStyle target="{text2}" name="top" value="4"/>
 			<mx:SetStyle target="{text2}" name="right" value="4"/>
