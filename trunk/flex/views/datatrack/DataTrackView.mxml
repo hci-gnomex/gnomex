@@ -35,16 +35,7 @@
 						   icon="@Embed(source='../../assets/download.png')" 
 						   enabled="true" visible="false" includeInLayout="false"
 						   click="{parentDocument.treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
-			<mx:Spacer width="20"/>
 			<mx:LinkButton label="Share"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
-            <mx:Spacer width="100%"/>
-			<mx:Label text="Created " 
-					  visible="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}"
-					  includeInLayout="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}" textAlign="right"/>
-			<mx:Label text="by" 
-				  visible="{getDataTrack.lastResult.@createdBy != ''}"
-				  includeInLayout="{getDataTrack.lastResult.@createdBy != ''}"/>
-			<mx:Label text="{getDataTrack.lastResult.@createdBy + ' ' + getDataTrack.lastResult.@createDate}"/>
 	</mx:HBox>
 	
 <mx:HTTPService             
@@ -796,6 +787,16 @@
 										borderThicknessBottom="0" borderThickness="0" 
 										borderThicknessTop="0" height="100%" minHeight="80" />
 				</mx:VBox>
+			<mx:HBox horizontalGap="0">
+				<mx:Label text="Created " 
+						  visible="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}"
+						  includeInLayout="{getDataTrack.lastResult.@createdBy != '' || getDataTrack.lastResult.@createDate != ''}" textAlign="right"/>
+				<mx:Label text="by" 
+						  visible="{getDataTrack.lastResult.@createdBy != ''}"
+						  includeInLayout="{getDataTrack.lastResult.@createdBy != ''}"/>
+				<mx:Label text="{getDataTrack.lastResult.@createdBy + ' ' + getDataTrack.lastResult.@createDate}"/>
+				
+			</mx:HBox>
 				
 		</mx:VBox>
 			

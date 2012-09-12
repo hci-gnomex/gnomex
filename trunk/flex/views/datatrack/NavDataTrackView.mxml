@@ -899,7 +899,7 @@
 	 * Make UCSC Links 
 	 *
 	 */
-	private function createUCSCLink():void {
+	public function createUCSCLink():void {
 		if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
 			Alert.show("Patience! Converting useq to bw/bb format.");
 		}
@@ -928,7 +928,7 @@
 	 * Make IGV Link 
 	 *
 	 */
-	private function createIGVLink():void {
+	public function createIGVLink():void {
 	
 		if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
 			Alert.show("Patience! Converting useq to bw/bb format.");
@@ -953,7 +953,7 @@
 	 * Make URL Links for all files, converts useq to bw/bb
 	 *
 	 */
-	private function createURLLinks():void {
+	public function createURLLinks():void {
 		if (dataTrackView.getDataTrack.lastResult.@ucscLinkFile == 'convert') {
 			Alert.show("Patience! Converting useq to bw/bb format.");
 		}
