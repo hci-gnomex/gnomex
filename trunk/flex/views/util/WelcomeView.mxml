@@ -484,9 +484,9 @@
 		]]> 
 	</mx:Script>
 	
-	<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="4" top="4" id="text1"/>
+	<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="8" top="8" id="text1"/>
 	<mx:Text  bottom="2" right="2" text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
-	<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="4" top="4" id="text2"/>
+	<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="8" top="8" id="text2"/>
 	<mx:VBox   bottom="4" left ="4"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFF157" backgroundAlpha="1" id="vbox11" width="270" height="87" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center">
 		<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal" fontFamily="Verdana" textAlign="center"  width="100%" height="100%" />  			
 	</mx:VBox>

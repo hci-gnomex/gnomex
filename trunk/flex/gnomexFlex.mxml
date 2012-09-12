@@ -2556,10 +2556,10 @@
 			            </mx:HBox>
 				        <mx:Spacer width="100%"/>
 			            <mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-			              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false"  fontFamily="Tahoma" fontSize="14"/>
-		 	              <mx:TextInput id="searchText"  width="118" visible="false"  borderStyle="solid" borderColor="#1691E7" fontFamily="Arial" fontSize="14" borderThickness="2"/>
-			              <mx:Button id="searchButton" height="18" click="callLater(search)"  visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline">
+			              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false"  fontFamily="Verdana" fontSize="12"/>
+		 	              <mx:TextInput id="searchText"  width="118" visible="false"  borderStyle="solid" borderColor="#1691E7" fontFamily="Verdana" fontSize="12" borderThickness="2"/>
+			              <mx:Button id="searchButton" height="18" click="callLater(search)"    fontFamily="Verdana" fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"  fontFamily="Verdana" fontSize="12">
 			              </mx:LinkButton>
 			            </mx:HBox>
 			            <mx:Spacer width="100%"/>

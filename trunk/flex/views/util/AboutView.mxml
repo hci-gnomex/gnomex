@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="860" height="612"  
+	layout="vertical" width="886" height="550"  
 	xmlns:views="views.*"
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
@@ -11,7 +11,7 @@
   			<mx:Image source="assets/gnomex_logo_small.png"/>
   		</mx:HBox>
 
-		<mx:VBox width="100%" verticalGap="2" fontSize="12">
+		<mx:VBox width="100%" verticalGap="2" fontSize="12" paddingTop="10" paddingLeft="10">
 			<mx:Text text="Functionality" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
@@ -32,7 +32,7 @@
 			
 		</mx:VBox>
 			
-		<mx:VBox width="100%" verticalGap="1" fontSize="12">		
+		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">		
 			<mx:Text text="Contact Info" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
@@ -46,7 +46,7 @@
 			</mx:HBox>
 		</mx:VBox>
 
-		<mx:VBox width="100%" verticalGap="1" fontSize="12">
+		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">
 			<mx:Text text="Credits" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 			    <mx:Image source="{parentApplication.iconBullet}"/>

@@ -260,8 +260,8 @@ LinkButton
 LinkButton.navLinkButton
 {
 	fontWeight: normal;	
-	fontSize: 14;
-	fontFamily: Arial;
+	fontSize: 12;
+	fontFamily: Verdana;
 	color: #FFFFFF;
 }
 
@@ -321,7 +321,7 @@ TextArea {
 	paddingLeft: 4;
 	paddingRight: 4;
 	verticalGap: 4;
-	backgroundColor: #ebe6f1;
+	backgroundColor: #EBE9E9;
 	dropShadowColor: #020000;
 	dropShadowEnabled: true;
 }
@@ -664,9 +664,9 @@ Label.titleLabel
 Label.welcomeLabel
 {
 	fontFamily: Verdana;
-	color: 	 #685D5D;
+	color: 	 #555454;
 	fontSize: 14;
-	fontWeight: bold;
+	fontWeight: normal;
 }
 Label.appTitle
 {
@@ -680,9 +680,8 @@ Label.appTitle
 Text.welcomeUserLabel
 {
 	fontFamily: Verdana;
-	color: #685D5D;
-	fontSize: 16;
-	fontWeight: bold;
+	color: #5D5D5D;
+	fontSize: 14;
 }
 Text.welcomeSessionLabel
 {
@@ -695,7 +694,7 @@ Text.welcomeSessionLabel
 Text.navLabel
 {
 	fontFamily: Verdana;
-	color: #9E8D8D;
+	color: #686464;
 	fontSize: 12;
 	leading: 0;
 }
@@ -707,10 +706,10 @@ Text.navLabelSmall
 }
 Text.progressLabel
 {
-	color: #595350;
+	color: #555454;
 	fontFamily: Verdana;
 	fontSize: 16;
-	fontWeight: bold;
+	fontWeight: normal;
 	textAlign: center;
 }
 
@@ -823,9 +822,10 @@ MenuBar {
 	selectionColor: #336633;
 	color: #ffffff;
 	themeColor: #996666;
-	fontFamily: Arial;
+	fontFamily: Verdana;
 	menuStyleName: menuItem;
-	fontSize: 14;
+	fontSize: 12;
+	fontWeight: normal;
 }
 
 .menuItem {
