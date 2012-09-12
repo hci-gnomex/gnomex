@@ -283,13 +283,13 @@
 		private function checkToSave():void{
 			if(das2Name.text == "" || binomialName.text == "")
 			{
-				Alert.show("If Binomial name or das2Name are left blank they will not be displayed in the Data Tracks View." + "\n" + "Save Anyways?",
+				Alert.show("If Binomial name or das2Name are left blank they will not be displayed in the Data Tracks View." + "\n" + "Save Anyway?",
 							"MISSING FIELDS", (Alert.YES | Alert.NO), this, onCheckToSave);
 			}
 			
 			else if(!checkGenomeBuild())
 			{
-				Alert.show("You have left the das2Name field blank in the Genome Build grid. If you leave this field blank it will not be displayed in the Data Tracks View." + "\n" + "Save Anyways?",
+				Alert.show("You have left the das2Name field blank in the Genome Build grid. If you leave this field blank it will not be displayed in the Data Tracks View." + "\n" + "Save Anyway?",
 					"MISSING FIELDS", (Alert.YES | Alert.NO), this, onCheckToSave);
 			}
 			else
