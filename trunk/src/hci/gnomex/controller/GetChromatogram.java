@@ -183,7 +183,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("readLength", new Integer(chromatReader.getSeq().toString().length()).toString());
         chromNode.setAttribute("signalStrengths", signalStrengths);
         chromNode.setAttribute("mobility", chromatReader.getMobility());
-        chromNode.setAttribute("user", request.getAppUser().getDisplayName() );
+        chromNode.setAttribute("user", request != null && request.getAppUser() != null ? request.getAppUser().getDisplayName() : "" );
         chromNode.setAttribute("instrModel", chromatReader.getInstrModel());
         chromNode.setAttribute("instrName", chromatReader.getInstrName());
         chromNode.setAttribute("lane", chromatReader.getLane());
