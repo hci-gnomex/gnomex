@@ -74,6 +74,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       uofuAffiliate = false;
       appUserScreen.setuNID("");
     }
+    
+    // Trim uNID, external user name, removing trailing spaces
+    if (appUserScreen.getuNID() != null) {
+      appUserScreen.setuNID(appUserScreen.getuNID().trim());
+    }
+    if (appUserScreen.getUserNameExternal() != null) {
+      appUserScreen.setUserNameExternal(appUserScreen.getUserNameExternal().trim());
+    }
+    
     if (request.getParameter("existingLab") != null && request.getParameter("existingLab").equals("y")) {
       existingLab = true;
       requestedLabId = Integer.parseInt(request.getParameter("labDropdown"));
@@ -104,7 +113,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     
     if(appUserScreen.getuNID() != null && !appUserScreen.getuNID().equals("") ){
-      if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().length() != 8 || !appUserScreen.getuNID().substring(1).matches("[0-9]+")){
+      if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().trim().length() != 8 || !appUserScreen.getuNID().trim().substring(1).matches("[0-9]+")){
         this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with lowercase 'u' followed by 7 digits");
       }
     }
