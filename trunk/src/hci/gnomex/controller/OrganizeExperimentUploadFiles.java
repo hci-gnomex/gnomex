@@ -193,10 +193,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               throw new Exception("Unable to rename file.  Invalid file name");
             }
             
-            if(f1.exists() && f1.list().length == 0){
-              f1.delete();
-            }
-            
           }
           
           //Rename Folders
@@ -230,23 +226,15 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               
               //The "file" might be a directory so we have to delete all of the files underneath it first
               if(f.isDirectory()){
-                String [] fileList = f.list();
-                for(String file : fileList){
-                  boolean success = new File(fileName + File.separator + file).delete();
-                  if (!success) {
-                    throw new Exception("Unable to delete file " + fileName + File.separator + file);
-                }
-                  else{
-                    filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
-                  }
-                
-              }
+                deleteDir(f, fileName);
               }
 
-              boolean success = f.delete();
-              if (!success) { 
-                // File was not successfully deleted
-                throw new Exception("Unable to delete file " + fileName);
+              if(f.exists()){
+                boolean success = f.delete();
+                if (!success) { 
+                  // File was not successfully deleted
+                  throw new Exception("Unable to delete file " + fileName);
+                }
               }
 
             }
@@ -305,5 +293,27 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
 
 
+  public void deleteDir(File f, String fileName) throws Exception{
+    for(String file : f.list()){
+      File child = new File(fileName + File.separator + file);
+      if(child.isDirectory()){
+        deleteDir(child, child.getCanonicalPath());
+      }
+      else if (!(new File(fileName + File.separator + file).delete())) {
+        throw new Exception("Unable to delete file " + fileName + File.separator + file);
+    }
+      else{
+        filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+      }
+    
+  }
+    if(f.list().length == 0){
+      if(!f.delete()){
+        throw new Exception("Unable to delete file " + f.getCanonicalPath());
+      }
+      return;
+    }
+    
+  }
 
 }
