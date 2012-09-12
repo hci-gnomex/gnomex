@@ -257,7 +257,11 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         Integer idAssay = (Integer)row[4];
         Integer idPrimer = (Integer)row[5];
         String runStatus = (String)row[6];
-        if (redoFlag != null && redoFlag.equals("Y")) {
+        Boolean isSourceWell = false;
+        if (codePlateType == null || codePlateType.equals(PlateType.SOURCE_PLATE_TYPE)) {
+          isSourceWell = true;
+        }
+        if (redoFlag != null && redoFlag.equals("Y") && isSourceWell) {
           // Right now will not happen, cannot set non-chromo wells to redo.
           requestRedoMap.put(idRequest, idRequest);
         }
@@ -268,7 +272,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
             requestStatusMap.put(idRequest, wellStatusMap);
           }
           String wellKey = this.getWellStatusKey(idSample, idAssay, idPrimer);
-          if (codePlateType == null || codePlateType.equals(PlateType.SOURCE_PLATE_TYPE)) {
+          if (isSourceWell) {
             // This is a source plate.  Add it as incomplete if not there yet.
             if (!wellStatusMap.containsKey(wellKey)) {
               wellStatusMap.put(wellKey, "N");
