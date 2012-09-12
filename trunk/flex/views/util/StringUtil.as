@@ -34,7 +34,20 @@ package views.util
 			pattern = /<U.*?>/g;
 			str = str.replace(pattern, "");
 			pattern = /<\/U.*?>/g;
-			str = str.replace(pattern, "");					
+			str = str.replace(pattern, "");	
+			pattern = /<LI.*?>/g;
+			str = str.replace(pattern, "");
+			pattern = /<\/LI.*?>/g;
+			str = str.replace(pattern, "");	
+			pattern = /<I.*?>/g;
+			str = str.replace(pattern, "");
+			pattern = /<\/I.*?>/g;
+			str = str.replace(pattern, "");	
+			
+			//pattern = /<U.*?>/g;
+			//str = str.replace(pattern, "");
+			//pattern = /<\/U.*?>/g;
+			//str = str.replace(pattern, "");					
 			return StringUtil.cleanRichTextHTML(str);
 		}
 		
