@@ -184,12 +184,12 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             
           }
           
-          //Rename files 
+          //Rename files (The above code creates a new file with the new name and moves everything over
+          //so this code just deletes the empty folder with the old name
           for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
             String file = (String)i.next();
             File f1 = new File(file);
-            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
-            if(!f2.exists() && !f1.renameTo(f2)){
+            if(f1.exists() && f1.list().length == 0 && !f1.delete()){
               throw new Exception("Unable to rename file.  Invalid file name");
             }
             
