@@ -56,11 +56,13 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private CoreFacility   facility = null;
   private String         facilityId = null;
   private String         department = null;
+  private String         serverName;
   
   public String responsePageSuccess = null;
   public String responsePageError = null;
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
+    serverName = request.getServerName();
     this.requestURL = request.getRequestURL(); 
     appUserScreen = new AppUser();
     HashMap errors = this.loadDetailObject(request, appUserScreen);
@@ -326,11 +328,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     String toAddress = "";
     if (facility != null) {
-      toAddress = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+      toAddress = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
     } else if (requestedLab != null) {
       for(Iterator facilityIter = requestedLab.getCoreFacilities().iterator();facilityIter.hasNext();) {
         CoreFacility f = (CoreFacility)facilityIter.next();
-        String add = propertyHelper.getCoreFacilityProperty(f.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER);
+        String add = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, f.getIdCoreFacility()); 
         if (add != null && add.length() > 0) {
           if (toAddress != "") {
             toAddress += ",";
