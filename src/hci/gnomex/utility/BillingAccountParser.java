@@ -1,11 +1,13 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -39,8 +41,6 @@ public class BillingAccountParser extends DetailObject implements Serializable {
       } else {
         billingAccount = (BillingAccount)sess.load(BillingAccount.class, new Integer(idBillingAccountString));
       }
-      
-      
       
       this.initializeBillingAccount(sess, node, billingAccount);
       
@@ -115,6 +115,12 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     } else {
       billingAccount.setShortAcct(null);
     }
+    
+    if (n.getAttributeValue("idCoreFacility") != null && !n.getAttributeValue("idCoreFacility").equals("")) {
+      billingAccount.setIdCoreFacility(new Integer(n.getAttributeValue("idCoreFacility")));
+    } else {
+      billingAccount.setIdCoreFacility(null);
+    }
         
     if (n.getAttributeValue("isApproved") != null && !n.getAttributeValue("isApproved").equals("")) {
       String isApproved = n.getAttributeValue("isApproved");
@@ -133,11 +139,52 @@ public class BillingAccountParser extends DetailObject implements Serializable {
       if (n.getAttributeValue("submitterEmail") != null) {
         billingAccount.setSubmitterEmail(n.getAttributeValue("submitterEmail"));
       }
-  } else {
-    billingAccount.setIsApproved("N");
-  }
+    } else {
+      billingAccount.setIsApproved("N");
+    }
+    
+    updateUsers(sess, n, billingAccount);
   }
 
+  private void updateUsers(Session sess, Element node, BillingAccount acct) {
+    HashMap<Integer, AppUser> addMap = new HashMap<Integer, AppUser>();
+    HashMap<Integer, AppUser> removeMap = new HashMap<Integer, AppUser>();
+    String acctUsers = node.getAttributeValue("acctUsers");
+    if (acctUsers != null && !acctUsers.equals("")) {
+      String[] tokens = acctUsers.split(",");
+      for (int x = 0; x < tokens.length; x++) {
+        String idAppUserString = tokens[x];
+        addMap.put(Integer.valueOf(idAppUserString), null);
+      }
+    }
+    
+    // update arrays.
+    if (acct.getUsers() != null) {
+      for(Iterator i = acct.getUsers().iterator(); i.hasNext(); ) {
+        AppUser user = (AppUser)i.next();
+        if (addMap.containsKey(user.getIdAppUser())) {
+          addMap.remove(user.getIdAppUser());
+        } else {
+          removeMap.put(user.getIdAppUser(), user);
+        }
+      }
+    } else {
+      acct.setUsers(new HashSet());
+    }
+    
+    // Add new ones
+    for(Integer id:addMap.keySet()) {
+      AppUser user = addMap.get(id);
+      user = (AppUser)sess.load(AppUser.class, id);
+      acct.getUsers().add(user);
+    }
+    
+    // Remove deleted ones
+    for(Integer id:removeMap.keySet()) {
+      AppUser user = removeMap.get(id);
+      acct.getUsers().remove(user);
+    }
+  }
   
   public Map getBillingAccountMap() {
     return billingAccountMap;
@@ -147,7 +194,4 @@ public class BillingAccountParser extends DetailObject implements Serializable {
   public void setBillingAccountMap(Map billingAccountMap) {
     this.billingAccountMap = billingAccountMap;
   }
-  
-
-
 }

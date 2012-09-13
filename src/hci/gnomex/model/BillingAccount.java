@@ -5,6 +5,7 @@ import hci.hibernate3utils.HibernateDetailObject;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.NumberFormat;
+import java.util.Set;
 
 
 public class BillingAccount extends HibernateDetailObject {
@@ -33,6 +34,8 @@ public class BillingAccount extends HibernateDetailObject {
   private byte []     purchaseOrderForm;
   private Date       startDate;
   private String     shortAcct;
+  private Integer     idCoreFacility;
+  private Set        users;
   
   public byte [] getPurchaseOrderForm() {
     return purchaseOrderForm;
@@ -386,6 +389,22 @@ public class BillingAccount extends HibernateDetailObject {
   public void setShortAcct(String acct) {
     shortAcct = acct;
   }
+ 
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+  
+  public void setIdCoreFacility(Integer id) {
+    idCoreFacility = id;
+  }
+  
+  public Set getUsers() {
+    return users;
+  }
+  
+  public void setUsers(Set users) {
+    this.users = users;
+  }
   
   public BigDecimal getTotalDollarAmountRemaining() {
     if (totalDollarAmount != null && totalChargesToDate != null) {
@@ -403,5 +422,9 @@ public class BillingAccount extends HibernateDetailObject {
     }
   }
 
-  
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getExcludedMethodsMap");
+    this.excludeMethodFromXML("getUsers");
+  }
+ 
 }

@@ -75,3 +75,28 @@ FROM `gnomex`.`PropertyPlatform`
 INSERT INTO `gnomex`.`PropertyPlatformApplication`(`idProperty`, `idPlatformApplication`)
 SELECT `idProperty`, `idPlatformApplication`
 FROM `gnomex`.`PlatformApplication`
+
+-- Add table BillingAccountUser
+DROP TABLE IF EXISTS `gnomex`.`BillingAccountUser`;
+CREATE TABLE `gnomex`.`BillingAccountUser` (
+  `idBillingAccount` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+  PRIMARY KEY (`idBillingAccount`, `idAppUser`),
+  CONSTRAINT `FK_BillingAccountUser_AppUser` FOREIGN KEY `FK_BillingAccountUser_AppUser` (`idAppUser`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingAccountUser_BillingAccount` FOREIGN KEY `FK_BillingAccountUser_BillingAccount` (`idBillingAccount`)
+    REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+-- new idCoreFacility column in BillingAccount
+alter table gnomex.BillingAccount add column idCoreFacility INT(10) NULL;
+alter table gnomex.BillingAccount add
+  CONSTRAINT `FK_BillingAccount_CoreFacility` FOREIGN KEY  (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
