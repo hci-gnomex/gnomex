@@ -62,6 +62,7 @@
 * Experiment setup screen has been modified so that Billing Account selection comes after user and request category selection.  (bspiglejr)
 * Fixed problem with owner dropdown refresh after changing lab when editing experiment. (rcundick)
 * Changed FilterComboBox to clear filter when down arrow button pressed. (rcundick)
+* Corrected failure to show experiments and analyses for all labs in topics link view. (rcundick)
 
 
 deploy notes 

@@ -561,7 +561,7 @@
 				}
 			}	
 			
-			public function getBrowseParameters():Object {
+			public function getExperimentBrowseParameters():Object {
 				
 				
 				var params:Object = new Object();
@@ -578,6 +578,7 @@
 				} else if (lastYearCheckbox.selected) {
 					params.lastYear = 'Y';
 				}
+				params.allExperiments = 'Y';
 				params.publicExperimentsInOtherGroups = 'N';
 				
 				if (currentState == 'AdminState' || 
@@ -599,14 +600,45 @@
 				return params;
 			}
 			
+			public function getAnalysisBrowseParameters():Object {
+				var params:Object = new Object();
+				
+				if (this.currentState == 'AdminState') {
+					params.allAnalysis = 'Y';
+				}  else {
+					
+					params.allAnalysis = 'Y';	
+					if (this.currentState == "AdminState") {
+						params.showMyLabsAlways = 'N';
+					} else {
+						params.showMyLabsAlways = 'Y';
+					}
+					
+					
+					params.labKeys = "";
+					params.searchText = "";
+					params.lastWeek = lastWeekCheckbox.selected ? 'Y' : 'N';
+					params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
+					params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
+					params.lastYear = lastYearCheckbox.selected ? 'Y' : 'N';
+					
+				}
+				
+				if (labCombo.selectedItem != null) {
+					params.idLab = labCombo.selectedItem.@idLab;
+				}
+				
+				return params;
+			}
+			
 			private function searchParamsChange(labSelected:Boolean):void {
 				if (this.typeNav.selectedChild == this.expTab) {
 					isLabSelection = labSelected;
-					getProjectRequestList.send(getBrowseParameters());					
+					getProjectRequestList.send(getExperimentBrowseParameters());					
 				} else if (this.typeNav.selectedChild == this.anTab) {
 					isLabSelection = labSelected;
 					this.anBrowseTree.selectedItem = null;
-					getAnalysisGroupList.send(getBrowseParameters());
+					getAnalysisGroupList.send(getAnalysisBrowseParameters());
 				} else if (this.typeNav.selectedChild == this.dtTab) {				
 					var parms:Object = new Object();
 					parms.idLab = this.labCombo.visible && this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
