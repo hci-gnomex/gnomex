@@ -53,6 +53,7 @@
 * Fixed ConcurrentModificationException when looking up experiments by group. (rcundick)
 * Removed italics and list tags from description display column for annotations. (rcundick)
 * Fixed error when items with duplication platform but different application added to platform/application list in managing annotations. (rcundick) 
+* Added contact information for all active core facilities on About page. (mbowler)
 
 
 deploy notes 

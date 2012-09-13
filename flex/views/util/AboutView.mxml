@@ -1,59 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="886" height="550"  
-	xmlns:views="views.*"
-	showCloseButton="true" 
-	close="{PopUpManager.removePopUp(this)}" 
-	title="{'GNomEx ' + parentApplication.version }" 
-	backgroundColor="#ffffff"  alpha="1.0" >
+				layout="vertical" width="886" height="550"  
+				xmlns:views="views.*"
+				initialize="init()"
+				showCloseButton="true" 
+				close="{PopUpManager.removePopUp(this)}" 
+				title="{'GNomEx ' + parentApplication.version }" 
+				backgroundColor="#ffffff"  alpha="1.0" >
 	<mx:VBox width="100%" verticalGap="8" height="100%" fontSize="10" paddingTop="2" paddingLeft="2" styleName="form" paddingRight="2" paddingBottom="2" backgroundImage="@Embed(source='../../assets/welcome_background.png')" backgroundSize="100%" borderStyle="none">
 		<mx:HBox width="100%" horizontalAlign="center" id="hbox10" paddingTop="10" paddingBottom="10">
-  			<mx:Image source="assets/gnomex_logo_small.png"/>
-  		</mx:HBox>
-
+			<mx:Image source="assets/gnomex_logo_small.png"/>
+		</mx:HBox>
+		
 		<mx:VBox width="100%" verticalGap="2" fontSize="12" paddingTop="10" paddingLeft="10">
 			<mx:Text text="Functionality" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="A LIMS for making and tracking requests for genomic analysis (e.g. Microarray hybridizations, massive parallel sequencing)"/>				
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" width="100%">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="Import of externally generated genomic datasets in their native formats (future)"/>				
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" width="100%">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="Entry and association of structured meta-data using MAGE ontologies for the samples and experimental parameters with the data"/>				
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" width="100%">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="Web tools to browse, search, modify, and download data fiels associated with the aforementioned"/>				
 			</mx:HBox>
 			
 		</mx:VBox>
-			
-		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">		
+		
+		<mx:VBox id="contactBox" width="100%" verticalGap="1" fontSize="12" paddingLeft="10">		
 			<mx:Text text="Contact Info" fontWeight="bold" fontSize="14" paddingBottom="1"/>
-			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="To report software bugs or give feedback, please email" width="320"/>				
+			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Text text="To report software bugs or give feedback, please email" width="375"/>				
 				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE)), '_blank');" textDecoration="underline" color="#0000ff"/>				
 			</mx:HBox>
-			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="To contact the Microarray Core Facility, please email" width="320"/>				
-				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_CORE_FACILITY)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_CORE_FACILITY)), '_blank');" textDecoration="underline" color="#0000ff"/>				
-			</mx:HBox>
 		</mx:VBox>
-
+		
 		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">
 			<mx:Text text="Credits" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="GNomEx was developed by Hunstman Cancer Institute Informatics and designed in conjuction with the Microarray Core Facility and the Microarray Bioinformatics Group." width="100%"/>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0"  verticalAlign="middle" width="100%">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="Application icons by"/>
 				<mx:LinkButton label="FamFamFam Silk Icons" click="navigateToURL(new URLRequest('http://www.famfamfam.com/lab/icons/silk/'), '_blank');" textDecoration="underline" color="#0000ff"/>
 			</mx:HBox>
@@ -72,6 +68,34 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
+			
+			private function init() : void {
+				
+				for each(var cf:XML in parentApplication.coreFacilityList) {
+					var coreContactBox:HBox = new HBox();
+					coreContactBox.setStyle("horizontalGap",0);
+					coreContactBox.setStyle("verticalAlign","middle");
+					coreContactBox.setStyle("width","100%");
+					
+					var bullet:Image = new Image();
+					bullet.source = parentApplication.iconBullet;
+					coreContactBox.addChild(bullet);
+					
+					var contactText:Text = new Text();
+					contactText.text = cf.@coreName + " Core Contact: " + cf.@contactName + ", " + cf.@contactNumber + ", ";
+					coreContactBox.addChild(contactText);
+					
+					var emailLink:LinkButton = new LinkButton();
+					emailLink.label = cf.@contactEmail;
+					emailLink.setStyle("textDecoration","underline");
+					emailLink.setStyle("color","#0000ff");
+					emailLink.addEventListener("click", function (e:Event):void{navigateToURL(new URLRequest('mailto:' + e.target.label));});
+					
+					coreContactBox.addChild(emailLink);
+					contactBox.addChild(coreContactBox);
+				}
+			}
+				
 		]]>
 	</mx:Script>
 </mx:TitleWindow>
