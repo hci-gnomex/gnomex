@@ -295,6 +295,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (filesToRemoveParser != null) {
           for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
             String fileName = (String)i.next();
+            File f = new File(fileName);
             
             // Remove references of file in TransferLog
             String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
@@ -306,14 +307,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if (transferLogs.size() == 1) {
               TransferLog transferLog = (TransferLog)transferLogs.get(0);
               sess.delete(transferLog);
-            } 
-
-            boolean success = new File(fileName).delete();
-            if (!success) { 
-              // File was not successfully deleted
-              throw new Exception("Unable to delete file " + fileName);
             }
             
+            if(f.isDirectory()){
+              deleteDir(f, fileName);
+            }
+
+            if(f.exists()){
+              boolean success = f.delete();
+              if (!success) { 
+                // File was not successfully deleted
+                throw new Exception("Unable to delete file " + fileName);
+              }
+            }
 
           }
           sess.flush();
@@ -2202,6 +2208,29 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
       
     }
+  }
+  
+  public void deleteDir(File f, String fileName) throws Exception{
+    for(String file : f.list()){
+      File child = new File(fileName + File.separator + file);
+      if(child.isDirectory()){
+        deleteDir(child, child.getCanonicalPath());
+      }
+      else if (!(new File(fileName + File.separator + file).delete())) {
+        throw new Exception("Unable to delete file " + fileName + File.separator + file);
+    }
+      else{
+        filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+      }
+    
+  }
+    if(f.list().length == 0){
+      if(!f.delete()){
+        throw new Exception("Unable to delete file " + f.getCanonicalPath());
+      }
+      return;
+    }
+    
   }
   
 
