@@ -82,7 +82,7 @@
 					coreContactBox.addChild(bullet);
 					
 					var contactText:Text = new Text();
-					contactText.text = cf.@coreName + " Core Contact: " + cf.@contactName + ", " + cf.@contactNumber + ", ";
+					contactText.text = cf.@coreName + " Core: " + cf.@contactName + ", " + cf.@contactNumber + ", ";
 					coreContactBox.addChild(contactText);
 					
 					var emailLink:LinkButton = new LinkButton();
