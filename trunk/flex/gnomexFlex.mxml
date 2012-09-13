@@ -761,7 +761,9 @@
 			public var organismList:XMLListCollection;
 			[Bindable]
 			public var das2OrganismList:XMLListCollection;
-
+			[Bindable]
+			public var coreFacilityList:XMLListCollection;
+			
 			private var properties:Object;
 			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
@@ -855,8 +857,14 @@
 					stateStack.selectedChild = initViews; 
 					linkbutton1.visible = true;
 					linkbutton3.visible = true;
-					loggedInInit();					
+					loggedInInit();	
+					
+					coreFacilityList = new XMLListCollection();
+					for each (var core:Object in getLaunchProperties.lastResult..CoreFacility) {
+						coreFacilityList.addItem(core);
+					}
 				}
+				
 				else {
 					Alert.show("An error occurred getting launch properties");
 				}
