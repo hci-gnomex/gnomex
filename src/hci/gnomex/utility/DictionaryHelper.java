@@ -167,6 +167,7 @@ public class DictionaryHelper implements Serializable {
       theInstance = null;
       throw new RuntimeException("Please run ManageDictionaries command first");
     }
+    requestCategoryList = new ArrayList();
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
