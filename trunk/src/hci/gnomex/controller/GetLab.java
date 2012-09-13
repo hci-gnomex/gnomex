@@ -170,6 +170,7 @@ public class GetLab extends GNomExCommand implements Serializable {
         this.appendPossibleCollaborators(labNode, theLab);
       }
       this.appendSubmitters(labNode, theLab);
+      this.appendApprovedBillingAccounts(labNode, theLab);
       doc.getRootElement().addContent(labNode);        
           
       XMLOutputter out = new org.jdom.output.XMLOutputter();
