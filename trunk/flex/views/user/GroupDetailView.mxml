@@ -526,6 +526,7 @@
 						}
 					}
 				}
+				activeSubmitters = new XMLList(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
 			}
 			
 			public function showEditPurchaseOrderWindow(event:MouseEvent):void{
@@ -568,6 +569,7 @@
 	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
+	<mx:XMLList id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
 	
@@ -828,6 +830,13 @@
 						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
 						<mx:DataGridColumn headerText="Total $ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="80"/>
 						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50"/>
+						<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
+										   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
+										   dataField="@acctUsers"/>
+						<mx:DataGridColumn headerText="Core Facility" dataField="@idCoreFacility" 
+										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CoreFacility').DictionaryEntry, '@display', '@value', '@idCoreFacility')}"
+										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CoreFacility').DictionaryEntry, '@display', '@value', '@idCoreFacility', true)}"/>			                
 					</mx:columns>
 				</mx:DataGrid>
 				<mx:Spacer height="8"/>

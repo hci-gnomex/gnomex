@@ -55,11 +55,15 @@
 * Fixed error when items with duplication platform but different application added to platform/application list in managing annotations. (rcundick) 
 * Added contact information for all active core facilities on About page. (mbowler)
 * Fixed sufficient criteria problem with ChromatogramFilter and plate/run names. (mbowler)
+* Billing Accounts now can optionally have a core facility associated.  If one is specified then Billing Account is filtered by core facility in experiment creation.  (bspiglejr)
+* Billing Accounts now can optionally have one or more users associated.  If any are specified then Billing Account is filtered by user in experiment creation.  (bspiglejr)
+* Experiment setup screen has been modified so that Billing Account selection comes after user and request category selection.  (bspiglejr)
 
 
 deploy notes 
 --------------------
 * at deploy time:  alter table FlowCellChannel alter column [read1ClustersPassedFilterM] numeric(6,2)  
+*** Also change the audit table for FlowCellChannel
 * May wish to run following code to get work authorizations right.
 declare @idDNA int
 declare @idMicro int

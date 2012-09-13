@@ -319,6 +319,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `orderFormFileType` VARCHAR(10) NULL,
   `shortAcct` VARCHAR(10) NULL,
   `startDate` DATETIME NULL,
+  `idCoreFacility` INT(10) NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -326,6 +327,10 @@ CREATE TABLE `gnomex`.`BillingAccount` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_BillingAccount_FundingAgency` FOREIGN KEY `FK_BillingAccount_FundingAgency` (`idFundingAgency`)
     REFERENCES `gnomex`.`FundingAgency` (`idFundingAgency`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingAccount_CoreFacility` FOREIGN KEY `FK_BillingAccount_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2798,6 +2803,21 @@ CREATE TABLE `DataTrackToTopic` (
   CONSTRAINT `FK_TopicDataTrack_DataTrack` FOREIGN KEY (`idDataTrack`) REFERENCES `DataTrack` (`idDataTrack`)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `gnomex`.`BillingAccountUser`;
+CREATE TABLE `gnomex`.`BillingAccountUser` (
+  `idBillingAccount` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+  PRIMARY KEY (`idBillingAccount`, `idAppUser`),
+  CONSTRAINT `FK_BillingAccountUser_AppUser` FOREIGN KEY `FK_BillingAccountUser_AppUser` (`idAppUser`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingAccountUser_BillingAccount` FOREIGN KEY `FK_BillingAccountUser_BillingAccount` (`idBillingAccount`)
+    REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
 
 SET FOREIGN_KEY_CHECKS = 1;
 

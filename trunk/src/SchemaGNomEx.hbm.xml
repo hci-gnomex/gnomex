@@ -199,6 +199,12 @@
 		<property name="purchaseOrderForm" column="purchaseOrderForm" type="binary"/>
 		<property name="shortAcct" column="shortAcct" type="string"/>
     <property name="startDate" column="startDate" type="date"/>
+    <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    <set name="users" table="BillingAccountUser" lazy="true" cascade="none">
+      <key column="idBillingAccount"/>
+      <many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+    </set>
+    
 	</class>
   
   <!-- hci.gnomex.model.Invoice -->

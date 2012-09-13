@@ -116,14 +116,18 @@ public class GetLab extends GNomExCommand implements Serializable {
       for(Iterator i = theLab.getBillingAccounts().iterator(); i.hasNext();) {
         BillingAccount ba = (BillingAccount)i.next();
         ba.setTotalChargesToDate((BigDecimal)totalChargesMap.get(ba.getIdBillingAccount()));
+        ba.excludeMethodFromXML("getUsers");
+        Hibernate.initialize(ba.getUsers());
       }
 
       
       
       Document doc = new Document(new Element("OpenLabList"));
+      theLab.excludeMethodFromXML("getApprovedBillingAccounts");  // Added explicitly below
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       this.appendPossibleCollaborators(labNode, theLab);
       this.appendSubmitters(labNode, theLab);
+      this.appendApprovedBillingAccounts(labNode, theLab);
       doc.getRootElement().addContent(labNode);
       
       
@@ -155,6 +159,8 @@ public class GetLab extends GNomExCommand implements Serializable {
         ba.excludeMethodFromXML("getTotalDollarAmountRemaining");
         ba.excludeMethodFromXML("getTotalDollarAmountRemainingDisplay");
         ba.excludeMethodFromXML("getTotalChargesToDateDisplay");
+        ba.excludeMethodFromXML("getUsers");
+        Hibernate.initialize(ba.getUsers());
       }
 
       
@@ -268,10 +274,37 @@ public class GetLab extends GNomExCommand implements Serializable {
       submittersNode.addContent(u.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
       
       if (u.getIsActive() != null && u.getIsActive().equals("Y")) {
-        activeSubmittersNode.addContent(u.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+        Element node = u.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        if (u.getIdAppUser() == null) {
+          node.setAttribute("value", "-1");
+        } else {
+          node.setAttribute("value", u.getIdAppUser().toString());
+        }
+        node.setAttribute("display", u.getDisplayName());
+        activeSubmittersNode.addContent(node);
       }
     }
     
+  }
+  
+  private void appendApprovedBillingAccounts(Element labNode, Lab theLab) throws Exception {
+    Element accountsNode = new Element("approvedBillingAccounts");
+    labNode.addContent(accountsNode);
+ 
+    for(Iterator i = theLab.getApprovedBillingAccounts().iterator(); i.hasNext();) {
+      BillingAccount ba = (BillingAccount)i.next();
+      Element node = ba.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      String users = "";
+      for(Iterator j = ba.getUsers().iterator();j.hasNext();) {
+        AppUser user = (AppUser)j.next();
+        if (users.length() > 0) {
+          users += ',';
+        }
+        users += user.getIdAppUser().toString();
+      }
+      node.setAttribute("acctUsers", users);
+      accountsNode.addContent(node);
+    }
   }
   
   private void blockAppUserContent(Set appUsers) {
