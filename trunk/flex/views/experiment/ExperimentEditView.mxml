@@ -4951,14 +4951,13 @@
 				 	
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
-						<mx:ComboBox id="requestEditLabCombo"
+						<renderers:FilterComboBox id="requestEditLabCombo"
 												  labelField="@name" 
-												  change="this.dirty.setDirty();refreshLab()" 
 												  close="this.dirty.setDirty();refreshLab()" 
 												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 												  width="400" 
 												  dataProvider="{parentApplication.submitRequestLabList.source}" >
-						</mx:ComboBox>
+						</renderers:FilterComboBox>
 					</mx:HBox>					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
 						<mx:Label text="Project"  width="100" fontWeight="normal"/>
@@ -4982,7 +4981,7 @@
 					
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Label text="Owner"  width="100" fontWeight="normal"/>
-						<mx:ComboBox id="ownerCombo"
+						<util:ComboBoxDatProvChangeFix id="ownerCombo"
 									 labelField="@displayName" 
 									 change="this.dirty.setDirty();" 
 									 dataProvider="{appUsersForLab}" 

@@ -2221,6 +2221,7 @@ package views.renderers
 			}
 			else
 			{
+				filterString = "";
 				displayDropdown(true, event);
 			}
 		}
