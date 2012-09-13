@@ -44,6 +44,7 @@ import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
+import hci.gnomex.model.Organism;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
@@ -315,7 +316,32 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         // Skip if this property isn't applicable to Analysis
         continue;
       }
-      
+
+      // Check to see if there are Organism restrictions
+      Set organismRestrictions = property.getOrganisms();
+      if(organismRestrictions != null && organismRestrictions.size() > 0) {
+        Integer idOrganism = analysis.getIdOrganism();
+        if(organismRestrictions != null) {
+          boolean organismFound = false;
+          for(Iterator i = organismRestrictions.iterator(); i.hasNext();) {
+            Organism thisOrganism = (Organism) i.next();
+            if(idOrganism.compareTo(thisOrganism.getIdOrganism())==0) {
+              organismFound = true;
+              break;
+            }
+          }
+          if(!organismFound) {
+            // If the organism has been specified but is not on the "restrict by" list 
+            // then don't show the annotation. 
+            continue;
+          }
+        } else {
+          // If the organism has not been specified but a "restrict by" list exists
+          // then don't show the annotation. 
+          continue;
+        }
+      }
+
       // Check to see if there are Analysis Type restrictions
       Set analysisTypeRestrictions = property.getAnalysisTypes();
       if(analysisTypeRestrictions != null && analysisTypeRestrictions.size() > 0) {
@@ -335,7 +361,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             continue;
           }
         } else {
-          // If the analysis type has not been specified a "restrict by" list exists
+          // If the analysis type has not been specified but a "restrict by" list exists
           // then don't show the annotation. 
           continue;
         }
