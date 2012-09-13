@@ -60,6 +60,8 @@
 * Billing Accounts now can optionally have a core facility associated.  If one is specified then Billing Account is filtered by core facility in experiment creation.  (bspiglejr)
 * Billing Accounts now can optionally have one or more users associated.  If any are specified then Billing Account is filtered by user in experiment creation.  (bspiglejr)
 * Experiment setup screen has been modified so that Billing Account selection comes after user and request category selection.  (bspiglejr)
+* Fixed problem with owner dropdown refresh after changing lab when editing experiment. (rcundick)
+* Changed FilterComboBox to clear filter when down arrow button pressed. (rcundick)
 
 
 deploy notes 
