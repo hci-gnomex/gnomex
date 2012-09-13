@@ -92,8 +92,8 @@ public class ChromatogramFilter extends DetailObject {
         idRequest != null ||
         requestNumber != null ||
         idInstrumentRun != null ||
-        (runName != null && runName.equals("Y")) ||
-        (plateName != null && plateName.equals("Y")) ||
+        (runName != null && !runName.equals("")) ||
+        (plateName != null && !plateName.equals("")) ||
 //        (capSeq != null && capSeq.equals("Y")) ||
 //        (mitSeq != null && mitSeq.equals("Y")) ||
         (lastWeek != null && lastWeek.equals("Y")) ||
