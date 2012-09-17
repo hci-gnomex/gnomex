@@ -484,18 +484,18 @@
 		]]> 
 	</mx:Script>
 	
-	<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="8" top="8" id="text1"/>
-	<mx:Text  bottom="2" right="2" text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
-	<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="8" top="8" id="text2"/>
-	<mx:VBox   bottom="4" left ="4"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFF157" backgroundAlpha="1" id="vbox11" width="270" height="87" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center">
-		<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal" fontFamily="Verdana" textAlign="center"  width="100%" height="100%" />  			
-	</mx:VBox>
 	<mx:VBox    
 		width="100%" height="100%"  
 		verticalAlign="middle" horizontalAlign="center"  
-		paddingRight="6" paddingLeft="6" paddingBottom="40" verticalGap="40" paddingTop="6" id="vbox10">
+		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10">
 
-		
+		<mx:HBox width="100%">
+			<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="8" top="8" id="text1"/>
+			<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="8" top="8" id="text2"/>
+			<mx:Spacer width="100%"/>
+			<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
+		</mx:HBox>
+		<mx:Spacer height="100%"/>
 		<mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40" id="hbox8">
 			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox9">
 				<mx:HBox id="hbox3" horizontalGap="2" verticalAlign="middle">
@@ -564,5 +564,9 @@
 				</mx:VBox>
 			</mx:VBox>
 		</mx:HBox>
+		<mx:Spacer height="100%"/>
+		<mx:VBox   bottom="4" left ="4"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFFFFF" backgroundAlpha="1" id="vbox11" width="100%" height="50" borderStyle="solid" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#40BC23" borderThickness="4" paddingTop="2" paddingRight="4" paddingLeft="4" paddingBottom="2">
+			<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal" fontFamily="Verdana" textAlign="center"  width="100%" height="100%"  />  			
+		</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>
