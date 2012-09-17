@@ -63,7 +63,9 @@
 * Fixed problem with owner dropdown refresh after changing lab when editing experiment. (rcundick)
 * Changed FilterComboBox to clear filter when down arrow button pressed. (rcundick)
 * Corrected failure to show experiments and analyses for all labs in topics link view. (rcundick)
-
+* Fixed alignment of save/close buttons on Alignment Profile window. (rcundick)
+* Added blank selection option to Annotations window when Single Selection option selected. (rcundick)
+* Resized Annotation Configuration window so that save button is not obscured on smaller monitors. (rcundick)
 
 deploy notes 
 --------------------

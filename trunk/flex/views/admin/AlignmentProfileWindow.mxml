@@ -347,13 +347,12 @@
 				 <mx:Text text="Parameters:" width="120"/>
 				 <mx:TextInput text="{alignmentProfileList.selectedItem.@parameters}" change="{setDirty()}" width="100%" id="parameters"  maxChars="500"/>
 			 </mx:HBox>		</mx:VBox>
-		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+		<mx:ControlBar width="508" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
 			<util:DirtyNote id="dirty" />
 			<mx:Button id="saveButton" label="Save"  enabled="{alignmentProfileList.selectedItem.@canUpdate == 'Y' ? true : false}"
 					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
 			</mx:Button>
 			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
-			
 		</mx:ControlBar>
 	</mx:VBox>
   </mx:ViewStack>
