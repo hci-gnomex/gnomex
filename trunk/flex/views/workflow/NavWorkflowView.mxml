@@ -21,6 +21,50 @@
 			public var hiSeqFlowCellChannels:int = 0;
 			public var miSeqFlowCellChannels:int = 0;
 			public var solexaFlowCellChannels:int = 0;
+			
+		public function switchTo(codeStep:String):void {
+			if (codeStep == 'HSEQQC') {
+				this.navBar.selectedChild = this.hiSeqTab;
+				this.detailViews.selectedChild = this.hiSeqViews;
+				this.hiSeqViews.selectedChild = this.workflowHiSeqQCView;
+				callLater(onHiSeqWorklistChange);
+			} else if (codeStep == 'HSEQPREP') {
+				this.navBar.selectedChild = this.hiSeqTab;
+				this.detailViews.selectedChild = this.hiSeqViews;
+				this.hiSeqViews.selectedChild = this.workflowHiSeqPrepView;
+				callLater(onHiSeqWorklistChange);
+			} else if (codeStep == 'HSEQASSEM') {
+				this.navBar.selectedChild = this.hiSeqTab;
+				this.detailViews.selectedChild = this.hiSeqViews;
+				this.hiSeqViews.selectedChild = this.workflowHiSeqAssembleView;
+				callLater(onHiSeqWorklistChange);
+			} else if (codeStep == 'HSEQPIPE') {
+				this.navBar.selectedChild = this.hiSeqTab;
+				this.detailViews.selectedChild = this.hiSeqViews;
+				this.hiSeqViews.selectedChild = this.workflowHiSeqPipelineView;
+				callLater(onHiSeqWorklistChange);
+			} else if (codeStep == 'MISEQQC') {
+				this.navBar.selectedChild = this.miSeqTab;
+				this.detailViews.selectedChild = this.miSeqViews;
+				this.miSeqViews.selectedChild = this.workflowMiSeqQCView;
+				callLater(onMiSeqWorklistChange);
+			} else if (codeStep == 'MISEQPREP') {
+				this.navBar.selectedChild = this.miSeqTab;
+				this.detailViews.selectedChild = this.miSeqViews;
+				this.miSeqViews.selectedChild = this.workflowMiSeqPrepView;
+				callLater(onMiSeqWorklistChange);
+			} else if (codeStep == 'MISEQASSEM') {
+				this.navBar.selectedChild = this.miSeqTab;
+				this.detailViews.selectedChild = this.miSeqViews;
+				this.miSeqViews.selectedChild = this.workflowMiSeqAssembleView;
+				callLater(onMiSeqWorklistChange);
+			} else if (codeStep == 'MISEQPIPE') {
+				this.navBar.selectedChild = this.miSeqTab;
+				this.detailViews.selectedChild = this.miSeqViews;
+				this.miSeqViews.selectedChild = this.workflowMiSeqPipelineView;
+				callLater(onMiSeqWorklistChange);
+			} 
+		}
 				
 		private function init():void {
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA');
@@ -206,7 +250,7 @@
 			<mx:Canvas id="hiSeqTab" width="100%" height="100%" icon="{parentApplication.iconHiSeq}" toolTip="HiSeq workflow">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
-					<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12">
+					<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12" fontFamily="Verdana">
 					</mx:LinkBar> 
 					
 					<mx:Spacer height="20"/>			  		
@@ -216,7 +260,7 @@
 					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontFamily="Verdana" fontSize="12"/>
 				</mx:VBox>
 			</mx:Canvas>
-			<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow">
+			<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow" fontFamily="Verdana" fontSize="12">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
 					<mx:LinkBar dataProvider="miSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12">
@@ -231,9 +275,9 @@
 			</mx:Canvas>			
 			<mx:Canvas id="microarrayTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Microarray workflow" fontSize="12"> 
 				<mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="4">
-			  		<mx:Text text="Microarray and Sample Quality" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
+			  		<mx:Text text="Microarray and Sample Quality" width="100%" fontWeight="normal" color="#000000" paddingTop="4" fontFamily="Verdana"/>
 			  		
-			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12">
+			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12" fontFamily="Verdana">
 			  		</mx:LinkBar>
 				
 				</mx:VBox>
@@ -241,14 +285,15 @@
 			<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow" visible="true">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
-					<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4">
+					<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4" fontFamily="Verdana">
 					</mx:LinkBar> 
 					
 					<mx:Spacer height="20"/>			  		
 					<mx:HRule>
 					</mx:HRule>
 					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{solexaViews.selectedChild=this.blankSolexa;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="11"/>
+					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{solexaViews.selectedChild=this.blankSolexa;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12" fontFamily="Verdana"/>
+
 				</mx:VBox>
 			</mx:Canvas>
 			
