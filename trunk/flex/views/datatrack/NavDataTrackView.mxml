@@ -17,7 +17,9 @@
 			<mx:SetStyle target="{duplicateButton}" name="paddingRight" value="1"/>
 			<mx:SetStyle target="{downloadButton}" name="paddingRight" value="1"/>
 		</mx:State>
-		<mx:State name="UserState"/>
+		<mx:State name="UserState">
+			<mx:SetStyle target="{hbox6}" name="fontSize" value="11"/>
+		</mx:State>
 		<mx:State name="GuestState"/>
 	</mx:states>
 
@@ -1660,6 +1662,7 @@
 			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')">
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="2">
+				<mx:Image source="assets/datatrack.jpg"/>
 				<mx:Text text="Data Tracks"  paddingRight="20" styleName="titleLabel"/>
 				<mx:LinkButton   label="New Data Track" 
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
@@ -1729,38 +1732,35 @@
 							enabled="{currentState == 'AdminState'}"
 							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism" id="linkbutton7"   textDecoration="underline"/>
 					</mx:HBox>
-					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6"  >
+					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6"   fontSize="11" fontFamily="Verdana">
 						<mx:LinkButton   
 							icon="@Embed(source='../../assets/crossout.png')" 
 							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 							label="Remove" 
 							enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
-							styleName="linkMenuButton" 
 							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism"   id="removeOrganismButton"/>
 					</mx:HBox>
 					<mx:HBox  horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox7"  >
 						<mx:LinkButton label="Remove" icon="@Embed(source='../../assets/crossout.png')" 
 									   disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 									   enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"
-									   styleName="linkMenuButton" paddingLeft="4"
+									   paddingLeft="4"
 									   click="{this.promptToRemoveSelectedItems()}" 
-									   toolTip="Delete genome version"  id="removeGenomeBuildButton"/>
+									   toolTip="Delete genome version"  id="removeGenomeBuildButton" fontSize="11"/>
 					</mx:HBox>
-					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left"  id="hbox16">
+					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left"  id="hbox16" fontSize="11">
 						<mx:LinkButton   icon="@Embed(source='../../assets/crossout.png')"  
 										 disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 										 label="Remove"
 										 enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"								  					        	
-										 styleName="linkMenuButton" 
 										 click="{this.promptToRemoveSelectedItems()}" 
 										 toolTip="Delete dataTrack grouping"  id="removeDataTrackFolderButton" paddingLeft="4"/>
 					</mx:HBox>
-					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox8" >
+					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox8"  fontSize="11" fontFamily="Verdana">
 						<mx:LinkButton  icon="@Embed(source='../../assets/crossout.png')"  
 										disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 										label="Remove" paddingLeft="4"
 										enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canWrite == 'Y' ? true : false}"								  					        	
-										styleName="linkMenuButton" 
 										click="this.promptToRemoveSelectedItems()" 
 										toolTip="Delete dataTrack"  id="removeDataTrackButton"/>
 					</mx:HBox>
@@ -1842,7 +1842,7 @@
 							  visible="{currentState != 'GuestState'}"
 							  includeInLayout="{currentState != 'GuestState'}"
 							  />
-					<mx:LinkButton styleName="linkMenuButton" label="Reload DAS2 Server" 
+					<mx:LinkButton label="Reload DAS2 Server" 
 								   visible="{currentState != 'GuestState'}"
 								   includeInLayout="{currentState != 'GuestState'}"
 								   icon="@Embed(source='../../assets/database_lightning.png')" 
