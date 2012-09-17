@@ -122,6 +122,68 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             }
           }
           
+          //Rename files
+          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
+            String file = (String)i.next();
+            File f1 = new File(file);
+            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
+            boolean success = f1.renameTo(f2);
+            if(f1.exists() && f1.isDirectory() && success){
+              for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
+                String directory = (String)j.next();
+                if(directory.equals(f1.getCanonicalPath())){
+                  List fileNames = (List)parser.getFileNameMap().get(directory);
+                  parser.getFileNameMap().remove(directory);
+                  parser.getFileNameMap().put(f2.getCanonicalPath(), fileNames);
+                  break;
+                }
+              }
+            }
+            else if(success){
+              for(Iterator k = parser.getFileNameMap().keySet().iterator(); k.hasNext();) {
+                String directory = (String)k.next();
+                List fileNames = (List)parser.getFileNameMap().get(directory);
+                for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
+                  String parserFile = (String)i1.next();
+                  if(parserFile.equals(file)){
+                    fileNames.remove(parserFile);
+                    fileNames.add(f2.getCanonicalPath());
+                    parser.getFileNameMap().put(directory, fileNames);
+                    break;
+                  }
+                }
+              }
+            }
+            else{
+              throw new Exception("Unable to rename file.  Invalid file name");
+            }
+
+          }
+          
+          //Rename Folders
+          for(Iterator i = parser.getFoldersToRenameMap().keySet().iterator(); i.hasNext();) {
+            String folder = (String)i.next();
+            String newFolder = (String)parser.getFoldersToRenameMap().get(folder);
+            File f1 = new File(baseDir + File.separator + folder);
+            File f2 = new File(baseDir + File.separator + newFolder);
+            boolean success = f1.renameTo(f2);
+            if(success){
+              for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
+                String directory = (String)j.next();
+                if(directory.equals(folder)){
+                  List fileNames = (List)parser.getFileNameMap().get(directory);
+                  parser.getFileNameMap().remove(directory);
+                  parser.getFileNameMap().put(newFolder, fileNames);
+                  break;
+                }
+              }
+            }
+            else{
+              throw new Exception("Unable to rename file");
+            }
+
+          }
+          
           // Move files to designated folder
           tryLater = new ArrayList();
           for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
@@ -184,30 +246,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             
           }
           
-          //Rename files (The above code creates a new file with the new name and moves everything over
-          //so this code just deletes the empty folder with the old name
-          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
-            String file = (String)i.next();
-            File f1 = new File(file);
-            if(f1.exists() && f1.isDirectory() && f1.list().length == 0 && !f1.delete()){
-              throw new Exception("Unable to rename file.  Invalid file name");
-            }
-            else if(f1.renameTo(new File((String)parser.getFilesToRenameMap().get(file)))){
-              throw new Exception("Unable to rename file.  Invalid file name");
-            }
-            
-          }
-          
-          //Rename Folders
-          for(Iterator i = parser.getFoldersToRenameMap().keySet().iterator(); i.hasNext();) {
-            String folder = (String)i.next();
-            File f1 = new File(baseDir + File.separator + folder);
-            File f2 = new File(baseDir + File.separator + (String)parser.getFoldersToRenameMap().get(folder));
-            if(!f1.renameTo(f2)){
-              throw new Exception("Unable to rename folder.  Invalid folder name");
-            }
-            
-          }
 
           // Remove files from file system
           if (filesToRemoveParser != null) {
