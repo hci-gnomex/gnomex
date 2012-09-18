@@ -587,7 +587,7 @@
 				renameWindow.idRequest = this.idRequest;
 				renameWindow.addEventListener("refreshUploadFiles", onUploadFinished);
 				mx.managers.PopUpManager.centerPopUp(renameWindow);
-				this.setFocus();
+				renameWindow.nameExperiment.setFocus();
 			}
 			
 			
