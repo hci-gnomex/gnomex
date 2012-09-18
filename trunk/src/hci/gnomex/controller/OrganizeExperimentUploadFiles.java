@@ -196,7 +196,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
               File sourceFile = new File(fileName);
               
-              if(baseDir.contains(directoryName)){
+              if(baseDir.contains(directoryName) || baseDir.contains(directoryName.subSequence(0, directoryName.length() - 1))){
                 targetDirName = baseDir + File.separator;
               }
               else{
