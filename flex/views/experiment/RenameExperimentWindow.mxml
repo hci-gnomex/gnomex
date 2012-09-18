@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="370" title="Rename Experiment/Folder" height="98"
-				horizontalScrollPolicy="off" verticalScrollPolicy="off" xmlns:util="views.util.*">
+				horizontalScrollPolicy="off" verticalScrollPolicy="off" defaultButton="{saveButton}" xmlns:util="views.util.*">
 	
 	
 	<mx:HTTPService  
@@ -99,7 +99,7 @@
 
 		]]>
 	</mx:Script>
-	<mx:VBox width="100%" height="100%">
+	<mx:VBox width="100%" height="100%" styleName="form">
 		<mx:HBox width="100%" height="100%">
 			<mx:Label text="Name:" width="49"/>
 			<mx:TextInput id="nameExperiment" width="100%" change="this.dirty.setDirty()"/>
