@@ -418,8 +418,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
           if (showUploads.equals("Y") && this.getSecAdvisor().canUploadData(request)) {
             Element requestUploadNode = new Element("RequestUpload");
             requestNode.addContent(requestUploadNode);
+            requestUploadNode.setAttribute("canDelete", "Y");
+            requestUploadNode.setAttribute("canRename", "Y");
+            requestNode.setAttribute("canDelete", "N");
+            requestNode.setAttribute("canRename", "N");
             String key = request.getKey(Constants.UPLOAD_STAGING_DIR);
-            GetRequestDownloadList.addExpandedFileNodes(sess, serverName, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh);
+            GetRequestDownloadList.addExpandedFileNodes(sess, serverName, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh, false);
           }
 
           // Default to not breaking otu samples by plates.

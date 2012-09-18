@@ -269,6 +269,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           appUserName += (String)row[28];
         }
         
+        boolean isSolexaRequest = RequestCategory.isIlluminaRequestCategory(codeRequestCategory);
+        
         
         String requestNumber = (String)row[1];
         if (!requestNumber.equals(prevRequestNumber)) {
@@ -288,6 +290,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           requestNode.setAttribute("isSelected", "false");
           requestNode.setAttribute("state", "unchecked");
           requestNode.setAttribute("isEmpty", "Y"); // will be set to yes if any files exist for downloading
+          requestNode.setAttribute("canDelete", "N");
+          requestNode.setAttribute("canRename", "N");
           requestNode.setAttribute("info", appUserName);
           
           doc.getRootElement().addContent(requestNode);
@@ -303,11 +307,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           }
         }
 
-        boolean isSolexaRequest = false;
+        
         
         if (resultDir.equals(this.DUMMY_DIRECTORY)) {
 
-          addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, requestNode, requestNumber, key, codeRequestCategory, dh);
+          addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, requestNode, requestNumber, key, codeRequestCategory, dh, false);
 
 
         } else {
@@ -337,14 +341,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           n.setAttribute("numberSample2", row[15] == null ? "" :  (String)row[15]);
           n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
           n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
+          n.setAttribute("canDelete", "Y");
+          n.setAttribute("canRename", "Y");
           
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
           String directoryName =  baseDir  + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + File.separator + resultDir;
           n.setAttribute("fileName", directoryName);
-          
-          if (n.getAttributeValue("codeRequestCategory") != null && RequestCategory.isIlluminaRequestCategory(n.getAttributeValue("codeRequestCategory"))) {
-            isSolexaRequest = true;
-          }
           
           
           Integer idSlideDesign = row[20] == null || row[20].equals("") ? null : (Integer)row[20];
@@ -426,7 +428,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           
           requestNode.addContent(n);
 
-          addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n, requestNumber, key, codeRequestCategory, dh);
+          addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n, requestNumber, key, codeRequestCategory, dh, false);
         }
         
         
@@ -462,11 +464,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               n1.setAttribute("results", "flow cell quality report");
               n1.setAttribute("hasResults", "Y"); 
               n1.setAttribute("status", "");
+              n1.setAttribute("canDelete", "N");
+              n1.setAttribute("canRename", "N");
               n1.setAttribute("itemNumber", fcFolder.getFlowCellNumber());
               
               requestNode.addContent(n1);
               
-              addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory, dh);
+              addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory, dh, true);
             }
             // We only want to show the list of flow cells once
             // per request.
@@ -535,7 +539,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       String requestNumber, 
       String key, 
       String codeRequestCategory, 
-      DictionaryHelper dh) throws XMLReflectException {
+      DictionaryHelper dh,
+      boolean isFlowCellDirectory ) throws XMLReflectException {
     //
     // Get expanded file list
     //
@@ -561,9 +566,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             fd.excludeMethodFromXML("getChildren");
             
             Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
+            fdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
+            fdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
             fdNode.setAttribute("isSelected", "N");
             fdNode.setAttribute("state", "unchecked");
-            recurseAddChildren(fdNode, fd);
+            recurseAddChildren(fdNode, fd, isFlowCellDirectory);
             
             requestDownloadNode.addContent(fdNode);
             requestDownloadNode.setAttribute("isEmpty", "N");
@@ -581,7 +588,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
   }
   
-  private static void recurseAddChildren(Element fdNode, FileDescriptor fd) throws XMLReflectException {
+  private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
       if ( fd.getType() == "dir" ) {
         fdNode.setAttribute("isEmpty", "Y");
@@ -599,12 +606,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       Element childFdNode = childFd.toXMLDocument(null, childFd.DATE_OUTPUT_ALTIO).getRootElement();
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
-      
+
+      childFdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
+      childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
+
       fdNode.addContent(childFdNode);
       
       
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
-        recurseAddChildren(childFdNode, childFd);
+        recurseAddChildren(childFdNode, childFd, isFlowCellDirectory);
       }else {
         if ( childFd.getType() == "dir" ) {
           childFdNode.setAttribute("isEmpty", "Y");
@@ -669,9 +679,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         Element fdNode = fdesc.toXMLDocument(null, fdesc.DATE_OUTPUT_ALTIO).getRootElement();
         fdNode.setAttribute("isSelected", "N");
         fdNode.setAttribute("state", "unchecked");
+        fdNode.setAttribute("canDelete", "Y");
+        fdNode.setAttribute("canRename", "Y");
 
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
+
       }
       
     }
