@@ -921,16 +921,17 @@
 				} else if (number.indexOf("A") == 0) {
 					this.showAnalysisForNumber(number);				
 				} else {
-					showExperiment(number);
+					showExperiment(number, false);
 					
 				} 
 			}
 			
-			public function showExperiment(requestNumber:String):void {
+			public function showExperiment(requestNumber:String, showPromptToUpload:Boolean):void {
 				navExperimentView.selectedRequestNumber = requestNumber;
 				navExperimentView.selectedIdRequest = null;
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
+				navExperimentView.showPromptToUpload = showPromptToUpload;
 
     			// We have to make sure that the first time a lookup
 				// occurs after lauch, we refresh the experiment
@@ -2106,7 +2107,7 @@
 					// parameter is included.
 	        		this.showExperimentDownload(getLaunchRequestNumber());
 	        	} else if (launchExperimentDetail()) {
-	        		this.showExperiment(getLaunchRequestNumber());
+	        		this.showExperiment(getLaunchRequestNumber(), false);
 	        	} else if (launchAnalysisDetail()) {
    					this.showAnalysisForNumber(getLaunchAnalysisNumber());
 				} else if (launchDataTrackDetail()) {

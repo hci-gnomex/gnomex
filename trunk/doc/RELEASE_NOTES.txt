@@ -66,6 +66,7 @@
 * Fixed alignment of save/close buttons on Alignment Profile window. (rcundick)
 * Added blank selection option to Annotations window when Single Selection option selected. (rcundick)
 * Resized Annotation Configuration window so that save button is not obscured on smaller monitors. (rcundick)
+* Fixed problem with experiment upload feature not working correctly after an external experiment is registered. (rcundick)
 
 deploy notes 
 --------------------
