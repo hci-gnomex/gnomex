@@ -256,7 +256,7 @@
 
 		private var externalIdRequest:String;
 		private var externalRequestNumber:String;
-
+			
 		[Bindable]
 		public var requestCategoryName:String;
 		
@@ -349,8 +349,6 @@
 		private var isInitialized:Boolean = false;
 			
 		private var lastSelectedApplication:Object = null;
-			
-		private var alertButtonWidth:Number = Alert.buttonWidth;
 
 		public var numCapSeqPlates:int = 0;
 		
@@ -3297,10 +3295,11 @@
 		
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
+				var showPromptToUpload:Boolean = false;
 				if (this.isExternalExperimentSubmission()) {
 					externalRequestNumber = submittedRequestNumber;
 					externalIdRequest = submittedIdRequest;
-					promptToUpload();
+					showPromptToUpload = true;
 				} else {
 					if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState()) {
 						showPrintableRequestForm();
@@ -3311,39 +3310,13 @@
 				var theRequestNumber:String = this.submittedRequestNumber;
 				getNewRequest.send();  
 				initializeSubmitForm();
-				parentApplication.showExperiment(theRequestNumber);
+				parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
 				
 
 			} else {
 				
 			}
 
-		}
-			
-		private function promptToUpload():void {
-			if (parentApplication.isFDTSupported) {
-				Alert.buttonWidth = 120; 
-				Alert.yesLabel = "Normal upload";
-				Alert.noLabel = "FDT upload";
-				Alert.show( "Which upload mechanism do you want to use?\n(FDT is recommended for uploads exceeding 1 GB.)",
-					"Ready to upload files",
-					(Alert.YES | Alert.NO | Alert.CANCEL), this, 
-					onPromptToUpload);
-			} else {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.request, this, this.downloadView);				
-			}
-			
-		}
-			
-		private function onPromptToUpload(event:CloseEvent):void {
-			Alert.yesLabel = "Yes";
-			Alert.noLabel = "No";
-			Alert.buttonWidth = alertButtonWidth;
-			if (event.detail==Alert.YES) {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.request, this, this.downloadView);				
-			} else if (event.detail == Alert.NO) {
-				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), this.request);				
-			}
 		}
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {

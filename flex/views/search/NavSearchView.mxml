@@ -188,7 +188,7 @@
         }
         
         private function onExperimentRowSelected():void  {
-        	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber);
+        	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber, false);
 			shrinkWindow();
         }
 
@@ -214,7 +214,7 @@
 		
         private function onExperimentNodeSelected():void  {
         	if (resultsTree.selectedItem.name() == "RequestNode") {
-	        	parentApplication.showExperiment(resultsTree.selectedItem.@requestNumber);    		
+	        	parentApplication.showExperiment(resultsTree.selectedItem.@requestNumber, false);    		
 				shrinkWindow();
         	}
         }

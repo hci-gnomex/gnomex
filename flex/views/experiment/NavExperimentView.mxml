@@ -155,6 +155,8 @@
         
 		[Bindable]
         public var selectedIdLab:String;
+		
+		public var showPromptToUpload:Boolean = false;
         
         public var selectedNode:Object;
 			
@@ -767,11 +769,42 @@
 			} else {
 			    experimentViews.selectedChild = experimentDetailView;
 				experimentDetailView.detail.setupForm(this.selectedExperiment);
+				if(showPromptToUpload) {
+					promptToUpload();
+				}
 				
 			}
+	
+			showPromptToUpload = false;
 
 		    experimentViews.visible = true;
 		}
+					
+		private function promptToUpload():void {
+			if (parentApplication.isFDTSupported) {
+				Alert.buttonWidth = 120; 
+				Alert.yesLabel = "Normal upload";
+				Alert.noLabel = "FDT upload";
+				Alert.show( "Which upload mechanism do you want to use?\n(FDT is recommended for uploads exceeding 1 GB.)",
+					"Ready to upload files",
+					(Alert.YES | Alert.NO | Alert.CANCEL), this, 
+					onPromptToUpload);
+			} else {
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.selectedExperiment, this.experimentEditView, this.browseView.downloadView);				
+			}
+			
+		}
+		
+		private function onPromptToUpload(event:CloseEvent):void {
+			Alert.yesLabel = "Yes";
+			Alert.noLabel = "No";
+			//Alert.buttonWidth = alertButtonWidth;
+			if (event.detail==Alert.YES) {
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.selectedExperiment, this.experimentEditView, this.browseView.downloadView);				
+			} else if (event.detail == Alert.NO) {
+				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), this.selectedExperiment);				
+			}
+		}						
 
 		private function onGetRequestForDownload(event:ResultEvent):void {
 			if (getRequestForDownload.lastResult.name() != "OpenRequestList") {

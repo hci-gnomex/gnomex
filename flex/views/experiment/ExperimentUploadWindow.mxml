@@ -226,7 +226,7 @@
 			private function expandDownloadTree():void {
 				var maxFiles:int = 60;
 				var count:int = 0;
-				if (downloadTree != null) {
+				if (downloadTree != null && downloadList.length > 0) {
 					downloadTree.expandItem(downloadList.getItemAt(0),true); 
 					for each(var a:Object in getRequestDownloadList.lastResult..Request.FileDescriptor) {
 						downloadTree.expandItem(a,true);
