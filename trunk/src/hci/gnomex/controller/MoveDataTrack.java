@@ -57,14 +57,12 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
    }
    if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
      idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
-   } else {
-     this.addInvalidField("idDataTrackFolder", "idDataTrackFolder is required.");
    }
+
    if (request.getParameter("idDataTrackFolderOld") != null && !request.getParameter("idDataTrackFolderOld").equals("")) {
      idDataTrackFolderOld = new Integer(request.getParameter("idDataTrackFolderOld"));
-   } else {
-     this.addInvalidField("idDataTrackFolderOld", "idDataTrackFolderOld is required.");
    }
+   
    if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
      isMove = request.getParameter("isMove");
    } else {

@@ -69,6 +69,7 @@
 * Fixed problem with experiment upload feature not working correctly after an external experiment is registered. (rcundick)
 * Fixed bug preventing candidate experiments from showing up on Add Services option. (rcundick)
 * Added distinct to lab dropdown query to prevent duplicate labs from appearing. (rcundick)
+* Removed requirement for folder source/destination folder ids in MoveDataTrack.java (was preventing move between folder and parent genome build). (rcundick)
 
 deploy notes 
 --------------------
