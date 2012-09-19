@@ -3747,7 +3747,7 @@
 			
 			if (this.radioGroupAmendType.selectedValue != null && 
 			    this.radioGroupAmendType.selectedValue != "" &&
-			    this.labCombo.selectedIndex > 0) {
+			    this.labCombo.selectedIndex >= 0) {
 			    	
 				var params:Object = new Object();
 				params.idLab = labCombo.selectedItem.@idLab;

@@ -67,6 +67,7 @@
 * Added blank selection option to Annotations window when Single Selection option selected. (rcundick)
 * Resized Annotation Configuration window so that save button is not obscured on smaller monitors. (rcundick)
 * Fixed problem with experiment upload feature not working correctly after an external experiment is registered. (rcundick)
+* Fixed bug preventing candidate experiments from showing up on Add Services option. (rcundick)
 
 deploy notes 
 --------------------
