@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="370" title="Rename Experiment/Folder" height="98"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="540" title="{'Rename ' + oldName}" height="98"
 				horizontalScrollPolicy="off" verticalScrollPolicy="off" defaultButton="{saveButton}" xmlns:util="views.util.*">
 	
 	
@@ -21,6 +21,9 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			
+			[Bindable]
+			public var oldName:String = "";
 			
 			public var fileList:XMLListCollection;
 			
@@ -100,15 +103,15 @@
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" styleName="form">
-		<mx:HBox width="100%" height="100%">
-			<mx:Label text="Name:" width="49"/>
-			<mx:TextInput id="nameExperiment" width="100%" change="this.dirty.setDirty()"/>
+		<mx:HBox width="100%" height="100%" verticalAlign="middle">
+			<mx:Label text="To"/>
+			<mx:TextInput id="nameExperiment" text="{oldName}" width="100%" change="this.dirty.setDirty()"/>
 		</mx:HBox>
 		
 		<mx:HBox width="100%">
 			<mx:Spacer  width="100%" height="10"/>		
 			<util:DirtyNote id="dirty"/>
-			<mx:Button label="Save" id="saveButton"  enabled="true" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')"/>	      	
+			<mx:Button label="Save" id="saveButton" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')" enabled="{nameExperiment.text != ''}"/>	      	
 			<mx:Button label="Close" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" />	      	
 		</mx:HBox>
 	</mx:VBox>
