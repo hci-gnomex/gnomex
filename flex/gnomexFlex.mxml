@@ -1821,10 +1821,11 @@
 					myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");		
 					coreFacilitiesICanManage = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
 				} else {
-					var temp:XMLListCollection = new XMLListCollection();
+					myCoreFacilities = new XMLList();
 					for each (var core:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 						var found:Boolean = false;
-						for each (var core2:Object in temp) {
+						for(var i:int = 0; i < myCoreFacilities.length(); i++) {
+							var core2:Object = myCoreFacilities[i];
 							if (core.@idCoreFacility == '') {
 								found = true;
 								break;
@@ -1834,10 +1835,10 @@
 							}
 						}
 						if (!found) {
-							temp.addItem(core);
+							myCoreFacilities[myCoreFacilities.length()] = core;
 						}
 					}
-					myCoreFacilities = new XMLList(temp.toXMLString());
+					//myCoreFacilities = new XMLList(temp.toXMLString());
 					//myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
 					coreFacilitiesICanManage = new XMLList();
 					for each(var entry:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
