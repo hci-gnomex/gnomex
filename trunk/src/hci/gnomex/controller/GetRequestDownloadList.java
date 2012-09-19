@@ -270,6 +270,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
         
         boolean isSolexaRequest = RequestCategory.isIlluminaRequestCategory(codeRequestCategory);
+        boolean isMicroarrayRequest = RequestCategory.isMicroarrayRequestCategory(codeRequestCategory);
         
         
         String requestNumber = (String)row[1];
@@ -341,8 +342,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           n.setAttribute("numberSample2", row[15] == null ? "" :  (String)row[15]);
           n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
           n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
-          n.setAttribute("canDelete", "Y");
-          n.setAttribute("canRename", "Y");
+          n.setAttribute("canDelete", isMicroarrayRequest ? "N" : "Y");  // User can't delete or rename hyb folders
+          n.setAttribute("canRename", isMicroarrayRequest ? "N" : "Y");
           
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
           String directoryName =  baseDir  + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + File.separator + resultDir;

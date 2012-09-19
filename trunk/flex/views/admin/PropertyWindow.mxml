@@ -463,169 +463,167 @@
   </mx:VBox>	
   <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
 	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
-	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
-			 <mx:HBox width="100%" verticalGap="0">
-			  <mx:Label text="Name:" width="80"/>
-			  <mx:TextInput text="{propertyList.selectedItem.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="100"/>
-			  <mx:HBox >
-			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
-			    <mx:selected>{propertyList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
-			   </mx:CheckBox>
-			   <mx:Spacer width="80"/>
-			  </mx:HBox>
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0">
-			 	<mx:Text text="Description:" width="80"/>
-			 	<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" id="description"  maxChars="100"/>
-				 <mx:VBox borderStyle="solid" paddingLeft="2">
-					 <mx:Text text="Annotation Applies To:"/>
-					 <mx:HBox>
-						 <mx:CheckBox label="Sample" id="sample" click="setDirty()">
-							 <mx:selected>{propertyList.selectedItem.@forSample == 'Y' ? true : false}</mx:selected>
-						 </mx:CheckBox>
-						 <mx:CheckBox label="Data Track" id="dataTrack" click="setDirty()">
-							 <mx:selected>{propertyList.selectedItem.@forDataTrack == 'Y' ? true : false}</mx:selected>
-						 </mx:CheckBox>
-						 <mx:CheckBox label="Analysis" id="analysis" click="setDirty()">
-							 <mx:selected>{propertyList.selectedItem.@forAnalysis == 'Y' ? true : false}</mx:selected>
-						 </mx:CheckBox>
-					 </mx:HBox>
-				 </mx:VBox>
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" horizontalGap="2">
-				 <mx:VBox   verticalGap="1" height="100%"  width="320">
-					 <mx:Text text="Only show for these organisms:" width="100%"/>
-					 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-					 	   <mx:HBox horizontalAlign="left" horizontalGap="2">
-					 	    <mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
-					 	    </mx:ComboBox>
-					 	   	   <mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-					 	   	   	   <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
-					 	   	   </mx:Button>
-					 	   	   <mx:Button click="removeOrganism()" icon="@Embed(source='../../assets/delete.png')" 
-										  disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-										  enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismsGrid.selectedItem != null}" width="25"/>
-					 	   </mx:HBox>
-					  <mx:DataGrid id="organismsGrid" showHeaders="false" dataProvider="{organisms}" width="100%" height="65">
-					         <mx:columns>
-					             <mx:DataGridColumn dataField="@display" headerText="Name"/>
-					         </mx:columns>
-					  </mx:DataGrid>			   	
-					 </mx:VBox>
-				 </mx:VBox>
-				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-					 <mx:Text text="Only show for these platforms/applications:" width="100%"/>
-					 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-						 <mx:HBox horizontalAlign="left" horizontalGap="2">
-							 <mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();" >			       	
-							 </mx:ComboBox>
-							 <mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Application (optional)" >			       	
-							 </mx:ComboBox>
-							 <mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								 <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
-							 </mx:Button>
-							 <mx:Button click="removePlatform()" icon="@Embed(source='../../assets/delete.png')" 
-										disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-										enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformsGrid.selectedItem != null}" width="25"/>
-						 </mx:HBox>
-						 <mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platformApplications}" width="100%" height="65">
-							 <mx:columns>
-								 <mx:DataGridColumn dataField="@display"/>
-								 <mx:DataGridColumn dataField="@applicationDisplay"/>
-								 <!--mx:DataGridColumn headerText="Application"  
-													id="applicationCol"
-													dataField="@codeApplication"  
-													editorDataField="value" 
-													sortable="true" 
-													editable="true" 
-													rendererIsEditor="false"  
-													itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"                
-													itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication', null, true)}"/-->															 
-							 </mx:columns>
-						 </mx:DataGrid>			   	
-					 </mx:VBox>				 
-				 </mx:VBox>				 
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" horizontalGap="2">			 
-				 <mx:VBox   verticalGap="1" height="100%"  width="320">
-					 <mx:HBox height="20" width="100%" >
-						 <mx:Label text="Required:" width="80"/>
-						 <mx:CheckBox label="(Annotation must be filled in)" id="isRequired"  click="setDirty()">
-							 <mx:selected>{propertyList.selectedItem.@isRequired == 'Y' ? true : false}</mx:selected>
-						 </mx:CheckBox>
-					 </mx:HBox>
-					 <mx:HBox width="100%" >
-						 <mx:Label text="Owner:" width="80"/>
-						 <mx:ComboBox width="100%" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>							         			
-					 </mx:HBox>					 
-				 </mx:VBox>				 				 
-				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-					 <mx:HBox height="20" width="100%" >
-						 <mx:Label text="Only show for these analysis types:" width="100%"/>
-					 </mx:HBox>
-					 <mx:VBox   verticalGap="1" height="100%"  width="100%">
-						 <mx:HBox horizontalAlign="left" horizontalGap="2">
-							 <mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display" >			       	
-							 </mx:ComboBox>
-							 <mx:Button click="addAnalysisType()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								 <mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypeCombo.selectedItem != null &amp;&amp; analysisTypeCombo.selectedIndex > 0 ? true : false}</mx:enabled>
-							 </mx:Button>
-							 <mx:Button click="removeAnalysisType()" icon="@Embed(source='../../assets/delete.png')" 
-										disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-										enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypesGrid.selectedItem != null}" width="25"/>
-						 </mx:HBox>
-						 <mx:DataGrid id="analysisTypesGrid" showHeaders="false" dataProvider="{analysisTypes}" width="100%" height="65">
-							 <mx:columns>
-								 <mx:DataGridColumn dataField="@display" headerText="Name"/>
-							 </mx:columns>
-						 </mx:DataGrid>			   	
-					 </mx:VBox>				 
-				 </mx:VBox>				 
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0">
-			  <mx:Label text="Type:" width="80"/>
-			  <mx:VBox verticalGap="0">
-			   <mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{propertyList.selectedItem.@codePropertyType}">
-			   </mx:RadioButtonGroup>
-			   <mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
-			   <mx:RadioButton label="URL"  groupName="characteristicTypeRadioGroup" value="URL" paddingBottom="0" paddingTop="0"  click="setDirty()" />
-			   <mx:RadioButton label="Checkbox"  groupName="characteristicTypeRadioGroup" value="CHECK" paddingTop="0" paddingBottom="0"  click="setDirty()" />
-			   <mx:RadioButton label="Dropdown (single selection)"  groupName="characteristicTypeRadioGroup" value="OPTION" paddingBottom="0" paddingTop="0"  click="addBlank();setDirty()" />
-			   <mx:RadioButton label="Dropdown (multiple selection)"  groupName="characteristicTypeRadioGroup" value="MOPTION" paddingBottom="0" paddingTop="0" click="setDirty()" />
-			  </mx:VBox>
-			  <mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
-			   <mx:VBox verticalGap="0" height="100%" width="100%">
-			    <mx:HBox>
-			     <mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
-			     <mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
-			    </mx:HBox>
-			    <mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="110" width="100%" showHeaders="true" >
-			     <mx:columns>
-			      <mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
-			      <mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
-			      <mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/>
-			     </mx:columns>
-			    </mx:DataGrid>
-			   </mx:VBox>
-			  </mx:HBox>
-			 </mx:HBox> 
-			 <mx:HBox width="100%" verticalGap="0">
-			  <mx:Text text="Mage Ontology Code:" width="80"/>
-			  <mx:TextInput text="{propertyList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="192" id="mageOntologyCode"  maxChars="100"/>
-			  <mx:Text text="Mage Ontology Definition:" width="65"/>
-			  <mx:TextArea text="{propertyList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
-			 </mx:HBox>
+		<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
+			<mx:TabNavigator tabWidth="140" width="100%" height="100%">
+				<mx:VBox  label="Annotation" width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="10" borderStyle="none">			 
+					<mx:HBox width="100%" verticalGap="0">
+						<mx:Label text="Name:" width="140"/>
+						<mx:TextInput text="{propertyList.selectedItem.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="100"/>
+						<mx:HBox >
+							<mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+								<mx:selected>{propertyList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
+							</mx:CheckBox>
+							<mx:Spacer width="80"/>
+						</mx:HBox>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalGap="0">
+						<mx:Text text="Description:" width="140"/>
+						<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" id="description"  maxChars="100"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="Owner:" width="140"/>
+						<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
+					</mx:HBox>
+					<mx:HBox width="100%"  verticalAlign="middle">
+						<mx:Label text="Required:" width="140"/>
+						<mx:CheckBox label="(Annotation must be filled in)" id="isRequired"  click="setDirty()">
+							<mx:selected>{propertyList.selectedItem.@isRequired == 'Y' ? true : false}</mx:selected>
+						</mx:CheckBox>
+					</mx:HBox>
+					<mx:HBox height="20" width="100%"  verticalAlign="middle">
+						<mx:HBox verticalAlign="middle">
+							<mx:Text text="Annotation Applies To:" width="140"/>
+							<mx:HBox>
+								<mx:CheckBox label="Sample" id="sample" click="setDirty()">
+									<mx:selected>{propertyList.selectedItem.@forSample == 'Y' ? true : false}</mx:selected>
+								</mx:CheckBox>
+								<mx:CheckBox label="Data Track" id="dataTrack" click="setDirty()">
+									<mx:selected>{propertyList.selectedItem.@forDataTrack == 'Y' ? true : false}</mx:selected>
+								</mx:CheckBox>
+								<mx:CheckBox label="Analysis" id="analysis" click="setDirty()">
+									<mx:selected>{propertyList.selectedItem.@forAnalysis == 'Y' ? true : false}</mx:selected>
+								</mx:CheckBox>
+							</mx:HBox>
+						</mx:HBox>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalGap="0" height="100%">
+						<mx:Label text="Type:" width="140"/>
+						<mx:VBox verticalGap="0">
+							<mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{propertyList.selectedItem.@codePropertyType}">
+							</mx:RadioButtonGroup>
+							<mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
+							<mx:RadioButton label="URL"  groupName="characteristicTypeRadioGroup" value="URL" paddingBottom="0" paddingTop="0"  click="setDirty()" />
+							<mx:RadioButton label="Checkbox"  groupName="characteristicTypeRadioGroup" value="CHECK" paddingTop="0" paddingBottom="0"  click="setDirty()" />
+							<mx:RadioButton label="Dropdown (single selection)"  groupName="characteristicTypeRadioGroup" value="OPTION" paddingBottom="0" paddingTop="0"  click="addBlank();setDirty()" />
+							<mx:RadioButton label="Dropdown (multiple selection)"  groupName="characteristicTypeRadioGroup" value="MOPTION" paddingBottom="0" paddingTop="0" click="setDirty()" />
+						</mx:VBox>
+						<mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
+							<mx:VBox verticalGap="0" height="100%" width="100%">
+								<mx:HBox>
+									<mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+									<mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+								</mx:HBox>
+								<mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}" width="100%" showHeaders="true"  height="100%">
+									<mx:columns>
+										<mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
+										<mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
+										<mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/>
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:VBox>
+						</mx:HBox>
+					</mx:HBox> 
+				</mx:VBox>
+				<mx:VBox label="Applies To" width="100%" height="100%" verticalGap="15" paddingLeft="4" paddingRight="4" paddingBottom="4">
+					<mx:VBox   verticalGap="1" height="100%"  width="100%">
+						<mx:Text text="Only show for these platforms/applications:" width="100%"/>
+						<mx:HBox horizontalAlign="left" horizontalGap="2">
+							<mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();" >			       	
+							</mx:ComboBox>
+							<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Application (optional)" >			       	
+							</mx:ComboBox>
+							<mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+								<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+							</mx:Button>
+							<mx:Button click="removePlatform()" icon="@Embed(source='../../assets/delete.png')" 
+									   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+									   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformsGrid.selectedItem != null}" width="25"/>
+						</mx:HBox>
+						<mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platformApplications}" width="100%" height="100%">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@display"/>
+								<mx:DataGridColumn dataField="@applicationDisplay"/>
+								<!--mx:DataGridColumn headerText="Application"  
+								id="applicationCol"
+								dataField="@codeApplication"  
+								editorDataField="value" 
+								sortable="true" 
+								editable="true" 
+								rendererIsEditor="false"  
+								itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"                
+								itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication', null, true)}"/-->															 
+							</mx:columns>
+						</mx:DataGrid>			   	
+					</mx:VBox>
+					<mx:VBox width="100%" height="100%" verticalGap="0">
+						<mx:VBox   verticalGap="1" height="100%"  width="100%">
+							<mx:Text text="Only show for these organisms:" width="100%"/>
+							<mx:HBox horizontalAlign="left" horizontalGap="2">
+								<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
+								</mx:ComboBox>
+								<mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+									<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+								</mx:Button>
+								<mx:Button click="removeOrganism()" icon="@Embed(source='../../assets/delete.png')" 
+										   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+										   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismsGrid.selectedItem != null}" width="25"/>
+							</mx:HBox>
+							<mx:DataGrid id="organismsGrid" showHeaders="false" dataProvider="{organisms}" width="100%" height="100%">
+								<mx:columns>
+									<mx:DataGridColumn dataField="@display" headerText="Name"/>
+								</mx:columns>
+							</mx:DataGrid>			   	
+						</mx:VBox>
+					</mx:VBox>
+						<mx:VBox   verticalGap="1" height="100%"  width="100%">
+							<mx:Label text="Only show for these analysis types:" width="100%"/>
+								<mx:HBox horizontalAlign="left" horizontalGap="2">
+									<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display" >			       	
+									</mx:ComboBox>
+									<mx:Button click="addAnalysisType()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypeCombo.selectedItem != null &amp;&amp; analysisTypeCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+									</mx:Button>
+									<mx:Button click="removeAnalysisType()" icon="@Embed(source='../../assets/delete.png')" 
+											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+											   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypesGrid.selectedItem != null}" width="25"/>
+								</mx:HBox>
+								<mx:DataGrid id="analysisTypesGrid" showHeaders="false" dataProvider="{analysisTypes}" width="100%" height="100%">
+									<mx:columns>
+										<mx:DataGridColumn dataField="@display" headerText="Name"/>
+									</mx:columns>
+								</mx:DataGrid>			   	
+						</mx:VBox>				 
+					
+				</mx:VBox>
+				<mx:VBox width="100%" height="100%" label="Mage Ontology" paddingLeft="4" paddingRight="4" paddingBottom="4">
+					<mx:HBox width="100%" verticalGap="0">
+						<mx:Text text="Mage Ontology Code:" width="80"/>
+						<mx:TextInput text="{propertyList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="192" id="mageOntologyCode"  maxChars="100"/>
+						<mx:Text text="Mage Ontology Definition:" width="65"/>
+						<mx:TextArea text="{propertyList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
+					</mx:HBox>
+					
+				</mx:VBox>
+				</mx:TabNavigator>
+			<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+				<util:DirtyNote id="dirty" />
+				<mx:Button id="saveButton" label="Save"  enabled="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}"
+						   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+				</mx:Button>
+				<mx:Button label="Close"  click="{PopUpManager.removePopUp(this);}"/>
+				
+			</mx:ControlBar>
 		</mx:VBox>
-		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
-			<util:DirtyNote id="dirty" />
-			<mx:Button id="saveButton" label="Save"  enabled="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}"
-					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
-			</mx:Button>
-			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this);}"/>
-			
-		</mx:ControlBar>
-	</mx:VBox>
   </mx:ViewStack>
 
 	
