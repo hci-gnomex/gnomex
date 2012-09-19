@@ -32,7 +32,7 @@ public class LabFilter extends DetailObject {
     
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT lab");
+    queryBuf.append(" SELECT distinct lab");
     
     getQueryBody(queryBuf);
     
