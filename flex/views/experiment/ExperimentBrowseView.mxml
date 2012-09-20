@@ -218,6 +218,7 @@
 			}
 			trackView.getRequestProgressList.send(getBrowseParameters());
 			trackView.getRequestProgressSolexaList.send(getBrowseParameters());
+			trackView.getRequestProgressDNASeqList.send(getBrowseParameters());
 			
 		}		
 	}
@@ -225,7 +226,8 @@
 		
 	
 	private function getBrowseParameters():Object {
-		var params:Object = new Object();
+		var params:Object = parentDocument.getBrowseParameters();
+
 		if (parentDocument.selectedIdProject != null) {
 			params.idProject = parentDocument.selectedIdProject;
 		}
@@ -233,44 +235,7 @@
 			params.idRequest = parentDocument.selectedIdRequest;
 		}
 		params.idLab = parentDocument.selectedIdLab;
-		
-		
-		if (parentDocument.currentState == 'AdminState' && parentDocument.allExperimentsCheckbox.selected) {
-			params.allExperiments = 'Y';
-		} else {
-			if (parentDocument.currentState == 'AdminState') {
-				if (parentDocument.selectedIdLab == null && parentDocument.browseLabCombo.selectedItem != null) {
-					params.idLab = parentDocument.browseLabCombo.selectedItem.@idLab;
-				}
-				if (parentDocument.browseUserCombo.selectedItem != null) {
-					params.idAppUser = parentDocument.browseUserCombo.selectedItem.@idAppUser;
-				}
-			} else if (parentDocument.currentState != "GuestState")  {
-				if (parentDocument.myExperimentsCheckbox.selected) {
-					params.idAppUser = parentApplication.getIdAppUser();
-				}				
-				if (parentDocument.userAllExperimentsCheckbox.selected) {
-					params.allExperiments = 'Y';
-				}
-			}
-			if (parentDocument.lastWeekCheckbox.selected) {
-				params.lastWeek = 'Y';
-			}
-			if (parentDocument.lastMonthCheckbox.selected) {
-				params.lastMonth = 'Y';
-			}
-			if (parentDocument.lastYearCheckbox.selected) { 
-				params.lastYear = 'Y';
-			}
-			if (parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
-				params.publicExperimentsInOtherGroups = 'Y';
-			}
-			params.isMicroarray  = this.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
-			params.isNextGenSeq  = this.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
-			params.isBioanalyzer = this.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
-			
-		}
-		
+
 		return params;					
 	}
 	

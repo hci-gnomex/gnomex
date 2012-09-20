@@ -7,9 +7,11 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
 
 public class RequestProgressFilter extends DetailObject {
@@ -28,19 +30,28 @@ public class RequestProgressFilter extends DetailObject {
   protected Integer               idProject;
   private String                  publicExperimentsInOtherGroups;
   private String                  lastWeek  = "N";
+  private String                  lastThreeMonths = "N";
   private String                  lastMonth = "N";
   private String                  lastYear  = "N";
   private String                  isMicroarray = "N";
   private String                  isSolexa = "N";
   private String                  isBioanalyzer = "N";
+  private String                  isNextGenSeq = "N";
   private String                  allExperiments;
   
+  private String                  isCapSeq = "N";
+  private String                  isMitSeq = "N";
+  private String                  isFragAnal = "N";
+  private String                  isCherryPick = "N";
+  
+  private String                  isExternalOnly = "N";
   
   
   protected StringBuffer          queryBuf;
   protected boolean              addWhere = true;
   protected SecurityAdvisor       secAdvisor;
-  
+  protected DictionaryHelper      dictionaryHelper;
+
   
   public boolean hasCriteria() {
     if ((requestNumber != null && !requestNumber.equals("")) ||
@@ -55,9 +66,16 @@ public class RequestProgressFilter extends DetailObject {
         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
         (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
         (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
+        (isNextGenSeq != null && isNextGenSeq.equalsIgnoreCase("Y")) ||
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
-        (lastYear != null && lastYear.equalsIgnoreCase("Y"))) {
+        (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
+        (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
+        (isCapSeq != null && isCapSeq.equalsIgnoreCase("Y")) ||
+        (isMitSeq != null && isMitSeq.equalsIgnoreCase("Y")) ||
+        (isFragAnal != null && isFragAnal.equalsIgnoreCase("Y")) ||
+        (isCherryPick != null && isCherryPick.equalsIgnoreCase("Y")) ||
+        (isExternalOnly != null && isExternalOnly.equalsIgnoreCase("Y"))) {
       return true;
     } else {
       return false;
@@ -65,8 +83,9 @@ public class RequestProgressFilter extends DetailObject {
   }
   
   
-  public StringBuffer getQualityControlQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getQualityControlQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -86,8 +105,9 @@ public class RequestProgressFilter extends DetailObject {
   }
   
   
-  public StringBuffer getMicroarrayQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getMicroarrayQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -106,7 +126,7 @@ public class RequestProgressFilter extends DetailObject {
     
   }
   
-  public void getMicroarrayQueryBody(StringBuffer queryBuf) {
+  private void getMicroarrayQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" JOIN           req.hybridizations as hyb ");
@@ -131,7 +151,7 @@ public class RequestProgressFilter extends DetailObject {
   
   }
   
-  public void getQualityControlQueryBody(StringBuffer queryBuf) {
+  private void getQualityControlQueryBody(StringBuffer queryBuf) {
      
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
@@ -196,6 +216,13 @@ public class RequestProgressFilter extends DetailObject {
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL) + " 12:00pm");
       queryBuf.append("'");
     } 
+    
+    //  External experiments (only)
+    if (isExternalOnly != null && isExternalOnly.equals("Y")){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.isExternal = 'Y'");
+    } 
+
     // Search by request date last year
     if (lastYear != null && lastYear.equalsIgnoreCase("Y")) {
       Calendar end = Calendar.getInstance();
@@ -216,6 +243,18 @@ public class RequestProgressFilter extends DetailObject {
         queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
         queryBuf.append("'");      
     }
+    // Search for requests submitted in last 3 months
+    else if (lastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
     // Search by request date last week
     else if (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
@@ -227,19 +266,7 @@ public class RequestProgressFilter extends DetailObject {
         queryBuf.append("'");      
     }
   
-    // Search for Solexa requests
-    if (isSolexa.equals("Y")) {
-      this.addWhereOrAnd();
-      queryBuf.append(" req.codeRequestCategory IN (");
-      queryBuf.append("'");
-      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-      queryBuf.append("', '");
-      queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-      queryBuf.append("', '");
-      queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-      queryBuf.append("' ");
-      queryBuf.append(") ");
-    }  else if (isBioanalyzer.equals("Y")) {
+    if (isBioanalyzer.equals("Y")) {
       // Search for bioanalyzer requests
       this.addWhereOrAnd();
       queryBuf.append(" req.codeRequestCategory = '");
@@ -268,8 +295,54 @@ public class RequestProgressFilter extends DetailObject {
       queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("') ");
 
-    }    
-    
+    } else if (isNextGenSeq.equals("Y")) {
+      // Search for Solexa requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory IN (");
+      
+      List requestCategories = dictionaryHelper.getRequestCategoryList();
+      int count = 0;
+      for (Iterator i = requestCategories.iterator(); i.hasNext();) {
+        RequestCategory requestCategory = (RequestCategory)i.next();
+        if (requestCategory.isNextGenSeqRequestCategory()) {
+          if (count > 0) {
+            queryBuf.append(", ");            
+          }
+          
+          queryBuf.append("'");
+          queryBuf.append(requestCategory.getCodeRequestCategory());
+          queryBuf.append("'");    
+          count++;
+        }
+
+      }
+      
+      queryBuf.append(") ");
+    }  else if (isCapSeq.equals("Y")) {
+      // Search for capillary sequencing requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isMitSeq.equals("Y")) {
+      // Search for mitochondrial sequencing requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isFragAnal.equals("Y")) {
+      // Search for fragment analysis requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isCherryPick.equals("Y")) {
+      // Search for cherry picking requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    }   
   }
  
   private void addHybCriteria() {
@@ -463,6 +536,18 @@ public class RequestProgressFilter extends DetailObject {
 
 
   
+  public void setLastThreeMonths(String lastThreeMonths) {
+    this.lastThreeMonths = lastThreeMonths;
+  }
+
+
+  
+  public String getLastThreeMonths() {
+    return lastThreeMonths;
+  }
+
+
+  
   public void setLastMonth(String lastMonth) {
     this.lastMonth = lastMonth;
   }
@@ -516,6 +601,16 @@ public class RequestProgressFilter extends DetailObject {
   }
 
 
+  public String getIsNextGenSeq() {
+    return isNextGenSeq;
+  }
+
+
+  public void setIsNextGenSeq(String isNextGenSeq) {
+    this.isNextGenSeq = isNextGenSeq;
+  }
+
+
   public String getAllExperiments() {
     return allExperiments;
   }
@@ -527,5 +622,52 @@ public class RequestProgressFilter extends DetailObject {
 
 
   
-  
+  public String getIsCapSeq() {
+    return isCapSeq;
+  }
+
+
+  public void setIsCapSeq(String isCapSeq) {
+    this.isCapSeq = isCapSeq;
+  }
+
+
+  public String getIsMitSeq() {
+    return isMitSeq;
+  }
+
+
+  public void setIsMitSeq(String isMitSeq) {
+    this.isMitSeq = isMitSeq;
+  }
+
+
+  public String getIsFragAnal() {
+    return isFragAnal;
+  }
+
+
+  public void setIsFragAnal(String isFragAnal) {
+    this.isFragAnal = isFragAnal;
+  }
+
+
+  public String getIsCherryPick() {
+    return isCherryPick;
+  }
+
+
+  public void setIsCherryPick(String isCherryPick) {
+    this.isCherryPick = isCherryPick;
+  }
+
+
+  public String getIsExternalOnly() {
+    return isExternalOnly;
+  }
+
+
+  public void setIsExternalOnly(String isExternalOnly) {
+    this.isExternalOnly = isExternalOnly;
+  }
 }

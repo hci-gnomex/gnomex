@@ -55,7 +55,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
-      StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor());
+      StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor(), dictionaryHelper);
       log.info(buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybSampleComparator());
@@ -69,7 +69,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
         rowMap.put(key, row);
       }
       
-      buf = filter.getQualityControlQuery(this.getSecAdvisor());
+      buf = filter.getQualityControlQuery(this.getSecAdvisor(), dictionaryHelper);
       log.info(buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
