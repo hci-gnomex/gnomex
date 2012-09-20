@@ -52,6 +52,7 @@ public class SaveChromatogramsFromFiles {
   private String server;
   private String dropFilePath;
   private String archiveFilePath;
+  private Integer idPlateWell;
 
   /**
    * @param args
@@ -63,9 +64,11 @@ public class SaveChromatogramsFromFiles {
 
     while (true) {
       try {
-        Thread.sleep (sleepInterval);
 
         saveChromatograms.run();
+        
+        Thread.sleep (sleepInterval);
+
       } 
       catch (Exception e) {
         System.out.println(getTimeStamp() + "Exception: " + e.getMessage());
@@ -91,6 +94,8 @@ public class SaveChromatogramsFromFiles {
         archiveFilePath = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
+      } else if (args[i].equals("-idPlateWell")) {
+        idPlateWell = Integer.valueOf(args[++i]);
       } 
     }
     
@@ -114,6 +119,7 @@ public class SaveChromatogramsFromFiles {
         "[-sleepInterval <number of seconds to sleep between run>] " + "\n" +
         "[-properties <propertiesFileName>] " + "\n" +
         "-server <server> " + "\n" +
+        "-idPlateWell <first idPlateWell of reaction plate for chromatogram>" + "\n" +
         "-archiveFilePath <archiveFilePath>" + "\n" +
         "-dropFilePath <dropFilePath>" + "\n"  );
   }
@@ -209,6 +215,7 @@ public class SaveChromatogramsFromFiles {
       TreeSet<File> theFiles = new TreeSet<File>();
       hashFiles(dropFile, theFiles);
      
+      int theIdPlateWell = idPlateWell != null ? idPlateWell.intValue() : -1;
       for (File f : theFiles) {
         int pos = f.getCanonicalPath().lastIndexOf(f.getName());
         String filePath = f.getCanonicalPath().substring(0, pos - 1);
@@ -217,6 +224,9 @@ public class SaveChromatogramsFromFiles {
         // Construct request parameters
         String parms = URLEncoder.encode("fileName", "UTF-8") + "=" + URLEncoder.encode(f.getName(), "UTF-8");        
         parms += "&" + URLEncoder.encode("filePath", "UTF-8") + "=" + URLEncoder.encode(filePath, "UTF-8");
+        if (idPlateWell != null) {
+          parms += "&idPlateWell=" + idPlateWell.toString();
+        }
         
         success = false;
         outputXML = new StringBuffer();
@@ -256,6 +266,9 @@ public class SaveChromatogramsFromFiles {
         if (!success) {
           throw new Exception("Unable to save chromatogram file");
         }
+        if (idPlateWell != null) {
+          idPlateWell = new Integer(idPlateWell.intValue() + 1);          
+        }
 
       }
       
@@ -294,12 +307,15 @@ public class SaveChromatogramsFromFiles {
     
     // First let's backup the file to an archive dna seq drop folder
     String archiveDir = archiveFilePath + File.separator + sourceFile.getParentFile().getName();
-    boolean success = new File(archiveDir).mkdirs();
-    if (!success) {
-      throw new Exception("Unable to create archive directory " + archiveDir);
-    }    
+    File ad = new File(archiveDir);
+    if (!ad.exists()) {
+      ad.mkdirs();
+      if (!ad.exists()) {
+        throw new Exception("Unable to create archive directory " + archiveDir);
+      }    
+    }
     String archiveFileName =  archiveDir + File.separator + sourceFile.getName();
-    success = this.copyFile(sourceFile, archiveFileName);
+    boolean success = this.copyFile(sourceFile, archiveFileName);
     if (!success) {
       throw new Exception("Unable to copy file " + sourceFile.getCanonicalPath() + " to " + archiveFileName);
     }

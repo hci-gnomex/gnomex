@@ -51,7 +51,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
     }
 
     if (request.getParameter("idPlateWell") != null  && !request.getParameter("idPlateWell").equals("")) {
-      idPlateWell = Integer.valueOf( request.getParameter("filePath") );
+      idPlateWell = Integer.valueOf( request.getParameter("idPlateWell") );
     } 
     
     serverName = request.getServerName();
