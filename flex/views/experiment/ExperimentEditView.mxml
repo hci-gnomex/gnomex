@@ -5055,7 +5055,6 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
@@ -5078,7 +5077,6 @@
 			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="FragAnalEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5089,7 +5087,6 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 		</mx:State>
@@ -5133,7 +5130,6 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 		</mx:State>
