@@ -8,6 +8,9 @@
 * Fixed bug in new user screen where the lab name field wasn't allowing delete or backspace, tabbing to next field, or moving the cursor left or right. (mbowler)
 * Can now have different request number sequences for each core facility. (bspiglejr)
 * Progress tab in experiments view now works for DNA Sequencing experiments.  (bspiglejr)
+* Cap Seq Plate type orders now require either 1 or 4 plates (2 and 3 not allowed).  (bspiglejr)
+* If Cap Seq order has with 4 plates then 1st 3 plates must have 95 or 96 well specified.  (bspiglejr)
+* Warning is given when saving a Cap Seq order with 4 plates if the last plate does not have 95 wells specified.  (bspiglejr)
 
 deploy notes 
 --------------------
@@ -16,7 +19,6 @@ declare @identity int
 select @identity= (Coalesce(MAX(idRequest),0)) from Request
 set @identity = @identity + 1
 DBCC CHECKIDENT('MicroArrayRequestNumber', RESEED, @identity)
-
 
 5.4.8 (Sept 19, 2012)
 ---------------------

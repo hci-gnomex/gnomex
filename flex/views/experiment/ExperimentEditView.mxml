@@ -2457,32 +2457,47 @@
 				}
 				if (this.request.@containerType == 'PLATE') {
 					var addedPlateNumberSamplesError:Boolean = false;
+					var addedControlSampleWarning:Boolean = false;
 					for(var idx:int = 0; idx < 4; idx++) {
 						var lastSample:int = ((idx + 1) * 96) - 1;
 						var firstSample:int = idx * 96;
-						if (samples.length <= firstSample) {
-							// nothing on this or subsequent plates.
-							break;
-						}
+
 						var controlSample:Object = null;
 						if (samples.length > lastSample) {
 							controlSample = samples.getItemAt(lastSample);
 						}
-						if (controlSample != null && controlSample.hasOwnProperty("@name") && controlSample.@name != null && controlSample.@name != "") {
+						if (!addedControlSampleWarning && controlSample != null && controlSample.hasOwnProperty("@name") && controlSample.@name != null && controlSample.@name != "") {
 							warningMessage += "If you replace the control and the run fails, the results cannot be verified and we will not repeat the run.\n\n";
-							break;
+							addedControlSampleWarning = true;
 						}
 
 						var numSamplesOnPlate:int = 0;
-						for (var idx2:int = firstSample; idx2 <= lastSample && idx2 < samples.length; idx2++) {
-							var sampleToCount:Object = samples.getItemAt(idx2);
-							if (sampleToCount.hasOwnProperty("@name") && sampleToCount.@name != null && sampleToCount.@name != "") {
-								numSamplesOnPlate = numSamplesOnPlate + 1;
+						if (samples.length > firstSample) {
+							for (var idx2:int = firstSample; idx2 <= lastSample && idx2 < samples.length; idx2++) {
+								var sampleToCount:Object = samples.getItemAt(idx2);
+								if (sampleToCount.hasOwnProperty("@name") && sampleToCount.@name != null && sampleToCount.@name != "") {
+									numSamplesOnPlate = numSamplesOnPlate + 1;
+								}
 							}
 						}
-						if (numSamplesOnPlate < 32 && !addedPlateNumberSamplesError) {
+						if (idx > 0 && numSamplesOnPlate > 0 && this.numCapSeqPlates == 1) {
+							errorMessage += "You specified only 1 plate but have entered samples for > 1 plate.  Please try again.\n\n";
+							break;
+						}
+						if (idx > 0 && numSamplesOnPlate == 0 && this.numCapSeqPlates == 1) {
+							break;
+						}
+						if (numSamplesOnPlate < 32 && !addedPlateNumberSamplesError && (this.numCapSeqPlates == 1 || idx == 3)) {
 							errorMessage += "You may not have less than 32 samples on a Plate.\n\n";
 							addedPlateNumberSamplesError = true;
+						}
+						if (numSamplesOnPlate < 95 && !addedPlateNumberSamplesError && this.numCapSeqPlates == 4) {
+							if (idx < 3) {
+								errorMessage += "When submitting 4 plates you may not have < 95 samples on any plate other than the last plate\n\n";
+								addedPlateNumberSamplesError = true;
+							} else {
+								warningMessage += "Your 4th plate has less than 95 wells specified.  With Bulk pricing you ARE paying for the empty wells, so it is in your best interest to have the max 95 samples per plate to get the best pricing possible.\n\n";
+							}
 						}
 					}
 				}
