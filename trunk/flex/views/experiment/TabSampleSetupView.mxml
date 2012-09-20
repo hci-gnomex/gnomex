@@ -1071,10 +1071,6 @@
 					<mx:RadioButtonGroup id="capSeqNumPlatesRadioGroup" selectedValue="TUBE" change="onCapSeqNumPlatesChanged()" />
 					<mx:RadioButton id="capSeqNumPlates1" label="1" value="1" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 					<mx:Spacer width="20"/>
-					<mx:RadioButton id="capSeqNumPlates2" label="2" value="2" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
-					<mx:Spacer width="20"/>
-					<mx:RadioButton id="capSeqNumPlates3" label="3" value="3" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
-					<mx:Spacer width="20"/>
 					<mx:RadioButton id="capSeqNumPlates4" label="4" value="4" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 				</mx:HBox>
 			</mx:AddChild>
