@@ -65,6 +65,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -992,13 +994,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.save(request);
     
     if (requestParser.isNewRequest()) {
-      request.setNumber(request.getIdRequest().toString() + "R");
+      request.setNumber(getNextRequestNumber(request, sess));
       sess.save(request);
       
       if (request.getName() == null || request.getName().trim().equals("")) {
         sess.flush();  
         sess.refresh(request);
-        request.setName(request.getAppUser().getShortName() + "-" + request.getIdRequest());
+        request.setName(request.getAppUser().getShortName() + "-" + request.getNumber());
         sess.save(request);
       }
     } 
@@ -1008,6 +1010,36 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.flush();  
   }
   
+  private String getNextRequestNumber(Request request, Session sess) throws SQLException {
+    String requestNumber = "";
+    String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
+    if (procedure != null && procedure.length() > 0) {
+      Connection con = sess.connection();    
+      String queryString = "";
+      if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
+        queryString = "exec " + procedure;
+      } else {
+        queryString = "call " + procedure;
+      }
+      SQLQuery query = sess.createSQLQuery(queryString);
+      List l = query.list();
+      if (l.size() != 0) {
+        Object o = l.get(0);
+        if (o.getClass().equals(String.class)) {
+          requestNumber = (String)o;
+          requestNumber = requestNumber.toUpperCase();
+          if (!requestNumber.endsWith("R")) {
+            requestNumber = requestNumber + "R";
+          }
+        }
+      }
+    }
+    if (requestNumber.length() == 0) {
+      requestNumber = request.getIdRequest().toString() + "R";
+    }
+    
+    return requestNumber;
+  }
   
   private void saveSample(String idSampleString, Sample sample, Session sess, DictionaryHelper dh) throws Exception {
 
@@ -1017,7 +1049,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
     
     if (isNewSample) {
-      sample.setNumber(requestParser.getRequest().getIdRequest().toString() + "X" + nextSampleNumber);
+      sample.setNumber(Request.getRequestNumberNoR(requestParser.getRequest().getNumber()) + "X" + nextSampleNumber);
       nextSampleNumber++;
       sess.save(sample);
     }  
@@ -1811,7 +1843,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.save(hyb);
     
     if (isNewHyb) {
-      hyb.setNumber(requestParser.getRequest().getIdRequest().toString() + "E" + hybCount);
+      hyb.setNumber(Request.getRequestNumberNoR(requestParser.getRequest().getNumber()) + "E" + hybCount);
       sess.save(hyb);
       sess.flush();
       

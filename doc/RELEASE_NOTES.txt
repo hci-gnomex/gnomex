@@ -4,6 +4,16 @@
 5.4.9
 ---------------------
 * Fixed bug in ProjectRequestFilter SQL causing unexpected results when viewing experiments for logged-in user. (rcundick)
+* Can now have different request number sequences for each core facility. (bspiglejr)
+
+deploy notes 
+--------------------
+-- Seed the microarray request number table correctly
+declare @identity int
+select @identity= (Coalesce(MAX(idRequest),0)) from Request
+set @identity = @identity + 1
+DBCC CHECKIDENT('MicroArrayRequestNumber', RESEED, @identity)
+
 
 5.4.8 (Sept 19, 2012)
 ---------------------
