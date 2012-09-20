@@ -6,6 +6,8 @@
 -- Disable foreign key checks
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 
+-- Default core facility
+INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'Microarray and Genomic Analysis', 'Y');
 
 INSERT INTO `gnomex`.`AnalysisType`(`idAnalysisType`, `analysisType`, `isActive`, `idAppUser`)
 VALUES (1, 'ChIP-Seq analysis', 'Y', NULL),
@@ -891,17 +893,17 @@ values
 ('CHERRY',  'Cherry Picking', 'Y'),
 ('FRAG',  'Fragment Analysis', 'Y');
 
-INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`, isInternal, isExternal)
-VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY', 'Y', 'Y'),
-  ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip', 'assets/microarray_small.png', 'MICROARRAY', 'Y', 'Y'),
-  ('INHOUSE', 'In-house Spotted Microarray', 4, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y'),
-  ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y'),
-  ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null, null, 'MICROARRAY', 'Y', 'Y'),
-  ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC', 'Y', 'Y'),
-  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y'),
-  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y'),
-  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y'),
-  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y');
+INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`, isInternal, isExternal, idCoreFacility)
+VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY', 'Y', 'Y', 1),
+  ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip', 'assets/microarray_small.png', 'MICROARRAY', 'Y', 'Y', 1),
+  ('INHOUSE', 'In-house Spotted Microarray', 4, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y', 1),
+  ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y', 1),
+  ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null, null, 'MICROARRAY', 'Y', 'Y', 1),
+  ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC', 'Y', 'Y', 1),
+  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y', 1),
+  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y', 1),
+  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y', 1),
+  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y', 1);
 
 INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
 VALUES ('AFFY', 'CHIP'),
@@ -1423,9 +1425,6 @@ VALUES ('OWNER', 'Owner'),
   ('MEM', 'Members'),
   ('INST', 'Institution'),
   ('PUBLIC', 'Public');
-  
--- Default core facility
-INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'Microarray and Genomic Analysis', 'Y');
 
 INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('REACTION', 'Reaction plate', 'Y');
 INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('SOURCE', 'Source plate', 'Y');
