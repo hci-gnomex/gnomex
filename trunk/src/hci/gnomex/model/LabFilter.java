@@ -17,6 +17,7 @@ public class LabFilter extends DetailObject {
   private String          userFirstName;
   private Integer         idLab;
   private Integer         idInstitution;
+  private Integer         idCoreFacility;
   private SecurityAdvisor secAdvisor;
   private boolean         isUnbounded = false;
 
@@ -52,15 +53,16 @@ public class LabFilter extends DetailObject {
       queryBuf.append(" JOIN lab.appUsers as user ");
     }
     
-    // If the user is not a super admin, we need to filter lab list by core facility
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+//    // If the user is not a super admin, we need to filter lab list by core facility
+//    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
-    }
+//    }
     
     
     
     addLabCriteria();
     addInstitutionCriteria();
+    addCoreFacilityCriteria();
     addUserCriteria();
     if (!isUnbounded) {
       addSecurityCriteria();      
@@ -88,6 +90,7 @@ public class LabFilter extends DetailObject {
       return false;
     }
   }
+  
 
   private void addLabCriteria() {
     // Search by lab last name 
@@ -123,6 +126,16 @@ public class LabFilter extends DetailObject {
     
   }
   
+  private void addCoreFacilityCriteria() {
+    //  Search by idCoreFacility
+    if (idCoreFacility != null && !idCoreFacility.equals( "" )){
+      this.addWhereOrAnd();
+      queryBuf.append(" coreFacility.idCoreFacility =");
+      queryBuf.append(idCoreFacility);
+    } 
+    
+  }
+  
   private void addUserCriteria() {
     if (userLastName != null && !userLastName.equals("")) {
       this.addWhereOrAnd();
@@ -144,19 +157,19 @@ public class LabFilter extends DetailObject {
     } else if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
  
       // Filter to show only labs associated with core facilities this admin manages
-      if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
-        throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
-      }
-      this.addWhereOrAnd();
-      queryBuf.append(" coreFacility.idCoreFacility in ( ");
-      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
-        CoreFacility cf = (CoreFacility)i.next();
-        queryBuf.append(cf.getIdCoreFacility());
-        if (i.hasNext()) {
-          queryBuf.append(", ");
-        }
-      }      
-      queryBuf.append(" )");        
+//      if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
+//        throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
+//      }
+//      this.addWhereOrAnd();
+//      queryBuf.append(" coreFacility.idCoreFacility in ( ");
+//      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+//        CoreFacility cf = (CoreFacility)i.next();
+//        queryBuf.append(cf.getIdCoreFacility());
+//        if (i.hasNext()) {
+//          queryBuf.append(", ");
+//        }
+//      }      
+//      queryBuf.append(" )");        
     } else {
       
       // Filter to show only labs associated with core facilities this user is associated with
@@ -188,15 +201,15 @@ public class LabFilter extends DetailObject {
         throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
       }
       this.addWhereOrAnd();
-      queryBuf.append(" coreFacility.idCoreFacility in ( ");
-      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
-        CoreFacility cf = (CoreFacility)i.next();
-        queryBuf.append(cf.getIdCoreFacility());
-        if (i.hasNext()) {
-          queryBuf.append(", ");
-        }
-      }      
-      queryBuf.append(" )");        
+//      queryBuf.append(" coreFacility.idCoreFacility in ( ");
+//      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+//        CoreFacility cf = (CoreFacility)i.next();
+//        queryBuf.append(cf.getIdCoreFacility());
+//        if (i.hasNext()) {
+//          queryBuf.append(", ");
+//        }
+//      }      
+//      queryBuf.append(" )");        
       
       
     } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
@@ -283,7 +296,13 @@ public class LabFilter extends DetailObject {
     this.idInstitution = idInstitution;
   }
 
-  
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
+  }
  
 
   
