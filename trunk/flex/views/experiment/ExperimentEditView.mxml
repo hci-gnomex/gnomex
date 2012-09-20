@@ -2491,12 +2491,10 @@
 							errorMessage += "You may not have less than 32 samples on a Plate.\n\n";
 							addedPlateNumberSamplesError = true;
 						}
-						if (numSamplesOnPlate < 95 && !addedPlateNumberSamplesError && this.numCapSeqPlates == 4) {
+						if (numSamplesOnPlate < 80 && !addedPlateNumberSamplesError && this.numCapSeqPlates == 4) {
 							if (idx < 3) {
-								errorMessage += "When submitting 4 plates you may not have < 95 samples on any plate other than the last plate\n\n";
+								errorMessage += "When submitting 4 plates you may not have < 80 samples on any plate other than the last plate\n\n";
 								addedPlateNumberSamplesError = true;
-							} else {
-								warningMessage += "Your 4th plate has less than 95 wells specified.  With Bulk pricing you ARE paying for the empty wells, so it is in your best interest to have the max 95 samples per plate to get the best pricing possible.\n\n";
 							}
 						}
 					}
