@@ -1,6 +1,10 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.4.9
+---------------------
+* Fixed bug in ProjectRequestFilter SQL causing unexpected results when viewing experiments for logged-in user. (rcundick)
+
 5.4.8 (Sept 19, 2012)
 ---------------------
 * Allow decimal points in Reads PF for flow cell channel (bspiglejr)
