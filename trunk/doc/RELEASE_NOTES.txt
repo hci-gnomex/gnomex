@@ -14,6 +14,7 @@
 * Added filtering by core facility to billing accounts in users/groups view. (mbowler)
 * Added ability to filter by core facility or view all labs in groups tab. (mbowler) 
 * Added ability for core admins to select/deselect their core from labs on groups tab. (mbowler)
+* Slight style change, and added close button to the chromatogram detail screen (when it is a popup). (mbowler)
 
 deploy notes 
 --------------------
