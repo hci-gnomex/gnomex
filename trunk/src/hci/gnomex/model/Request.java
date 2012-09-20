@@ -798,7 +798,17 @@ public class Request extends HibernateDetailObject {
     }
   }
 
-
+  public static String getRequestNumberNoR(String requestNumber) {
+    // Get rid of extraneous #
+    requestNumber = requestNumber.replaceAll("#", "");
+    
+    String[] tokens = requestNumber.split("R");
+    if(tokens.length > 0) {
+      return tokens[0];
+    } else {
+      return requestNumber;
+    }
+  }
   
   public Set getCollaborators() {
     return collaborators;
