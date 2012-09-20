@@ -112,14 +112,14 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf = new StringBuffer();
     addWhere = true;
     
-    queryBuf.append(" SELECT project.idProject, project.name, project.description, '', ");
+    queryBuf.append(" SELECT distinct project.idProject, project.name, project.description, '', ");
     queryBuf.append("        req.idRequest, req.number, req.createDate,  ");
     queryBuf.append("        sample.name, sample.idSampleType, ");
     queryBuf.append("        req.idSlideProduct, sample.idSample, ");
     queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeApplication, lab.lastName, lab.firstName, slideProduct.name, projectLab.lastName, projectLab.firstName, ");
     queryBuf.append("        '', req.codeVisibility,");
     queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
-    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.isExternal, req.name ");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.isExternal, req.name, sample.number ");
     
     getQueryBody(queryBuf);
     
@@ -492,7 +492,7 @@ public class ProjectRequestFilter extends DetailObject {
     }   
 
     // Close paren for showing empty folders or
-    if (!lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
+    if (idAppUser == null && !lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
       queryBuf.append(" ) )");
     }
   }

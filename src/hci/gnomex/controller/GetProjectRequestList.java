@@ -162,7 +162,6 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           String  codeApplication     = row[16]== null ? "" : (String)row[16];
           StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
           
-          Element n = null;
           if (idLab.intValue() != prevIdLab.intValue()) {
             // Keep track of which of users labs are in results set
             if (showMyLabsAlways.equals("Y")) {
