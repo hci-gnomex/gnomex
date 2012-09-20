@@ -4,6 +4,8 @@
 5.4.9
 ---------------------
 * Fixed bug in ProjectRequestFilter SQL causing unexpected results when viewing experiments for logged-in user. (rcundick)
+* Changed new user sign up.  Users must now select a core facility and only that core facility is contacted. (mbowler)
+* Fixed bug in new user screen where the lab name field wasn't allowing delete or backspace, tabbing to next field, or moving the cursor left or right. (mbowler)
 * Can now have different request number sequences for each core facility. (bspiglejr)
 * Progress tab in experiments view now works for DNA Sequencing experiments.  (bspiglejr)
 
