@@ -53,7 +53,7 @@ CREATE TABLE gnomex.PlatformApplication (
 -- Add table PropertyPlatformApplication
 DROP TABLE IF EXISTS `gnomex`.`PropertyPlatformApplication`;
 CREATE TABLE gnomex.PropertyPlatformApplication ( 
-     idProperty	INT(10),
+     idProperty INT(10),
      idPlatformApplication INT(10),
      PRIMARY KEY (idProperty, idPlatformApplication),
     CONSTRAINT FK_PropertyPlatformApplication_Property FOREIGN KEY FK_PropertyPlatformApplication_Property (idProperty)
@@ -69,12 +69,12 @@ CREATE TABLE gnomex.PropertyPlatformApplication (
 -- Populate new table PlatformApplication from old table PropertyPlatform
 INSERT INTO `gnomex`.`PlatformApplication`(`idProperty`, `codeRequestCategory`, `codeApplication`)
 SELECT `idProperty`, `codeRequestCategory`, NULL
-FROM `gnomex`.`PropertyPlatform`
+FROM `gnomex`.`PropertyPlatform`;
 
 -- Populate table PropertyPlatformApplication
 INSERT INTO `gnomex`.`PropertyPlatformApplication`(`idProperty`, `idPlatformApplication`)
 SELECT `idProperty`, `idPlatformApplication`
-FROM `gnomex`.`PlatformApplication`
+FROM `gnomex`.`PlatformApplication`;
 
 -- Add table BillingAccountUser
 DROP TABLE IF EXISTS `gnomex`.`BillingAccountUser`;
