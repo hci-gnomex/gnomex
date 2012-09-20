@@ -1,6 +1,7 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
-5.4.8
+
+5.4.8 (Sept 19, 2012)
 ---------------------
 * Allow decimal points in Reads PF for flow cell channel (bspiglejr)
 * Add experiment_view_limit property to control the maximum number of experiments shown in experiment view.  Default is 1000.  (bspiglejr)
