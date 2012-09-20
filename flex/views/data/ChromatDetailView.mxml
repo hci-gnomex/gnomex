@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
-		 xmlns:util="views.util.*" show="init()">
+		 showCloseButton="{currentState=='userState'}" close="{PopUpManager.removePopUp(this)}"
+		 xmlns:util="views.util.*" show="init()"
+		 title="{'View Chromatogram ' + selectedIdChromatogram}">
 	
 	<mx:HBox horizontalGap="10" verticalAlign="middle">
-		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" styleName="titleLabel" text="(REDO)" fontWeight="bold" 
 				  visible="{this.isInit &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"
 				  includeInLayout="{this.isInit &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"/>
@@ -910,7 +911,7 @@
 	</mx:VBox>
 	
 	<mx:states>
-		<mx:State name="userState">
+		<mx:State name="userState" >
 			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>
 			<mx:SetProperty name="height" value="600"/>
 			<mx:SetProperty name="width" value="1000"/>
@@ -918,4 +919,4 @@
 		</mx:State>
 	</mx:states>
 	
-</mx:VBox>
+</mx:TitleWindow>
