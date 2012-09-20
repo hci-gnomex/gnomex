@@ -11,6 +11,7 @@
 * Cap Seq Plate type orders now require either 1 or 4 plates (2 and 3 not allowed).  (bspiglejr)
 * If Cap Seq order has with 4 plates then 1st 3 plates must have 95 or 96 well specified.  (bspiglejr)
 * Warning is given when saving a Cap Seq order with 4 plates if the last plate does not have 95 wells specified.  (bspiglejr)
+* Fixed collaborator list display on experiment and analysis visibility tab for regular users. (rcundick)
 
 deploy notes 
 --------------------

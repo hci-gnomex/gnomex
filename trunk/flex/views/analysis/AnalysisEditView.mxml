@@ -1394,7 +1394,7 @@
 				<mx:DataGrid id="collaboratorGrid"  dataProvider="{collaborators}" height="100%" showHeaders="true">
 					<mx:columns>
 						<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
-										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AppUserLite').DictionaryEntry, '@display', '@value', '@idAppUser')}" />               
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />               
 						<mx:DataGridColumn headerText="Can Upload Data" 
 										   width="110" 
 										   editable="true"                        	
