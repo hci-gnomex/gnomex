@@ -695,6 +695,8 @@
 				}
 			} else {
 				this.capSeqNumPlatesRadioGroup.selection = null;
+				this.capSeqNumPlatesRadioGroup.selectedValue="1";
+				showFourPlateWarning();
 			}
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
@@ -707,7 +709,18 @@
 		private function onCapSeqNumPlatesChanged():void {
 			if (capSeqNumPlatesRadioGroup.selectedValue != null) {
 				parentDocument.numCapSeqPlates = this.capSeqNumPlatesRadioGroup.selectedValue;
+				showFourPlateWarning();
 				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
+		private function showFourPlateWarning():void {
+			if (this.containerTypeRadioGroup.selectedValue == 'PLATE' && parentDocument.numCapSeqPlates == 4) {
+				this.fourPlateWarningLabel.visible = true;
+				this.fourPlateWarningLabel.includeInLayout = true;
+			} else {
+				this.fourPlateWarningLabel.visible = false;
+				this.fourPlateWarningLabel.includeInLayout = false;
 			}
 		}
 		
@@ -1073,6 +1086,10 @@
 					<mx:Spacer width="20"/>
 					<mx:RadioButton id="capSeqNumPlates4" label="4" value="4" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox6}" position="before">
+				<mx:Label id="fourPlateWarningLabel" visible="false" includeInLayout="false" color="Green"
+						  text="With Bulk pricing you ARE paying for the empty wells, so it is in your best interest to have the max 95 samples per plate to get the best pricing possible." />
 			</mx:AddChild>
              <mx:SetProperty target="{label8}" name="text" value="(4) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
