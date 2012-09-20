@@ -124,11 +124,20 @@
 				}
 			}
 			
+			private function getSelectedCoreFacilityId():String {
+				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+					return parentApplication.coreFacilitiesICanManage[0].@value;
+				} else {
+					return coreFacilityCombo.selectedItem.@value;
+				}
+			}
+			
 			private function addBillingAccount():void {
 				dirty.setDirty();
 				var node:XML = new XML("<BillingAccount " +
 					" idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
 					" accountName='" + accountName.text + "'" +
+					" idCoreFacility='" + getSelectedCoreFacilityId() + "'" +
 					" expirationDateOther=''" + 
 					" startDateOther=''" +
 					" accountNumberBus=''" + 
@@ -287,7 +296,7 @@
 								if (warningMessage != "") {
 									warningMessage += "\n";
 								}
-								warningMessage += "All of the chart fields have not been filled in for account " + ba.@accountName + ".";
+								warningMessage += "Not all of the chart fields have been filled in for account " + ba.@accountName + ".";
 							}
 						}else if(ba.@isPO == "Y") {
 							if (!this.isChartFieldBlank(ba)) {
@@ -365,13 +374,13 @@
 					pendingAcct.@startDate = pendingAcct.@startDateOther;
 				}
 				
-				params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
+				params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + " " + hiddenBillingAccounts.toXMLString()+ "</billingAccounts>";
 				params.institutionsXMLString = "<institutions>" + institutions.toXMLString() + "</institutions>";
 				params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
 				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
 				params.managersXMLString = "<managers>" + managers.toXMLString() + "</managers>";
 				params.coreFacilitiesXMLString = "<coreFacilities>" + getSelectedCoreFacilities().toXMLString() + "</coreFacilities>";
-				
+				 
 				saveGroup.send(params);		
 				
 			}
@@ -389,6 +398,8 @@
 					params.idLab = savedIdLab;
 					getLab.send(params);
 					
+					refreshBillingTab();
+					
 					dirty.resetDirty();
 				} else {
 					Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
@@ -396,15 +407,40 @@
 				
 			}
 			
+			private function refreshBillingTab():void {
+				coreFacilityCombo.selectedIndex = 0;
+				
+				billingAccounts.refresh(); 
+				pendingBillingAccounts.refresh(); 
+				hiddenBillingAccounts.refresh();
+			}
 			
 			private function onGetLab(event:ResultEvent):void {
 				parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+				
+				var isOnlyCoreIManage:Boolean = false;
+				if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
+					for each ( var cf:Object in parentDocument.fullLab..CoreFacility ) {
+						if ( parentApplication.isCoreFacilityIManage(cf.@idCoreFacility) ) {
+							isOnlyCoreIManage = true;
+							break;
+						}
+					}
+				}
+				if ( isOnlyCoreIManage ) {
+					parentApplication.navUsersView.coreCombo.selectedIndex = 1;
+				} else {
+					parentApplication.navUsersView.coreCombo.selectedIndex = 0;
+				}
+				
 				
 				var itemToSelect:XML = new XML("<Lab id='" + savedIdLab + "'/>");
 				parentApplication.navUsersView.itemToSelect = itemToSelect;
 				
 				parentApplication.navUsersView.refreshGroupList();
 				parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
+				
+				refreshBillingTab();
 			}
 			
 			public function promptToVerifyUserAccounts():void {
@@ -527,6 +563,7 @@
 					}
 				}
 				activeSubmitters = new XMLList(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
+				refreshBillingTab();
 			}
 			
 			public function showEditPurchaseOrderWindow(event:MouseEvent):void{
@@ -556,11 +593,42 @@
 				}
 				return facilities;
 			}
+			
+			private function filterHiddenBillingAccounts(item:Object):Boolean {
+				if ( parentDocument.fullLab.coreFacilities.CoreFacility.(@idCoreFacility == item.@idCoreFacility).length() == 0 ) {
+					return true;
+				}
+				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+					if ( parentApplication.isCoreFacilityIManage(item.@idCoreFacility) ) {
+						return false; 
+					} else {
+						return true;
+					}
+				} else {
+					return coreFacilityCombo.selectedItem != null ? item.@idCoreFacility!=coreFacilityCombo.selectedItem.@value : true;
+				}
+			}
+			
+			private function filterByCore(item:Object):Boolean {
+				if ( parentDocument.fullLab.coreFacilities.CoreFacility.(@idCoreFacility == item.@idCoreFacility).length() == 0 ) {
+					return false;
+				}
+				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+					return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+				} else {
+					return coreFacilityCombo.selectedItem != null ? item.@idCoreFacility==coreFacilityCombo.selectedItem.@value : false;
+				}
+			}
+			private function filterCore(item:Object):Boolean {
+				return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+			}
+			
 		]]>
 	</mx:Script>	  
 	
-	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}"/>
-	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}"/>
+	<mx:XMLListCollection id="hiddenBillingAccounts" source="{parentDocument.fullLab.billingAccounts.BillingAccount}" filterFunction="filterHiddenBillingAccounts"/>
+	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
 	<mx:XMLListCollection id="institutions" source="{parentDocument.fullLab.institutions.Institution}"/>
 	<mx:XMLListCollection id="institutions1" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value)}"/>
 	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
@@ -569,6 +637,7 @@
 	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
+	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
 	<mx:XMLList id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
@@ -647,7 +716,8 @@
 									<mx:VBox width="100%" verticalGap="0" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0">
 										<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}">
 											<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox"
-														 enabled="{parentApplication.hasPermission(parentApplication.CAN_ADMINISTER_ALL_CORE_FACILITIES)?true:false}"/>   
+														 enabled="{parentApplication.isCoreFacilityIManage(coreFacilityRepeater.currentItem.@idCoreFacility)?true:false}"
+														 click="dirty.setDirty()"/>   
 										</mx:Repeater>
 									</mx:VBox>			   	
 								</mx:VBox>
@@ -768,6 +838,11 @@
 					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' || parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? false : true}" click="checkPricingChange()"/>
 					<mx:RadioButton id="isExternalPricingAcademicButton" label="External Academic Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>
 					<mx:RadioButton id="isExternalPricingCommercialButton" label="External Commercial Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? true : false}" click="checkPricingChange()"/>
+					<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
+						<mx:Label text="Core Facility" />
+						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{labCoreFacilitiesIManage}" editable="false"
+									 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh(); hiddenBillingAccounts.refresh();}"/>
+					</mx:HBox>
 				</mx:HBox>
 				<mx:Spacer height="2"/>
 				<mx:Label text="Accounts" fontWeight="bold"/>
@@ -834,9 +909,9 @@
 										   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
 										   dataField="@acctUsers"/>
 						<mx:DataGridColumn headerText="Core Facility" dataField="@idCoreFacility" 
-										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
-										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CoreFacility').DictionaryEntry, '@display', '@value', '@idCoreFacility')}"
-										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CoreFacility').DictionaryEntry, '@display', '@value', '@idCoreFacility', true)}"/>			                
+										   editorDataField="value" editable="{labCoreFacilitiesIManage.length > 1}"  rendererIsEditor="false"  width="130"
+										   itemRenderer="{DropdownLabel.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility')}"
+										   itemEditor="{hci.flex.controls.ComboBox.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility', true)}"/>			                
 					</mx:columns>
 				</mx:DataGrid>
 				<mx:Spacer height="8"/>

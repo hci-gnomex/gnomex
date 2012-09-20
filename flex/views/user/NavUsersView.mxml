@@ -65,6 +65,7 @@
     <mx:request>
            <listKind>UnboundedLabList</listKind>
 		   <idInstitution>{this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@value : ''}</idInstitution>
+		   <idCoreFacility>{this.coreCombo.selectedItem != null ? this.coreCombo.selectedItem.@value : ''}</idCoreFacility>
     </mx:request>
     </mx:HTTPService >
     
@@ -118,7 +119,8 @@
     <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
     <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
 	<mx:XMLListCollection id="managingCoreFacilities" source="{getAppUser.lastResult.managingCoreFacilities.coreFacility}"/>
-    	
+	
+
 
     <mx:Script>
         <![CDATA[
@@ -153,7 +155,7 @@
 		  
 		  [Bindable]
 		  private var groupsToManage:XMLListCollection;
-		  
+		
 		  public var itemToSelect:Object = null;
 		  
 		  public var isInitialized:Boolean = false;
@@ -169,6 +171,16 @@
 					this.navBar.selectedChild = this.groupsView;
 					this.groupDetailView.theTab.selectedChild = this.groupDetailView.billingAccountsTab;					
 				}
+			  }
+			  
+			  var emptyXML:XML = new XML("<coreFacility value='' display='All cores' />");
+			  
+			  coreCombo.dataProvider.addItemAt(emptyXML,0);
+			  
+			  if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
+				  coreCombo.selectedIndex = 1;
+			  }  else {
+				  coreCombo.selectedIndex = 0;
 			  }
 			  
 			  if (!isInitialized) {
@@ -617,7 +629,13 @@
 						  <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()">			       	
 						  </mx:ComboBox>
 					  </mx:HBox>
-		    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid" fontFamily="Verdana">
+					<mx:HBox  horizontalGap="0">
+						<mx:Text text="Filter by core facility:" width="80" fontFamily="Verdana"/>
+						<mx:ComboBox width="170" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
+									 id="coreCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()">			       	
+						</mx:ComboBox>
+					</mx:HBox>
+					<mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid" fontFamily="Verdana">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
 					    </mx:columns>

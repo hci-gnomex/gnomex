@@ -11,6 +11,9 @@
 * Cap Seq Plate type orders now require either 1 or 4 plates (2 and 3 not allowed).  (bspiglejr)
 * If Cap Seq order has with 4 plates then 1st 3 plates must have 80 or more wells specified.  (bspiglejr)
 * Fixed collaborator list display on experiment and analysis visibility tab for regular users. (rcundick)
+* Added filtering by core facility to billing accounts in users/groups view. (mbowler)
+* Added ability to filter by core facility or view all labs in groups tab. (mbowler) 
+* Added ability for core admins to select/deselect their core from labs on groups tab. (mbowler)
 
 deploy notes 
 --------------------

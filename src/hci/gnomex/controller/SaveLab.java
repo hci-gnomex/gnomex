@@ -452,7 +452,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
             }
 
           } else {
-            if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) && coreFacilityParser != null) {
+            if ((this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().getCoreFacilitiesIManage().size()>0) 
+                && coreFacilityParser != null) {
               TreeSet facilities = new TreeSet(new CoreFacilityComparator());
               for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
                 Integer idCoreFacility = (Integer)i.next();
