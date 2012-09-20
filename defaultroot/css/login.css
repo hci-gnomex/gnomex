@@ -39,6 +39,12 @@ a.login {
 	padding-top: 15px;
 	padding-bottom: 2px;
 }
+  
+a.button {
+	font-size: 10pt;
+	cursor: hand; 
+	cursor: pointer;
+}
 
 
 a.other {
@@ -92,6 +98,16 @@ a.other {
 	color: #696969;
 }
 
+.empty {
+	clear:both;
+	float:left;
+	width: 100px;
+	padding-top: 5px;
+	margin-top: 5px;
+	padding-right: 2px;
+	margin-right: 2px;
+}
+
 .col1 {
 	clear:both;
 	float:left;
@@ -120,6 +136,12 @@ a.other {
 	margin-right: 10px;
 }
 
+note {
+	padding: 2px;
+	padding-bottom: 4px;
+	font-size: 8pt;
+	font-style: italic;
+}
 
 
 .topPanel {

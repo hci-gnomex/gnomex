@@ -34,23 +34,24 @@
     }
   }
   
-  function showHideLab()
+  function showNewLab()
   {
-    if (document.theform.existingLab[0].checked)
-    {
-      document.getElementById("existingLabDiv").style.display = "block";
-      document.getElementById("newLabDiv").style.display = "none";      
-    }
-    else
-    {
-      document.getElementById("existingLabDiv").style.display = "none";
-      document.getElementById("newLabDiv").style.display = "block";      
-    }
+    document.getElementById("labDropdown").selectedIndex = 0;
+    document.getElementById("newLabDiv").style.display = "block";  
   }
+  
+  function hideNewLab()
+  {
+    document.getElementById("newLabDiv").style.display = "none";  
+  }
+  
   
   function checkAlphaNumeric(e)
   {
      var KeyID = e.keyCode;
+     if ((KeyID >= 8 && KeyID <= 9) || (KeyID >= 35 && KeyID <=39) || (KeyID == 46)){
+        return;
+     } 
      if (KeyID == 0) {
         KeyID = e.which;
      }
@@ -131,40 +132,43 @@ try {
       <div class="col1"><div class="right">Phone</div></div>
       <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
       
-      <div style="width:100%;"><div style="float:left;">
-      <br>
-       Lab Group?
-
-       <INPUT TYPE="radio" NAME="existingLab" VALUE="y" onClick="showHideLab();">Use existing
-       <INPUT TYPE="radio" NAME="existingLab" VALUE="n" onClick="showHideLab();">Request new
-      </div></div>
-
-      <div id="existingLabDiv" style="display:none;">
-        <div class="col1"><div class="right">Choose Lab</div></div>
-        <div class="col2"><select name="labDropdown" id="labDropdown" class="textWide">
-          <%
-          Iterator i = labs.iterator();
-          while (i.hasNext()) {
-            Lab l = (Lab) i.next();
-          %>
-            <option value="<%=l.getIdLab()%>"><%=l.getName()%></option>
-          <%}%>
-        </select></div>
+      <div class="empty"></div>
+      
+      <div id="coreFacilityDiv">
+        <div class="col1" ><div class="right">Choose Core Facility</div></div>
+            <%
+            Iterator facilityIter = facilities.iterator();
+            while (facilityIter.hasNext()) {
+              CoreFacility facility = (CoreFacility) facilityIter.next();
+            %>
+            <div class="col2">
+            <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%> 
+            </div><br>
+            <%}%>
       </div>
-      <div id="newLabDiv" style="display:none;">
-        <div style="width:100%;text-align:left" id="coreFacilities">
-          <div style="width:100%;clear:both;"><br/></div>
-          Choose Core Facility<br>
-          <%
-          Iterator facilityIter = facilities.iterator();
-          while (facilityIter.hasNext()) {
-            CoreFacility facility = (CoreFacility) facilityIter.next();
-          %>
-          <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%> 
-          <br>
-          <%}%>
+      
+      <div class="empty"></div>
+      
+      <div id="labDiv">
+        <div class="col1"><div class="right">Choose Lab</div></div>
+        <div class="col2"> 
+            <select name="labDropdown" onchange="hideNewLab()" id="labDropdown" style="width:212" >
+              <option value="0">  </option>
+              <%
+              Iterator i = labs.iterator();
+              while (i.hasNext()) {
+                Lab l = (Lab) i.next();
+              %>
+                <option value="<%=l.getIdLab()%>"><%=l.getName()%></option>
+              <%}%>
+            </select>
+        <a class="button" onclick="showNewLab()">New lab...</a>
+<!--    <input type="button" onclick="showNewLab()" value="New..." /> -->
         </div>
-        <div class="col1"><div class="right">Enter Lab</div></div>
+      </div>
+       
+      <div id="newLabDiv" style="display:none;">   
+        <div class="col1"><div class="right">Lab Name</div></div>
         <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"/></div>
 
         <div class="col1"><div class="right">Department</div></div>
@@ -172,8 +176,8 @@ try {
       </div>
 
 <% if (showUserNameChoice) { %>
+    <div class="empty"></div>
     <div style="width:100%;"><div style="float:left;">
-    <br>
      Are you affiliated with the University of Utah?
      <INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes
      <INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No
@@ -183,7 +187,8 @@ try {
       <div id="UofUDiv" style="display:none;width:100%;">
         <div id="univUserNameArea1" class="col1"><div class="right">University ID</div></div>
         <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID"  ></div>
-        <div>Format should be a "u" followed by 7 digits (u0000000)</div>
+        <div class="col1"><div class="right"> </div></div>
+        <div class="col2"><note>Format should be a "u" followed by 7 digits (u0000000)</note></div>
       </div>
 
       <div id="externalDiv" style="display:none">

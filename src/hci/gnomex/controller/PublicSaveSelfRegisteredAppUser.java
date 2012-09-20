@@ -85,14 +85,21 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       appUserScreen.setUserNameExternal(appUserScreen.getUserNameExternal().trim());
     }
     
-    if (request.getParameter("existingLab") != null && request.getParameter("existingLab").equals("y")) {
+    if (request.getParameter("labDropdown") != null && Integer.parseInt(request.getParameter("labDropdown")) != 0 ) {
       existingLab = true;
       requestedLabId = Integer.parseInt(request.getParameter("labDropdown"));
       appUserScreen.setDepartment("");
     } else {
       existingLab = false;
       requestedLabName = request.getParameter("newLab");
+      department = request.getParameter( "department" );
+      appUserScreen.setDepartment( department );
+    }
+    
+    if (request.getParameter("facilityRadio") != null ) {
       facilityId = request.getParameter("facilityRadio");
+    } else {
+      this.addInvalidField("facilityRqrd", "Please select a core facility");
     }
     
     
@@ -195,6 +202,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           coreFacilityEmail = propertyHelper.getCoreFacilityProperty(((CoreFacility)requestedLab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
         }
       } else {
+        if( !requestedLab.getCoreFacilities().contains( facility ) ) {
+          requestedLab.getCoreFacilities().add( facility );
+        }
         coreFacilityEmail = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(),PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
       }
       
@@ -281,6 +291,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
     if (existingLab) {
       body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLabName));
+      body.append("</td></tr><tr><td>Requested Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
     } else {
       body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLabName));
       body.append("</td></tr><tr><td>Requested Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));

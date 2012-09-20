@@ -1602,6 +1602,18 @@
             	
             }
               
+			public function isCoreFacilityIManage(idCoreFacility:String):Boolean {
+				var isMyCoreFacility:Boolean = false;
+				
+					for each (var facility:XML in coreFacilitiesICanManage) {
+						if (facility.@idCoreFacility == idCoreFacility) {
+							isMyCoreFacility = true;
+							break;
+						}
+					}
+				return isMyCoreFacility;
+			}
+			
             private function checkSecurity():void {
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
