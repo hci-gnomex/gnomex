@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
 
 public class RequestProgressSolexaFilter extends RequestProgressFilter {
@@ -18,8 +19,9 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
 
   
   
-  public StringBuffer getSolexaQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getSolexaQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -35,7 +37,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   }
 
   
-  public void getSolexaQueryBody(StringBuffer queryBuf) {
+  private void getSolexaQueryBody(StringBuffer queryBuf) {
      
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
@@ -63,8 +65,9 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   }
 
   
-  public StringBuffer getSolexaLaneStatusQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getSolexaLaneStatusQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -76,7 +79,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     return queryBuf;
     
   }
-  public void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
+  private void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
@@ -102,8 +105,9 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
 
 
   
-  public StringBuffer getSolexaLaneSeqStatusQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getSolexaLaneSeqStatusQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -119,6 +123,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   
   public StringBuffer getSolexaLanePipelineStatusQuery(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -133,7 +138,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   }  
 
   
-  public void getSolexaLaneSeqStatusQueryBody(StringBuffer queryBuf) {
+  private void getSolexaLaneSeqStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
@@ -165,7 +170,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
 
 
   
-  public void getSolexaLanePipelineStatusQueryBody(StringBuffer queryBuf) {
+  private void getSolexaLanePipelineStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");

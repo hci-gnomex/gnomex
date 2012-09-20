@@ -5,6 +5,7 @@
 ---------------------
 * Fixed bug in ProjectRequestFilter SQL causing unexpected results when viewing experiments for logged-in user. (rcundick)
 * Can now have different request number sequences for each core facility. (bspiglejr)
+* Progress tab in experiments view now works for DNA Sequencing experiments.  (bspiglejr)
 
 deploy notes 
 --------------------
