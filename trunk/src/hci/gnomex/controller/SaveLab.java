@@ -548,22 +548,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
-    String coreEmail = "";
-    String coreNames = "";
-    for (Iterator i = lab.getCoreFacilities().iterator(); i.hasNext(); ) {
-      CoreFacility facility = (CoreFacility)i.next();
-      String facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-      if (!coreEmail.equals("")) {
-        coreEmail += ",";
-      }
-      coreEmail += facilityEmail;
-      
-      if (!coreNames.equals("")) {
-        coreNames += " and ";
-      }
-      coreNames += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
-    }
-    
+
+    CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
+
+    String facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+
+
     boolean isTestEmail = false;
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
@@ -572,12 +562,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
         send = true;
         isTestEmail = true;
         submitterSubject = "TEST - " + submitterSubject;
-        coreEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+        facilityEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       }
     }
 
     submitterNote.append("The following work authorization " +
-        "has been approved by the " + coreNames +  
+        "has been approved by the " + facility.getDisplay() + " Core" +  
         ".  Lab members can now submit experiment " +
         "requests against this account in GNomEx " + launchAppURL + ".");
 
@@ -585,6 +575,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     body.append("\n");
     body.append("\n");
     body.append("Lab:               " + lab.getName() + "\n");
+    body.append("Core Facility        " + facility.getDisplay() + "\n");
     body.append("Account:           " + billingAccount.getAccountName() + "\n");
     body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
     body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
@@ -592,10 +583,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
     body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
 
-    String from = dictionaryHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    if (lab.getCoreFacilities().size() == 1) {
-      from = dictionaryHelper.getCoreFacilityProperty(((CoreFacility)lab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-    }
+    String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    
 
     if (send) {
       // Email submitter

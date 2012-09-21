@@ -173,16 +173,17 @@
 				}
 			  }
 			  
-			  var emptyXML:XML = new XML("<coreFacility value='' display='All cores' />");
-			  
-			  coreCombo.dataProvider.addItemAt(emptyXML,0);
-			  
-			  if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
-				  coreCombo.selectedIndex = 1;
-			  }  else {
-				  coreCombo.selectedIndex = 0;
+			  if (!isInitialized) {
+			  	var emptyXML:XML = new XML("<coreFacility value='' display='All cores' />");
+			  	coreCombo.dataProvider.addItemAt(emptyXML,0);
+				
+				if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
+					coreCombo.selectedIndex = 1;
+				}  else {
+					coreCombo.selectedIndex = 0;
+				}
 			  }
-			  
+			  			  
 			  if (!isInitialized) {
 				  initializeData();		  	
 			  }
