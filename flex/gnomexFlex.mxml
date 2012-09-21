@@ -750,6 +750,8 @@
 			[Bindable]
 			public var manageLabList:XMLListCollection;
 			[Bindable]
+			public var workAuthLabList:XMLListCollection;
+			[Bindable]
 			public var promptedWorkAuthLabList:PromptXMLListCollection;
 			[Bindable]
 			public var propertyList:XMLListCollection;
@@ -1999,11 +2001,14 @@
 	       		// will have a full list since they can submit a request on behalf 
 	       		// of any lab.
 	        	if (this.isUniversityOnlyUser) {
+					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab);
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 	        	} else if (this.isGuestMode()) {	        		
 	        	} else if (this.canSubmitRequestForALab()) {
+					workAuthLabList = submitRequestLabList;
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 	        	} else {
+					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab.(@isMyLab == 'Y'));
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab.(@isMyLab == 'Y')));
 	        	}
 	        	
