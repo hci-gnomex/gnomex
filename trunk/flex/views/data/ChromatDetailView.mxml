@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow  xmlns:mx="http://www.adobe.com/2006/mxml" 
-		 width="100%" height="100%" 
-		 showCloseButton="{currentState=='userState'}" close="{PopUpManager.removePopUp(this)}"
-		 xmlns:util="views.util.*" show="init()"
-		 title="{'View Chromatogram ' + selectedIdChromatogram}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="100%" height="100%" show="init()"
+		 headerHeight="{currentState=='userState' ? 30 : 0}"
+		 showCloseButton="{currentState=='userState'}" 
+		 close="{PopUpManager.removePopUp(this)}"
+		 title="{'View Chromatogram ' + selectedIdChromatogram}"
+		 xmlns:util="views.util.*" >
 	
-	<mx:HBox horizontalGap="10" verticalAlign="middle">
+	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" >
+		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" styleName="titleLabel" text="(REDO)" fontWeight="bold" 
 				  visible="{this.isInit &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"
 				  includeInLayout="{this.isInit &amp;&amp; getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y'}"/>
-		<mx:LinkButton label="Back" id="backButton" click="{parentDocument.chromatViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>		
+		<mx:LinkButton label="Back" click="{parentDocument.chromatViews.selectedIndex = 0}" textDecoration="underline" icon="@Embed(source='../../assets/arrow_left.png')"/>		
 	</mx:HBox>
 	
 	<mx:HTTPService  
@@ -94,6 +97,7 @@
 			private var seqLabel:Label;
 			
 			public function init():void {
+				
 				// Don't reload if you already are viewing that chromat
 				if ( selectedIdChromatogram == selectedChromat.@idChromatogram ) {
 					return;
@@ -915,7 +919,7 @@
 			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>
 			<mx:SetProperty name="height" value="600"/>
 			<mx:SetProperty name="width" value="1000"/>
-			<mx:RemoveChild target="{backButton}"/>
+			<mx:RemoveChild target="{headerBox}"/>
 		</mx:State>
 	</mx:states>
 	
