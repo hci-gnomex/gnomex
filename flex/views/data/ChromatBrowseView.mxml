@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox 
-		 xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 width="100%"
 		 height="100%"
 		 xmlns:util="views.util.*"
@@ -8,6 +7,7 @@
 		 show="init()"
 		 initialize="init()"
 		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="3">
+	
 	<mx:HTTPService id="getChromatogramList"
 					url="GetChromatogramList.gx"
 					resultFormat="e4x"
@@ -89,22 +89,20 @@
 			
 			public var parentView:NavDataView;
 			
-			public var selectedList:ListCollectionView;
+			[Bindable]
+			public var selectedFiles:XMLListCollection;
 			
 			[Bindable]
 			public var idRequest:String;
 			
 			[Bindable]
 			private var actionDictionary:XMLListCollection = new XMLListCollection();
-			
 			private var dictXML:XML = <actionDictionary>
-									<action value="RELEASE"   display="Release data to user" />
-									<action value="REQUEUE"    display="Release and requeue samples" />
-								</actionDictionary>;
+									  <action value="RELEASE"   display="Release data to user" />
+									  <action value="REQUEUE"    display="Release and requeue samples" />
+								      </actionDictionary>;
 			
 			
-			[Bindable]
-			public var selectedFiles:XMLListCollection;
 			
 			private var estimatedDownloadSize:Number;
 			
@@ -116,8 +114,8 @@
 			
 			public var downloadProgressWindow:DownloadProgressView;
 			
-			
 			public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
+			
 			
 			
 			private function init():void {
@@ -560,8 +558,8 @@
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
 	
-	<mx:VBox width="100%" styleName="panelBox" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
-		<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" id="hbox2" verticalAlign="middle" width="100%">
+	<mx:VBox id="filterBox" width="100%" styleName="panelBox" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+		<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" verticalAlign="middle" width="100%">
 			<mx:Image source="assets/tv_chart_review.png"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="Results"  />
 			<mx:Spacer width="30"/>
@@ -580,7 +578,6 @@
 							  width="80"
 							  enter="{plateNameFieldSearch()}" />
 			</mx:HBox>
-			
 			
 			
 			<mx:HBox horizontalGap="0"
@@ -959,14 +956,8 @@
 	
 	<mx:states>
 		<mx:State id="userState" name="userState">
-			<mx:RemoveChild target="{vbox1}"/>
-			<mx:RemoveChild target="{linkbutton2}"/>
-			<mx:RemoveChild target="{comboBox}"/>
-			<mx:SetProperty target="{datagridcolumn3}" name="headerText" value="Len"/>
-			<mx:RemoveChild target="{hbox1}"/>
-			<mx:RemoveChild target="{linkbutton3}"/>
-			<mx:RemoveChild target="{hbox2}"/>
-			<mx:SetProperty name="styleName"/>
+			
+			<mx:SetProperty target="{datagridcolumn3}" name="headerText" value="Len"/>		
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:Button id="downloadButton" 
 						   click="downloadFiles()" 
@@ -980,7 +971,8 @@
 						   label="FDT Download"  
 						   click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
 			</mx:AddChild>
-			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{filterBox}"/>
+			
 		</mx:State>
 	</mx:states>
 	
