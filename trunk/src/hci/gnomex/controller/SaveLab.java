@@ -575,7 +575,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     body.append("\n");
     body.append("\n");
     body.append("Lab:               " + lab.getName() + "\n");
-    body.append("Core Facility        " + facility.getDisplay() + "\n");
+    body.append("Core Facility      " + facility.getDisplay() + "\n");
     body.append("Account:           " + billingAccount.getAccountName() + "\n");
     body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
     body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
