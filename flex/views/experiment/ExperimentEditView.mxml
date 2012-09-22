@@ -5088,6 +5088,7 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 		</mx:State>
@@ -5121,7 +5122,6 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="visible" value="false"/>
 			<mx:SetProperty target="{this.requestFormButton}" name="includeInLayout" value="false"/>
 		</mx:State>
