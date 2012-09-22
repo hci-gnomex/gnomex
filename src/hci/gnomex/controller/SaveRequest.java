@@ -751,9 +751,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         
         billingAccountMessage = "";
-        if (!requestParser.isExternalExperiment()  && 
-            !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
-            !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+        
+        // We will create billing items if this is not an external experiment.
+        // For new experiments, don't create billing items for DNA Seq Core experiments as these get
+        // created when the status is changed to submitted.
+        // For existing experiments, create billing items (for new charges) for all experiment
+        // types except fragment analysis and mit seq as these are plate based and should not be altered.
+        boolean createBillingItems = false;        
+        if (!requestParser.isExternalExperiment()) {
+          if (requestParser.isNewRequest() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+            createBillingItems = true;
+          } else if (!requestParser.isNewRequest() && 
+                     !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
+                     !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+            createBillingItems = true;
+          }
+        }
+        if (createBillingItems) {
           sess.refresh(requestParser.getRequest());
 
           // Create the billing items

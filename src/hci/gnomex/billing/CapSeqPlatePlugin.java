@@ -8,6 +8,7 @@ import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Price;
@@ -47,12 +48,14 @@ public class CapSeqPlatePlugin implements BillingPlugin {
     // Count number of samples, detect if samples submitted in plate wells
     int qty = 0;
     boolean sampleInPlateWell = false;
+    HashMap<Plate, ?> plateMap = new HashMap<Plate, String>();
     for (Sample s : samples) {
       qty++;
       if (s.getWells() != null) {
         for (PlateWell w : (Set<PlateWell>)s.getWells()) {
           if (w.getPlate() != null && w.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
             sampleInPlateWell = true;
+            plateMap.put(w.getPlate(), null);
           }
         }
       }
@@ -61,6 +64,12 @@ public class CapSeqPlatePlugin implements BillingPlugin {
     if (!sampleInPlateWell) {
       return billingItems;
     }
+    // This billing plug-in only applies for orders with 4 plates
+    if (plateMap.size() != 4) {
+      return billingItems;
+    }
+    
+    qty = 4;
 
     
     // Find the price for capillary sequencing
@@ -98,6 +107,14 @@ public class CapSeqPlatePlugin implements BillingPlugin {
             qty1 = Integer.valueOf(tokens[0]);
             
             if (qty >= qty1.intValue()) {
+              price = p;
+              break;
+            }
+          } else {
+            // Equals check
+            qty1 = Integer.valueOf(criteria.getFilter1());
+            
+            if (qty == qty1.intValue()) {
               price = p;
               break;
             }
