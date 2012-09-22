@@ -3628,6 +3628,10 @@
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
 			<mx:SetStyle target="{vbox1}" name="borderStyle" value="none"/>
+			<mx:SetStyle target="{sampleTree}" name="fontFamily" value="Verdana"/>
+			<mx:SetStyle target="{sampleTree}" name="fontSize" value="10"/>
+			<mx:SetStyle target="{plateTree}" name="fontFamily" value="Verdana"/>
+			<mx:SetStyle target="{plateTree}" name="fontSize" value="10"/>
 		</mx:State>
 		
 	</mx:states>
