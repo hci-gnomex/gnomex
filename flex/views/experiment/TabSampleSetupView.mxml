@@ -689,13 +689,13 @@
 		private function onContainerTypeChange():void {
 			parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
 			if (containerTypeRadioGroup.selectedValue == 'PLATE') {
-				if (this.capSeqNumPlatesRadioGroup.selectedValue == null) {
+				if (this.capSeqNumPlatesRadioGroup.selectedValue == null || this.capSeqNumPlatesRadioGroup.selectedValue == '') {
 					this.capSeqNumPlatesRadioGroup.selectedValue="1";
 					this.onCapSeqNumPlatesChanged();
 				}
 			} else {
 				this.capSeqNumPlatesRadioGroup.selection = null;
-				this.capSeqNumPlatesRadioGroup.selectedValue="1";
+				this.capSeqNumPlatesRadioGroup.selectedValue = null;
 				showFourPlateWarning();
 			}
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
@@ -1081,7 +1081,7 @@
 			<mx:AddChild relativeTo="{hbox6}" position="before">
 				<mx:HBox horizontalGap="0" id="capSeqNumPlatesBox" verticalAlign="middle">
 					<mx:Label text="(3) If plates, how many plates will you be submitting?" width="334"  id="capSeqNumPlatesLabel" enabled="{containerTypePlate.selected}"/>
-					<mx:RadioButtonGroup id="capSeqNumPlatesRadioGroup" selectedValue="TUBE" change="onCapSeqNumPlatesChanged()" />
+					<mx:RadioButtonGroup id="capSeqNumPlatesRadioGroup"  change="onCapSeqNumPlatesChanged()" />
 					<mx:RadioButton id="capSeqNumPlates1" label="1" value="1" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 					<mx:Spacer width="20"/>
 					<mx:RadioButton id="capSeqNumPlates4" label="4" value="4" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
