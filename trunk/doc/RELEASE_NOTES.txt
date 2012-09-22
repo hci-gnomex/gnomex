@@ -17,6 +17,10 @@
 * Slight style change, and added close button to the chromatogram detail screen (when it is a popup). (mbowler)
 * Added core facility dropdown box to work auth grid.  Emails are now sent only to the core facility that the billing account is for. (mbowler)
 * Added filter combo box for labs on work auth window. (mbowler)
+* Fix bug introduced when visibility tab added to cap seq edit states.  (Removed visibility tab from frag analysis new experiment order). (tdisera)
+* Fixed bug that was causing blank samples in samples grid when user submitted cap seq (1) plate order (tdisera)
+* Decrease font for pending samples tree on Fill Plate view (tdisera)
+* Fixed bug that was causing wrong price for 4 96-well plate cap seq order.  Also, deferred creating billing items for cap seq orders to when order is submitted (tdisera)
 
 deploy notes 
 --------------------
@@ -25,6 +29,15 @@ declare @identity int
 select @identity= (Coalesce(MAX(idRequest),0)) from Request
 set @identity = @identity + 1
 DBCC CHECKIDENT('MicroArrayRequestNumber', RESEED, @identity)
+-- Set qty on price for 4-plate price to 4
+declare @identity int
+select @identity= idPriceCategory from PriceCategory where pluginClassName = 'hci.gnomex.billing.CapSeqPlatePlugin';
+update PriceCriteria 
+set filter1 = 4 
+from PriceCriteria pc
+join Price p on p.idPrice = pc.idPrice
+where p.idPriceCategory = @identity
+
 
 5.4.8 (Sept 19, 2012)
 ---------------------
