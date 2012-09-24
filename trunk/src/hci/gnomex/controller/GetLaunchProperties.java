@@ -108,14 +108,19 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
     Element facilitiesNode = new Element("CoreFacilities");
     doc.getRootElement().addContent(facilitiesNode);
 
+    if ( CoreFacility.getActiveCoreFacilities(sess) == null || CoreFacility.getActiveCoreFacilities(sess).size() == 0) {
+      return;
+    }
+    
     for (Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext();) {
       DictionaryEntry de = (DictionaryEntry)i.next();
       
-      if (de instanceof NullDictionaryEntry) {
+      if (de == null) {
         continue;
       }
       
       CoreFacility cf = (CoreFacility)de;
+      
       
       if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
         String coreName = cf.getFacilityName();
@@ -127,10 +132,10 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
         Element facilityNode = new Element("CoreFacility");
         facilitiesNode.addContent(facilityNode);
         facilityNode.setAttribute("idCoreFacility", String.valueOf( idCoreFacility ));
-        facilityNode.setAttribute("coreName", coreName);
-        facilityNode.setAttribute("contactName", contactName);
-        facilityNode.setAttribute("contactNumber", contactNumber);
-        facilityNode.setAttribute("contactEmail", contactEmail);
+        facilityNode.setAttribute("coreName", coreName != null ? coreName : "");
+        facilityNode.setAttribute("contactName", contactName != null ? contactName : "");
+        facilityNode.setAttribute("contactNumber", contactNumber != null ? contactNumber : "");
+        facilityNode.setAttribute("contactEmail", contactEmail != null ? contactEmail : "");
       }
     }
   }
