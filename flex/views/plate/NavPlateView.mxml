@@ -2356,9 +2356,9 @@
 	<mx:VBox verticalGap="2" width="100%" height="100%">
 		
 		<mx:VBox styleName="panelBox"
-				 borderStyle="outset"
+				 borderStyle="none"
 				 width="100%"
-				 verticalGap="0" id="vbox1" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+				 verticalGap="0" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
 			
 			<mx:HBox width="100%"
 					 verticalAlign="middle"
@@ -2702,6 +2702,8 @@
 						<mx:Tree width="100%"
 								 height="100%"
 								 color="#000000"
+								 fontFamily="Verdana"
+								 fontSize="10"
 								 showRoot="false"
 								 id="sampleTree"
 								 dataProvider="{samplesList}"
@@ -2791,6 +2793,8 @@
 								 height="100%"
 								 color="#000000"
 								 showRoot="false"
+								 fontFamily="Verdana"
+								 fontSize="10"
 								 id="plateTree"
 								 labelFunction="runTreeLabelFunction"
 								 dataTipFunction="plateTreeTipFunction"
@@ -3627,11 +3631,7 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
-			<mx:SetStyle target="{vbox1}" name="borderStyle" value="none"/>
-			<mx:SetStyle target="{sampleTree}" name="fontFamily" value="Verdana"/>
-			<mx:SetStyle target="{sampleTree}" name="fontSize" value="10"/>
-			<mx:SetStyle target="{plateTree}" name="fontFamily" value="Verdana"/>
-			<mx:SetStyle target="{plateTree}" name="fontSize" value="10"/>
+			
 		</mx:State>
 		
 	</mx:states>
