@@ -261,7 +261,7 @@
 
 		var parms:Object = new Object();
 		parms.idRequest = selectedIdRequest;
-		getRequest.send(parms);  		
+		getRequest.send(parms);  		 
   	}
 
   	private function onGetRequest(event:ResultEvent):void {
@@ -269,6 +269,12 @@
 		parentDocument.selectedExperiment = selectedExperiment;
 		parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
 		parentDocument.experimentDetailView.detail.setupForm(parentDocument.selectedExperiment);
+		
+		parentDocument.experimentDetailView.navBackButton.visible = false;
+		parentDocument.experimentDetailView.navBackButton.includeInLayout = false;
+		var viewTitle:String = (selectedExperiment.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + selectedExperiment.@number;
+		parentDocument.experimentDetailView.titleLabel.text = viewTitle;
+
 	}
 
 	private function onViewSwitch():void {
