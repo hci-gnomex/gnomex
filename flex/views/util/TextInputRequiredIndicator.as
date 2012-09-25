@@ -20,11 +20,11 @@ package views.util
 			_isRequired = value;
 		}			
 		
-		public function TextInputRequiredIndicator() {
+		public function TextInputRequiredIndicator():void {
 			super();
 		}
 		
-		public function SetBackgroundColor() {
+		public function SetBackgroundColor():void {
 			change(null);
 		}		
 		
