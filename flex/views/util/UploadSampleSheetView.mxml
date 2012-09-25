@@ -24,7 +24,7 @@
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="intro" width="100%" height="100%">
-				<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
+				<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 					<mx:Text width="100%" height="74" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}">
 						<mx:htmlText><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
 							
@@ -164,7 +164,7 @@
 				}
 				return displayText;
 			}			
-			//public function init(showCCNumberField:Boolean, isSubmitExperiment:Boolean):void {
+
 			public function init(tabSamplesView:TabSamplesView, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary = null):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
@@ -179,6 +179,7 @@
 				fullHeight = 406;
 				if (samplesViewState == 'CapSeqState') {
 					fullHeight = 250; 
+					reportText.height = 150;
 				}
 					
 				//add the event handler for the risk level change

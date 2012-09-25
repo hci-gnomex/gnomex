@@ -187,15 +187,10 @@
 
 	
 	public function init():void {
-		//refreshTopicForLookup()
 		refreshTopics();
 		checkSecurity();	
 		isInitialized = true;
 	}
-	
-	//public function refreshTopicForLookup():void {
-	//	getTopicList.send();
-	//}	
 	
 	private function checkSecurity():void {
 		currentState = "";
@@ -435,7 +430,7 @@
 			this.topicView.init();
 			
 		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
-			dataTrackView.saveDataTrackButton.visible = false;
+			//dataTrackView.saveDataTrackButton.visible = false;
 			this.mainViewStack.selectedChild = this.dataTrackView;                
 			
 			var parms1:Object = new Object();
@@ -461,10 +456,7 @@
 			if (experimentEditView != null && experimentEditView.titleLabel != null) {
 				experimentEditView.titleLabel.text = editTitle;
 			}			
-			
-			
-			//experimentDetailView.editButton.enabled = false;
-			//experimentDetailView.detail.hideButtonsBox.visible = false;
+
 			mainViewStack.selectedChild = experimentViews; 
 			experimentViews.selectedChild = experimentDetailView;
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
@@ -474,10 +466,6 @@
 			parms.idAnalysis = selectedIdAnalysis; 
 			getAnalysis.send(parms);
 			selectedIdLab = browseTree.selectedItem.@idLab;
-			//analysisDetailView.edtButton.enabled = false;
-			//analysisDetailView.dstButton.enabled = false;
-			//analysisDetailView.hideButtonsBox.visible = false;
-			//analysisDetailView.hideButtonsBox.includeInLayout = false;
 			this.mainViewStack.selectedChild = this.analysisViews;  
 			analysisViews.selectedChild = this.analysisDetailView;  
 		}
@@ -622,14 +610,10 @@
 	private function onDeleteTopic(event:ResultEvent):void {
 		if (deleteTopic.lastResult.name() == "SUCCESS") {
 			topicView.dirtyTopic.resetDirty();
-			
-			//if (itemsToRemove.length == 0) {
-				refreshTopics();			
-			//}
+			refreshTopics();			
 		} else {
 			Alert.show(deleteTopic.lastResult..ACTMESSAGE.@TEXT);
 		}
-		//removeSelectedItems();
 	}
       
 	private function promptToUnlinkItemFromTopic():void {
@@ -1122,8 +1106,6 @@
 			<topics:TopicLinkView id="topicLinkView" width="100%" height="100%" creationPolicy="all">
 			</topics:TopicLinkView>
 	
-			<!--experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
-			</experiment:ExperimentDetailPanel-->
 			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
 				
 				<experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
@@ -1134,8 +1116,7 @@
 				
 			</mx:ViewStack>
 			
-			<!--analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
-			</analysis:AnalysisDetailView-->			
+		
 			<mx:ViewStack id="analysisViews" visible="true" width="100%" height="100%">			
 				
 				<analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">

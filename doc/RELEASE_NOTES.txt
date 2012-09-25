@@ -28,6 +28,9 @@
 * Added yellow background for required analysis and data track annotations that have not been entered. (rcundick)
 * Added check for required analysis and data track annotations before saving. (rcundick)
 * Fix issue where admin lost the core facility they managed when they saved a new lab.  (bspiglejr)
+* Create temporary directory if it does not exist when attempting to upload sample sheet. (rcundick)
+* Eliminated extraneous vertical and horizontal scrollbars on cap seq samplesheet upload. (rcundick)
+* Restored save button to data tracks detail view in Topics. (rcundick)
 
 deploy notes 
 --------------------

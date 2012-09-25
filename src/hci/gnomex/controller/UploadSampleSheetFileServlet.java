@@ -106,6 +106,12 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
       }
       
       File dir = new File(directoryName);
+      if (!dir.exists()) {
+        if (!dir.mkdir()) {
+          res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+          throw new ServletException("Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
+        }
+      }
       if (!dir.canRead()) {
         res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
         throw new ServletException("Unable to upload sample sheet.  Cannot read temp directory " + directoryName);
@@ -114,12 +120,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
         res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
         throw new ServletException("Unable to upload sample sheet.  Cannot write to temp directory " + directoryName);
       }
-      if (!dir.exists()) {
-        if (!dir.mkdir()) {
-          res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
-          throw new ServletException("Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
-        }
-      }
+
       
       boolean fileWasWritten = false;
       boolean hasColumnNames = false;
