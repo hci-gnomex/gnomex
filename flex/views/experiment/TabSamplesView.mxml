@@ -892,6 +892,17 @@
 	    		}
     		}
 			
+			// Make sure sample names are ok
+			if (parentDocument.isSequencingState()) {
+				var pattern:RegExp = /^[a-zA-Z0-9-_]*$/;
+				for each (var sNameCheck:Object in parentDocument.samples) {
+					if (!pattern.test(sNameCheck.@name)) {
+						parentDocument.userWarningsSamples += "Name may only contain alphanumeric, dash and underscore. '" + sNameCheck.@name + "'.  "; 
+						isComplete = false;
+					}
+				}
+			}
+			
 			// Make sure the sample index tags are unique
 			if (isComplete) {
 				if (!areIndexTagsUnique()) {
@@ -1816,8 +1827,7 @@
 											   id="sampleNameCol"
 											   editable="true" 
 											   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
-											   itemEditor="views.renderers.TextInputSampleName"      />    
-
+											   itemEditor="{views.renderers.TextInputSampleName.create(currentState)}"      />    
  
 	               <mx:AdvancedDataGridColumn id="labelColumn" dataField="@label"  
 											  width="90" headerText="Label" editable="false">
