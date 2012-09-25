@@ -322,8 +322,10 @@
 	private function onSaveDataTrack(event:ResultEvent):void {
 		if (saveDataTrack.lastResult.name() == "SUCCESS") {
 			this.dirtyDataTrack.resetDirty();
-			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
-			parentDocument.refreshDataTracks();			
+			if(parentDocument is NavDataTrackView) {
+				parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
+				parentDocument.refreshDataTracks();					
+			} 
 		} else {
 			Alert.show(saveDataTrack.lastResult..ACTMESSAGE.@TEXT);
 		} 
