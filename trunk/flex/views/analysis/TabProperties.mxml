@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Properties" enabled="true" width="100%" height="100%">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Properties" enabled="true" width="100%" height="100%">
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.XMLListCollection;
+			import mx.controls.TextInput;
 			import mx.managers.PopUpManager;
 			
 			import views.admin.PropertyWindow;
+			import views.util.CheckBoxRequiredIndicator;
+			import views.util.TextInputRequiredIndicator;
+			import mx.controls.Alert;
 
 			[Bindable]
 			public var properties:XMLListCollection;
@@ -19,15 +23,96 @@
 				}
 			}
 			
+			public function requiredAnnotationsEntered():Boolean {
+				var optionSelected:Boolean;
+				for (var i:int = 0; i < properties.length; i++) {
+					var property:XML = XML(properties.getItemAt(i));
+					if (propertyValueViewStack[i].selectedIndex == 0) {
+						// url
+						if(property.@isRequired == 'Y' && (this.urlText[0][0].text == "" || this.urlText[0][0].text == "Enter URL here...")) {
+							Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+							return false;
+						}						
+					} else if (propertyValueViewStack[i].selectedIndex == 1) {
+						// text
+						if(property.@isRequired == 'Y' && propertyText[i].text == "") {
+							Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+							return false;
+						}
+					} else if (propertyValueViewStack[i].selectedIndex == 2) {
+						// combo
+						optionSelected = false;
+						for each (var option:XML in  property..PropertyOption) {
+							if (propertyCombo[i].selectedItem != null &&
+								option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption && option.@name != '') {
+								optionSelected = true;
+							}
+						}
+						if(property.@isRequired == 'Y' && !optionSelected) {
+							Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+							return false;
+						}
+					} else if (propertyValueViewStack[i].selectedIndex == 3) {
+						// check box can only be checked or unchecked, so nothing req'd here
+					} else if (propertyValueViewStack[i].selectedIndex == 4) {
+						// multi-select
+						optionSelected = false;		
+						var idx:int = 0;
+						for each (var opt:XML in  property..PropertyOption) {
+							if (multiselectCheck[i][idx].selected) {
+								optionSelected = true;
+							}
+							idx++;
+						}
+						if(property.@isRequired == 'Y' && !optionSelected) {
+							Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+							return false;
+						}						
+					}
+				}
+				return true;
+			}
+			
 			private function onCreatePropertyLabel(property:XML, index:int):void {
 				if (property.@codePropertyType == 'TEXT') {
 					propertyValueViewStack[index].selectedIndex = 1;
 					propertyText[index].text = property.@value;
+					if(this.parentDocument is AnalysisEditView) {
+						propertyText[index].isRequired = property.@isRequired== 'Y' ? true : false;
+					} else {
+						// If not in edit version then disable editing
+						propertyText[index].isRequired = false;
+						propertyText[index].editable = false;
+					}
+					
 				} else if (property.@codePropertyType == 'URL') {
 					propertyValueViewStack[index].selectedIndex = 0;
+					if(this.parentDocument is AnalysisEditView) {
+						if(urlText != null && urlText[index].length > 0) {
+							// Req'd flag only needed for first item
+							urlText[index][0].isRequired = property.@isRequired== 'Y' ? true : false;
+							urlText[index][0].SetBackgroundColor();
+						}						
+					} else {
+						// If not in edit version then disable editing
+						for each (var aTxt:TextInput in aliasText[index]) {
+							aTxt.editable = false;
+						}
+						for each (var uTxt:TextInputRequiredIndicator in urlText[index]) {
+							uTxt.isRequired = false;
+							uTxt.editable = false;
+						}						
+					}
+
 				} else  if (property.@codePropertyType == 'OPTION') {
 					propertyValueViewStack[index].selectedIndex = 2;
 					propertyCombo[index].dataProvider =  property..PropertyOption;
+					if(this.parentDocument is AnalysisEditView) {
+						propertyCombo[index].isRequired = property.@isRequired== 'Y' ? true : false;
+					} else {
+						propertyCombo[index].isRequired = false;
+						propertyCombo[index].enabled = false;
+					}
 					for each(var theOption:XML in property..PropertyOption) {
 						if (theOption.@selected == 'Y') { 
 							propertyCombo[index].selectedItem =  theOption;
@@ -35,10 +120,30 @@
 						}
 					}
 				} else  if (property.@codePropertyType == 'MOPTION') { 
-					propertyValueViewStack[index].selectedIndex = 4; 
+					propertyValueViewStack[index].selectedIndex = 4;
+					var cbLen:int = multiselectCheck[index].length;
+					var cbCount:int = 0;
+					if(this.parentDocument is AnalysisEditView) {
+						for each (var cbx:CheckBoxRequiredIndicator in multiselectCheck[index]) {
+							cbx.isRequired = property.@isRequired== 'Y' ? true : false;
+							cbCount++;
+							if(cbCount == cbLen) {
+								cbx.setBackgroundColor();
+							}
+						}						
+					} else {
+						for each (var cbx1:CheckBoxRequiredIndicator in multiselectCheck[index]) {
+							cbx1.isRequired = false;
+							cbx1.enabled = false;
+						}						
+					}
+
 				} else if (property.@codePropertyType == 'CHECK') {
 					propertyValueViewStack[index].selectedIndex = 3;
 					propertyCheck[index].selected = property.@value == 'Y' ? true : false;
+					if(!this.parentDocument is AnalysisEditView) {
+						propertyCheck[index].enabled = false;
+					} 
 				}
 			}
 			
@@ -202,6 +307,7 @@
 				
 				propertyMainBox.removeAllChildren();
 				propertyRepeater.initializeRepeater(propertyMainBox, true);
+				setDirty();
 				
 			}
 			
@@ -267,7 +373,7 @@
 													  editable="{editable}"
 													  text="{urlRepeater.currentItem.@urlAlias}"  
 													  width="100" color="#8D7B7B"/>	
-										<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@url}" 
+										<util:TextInputRequiredIndicator id="urlText" text="{urlRepeater.currentItem.@url}" 
 													  enter="{showURLLink(event.target.instanceIndices)}" 
 													  editable="{editable}"
 													  change="{onChangeURLText(event.target.instanceIndices)}" 
@@ -282,13 +388,13 @@
 						</mx:VBox>
 						
 						<mx:HBox >
-							<mx:TextInput id="propertyText" change="{setDirty()}" editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
-							</mx:TextInput> 
+							<util:TextInputRequiredIndicator id="propertyText" change="{setDirty()}" editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
+							</util:TextInputRequiredIndicator> 
 						</mx:HBox>
 						
 						<mx:HBox >
-							<mx:ComboBox id="propertyCombo" change="{setDirty()}" enabled="{editable}" styleName="labelSmall" width="240" labelField="@name">
-							</mx:ComboBox>						
+							<util:ComboBoxRequiredIndicator id="propertyCombo" change="{setDirty()}" enabled="{editable}" styleName="labelSmall" width="240" labelField="@name">
+							</util:ComboBoxRequiredIndicator>						
 						</mx:HBox>
 						
 						<mx:HBox width="100%" >
@@ -298,7 +404,7 @@
 						
 						<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
 							<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
-								<mx:CheckBox id="multiselectCheck"  styleName="labelSmall" 
+								<util:CheckBoxRequiredIndicator id="multiselectCheck"  styleName="labelSmall" 
 											 label="{multiselectRepeater.currentItem.@name}"  
 											 paddingLeft="0"  
 											 paddingTop="0" 
@@ -306,7 +412,8 @@
 											 enabled="{editable}"
 											 paddingBottom="0"
 											 selected="{multiselectRepeater.currentItem.@selected == 'Y' ? true : false}"
-											 width="100%" textAlign="left"/>
+											 width="100%" textAlign="left">
+								</util:CheckBoxRequiredIndicator> 
 							</mx:Repeater>
 						</mx:VBox>
 						
