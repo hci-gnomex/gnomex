@@ -422,7 +422,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
             if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
                 this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) &&
                 this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0) {
-              lab.setCoreFacilities(this.getSecAdvisor().getCoreFacilitiesIManage());
+              TreeSet facilities = new TreeSet(new CoreFacilityComparator());
+              for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+                CoreFacility facility = (CoreFacility)i.next();
+                facilities.add(facility);
+              }
+              lab.setCoreFacilities(facilities);
               sess.flush();
             } else {
               // If a super admin is adding the lab (or an admin that isn't managing a core facility),

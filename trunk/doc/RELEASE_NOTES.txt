@@ -27,6 +27,7 @@
 * Disabled analysis annotation controls for view mode. (rcundick)
 * Added yellow background for required analysis and data track annotations that have not been entered. (rcundick)
 * Added check for required analysis and data track annotations before saving. (rcundick)
+* Fix issue where admin lost the core facility they managed when they saved a new lab.  (bspiglejr)
 
 deploy notes 
 --------------------
