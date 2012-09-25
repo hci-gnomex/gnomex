@@ -1976,7 +1976,7 @@
 			var prevSelectedTab:Container = theTab.selectedChild;			
 			
 			annotationView.enabled = true;
-			samplesView.enabled = true;		
+			samplesView.enabled = request.@canUpdateSamples == "Y";
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
 			notesView.setAnalysisVisibility();

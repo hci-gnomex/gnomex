@@ -57,6 +57,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   public static final int            PROFILE_OBJECT_VISIBILITY          = 1;
   public static final int            PROFILE_GROUP_MEMBERSHIP           = 2;
+  public static final int            SAMPLES_UPDATE                     = 3;
 
   
   // Global Permissions
@@ -752,10 +753,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Admins - Can only update requests from core facility user manages
       else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
         canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
-        if (req.isDNASeqExperiment().equals("Y") && !(req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) || req.getCodeRequestStatus().equals(RequestStatus.NEW)
-            || (req.getCodeRequestStatus().equals(RequestStatus.PROCESSING) && !req.onReactionPlate()))) {
-          canUpdate = false;
-        }
       }
       // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
@@ -768,9 +765,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         else if (isGroupIAmMemberOf(req.getIdLab()) && isOwner(req.getIdAppUser())) {
           canUpdate = true;
         } 
-        if (canUpdate && req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
-          canUpdate = false;
-        }
       } 
     }
     //
@@ -1035,6 +1029,30 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       } else {
         throw new UnknownPermissionException("Unknown object for data profile PROFILE_GROUP_MEMBERSHIP");
       }
+    } else if (dataProfile == SAMPLES_UPDATE) {
+      if (object instanceof Request) {
+        Request req = (Request)object;
+        if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+          canUpdate = canUpdate(req);
+        }
+        // Admins - Can only update requests from core facility user manages
+        else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+          canUpdate = canUpdate(req);
+          if (req.isDNASeqExperiment().equals("Y") && !(req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) || req.getCodeRequestStatus().equals(RequestStatus.NEW)
+              || (req.getCodeRequestStatus().equals(RequestStatus.PROCESSING) && !req.onReactionPlate()))) {
+            canUpdate = false;
+          }
+        }
+        // University GNomEx users
+        else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+          canUpdate = canUpdate(req);
+          if (canUpdate && req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+            canUpdate = false;
+          }
+        } 
+      } else {
+        throw new UnknownPermissionException("Unknown object for data profile PROFILE_GROUP_MEMBERSHIP");
+      }
     }
     else {
       throw new UnknownPermissionException("Unspecified data profile");      
@@ -1282,6 +1300,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       req.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
       req.canUploadData(this.canUploadData(req));
       req.setCanDeleteSample(this.canDeleteSample(req));
+      req.setCanUpdateSamples(canUpdate(req, this.SAMPLES_UPDATE));
     } else if (object instanceof Analysis) {
       Analysis a = (Analysis)object;
       a.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
