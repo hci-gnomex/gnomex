@@ -41,6 +41,49 @@ from PriceCriteria pc
 join Price p on p.idPrice = pc.idPrice
 where p.idPriceCategory = @identity
 
+-- Update billing account core facility ids.
+begin transaction
+declare @idMicro int
+declare @idDNA int
+set @idMicro=1
+set @idDNA=2
+-- Update core facility for billing accounts created during import.
+update BillingAccount set idCoreFacility=@idDNA 
+  where idCoreFacility is null 
+    and idBillingAccount in (select idBillingAccount from BillingAccount_Audit where accountName like 'Finch Bill%')
+-- Update core facility for billing accounts created after import by DNA Seq personnel
+update BillingAccount set idCoreFacility=@idDNA 
+  where idCoreFacility is null 
+    and idBillingAccount in (
+      select BillingAccount.idBillingAccount
+        from BillingAccount 
+        join BillingAccount_Audit on BillingAccount_Audit.idBillingAccount = BillingAccount.idBillingAccount
+          and BillingAccount_Audit.AuditAppuser in ('u0252268','u0243109')
+        where BillingAccount.idBillingAccount in (select idBillingAccount from BillingAccount_Audit group by idBillingAccount having MIN(AuditOperatioDate) > '9/5/2012')
+          and BillingAccount.idBillingAccount not in (select idBillingAccount from BillingAccount_Audit where accountName like 'Finch Bill%')
+        group by BillingAccount.idBillingAccount
+       )
+
+-- Insert any that existed prior to import but now have been updated to have shortacct       
+Insert into BillingAccount(accountName, accountNumber, expirationDate, idLab, accountNumberBus, accountNumberOrg, accountNumberFund, accountNumberActivity,
+              accountNumberProject, accountNumberAccount, accountNumberAu, accountNumberYear, idFundingAgency, isPO, isApproved, approvedDate, 
+                createDate, submitterEmail, submitterUID, shortAcct, startDate, idCoreFacility)
+  select accountName, accountNumber, expirationDate, idLab, accountNumberBus, accountNumberOrg, accountNumberFund, accountNumberActivity,
+              accountNumberProject, accountNumberAccount, accountNumberAu, accountNumberYear, idFundingAgency, isPO, isApproved, approvedDate, 
+                createDate, submitterEmail, submitterUID, shortAcct, startDate, @idDNA
+    from BillingAccount 
+    where shortAcct is not null and IsNull(expirationDate, '1/1/2000') > GETDATE()
+      and idBillingAccount not in (select idBillingAccount from BillingAccount_Audit where accountName like 'Finch Bill%')
+      and idCoreFacility is null
+
+-- Assume any remaining are for microarray.
+update BillingAccount set idCoreFacility=@idMicro where idCoreFacility is null
+
+select idCoreFacility, COUNT(*) from BillingAccount group by idCoreFacility
+select idCoreFacility, COUNT(*) from BillingAccount where idBillingAccount not in (select idBillingAccount from BillingAccount_Audit where accountName like 'Finch Bill%') group by idCoreFacility
+rollback transaction
+
+
 
 5.4.8 (Sept 19, 2012)
 ---------------------
