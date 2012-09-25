@@ -45,6 +45,7 @@ from PriceCriteria pc
 join Price p on p.idPrice = pc.idPrice
 where p.idPriceCategory = @identity
 
+--------------------------------------------------------------------------------
 -- Update billing account core facility ids.
 begin transaction
 declare @idMicro int
@@ -86,7 +87,7 @@ update BillingAccount set idCoreFacility=@idMicro where idCoreFacility is null
 select idCoreFacility, COUNT(*) from BillingAccount group by idCoreFacility
 select idCoreFacility, COUNT(*) from BillingAccount where idBillingAccount not in (select idBillingAccount from BillingAccount_Audit where accountName like 'Finch Bill%') group by idCoreFacility
 rollback transaction
-
+-------------------------------------------------------------------------------------------------
 
 
 5.4.8 (Sept 19, 2012)
