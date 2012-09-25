@@ -202,7 +202,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           coreFacilityEmail = propertyHelper.getCoreFacilityProperty(((CoreFacility)requestedLab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
         }
       } else {
-        if( !requestedLab.getCoreFacilities().contains( facility ) ) {
+        if( existingLab && !requestedLab.getCoreFacilities().contains( facility ) ) {
           requestedLab.getCoreFacilities().add( facility );
         }
         coreFacilityEmail = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(),PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
