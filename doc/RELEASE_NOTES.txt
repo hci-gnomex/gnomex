@@ -24,6 +24,9 @@
 * Fix bug that was causing back button to show up when double-clicking on experiment from experiments grid on Experiments view. (tdisera)
 * Sample names for DNA Sequencing experiments now only allow alphanumeric, hyphen and underscore characters.  (bspiglejr)
 * Allow DNA Seq users to edit non-sample data after request has been submitted.  (bspiglejr)
+* Disabled analysis annotation controls for view mode. (rcundick)
+* Added yellow background for required analysis and data track annotations that have not been entered. (rcundick)
+* Added check for required analysis and data track annotations before saving. (rcundick)
 
 deploy notes 
 --------------------

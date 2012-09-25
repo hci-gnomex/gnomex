@@ -120,6 +120,9 @@
 	import views.util.StringUtil;
 	import mx.events.CloseEvent;
 	
+	import views.util.CheckBoxRequiredIndicator;
+	import views.util.TextInputRequiredIndicator;
+	
 	private const DOWNLOAD_FILES_URL:String       = "DownloadDataTrackFileServlet.gx"; 
 	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-datatracks";  
 	
@@ -284,6 +287,11 @@
 	}
 	
 	public function save():void {
+		
+		if(!requiredAnnotationsEntered()) {
+			return;		
+		}		
+		
 		var params:Object = new Object();
 		params.idDataTrack            = parentDocument.browseTree.selectedItem.@idDataTrack;
 		params.name                   = this.dataTrackName.text;
@@ -336,15 +344,74 @@
 	 *  ANNOTATION PROPERTY FUNCTIONS
 	 *  
 	 */
+	
+	public function requiredAnnotationsEntered():Boolean {
+		var optionSelected:Boolean;
+		for (var i:int = 0; i < dataTrackProperties.length; i++) {
+			var property:XML = XML(dataTrackProperties.getItemAt(i));
+			if (propertyValueViewStack[i].selectedIndex == 0) {
+				// url
+				if(property.@isRequired == 'Y' && (this.urlText[0][0].text == "" || this.urlText[0][0].text == "Enter URL here...")) {
+					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+					return false;
+				}						
+			} else if (propertyValueViewStack[i].selectedIndex == 1) {
+				// text
+				if(property.@isRequired == 'Y' && propertyText[i].text == "") {
+					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+					return false;
+				}
+			} else if (propertyValueViewStack[i].selectedIndex == 2) {
+				// combo
+				optionSelected = false;
+				for each (var option:XML in  property..PropertyOption) {
+					if (propertyCombo[i].selectedItem != null &&
+						option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption && option.@name != '') {
+						optionSelected = true;
+					}
+				}
+				if(property.@isRequired == 'Y' && !optionSelected) {
+					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+					return false;
+				}
+			} else if (propertyValueViewStack[i].selectedIndex == 3) {
+				// check box can only be checked or unchecked, so nothing req'd here
+			} else if (propertyValueViewStack[i].selectedIndex == 4) {
+				// multi-select
+				optionSelected = false;		
+				var idx:int = 0;
+				for each (var opt:XML in  property..PropertyOption) {
+					if (multiselectCheck[i][idx].selected) {
+						optionSelected = true;
+					}
+					idx++;
+				}
+				if(property.@isRequired == 'Y' && !optionSelected) {
+					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
+					return false;
+				}						
+			}
+		}
+		return true;
+	}	
+	
+	
 	private function onCreatePropertyLabel(dataTrackProperty:XML, index:int):void {
 		if (dataTrackProperty.@codePropertyType == 'TEXT') {
 			propertyValueViewStack[index].selectedIndex = 1;
 			propertyText[index].text = dataTrackProperty.@value;
+			propertyText[index].isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
 		} else if (dataTrackProperty.@codePropertyType == 'URL') {
 			propertyValueViewStack[index].selectedIndex = 0;
+			if(urlText != null && urlText[index].length > 0) {
+				// Req'd flag only needed for first item
+				urlText[index][0].isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
+				urlText[index][0].SetBackgroundColor();
+			}				
 		} else  if (dataTrackProperty.@codePropertyType == 'OPTION') {
 			propertyValueViewStack[index].selectedIndex = 2;
 			propertyCombo[index].dataProvider =  dataTrackProperty..PropertyOption;
+			propertyCombo[index].isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
 			for each(var theOption:XML in dataTrackProperty..PropertyOption) {
 				if (theOption.@selected == 'Y') { 
 					propertyCombo[index].selectedItem =  theOption;
@@ -353,6 +420,15 @@
 			}
 		} else  if (dataTrackProperty.@codePropertyType == 'MOPTION') { 
 			propertyValueViewStack[index].selectedIndex = 4; 
+			var cbLen:int = multiselectCheck[index].length;
+			var cbCount:int = 0;
+			for each (var cbx:CheckBoxRequiredIndicator in multiselectCheck[index]) {
+				cbx.isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
+				cbCount++;
+				if(cbCount == cbLen) {
+					cbx.setBackgroundColor();
+				}
+			}			
 		} else if (dataTrackProperty.@codePropertyType == 'CHECK') {
 			propertyValueViewStack[index].selectedIndex = 3;
 			propertyCheck[index].selected = dataTrackProperty.@value == 'Y' ? true : false;
@@ -519,7 +595,7 @@
 		
 		propertyMainBox.removeAllChildren();
 		propertyRepeater.initializeRepeater(propertyMainBox, true);
-		
+		this.dirtyDataTrack.setDirty();
 	}
 	
 	private function addURL(indices:Array):void {
@@ -833,7 +909,7 @@
 														  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
 														  text="{urlRepeater.currentItem.@urlAlias}"  
 														  width="100" color="#8D7B7B"/>	
-											<mx:TextInput id="urlText" text="{urlRepeater.currentItem.@url}" 
+											<util:TextInputRequiredIndicator id="urlText" text="{urlRepeater.currentItem.@url}" 
 														  enter="{showURLLink(event.target.instanceIndices)}" 
 														  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
 														  change="{onChangeURLText(event.target.instanceIndices)}" 
@@ -848,13 +924,13 @@
 							</mx:VBox>
 							
 							<mx:HBox >
-								<mx:TextInput id="propertyText" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
-								</mx:TextInput> 
+								<util:TextInputRequiredIndicator id="propertyText" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
+								</util:TextInputRequiredIndicator> 
 							</mx:HBox>
 							
 							<mx:HBox >
-								<mx:ComboBox id="propertyCombo" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" width="240" labelField="@name">
-								</mx:ComboBox>						
+								<util:ComboBoxRequiredIndicator id="propertyCombo" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" width="240" labelField="@name">
+								</util:ComboBoxRequiredIndicator>						
 							</mx:HBox>
 							
 							<mx:HBox width="100%" >
@@ -864,7 +940,7 @@
 							
 							<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
 								<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
-									<mx:CheckBox id="multiselectCheck"  styleName="labelSmall" 
+									<util:CheckBoxRequiredIndicator id="multiselectCheck"  styleName="labelSmall" 
 												 label="{multiselectRepeater.currentItem.@name}"  
 												 paddingLeft="0"  
 												 paddingTop="0" 

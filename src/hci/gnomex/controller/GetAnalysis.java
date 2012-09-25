@@ -390,6 +390,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       propNode.setAttribute("value", ap != null && ap.getValue() != null ? ap.getValue() : "");
       propNode.setAttribute("codePropertyType", property.getCodePropertyType());
       propNode.setAttribute("idProperty", property.getIdProperty().toString());
+      propNode.setAttribute("isRequired", property.getIsRequired());
 
       if (ap != null && ap.getValues() != null && ap.getValues().size() > 0) {
         for (Iterator i1 = ap.getValues().iterator(); i1.hasNext();) {

@@ -457,6 +457,10 @@
 					}
 				}
 				
+				if(!analysisProperties.requiredAnnotationsEntered()) {
+					return;		
+				}
+				
 				
 				var params:Object = new Object();
 				
