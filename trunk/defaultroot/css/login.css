@@ -44,6 +44,7 @@ a.button {
 	font-size: 10pt;
 	cursor: hand; 
 	cursor: pointer;
+	color: blue;
 }
 
 
@@ -93,7 +94,7 @@ a.other {
 	border: 1px solid #8B8970;
 	overflow: auto;
 	padding: 10px;
-	width: 435px;
+	width: 425px;
 	float: center;
 	color: #696969;
 }
@@ -104,6 +105,16 @@ a.other {
 	width: 100px;
 	padding-top: 5px;
 	margin-top: 5px;
+	padding-right: 2px;
+	margin-right: 2px;
+}
+
+.emptySmall {
+	clear:both;
+	float:left;
+	width: 100px;
+	padding-top: 2px;
+	margin-top: 2px;
 	padding-right: 2px;
 	margin-right: 2px;
 }
@@ -141,6 +152,7 @@ note {
 	padding-bottom: 4px;
 	font-size: 8pt;
 	font-style: italic;
+	font-style: oblique;
 }
 
 

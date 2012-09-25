@@ -152,7 +152,7 @@ try {
       <div id="labDiv">
         <div class="col1"><div class="right">Choose Lab</div></div>
         <div class="col2"> 
-            <select name="labDropdown" onchange="hideNewLab()" id="labDropdown" style="width:212" >
+            <select name="labDropdown" onchange="hideNewLab()" id="labDropdown" style="width:200" >
               <option value="0">  </option>
               <%
               Iterator i = labs.iterator();
@@ -163,7 +163,6 @@ try {
               <%}%>
             </select>
         <a class="button" onclick="showNewLab()">New lab...</a>
-<!--    <input type="button" onclick="showNewLab()" value="New..." /> -->
         </div>
       </div>
        
@@ -175,15 +174,17 @@ try {
         <div class="col2"><input type="text" class="textWide"  name="department" /></div>
       </div>
 
+      
+
 <% if (showUserNameChoice) { %>
     <div class="empty"></div>
-    <div style="width:100%;"><div style="float:left;">
-     Are you affiliated with the University of Utah?
-     <INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes
-     <INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No
-    </div></div>
+    <div id="userChoiceDiv">
+      <div class="col1Wide" ><div class="right"> Are you affiliated with the University of Utah?</div></div>
+      <div class="col2"><INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes</div>
+      <div class="col2"><INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No</div>
+    </div>
 <% }  %>
-    
+      <div class="emptySmall"></div>
       <div id="UofUDiv" style="display:none;width:100%;">
         <div id="univUserNameArea1" class="col1"><div class="right">University ID</div></div>
         <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID"  ></div>
