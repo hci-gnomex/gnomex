@@ -117,6 +117,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request.canDelete(true);
         request.canUpdate(true);
         request.setCanDeleteSample(true);
+        request.setCanUpdateSamples(true);
         
         PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
         String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_EXPERIMENT);
