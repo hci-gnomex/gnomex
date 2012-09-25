@@ -92,7 +92,7 @@
 			var errorMessage:String = "";
 			var regEx:RegExp = /[^0-9]/;
 			
-			if(labCombo.selectedIndex == 0)
+			if(labCombo.selectedIndex == -1)
 				errorMessage += "- Please select a lab\n";
 			
 			if(coreCombo.selectedIndex == 0)
@@ -184,7 +184,7 @@
 	<mx:StringValidator required="true" source="{year}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
 	<mx:StringValidator required="true" source="{accountName}" property="text" requiredFieldError="This field required"/>
 	<mx:EmailValidator required="true" source="{emailAddress}" property="text" invalid="{validEmail = false}" valid="{validEmail = true}"/> 
-	<mx:NumberValidator required="true" source="{labCombo}" property="selectedIndex" minValue="1" lowerThanMinError="This field required"/>
+	<mx:NumberValidator required="true" source="{labCombo}" property="selectedIndex" minValue="0" lowerThanMinError="This field required"/>
 	<mx:NumberValidator required="true" source="{fundingAgencyCombo}" property="selectedIndex" minValue="1" lowerThanMinError="This field required"/>
 	<mx:NumberValidator required="true" source="{coreCombo}" property="selectedIndex" minValue="1" lowerThanMinError="This field required"/>
 	
