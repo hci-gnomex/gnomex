@@ -22,6 +22,7 @@
 * Decrease font for pending samples tree on Fill Plate view (tdisera)
 * Fixed bug that was causing wrong price for 4 96-well plate cap seq order.  Also, deferred creating billing items for cap seq orders to when order is submitted (tdisera)
 * Fix bug that was causing back button to show up when double-clicking on experiment from experiments grid on Experiments view. (tdisera)
+* Sample names for DNA Sequencing experiments now only allow alphanumeric, hyphen and underscore characters.  (bspiglejr)
 
 deploy notes 
 --------------------

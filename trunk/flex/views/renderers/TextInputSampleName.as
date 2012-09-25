@@ -1,13 +1,22 @@
 package views.renderers
 {
 	import mx.controls.TextInput;
+	import mx.core.IFactory;
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import hci.flex.renderers.RendererFactory;
 
 	public class TextInputSampleName extends TextInput
 	{
-    	override protected function initializationComplete():void
+		public static function create(state:String):IFactory {
+			var r:String = " -~";
+			if (state == 'CapSeqState' || state == 'FragAnalState' || state == 'MitSeqState' || state == 'CherryPickState') {
+				r = "A-Za-z0-9_\\-";
+			} 
+			return RendererFactory.create(views.renderers.TextInputSampleName, {restrict:r});			
+		}		
+
+		override protected function initializationComplete():void
         {   
             this.addEventListener(Event.CHANGE, change);
         }
