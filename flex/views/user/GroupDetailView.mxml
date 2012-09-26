@@ -414,6 +414,7 @@
 				coreFacilityCombo.selectedIndex = 0;
 				
 				refreshDisplayedAccounts(); 
+				pendingBillingAccounts.refresh();
 			}
 			
 			public function refreshDisplayedAccounts():void{
