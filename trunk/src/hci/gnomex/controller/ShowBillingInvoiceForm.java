@@ -314,7 +314,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       
       
     // Show print and email link
-    /*
     Element emailLink = new Element("A");
     emailLink.setAttribute("HREF",
         "ShowBillingInvoiceForm.gx?idLab=" + idLab +
@@ -327,7 +326,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       contactEmail = "billing contact";
     }
     emailLink.addContent("Email " + contactEmail);
-*/
+
     Element printLink = new Element("A");
     printLink.setAttribute("HREF", "javascript:window.print()");
     printLink.addContent("Print page");
@@ -339,7 +338,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element cell = new Element("TD");
     cell.setAttribute("ALIGN", "RIGHT");
     row.addContent(cell);
-    //cell.addContent(emailLink);    
+    cell.addContent(emailLink);    
     cell.addContent("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     cell.addContent(printLink);            
 
