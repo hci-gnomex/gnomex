@@ -58,19 +58,26 @@
 			parentDocument.getEstimatedBilling();
 			parentDocument.getMultiplexLanes();
 			
-			if(parentDocument.request.@captureLibDesignId != ""){
+			if(parentDocument.request.@captureLibDesignId != "" && parentDocument.requestCategory.@type == parentApplication.TYPE_ILLUMINA){
 				capLibDesignBox.visible = true;
 				capLibDesignBox.includeInLayout = true;
 				avgInsertSizeBox.includeInLayout = false;
+				avgInsertSizeBox.visible = false;
 				capLibLabel.text = parentDocument.request.@captureLibDesignId;
 			}
-			
-			if(parentDocument.request.@avgInsertSizeFrom != ""){
+			else if(parentDocument.request.@avgInsertSizeFrom != "" && parentDocument.requestCategory.@type == parentApplication.TYPE_ILLUMINA){
 				avgInsertSizeBox.visible = true;
 				avgInsertSizeBox.includeInLayout = true;
 				capLibDesignBox.includeInLayout = false;
+				capLibDesignBox.visible = false;
 				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' - ' + parentDocument.request.@avgInsertSizeTo;
 				
+			}
+			else{
+				capLibDesignBox.includeInLayout = false;
+				capLibDesignBox.visible = false;
+				avgInsertSizeBox.includeInLayout = false;
+				avgInsertSizeBox.visible = false;
 			}
 			
 			submitterName = parentDocument.getSubmitterName();
