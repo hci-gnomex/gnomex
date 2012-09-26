@@ -94,7 +94,7 @@
 				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 				
 				pendingBillingAccounts.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingPendingAccountChange);
-				
+				pendingBillingAccounts.refresh();
 			}
 			
 			private function underlyingPendingAccountChange(event:CollectionEvent):void {
@@ -858,7 +858,7 @@
 					<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
 						<mx:Label text="Core Facility" />
 						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{labCoreFacilitiesIManage}" editable="false"
-									 labelField="@display" change="{billingAccounts.refresh()}"/>
+									 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh();}"/>
 					</mx:HBox>
 				</mx:HBox>
 				<mx:Spacer height="2"/>
