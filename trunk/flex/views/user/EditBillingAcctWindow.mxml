@@ -3,8 +3,7 @@
 				xmlns:renderers="views.renderers.*"
 				layout="vertical" 
 				title="Edit Billing Account" 
-				width="655" 
-				height="425" 
+				width="675" 
 				defaultButton="{saveButton}" 
 				creationComplete="init()"
 				titleIcon="@Embed(source='../../assets/work_auth_form.png')">
@@ -72,23 +71,10 @@
 			
 			if(accountName.text == "")
 				errorMessage += "- Please provide a name for your account.\n";
-			
-						
+				
 			return errorMessage;
 		}
-		
-		private function blankOutChartFields():void {
-			ba.@accountNumberBus = '';
-			ba.@accountNumberBus = '';
-			ba.@accountNumberOrg = '';
-			ba.@accountNumberFund = '';
-			ba.@accountNumberActivity = ''; 
-			ba.@accountNumberProject = '';
-			ba.@accountNumberAccount = '';
-			ba.@accountNumberAu = '';
-			ba.@accountNumberYear = '';
-		}		
-		
+				
 		private function getExpirationDateString(item:Object,col:int):String
 		{
 			return item.@expirationDateOther.toString();
@@ -102,14 +88,14 @@
 	]]>
 </mx:Script>
 	
-	<mx:StringValidator required="true" source="{bus}" property="text" maxLength="2" minLength="2" tooShortError="Must be 2 digits"/>
-	<mx:StringValidator required="true" source="{org}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
-	<mx:StringValidator required="true" source="{fund}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
+	<mx:StringValidator required="false" source="{bus}" property="text" maxLength="2" minLength="2" tooShortError="Must be 2 digits"/>
+	<mx:StringValidator required="false" source="{org}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
+	<mx:StringValidator required="false" source="{fund}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
 	<mx:StringValidator required="false" source="{activity}" property="text" maxLength="5" minLength="0"/>
 	<mx:StringValidator required="false" source="{project}" property="text" maxLength="8" minLength="0"/>
-	<mx:StringValidator required="true" source="{account}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
-	<mx:StringValidator required="true" source="{au}" property="text" maxLength="1" minLength="1" requiredFieldError="This field required"/>
-	<mx:StringValidator required="true" source="{year}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
+	<mx:StringValidator required="false" source="{account}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
+	<mx:StringValidator required="false" source="{au}" property="text" maxLength="1" minLength="1" requiredFieldError="This field required"/>
+	<mx:StringValidator required="false" source="{year}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
 	<mx:StringValidator required="true" source="{accountName}" property="text" requiredFieldError="This field required"/>
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
 	
@@ -143,7 +129,15 @@
 			</mx:DataGrid>	
 		</mx:HBox>
 		
-		<mx:VBox verticalGap="0">
+		<mx:HBox width="100%" height="25" horizontalAlign="left" verticalAlign="middle" horizontalGap="4">
+			<mx:Label text="PO" width="120"/>
+			
+			<mx:CheckBox id="poCheckbox" selected="{ba.@isPO=='Y'}" click="{poCheckbox.selected ? ba.@isPO='Y' : ba.@isPO='N'}"/>   
+			
+		</mx:HBox>
+		
+		
+		<mx:VBox verticalGap="0" visible="{!poCheckbox.selected}" includeInLayout="{!poCheckbox.selected}">
 			<mx:HBox horizontalGap="4" width="100%">
 				<mx:Text text="Chartfield" textAlign="left" width="120"/>
 				<mx:HBox width="100%" >
@@ -203,8 +197,8 @@
 			</mx:DataGrid>
         </mx:HBox>
 		
-        <mx:HBox width="100%" height="25" verticalAlign="middle" horizontalGap="0">
-			<mx:Label text="Start Date" width="126"/>
+        <mx:HBox width="100%" height="25" verticalAlign="middle" horizontalGap="4">
+			<mx:Label text="Start Date" width="120"/>
 			<mx:DataGrid  showHeaders="false" editable="true" dataProvider="{ba}" selectable="false" minHeight="0" rowCount="1" height="25" rowHeight="25">
 				<mx:columns>
 					<mx:DataGridColumn dataField="@startDate" width="75"
@@ -217,7 +211,7 @@
 				</mx:columns>
 			</mx:DataGrid>
 			<mx:Spacer width="20"/>
-        	<mx:Label text="Effective Until"/>
+        	<mx:Label text="Effective Until" paddingRight="5"/>
 			<mx:DataGrid  showHeaders="false" editable="true" dataProvider="{ba}" selectable="false" minHeight="0" rowCount="1" height="25" rowHeight="25">
 				<mx:columns>
 					<mx:DataGridColumn dataField="@expirationDate" width="75"
@@ -231,7 +225,7 @@
 				</mx:columns>
 			</mx:DataGrid>
         	<mx:Spacer width="20"/>
-        	<mx:Label id="totalDollarAmountLabel" text="Total Dollar Amount"/>
+        	<mx:Label id="totalDollarAmountLabel" text="Total Dollar Amount" paddingRight="5"/>
         	<mx:TextInput id="totalDollarAmount" width="75" 
 						  text="{ba.@totalDollarAmountDisplay}" focusOut="{totalDollarAmount.text=dollarFormatter.format(totalDollarAmount.text); ba.@totalDollarAmountDisplay = totalDollarAmount.text;}"/>
         </mx:HBox>
@@ -250,7 +244,7 @@
 		
 		<mx:HBox width="100%" height="25" verticalAlign="middle" horizontalGap="4">
 			<mx:Label text="Submitter Email" width="120"/>
-			<mx:Label text="{ba.@submitterEmail}" width="100%"/>
+			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = submitterEmail.text}"/>
 		</mx:HBox>
 		
     </mx:VBox>

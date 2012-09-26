@@ -71,7 +71,6 @@
 			import mx.events.CollectionEventKind;
 			import mx.events.DataGridEvent;
 			import mx.events.ItemClickEvent;
-			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -590,9 +589,9 @@
 				
 			}
 			
-			private function gridItemDblClick( event:ListEvent ):void {
+			public function accountNameClick( event:MouseEvent ):void {
 				
-				if ( event.columnIndex == 1 && billingAccountGrid.selectedItem != null ) {
+				if ( billingAccountGrid.selectedItem != null ) {
 					showEditBillingAcctWindow(billingAccountGrid.selectedItem as XML);
 				}
 			}
@@ -639,11 +638,6 @@
 			private function filterCore(item:Object):Boolean {
 				return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
 			}
-			
-			private function editToolTip(item:Object):String
-			{
-				return "Double click to edit";
-			} 
 			
 		]]>
 	</mx:Script>	  
@@ -878,7 +872,7 @@
 				</mx:HBox>
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
 							 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
-							 horizontalScrollPolicy="auto" variableRowHeight="true"  doubleClickEnabled="true" itemDoubleClick="gridItemDblClick(event)">
+							 horizontalScrollPolicy="auto" variableRowHeight="true"  >
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn headerText="PO" id="poActive"  
@@ -889,7 +883,14 @@
 										   textAlign="center" 
 										   itemRenderer="{views.renderers.CheckBoxIsPO.create()}" >
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" editable="false" showDataTips="true" dataTipFunction="editToolTip"/>
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
+										   editable="false">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton label="{data.@accountName}" fontSize="11"  fontFamily="Arial" click="outerDocument.accountNameClick(event)" color="#0000FF"   textDecoration="underline" />
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
 						<mx:DataGridColumn dataField="@expirationDate" width="75"
 										   headerText="Expires"  
 										   itemEditor="views.renderers.DateFieldExpiration" 
