@@ -70,6 +70,8 @@
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.DataGridEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -154,16 +156,18 @@
 					" isApproved='Y'" +
 					" isSelectedPeerReviewedFunding='false'" + 
 					"/>");
-				billingAccounts.addItem(node);
-				
+				allApprovedAccounts.addItem(node);
 				accountName.text = '';
+				
+				refreshDisplayedAccounts();
 			}
 			
 			private function removeBillingAccount():void {
 				dirty.setDirty();
 				if (billingAccountGrid.selectedIndex != -1) {
-					billingAccounts.removeItemAt(billingAccountGrid.selectedIndex);
+					allApprovedAccounts.removeItemAt( allApprovedAccounts.getItemIndex(billingAccountGrid.selectedItem) );
 				}
+				billingAccounts.refresh();
 			}
 			private function addInstitution():void {
 				dirty.setDirty();
@@ -288,7 +292,7 @@
 				
 				// Check for account chartfield numbers before saving
 				var warningMessage:String = "";
-				for each(var ba:Object in billingAccounts) {
+				for each(var ba:Object in allApprovedAccounts) { 
 					// Only validate dirty billing accounts
 					if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
 						if(ba.@isPO == "" || ba.@isPO == "N") {
@@ -330,7 +334,7 @@
 			private function save():void {
 				
 				// Blank out chartfields on PO accounts
-				for each(var ba:Object in billingAccounts) {
+				for each(var ba:Object in allApprovedAccounts) {
 					if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
 						if(ba.@isPO == "Y") {
 							this.blankOutChartFields(ba);
@@ -364,7 +368,7 @@
 				params.isExternalPricingCommercial = this.isExternalPricingCommercialButton.selected ? "Y" : "N";
 				params.excludeUsage = this.excludeUsageCheckBox.selected ? "Y" : "N"; 
 				
-				for each(var acct:Object in billingAccounts) {
+				for each(var acct:Object in allApprovedAccounts) {
 					acct.@expirationDate = acct.@expirationDateOther;
 					acct.@startDate = acct.@startDateOther;
 				}
@@ -374,7 +378,7 @@
 					pendingAcct.@startDate = pendingAcct.@startDateOther;
 				}
 				
-				params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + " " + hiddenBillingAccounts.toXMLString()+ "</billingAccounts>";
+				params.accountsXMLString = "<billingAccounts>" + allApprovedAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
 				params.institutionsXMLString = "<institutions>" + institutions.toXMLString() + "</institutions>";
 				params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
 				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
@@ -410,9 +414,13 @@
 			private function refreshBillingTab():void {
 				coreFacilityCombo.selectedIndex = 0;
 				
-				billingAccounts.refresh(); 
-				pendingBillingAccounts.refresh(); 
-				hiddenBillingAccounts.refresh();
+				refreshDisplayedAccounts(); 
+			}
+			
+			public function refreshDisplayedAccounts():void{
+				billingAccounts.source = parentDocument.fullLab.approvedBillingAccounts.BillingAccount
+				billingAccounts.filterFunction = filterByCore;
+				billingAccounts.refresh();
 			}
 			
 			private function onGetLab(event:ResultEvent):void {
@@ -519,12 +527,14 @@
 				dirty.setDirty();
 			}
 			
+			
 			private function verifyChartfieldEdit(event:DataGridEvent) : void {
+				
 				var theGrid:DataGrid = DataGrid(event.target);
 				// Mark that this billing account is dirty.  We will only warn about
 				// validation when the billing account has been changed.
 				
-				if(theGrid.columns[event.columnIndex].headerText != "Document"){
+				if(theGrid.columns[event.columnIndex].headerText != "Document" && theGrid.dataProvider.length >= event.rowIndex+1 ){
 					setDirtyBillingAccount(theGrid.dataProvider.getItemAt(event.rowIndex));
 				}
 				
@@ -540,6 +550,7 @@
 					event.preventDefault(); 
 				} 
 			}
+			
 			
 			private function getSubmitterInfo(item:Object, col:int):String {
 				return item.@submitterEmail + ' ' + item.@submitterUID;
@@ -579,6 +590,27 @@
 				
 			}
 			
+			private function gridItemDblClick( event:ListEvent ):void {
+				
+				if ( event.columnIndex == 1 && billingAccountGrid.selectedItem != null ) {
+					showEditBillingAcctWindow(billingAccountGrid.selectedItem as XML);
+				}
+			}
+			
+			public function showEditBillingAcctWindow(billingAcct:XML):void{
+				
+				var editAcctWindow:EditBillingAcctWindow = EditBillingAcctWindow(mx.managers.PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
+				editAcctWindow.parentView = this;
+				editAcctWindow.ba = billingAcct;
+				editAcctWindow.labName = parentDocument.fullLab.@name;
+				editAcctWindow.coreFacilities = labCoreFacilitiesIManage;
+				editAcctWindow.activeSubmitters = this.activeSubmitters;
+				mx.managers.PopUpManager.centerPopUp(editAcctWindow);
+				this.setFocus();
+				billingAccountGrid.editedItemPosition = null;
+				
+			}
+			
 			private function getSelectedCoreFacilities():XMLListCollection {
 				var facilities:XMLListCollection = new XMLListCollection();
 				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
@@ -592,21 +624,6 @@
 					}
 				}
 				return facilities;
-			}
-			
-			private function filterHiddenBillingAccounts(item:Object):Boolean {
-				if ( parentDocument.fullLab.coreFacilities.CoreFacility.(@idCoreFacility == item.@idCoreFacility).length() == 0 ) {
-					return true;
-				}
-				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
-					if ( parentApplication.isCoreFacilityIManage(item.@idCoreFacility) ) {
-						return false; 
-					} else {
-						return true;
-					}
-				} else {
-					return coreFacilityCombo.selectedItem != null ? item.@idCoreFacility!=coreFacilityCombo.selectedItem.@value : true;
-				}
 			}
 			
 			private function filterByCore(item:Object):Boolean {
@@ -623,11 +640,16 @@
 				return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
 			}
 			
+			private function editToolTip(item:Object):String
+			{
+				return "Double click to edit";
+			} 
+			
 		]]>
 	</mx:Script>	  
 	
-	<mx:XMLListCollection id="hiddenBillingAccounts" source="{parentDocument.fullLab.billingAccounts.BillingAccount}" filterFunction="filterHiddenBillingAccounts"/>
 	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	<mx:XMLListCollection id="allApprovedAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}"/>
 	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
 	<mx:XMLListCollection id="institutions" source="{parentDocument.fullLab.institutions.Institution}"/>
 	<mx:XMLListCollection id="institutions1" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value)}"/>
@@ -841,7 +863,7 @@
 					<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
 						<mx:Label text="Core Facility" />
 						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{labCoreFacilitiesIManage}" editable="false"
-									 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh(); hiddenBillingAccounts.refresh();}"/>
+									 labelField="@display" change="{billingAccounts.refresh()}"/>
 					</mx:HBox>
 				</mx:HBox>
 				<mx:Spacer height="2"/>
@@ -854,9 +876,9 @@
 						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
 					</mx:HBox>
 				</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" 
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
 							 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
-							 horizontalScrollPolicy="auto" variableRowHeight="true">
+							 horizontalScrollPolicy="auto" variableRowHeight="true"  doubleClickEnabled="true" itemDoubleClick="gridItemDblClick(event)">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn headerText="PO" id="poActive"  
@@ -867,7 +889,7 @@
 										   textAlign="center" 
 										   itemRenderer="{views.renderers.CheckBoxIsPO.create()}" >
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" editable="false" showDataTips="true" dataTipFunction="editToolTip"/>
 						<mx:DataGridColumn dataField="@expirationDate" width="75"
 										   headerText="Expires"  
 										   itemEditor="views.renderers.DateFieldExpiration" 

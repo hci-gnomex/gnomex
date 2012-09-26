@@ -31,6 +31,7 @@
 * Create temporary directory if it does not exist when attempting to upload sample sheet. (rcundick)
 * Eliminated extraneous vertical and horizontal scrollbars on cap seq samplesheet upload. (rcundick)
 * Restored save button to data tracks detail view in Topics. (rcundick)
+* Added a popup billing account edit screen. (mbowler)
 
 deploy notes 
 --------------------
