@@ -79,6 +79,8 @@ DataGrid {
 	headerStyleName: dataGridHeader;	
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
+	alternatingItemColors: #ffffff, #edede9;
+	
 
 }
 
