@@ -225,6 +225,7 @@ public class PendingWorkAuthd extends TimerTask {
   }
   
   private void getPendingWorkAuthorizations(Session sess, CoreFacility facility) throws Exception{
+    /*
     Connection myConn = null;
 
     StringBuffer hqlbuf = new StringBuffer("SELECT distinct l from Lab l ");
@@ -244,6 +245,23 @@ public class PendingWorkAuthd extends TimerTask {
         waList.add("<tr><td width='250'><span class='fontClass'>" + thisLab.getName() + "</span></td><td width='500'><span class='fontClass'>" + ba.getAccountNameAndNumber() + "</span></td></tr>");
       }
     }      
+    */
+    StringBuffer hqlbuf = new StringBuffer("SELECT distinct l, ba ");
+    hqlbuf.append(" from Lab l ")
+      .append(" join l.billingAccounts ba ")
+      .append(" where ba.isApproved <> 'Y' and ba.idCoreFacility=:idCoreFacility ")
+      .append(" order by l.lastName, l.firstName ");
+
+    waList = new ArrayList<String>();
+    Query query = sess.createQuery(hqlbuf.toString());
+    query.setParameter("idCoreFacility", facility.getIdCoreFacility());
+    List results = query.list();
+    for (Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      Lab l = (Lab)row[0];
+      BillingAccount ba = (BillingAccount)row[1];
+      waList.add("<tr><td width='250'><span class='fontClass'>" + l.getName() + "</span></td><td width='500'><span class='fontClass'>" + ba.getAccountNameAndNumber() + "</span></td></tr>");
+    }
   }  
   
   private static Date getWakeupTime(){
