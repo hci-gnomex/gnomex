@@ -3,7 +3,6 @@ package hci.gnomex.daemon;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
@@ -14,10 +13,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,6 +61,11 @@ public class PendingWorkAuthd extends TimerTask {
   private boolean runAsDaemon = false;
 
   private boolean testNoMailServer = false;
+   
+  private String orionPath = "";
+  private String schemaPath = "";
+  
+  private String testEmailTo="";
   
   public PendingWorkAuthd(String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -76,6 +77,12 @@ public class PendingWorkAuthd extends TimerTask {
         runAsDaemon = true;
       } else if (args[i].equals("-testNoMailServer")) {
         testNoMailServer = true;
+      } else if (args[i].equals ("-orionPath")) {
+        orionPath = args[++i];
+      } else if (args[i].equals ("-testEmailTo")) {
+        testEmailTo = args[++i];
+      } else if (args[i].equals ("-schemaPath")) {
+        schemaPath = args[++i];
       }
     } 
     
@@ -83,7 +90,7 @@ public class PendingWorkAuthd extends TimerTask {
       mailProps = null;
     } else {
       try {
-        mailProps = new BatchMailer().getMailProperties();
+        mailProps = new BatchMailer(orionPath).getMailProperties();
       } catch (Exception e){
         System.err.println("Cannot initialize mail properties");
         System.exit(0);
@@ -121,7 +128,7 @@ public class PendingWorkAuthd extends TimerTask {
       org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
       log.setLevel(Level.ERROR);
 
-      dataSource = new BatchDataSource();
+      dataSource = new BatchDataSource(orionPath, schemaPath);
       app.connect();
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
@@ -189,6 +196,12 @@ public class PendingWorkAuthd extends TimerTask {
     
     body.append("<html><head><title>Work Authorization Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
     body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
+    
+    if(testEmailTo.length() > 0) {
+      body.append("Distribution List: " + contactList + "<br><br>");        
+    }
+    
+    
     body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
     body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
     body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
@@ -200,16 +213,21 @@ public class PendingWorkAuthd extends TimerTask {
     }
     body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
     body.append(tableRows.toString());
-    body.append("</table></td></tr></table></body></html>");
-    if (!testNoMailServer) {
-      MailUtil.send(mailProps, contactList, "", replyEmail, subject, body.toString(), true);
+    body.append("</table></td></tr></table></body></html>");     
+    
+    if (!testNoMailServer) {    
+      if(testEmailTo.length() > 0) {
+        MailUtil.send(mailProps, testEmailTo, "", replyEmail, subject, body.toString(), true);               
+      } else {
+        MailUtil.send(mailProps, contactList, "", replyEmail, subject, body.toString(), true);               
+      }      
     }
   }
   
   private void getPendingWorkAuthorizations(Session sess, CoreFacility facility) throws Exception{
     Connection myConn = null;
 
-    StringBuffer hqlbuf = new StringBuffer("SELECT l from Lab l ");
+    StringBuffer hqlbuf = new StringBuffer("SELECT distinct l from Lab l ");
     hqlbuf.append(" join l.billingAccounts ba");
     hqlbuf.append(" join l.coreFacilities f");
     hqlbuf.append(" where ba.isApproved <> 'Y' and f.idCoreFacility=:idCoreFacility");
