@@ -208,10 +208,12 @@ public class PendingWorkAuthd extends TimerTask {
     body.append("<table width='100%' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td valign='top' align='left'>");
     if(hasWorkAuthorizations) {
       body.append("<table cellpadding='0' cellspacing='0' border='0' bgcolor='#FFFFFF'>");
+      body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>" + "GNomEx - " + facility.getFacilityName() + "</span></td></tr>");        
       body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>The following work authorizations are waiting to be approved:</span></td></tr>");        
       body.append("</table>");        
     }
     body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
+    body.append("<br>");
     body.append(tableRows.toString());
     body.append("</table></td></tr></table></body></html>");     
     
