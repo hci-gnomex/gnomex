@@ -590,10 +590,10 @@
 				
 			}
 			
-			public function accountNameClick( event:MouseEvent ):void {
+			public function accountNameClick( targetGrid:DataGrid ):void {
 				
-				if ( billingAccountGrid.selectedItem != null ) {
-					showEditBillingAcctWindow(billingAccountGrid.selectedItem as XML);
+				if ( targetGrid.selectedItem != null ) {
+					showEditBillingAcctWindow(targetGrid.selectedItem as XML);
 				}
 			}
 			
@@ -888,7 +888,8 @@
 										   editable="false">
 							<mx:itemRenderer>
 								<mx:Component>
-									<mx:LinkButton label="{data.@accountName}" fontSize="11"  fontFamily="Arial" click="outerDocument.accountNameClick(event)" color="#0000FF"   textDecoration="underline" />
+									<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="11"  fontFamily="Arial" color="#0000FF"   textDecoration="underline"
+												   click="outerDocument.accountNameClick(outerDocument.billingAccountGrid)"/>
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
@@ -911,7 +912,7 @@
 						<mx:DataGridColumn headerText="Document"  width="100">
 							<mx:itemRenderer>
 								<mx:Component>
-									<mx:LinkButton label="View / Upload" fontSize="11"  fontFamily="Arial" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF"   textDecoration="underline" icon="@Embed(source='../../assets/page.png')"/>
+									<mx:LinkButton textAlign="left" label="View / Upload" fontSize="11"  fontFamily="Arial" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF"   textDecoration="underline" icon="@Embed(source='../../assets/page.png')"/>
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
@@ -954,7 +955,15 @@
 										   textAlign="center" 
 										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isApproved', true)}" >
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
+										   editable="false">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="11"  fontFamily="Arial" color="#0000FF"   textDecoration="underline" 
+												   click="outerDocument.accountNameClick(outerDocument.pendingBillingAccountGrid)"/>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
 						<mx:DataGridColumn dataField="@startDate" width="75"
 										   headerText="Start"  
 										   itemEditor="views.renderers.DateFieldStartDate" 
