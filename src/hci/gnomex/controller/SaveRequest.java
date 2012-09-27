@@ -765,16 +765,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
             createBillingItems = true;
+            
+            // For dna seq facility orders, we don't want to create billing items on an edit if no billing items have yet to be created
+            // (because order has not been submitted.)
+            if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+              if (requestParser.getRequest().getBillingItems() == null || requestParser.getRequest().getBillingItems().isEmpty()) {
+                createBillingItems = false;
+              }
+            }
           }
         }
         if (createBillingItems) {
           sess.refresh(requestParser.getRequest());
-          for (Sample s : (Set<Sample>)samplesAdded) {
-            sess.refresh(s);
-            for (PlateWell w : (Set<PlateWell>)s.getWells()) {
-              sess.refresh(w);
-            }
-          }
 
           // Create the billing items
           // We need to include the samples even though they were not added
