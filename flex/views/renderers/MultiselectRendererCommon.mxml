@@ -42,11 +42,17 @@
 			override public function set data(value:Object):void {
 				super.data = value;
 				if (_listData == null) {
+					if ( showEditPrompt ) {
+						txt = "Click to edit";
+					}
 					return;
 				}
 				
 				txt = "";
 				if (data == null || _listData == null || !data.hasOwnProperty(_listData.dataField) || _listData.dataField == null || _listData.dataField == '') {
+					if ( showEditPrompt ) {
+						txt = "Click to edit";
+					}
 					return;
 				}
 	
