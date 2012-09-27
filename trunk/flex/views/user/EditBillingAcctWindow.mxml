@@ -41,6 +41,7 @@
 		private function update():void {
 			parentView.setDirtyBillingAccount( ba );
 			mx.managers.PopUpManager.removePopUp(this);
+			Alert.show("Screen has been updated. Click the save button to update the accounts in the database.", "",  mx.controls.Alert.OK, this.parentView);
 			parentView.billingAccountGrid.editedItemPosition = null;
 		}
 		
@@ -226,7 +227,7 @@
 			</mx:DataGrid>
         	<mx:Spacer width="20"/>
         	<mx:Label id="totalDollarAmountLabel" text="Total Dollar Amount" paddingRight="5"/>
-        	<mx:TextInput id="totalDollarAmount" width="75" 
+        	<mx:TextInput id="totalDollarAmount" height="25" width="85" 
 						  text="{ba.@totalDollarAmountDisplay}" focusOut="{totalDollarAmount.text=dollarFormatter.format(totalDollarAmount.text); ba.@totalDollarAmountDisplay = totalDollarAmount.text;}"/>
         </mx:HBox>
         
@@ -235,8 +236,8 @@
 			<mx:Label text="Approved Users" width="120"/>
 			<mx:DataGrid  showHeaders="false" editable="true" dataProvider="{ba}" selectable="false" minHeight="0" rowCount="1" width="100%" height="25" rowHeight="25">
 				<mx:columns>
-					<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
-									   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
+					<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100" 
+									   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters, true, false, true)}" 
 									   dataField="@acctUsers"/>
 				</mx:columns>
 			</mx:DataGrid>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Text xmlns:mx="http://www.adobe.com/2006/mxml"
 		 implements="mx.controls.listClasses.IDropInListItemRenderer, views.renderers.MultiselectRendererCommonInterface"
-		 toolTip="click to Edit…" click="callLater(openPopup)" doubleClickEnabled="true"
+		 toolTip="click to edit…" click="callLater(openPopup)" doubleClickEnabled="true"
 		 text="{txt}">
 	
 	<mx:Script>
@@ -32,10 +32,12 @@
 			
 			public var isRequired:Boolean = false;
 			
+			public var showEditPrompt:Boolean = false;
+			
 			private var pop:MultiselectPopupCommon;
 			
-			public static function create(title:String, allOptions:XMLList, isEditable:Boolean=true, isRequired:Boolean=false):IFactory {
-				return RendererFactory.create(MultiselectRendererCommon, {title:title, allOptions:allOptions, isEditable:isEditable});
+			public static function create(title:String, allOptions:XMLList, isEditable:Boolean=true, isRequired:Boolean=false, showEditPrompt:Boolean=false):IFactory {
+				return RendererFactory.create(MultiselectRendererCommon, {title:title, allOptions:allOptions, isEditable:isEditable, showEditPrompt:showEditPrompt});
 			}		
 			override public function set data(value:Object):void {
 				super.data = value;
@@ -72,6 +74,11 @@
 						txt += option.@display;
 					}
 				}
+				
+				if ( txt == "" && showEditPrompt ) {
+					txt = "Click to edit";
+				}
+				
 			}
 			
 			override public function get data():Object {
