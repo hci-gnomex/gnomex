@@ -769,6 +769,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         if (createBillingItems) {
           sess.refresh(requestParser.getRequest());
+          for (Sample s : (Set<Sample>)samplesAdded) {
+            sess.refresh(s);
+            for (PlateWell w : (Set<PlateWell>)s.getWells()) {
+              sess.refresh(w);
+            }
+          }
 
           // Create the billing items
           // We need to include the samples even though they were not added
