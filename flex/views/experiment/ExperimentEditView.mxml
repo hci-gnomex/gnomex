@@ -1980,6 +1980,8 @@
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
 			notesView.setAnalysisVisibility();
+			
+			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that

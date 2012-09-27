@@ -1335,7 +1335,20 @@
              	} else if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE)!= null &&
              	        this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'EXTERNAL') {					
              		isInternalExperimentSubmission =  false;
-             	} 
+             	} else {
+					isInternalExperimentSubmission = true;
+				}
+				if (isInternalExperimentSubmission) {
+					this.submitRequestLink.visible = true;
+					this.submitRequestLink.includeInLayout = true;
+					this.submitRequestLinkExternal.visible = false;
+					this.submitRequestLinkExternal.includeInLayout = false;
+				} else {
+					this.submitRequestLink.visible = false;
+					this.submitRequestLink.includeInLayout = false;
+					this.submitRequestLinkExternal.visible = true;
+					this.submitRequestLinkExternal.includeInLayout = true;
+				}
              }
 
             public function launchExperimentDownloads():Boolean {
@@ -2603,7 +2616,8 @@
 					  
 					  <mx:LinkButton id="homeLink"  styleName="navLinkButton" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
 					  <mx:VRule height="20" id="submitRequestRule"/>
-					  <util:LinkButtonTwoLines  styleName="navLinkButton" id="submitRequestLink" label="New Experiment Order" click="{theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="125" icon="@Embed(source='assets/flask_add.png')"/>
+					  <util:LinkButtonTwoLines  styleName="navLinkButton" id="submitRequestLink" label="New Experiment Order" click="{this.isInternalExperimentSubmission = true;theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="125" icon="@Embed(source='assets/flask_add.png')"/>
+					  <util:LinkButtonTwoLines visible="false" includeInLayout="false"  styleName="navLinkButton" id="submitRequestLinkExternal" label="New Experiment Order" click="{this.isInternalExperimentSubmission = false;theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="125" icon="@Embed(source='assets/flask_add.png')"/>
 					  <mx:VRule height="20"  id="experimentsRule"/>
 					  <mx:LinkButton  styleName="navLinkButton" id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="103" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
 
