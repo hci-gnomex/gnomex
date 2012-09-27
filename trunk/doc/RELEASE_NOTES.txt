@@ -32,6 +32,7 @@
 * Eliminated extraneous vertical and horizontal scrollbars on cap seq samplesheet upload. (rcundick)
 * Restored save button to data tracks detail view in Topics. (rcundick)
 * Added a popup billing account edit screen. (mbowler)
+* Allow owner to edit samples on external requests. (bspiglejr)
 
 deploy notes 
 --------------------

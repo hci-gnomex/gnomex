@@ -897,7 +897,7 @@
 				var pattern:RegExp = /^[a-zA-Z0-9-_]*$/;
 				for each (var sNameCheck:Object in parentDocument.samples) {
 					if (!pattern.test(sNameCheck.@name)) {
-						parentDocument.userWarningsSamples += "Name may only contain alphanumeric, dash and underscore. '" + sNameCheck.@name + "'.  "; 
+						parentDocument.userWarningsSamples += "Name may only contain alphanumeric, dash and underscore. '" + sNameCheck.@name + "'.  ";
 						isComplete = false;
 						break;
 					}
@@ -1364,6 +1364,13 @@
 			this.downloadExampleButton.includeInLayout = !parentDocument.isCapSeqState();
 			
 			buttonsContainer.visible = !parentDocument.isAmendState();
+			buttonsContainer.includeInLayout = buttonsContainer.visible;
+			
+			// Don't allow sample editting on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
+			if (isEditState && !parentApplication.isAdminState && !isExternal && !parentDocument.isDNASeqCoreState()) {
+				buttonsContainer.visible = false;
+				buttonsContainer.includeInLayout = false;
+			}
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
@@ -2102,8 +2109,9 @@
 	
 	<mx:states>
 		<mx:State name="SamplesEditState" >
-			<mx:RemoveChild target="{buttonsContainer}"/>
 			<mx:RemoveChild target="{topBox}"/>
+			<mx:RemoveChild target="{clearSamplesButton}"/>
+			<mx:RemoveChild target="{addSampleButton}"/>
 		</mx:State>
 
 		<mx:State name="SamplesAdminState">
