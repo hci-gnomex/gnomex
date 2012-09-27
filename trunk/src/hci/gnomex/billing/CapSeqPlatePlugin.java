@@ -44,13 +44,16 @@ public class CapSeqPlatePlugin implements BillingPlugin {
       return billingItems;
     }
     
+    // We don't add billing items on a 4-plate cap seq order since it is a bulk charge on the 4 plates, partial or full
+    if (request.getBillingItems() != null && !request.getBillingItems().isEmpty()) {
+      return billingItems;
+    }
+    
 
-    // Count number of samples, detect if samples submitted in plate wells
-    int qty = 0;
+    // detect if samples submitted in plate wells
     boolean sampleInPlateWell = false;
     HashMap<Plate, ?> plateMap = new HashMap<Plate, String>();
     for (Sample s : samples) {
-      qty++;
       if (s.getWells() != null) {
         for (PlateWell w : (Set<PlateWell>)s.getWells()) {
           if (w.getPlate() != null && w.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
@@ -69,7 +72,7 @@ public class CapSeqPlatePlugin implements BillingPlugin {
       return billingItems;
     }
     
-    qty = 4;
+    int qty = 4;
 
     
     // Find the price for capillary sequencing
