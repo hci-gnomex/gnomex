@@ -6,6 +6,7 @@
 * Fixed issue with scrollbars showing up on annotations selection list. (rcundick)
 * Fixed issue with multiselect combo control for annotations showing unnecessary scrollbars, not allowing multiple selections. (rcundick)
 * Fixed slow initialization of topics window. (rcundick)
+* Fixed bug in order review screen that disallowed deleting submitted orders. (mbowler)
 
 5.4.9 (Sept 27, 2012)
 ---------------------

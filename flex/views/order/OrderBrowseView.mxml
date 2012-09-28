@@ -41,12 +41,13 @@
 	
 	<mx:Script> 
 		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
-			import hci.flex.controls.DropdownLabel;
 			
 			
 			// Warning Icon
@@ -184,7 +185,7 @@
 				
 				var hasRun:Boolean = false
 				for each ( var req:Object in selectedOrders ) {
-					if ( req.@codeRequestStatus != "NEW" && req.codeReqestStatus != "SUBMITTED" ) {
+					if ( req.@codeRequestStatus != "NEW" && req.@codeRequestStatus != "SUBMITTED" ) {
 						hasRun = true;
 						break;
 					}
