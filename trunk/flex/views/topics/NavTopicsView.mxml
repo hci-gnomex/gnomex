@@ -425,50 +425,74 @@
 			removeButton.label = 'Remove link';   			
 		}
              
-		if (this.browseTree.selectedItem.name() == "Topic") {
-			this.mainViewStack.selectedChild = this.topicView;
-			this.topicView.init();
-			
+		if (this.browseTree.selectedItem.name() == "Topic") {			
+			if(this.mainViewStack.selectedChild.id == "topicView") {
+				topicViewShow();
+			} else {
+				this.mainViewStack.selectedChild = this.topicView;
+			}	
 		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
-			//dataTrackView.saveDataTrackButton.visible = false;
-			this.mainViewStack.selectedChild = this.dataTrackView;                
-			
-			var parms1:Object = new Object();
-			parms1.idDataTrack = this.browseTree.selectedItem.@idDataTrack;
-			dataTrackView.getDataTrack.send(parms1);
-			dataTrackView.downloadButton.visible = true;
-			dataTrackView.downloadButton.includeInLayout = true;
+			if(this.mainViewStack.selectedChild.id == "dataTrackView") {
+				dataTrackViewShow();
+			} else {
+				this.mainViewStack.selectedChild = this.dataTrackView;
+			}			                
 		} else if (this.browseTree.selectedItem.name() == "Request") {
-			// These are needed by experimentDetailView
-			selectedIdLab = null;
-			selectedIdProject = null;
-			selectedIdRequest = browseTree.selectedItem.@idRequest;			
-			var params:Object = new Object();
-			params.idRequest = this.browseTree.selectedItem.@idRequest;
-			getRequest.send(params);
-			
-			var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + browseTree.selectedItem.@requestNumber;
-			experimentDetailView.titleLabel.text = viewTitle;
-			experimentDetailView.navBackButton.visible = false;
-			experimentDetailView.navBackButton.includeInLayout = false;
-			
-			var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
-			if (experimentEditView != null && experimentEditView.titleLabel != null) {
-				experimentEditView.titleLabel.text = editTitle;
+			if(this.mainViewStack.selectedChild.id == "experimentViews") {
+				experimentViewShow();
+			} else {
+				mainViewStack.selectedChild = experimentViews; 
 			}			
-
-			mainViewStack.selectedChild = experimentViews; 
-			experimentViews.selectedChild = experimentDetailView;
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
-			analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
-			selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
-			var parms:Object = new Object();
-			parms.idAnalysis = selectedIdAnalysis; 
-			getAnalysis.send(parms);
-			selectedIdLab = browseTree.selectedItem.@idLab;
-			this.mainViewStack.selectedChild = this.analysisViews;  
-			analysisViews.selectedChild = this.analysisDetailView;  
+			if(this.mainViewStack.selectedChild.id == "analysisViews") {
+				analysisViewShow();
+			} else {
+				this.mainViewStack.selectedChild = this.analysisViews; 
+			}				 
 		}
+	}
+	
+	private function dataTrackViewShow():void {		
+		var parms1:Object = new Object();
+		parms1.idDataTrack = this.browseTree.selectedItem.@idDataTrack;
+		dataTrackView.getDataTrack.send(parms1);
+		dataTrackView.downloadButton.visible = true;
+		dataTrackView.downloadButton.includeInLayout = true;
+	}
+	
+	private function topicViewShow():void {
+		this.topicView.init();
+	}
+	
+	private function experimentViewShow():void {
+		// These are needed by experimentDetailView
+		selectedIdLab = null;
+		selectedIdProject = null;
+		selectedIdRequest = browseTree.selectedItem.@idRequest;			
+		var params:Object = new Object();
+		params.idRequest = this.browseTree.selectedItem.@idRequest;
+		getRequest.send(params);
+		
+		var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'View External Experiment ' :  'View Experiment ') + browseTree.selectedItem.@requestNumber;
+		experimentDetailView.titleLabel.text = viewTitle;
+		experimentDetailView.navBackButton.visible = false;
+		experimentDetailView.navBackButton.includeInLayout = false;
+		
+		var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
+		if (experimentEditView != null && experimentEditView.titleLabel != null) {
+			experimentEditView.titleLabel.text = editTitle;
+		}	
+		experimentViews.selectedChild = experimentDetailView;
+	}
+	
+	private function analysisViewShow():void {
+		analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
+		selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
+		var parms:Object = new Object();
+		parms.idAnalysis = selectedIdAnalysis; 
+		getAnalysis.send(parms);
+		selectedIdLab = browseTree.selectedItem.@idLab;
+		analysisViews.selectedChild = this.analysisDetailView;  		
 	}
 	
 	private function onGetRequest(event:ResultEvent):void {
@@ -1093,20 +1117,20 @@
 		</mx:VBox>
 		
 		 
-		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="all">
-			<mx:Panel id="blankView" width="100%" height="100%"   >			    	
+		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="auto">
+			<mx:Panel id="blankView" width="100%" height="100%">			    	
 			</mx:Panel>
 			
-			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">
+			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all" creationComplete="dataTrackViewShow();">
 			</datatrack:DataTrackView>
 			
-			<topics:TopicView id="topicView" width="100%" height="100%" creationPolicy="all">
+			<topics:TopicView id="topicView" width="100%" height="100%" creationPolicy="all" creationComplete="topicViewShow();">
 			</topics:TopicView>
 			
 			<topics:TopicLinkView id="topicLinkView" width="100%" height="100%" creationPolicy="all">
 			</topics:TopicLinkView>
 	
-			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
+			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%" creationComplete="experimentViewShow();">
 				
 				<experiment:ExperimentDetailPanel id="experimentDetailView" width="100%" height="100%">
 				</experiment:ExperimentDetailPanel>
@@ -1117,7 +1141,7 @@
 			</mx:ViewStack>
 			
 		
-			<mx:ViewStack id="analysisViews" visible="true" width="100%" height="100%">			
+			<mx:ViewStack creationPolicy="all" id="analysisViews" visible="true" width="100%" height="100%" creationComplete="analysisViewShow();">			
 				
 				<analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
 				</analysis:AnalysisDetailView>

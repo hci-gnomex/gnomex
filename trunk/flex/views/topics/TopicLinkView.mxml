@@ -603,17 +603,12 @@
 			public function getAnalysisBrowseParameters():Object {
 				var params:Object = new Object();
 				
-				if (this.currentState == 'AdminState') {
-					params.allAnalysis = 'Y';
-				}  else {
-					
 					params.allAnalysis = 'Y';	
 					if (this.currentState == "AdminState") {
 						params.showMyLabsAlways = 'N';
 					} else {
 						params.showMyLabsAlways = 'Y';
-					}
-					
+					}					
 					
 					params.labKeys = "";
 					params.searchText = "";
@@ -621,8 +616,7 @@
 					params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
 					params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
 					params.lastYear = lastYearCheckbox.selected ? 'Y' : 'N';
-					
-				}
+
 				
 				if (labCombo.selectedItem != null) {
 					params.idLab = labCombo.selectedItem.@idLab;
@@ -721,7 +715,7 @@
 				<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
 					<mx:click>toggleDateCheckboxes(2);searchParamsChange(false);</mx:click>
 				</mx:CheckBox>
-				<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
+				<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="true"   styleName="labelSmall">
 					<mx:click>toggleDateCheckboxes(3);searchParamsChange(false);</mx:click>
 				</mx:CheckBox>		    		
 				<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   styleName="labelSmall">

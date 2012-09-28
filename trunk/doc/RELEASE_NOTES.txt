@@ -1,6 +1,12 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.5.0 
+---------------------
+* Fixed issue with scrollbars showing up on annotations selection list. (rcundick)
+* Fixed issue with multiselect combo control for annotations showing unnecessary scrollbars, not allowing multiple selections. (rcundick)
+* Fixed slow initialization of topics window. (rcundick)
+
 5.4.9 (Sept 27, 2012)
 ---------------------
 * Fixed bug in ProjectRequestFilter SQL causing unexpected results when viewing experiments for logged-in user. (rcundick)

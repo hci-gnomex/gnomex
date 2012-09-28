@@ -557,7 +557,7 @@
 									dataField="@name" >
 									<mx:itemRenderer>
 										<mx:Component >
-											<mx:HBox>
+											<mx:HBox horizontalScrollPolicy="off">
 												<mx:Label text="{data.@name}">			                           	
 												</mx:Label>
 												<mx:TextInput id="scOtherLabel" fontSize="9"

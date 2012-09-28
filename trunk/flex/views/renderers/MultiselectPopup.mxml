@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
-				width="180" height="{checkboxGrid.height + 40}" showCloseButton="true" close="save()" creationComplete="centerMe()"
-				 paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				width="180" height="{checkboxGrid.height + 60}" showCloseButton="true" close="save()" creationComplete="centerMe()"
+				 paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" horizontalScrollPolicy="off">
 	
 	
 	
@@ -126,7 +126,7 @@
 							   editable="true"                        	
 							   dataField="@isSelected" 
 							   editorDataField="selected"
-							   itemRenderer="views.renderers.CheckBoxRenderer">			 
+							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true)}">			 
 			</mx:DataGridColumn>
 			<mx:DataGridColumn headerText="Option"  dataField="@display" >
 			</mx:DataGridColumn>
