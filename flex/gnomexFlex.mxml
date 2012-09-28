@@ -453,7 +453,10 @@
 			[Embed(source="assets/page_white_wrench.png")]
 			public var iconConfig:Class;
 			
-	        
+			[Bindable]
+			[Embed(source="assets/book.png")]
+			public var iconBook:Class;
+			
 	        [Bindable]
 	        [Embed(source="assets/asterisk_yellow.png")]
 	        public var iconLabeling:Class;
@@ -2641,7 +2644,7 @@
 								  <menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 								  <menuitem label="Topics"  icon="iconTopic"/>
 								  <menuitem label="Track Usage"  icon="iconUsage"/>
-								  <menuitem  label="Manage Dictionaries"  icon="iconConfig" />
+								  <menuitem  label="Manage Dictionaries"  icon="iconBook" />
 								  <menuitem label="Configure Annotations" icon="iconConfig" />
 								  <menuitem label="Configure Experiment Platform" icon="iconConfig" />
 								  <menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
@@ -2906,7 +2909,7 @@
 						 <menuitem label="More..."   >
 							 <menuitem label="Experiments" icon="iconFlask" />
 							 <menuitem label="Track Usage" icon="iconUsage" />
-							 <menuitem  label="Manage Dictionaries" icon="iconConfig" />
+							 <menuitem  label="Manage Dictionaries" icon="iconBook" />
 						 </menuitem>
 					 </mx:XMLList>
 				 </mx:MenuBar> 
