@@ -661,14 +661,22 @@
 				
 				if (parentDocument.isSolexaState()) {
 					if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-						parentDocument.annotationView.enabled = isComplete;
+						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
+							parentDocument.annotationView.enabled = isComplete;
+						} else {
+							parentDocument.annotationView.enabled = false;
+						}				
 						parentDocument.notesView.enabled = isComplete;
 					}  
 					if (parentApplication.submitInternalExperiment()) {
 						parentDocument.seqSetupView.enabled = isComplete;
 						parentDocument.notesView.enabled = isComplete;
 					} else {
-						parentDocument.samplesView.enabled = isComplete;
+						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
+							parentDocument.samplesView.enabled = isComplete;
+						} else {
+							parentDocument.samplesView.enabled = false;
+						}						
 						parentDocument.notesView.enabled = isComplete;
 						if (isComplete && parentApplication.submitInternalExperiment()) {
 							parentDocument.samplesView.initializeSamplesGrid();
@@ -679,14 +687,22 @@
 					
 				} else {
 					if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-						parentDocument.annotationView.enabled = isComplete;
+						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
+							parentDocument.annotationView.enabled = isComplete;
+						} else {
+							parentDocument.annotationView.enabled = false;
+						}	
 						parentDocument.notesView.enabled = isComplete;
 					}        			
 					if (parentApplication.submitInternalExperiment()) {
 						parentDocument.sampleSetupView.enabled = isComplete;
 						parentDocument.notesView.enabled = isComplete;
 					} else {
-						parentDocument.samplesView.enabled = isComplete;
+						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
+							parentDocument.samplesView.enabled = isComplete;
+						} else {
+							parentDocument.samplesView.enabled = false;
+						}
 						parentDocument.notesView.enabled = isComplete;
 						if (isComplete && parentApplication.submitInternalExperiment()) {
 							parentDocument.samplesView.initializeSamplesGrid();

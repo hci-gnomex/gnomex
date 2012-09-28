@@ -881,8 +881,14 @@
 				}
 			}
 			
-			if (theTab.contains(notesView)) {
+			if (theTab.contains(notesView)) {				
 				notesView.currentState = "";
+				// Make experiment name, description req'd if external experiment
+				if (!isEditState() && !isAmendState()) { 
+					if (!parentApplication.isInternalExperimentSubmission) {	
+						notesView.currentState = "ExternalExperimentState";
+					} 
+				}
 			}
 			
 		}
@@ -932,6 +938,14 @@
 			}
 			if (!this.isAmendState()) {
 				refreshDownloadList();
+			}
+			if (theTab.selectedChild == this.notesView && this.notesView.currentState == "ExternalExperimentState") {
+				if(!notesView.hasNameAndDef()) {
+					nextButton.enabled = false;
+				} else {
+					nextButton.enabled = true;
+				}
+				
 			}
 		}
 

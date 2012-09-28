@@ -10,6 +10,10 @@
 			<mx:SetProperty target="{label2}" name="text" value="Notes for Core Facility"/>
 			<mx:SetProperty target="{label3}" name="text" value="Notes for the Bioinformatics Group regarding analysis"/>
 		</mx:State>
+		<mx:State name="ExternalExperimentState">
+			<mx:SetProperty target="{text1}" name="htmlText" value="(1) Name your experiment. (required)"/>
+			<mx:SetProperty target="{label1}" name="text" value="(2) Provide an experiment description. (required)"/>
+		</mx:State>
 	</mx:states>
 
 <mx:Script>
@@ -18,8 +22,22 @@
 	import mx.controls.Alert;
 	import views.util.StringUtil;
 		
+	public function hasNameAndDef():Boolean {
+		return(experimentName.text.length > 0 && overallDescript.htmlText.length > 0);
+	}
 		
-	private function propagateDescript(e:FocusEvent):void{
+	private function checkForCompleteness():void {
+		if(this.currentState != "ExternalExperimentState") {
+			return;	
+		}
+		if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+			parentDocument.annotationView.enabled = hasNameAndDef();
+		}
+		parentDocument.samplesView.enabled = hasNameAndDef();
+		parentDocument.enableNextButtons();
+	}
+		
+	private function propagateDescript(e:FocusEvent):void {
 		parentDocument.request.@description = "";  // Description will be saved differently to avoid problems sending with XML encoding.
 		parentDocument.saveDescription = StringUtil.cleanRichTextHTML(overallDescript.htmlText);
 		parentDocument.confirmView.expDescriptArea.text = overallDescript.text;
@@ -70,7 +88,7 @@
 </mx:Script>
 	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 		<mx:HBox>
-			<mx:Text id="text1">
+			<mx:Text id="text1" keyUp="checkForCompleteness()">
 				<mx:htmlText>(1) Name your experiment. (optional)</mx:htmlText>
 			</mx:Text>
 			<mx:TextInput id="experimentName" focusOut="propagateName()" text="{parentDocument.request.@name}"  width="301" maxChars="200"/>
@@ -88,7 +106,7 @@
 							roundedBottomCorners="false" paddingBottom="0" 
 							borderThicknessRight="0" borderThicknessLeft="0" 
 							borderThicknessBottom="0" borderThickness="0" 
-							borderThicknessTop="0" height="100%" minHeight="50"/>		
+							borderThicknessTop="0" height="100%" minHeight="50" keyUp="checkForCompleteness()"/>		
         <mx:Spacer height="10" />
 		<mx:Label text="(3) Enter a note for the Core Facility. (optional)"  id="label2"/>
 		<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 
