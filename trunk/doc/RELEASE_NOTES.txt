@@ -9,6 +9,7 @@
 * Fixed bug in order review screen that disallowed deleting submitted orders. (mbowler)
 * Made experiment name and description required for external experiments. (rcundick)
 * Fixed problem where collaborator and manager lists didn't update upon activating a user. (mbowler)
+* Fixed a problem where tax id and sort order were not saving for organisms. (mbowler)
 
 5.4.9 (Sept 27, 2012)
 ---------------------

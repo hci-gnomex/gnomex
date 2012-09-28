@@ -241,7 +241,8 @@
 		params.abbreviation = abbreviation.text;
 		params.das2Name = das2Name.text;
 		params.binomialName = binomialName.text;
-		params.taxID = taxID.text;
+		params.ncbiTaxID = taxID.text;
+		params.sortOrder = sortOrder.text;
 		if (parentApplication.hasPermission("canWriteDictionaries")) {
 			params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
 		} else {
@@ -362,7 +363,7 @@
 					 <mx:TextInput text="{oList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="71" id="mageOntologyCode"  maxChars="100"/>
 					 <mx:HBox width="100%" verticalGap="0" >
 						 <mx:Text text="Taxonomy I.D.:" width="94"/>
-						 <mx:TextInput text="{oList.selectedItem.@nCBITaxID}" change="{setDirty()}" width="54" id="taxID"  maxChars="100"/>
+						 <mx:TextInput text="{oList.selectedItem.@ncbiTaxID}" change="{setDirty()}" width="54" id="taxID"  maxChars="100"/>
 						 <mx:HBox width="100%" verticalGap="0">
 							 <mx:Text text="Sort Order:" width="68"/>
 							 <mx:TextInput text="{oList.selectedItem.@sortOrder}" change="{setDirty()}" width="46.515152" id="sortOrder"  maxChars="100" height="20.984848"/>
