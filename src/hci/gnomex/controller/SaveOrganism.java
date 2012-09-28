@@ -211,6 +211,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
 
     o.setBinomialName(organismScreen.getBinomialName());
     o.setNcbiTaxID(organismScreen.getNcbiTaxID());
+    o.setSortOrder(organismScreen.getSortOrder());
     o.setDas2Name(organismScreen.getDas2Name());
 
   }

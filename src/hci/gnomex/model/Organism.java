@@ -148,6 +148,7 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
     root.setAttribute("commonName",   this.getOrganism() != null ? this.getOrganism() : "");        
     root.setAttribute("binomialName", this.getBinomialName() != null ? this.getBinomialName() : "");        
     root.setAttribute("NCBITaxID",    this.getNcbiTaxID() != null ? this.getNcbiTaxID() : "");   
+    root.setAttribute("sortOrder",    this.getSortOrder().toString());   
     root.setAttribute("isActive",     this.getIsActive() != null ? this.getIsActive() : "");
     root.setAttribute("canWrite",     secAdvisor.canUpdate(this) ? "Y" : "N");
 
