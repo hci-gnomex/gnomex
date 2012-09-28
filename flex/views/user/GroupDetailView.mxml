@@ -88,6 +88,7 @@
 				parentApplication.navUsersView.getAppUserList.send();
 				
 				appUsers.refresh();
+				activeAppUsers.refresh();
 				
 				parentApplication.promptedAppUserList.refresh();
 				
@@ -652,6 +653,7 @@
 	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
 	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}"/>
 	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
+	<mx:XMLListCollection id="activeAppUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser.(@isActive=='Y')}"/>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
@@ -769,7 +771,7 @@
 					<mx:VBox width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
 						<mx:Label text="Collaborators"/>
 						<mx:HBox width="100%" horizontalGap="6">
-							<renderers:FilterComboBox dataProvider="{parentApplication.appUserList.source}" 
+							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
 													  labelField="@displayName" 
 													  prompt="Collaborator to add..."
 													  width="170"
@@ -789,7 +791,7 @@
 					<mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
 						<mx:Label text="Managers"/>
 						<mx:HBox width="100%" horizontalGap="6">
-							<renderers:FilterComboBox dataProvider="{parentApplication.appUserList.source}" 
+							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
 													  labelField="@displayName" 
 													  prompt="Manager to add..."
 													  width="170"
