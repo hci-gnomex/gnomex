@@ -10,6 +10,7 @@
 * Made experiment name and description required for external experiments. (rcundick)
 * Fixed problem where collaborator and manager lists didn't update upon activating a user. (mbowler)
 * Fixed a problem where tax id and sort order were not saving for organisms. (mbowler)
+* Added "applies to" filters for configure annotations window.  Fixed bug where deselecting all filters caused an empty list.  Added refresh button.(tcourdy)
 
 5.4.9 (Sept 27, 2012)
 ---------------------
