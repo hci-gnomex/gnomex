@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="1022" height="588" 
+				width="1005" height="588" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
@@ -34,6 +34,7 @@
 		
 		import mx.collections.Sort;
 		import mx.controls.Alert;
+		import mx.controls.Label;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
@@ -44,6 +45,8 @@
 		
 		[Bindable]
 		public var filteredAppList:XMLListCollection;
+		[Bindable]
+		private var applicationFilterList:XMLListCollection;
 		
 		private var filteredAppListSorter:Sort;
 			
@@ -65,30 +68,149 @@
 			
 			// We use this technique xml.copy() to prevent duplication of applications 
 			// that somehow happens when we add services, then submit request or vice versa
-			filteredAppList           = new XMLListCollection();
+			filteredAppList = new XMLListCollection();
+			applicationFilterList = new XMLListCollection();
 			for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
 				filteredAppList.addItem(i.copy());
+				applicationFilterList.addItem(i.copy());
 			}
 			filteredAppListSorter = new Sort();
 			filteredAppListSorter.compareFunction = this.sortApplication;
 			filteredAppList.sort = filteredAppListSorter;	
 			filteredAppList.filterFunction = filterApplication;
-			filteredAppList.refresh();	
+			filteredAppList.refresh();
+			applicationFilterList.sort = filteredAppListSorter;	
+			applicationFilterList.filterFunction = filterApplication1;
+			applicationFilterList.refresh();
 		}	
 				
-		public function onPropertyRefreshed(event:Event):void{
+		public function onPropertyRefreshed(event:Event):void {
 			properties = new XMLListCollection();
 			for each(var sc:XML in parentApplication.propertyList) {
-				if ((this.showSampleAnnotations.selected && sc.@forSample == "Y")
-					|| (this.showDataTrackAnnotations.selected && sc.@forDataTrack == "Y")
-					|| (this.showAnalysisAnnotations.selected && sc.@forAnalysis == "Y")) {
+				if ((this.showSampleAnnotations.selected)
+					|| (this.showDataTrackAnnotations.selected)
+					|| (this.showAnalysisAnnotations.selected)){
+					
+					if(filterByAnnotations(sc) && appliesToFilter(sc)){
+						properties.addItem(sc.copy());
+					}
+				}
+				else if((organismFilter.selectedIndex > 0 
+					|| analysisFilter.selectedIndex > 0
+					|| platformFilter.selectedIndex > 0
+					|| applicationFilter.selectedIndex > 0)
+					&& appliesToFilter(sc)){
 					
 					properties.addItem(sc.copy());
 				}
+				else if(!this.showSampleAnnotations.selected && !this.showDataTrackAnnotations.selected
+					&& !this.showAnalysisAnnotations.selected && organismFilter.selectedIndex == 0
+					&& analysisFilter.selectedIndex == 0 && platformFilter.selectedIndex == 0 && (applicationFilter.selectedIndex == 0 || applicationFilter.selectedIndex == -1)){
+					init();
+					break;
+				}
 			}
-			reselectCharacteristic();
+			
+			reselectCharacteristic()
 			dirty.resetDirty();
-		}	
+		}
+		private function filterByAnnotations(sc:XML):Boolean{
+			var forSample:Boolean = false;
+			var forDataTrack:Boolean = false;
+			var forAnalysis:Boolean = false;
+			
+			if(showSampleAnnotations.selected && sc.@forSample == "Y"){
+				forSample = true;
+			}
+			else if(!showSampleAnnotations.selected){
+				forSample = true;
+			}
+			
+			if(showAnalysisAnnotations.selected && sc.@forAnalysis == "Y"){
+				forAnalysis = true;
+			}
+			else if(!showAnalysisAnnotations.selected){
+				forAnalysis = true;
+			}
+			
+			if(showDataTrackAnnotations.selected && sc.@forDataTrack == "Y"){
+				forDataTrack = true;
+			}
+			else{
+				forDataTrack = true;
+			}
+			
+			if(forSample && forAnalysis && forDataTrack){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		
+		private function appliesToFilter(sc:XML):Boolean{
+			var hasOrganism:Boolean = false;
+			var hasAnalysis:Boolean = false;
+			var hasPlatform:Boolean = false;
+			var hasApplication:Boolean = false;
+			
+			if(organismFilter.selectedIndex > 0){
+				for each(var sc1:XML in sc.organisms.children()){
+					if(sc1.@display == organismFilter.selectedLabel){
+						hasOrganism = true;
+						break;
+					}
+				}
+			}
+			else{
+				hasOrganism = true;
+			}
+			
+			if(analysisFilter.selectedIndex > 0){
+				for each(var sc2:XML in sc.analysisTypes.children()){
+					if(sc2.@display == analysisFilter.selectedLabel){
+						hasAnalysis = true;
+						break;
+					}
+				}
+			}
+			else{
+				hasAnalysis = true;
+			}
+			
+			if(platformFilter.selectedIndex > 0 && sc.platformApplications.length() > 0){
+				for each(var sc3:XML in sc.platformApplications.children()){
+					if(sc3.@display == platformFilter.selectedLabel){
+						hasPlatform = true;
+						break;
+					}
+				}
+			}
+			else{
+				hasPlatform = true;
+			}
+			
+			if(applicationFilter.selectedIndex > 0 && sc.platformApplications.length() > 0){
+				for each(var sc4:XML in sc.platformApplications.children()){
+					for each(var sc5:XML in sc4.application.children()){
+						if(sc5.@application == applicationFilter.selectedLabel){
+							hasApplication = true;
+							break;
+						}
+					}
+				}
+			}
+			else{
+				hasApplication = true;
+			}
+
+			if(hasOrganism && hasPlatform && hasAnalysis && hasApplication){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
 			
 		private function reselectCharacteristic():void {
 			var found:Boolean = false;
@@ -308,13 +430,6 @@
 				return;
 			}
 			
-			if ((!this.showSampleAnnotations.selected  || !this.sample.selected)
-				&& (!this.showAnalysisAnnotations.selected || !this.analysis.selected)
-				&& (!this.showDataTrackAnnotations.selected || !this.dataTrack.selected)) {
-				this.showSampleAnnotations.selected = true;
-				this.showAnalysisAnnotations.selected = true;
-				this.showDataTrackAnnotations.selected = true;
-			}
 			var params:Object = new Object();
 			params.idProperty = propertyList.selectedItem.@idProperty;
 			params.name = scName.text;
@@ -355,6 +470,34 @@
 			var doesMatchRequestCategory:Boolean = false;
 			if (platformCombo.selectedItem != null && platformCombo.selectedItem.@value != '') {
 				var codeRequestCategory:String = platformCombo.selectedItem.@value;
+				if (item.@value == "") {
+					return false;
+				} 
+				
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				
+				var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
+				for each (var xref:Object in theApplications) {
+					if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
+						doesMatchRequestCategory = true;
+						break;
+					}
+				}
+			}
+			
+			
+			return doesMatchRequestCategory;
+		}
+		
+		private function filterApplication1(item:Object):Boolean {
+			var doesMatchRequestCategory:Boolean = false;
+			if(platformFilter.selectedIndex == 0){
+				return true;
+			}
+			else {
+				var codeRequestCategory:String = platformFilter.selectedItem.@value;
 				if (item.@value == "") {
 					return false;
 				} 
@@ -434,6 +577,23 @@
 			filteredAppList.filterFunction = filterApplication;
 			filteredAppList.refresh();
 		}
+		
+		private function refresh(event:Event):void{
+			organismFilter.selectedIndex = 0;
+			analysisFilter.selectedIndex = 0;
+			platformFilter.selectedIndex = 0;
+			showAnalysisAnnotations.selected = false;
+			showDataTrackAnnotations.selected = false;
+			showSampleAnnotations.selected = false;
+			
+			init();
+		}
+		
+		private function applicationFilterRefresh():void{
+			applicationFilterList.filterFunction = filterApplication1;
+			applicationFilterList.refresh();
+			onPropertyRefreshed(null);
+		}
 	]]>
 </mx:Script>
 	
@@ -443,16 +603,34 @@
 <mx:XMLListCollection id="platformApplications" source="{propertyList.selectedItem.platformApplications.PlatformApplication}" sort="{platformApplicationSorter}"/>
 <mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 <mx:XMLListCollection id="analysisTypes" source="{propertyList.selectedItem.analysisTypes.AnalysisType}"/>
-<mx:VBox width="100%" height="100%" verticalGap="0">
-	
-	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBarDarkGrey.png')" verticalAlign="middle" horizontalGap="0" height="30" backgroundSize="100%">
+<mx:VBox width="100%" height="100%" verticalGap="0" verticalAlign="middle" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" horizontalGap="0">
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 		<mx:LinkButton label="Add annotation" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"  fontSize="12"/>
 		<mx:LinkButton label="Remove annotation" styleName="linkMenuButton" click="removeProperty()" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="12"/>
-		<mx:Spacer width="100%"/> 
-		<mx:Label text="Show Annotations For:"  paddingLeft="10" fontSize="12"/>
+		<mx:Spacer width="100%"/>
+		<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/refresh.png')" click="refresh(event)"/>
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="5">
+		<mx:Label text="Show Annotations For:" fontSize="12"/>
 		<mx:CheckBox label="Sample" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="11"/>
+		<mx:VRule height = "20" />
 		<mx:CheckBox label="Analysis" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="11"/>
+		<mx:VRule height = "20" />
 		<mx:CheckBox label="DataTrack" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="11"/>
+		<mx:VRule height = "20" />
+		<mx:Label text="Organism:"/>
+		<mx:ComboBox id="organismFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10"/>
+		<mx:VRule height = "20" />
+		<mx:Label text="Analysis:" paddingRight="15"/>
+		<mx:ComboBox id="analysisFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10"/>
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="5">
+		<mx:Spacer width="409" height="2"/>
+		<mx:Label text="Platform:" paddingRight="7"/>
+		<mx:ComboBox id="platformFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="applicationFilterRefresh()" labelField="@display" fontSize="10"/>
+		<mx:VRule height = "20" />
+		<mx:Label text="Application:"/>
+		<mx:ComboBox id="applicationFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{applicationFilterList}" change="onPropertyRefreshed(null)" labelField="@application" fontSize="10"/>
 	</mx:HBox>
 	
 <mx:HDividedBox height="100%" width="100%" >
