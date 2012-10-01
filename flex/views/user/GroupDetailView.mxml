@@ -165,9 +165,10 @@
 			private function removeBillingAccount():void {
 				dirty.setDirty();
 				if (billingAccountGrid.selectedIndex != -1) {
-					allApprovedAccounts.removeItemAt( allApprovedAccounts.getItemIndex(billingAccountGrid.selectedItem) );
+					var ba:Object = billingAccountGrid.selectedItem;
+					allApprovedAccounts.removeItemAt( allApprovedAccounts.getItemIndex(ba) );
+					billingAccounts.removeItemAt( billingAccounts.getItemIndex(ba) );
 				}
-				billingAccounts.refresh();
 			}
 			private function addInstitution():void {
 				dirty.setDirty();
