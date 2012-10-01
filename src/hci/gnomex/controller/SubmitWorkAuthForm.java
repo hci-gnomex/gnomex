@@ -185,17 +185,19 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         "has been submitted to the " + facility.getDisplay() + " Core" +  
         " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
 
-    body.append("\n");
-    body.append("\n");
-    body.append("Lab:                 " + lab.getName() + "\n");
-    body.append("Core Facility        " + facility.getDisplay() + "\n");
-    body.append("Account:             " + billingAccount.getAccountName() + "\n");
-    body.append("Chartfield:          " + billingAccount.getAccountNumber() + "\n");
-    body.append("Funding Agency:      " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
-    body.append("Effective until:     " + billingAccount.getExpirationDateOther() + "\n");
-    body.append("Total Dollar Amount: " + billingAccount.getTotalDollarAmountDisplay() + "\n");
-    body.append("Submitter UID:       " + billingAccount.getSubmitterUID() + "\n");
-    body.append("Submitter Email:     " + billingAccount.getSubmitterEmail() + "\n");
+    body.append("<br />");
+    body.append("<br />");
+    body.append("<table border=0>");
+    body.append("<tr><td>Lab:</td><td>" + lab.getName() + "</td></tr>");
+    body.append("<tr><td>Core Facility:</td><td>" + facility.getDisplay() + "</td></tr>");
+    body.append("<tr><td>Account:</td><td>" + billingAccount.getAccountName() + "</td></tr>");
+    body.append("<tr><td>Chartfield:</td><td>" + billingAccount.getAccountNumber() + "</td></tr>");
+    body.append("<tr><td>Funding Agency:</td><td>" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "</td></tr>");
+    body.append("<tr><td>Effective until:</td><td>" + billingAccount.getExpirationDateOther() + "</td></tr>");
+    body.append("<tr><td>Total Dollar Amount:</td><td>" + billingAccount.getTotalDollarAmountDisplay() + "</td></tr>");
+    body.append("<tr><td>Submitter UID:</td><td>" + billingAccount.getSubmitterUID() + "</td></tr>");
+    body.append("<tr><td>Submitter Email:</td><td>" + billingAccount.getSubmitterEmail() + "</td></tr>");
+    body.append("</table>");
     
     String replyEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
@@ -207,7 +209,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             replyEmail, 
             submitterSubject, 
             submitterNote.toString() + body.toString(),
-            false);             
+            true);             
       } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
         log.warn("Unable to send email notification to work authorization submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());

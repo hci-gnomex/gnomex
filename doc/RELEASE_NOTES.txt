@@ -15,6 +15,7 @@
 * Fixed problem with update of Analysis Protocol dropdown after new protocol added. (rcundick)
 * Added container type to order review page. (mbowler)
 * Removed plate, quadrant, well, and run columns from experimentDetailView Chromatogram tab.(tcourdy)
+* Fixed alignment issues with the work authorization email text.(tcourdy)
 
 5.4.9 (Sept 27, 2012)
 ---------------------
