@@ -770,7 +770,7 @@
 			//
 			private function editAnalysisProtocol():void {
 				protocolWindow = views.protocol.ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.theBody, views.protocol.ProtocolEditWindow, true));
-				protocolWindow.editor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
+				protocolWindow.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
 				protocolWindow.editor.initializeData('hci.gnomex.model.AnalysisProtocol');
 				PopUpManager.centerPopUp(protocolWindow);
 			}
@@ -1109,7 +1109,7 @@
 							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>							
 						</mx:VBox>
 						<mx:VBox verticalGap="0" width="100%">
-							<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+							<util:ComboBoxDatProvChangeFix  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
 						</mx:VBox>
 					</mx:HBox>
 
@@ -1120,7 +1120,7 @@
 							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>														
 						</mx:VBox>
 						<mx:VBox verticalGap="0">
-							<mx:ComboBox  width="200" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+							<util:ComboBoxDatProvChangeFix  width="200" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
 						</mx:VBox>
 					</mx:HBox>								
 
