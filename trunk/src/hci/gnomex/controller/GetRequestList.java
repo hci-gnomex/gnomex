@@ -5,9 +5,11 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -22,6 +24,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -115,6 +118,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
       List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
       appendReactionPlateInfo(node, rxnPlateRows);
+      
+      appendContainerType(sess, node, idRequest);
       
       appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility);
       
@@ -253,6 +258,28 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     
     node.setAttribute("canUpdate", canUpdate ? "Y" : "N");
 
+  }
+  
+  private void appendContainerType(Session sess, Element node, Integer idRequest) {
+    Request request = (Request)sess.get(Request.class, idRequest);
+    ArrayList<Integer> sampleIds = new ArrayList<Integer>();
+    for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
+      Sample sample = (Sample)i1.next();
+      sampleIds.add(sample.getIdSample());
+    }
+    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)
+        && request.getSamples().size() > 0) {
+      String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
+      Query plateQuery = sess.createQuery(plateQueryString);
+      plateQuery.setParameterList("ids", sampleIds);
+      List wells = plateQuery.list();
+      if (wells.size() > 0) {
+        // has plates, so it's not tubes.
+        node.setAttribute("containerType", "PLATE");
+      } else {
+        node.setAttribute("containerType", "TUBE");
+      }
+    }
   }
 
 }
