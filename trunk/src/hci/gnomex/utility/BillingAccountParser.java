@@ -6,6 +6,7 @@ import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -105,10 +106,13 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     
     if (n.getAttributeValue("totalDollarAmountDisplay") != null && !n.getAttributeValue("totalDollarAmountDisplay").equals("")) {
       String totalDollarAmount = n.getAttributeValue("totalDollarAmountDisplay");
-      totalDollarAmount = totalDollarAmount.replaceAll("\\$", "");
-      totalDollarAmount = totalDollarAmount.replaceAll(",", "");
+      DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+      String regex = "[^0-9" + dfs.getDecimalSeparator() + "]";
+      totalDollarAmount = totalDollarAmount.replaceAll(regex, "");
+      totalDollarAmount = totalDollarAmount.replace(dfs.getDecimalSeparator(), '.');
       billingAccount.setTotalDollarAmount(new BigDecimal(totalDollarAmount));
-    }
+   }
+
 
     if (n.getAttributeValue("shortAcct") != null && !n.getAttributeValue("shortAcct").equals("")) {
       billingAccount.setShortAcct(n.getAttributeValue("shortAcct"));
