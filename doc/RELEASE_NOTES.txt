@@ -14,6 +14,7 @@
 * Fixed a bug where deleting a billing account didn't update the displayed accounts until after save. (mbowler)
 * Fixed problem with update of Analysis Protocol dropdown after new protocol added. (rcundick)
 * Added container type to order review page. (mbowler)
+* Removed plate, quadrant, well, and run columns from experimentDetailView Chromatogram tab.(tcourdy)
 
 5.4.9 (Sept 27, 2012)
 ---------------------
