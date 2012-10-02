@@ -1349,6 +1349,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return globalPermissionMap.keySet();
   }
   
+  private boolean isActiveUser() {
+    return getAppUser() != null && getAppUser().getIsActive() != null && getAppUser().getIsActive().equalsIgnoreCase("Y");
+  }
+  
   private void setGlobalPermissions() {
     globalPermissionMap = new HashMap();
     
@@ -1357,119 +1361,123 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       return;
     }
     
-    // Can administer all core facilities (Super user)
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_ADMINISTER_ALL_CORE_FACILITIES), null);
-    }
-    
-    // Can assign the super user role. (Super user)
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_ASSIGN_SUPER_ADMIN_ROLE), null);
-    }
-    
-    
-    // Can manage DNA Seq Core
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
-    } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
-      if (appUser.getManagingCoreFacilities() != null) {
-        for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
-          CoreFacility coreFacility = (CoreFacility)i.next();
-          if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
-            globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
+    if (isActiveUser()) {
+      // Can administer all core facilities (Super user)
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_ADMINISTER_ALL_CORE_FACILITIES), null);
+      }
+      
+      // Can assign the super user role. (Super user)
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_ASSIGN_SUPER_ADMIN_ROLE), null);
+      }
+      
+      
+      // Can manage DNA Seq Core
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+        if (appUser.getManagingCoreFacilities() != null) {
+          for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
+            CoreFacility coreFacility = (CoreFacility)i.next();
+            if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
+              globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
+            }
           }
         }
       }
-    }
-    
-    
-    // Can manage Genomics Core Facility
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
-    } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
-      if (appUser.getManagingCoreFacilities() != null) {
-        for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
-          CoreFacility coreFacility = (CoreFacility)i.next();
-          if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_GENOMICS)) {
-            globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+      
+      
+      // Can manage Genomics Core Facility
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+        if (appUser.getManagingCoreFacilities() != null) {
+          for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
+            CoreFacility coreFacility = (CoreFacility)i.next();
+            if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_GENOMICS)) {
+              globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+            }
           }
         }
       }
-    }
 
-    
-    // Can write common dictionaries
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_WRITE_DICTIONARIES), null);
-    }
+      
+      // Can write common dictionaries
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_WRITE_DICTIONARIES), null);
+      }
 
-    
-    // Can write property dictionary
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_WRITE_PROPERTY_DICTIONARY), null);
-    }
-    
-    // Can manage workflow - until other cores come online that require workflows, we
-    // will just give this permission to super admins and the admins that manage the 
-    // Genomics core facility.
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
-    } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
-      if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE)) {
+      
+      // Can write property dictionary
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_WRITE_PROPERTY_DICTIONARY), null);
+      }
+      
+      // Can manage workflow - until other cores come online that require workflows, we
+      // will just give this permission to super admins and the admins that manage the 
+      // Genomics core facility.
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
         globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+        if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE)) {
+          globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
+        }
       }
-    }
 
-    // Can manage billing
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
-    }
-    
-    // Can administer users
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_ADMINISTER_USERS), null);
-    }
+      // Can manage billing
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
+      }
+      
+      // Can administer users
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_ADMINISTER_USERS), null);
+      }
 
-    // Can access any requests
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_ACCESS_ANY_OBJECT), null);
-    }
+      // Can access any requests
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_ACCESS_ANY_OBJECT), null);
+      }
 
-    // Can write any request
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_WRITE_ANY_OBJECT), null);
-    }
+      // Can write any request
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_WRITE_ANY_OBJECT), null);
+      }
 
-    // Can delete requests
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_DELETE_REQUESTS), null);
-    }
+      // Can delete requests
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_DELETE_REQUESTS), null);
+      }
 
-    
-    //  Can delete any project
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {        
-      globalPermissionMap.put(new Permission(CAN_DELETE_ANY_PROJECT), null);
-    }
+      
+      //  Can delete any project
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {        
+        globalPermissionMap.put(new Permission(CAN_DELETE_ANY_PROJECT), null);
+      }
 
+      // Can submit requests
+      if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
+      }
+      
+     
+    }
+ 
     // Can access objects governed by group level permissions
     if (this.isGNomExExternalUser || this.isGNomExUniversityUser) {
       globalPermissionMap.put(new Permission(CAN_PARTICIPATE_IN_GROUPS), null);
-    }
-    
-    // Can submit requests
-    if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-      globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
     }
     
     
@@ -1807,13 +1815,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (this.getCoreFacilitiesIManage().isEmpty()) {
         throw new InvalidSecurityAdvisorException("Admin is not assigned to any core facilities.");
       }
-    } else if (!isGuest) {
-      
-      // Filter to show only labs associated with core facilities this user is associated with
-      if (this.getCoreFacilitiesForMyLab().isEmpty()) {
-        throw new InvalidSecurityAdvisorException("User is not assigned to any labs.");
-      }
-    }
+    } 
   }
   
   public void registerMethodsToExcludeFromXML() {
