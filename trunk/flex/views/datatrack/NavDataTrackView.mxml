@@ -299,7 +299,8 @@
 		currentState = "";
 		if (parentApplication.hasPermission("canWriteAnyObject")) {
 			currentState = "AdminState";
-		} else if (parentApplication.currentState == "GuestState") {
+		} else if (parentApplication.currentState == "GuestState" || !parentApplication.canSubmitRequestForALab()) {
+			// Set to guest state for guests or users that don't belong to a lab
 			currentState = "GuestState";
 		} else {
 			this.currentState = "UserState";
