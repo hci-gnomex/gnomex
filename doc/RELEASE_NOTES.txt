@@ -16,6 +16,15 @@
 * Added container type to order review page. (mbowler)
 * Removed plate, quadrant, well, and run columns from experimentDetailView Chromatogram tab.(tcourdy)
 * Fixed alignment issues with the work authorization email text.(tcourdy)
+* Added description and acceptOnlineWorkAuth to CoreFacility (mbowler) 
+* Added core facility description to new user sign up (mbowler)
+* Restrict core facilities shown on work auth window combo box to those that allow online work auth submission (mbowler)
+
+deploy notes
+----------------------
+-- New properties for core facility
+alter table gnomex.CoreFacility add acceptOnlineWorkAuth char(1) NOT NULL Default 'Y';
+alter table gnomex.CoreFacility add description varchar(10000) NULL;
 
 5.4.9.1 (Oct 1, 2012)
 ----------------------

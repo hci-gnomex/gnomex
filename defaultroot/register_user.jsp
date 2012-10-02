@@ -135,16 +135,26 @@ try {
       <div class="empty"></div>
       
       <div id="coreFacilityDiv">
-        <div class="col1" ><div class="right">Choose Core Facility</div></div>
+        <div class="col1"><div class="right">Choose Core Facility</div></div>
+        <div class="col2" >
             <%
             Iterator facilityIter = facilities.iterator();
             while (facilityIter.hasNext()) {
               CoreFacility facility = (CoreFacility) facilityIter.next();
             %>
-            <div class="col2">
-            <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%> 
-            </div><br>
+            <div class="left">
+              <label >
+                <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> 
+                  <%=facility.getFacilityName()%>
+                  <%
+                    if (facility.getDescription() != null) {%>
+                      &nbsp; (<%=facility.getDescription()%>)
+                  <%}%>
+                  
+              </label>
+            </div>
             <%}%>
+        </div>
       </div>
       
       <div class="empty"></div>
