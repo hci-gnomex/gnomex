@@ -246,6 +246,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         this.addInvalidField( "Primers", "Invalid primers xml");
       }
     }
+    
+    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
+      log.error("Insufficient permissions to submit requests for " + this.getSecAdvisor().getUserFirstName() + " " + this.getSecAdvisor().getUserLastName());
+      this.addInvalidField("PermissionError", "Insufficient permissions to submit request");
+    }
+    
+
   }
 
   public Command execute() throws RollBackCommandException {
