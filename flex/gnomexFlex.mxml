@@ -2024,8 +2024,8 @@
 					workAuthLabList = submitRequestLabList;
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 	        	} else {
-					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab.(@isMyLab == 'Y'));
-	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab.(@isMyLab == 'Y')));
+					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab);
+					promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 	        	}
 	        	
 	        	getAppUserList.send();
@@ -2817,8 +2817,19 @@
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 			<mx:RemoveChild target="{submitRequestLink}"/>
 			<mx:RemoveChild target="{submitRequestRule}"/>
+			<mx:RemoveChild target="{moreMenuRule}"/>
+			<mx:RemoveChild target="{moreMenu}"/>
 			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
-	 	</mx:State>
+
+			<mx:AddChild relativeTo="{dataTracksLink}" position="after">
+				<mx:VRule height="20" id="topicsRule1"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{topicsRule1}" position="after">
+				<mx:LinkButton id="topicsLink1" label="Topics" styleName="navLinkButton" click="{theViews.selectedChild = navTopicsView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconTopic}"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
+
+		</mx:State>
 	 	<mx:State name="GuestState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 			<mx:RemoveChild target="{submitRequestLink}"/>
