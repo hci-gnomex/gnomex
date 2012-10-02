@@ -37,6 +37,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   
   private RequestFilter requestFilter;
   private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
+  private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
   
   public void validate() {
   }
@@ -61,6 +62,9 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     
     //Hash reaction plate info by idRequest
     hashReactionPlates(sess);
+    
+    // Hash source plate info by idRequest
+    hashSourcePlates(sess);
     
     Document doc = new Document(new Element("RequestList"));
     for(Iterator i = rows.iterator(); i.hasNext();) {
@@ -119,7 +123,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
       appendReactionPlateInfo(node, rxnPlateRows);
       
-      appendContainerType(sess, node, idRequest);
+      List<Object[]> sourcePlateRows = sourcePlateMap.get(idRequest);
+      appendSourcePlateInfo(node, sourcePlateRows);
       
       appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility);
       
@@ -223,6 +228,34 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     
   }
   
+  private void hashSourcePlates(Session sess) {
+    sourcePlateMap = new HashMap<Integer, List<Object[]>>();
+    
+    StringBuffer queryBuf = requestFilter.getSourcePlateQuery(this.getSecAdvisor());
+    List<Object[]> plateRows = sess.createQuery(queryBuf.toString()).list();
+    
+    if (plateRows != null) {
+      
+      for (Object[] plateRow : plateRows) {
+        Integer idRequest        = (Integer)plateRow[0];
+        Integer idPlate          = (Integer)plateRow[1];
+        
+        List<Object[]> thePlateRows = sourcePlateMap.get(idRequest);
+        if (thePlateRows == null) {
+          thePlateRows = new ArrayList<Object[]>();
+          sourcePlateMap.put(idRequest, thePlateRows);
+        }
+        thePlateRows.add(plateRow);
+      }
+    }    
+  }
+
+  private void appendSourcePlateInfo(Element node, List<Object[]> plateRows) {
+
+    node.setAttribute("container", plateRows != null && !plateRows.isEmpty() ? "Plate" : "Tubes");
+    
+  }
+  
   private void appendSecurityFlags(Element node, String codeRequestStatus, 
       String codeRequestCategory, Integer idLab, Integer idAppUser, Integer idCoreFacility) {
     boolean canUpdate = false;
@@ -260,26 +293,6 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   }
   
-  private void appendContainerType(Session sess, Element node, Integer idRequest) {
-    Request request = (Request)sess.get(Request.class, idRequest);
-    ArrayList<Integer> sampleIds = new ArrayList<Integer>();
-    for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
-      Sample sample = (Sample)i1.next();
-      sampleIds.add(sample.getIdSample());
-    }
-    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)
-        && request.getSamples().size() > 0) {
-      String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
-      Query plateQuery = sess.createQuery(plateQueryString);
-      plateQuery.setParameterList("ids", sampleIds);
-      List wells = plateQuery.list();
-      if (wells.size() > 0) {
-        // has plates, so it's not tubes.
-        node.setAttribute("containerType", "PLATE");
-      } else {
-        node.setAttribute("containerType", "TUBE");
-      }
-    }
-  }
+
 
 }

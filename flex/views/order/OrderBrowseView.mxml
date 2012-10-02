@@ -818,7 +818,7 @@
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry, '@display', '@value', '@codeRequestCategory')}"/>
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
-					<mx:DataGridColumn dataField = "@containerType" headerText = "Container" width = "105" />
+					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "105" />
 					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110"/>
 					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110"/>
 					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70"/>
