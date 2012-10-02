@@ -100,6 +100,20 @@ public class RequestFilter extends DetailObject {
     
   }
   
+  public StringBuffer getSourcePlateQuery(SecurityAdvisor secAdvisor) {
+    addWhere = true;
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append( "SELECT distinct req.idRequest, plate.idPlate ");
+    
+    getSourcePlateQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  
+  
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM        Request as req ");
@@ -134,6 +148,19 @@ public class RequestFilter extends DetailObject {
     addSecurityCriteria();
   }
   
+
+  public void getSourcePlateQueryBody(StringBuffer queryBuf) {
+
+    queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.samples as sample ");
+    queryBuf.append(" JOIN        sample.wells as well ");
+    queryBuf.append(" JOIN        well.plate as plate ");
+    
+    addRequestCriteria();
+    addSourcePlateCriteria();
+    addSecurityCriteria();
+  }
+
 
   private void addRequestCriteria() {
     // Search by request number 
@@ -246,6 +273,12 @@ public class RequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
   }   
+  
+  private void addSourcePlateCriteria() {
+    this.addWhereOrAnd();
+    queryBuf.append(" plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
+    
+  }
   private void addSecurityCriteria() {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
