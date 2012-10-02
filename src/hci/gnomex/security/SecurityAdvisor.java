@@ -1465,14 +1465,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {        
         globalPermissionMap.put(new Permission(CAN_DELETE_ANY_PROJECT), null);
       }
-
-      // Can submit requests
-      if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
-          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-        globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
-      }
-      
-     
     }
  
     // Can access objects governed by group level permissions
@@ -1496,6 +1488,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (!isGuest) {
       globalPermissionMap.put(new Permission(CAN_SUBMIT_WORK_AUTH_FORMS), null);      
     }
+    
+    // Can submit requests
+    if (isActiveUser()) {
+      if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+          appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
+        globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
+      }
+    }
+    
+
 
 
   }
