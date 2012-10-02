@@ -20,6 +20,9 @@
 			<mx:RemoveChild target="{label8}"/>
 			<mx:RemoveChild target="{hbox9}"/>
 			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{button14}"/>
+			<mx:RemoveChild target="{button22}"/>
+			<mx:RemoveChild target="{vbox14}"/>
 		</mx:State>
 		<mx:State name="BillingAdminState" basedOn="AdminState">
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
@@ -132,6 +135,13 @@
 			<mx:RemoveChild target="{label2a}"/>
 			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
 			<mx:RemoveChild target="{button12}"/>
+			<mx:SetProperty target="{button8}" name="visible" value="true"/>
+			<mx:SetProperty target="{button8}" name="includeInLayout" value="true"/>
+			<mx:AddChild relativeTo="{spacer1}" position="before">
+				<mx:Text text="(restricted access)" styleName="welcomeUserLabel"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{label4}" name="includeInLayout" value="true"/>
+			<mx:SetProperty target="{label4}" name="visible" value="true"/>
 		</mx:State>
 		<mx:State name="UserState">
 			<mx:SetStyle target="{label8}" name="paddingTop" value="10"/>
@@ -206,11 +216,12 @@
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
-			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
 			<mx:RemoveChild target="{label8}"/>
 			<mx:RemoveChild target="{linkbutton1}"/>
 			<mx:RemoveChild target="{hbox9}"/>
 			<mx:RemoveChild target="{vbox14}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button8}"/>
 		</mx:State>
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
@@ -221,7 +232,6 @@
 		</mx:State>
 		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
-			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
 		</mx:State>
 		<mx:State name="AdminDNASeqState" basedOn="AdminState">
 			<mx:AddChild relativeTo="{hbox3}" position="before">
@@ -492,7 +502,7 @@
 		<mx:HBox width="100%">
 			<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="8" top="8" id="text1"/>
 			<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="8" top="8" id="text2"/>
-			<mx:Spacer width="100%"/>
+			<mx:Spacer width="100%" id="spacer1"/>
 			<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
 		</mx:HBox>
 		<mx:Spacer height="100%"/>
