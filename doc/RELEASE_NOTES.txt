@@ -17,6 +17,13 @@
 * Removed plate, quadrant, well, and run columns from experimentDetailView Chromatogram tab.(tcourdy)
 * Fixed alignment issues with the work authorization email text.(tcourdy)
 
+5.4.9.1 (Oct 1, 2012)
+----------------------
+* Show container column on Order Review (mbowler, tdisera)
+* Don't allow inactive user to submit requests (tdisera)
+* Don't error on login when user doesn't have any labs (mbowler)
+* Fix bug so that billing account remove button works (mbowler)
+
 5.4.9 (Sept 27, 2012)
 ---------------------
 * Fixed bug in ProjectRequestFilter SQL causing unexpected results when viewing experiments for logged-in user. (rcundick)
