@@ -19,6 +19,8 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private String   facilityName;
   private String   isActive;
   private String   showProjectAnnotations;
+  private String   description;
+  private String   acceptOnlineWorkAuth;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -55,6 +57,26 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   
   public void setIsActive(String isActive) {
     this.isActive = isActive;
+  }
+
+  
+  public String getDescription() {
+    return description;
+  }
+
+  
+  public void setDescription( String description ) {
+    this.description = description;
+  }
+
+  
+  public String getAcceptOnlineWorkAuth() {
+    return acceptOnlineWorkAuth;
+  }
+
+  
+  public void setAcceptOnlineWorkAuth( String acceptOnlineWorkAuth ) {
+    this.acceptOnlineWorkAuth = acceptOnlineWorkAuth;
   }
 
   public String getShowProjectAnnotations() {

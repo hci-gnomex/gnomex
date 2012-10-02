@@ -283,6 +283,8 @@
     <property name="facilityName" column="facilityName" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
     <property name="showProjectAnnotations" column="showProjectAnnotations" type="string"/>
+    <property name="description" column="description" type="string"/>
+    <property name="acceptOnlineWorkAuth" column="acceptOnlineWorkAuth" type="string"/>
   </class>
 	
   

@@ -162,7 +162,7 @@
 				return;
 			}
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-			coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility);
+			coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
 			
 			var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
 			coreFacilities.addItemAt(blankNode, 0);

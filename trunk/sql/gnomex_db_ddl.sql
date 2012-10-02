@@ -638,6 +638,8 @@ CREATE TABLE `gnomex`.`CoreFacility` (
   `facilityName` varchar(200) NULL,
   `isActive` CHAR(1) NOT NULL DEFAULT 'N',
   `showProjectAnnotations` CHAR(1) NOT NULL DEFAULT 'Y',
+  `description` VARCHAR(10000) NULL,
+  `acceptOnlineWorkAuth` CHAR(1) NOT NULL DEFAULT 'Y',
   PRIMARY KEY (`idCoreFacility`)
 )
 ENGINE = INNODB;
