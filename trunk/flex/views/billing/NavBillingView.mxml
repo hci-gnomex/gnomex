@@ -1227,7 +1227,6 @@
  					for each(var bi1:XML in request.BillingItem) {
  						if (bi1.@qty == '' || bi1.@unitPrice == '' || bi1.@unitPrice == 0 || bi1.@invoicePrice == '' || bi1.@invoicePrice == 0) {
  							isEmptyPriceOrQty = true;
- 							break;
  						}
 						if (bi1.@idBillingPeriod == '') {
 							Alert.show("Each price must have an associated billing period.",
