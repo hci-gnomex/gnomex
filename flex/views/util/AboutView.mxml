@@ -37,8 +37,9 @@
 			<mx:Text text="Contact Info" fontWeight="bold" fontSize="14" paddingBottom="1"/>
 			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="To report software bugs or give feedback, please email" width="375"/>				
-				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE)), '_blank');" textDecoration="underline" color="#0000ff"/>				
+				<mx:Text text="To report software bugs and/or provide feedback:" width="340"/>
+				<mx:Text htmlText="&lt;b&gt;Tony Disera&lt;/b&gt;  &lt;i&gt;Email:&lt;/i&gt;" />
+				<mx:LinkButton paddingLeft="0" label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE)), '_blank');" textDecoration="underline" color="#0000ff"/>				
 			</mx:HBox>
 		</mx:VBox>
 		
@@ -76,20 +77,28 @@
 					coreContactBox.setStyle("horizontalGap",0);
 					coreContactBox.setStyle("verticalAlign","middle");
 					coreContactBox.setStyle("width","100%");
-					
+				
 					var bullet:Image = new Image();
 					bullet.source = parentApplication.iconBullet;
 					coreContactBox.addChild(bullet);
 					
+					var genericText:Text = new Text();
+					genericText.text = cf.@coreName + " Core:";
+					genericText.width = 340;
+					coreContactBox.addChild(genericText);
+					
 					var contactText:Text = new Text();
-					contactText.text = cf.@coreName + " Core: " + cf.@contactName + ", " + cf.@contactNumber + ", ";
+					contactText.htmlText = "<b>" + cf.@contactName + "</b>" + "<i> &nbsp;Phone: </i>" + cf.@contactNumber + "<i> &nbsp;Email: </i>";
 					coreContactBox.addChild(contactText);
+					
 					
 					var emailLink:LinkButton = new LinkButton();
 					emailLink.label = cf.@contactEmail;
 					emailLink.setStyle("textDecoration","underline");
 					emailLink.setStyle("color","#0000ff");
+					emailLink.setStyle("paddingLeft", 0);
 					emailLink.addEventListener("click", function (e:Event):void{navigateToURL(new URLRequest('mailto:' + e.target.label));});
+					
 					
 					coreContactBox.addChild(emailLink);
 					contactBox.addChild(coreContactBox);

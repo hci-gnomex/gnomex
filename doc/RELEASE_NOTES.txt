@@ -23,6 +23,7 @@
 * Changes and code cleanup to chromatogram save and parsing controllers to fix email bug (mbowler) 
 * Small changes to plate and redo reports and chromatogram browse view per Anna request (mbowler)
 * Fixed error when adding billing items to split invoice. (rcundick)
+* Lined up and added a little style to the contact info section.(tcourdy)
 
 deploy notes
 ----------------------
