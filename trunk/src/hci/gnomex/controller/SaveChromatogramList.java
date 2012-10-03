@@ -58,7 +58,7 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveChromatogram", e);
+      log.warn("Cannot get launch app URL in SaveChromatogramList", e);
     }
 
 
@@ -82,7 +82,7 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
           setResponsePage(this.SUCCESS_JSP);          
 
         } else {
-          this.addInvalidField("Insufficient permissions", "Insufficient permission to save chromatogram.");
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to save chromatogram list.");
           setResponsePage(this.ERROR_JSP);
         }
         

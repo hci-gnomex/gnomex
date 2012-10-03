@@ -129,14 +129,10 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
 
           
           // Plate header
-          // ID
+          // Plate Name
           Element h2 = new Element( "H2" );
-          h2.addContent( "Plate " + plate.getIdPlate().toString() ); 
+          h2.addContent( plate.getLabel() ); 
           maindiv.addContent( h2 );
-          // Plate name
-          Element h4 = new Element( "h4" );
-          h4.addContent( plate.getLabel() );
-          maindiv.addContent( h4 );
           
           // Run information table
           if ( ir != null ) {
