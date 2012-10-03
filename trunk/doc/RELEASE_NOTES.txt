@@ -19,6 +19,7 @@
 * Added description and acceptOnlineWorkAuth to CoreFacility (mbowler) 
 * Added core facility description to new user sign up (mbowler)
 * Restrict core facilities shown on work auth window combo box to those that allow online work auth submission (mbowler)
+* Changed delete annotation functionality to offer option to delete associated values rather than limiting to inactivate if there are values. (rcundick)
 
 deploy notes
 ----------------------
