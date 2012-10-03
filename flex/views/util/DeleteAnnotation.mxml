@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" 
+				width="448" height="298" 
+				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
+				title="Non-Blank Annotations">
+<mx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
+		
+		import views.admin.PropertyWindow;
+		
+		private var propertyWindow:PropertyWindow;
+
+	
+		
+		public function init(propWindow:PropertyWindow):void { 
+			idSamples.text = propWindow.deleteProperty.lastResult.@sampleCount;
+			idAnalysis.text = propWindow.deleteProperty.lastResult.@analysisCount;
+			idDataTracks.text = propWindow.deleteProperty.lastResult.@dataTrackCount;
+			propertyWindow = propWindow;
+			if(parentApplication.isSuperAdmin 
+				|| (idSamples.text == "0" && idAnalysis.text == "0" && idDataTracks.text == "0")) {
+				optionStack.selectedChild = canDelete;
+			} else {
+				optionStack.selectedChild = cantDelete;
+			}
+		}
+		
+		
+	]]>
+</mx:Script>
+		
+	
+	<mx:VBox width="419" horizontalAlign="center">
+		<mx:Text text="The annotation could not be deleted because there is at least one sample, analysis, or datatrack that uses it. It has been set to inactive instead.&#xa;&#xa;Count of items with non-blank values:"  fontSize="10" paddingBottom="6" width="100%" height="80"/>
+		<mx:HBox>
+			<mx:Label text="Samples:" width="85"/>
+			<mx:Label id="idSamples" text="Label"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Analysis:" width="85"/>
+			<mx:Label id="idAnalysis" text="Label"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Data Tracks:" width="85"/>
+			<mx:Label id="idDataTracks" text="Label"/>
+		</mx:HBox>
+		<mx:ViewStack id="optionStack" width="100%" height="88">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" id="cantDelete">
+				<mx:Spacer height="5"/>
+				<mx:Text text="Please contact an administrator if you would like to delete the annotation and all its associated values."  fontSize="10" paddingBottom="6" width="100%" height="36" x="10"/>
+				<mx:Button label="OK" click="{PopUpManager.removePopUp(this);}"/>
+			</mx:VBox>
+			<mx:VBox label="" width="100%" height="100%" horizontalAlign="center" id="canDelete">
+				<mx:Spacer height="10"/>
+				<mx:Button label="Delete the Annotation and Its Associated Values" height="30" width="316" mouseUp="{propertyWindow.removeProperty(event, 'Y');PopUpManager.removePopUp(this);}"/>
+				<mx:Spacer height="2"/>
+				<mx:Button label="Exit" click="{PopUpManager.removePopUp(this);}"/>
+			</mx:VBox>
+		</mx:ViewStack>		
+	</mx:VBox>
+
+	
+</mx:TitleWindow>
