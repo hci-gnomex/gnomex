@@ -801,7 +801,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn dataField="@idChromatogram"
+				<mx:DataGridColumn dataField="@idPlateWell"
 								   headerText="ID"
 								   width="35" minWidth="20" />
 				<mx:DataGridColumn dataField="@plateLabel"
@@ -840,13 +840,13 @@
 				</mx:DataGridColumn>
 				
 				
-					<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
-								   headerText="Released"
-								   width="90"  id="datagridcolumn2"/>
-				
-					<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
-								   headerText="Releaser"
-								   width="85"/>
+				<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
+							   headerText="Released"
+							   width="90"  id="datagridcolumn2"/>
+			
+				<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
+							   headerText="Releaser"
+							   width="85"/>
 				
 				<mx:DataGridColumn width="55" headerText="Redo">
 					<mx:itemRenderer>

@@ -34,8 +34,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChromatogramParser.class);
   
   private Document doc;
-  private Map      chMap = new HashMap();
-  private List<Chromatogram>       chromatList = new ArrayList<Chromatogram>();
   
   private SecurityAdvisor secAdvisor = null;
   private String launchAppURL = null;
@@ -43,16 +41,17 @@ public class ChromatogramParser extends DetailObject implements Serializable
   private String serverName = null;
   private Integer idReleaser;
   
+  private Map redoRequestsMap = new HashMap();
+  private Map instrumentRunsMap = new HashMap();
+  
   public ChromatogramParser(Document doc) {
     this.doc = doc;
   }
   
   public ChromatogramParser(){
-    
   }
 
-  public void init() {
-    setChMap( new HashMap() );
+  public void init() { 
   }
 
   public void parse(Session sess, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws Exception {
@@ -65,55 +64,64 @@ public class ChromatogramParser extends DetailObject implements Serializable
     this.serverName = serverName;
     this.idReleaser = this.secAdvisor.getIdAppUser();
     
+    // Loop through each chromatogram
     for (Iterator i = root.getChildren("Chromatogram").iterator(); i.hasNext();) {
       Element node = (Element) i.next();
 
       String idChromatogram = node.getAttributeValue("idChromatogram");
 
+      // Get the chromatogram from the DB or create a new one
       if (idChromatogram.equals(null) || idChromatogram.equals("0")) {
-        
         ch = new Chromatogram();
         sess.save( ch );
         idChromatogram = ch.getIdChromatogram().toString();
-        
       } else {
-        
         ch = (Chromatogram) sess.get(Chromatogram.class,
             Integer.parseInt(idChromatogram));
       }
-
       this.initializeChromat(sess, node, ch);
       
       sess.flush();
       
+      // Get the instrument run for the chromat
       PlateWell pw = null;
       Plate p = null;
       InstrumentRun ir=null;
-      
       if ( ch.getIdPlateWell() != null ) {
         pw = (PlateWell) sess.get(PlateWell.class, ch.getIdPlateWell());
-      }
-      if ( pw != null && pw.getIdPlate() != null ) {
-        p = (Plate) sess.get(Plate.class, pw.getIdPlate());
-      }
-      if ( p != null && p.getIdInstrumentRun() != null ) {
-        ir = (InstrumentRun) sess.get(InstrumentRun.class, p.getIdInstrumentRun());
-      }
-      if ( ch.getReleaseDate() != null ) {
-        if ( ir!=null ) {
-          // The instrument run status should change to COMPLETE if all chromatograms
-          // for instrument run have been released.
-          if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
-            ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+        if ( pw != null && pw.getIdPlate() != null ) {
+          p = (Plate) sess.get(Plate.class, pw.getIdPlate());
+          if ( p != null && p.getIdInstrumentRun() != null ) {
+            ir = (InstrumentRun) sess.get(InstrumentRun.class, p.getIdInstrumentRun());
+            if ( ir!=null && !instrumentRunsMap.containsKey( ir.getIdInstrumentRun() ) ) {
+              instrumentRunsMap.put( ir.getIdInstrumentRun(), ir );
+            }
           }
-          this.changeRequestsToComplete(sess, ir, secAdvisor, launchAppURL, appURL, serverName);
         }
       }
       
       sess.flush();
-      
-      chMap.put( idChromatogram, ch );
-      chromatList.add( ch );
+    }
+    
+    // Update instrument run and request statuses
+    for(Iterator i = instrumentRunsMap.keySet().iterator(); i.hasNext();) {
+      int idInstrumentRun = (Integer)i.next();
+      InstrumentRun ir = (InstrumentRun)instrumentRunsMap.get(idInstrumentRun);
+      if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
+        ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
+      }
+      this.changeRequestsToComplete(sess, ir, secAdvisor, launchAppURL, appURL, serverName);
+    }
+    // Send redo emails for any requests with samples being requeued
+    for(Iterator i = redoRequestsMap.keySet().iterator(); i.hasNext();) {
+      int idRequest = (Integer)i.next();
+      Request req = (Request)redoRequestsMap.get(idRequest);
+     
+        try {
+          EmailHelper.sendRedoEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
+        } catch (Exception e) {
+          log.warn("Cannot send confirmation email for request " + req.getNumber());
+        }
     }
   }
 
@@ -125,7 +133,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
     String                released = "N";
     String                releaseDateStr = null;
     String                requeue = "N";
-    String                fileName = null;
     String                qualifiedFilePath = null;
     String                displayName = null;
     int                   readLength = 0;
@@ -148,24 +155,18 @@ public class ChromatogramParser extends DetailObject implements Serializable
     if (n.getAttributeValue("requeue") != null && n.getAttributeValue("requeue").equals("Y")) {
       requeue = "Y";
     }
-    
     if (n.getAttributeValue("idPlateWell") != null && !n.getAttributeValue("idPlateWell").equals("")) {
       idPlateWell = Integer.parseInt(n.getAttributeValue("idPlateWell"));
     }
     if (n.getAttributeValue("idRequest") != null && !n.getAttributeValue("idRequest").equals("")) {
       idRequest = Integer.parseInt(n.getAttributeValue("idRequest"));
     }
-    
-    if (n.getAttributeValue("fileName") != null && !n.getAttributeValue("fileName").equals("")) {
-      fileName = n.getAttributeValue("fileName");
-    } 
     if (n.getAttributeValue("qualifiedFilePath") != null && !n.getAttributeValue("qualifiedFilePath").equals("")) {
       qualifiedFilePath = n.getAttributeValue("qualifiedFilePath");
     } 
     if (n.getAttributeValue("displayName") != null && !n.getAttributeValue("displayName").equals("")) {
       displayName = n.getAttributeValue("displayName");
     }
-    
     if (n.getAttributeValue("readLength") != null && !n.getAttributeValue("readLength").equals("")) {
       readLength = Integer.parseInt(n.getAttributeValue("readLength"));
     }
@@ -197,14 +198,29 @@ public class ChromatogramParser extends DetailObject implements Serializable
     // Set releaseDate if released
     if ( released.equals( "Y" )) {
       ch.setReleaseDate(new java.util.Date(System.currentTimeMillis()));
+      ch.setIdReleaser(this.idReleaser);
     }
     if (releaseDateStr != null) {
       java.util.Date releaseDate = this.parseDate(releaseDateStr);
       ch.setReleaseDate(releaseDate);
     }
-    if ( released.equals("Y")){ch.setIdReleaser(this.idReleaser);}
+    
+    // Get the request
+    Request req = null;
+    if ( idRequest == 0 && idPlateWell != 0 ) {
+      PlateWell pw = (PlateWell) sess.get( PlateWell.class, idPlateWell );
+      if ( pw != null && pw.getIdRequest() != null ) {
+        if ( pw.getIsControl() != null && pw.getIsControl() != "Y" ) { 
+          idRequest = pw.getIdRequest();
+        }
+      }
+    }
+    if ( idRequest != 0 ) {
+      req = (Request) sess.get(Request.class, idRequest);
+    }
+    
     if ( idPlateWell != 0 ) {ch.setIdPlateWell( idPlateWell );}
-    if ( idRequest != 0 ) {ch.setIdRequest( idRequest );}
+    if ( req != null ) {ch.setIdRequest( req.getIdRequest() );}
     if ( qualifiedFilePath != null )  {ch.setQualifiedFilePath( qualifiedFilePath );}
     if ( displayName != null ) {ch.setDisplayName( displayName );}
     if ( readLength != 0 ) {ch.setReadLength( readLength );}
@@ -219,25 +235,10 @@ public class ChromatogramParser extends DetailObject implements Serializable
     
     if ( requeue.equals( "Y" )) {
       requeueSourceWells( idPlateWell, sess );
+      if ( req != null ) {
+        redoRequestsMap.put( req.getIdRequest(), req );
+      }
     }
-  }
-
-  public void setChMap( Map chMap ) {
-    this.chMap = chMap;
-  }
-
-  public Map getChMap() {
-    return chMap;
-  }
-
-  
-  public List<Chromatogram> getChromatList() {
-    return chromatList;
-  }
-
-  
-  public void setChromatList( List<Chromatogram> chromatList ) {
-    this.chromatList = chromatList;
   }
 
   public void requeueSourceWells( int idReactionWell, Session sess ) {
@@ -256,7 +257,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
         PlateWell redoWell = (PlateWell) i2.next();
         redoWell.setRedoFlag( "Y" );
       }
-    }
+  }
   
   public static StringBuffer getRedoQuery( PlateWell reactionWell, boolean toToggleBack ) {
     StringBuffer    queryBuf = new StringBuffer();
@@ -334,34 +335,22 @@ public class ChromatogramParser extends DetailObject implements Serializable
             if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
               if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
                 hasRedo = true;
-                if (redoSamples.length() > 0) {
-                  redoSamples.append(", ");
-                }
-                redoSamples.append(s.getName());
               }
             }
           }
         }
-        
-        if (hasRedo) {
-          // We need to email the submitter that some of their samples are requeued for redo.
-          // When the chromatograms are release, they will receive email notification.
-          try {
-            EmailHelper.sendRedoEmail(sess, req, redoSamples, secAdvisor, launchAppURL, appURL, serverName);          
-          } catch (Exception e) {
-            log.warn("Cannot send confirmation email for request " + req.getNumber());
-          }
-
+        if ( hasRedo ) {
           continue;
         }
         
+        
         int releaseCount = 0;
-        HashMap<Integer, Integer> releasedSamples = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> releasedPlateWells = new HashMap<Integer, Integer>();
         for (Chromatogram ch : (Set<Chromatogram>)req.getChromatograms()) {
           if (ch.getReleaseDate() != null) {
             releaseCount++;
-            if (ch.getPlateWell() != null && ch.getPlateWell().getIdSample() != null) {
-              releasedSamples.put(ch.getPlateWell().getIdSample(), ch.getPlateWell().getIdSample());
+            if (ch.getPlateWell() != null) {
+              releasedPlateWells.put(ch.getPlateWell().getIdPlateWell(), ch.getPlateWell().getIdPlateWell());
             }
           }
         }
@@ -370,9 +359,14 @@ public class ChromatogramParser extends DetailObject implements Serializable
         // experiment, we don't want to mark the experiment as complete yet.
         boolean sampleMissingReleasedChrom = false;
         for (Sample s : (Set<Sample>)req.getSamples()) {
-          if (s.getIdSample() != null) {
-            if (!releasedSamples.containsKey(s.getIdSample())) {
-              sampleMissingReleasedChrom = true;
+          for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+            // Find all the reaction platewells for this request
+            if (well.getPlate() != null ) {
+              if ( well.getPlate().getCodePlateType() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+                if (!releasedPlateWells.containsKey(well.getIdPlateWell())) {
+                  sampleMissingReleasedChrom = true;
+                }
+              }
             }
           }
         }

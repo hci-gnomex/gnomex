@@ -54,7 +54,7 @@ public class EmailHelper {
     
   }
 
-  public static void sendRedoEmail(Session sess, Request request, StringBuffer redoSampleNames, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException {
+  public static void sendRedoEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
@@ -64,7 +64,7 @@ public class EmailHelper {
     String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
     introNote.append("The following samples on Order " + request.getNumber() + " have been marked for redo by " + coreFacilityName + ": ");
     introNote.append("<br>");
-    introNote.append(redoSampleNames.toString());
+    introNote.append(request.getRedoSampleNames());
     introNote.append("<br><br>");
     introNote.append("When these requeued samples are completed, you will receive email notification that your results can be downloaded.  ");
     introNote.append("To view details about your order in GNomEx, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");

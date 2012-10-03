@@ -110,7 +110,7 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
 
           // Plate header
           Element h2 = new Element( "H2" );
-          h2.addContent( "Plate " + plate.getIdPlate().toString() + " (" + plate.getLabel() + ")"); 
+          h2.addContent( plate.getLabel() ); 
           maindiv.addContent( h2 );
           Element h5 = new Element( "h4" );
           h5.addContent( "Redo Report" );

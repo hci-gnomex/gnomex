@@ -20,6 +20,8 @@
 * Added core facility description to new user sign up (mbowler)
 * Restrict core facilities shown on work auth window combo box to those that allow online work auth submission (mbowler)
 * Changed delete annotation functionality to offer option to delete associated values rather than limiting to inactivate if there are values. (rcundick)
+* Changes and code cleanup to chromatogram save and parsing controllers to fix email bug (mbowler) 
+* Small changes to plate and redo reports and chromatogram browse view per Anna request (mbowler)
 
 deploy notes
 ----------------------

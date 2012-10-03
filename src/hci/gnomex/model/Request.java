@@ -1170,4 +1170,22 @@ public class Request extends HibernateDetailObject {
     
   }
   
+  public String getRedoSampleNames() {
+    StringBuffer redoSamples = new StringBuffer();
+    
+    for (Sample s : (Set<Sample>)this.getSamples()) {
+      for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+        if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
+          if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
+            if (redoSamples.length() > 0) {
+              redoSamples.append(", ");
+            }
+            redoSamples.append(s.getName());
+          }
+        }
+      }
+    }
+    return redoSamples.toString();
+  }
+  
 }
