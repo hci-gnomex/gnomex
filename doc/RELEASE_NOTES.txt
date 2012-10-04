@@ -24,6 +24,7 @@
 * Small changes to plate and redo reports and chromatogram browse view per Anna request (mbowler)
 * Fixed error when adding billing items to split invoice. (rcundick)
 * Lined up and added a little style to the contact info section.(tcourdy)
+* Reformatted request account window, fixed situation where duplicate requests can be submitted. (rcundick)
 
 deploy notes
 ----------------------
