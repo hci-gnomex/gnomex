@@ -55,6 +55,8 @@ public class ChromatogramParser extends DetailObject implements Serializable
   }
 
   public void parse(Session sess, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws Exception {
+    System.out.println(System.currentTimeMillis() + "\tStart ChromatogramParser.parse()");
+    
     Chromatogram ch = new Chromatogram();
     Element root = this.doc.getRootElement();
 
@@ -69,8 +71,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       Element node = (Element) i.next();
 
       String idChromatogram = node.getAttributeValue("idChromatogram");
-      System.out.println(System.currentTimeMillis() + " chromatogram " + idChromatogram);
-
+      
       // Get the chromatogram from the DB or create a new one
       if (idChromatogram.equals(null) || idChromatogram.equals("0")) {
         ch = new Chromatogram();
@@ -80,16 +81,11 @@ public class ChromatogramParser extends DetailObject implements Serializable
         ch = (Chromatogram) sess.get(Chromatogram.class,
             Integer.parseInt(idChromatogram));
       }
-      System.out.println(System.currentTimeMillis() + "   initializeChromatogram");
-
+      
       this.initializeChromat(sess, node, ch);
       
-      System.out.println(System.currentTimeMillis() + "   flush");
-
       sess.flush();
       
-      System.out.println(System.currentTimeMillis() + "   get instrument run for chromat");
-
       // Get the instrument run for the chromat
       PlateWell pw = null;
       Plate p = null;
@@ -107,12 +103,10 @@ public class ChromatogramParser extends DetailObject implements Serializable
         }
       }
       
-      System.out.println(System.currentTimeMillis() + "   flush");
-
       sess.flush();
     }
     
-    System.out.println(System.currentTimeMillis() + " update instrument run and request status");
+    System.out.println(System.currentTimeMillis() + "\tUpdate run and request status");
 
     // Update instrument run and request statuses
     for(Iterator i = instrumentRunsMap.keySet().iterator(); i.hasNext();) {
@@ -121,23 +115,25 @@ public class ChromatogramParser extends DetailObject implements Serializable
       if (InstrumentRun.areAllChromatogramsReleased(sess, ir)) {
         ir.setCodeInstrumentRunStatus( InstrumentRunStatus.COMPLETE );
       }
-      System.out.println(System.currentTimeMillis() + "   changeRequestsToComplete for " + ir.getIdInstrumentRun());
       this.changeRequestsToComplete(sess, ir, secAdvisor, launchAppURL, appURL, serverName);
     }
-    
-    System.out.println(System.currentTimeMillis() + " send redo emails");
+
+    System.out.println(System.currentTimeMillis() + "\tSend redo emails");
+
     // Send redo emails for any requests with samples being requeued
     for(Iterator i = redoRequestsMap.keySet().iterator(); i.hasNext();) {
       int idRequest = (Integer)i.next();
       Request req = (Request)redoRequestsMap.get(idRequest);
-      System.out.println(System.currentTimeMillis() + "   sendRedoEmail for " + req.getNumber());
-     
+      
         try {
           EmailHelper.sendRedoEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
         } catch (Exception e) {
           log.warn("Cannot send confirmation email for request " + req.getNumber());
         }
     }
+    
+    System.out.println(System.currentTimeMillis() + "\tEnd ChromatogramParser.parse()");
+
   }
 
   protected void initializeChromat(Session sess, Element n,
@@ -306,11 +302,14 @@ public class ChromatogramParser extends DetailObject implements Serializable
   }
   
   public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) {
-    
+    System.out.println(System.currentTimeMillis() + "\tStart ChromatogramParser.changeRequestsToComplete()");
+
     // Get any requests on that run
     Map<Integer, List<PlateWell>> requestToWellMap = new HashMap<Integer, List<PlateWell>>();
     Map<Integer, Request> requestMap = new HashMap<Integer, Request>();
     
+    System.out.println(System.currentTimeMillis() + "\tStart PlateWell from run query");
+
     List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
         " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
@@ -332,14 +331,20 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
     }
     
+    
     // Change request Status to completed if all plate wells have released
     // chromatograms and there are no pending redos.
     for ( Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
+      
+      System.out.println(System.currentTimeMillis() + "\tGet REQUEST " + idReq);
+      
       Request req = (Request) requestMap.get(idReq);
       List<PlateWell> plateWells = requestToWellMap.get(idReq);
       
       if ( req.getCompletedDate() == null ) {
+        
+        System.out.println(System.currentTimeMillis() + "\tSearch for redos");
         
         // Don't complete if there is a redo well on the request
         boolean hasRedo = false;
@@ -358,6 +363,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
           continue;
         }
         
+        System.out.println(System.currentTimeMillis() + "\tGet platewells for released chromats");
         
         int releaseCount = 0;
         HashMap<Integer, Integer> releasedPlateWells = new HashMap<Integer, Integer>();
@@ -370,6 +376,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
           }
         }
         
+        System.out.println(System.currentTimeMillis() + "\tGet reaction wells for request");
         // If we don't have a released chromatogram for any of the samples on the
         // experiment, we don't want to mark the experiment as complete yet.
         boolean sampleMissingReleasedChrom = false;
@@ -389,15 +396,17 @@ public class ChromatogramParser extends DetailObject implements Serializable
           continue;
         }
 
-        
+        System.out.println(System.currentTimeMillis() + "\tSet request complete status and complete time");
         req.setCodeRequestStatus( RequestStatus.COMPLETED );
         req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
         
+        System.out.println(System.currentTimeMillis() + "\tSet status for billing items");
         // Now change the billing items for the request from PENDING to COMPLETE
         for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
           billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
         }
 
+        System.out.println(System.currentTimeMillis() + "\tSend confirmation email");
         // We need to email the submitter that the experiment results
         // are ready to download
         try {
@@ -408,6 +417,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
     }
     sess.flush();
+    System.out.println(System.currentTimeMillis() + "\tFinish ChromatogramParser.changeRequestsToComplete()");
   }
   
 }
