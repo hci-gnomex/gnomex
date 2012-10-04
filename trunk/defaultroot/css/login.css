@@ -9,6 +9,13 @@ h1 {
 	margin-top: 10px;
 }
 
+table.facilities {
+	font-weight: normal;
+	font-size: 10pt;
+	color: #696969;
+}
+
+
 h3 {
 	font-weight: bold;
 	font-size: 11pt;
@@ -92,9 +99,9 @@ a.other {
 .boxWide {
 	background-color: #ececd9;  
 	border: 1px solid #8B8970;
-	overflow: auto;
+	overflow: hidden;
 	padding: 10px;
-	width: 425px;
+	width: 430px;
 	float: center;
 	color: #696969;
 }
@@ -146,6 +153,16 @@ a.other {
 	padding-right: 10px;
 	margin-right: 10px;
 }
+
+.singleCol {
+	clear:both;
+	float:left;
+	padding-top: 2px;
+	margin-top: 2px;
+	padding-right: 2px;
+	margin-right: 2px;
+}
+
 
 note {
 	padding: 2px;

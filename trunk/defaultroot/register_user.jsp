@@ -10,7 +10,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-  <link rel="stylesheet" href="css/login.css" type="text/css" />
+  <link rel="stylesheet" href="css/login.css?v1.0" type="text/css" />
   <title>Create a new GNomEx Account</title>
   
 <script  type="text/javascript" language="JavaScript">
@@ -21,16 +21,19 @@
   
   function showHideExternal()
   {
-
     if (document.theform.uofuAffiliate[0].checked)
     {
       document.getElementById("UofUDiv").style.display = "block";
       document.getElementById("externalDiv").style.display = "none";
+      document.getElementById("institute").value = "";
+      document.getElementById("userNameExternal").value = "";
+      document.getElementById("passwordExternal").value = "";
     }
     else
     {
       document.getElementById("UofUDiv").style.display = "none";
       document.getElementById("externalDiv").style.display = "block";
+      document.getElementById("uNID").value = "";
     }
   }
   
@@ -64,6 +67,36 @@
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 if (message == null) {
   message = "";
+}
+
+String firstName = (String) ((request.getParameter("firstName") != null)?request.getParameter("firstName"):"");
+if (firstName == null) {
+  firstName = "";
+}
+
+String lastName = (String) ((request.getParameter("lastName") != null)?request.getParameter("lastName"):"");
+if (lastName == null) {
+  lastName = "";
+}
+
+String email = (String) ((request.getParameter("email") != null)?request.getParameter("email"):"");
+if (email == null) {
+  email = "";
+}
+
+String phone = (String) ((request.getParameter("phone") != null)?request.getParameter("phone"):"");
+if (phone == null) {
+  phone = "";
+}
+
+String facilityRadio = (String) ((request.getParameter("facilityRadio") != null)?request.getParameter("facilityRadio"):"");
+if (facilityRadio == null) {
+  facilityRadio = "";
+}
+
+String labDropdown = (String) ((request.getParameter("labDropdown") != null)?request.getParameter("labDropdown"):"");
+if (labDropdown == null) {
+  labDropdown = "";
 }
 
 List labs = null;
@@ -118,45 +151,49 @@ try {
     <form name="theform" method="POST" action="PublicSaveSelfRegisteredAppUser.gx" >
 
   <div class="boxWide">
-    <h3>Create a new Account</h3>
+    <h3>Create a new account</h3>
 
       <div class="col1"><div class="right">First name</div></div>
-      <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName"   ></div>
+      <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName" value="<%=firstName%>"  ></div>
 
       <div class="col1"><div class="right">Last name</div></div>
-      <div class="col2"><input type="text" class="textWide" name="lastName"  /></div>
+      <div class="col2"><input type="text" class="textWide" name="lastName" id="lastName" value="<%=lastName%>"  /></div>
 
       <div class="col1"><div class="right">Email</div></div>
-      <div class="col2"><input type="text" class="textWide"   name="email"  /></div>
+      <div class="col2"><input type="text" class="textWide"   name="email" id="email" value="<%=email%>"  /></div>
 
       <div class="col1"><div class="right">Phone</div></div>
-      <div class="col2"><input type="text" class="textWide" name="phone"  /></div>
+      <div class="col2"><input type="text" class="textWide" name="phone" id="phone" value="<%=phone%>"  /></div>
       
       <div class="empty"></div>
-      
-      <div id="coreFacilityDiv">
-        <div class="col1"><div class="right">Choose Core Facility</div></div>
-        <div class="col2" >
+      <br>
+      <div id="coreFacilityDiv"><div class="col1"><div class="left">
+      <table border=0 width="425" class="facilities">
+        <tr>
+          <td colspan="2">
+          Choose Core Facility
+          </td>
+        </tr>
+        <%
+          Iterator facilityIter = facilities.iterator();
+          while (facilityIter.hasNext()) {
+            CoreFacility facility = (CoreFacility) facilityIter.next();
+        %>
+        <tr>
+          <td width="240">
+          <label><input type="radio" name="facilityRadio" id="facilityRadio<%=facility.getIdCoreFacility()%>" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%></label>
+          </td>
+          <td width="185">
             <%
-            Iterator facilityIter = facilities.iterator();
-            while (facilityIter.hasNext()) {
-              CoreFacility facility = (CoreFacility) facilityIter.next();
-            %>
-            <div class="left">
-              <label >
-                <input type="radio" name="facilityRadio" id="facilityRadio" value="<%=facility.getIdCoreFacility()%>"/> 
-                  <%=facility.getFacilityName()%>
-                  <%
-                    if (facility.getDescription() != null) {%>
-                      &nbsp; (<%=facility.getDescription()%>)
-                  <%}%>
-                  
-              </label>
-            </div>
+              if (facility.getDescription() != null) {%>
+                  (<%=facility.getDescription()%>)
             <%}%>
-        </div>
-      </div>
-      
+          </td>
+        </tr> 
+            <%}%>
+      </table>
+      </div></div>
+      </div>       
       <div class="empty"></div>
       
       <div id="labDiv">
@@ -168,8 +205,12 @@ try {
               Iterator i = labs.iterator();
               while (i.hasNext()) {
                 Lab l = (Lab) i.next();
+                String isSelected = "";
+                if(labDropdown.length() > 0 && labDropdown.compareTo(""+l.getIdLab())==0) {
+                  isSelected = "selected";
+                }
               %>
-                <option value="<%=l.getIdLab()%>"><%=l.getName()%></option>
+                <option value="<%=l.getIdLab()%>" <%=isSelected%>><%=l.getName()%></option>
               <%}%>
             </select>
         <a class="button" onclick="showNewLab()">New lab...</a>
@@ -190,28 +231,28 @@ try {
     <div class="empty"></div>
     <div id="userChoiceDiv">
       <div class="col1Wide" ><div class="right"> Are you affiliated with the University of Utah?</div></div>
-      <div class="col2"><INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes</div>
-      <div class="col2"><INPUT TYPE="radio" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No</div>
+      <div class="col2"><INPUT TYPE="radio" id="uofuAffiliate_y" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes</div>
+      <div class="col2"><INPUT TYPE="radio" id="uofuAffiliate_n" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No</div>
     </div>
 <% }  %>
       <div class="emptySmall"></div>
       <div id="UofUDiv" style="display:none;width:100%;">
         <div id="univUserNameArea1" class="col1"><div class="right">University ID</div></div>
-        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID"  ></div>
+        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID" id="uNID"></div>
         <div class="col1"><div class="right"> </div></div>
         <div class="col2"><note>Format should be a "u" followed by 7 digits (u0000000)</note></div>
       </div>
 
       <div id="externalDiv" style="display:none">
         <div class="col1"><div class="right">Institute</div></div>
-        <div class="col2"><input type="text" class="textWide"  name="institute" /></div>
+        <div class="col2"><input type="text" class="textWide" name="institute" id="institute" /></div>
         
         <div id="externalUserNameArea1" class="col1"><div class="right">User name</div></div>
-        <div id="externalUserNameArea2" class="col2"><input type="text" class="textWide" name="userNameExternal"  ></div>
+        <div id="externalUserNameArea2" class="col2"><input type="text" class="textWide" name="userNameExternal" id="userNameExternal"></div>
 
     
         <div id="externalPasswordArea1" class="col1"><div class="right">Password</div></div>
-        <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" class="textWide"></div>
+        <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" id="passwordExternal" class="textWide"></div>
       </div>
 
       <div style="float:left;"><div class="message"> <strong><%= message %></strong></div></div>
@@ -227,6 +268,11 @@ try {
 
 <script  type="text/javascript" language="JavaScript">
 <%
+if (facilityRadio.length() > 0) {
+%>
+  document.getElementById("facilityRadio<%=facilityRadio%>").checked = true;
+<%
+}
 if (facilities != null && facilities.size() > 1) {
 %>
   document.getElementById("coreFacilities").style.display = "block";
