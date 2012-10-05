@@ -26,6 +26,7 @@
 * Lined up and added a little style to the contact info section of the "About" screen.(tcourdy)
 * Reformatted request account window, fixed situation where duplicate requests can be submitted. (rcundick)
 * Fixed problem with number entry on DataPipeline Q30 field. (rcundick)
+* Fixed issue with uploading samplesheets to URL annotation columns. (rcundick)
 
 deploy notes
 ----------------------

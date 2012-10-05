@@ -527,15 +527,16 @@
 						if (col.headerText == "") {
 							continue;	// This skips row number column
 						}
+						var fieldType:String = "TEXT";
+						if(col is AnnotationAdvancedDataGridColumn) {
+							fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
+						}
+						if(col is AdvancedDataGridColumnWithType) {
+							fieldType = AdvancedDataGridColumnWithType(col).propertyType;
+						}
 						if ((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
-							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))) {
-							var fieldType:String = "TEXT";
-							if(col is AnnotationAdvancedDataGridColumn) {
-								fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
-							}
-							if(col is AdvancedDataGridColumnWithType) {
-								fieldType = AdvancedDataGridColumnWithType(col).propertyType;
-							}
+							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))
+							|| fieldType == "URL") {
 							
 							var selectedSSColumn:String = "0";
 							
