@@ -56,7 +56,8 @@
         import mx.controls.Alert;
         import hci.flex.controls.DropdownLabel;
         import views.renderers.ComboBoxWorkflowStatus;
-		import mx.validators.NumberValidator;  
+		import mx.validators.NumberValidator; 
+		import mx.controls.TextInput;
 
 		[Bindable]
         public var codeStepNext:String;
@@ -182,7 +183,34 @@
     		return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.NumberSequencingCycles", item.@idNumberSequencingCycles);
     	}  
 
-        ]]>
+		public function handleQ30TextChanges(evt:Event):void {
+			
+			var target:TextInput = evt.currentTarget as TextInput;
+			
+			if(!target) return;
+			
+			var value:String = target.text;
+			
+			if(value.length > 0) {
+				var firstDecPt:int = value.indexOf(".");
+				if(firstDecPt > 0 && firstDecPt < value.length) {
+					// If more than one decimal then trim
+					var anotherDecPt:int = value.indexOf(".", firstDecPt+1);
+					if(anotherDecPt > 0) {
+						value = value.substr(0, anotherDecPt);
+						target.text = value.substr(0, anotherDecPt);
+					}
+				}
+				
+				var num:Number = Number(value);
+				if(num >= 100.0) {
+					target.text = "100";
+					return;
+				}
+			}
+		}
+			
+		]]>
     </mx:Script> 
     
    
@@ -263,7 +291,7 @@
 					<mx:DataGridColumn headerText="Q30 (%)" width="14" dataField="@q30PercentForDisplay" editable="true">
 						<mx:itemEditor>
 							<mx:Component>
-								<mx:TextInput restrict="0-100." /> 
+								<mx:TextInput restrict="0-9." change="parentDocument.handleQ30TextChanges(event);"/> 
 							</mx:Component>
 						</mx:itemEditor> 
 					</mx:DataGridColumn>			                
