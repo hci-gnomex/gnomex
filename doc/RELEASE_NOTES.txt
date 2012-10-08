@@ -28,6 +28,7 @@
 * Fixed problem with number entry on DataPipeline Q30 field. (rcundick)
 * Fixed issue with uploading samplesheets to URL annotation columns. (rcundick)
 * Sample name is cropped on plate report to prevent wrapped names. (mbowler)
+* Fixed plates, runs, orders, and chromats grids so that clicking a row doesn't check that item and shift+click works only when clicking in checkboxes. (mbowler)
 
 deploy notes
 ----------------------

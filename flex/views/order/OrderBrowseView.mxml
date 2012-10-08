@@ -81,17 +81,15 @@
 					orderGrid.selectedIndex = -1;
 				}
 				
+				if ( event.columnIndex == 0 && orderGrid.selectedItems.length > 1 ) {
+					for each ( var obj1:Object in orderGrid.selectedItems ) {
+						obj1.@isSelected = true;
+					}
+				}
+				
 				selectedOrders.refresh();
 			}
 			
-			private function selectionChange( event:ListEvent ):void {
-				for each ( var obj:Object in orderGrid ) {
-					obj.@isSelected = false;
-				}
-				for each ( var obj1:Object in orderGrid.selectedItems ) {
-					obj1.@isSelected = true;
-				}
-			}
 			
 			private function submitAction():void {
 				if ( comboBox.selectedItem == null ) {
@@ -750,7 +748,6 @@
 						 allowMultipleSelection="true"
 						 itemClick = "gridItemClick(event)"
 						 click="{selectedOrders.refresh()}"
-						 change="selectionChange(event)"
 						 width = "100%"
 						 height = "100%"
 						 dataProvider = "{orderList}"
