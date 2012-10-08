@@ -30,6 +30,7 @@
 * Sample name is cropped on plate report to prevent wrapped names. (mbowler)
 * Fixed plates, runs, orders, and chromats grids so that clicking a row doesn't check that item and shift+click works only when clicking in checkboxes. (mbowler)
 * Changed Topics permissions such that a user who doesn't belong to a lab is treated same as guest user. (rcundick)
+* Fixed null pointer error when loading organism XML. (rcundick)
 
 deploy notes
 ----------------------
