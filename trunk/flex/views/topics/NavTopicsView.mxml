@@ -196,7 +196,8 @@
 		currentState = "";
 		if (parentApplication.hasPermission("canWriteAnyObject")) {
 			currentState = "AdminState";
-		} else if (parentApplication.currentState == "GuestState") {
+		} else if (parentApplication.currentState == "GuestState" || !parentApplication.hasPermission("canSubmitRequests")) {
+			// Users who don't belong to a lab treated same as guests
 			currentState = "GuestState";
 		} else {
 			this.currentState = "UserState";
@@ -1065,7 +1066,7 @@
 								 styleName="linkMenuButton"   					        	
 								 toolTip="Link experiments, analysis, or data tracks" 
 								 click="{this.mainViewStack.selectedChild = this.topicLinkView}" 
-								 id="linkbutton5"  textAlign="left" 
+								 id="linkToDataButton"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/link_disable.png')" 
 								 icon="@Embed(source='../../assets/link.png')"/>
 				<mx:Spacer width="100%"/>
