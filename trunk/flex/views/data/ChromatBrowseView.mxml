@@ -4,7 +4,6 @@
 		 height="100%"
 		 xmlns:util="views.util.*"
 		 xmlns:renderers="views.renderers.*"
-		 show="init()"
 		 initialize="init()"
 		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="3">
 	
@@ -204,20 +203,16 @@
 				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					chromatogramGrid.selectedIndex = -1;
 				}
+				if ( event.columnIndex == 0 && chromatogramGrid.selectedItems.length > 1 ) {
+					for each ( var obj1:Object in chromatogramGrid.selectedItems ) {
+						obj1.@isSelected = true;
+					}
+				}
 				
 				selectedChromats.refresh();
 			}
 			
-			private function selectionChange( event:ListEvent ):void {
-				for each ( var obj:Object in chromatogramGrid ) {
-					obj.@isSelected = false;
-				}
-				for each ( var obj1:Object in chromatogramGrid.selectedItems ) {
-					obj1.@isSelected = true;
-				}
-			}
-			
-			
+
 			private function submitAction():void {
 				if ( currentState == userState.name ) {
 					// download
@@ -750,8 +745,7 @@
 		<util:DataGridAlternatingGroup id="chromatogramGrid"
 									   allowMultipleSelection="true"
 									   itemClick="gridItemClick(event)"
-									   click="{selectedChromats.refresh()}"
-									   change="selectionChange(event)"
+									   click="{selectedChromats.refresh();}"
 									   width="100%"
 									   height="100%"
 									   dataProvider="{chromats}"
