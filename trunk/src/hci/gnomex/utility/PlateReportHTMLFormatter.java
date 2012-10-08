@@ -118,9 +118,12 @@ public class PlateReportHTMLFormatter {
             Element well = (Element) i.next();
 
             String idPlateWellString = well.getAttributeValue("idPlateWell");
-            String sampleName = well.getAttributeValue( "sampleName" );
+            String sampleName = well.getAttributeValue( "sampleName" ) != null ? well.getAttributeValue( "sampleName" ) : "";
+            int endInd = Math.min( sampleName.length(), 10 );
+            int midInd = Math.min( sampleName.length(), 5 );
+            sampleName = sampleName.substring( 0, endInd );
             if ( well.getAttributeValue( "redoFlag" ) != null && well.getAttributeValue( "redoFlag" ).equals( "Y" ) ) {
-              sampleName += " (Redo)";
+              sampleName = "Redo-" + sampleName.substring( 0, midInd );
             }
 
             if ( well.getAttributeValue( "isControl" ) != null && well.getAttributeValue( "isControl" ).equals( "Y" ) ) {

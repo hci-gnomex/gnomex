@@ -27,6 +27,7 @@
 * Reformatted request account window, fixed situation where duplicate requests can be submitted. (rcundick)
 * Fixed problem with number entry on DataPipeline Q30 field. (rcundick)
 * Fixed issue with uploading samplesheets to URL annotation columns. (rcundick)
+* Sample name is cropped on plate report to prevent wrapped names. (mbowler)
 
 deploy notes
 ----------------------
