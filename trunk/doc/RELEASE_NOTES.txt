@@ -32,6 +32,7 @@
 * Changed Topics permissions such that a user who doesn't belong to a lab is treated same as guest user. (rcundick)
 * Fixed null pointer error when loading organism XML. (rcundick)
 * Changed Analysis drag/drop to allow dropping on folders as opposed to having to drop within the folder. (rcundick)
+* Added check to disallow duplicate annotation names. (rcundick)
 
 deploy notes
 ----------------------
