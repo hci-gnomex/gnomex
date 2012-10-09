@@ -33,6 +33,7 @@
 * Fixed null pointer error when loading organism XML. (rcundick)
 * Changed Analysis drag/drop to allow dropping on folders as opposed to having to drop within the folder. (rcundick)
 * Added check to disallow duplicate annotation names. (rcundick)
+* Added check to disallow duplicate instrument run and plate names. (mbowler)
 
 deploy notes
 ----------------------

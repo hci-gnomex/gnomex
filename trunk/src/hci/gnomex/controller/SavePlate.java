@@ -56,7 +56,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
   private String                codePlateType = null;
 
 
-  
+
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idPlate") != null && !request.getParameter("idPlate").equals("-1")) {
@@ -115,150 +115,163 @@ public class SavePlate extends GNomExCommand implements Serializable {
 
       if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
-        wellParser.parse(sess);
+        if ( label != null ) {
+          StringBuffer queryBuf = new StringBuffer();
+          queryBuf.append("SELECT p from Plate as p WHERE p.label = '");
+          queryBuf.append(label);
+          queryBuf.append("' AND p.codePlateType = 'REACTION'");
+          List plates = sess.createQuery(queryBuf.toString()).list();
+          if ( plates.size() > 0 ) {
+            this.addInvalidField( "Duplicate Plate Name", "A plate with this name already exists." );
+          }
+        }
+        
+        
+        if ( isValid() ) {
+          wellParser.parse(sess);
 
-        Plate plate;
+          Plate plate;
 
-        if(isNew) {
-          plate = new Plate();
-          plate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
-          sess.save(plate);
-          creator = this.getSecAdvisor().getIdAppUser().toString();
-          plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-        } else {
-          plate = (Plate) sess.get(Plate.class, idPlate);
-          if ( plate.getCreateDate() == null ) {
+          if(isNew) {
+            plate = new Plate();
+            plate.setCodePlateType(PlateType.REACTION_PLATE_TYPE);
+            sess.save(plate);
+            creator = this.getSecAdvisor().getIdAppUser().toString();
             plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
-          }
-        }
-
-        if ( idInstrumentRun != 0 ) {
-          plate.setIdInstrumentRun(idInstrumentRun);
-          plate.setQuadrant(quadrant);
-        } else {
-          plate.setQuadrant(-1);
-        }
-
-        java.util.Date createDate = null;
-        if (createDateStr != null) {
-          createDate = this.parseDate(createDateStr);
-        }
-        if ( createDate != null )  {plate.setCreateDate(createDate);}
-        
-        if ( creator != null ) {
-          plate.setCreator(creator);
-        } else if ( plate.getCreator()==null || plate.getCreator().equals("") ) {
-          plate.setCreator( this.getSecAdvisor().getIdAppUser() != null ? this.getSecAdvisor().getIdAppUser().toString() : "" ); 
-        }
-        
-        if ( comments != null )         {plate.setComments(comments);}
-        if ( label != null )            {plate.setLabel(label);}
-        if ( codeReactionType != null ) {plate.setCodeReactionType(codeReactionType);}
-        if ( codeSealType != null )     {plate.setCodeSealType(codeSealType);}
-        if ( codePlateType != null && !codePlateType.equals( "" ) )  {
-          plate.setCodePlateType(codePlateType);
-        } 
-
-        idPlate = plate.getIdPlate();
-
-        sess.flush();
-
-        //
-        // Remove wells
-        //
-        for(Iterator i = plate.getPlateWells().iterator(); i.hasNext();) {
-          PlateWell existingWell = (PlateWell)i.next();
-          if (!wellParser.getWellMap().containsKey(existingWell.getIdPlateWell().toString())) {
-            sess.delete( existingWell );
-          }
-        }
-
-        //
-        // Save wells
-        //
-        TreeSet<PlateWell> wellsToAdd = new TreeSet<PlateWell>(new WellComparator());
-        for (Iterator i = wellParser.getWellMap().keySet().iterator(); i.hasNext();) {
-          String idPlateWellString = (String) i.next();
-          PlateWell pw = 
-            (PlateWell) wellParser.getWellMap().get(idPlateWellString);
-
-          pw.setIdPlate(idPlate);
-          pw.setPlate(plate);
-          if ( pw.getCreateDate() == null ) {
-            pw.setCreateDate(plate.getCreateDate());
-          }
-          pw.setCodeReactionType( codeReactionType );
-
-          wellsToAdd.add( pw );
-        }
-        plate.setPlateWells(wellsToAdd);
-
-        sess.flush();
-
-        
-        // Result XML
-        Document doc = new Document(new Element("SUCCESS"));
-        
-        plate.excludeMethodFromXML("getPlateWells");
-        plate.excludeMethodFromXML( "getInstrumentRun" );
-        Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-
-        String creator = plate.getCreator();
-        if ( creator != null && !creator.equals( "" ) ) {
-          AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
-          pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
-        } else {
-          pNode.setAttribute( "creator", creator);
-        }
-        
-        Element pwNode = new Element("plateWells");
-
-        List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
-
-        // Remove redo flags for any wells that might be redos
-        removeRedoFlags( plateWells, sess );
-
-        for(Iterator i = plateWells.iterator(); i.hasNext();) {
-          PlateWell plateWell = (PlateWell)i.next();
-          plateWell.excludeMethodFromXML("getPlate");
-          plateWell.excludeMethodFromXML("getSample");
-          plateWell.excludeMethodFromXML("getAssay");
-          plateWell.excludeMethodFromXML("getPrimer");
-          Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-
-          if ( plateWell.getAssay() != null ) {
-            node.setAttribute( "label", plateWell.getAssay().getDisplay() );
-          } else if ( plateWell.getPrimer() != null ) {
-            node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
-          }
-          
-          node.setAttribute("requestSubmitDate", "");
-          node.setAttribute("requestSubmitter", "");
-
-          if ( plateWell.getIdRequest() != null ) {
-            String idRequestString = plateWell.getIdRequest().toString();
-            if ( idRequestString != null && !idRequestString.equals("")) {
-              Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
-              if ( request != null ) {
-                node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
-                node.setAttribute("requestSubmitter", request.getOwnerName());
-              }
+          } else {
+            plate = (Plate) sess.get(Plate.class, idPlate);
+            if ( plate.getCreateDate() == null ) {
+              plate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
             }
           }
 
-          pwNode.addContent(node);
+          if ( idInstrumentRun != 0 ) {
+            plate.setIdInstrumentRun(idInstrumentRun);
+            plate.setQuadrant(quadrant);
+          } else {
+            plate.setQuadrant(-1);
+          }
+
+          java.util.Date createDate = null;
+          if (createDateStr != null) {
+            createDate = this.parseDate(createDateStr);
+          }
+          if ( createDate != null )  {plate.setCreateDate(createDate);}
+
+          if ( creator != null ) {
+            plate.setCreator(creator);
+          } else if ( plate.getCreator()==null || plate.getCreator().equals("") ) {
+            plate.setCreator( this.getSecAdvisor().getIdAppUser() != null ? this.getSecAdvisor().getIdAppUser().toString() : "" ); 
+          }
+          if ( label != null )            {plate.setLabel(label);}
+          if ( comments != null )         {plate.setComments(comments);}
+          if ( codeReactionType != null ) {plate.setCodeReactionType(codeReactionType);}
+          if ( codeSealType != null )     {plate.setCodeSealType(codeSealType);}
+          if ( codePlateType != null && !codePlateType.equals( "" ) )  {
+            plate.setCodePlateType(codePlateType);
+          } 
+
+          idPlate = plate.getIdPlate();
+
+          sess.flush();
+
+          //
+          // Remove wells
+          //
+          for(Iterator i = plate.getPlateWells().iterator(); i.hasNext();) {
+            PlateWell existingWell = (PlateWell)i.next();
+            if (!wellParser.getWellMap().containsKey(existingWell.getIdPlateWell().toString())) {
+              sess.delete( existingWell );
+            }
+          }
+
+          //
+          // Save wells
+          //
+          TreeSet<PlateWell> wellsToAdd = new TreeSet<PlateWell>(new WellComparator());
+          for (Iterator i = wellParser.getWellMap().keySet().iterator(); i.hasNext();) {
+            String idPlateWellString = (String) i.next();
+            PlateWell pw = 
+              (PlateWell) wellParser.getWellMap().get(idPlateWellString);
+
+            pw.setIdPlate(idPlate);
+            pw.setPlate(plate);
+            if ( pw.getCreateDate() == null ) {
+              pw.setCreateDate(plate.getCreateDate());
+            }
+            pw.setCodeReactionType( codeReactionType );
+
+            wellsToAdd.add( pw );
+          }
+          plate.setPlateWells(wellsToAdd);
+
+          sess.flush();
+
+
+          // Result XML
+          Document doc = new Document(new Element("SUCCESS"));
+
+          plate.excludeMethodFromXML("getPlateWells");
+          plate.excludeMethodFromXML( "getInstrumentRun" );
+          Element pNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+          String creator = plate.getCreator();
+          if ( creator != null && !creator.equals( "" ) ) {
+            AppUser user = (AppUser)sess.get(AppUser.class, Integer.valueOf(creator));
+            pNode.setAttribute( "creator", user != null ? user.getDisplayName() : creator);
+          } else {
+            pNode.setAttribute( "creator", creator);
+          }
+
+          Element pwNode = new Element("plateWells");
+
+          List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate).list();
+
+          // Remove redo flags for any wells that might be redos
+          removeRedoFlags( plateWells, sess );
+
+          for(Iterator i = plateWells.iterator(); i.hasNext();) {
+            PlateWell plateWell = (PlateWell)i.next();
+            plateWell.excludeMethodFromXML("getPlate");
+            plateWell.excludeMethodFromXML("getSample");
+            plateWell.excludeMethodFromXML("getAssay");
+            plateWell.excludeMethodFromXML("getPrimer");
+            Element node = plateWell.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+            if ( plateWell.getAssay() != null ) {
+              node.setAttribute( "label", plateWell.getAssay().getDisplay() );
+            } else if ( plateWell.getPrimer() != null ) {
+              node.setAttribute( "label", plateWell.getPrimer().getDisplay() );
+            }
+
+            node.setAttribute("requestSubmitDate", "");
+            node.setAttribute("requestSubmitter", "");
+
+            if ( plateWell.getIdRequest() != null ) {
+              String idRequestString = plateWell.getIdRequest().toString();
+              if ( idRequestString != null && !idRequestString.equals("")) {
+                Request request = (Request) sess.createQuery("SELECT r from Request as r where r.idRequest=" + idRequestString).uniqueResult();
+                if ( request != null ) {
+                  node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
+                  node.setAttribute("requestSubmitter", request.getOwnerName());
+                }
+              }
+            }
+
+            pwNode.addContent(node);
+          }
+
+          sess.flush();
+
+          pNode.addContent(pwNode);
+          doc.getRootElement().addContent(pNode);
+
+
+          XMLOutputter out = new org.jdom.output.XMLOutputter();
+          this.xmlResult = out.outputString(doc);
+
+          setResponsePage(this.SUCCESS_JSP);
         }
-
-        sess.flush();
-        
-        pNode.addContent(pwNode);
-        doc.getRootElement().addContent(pNode);
-
-
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
-        this.xmlResult = out.outputString(doc);
-
-        setResponsePage(this.SUCCESS_JSP);
 
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to save plate.");
@@ -312,6 +325,6 @@ public class SavePlate extends GNomExCommand implements Serializable {
       return u1.getIdPlateWell().compareTo(u2.getIdPlateWell());
     }
   }
-  
+
   public void validate() {}
 }
