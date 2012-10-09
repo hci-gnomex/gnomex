@@ -925,101 +925,59 @@
 	    	}
 	    	var illegalDrop:Boolean = true;
 	    	var dropData : Object = browseTree.mx_internal::_dropData as Object;
-	    	//if(dropData.parent != null && dropData.parent is XML ) {
-				
-				// determine where in the tree the drop occurs and select that node by the index; followed by 
-				// retrieving the node itself. 
-				var r:int = browseTree.calculateDropIndex(e);
-				browseTree.selectedIndex = r;
-				var node:XML = browseTree.selectedItem as XML;
-				var p:*;		
-				
-				if (node.name() == "AnalysisGroup") {
-					p = node;
+			
+			// determine where in the tree the drop occurs and select that node by the index; followed by 
+			// retrieving the node itself. 
+			var r:int = browseTree.calculateDropIndex(e);
+			browseTree.selectedIndex = r;
+			var node:XML = browseTree.selectedItem as XML;
+			var p:*;		
+			
+			if (node.name() == "AnalysisGroup") {
+				p = node;
+				illegalDrop = false;
+			} else if (node.name() == "Analysis") {
+				p = node.parent();
+				illegalDrop = false;
+			} else if (node.name() == "Lab") {
+				// If dropped within Lab then use first AnalysisGroup
+				var item:Object;
+				p = node;
+				for each(item in p.AnalysisGroup) {
+					p = XML(item);
 					illegalDrop = false;
-				} else if (node.name() == "Analysis") {
-					p = node.parent();
-					illegalDrop = false;
-				} else if (node.name() == "Lab") {
-					// If dropped within Lab then use first AnalysisGroup
-					var item:Object;
-					p = node;
-					for each(item in p.AnalysisGroup) {
-						p = XML(item);
-						illegalDrop = false;
-						break;
-					}		
-				}	
-				if(!illegalDrop) {
-					for each(var analysis:Object in p.Analysis) {
-						if(data.@idAnalysis == analysis.@idAnalysis) {
-							Alert.show("Error: the analysis already exists within this folder.", "", 4, browseTree);	 
-							return;   						
-						}
+					break;
+				}		
+			}	
+			if(!illegalDrop) {
+				for each(var analysis:Object in p.Analysis) {
+					if(data.@idAnalysis == analysis.@idAnalysis) {
+						Alert.show("Error: the analysis already exists within this folder.", "", 4, browseTree);	 
+						return;   						
 					}
-					illegalDrop = false;
-					p.appendChild(data);
-					browseTree.selectedItem = data;
-					showEditView = true;
-					
-					// Set the idLab of the Analysis to the lab it was dropped
-					// to (the lab of the analysis group
-					parentIdLab = p.@idLab;
-					
-					if(e.ctrlKey) {
-						// Don't remove dragged item if we're copying
-						removeIdAnalysisGroup = null;
-					}
-					addAnalysisGroup = new XML("<AnalysisGroup " +
-						" idAnalysisGroup=\"" + p.@idAnalysisGroup + "\"" +
-						" name=\""            + p.@name + "\"" + "/>");
-					onBrowseTree();					
 				}
-				/*
-	    		var parentXML:XML = XML(dropData.parent);
-	    		if(String(parentXML.name())== "Lab") {
-	    			// If dropped within Lab then use first AnalysisGroup
-	    			var item:Object;
-	    			for each(item in parentXML.AnalysisGroup) {
-	    				parentXML = XML(item);
-	    				break;
-	    			}
-	    		}
-	    		if(String(parentXML.name()) == "AnalysisGroup") {
-	    			for each(var analysis:Object in parentXML.Analysis) {
-	    				if(data.@idAnalysis == analysis.@idAnalysis) {
-	    					Alert.show("Error: the analysis already exists within this folder.", "", 4, browseTree);	 
-	    					return;   						
-	    				}
-	    			}
-	    			illegalDrop = false;
-	    			parentXML.appendChild(data);
-	    			browseTree.selectedItem = data;
-	    			showEditView = true;
-					
-					// Set the idLab of the Analysis to the lab it was dropped
-					// to (the lab of the analysis group
-					parentIdLab = parentXML.@idLab;
-					
-	    			if(e.ctrlKey) {
-	    				// Don't remove dragged item if we're copying
-	    				removeIdAnalysisGroup = null;
-	    			}
-	    			addAnalysisGroup = new XML("<AnalysisGroup " +
-			    	" idAnalysisGroup=\"" + parentXML.@idAnalysisGroup + "\"" +
-			    	" name=\""            + parentXML.@name + "\"" + "/>");
-	    			onBrowseTree();
-	    		} 
-				*/
-	    		
-	    	//}
+				illegalDrop = false;
+				p.appendChild(data);
+				browseTree.selectedItem = data;
+				showEditView = true;
+				
+				// Set the idLab of the Analysis to the lab it was dropped
+				// to (the lab of the analysis group
+				parentIdLab = p.@idLab;
+				
+				if(e.ctrlKey) {
+					// Don't remove dragged item if we're copying
+					removeIdAnalysisGroup = null;
+				}
+				addAnalysisGroup = new XML("<AnalysisGroup " +
+					" idAnalysisGroup=\"" + p.@idAnalysisGroup + "\"" +
+					" name=\""            + p.@name + "\"" + "/>");
+				onBrowseTree();					
+			}
+			
 	    	if(illegalDrop) {
 	    		Alert.show("Please drop the analysis item within an analysis folder.", "", 4, browseTree);
 	    	}
-
-	    	
-	    	
-
 	    }
 	    
 	   	private function browseTreeMouseDown(e:MouseEvent):void {
