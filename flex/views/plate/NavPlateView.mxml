@@ -1513,7 +1513,7 @@
 					}
 					
 				} else {
-					Alert.show( "An error occurred while saving the instrument run." );
+					Alert.show(saveInstrumentRun.lastResult.ERROR.@message, "Unable to save run");
 				}
 			}
 			
@@ -1585,7 +1585,7 @@
 					callLater( loadPlateObject, [ savePlate.lastResult.Plate ]);
 					
 				} else {
-					Alert.show( "An error occurred while saving the plate." );
+					Alert.show(savePlate.lastResult.ERROR.@message, "Unable to save plate");
 				}
 			}
 			
