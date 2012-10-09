@@ -30,16 +30,17 @@
 		 
 <mx:Script>
 	<![CDATA[
-		import hci.flex.controls.DropdownLabel;
-		
 		import flash.events.MouseEvent;
 		import flash.geom.Point;
+		
+		import hci.flex.controls.DropdownLabel;
 		
 		import mx.collections.Sort;
 		import mx.controls.Alert;
 		import mx.controls.Label;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
+		import mx.utils.StringUtil;
 		
 		import views.admin.PropertyEvent;
 		import views.util.DeleteAnnotation;
@@ -415,7 +416,7 @@
 				deleteAnnotation.y = removePropertyClick.y;
 				deleteAnnotation.init(this);
 			} else {
-				mx.controls.Alert.show(deleteProperty.lastResult..ACTMESSAGE.@TEXT);
+				Alert.show(deleteProperty.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}
 			
@@ -425,25 +426,37 @@
 				return;
 			}
 			
-			if(scName.text.toLowerCase() == "description") {
-				mx.controls.Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
+			scName.text = StringUtil.trim(scName.text);
+			var propertyName:String = scName.text.toLowerCase();
+			
+			if(propertyName == "description") {
+				Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
 				return;
 			}
 			
-			if(scName.text.toLowerCase() == "sample name") {
-				mx.controls.Alert.show("'Sample Name' is a reserved term. Please select a different name for the annotation.");
+			if(propertyName == "sample name") {
+				Alert.show("'Sample Name' is a reserved term. Please select a different name for the annotation.");
 				return;
 			}
 			
-			if(scName.text.toLowerCase() == "organism") {
-				mx.controls.Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
+			if(propertyName == "organism") {
+				Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
 				return;
 			}
 			
 			if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
-				mx.controls.Alert.show("Please choose object the annotation applies to.");
+				Alert.show("Please choose object the annotation applies to.");
 				this.sample.setFocus();
 				return;
+			}
+			
+			for each(var sc:Object in properties) {
+				var thisPropName:String = StringUtil.trim(sc.@name);
+				thisPropName = thisPropName.toLowerCase();
+				if(propertyList.selectedItem != sc && propertyName == thisPropName) {
+					Alert.show('"' + scName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
+					return;
+				}
 			}
 			
 			var params:Object = new Object();
@@ -478,7 +491,7 @@
 				parentApplication.getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));
 			} else {
-				mx.controls.Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
+				Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}	
 			
