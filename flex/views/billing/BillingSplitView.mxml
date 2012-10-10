@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
-	width="772" height="280" defaultButton="{saveButton}" xmlns:renderers="views.renderers.*"> 
+	width="780" height="280" defaultButton="{saveButton}" xmlns:renderers="views.renderers.*"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -107,11 +107,20 @@
 			} else {
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
 			}
-			var blankNode:XML = new XML("<BillingAccount idLab='' labName='' idBillingAccount='' accountName=''/>");
+			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);	
+			billingAccounts.filterFunction = filterCore;
+			billingAccounts.refresh();
 			
-			billingAccountCombo.validateNow();
+			billingAccountCombo.dataProvider=billingAccounts;
+			billingAccountCombo.dropdown.dataProvider = billingAccounts;
 			billingAccountCombo.selectedIndex = 0;
+		}
+		private function filterCore(item:Object):Boolean {
+			if ( item.@idCoreFacility == "" ) {
+				return true;
+			}
+			return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
 		}
 		private function getLabName(item:Object,col:int):String
         {
@@ -313,7 +322,7 @@
 			</renderers:FilterComboBox>
 			<mx:Label text="Account:" paddingLeft="4"/>
 			<mx:VBox verticalGap="0" width="100%">
-				<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"></mx:ComboBox>
+				<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" ></mx:ComboBox>
 	            <mx:CheckBox id="showInactiveAccountsCheckBox"  click="getLab.send()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
 			</mx:VBox>
 			<mx:LinkButton textDecoration="underline" label="Add" 

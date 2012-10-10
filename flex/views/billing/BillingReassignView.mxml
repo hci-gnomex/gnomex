@@ -72,10 +72,13 @@
 			} else {
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
 			}
-			var blankNode:XML = new XML("<BillingAccount idLab='' labName='' idBillingAccount='' accountName=''/>");
+			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);
+			billingAccounts.filterFunction = filterCore;
+			billingAccounts.refresh();
 			
-			billingAccountCombo.validateNow();
+			billingAccountCombo.dataProvider=billingAccounts;
+			billingAccountCombo.dropdown.dataProvider = billingAccounts;
 			billingAccountCombo.selectedIndex = 0;
 			
 			if (!isInitialized) {
@@ -88,6 +91,13 @@
 				}
 			}
 			callLater(selectBillingAccount);
+		}
+		
+		private function filterCore(item:Object):Boolean {
+			if ( item.@idCoreFacility == "" ) {
+				return true;
+			}
+			return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
 		}
 		
 		private function selectBillingAccount():void {
@@ -139,7 +149,6 @@
 			<mx:VBox verticalGap="0">
 				<mx:ComboBox id="billingAccountCombo"
 				   	  labelField="@accountNumberDisplay" 
-				   	  dataProvider="{billingAccounts}" 
 				   	  enabled="true"
 			   		  width="500"/>
 	            <mx:CheckBox 
