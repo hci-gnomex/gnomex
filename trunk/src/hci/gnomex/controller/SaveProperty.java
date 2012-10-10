@@ -235,7 +235,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         // Save property platformApplications
         //
         TreeSet platformApplications = new TreeSet(new PlatformApplicationsComparator());
-        //TreeSet platformApplications = new TreeSet();
+        HashMap platformApplicationsMap = new HashMap();
         if (platformsDoc != null) {
           for(Iterator i = this.platformsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
             Element platformNode = (Element)i.next();
@@ -243,7 +243,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             // See if this PlatformApplication object already exists
             StringBuffer queryBuf = new StringBuffer("select pa");
             queryBuf.append(" from PlatformApplication as pa");
-            queryBuf.append(" where pa.idProperty = " + platformNode.getAttributeValue("idProperty") + " and");
+            queryBuf.append(" where pa.idProperty = " + sc.getIdProperty().toString() + " and");
             queryBuf.append(" pa.codeRequestCategory = '" + platformNode.getAttributeValue("codeRequestCategory") + "' and");
             queryBuf.append(" pa.codeApplication ");
             if (platformNode.getAttributeValue("codeApplication").length() > 0) {
@@ -260,7 +260,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
               pa = (PlatformApplication) paRows.get(0);
             } else {
               pa = new PlatformApplication();
-              pa.setIdProperty(new Integer(platformNode.getAttributeValue("idProperty")));
+              pa.setIdProperty(sc.getIdProperty());
               pa.setCodeRequestCategory(platformNode.getAttributeValue("codeRequestCategory"));
               if (platformNode.getAttributeValue("codeApplication").length() > 0) {
                 pa.setCodeApplication(platformNode.getAttributeValue("codeApplication"));
@@ -268,6 +268,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
                 pa.setCodeApplication(null);
               } 
               sess.save(pa);
+              platformApplicationsMap.put(pa.getIdPlatformApplication(), null);
               sess.flush();
             }
             // Reload to insure RequestCategory and Application objects are populated
@@ -283,7 +284,25 @@ public class SaveProperty extends GNomExCommand implements Serializable {
            
             platformApplications.add(pa);
           }
+        }    
+        
+        // Remove platformApplications no longer in the list
+        List platformApplicationsToRemove = new ArrayList();
+        if (sc.getPlatformApplications() != null) {
+          for(Iterator i = sc.getPlatformApplications().iterator(); i.hasNext();) {
+            PlatformApplication pa = (PlatformApplication) i.next();
+            
+            if (!platformApplicationsMap.containsKey(pa.getIdPlatformApplication())) {
+              platformApplicationsToRemove.add(pa);
+            }
+          }
+          for(Iterator i = platformApplicationsToRemove.iterator(); i.hasNext();) {
+            PlatformApplication pa = (PlatformApplication)i.next();
+            sess.delete(pa);
+          }
         }
+        sess.flush();         
+
         sc.setPlatformApplications(platformApplications);
         
         //
@@ -298,11 +317,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
           }
         }
         sc.setAnalysisTypes(analysisTypes);
-        
-        
         sess.flush();
-        
-        
 
         DictionaryHelper.reload(sess);
         

@@ -849,6 +849,8 @@
 				}
 				
 				experimentApplication = application[0].@value;
+				
+				this.parentDocument.applicationSelected(application[0].@value);
 				checkSetupCompleteness();
 				
 				if (currentState.indexOf("Microarray") > 0) {
@@ -857,7 +859,7 @@
 					updateFilteredSlideProduct();
 				}
 			
-			checkSetupCompleteness();
+				checkSetupCompleteness();
 			}
 			
 			private function showNewSimpleSlideWindow():void{

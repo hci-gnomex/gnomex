@@ -500,7 +500,8 @@
 			if (platformCombo.selectedItem != null && platformCombo.selectedItem.@value != '') {
 				var codeRequestCategory:String = platformCombo.selectedItem.@value;
 				if (item.@value == "") {
-					return false;
+					// Leave blank item on the list
+					return true;
 				} 
 				
 				if (item.@isActive == 'N') {

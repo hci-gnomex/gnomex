@@ -949,7 +949,12 @@
 			}
 		}
 
-		
+		public function applicationSelected(experimentApplication:String):void {
+			codeApplication = experimentApplication;
+			if (theTab.contains(annotationView) && request != null) {
+				annotationView.onPropertyRefreshed(null);
+			}			
+		}		
 		
 		public function setRequestCategoryName():void {
 			requestCategory = getRequestCategory();
@@ -1411,14 +1416,16 @@
 					keep = true;
 				} else {
 					keep = false;
-					if (this.getRequestCategory() != null) {
+					var reqCategory:Object = this.getRequestCategory();
+					if (reqCategory != null) {
 						for each(var pa:XML in property.descendants("PlatformApplication")) {
-							if (this.getRequestCategory().@codeRequestCategory.toString() == pa.@codeRequestCategory &&
-								this.codeApplication == pa.@codeApplication) {
-								keep = true;
-								break;
+							if (reqCategory.@codeRequestCategory.toString() == pa.@codeRequestCategory) {
+								if(pa.@codeApplication == "" || this.codeApplication == pa.@codeApplication) {
+									keep = true;
+									break;
+								}
 							}
-						}
+						}						
 					}
 				}
 			}

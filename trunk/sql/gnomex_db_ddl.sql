@@ -1828,22 +1828,6 @@ CREATE TABLE gnomex.PlatformApplication (
     UNIQUE (`idProperty`, `codeRequestCategory`, `codeApplication`)
 )  ENGINE=INNODB; 
 
--- Add table PropertyPlatformApplication
-DROP TABLE IF EXISTS `gnomex`.`PropertyPlatformApplication`;
-CREATE TABLE gnomex.PropertyPlatformApplication ( 
-     idProperty	INT(10),
-     idPlatformApplication INT(10),
-     PRIMARY KEY (idProperty, idPlatformApplication),
-    CONSTRAINT FK_PropertyPlatformApplication_Property FOREIGN KEY FK_PropertyPlatformApplication_Property (idProperty)
-    REFERENCES gnomex.Property (idProperty)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-    CONSTRAINT FK_PropertyPlatformApplication_PlatformApplication FOREIGN KEY FK_PropertyPlatformApplication_PlatformApplication (idPlatformApplication)
-    REFERENCES gnomex.PlatformApplication (idPlatformApplication)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-) ENGINE = INNODB;
-
 -- Add table PropertyOption
 DROP TABLE IF EXISTS `gnomex`.`PropertyOption`;
 CREATE  TABLE gnomex.PropertyOption (
