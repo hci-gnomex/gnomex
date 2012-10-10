@@ -34,6 +34,7 @@
 * Changed Analysis drag/drop to allow dropping on folders as opposed to having to drop within the folder. (rcundick)
 * Added check to disallow duplicate annotation names. (rcundick)
 * Added check to disallow duplicate instrument run and plate names. (mbowler)
+* Fix bug where annotation description box would not allow more than 100 characters. (SF Bug #233) (mbowler)
 
 deploy notes
 ----------------------
