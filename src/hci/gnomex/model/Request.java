@@ -78,6 +78,7 @@ public class Request extends HibernateDetailObject {
   private String          codeRequestStatus;
   private RequestStatus   requestStatus;
   private Set             chromatograms;
+  private Set             plateWells;
   private Set             topics;    
   private Integer         idSubmitter;
   private AppUser         submitter;
@@ -689,6 +690,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getCreateYear");
     this.excludeMethodFromXML("getRequestCategory");
     this.excludeMethodFromXML("getChromatograms");
+    this.excludeMethodFromXML("getPlateWells");
     this.excludeMethodFromXML("getAssays");
   }
   
@@ -984,6 +986,14 @@ public class Request extends HibernateDetailObject {
   }
   public void setChromatograms(Set chromatograms) {
     this.chromatograms = chromatograms;
+  }
+  
+  public Set getPlateWells() {
+    return plateWells;
+  }
+  
+  public void setPlateWells( Set plateWells ) {
+    this.plateWells = plateWells;
   }
   @SuppressWarnings("unchecked")
   public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {

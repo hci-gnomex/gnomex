@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.ChromatParserRequestFilter;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
@@ -51,12 +52,9 @@ public class ChromatogramParser extends DetailObject implements Serializable
   public ChromatogramParser(){
   }
 
-  public void init() { 
-  }
 
   public void parse(Session sess, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws Exception {
-    System.out.println(System.currentTimeMillis() + "\tStart ChromatogramParser.parse()");
-    
+   
     Chromatogram ch = new Chromatogram();
     Element root = this.doc.getRootElement();
 
@@ -106,8 +104,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
       sess.flush();
     }
     
-    System.out.println(System.currentTimeMillis() + "\tUpdate run and request status");
-
     // Update instrument run and request statuses
     for(Iterator i = instrumentRunsMap.keySet().iterator(); i.hasNext();) {
       int idInstrumentRun = (Integer)i.next();
@@ -117,8 +113,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
       }
       this.changeRequestsToComplete(sess, ir, secAdvisor, launchAppURL, appURL, serverName);
     }
-
-    System.out.println(System.currentTimeMillis() + "\tSend redo emails");
 
     // Send redo emails for any requests with samples being requeued
     for(Iterator i = redoRequestsMap.keySet().iterator(); i.hasNext();) {
@@ -131,9 +125,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
           log.warn("Cannot send confirmation email for request " + req.getNumber());
         }
     }
-    
-    System.out.println(System.currentTimeMillis() + "\tEnd ChromatogramParser.parse()");
-
   }
 
   protected void initializeChromat(Session sess, Element n,
@@ -302,122 +293,106 @@ public class ChromatogramParser extends DetailObject implements Serializable
   }
   
   public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) {
-    System.out.println(System.currentTimeMillis() + "\tStart ChromatogramParser.changeRequestsToComplete()");
-
-    // Get any requests on that run
-    Map<Integer, List<PlateWell>> requestToWellMap = new HashMap<Integer, List<PlateWell>>();
-    Map<Integer, Request> requestMap = new HashMap<Integer, Request>();
     
-    System.out.println(System.currentTimeMillis() + "\tStart PlateWell from run query");
-
-    List wells = sess.createQuery( "SELECT pw from PlateWell as pw " +
-        " join pw.plate as plate where plate.idInstrumentRun =" + ir.getIdInstrumentRun() ).list();
-    for(Iterator i1 = wells.iterator(); i1.hasNext();) {
-      PlateWell well = (PlateWell)i1.next();
-      // If the plate well points to a request (not the control plate well),
-      // has the request.  We will iterate through this hash to see
-      // which requests should be completed.
-      if (well.getIdRequest() != null) {
-        if ( !requestMap.containsKey( well.getIdRequest() ) ) {
-          Request req = (Request) sess.get(Request.class, well.getIdRequest());
-          requestMap.put( req.getIdRequest(), req );
-        }
-        List<PlateWell> theWells = (List<PlateWell>)requestToWellMap.get(well.getIdRequest());
-        if (theWells == null) {
-          theWells = new ArrayList<PlateWell>();
-          requestToWellMap.put(well.getIdRequest(), theWells);
-        }
-        theWells.add(well);
-      }
-    }
+    // Get requests and hash plateWells by idRequest
+    HashMap<Integer, List<Object[]>> requestPlateWellMap = queryAndHashPlateWells(sess, ir, secAdvisor);
     
-    
-    // Change request Status to completed if all plate wells have released
-    // chromatograms and there are no pending redos.
-    for ( Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+    // Loop through requests
+    for ( Iterator i = requestPlateWellMap.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       
-      System.out.println(System.currentTimeMillis() + "\tGet REQUEST " + idReq);
+      boolean hasRedo = false;
+      boolean hasMissingChromat = false;
       
-      Request req = (Request) requestMap.get(idReq);
-      List<PlateWell> plateWells = requestToWellMap.get(idReq);
+      // Get the plate well rows
+      List<Object[]> plateWellRows = requestPlateWellMap.get(idReq);      
       
-      if ( req.getCompletedDate() == null ) {
-        
-        System.out.println(System.currentTimeMillis() + "\tSearch for redos");
-        
-        // Don't complete if there is a redo well on the request
-        boolean hasRedo = false;
-        StringBuffer redoSamples = new StringBuffer();
-        for (Sample s : (Set<Sample>)req.getSamples()) {
-          for (PlateWell well : (Set<PlateWell>)s.getWells()) {
-            // Only check source wells for redo.  The reaction well will be set to redo and not toggle back.
-            if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
-              if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
-                hasRedo = true;
-              }
+      // Loop through plate wells
+      if ( plateWellRows != null ) {
+        for (Object[] wellRow : plateWellRows) {
+          Integer idRequest          = (Integer)wellRow[0];
+          Integer idChromatogram     = (Integer)wellRow[1];
+          java.util.Date releaseDate = (java.util.Date)wellRow[2];
+          Integer idPlateWell        = (Integer)wellRow[3];
+          String redoFlag            = (String)wellRow[4];
+          Integer idPlate            = (Integer)wellRow[5];
+          String codePlateType       = (String)wellRow[6];
+          Integer idInstrumentRun    = (Integer)wellRow[7];
+          
+          // Check for redo status on any source plate wells
+          if ( codePlateType == null || codePlateType.equals( PlateType.SOURCE_PLATE_TYPE )) {
+            if ( redoFlag.equals( "Y" ) ) {
+              hasRedo = true;
+              break;
             }
-          }
-        }
-        if ( hasRedo ) {
-          continue;
-        }
-        
-        System.out.println(System.currentTimeMillis() + "\tGet platewells for released chromats");
-        
-        int releaseCount = 0;
-        HashMap<Integer, Integer> releasedPlateWells = new HashMap<Integer, Integer>();
-        for (Chromatogram ch : (Set<Chromatogram>)req.getChromatograms()) {
-          if (ch.getReleaseDate() != null) {
-            releaseCount++;
-            if (ch.getPlateWell() != null) {
-              releasedPlateWells.put(ch.getPlateWell().getIdPlateWell(), ch.getPlateWell().getIdPlateWell());
+          } else if ( codePlateType != null && codePlateType.equals( PlateType.REACTION_PLATE_TYPE ) ) {
+            // Check for reaction plate wells with no chromatogram or unreleased chromatogram 
+            if ( idChromatogram == null || releaseDate == null ) {
+              hasMissingChromat = true;
+              break;
             }
-          }
-        }
-        
-        System.out.println(System.currentTimeMillis() + "\tGet reaction wells for request");
-        // If we don't have a released chromatogram for any of the samples on the
-        // experiment, we don't want to mark the experiment as complete yet.
-        boolean sampleMissingReleasedChrom = false;
-        for (Sample s : (Set<Sample>)req.getSamples()) {
-          for (PlateWell well : (Set<PlateWell>)s.getWells()) {
-            // Find all the reaction platewells for this request
-            if (well.getPlate() != null ) {
-              if ( well.getPlate().getCodePlateType() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
-                if (!releasedPlateWells.containsKey(well.getIdPlateWell())) {
-                  sampleMissingReleasedChrom = true;
-                }
-              }
-            }
-          }
-        }
-        if (sampleMissingReleasedChrom) {
-          continue;
-        }
-
-        System.out.println(System.currentTimeMillis() + "\tSet request complete status and complete time");
-        req.setCodeRequestStatus( RequestStatus.COMPLETED );
-        req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
-        
-        System.out.println(System.currentTimeMillis() + "\tSet status for billing items");
-        // Now change the billing items for the request from PENDING to COMPLETE
-        for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
-          billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
-        }
-
-        System.out.println(System.currentTimeMillis() + "\tSend confirmation email");
-        // We need to email the submitter that the experiment results
-        // are ready to download
-        try {
-          EmailHelper.sendConfirmationEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
-        } catch (Exception e) {
-          log.warn("Cannot send confirmation email for request " + req.getNumber());
+          }  
         }
       }
+      
+      // If we found a redo flag or a missing or unreleased chromat, request is not complete, skip it
+      if ( hasRedo || hasMissingChromat ) {
+        continue;
+      }
+      
+      // If request is complete, get it and change request status and complete date
+      Request req = (Request) sess.get(Request.class, idReq );
+      
+      req.setCodeRequestStatus( RequestStatus.COMPLETED );
+      req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
+      
+      // Now change the billing items for the request from PENDING to COMPLETE
+      for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+        billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+      }
+
+      // We need to email the submitter that the experiment results
+      // are ready to download
+      try {
+        EmailHelper.sendConfirmationEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
+      } catch (Exception e) {
+        log.warn("Cannot send confirmation email for request " + req.getNumber());
+      }
+    
     }
     sess.flush();
-    System.out.println(System.currentTimeMillis() + "\tFinish ChromatogramParser.changeRequestsToComplete()");
+  }
+  
+  private static HashMap queryAndHashPlateWells(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor) {
+    HashMap<Integer, List<Object[]>> plateWellsMap = new HashMap<Integer, List<Object[]>>();
+    
+    // Get the request plate wells query
+    ChromatParserRequestFilter requestFilter;
+    requestFilter = new ChromatParserRequestFilter();
+    requestFilter.setIdInstrumentRun( ir.getIdInstrumentRun() );
+    
+    StringBuffer queryBuf = requestFilter.getQuery(secAdvisor);
+    List<Object[]> plateWells = sess.createQuery(queryBuf.toString()).list();
+    
+    // Loop through results, create a hash map of requests to the platewells for that request
+    if (plateWells != null) {
+      
+      for (Object[] wellRow : plateWells) {
+                
+        Integer idRequest        = (Integer)wellRow[0];
+        
+        // Get the plateWells for the request
+        List<Object[]> thePlateWellRows = plateWellsMap.get(idRequest);
+        if (thePlateWellRows == null) {
+          thePlateWellRows = new ArrayList<Object[]>();
+          plateWellsMap.put(idRequest, thePlateWellRows);
+        }
+        // Add this plate well row to the plate wells for the request
+        thePlateWellRows.add(wellRow);
+      }
+    }
+    
+    return plateWellsMap;
   }
   
 }

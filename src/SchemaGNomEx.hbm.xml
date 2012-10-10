@@ -624,6 +624,7 @@
 		<property name="idPlate" column="idPlate" type="integer"/>
 		<property name="idSample" column="idSample" type="integer"/>
 		<property name="idRequest" column="idRequest" type="integer"/>
+    <many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
 		<many-to-one name="plate" column="idPlate" class="hci.gnomex.model.Plate" cascade="none" insert="false" update="false" />
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
     	<property name="codeReactionType" column="codeReactionType" type="string"/>
@@ -634,6 +635,10 @@
     <property name="isControl" column="isControl" type="string"/>
     <many-to-one name="primer" column="idPrimer" class="hci.gnomex.model.Primer" cascade="none" insert="false" update="false" />
     <many-to-one name="assay" column="idAssay" class="hci.gnomex.model.Assay" cascade="none" insert="false" update="false" />
+    <set name="chromatograms" table="Chromatogram" lazy="true" cascade="none">
+      <key column="idPlateWell"/>
+      <one-to-many class="hci.gnomex.model.Chromatogram" />
+    </set>
 	</class>
 	  
    <!-- hci.gnomex.model.PlateType -->
@@ -780,7 +785,10 @@
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Chromatogram" />
 		</set>
-		
+		<set name="plateWells" table="PlateWell" lazy="true" cascade="none">
+      <key column="idRequest"/>
+      <one-to-many class="hci.gnomex.model.PlateWell" />
+    </set>
 	</class>
 	
 	<!-- hci.gnomex.model.ExperimentCollaborator -->
