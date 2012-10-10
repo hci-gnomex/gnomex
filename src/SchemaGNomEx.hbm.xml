@@ -1636,22 +1636,22 @@
 			<key column="idProperty"/>
 			<one-to-many class="hci.gnomex.model.PropertyOption" />
 		</set>	
-		<set name="organisms" table="PropertyOrganism" lazy="false" cascade="none">
+		<set name="organisms" table="PropertyOrganism" lazy="false" cascade="delete">
 			<key column="idProperty"/>
 			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>			
 		</set>
-		<set name="platformApplications" table="PropertyPlatformApplication" lazy="false" cascade="none">
+		<set name="platformApplications" table="PlatformApplication" lazy="false" cascade="delete" inverse="true">
 			<key column="idProperty"/>
-			<many-to-many column="idPlatformApplication" class="hci.gnomex.model.PlatformApplication"/>			
+			<one-to-many class="hci.gnomex.model.PlatformApplication"/>			
 		</set>
-		<set name="analysisTypes" table="PropertyAnalysisType" lazy="false" cascade="none">
+		<set name="analysisTypes" table="PropertyAnalysisType" lazy="false" cascade="delete">
 			<key column="idProperty"/>
 			<many-to-many column="idAnalysisType" class="hci.gnomex.model.AnalysisType"/>			
 		</set>
 	</class>
 	
 	
-		<!-- hci.gnomex.model.PropertyOption -->
+		<!-- hci.gnomex.model.PlatformApplication-->
 	<class name="hci.gnomex.model.PlatformApplication" table="PlatformApplication">
 		<id name="idPlatformApplication" column="idPlatformApplication" type="integer">
 			<generator class="native"/>

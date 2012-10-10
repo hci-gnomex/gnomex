@@ -2,9 +2,11 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.PlatformApplication;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -13,6 +15,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -140,8 +143,40 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         
         //
         // Clear out property platformApplication list
-        //
+        //       
+        if (property.getPlatformApplications() != null) {
+          for(Iterator i = property.getPlatformApplications().iterator(); i.hasNext();) {
+            PlatformApplication pa = (PlatformApplication) i.next();
+            sess.delete(pa);            
+          }
+        }
+        sess.flush();        
+        
+        
         property.setPlatformApplications(new TreeSet());
+        sess.flush();
+        
+        //
+        // Clear out property options list
+        //
+        if (property.getOptions() != null) {
+          for(Iterator i = property.getOptions().iterator(); i.hasNext();) {
+            PropertyOption pa = (PropertyOption) i.next();
+            sess.delete(pa);            
+          }
+        }
+        sess.flush();               
+             
+        property.setOptions(new TreeSet());
+        sess.flush();
+        
+        //
+        // Clear out property analysisTypes list
+        //
+        property.setAnalysisTypes(new TreeSet());
+        sess.flush();
+        
+        sess.update(property);
         sess.flush();
         
         //
