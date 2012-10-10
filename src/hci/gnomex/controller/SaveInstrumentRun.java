@@ -99,7 +99,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
 
       if (this.getSecurityAdvisor().hasPermission( SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE )) {
 
-        if ( label != null ) {
+        if ( isNew && label != null ) {
           StringBuffer queryBuf = new StringBuffer();
           queryBuf.append("SELECT ir from InstrumentRun as ir WHERE ir.label = '");
           queryBuf.append(label);
