@@ -39,6 +39,7 @@
 * Redesigned database relationships between Properties and the PlatformApplication table, altered hibernate definitions and actionscript code to accommodate the new design. (rcundick)
 * Fixed the refresh on billing accounts upon selecting a lab on nav, split, and reassign billing views. (mbowler)
 * Filter out billing accounts that are not associated with the core(s) the user manages on nav, split, and reassign billing views. (mbowler)
+* Added printable form link for DNA Seq Core Experiments (on experiment detail, experiment edit views). (mbowler)
 
 deploy notes
 ----------------------
