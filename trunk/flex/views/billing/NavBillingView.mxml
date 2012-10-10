@@ -855,11 +855,22 @@
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
-			var blankNode:XML = new XML("<BillingAccount idBillingAccount='' accountName=''/>");
+			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);
-			billingAccountCombo.dataProvider = billingAccounts;
+			billingAccounts.filterFunction = filterCore;
+			billingAccounts.refresh();
+			
+			billingAccountCombo.dataProvider=billingAccounts;
+			billingAccountCombo.dropdown.dataProvider = billingAccounts;
+			billingAccountCombo.selectedIndex = 0;
 		}
 		
+		private function filterCore(item:Object):Boolean {
+			if ( item.@idCoreFacility == "" ) {
+				return true;
+			}
+			return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+		}
 
  		private function onRequestNodeSelected():void {
 			lastSelectedInvoice = null;
