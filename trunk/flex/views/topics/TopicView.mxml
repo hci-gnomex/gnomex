@@ -202,13 +202,15 @@
 	private function save():void {
 		
 		if (labCombo.selectedItem == null) {
+			theTab.selectedChild = idInfo;
 			labCombo.setFocus();
 			Alert.show("Please select a Lab.");
 			return;        		
 		} 
 		if (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0) {
+			theTab.selectedChild = idInfo;
 			ownerCombo.setFocus();
-			Alert.show("Please select select the topic owner.");
+			Alert.show("Please select the topic owner.");
 			return;        		
 		} 
 		var params:Object = new Object();
@@ -269,7 +271,7 @@
 </mx:Script>	
 	
 <mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="130"  styleName="panelBody">
-	<mx:VBox styleName="form" label="Info" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
+	<mx:VBox styleName="form" id="idInfo" label="Info" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
 		<mx:HBox width="100%" >
 			<mx:Label text="Name:" width="120"/>
 			<mx:TextInput id="topicName" width="450" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>
@@ -314,7 +316,7 @@
 		</mx:HBox>
 	</mx:VBox>
 		
-	<mx:VBox width="100%" height="100%" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
+	<mx:VBox width="100%" height="100%" id="idVisibility" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
 		<mx:HBox width="100%" horizontalGap="0" id="hbox1">
 			<mx:Text id="labelApplication" text="The level of visibility for this topic:&#xd;"/>
 			<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
