@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import java.util.Date;
+import java.util.Set;
 
 import hci.hibernate3utils.HibernateDetailObject;
 
@@ -16,6 +17,7 @@ public class PlateWell extends HibernateDetailObject {
   private Integer  idSample;
   private Sample   sample;
   private Integer  idRequest;
+  private Request  request;
   private String   codeReactionType;
   private Date     createDate;
   private String   redoFlag = "N";
@@ -24,6 +26,7 @@ public class PlateWell extends HibernateDetailObject {
   private Integer  idPrimer;
   private Primer   primer;
   private Assay    assay;
+  private Set      chromatograms;
   
   public Integer getIdPlateWell() {
     return idPlateWell;
@@ -121,8 +124,20 @@ public class PlateWell extends HibernateDetailObject {
     this.idRequest = idRequest;
   }
   
+  
+  public Request getRequest() {
+    return request;
+  }
+
+  
+  public void setRequest( Request request ) {
+    this.request = request;
+  }
+
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getPlate");
+    this.excludeMethodFromXML("getChromatograms");
+    this.excludeMethodFromXML("getRequest");
   }
 
   public void setCodeReactionType(String codeReactionType)
@@ -193,6 +208,13 @@ public class PlateWell extends HibernateDetailObject {
   
   public void setAssay(Assay assay) {
     this.assay = assay;
+  }
+  
+  public Set getChromatograms() {
+    return chromatograms;
+  }
+  public void setChromatograms(Set chromatograms) {
+    this.chromatograms = chromatograms;
   }
   
   public String getWellName() {

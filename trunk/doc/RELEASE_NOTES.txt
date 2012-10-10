@@ -35,6 +35,7 @@
 * Added check to disallow duplicate annotation names. (rcundick)
 * Added check to disallow duplicate instrument run and plate names. (mbowler)
 * Fix bug where annotation description box would not allow more than 100 characters. (SF Bug #233) (mbowler)
+* Improvements to the chromatogram parser to speed up checking requests and updating their statuses. (mbowler)
 
 deploy notes
 ----------------------
