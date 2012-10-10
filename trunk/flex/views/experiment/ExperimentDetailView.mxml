@@ -1745,8 +1745,6 @@
 				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="400" />
 			</mx:HBox>
 		</mx:AddChild>
-		<mx:SetProperty target="{parentDocument.requestFormButton}" name="visible" value="false"/>
-		<mx:SetProperty target="{parentDocument.requestFormButton}" name="includeInLayout" value="false"/>
 		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
 		<mx:SetProperty target="{noteToBioBox}" name="includeInLayout" value="false"/>
 	</mx:State>
