@@ -42,6 +42,7 @@
 * Added printable form link for DNA Seq Core Experiments (on experiment detail, experiment edit views). (mbowler)
 * When owner missing on save Topic, automatically switch to Info tab so they know where to enter owner. (rcundick)
 * Added rename/deletion of files functionality to the analysis view.(tcourdy)
+* Added editable from email address on email all gnomex users form. (mbowler)
 
 deploy notes
 ----------------------
