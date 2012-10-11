@@ -121,6 +121,36 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
             }
           }
+          
+          //Rename files 
+          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
+            String file = (String)i.next();
+            File f1 = new File(file);
+            String [] contents = (String[]) parser.getFilesToRenameMap().get(file);
+            File f2 = new File(contents[0]);
+            String idFileString = contents[1];
+            String qualifiedFilePath = contents[2];
+            String displayName = contents[3];
+            
+            if(!f1.renameTo(f2)){
+              throw new Exception("Unable to rename file.  Invalid file name");
+            }
+            else{
+              // Rename the file in the DB
+              if (idFileString != null) {
+                AnalysisFile af;
+                if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
+                  af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idFileString));
+                  af.setFileName(displayName);
+                  af.setBaseFilePath(f2.getCanonicalPath());
+                  af.setQualifiedFilePath(qualifiedFilePath);//DEBUG THIS LINE.  FIGURE OUT WHAT QUALIFIED PATH IS
+                  sess.save(af);
+                  sess.flush();
+                }
+              }
+            }
+            
+          }
 
           // Move files to designated folder
           tryLater = new ArrayList();
@@ -226,7 +256,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
               for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
                 String fileName = (String)i1.next();
-
 
                 // Remove references of file in TransferLog
                 String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + idAnalysis + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
