@@ -56,6 +56,7 @@
 			if (parentDocument.coreFacilitiesICanManage.length() < 2) {
 				coreFacilitySelected = true;
 			}
+			fromAddress.text = parentApplication.getUserEmail();
 		}
 		
 		private function onGetUploadURL(event:ResultEvent):void {
@@ -115,6 +116,7 @@
 			 	var params:Object = new Object();
 			 	params.subject = subject.text;
 			 	params.format = "text";
+				params.fromAddress = fromAddress.text;
 			 	params.body = body.text;
 				var coreIds:String = "";
 				if (parentApplication.coreFacilitiesICanManage.length() < 2) {
@@ -175,6 +177,10 @@
 		}
 	]]>
 </mx:Script>
+	
+	<mx:EmailValidator required="true" source="{fromAddress}" property="text" />
+	
+	
 	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="coreFacilityHBox"
 				 visible="{parentDocument.coreFacilitiesICanManage.length() > 1}"
@@ -187,6 +193,10 @@
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Subject:" width="80"/>
 			<mx:TextInput width="100%" id="subject"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="From:" width="80"/>
+			<mx:TextInput width="100%" id="fromAddress"/>
 		</mx:HBox>
 		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
 			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">

@@ -40,6 +40,7 @@ import com.oreilly.servlet.multipart.Part;
 public class UploadAndBroadcastEmailServlet extends HttpServlet {
   
   private String subject      = "GNomEx announcement";
+  private String fromAddress;
   private StringBuffer body   = null;
   private String format       = "text";
   
@@ -124,6 +125,9 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
         if (req.getParameter("subject") != null && !req.getParameter("subject").equals("")) {
           subject = req.getParameter("subject");
         }
+        if (req.getParameter("fromAddress") != null && !req.getParameter("fromAddress").equals("")) {
+          fromAddress = req.getParameter("fromAddress");
+        }
         if (req.getParameter("format") != null && !req.getParameter("format").equals("")) {
           format = req.getParameter("format");
         }
@@ -143,6 +147,8 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
               this.format = value;
             } else if (name.equals("subject")) {
               this.subject = value;
+            } else if (name.equals("fromAddress")) {
+              this.fromAddress = value;
             }
             
           } else if (part.isFile()) {
@@ -191,7 +197,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
           if (send) {
             MailUtil.send(appUser.getEmail(), 
                 null,
-                dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
+                fromAddress,
                 theSubject,
                 body.toString(),
                 format.equalsIgnoreCase("HTML") ? true : false); 
