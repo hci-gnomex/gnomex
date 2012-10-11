@@ -26,6 +26,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
   protected List       newDirectoryNames = new ArrayList();
   protected Map        fileIdMap = new HashMap();
   protected Map        filesToDeleteMap = new HashMap();
+  protected Map        filesToRename = new HashMap();
   
   public AnalysisFileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -45,13 +46,10 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     String directoryName = null;
     
     if (folderNode.getName().equals("Analysis")) {
-      
-      String []keyTokens = folderNode.getAttributeValue("key").split("-");
-      directoryName = keyTokens[2];
+      directoryName =folderNode.getAttributeValue("displayName");
       
       } else {
         if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir")) {
-          
           directoryName= folderNode.getAttributeValue("displayName");
           
         } 
@@ -71,6 +69,24 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     
     for(Iterator i1 = folderNode.getChildren("AnalysisFileDescriptor").iterator(); i1.hasNext();) {
       Element childFileNode = (Element)i1.next();
+      String fileName = childFileNode.getAttributeValue("fileName");
+      String displayName = childFileNode.getAttributeValue("displayName");
+      if(fileName == null){
+        continue;
+      }
+      fileName = fileName.replace("\\", "/");
+      String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
+      String fileIdString = childFileNode.getAttributeValue("idAnalysisFileString");
+      String qualifiedFilePath = childFileNode.getAttributeValue("qualifiedFilePath");
+      String [] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
+      if(!newFileName.equals(fileName) && !fileName.equals("")){
+        filesToRename.put(fileName, contents);
+        if(childFileNode.getAttributeValue("key") != null && !childFileNode.getAttributeValue("key").equals("")){
+          int pos = childFileNode.getAttributeValue("key").lastIndexOf("-");
+          String newKey = childFileNode.getAttributeValue("key").substring(pos) + displayName;
+          childFileNode.setAttribute("key", newKey);
+        }
+      }
       
       String childFileIdString = childFileNode.getAttributeValue("idAnalysisFileString");
         
@@ -146,6 +162,10 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
   
   public Map getFilesToDeleteMap() {
     return filesToDeleteMap;
+  }
+  
+  public Map getFilesToRenameMap(){
+    return filesToRename;
   }
 
 }
