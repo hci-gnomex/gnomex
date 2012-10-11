@@ -41,6 +41,7 @@
 * Filter out billing accounts that are not associated with the core(s) the user manages on nav, split, and reassign billing views. (mbowler)
 * Added printable form link for DNA Seq Core Experiments (on experiment detail, experiment edit views). (mbowler)
 * When owner missing on save Topic, automatically switch to Info tab so they know where to enter owner. (rcundick)
+* Added rename/deletion of files functionality to the analysis view.(tcourdy)
 
 deploy notes
 ----------------------
