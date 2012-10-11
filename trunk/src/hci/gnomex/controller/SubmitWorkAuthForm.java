@@ -222,12 +222,12 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         if (testEmail) {
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
-        MailUtil.send(submitterEmail, 
+        MailUtil.send(contactEmail, 
             null,
             replyEmail, 
             submitterSubject, 
             submitterNote.toString() + body.toString(),
-            false);   
+            true);   
 
       }
 
@@ -239,7 +239,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             replyEmail,
             coreSubject,
             coreNote.toString() + body.toString(),
-            false);           
+            true);           
       }
       
      
