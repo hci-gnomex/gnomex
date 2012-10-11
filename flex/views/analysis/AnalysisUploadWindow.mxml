@@ -72,6 +72,7 @@
       import mx.core.DragSource;
       import mx.events.CloseEvent;
       import mx.events.DragEvent;
+      import mx.events.ListEvent;
       import mx.managers.DragManager;
       import mx.managers.PopUpManager;
       import mx.rpc.events.ResultEvent;
@@ -84,6 +85,8 @@
 			private var idAnalysis:Object;
 			[Bindable]
 			private var analysisNumber:Object;
+			[Bindable]
+			public var parentView:AnalysisDownloadView;
 			
 			private var multiFileUpload:MultiFileUpload;
 			
@@ -114,6 +117,7 @@
 				getAnalysisDownloadList.send(params);
         
         		refreshUploadFiles();
+				this.addEventListener("refreshUploadFiles", onUploadFinished); 
 			}
 			
 			public function refreshFiles():void {
@@ -358,7 +362,11 @@
 				} else if (this.downloadTree.selectedItems != null && this.downloadTree.selectedItems.length > 0) {
 					for each(var downloadFile:XML in this.downloadTree.selectedItems) {
 						// Only add to remove list if this file exists
-						if (downloadFile.hasOwnProperty("@fileName")) {
+						if(downloadFile.@type == "dir"){
+							this.filesToRemove.addItem(downloadFile);
+							checkXMLChildren(downloadFile);
+						}
+						else if (downloadFile.hasOwnProperty("@fileName")) {
 							this.filesToRemove.addItem(downloadFile);						
 						}
 						// Delete from XML hierarchy
@@ -366,6 +374,23 @@
 					}
 					this.dirty.setDirty();
 				}
+			}
+			
+			private function checkXMLChildren(downloadFile:XML):void{
+				for each(var childFile:XML in downloadFile.children()){
+					if(childFile.hasOwnProperty("@fileName") && childFile.@type == "dir"){
+						this.filesToRemove.addItem(childFile);
+						this.deleteNode(childFile);
+						checkXMLChildren(childFile);
+					}
+					else{
+						this.filesToRemove.addItem(childFile);
+						this.deleteNode(childFile);
+					}
+					
+				}
+				
+				
 			}
 			
 			private function onTabChange():void {
@@ -564,6 +589,22 @@
 						PopUpManager.removePopUp(this);
 			}
 			
+			private function renameFile(event:MouseEvent):void{
+				if((downloadTree.selectedItem == null) || downloadTree.selectedIndex == 0){
+					return;
+				}	
+				else{
+					var renameWindow:RenameAnalysisWindow = RenameAnalysisWindow(mx.managers.PopUpManager.createPopUp(this, RenameAnalysisWindow, true));
+				}
+				
+				renameWindow.oldExperimentName = downloadTree.selectedItem.@displayName;	
+				renameWindow.fileList = this.downloadList;
+				renameWindow.idAnalysis = this.idAnalysis;
+				renameWindow.addEventListener("refreshUploadFiles", onUploadFinished);
+				mx.managers.PopUpManager.centerPopUp(renameWindow);
+				renameWindow.nameExperiment.setFocus();
+			}
+			
 			public function closeWindow():void{
 				PopUpManager.removePopUp(this);
 				var e:CloseEvent = new CloseEvent(CloseEvent.CLOSE, true);
@@ -571,7 +612,14 @@
 				var dis:Boolean = dispatchEvent(e);
 			}
 			
-			
+			public function deleteToolTip(obj:Object):void{
+				if(filesGrid.toolTip == null){
+					downloadTree.toolTip = null;
+				}
+				else{
+					filesGrid.toolTip = null;
+				}
+			}
 		]]>
 	</mx:Script>	
 	
@@ -609,7 +657,8 @@
 			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
 					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
-					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.children().length() == 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()" paddingLeft="0"/>
+					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()" paddingLeft="0"/>
+					<mx:LinkButton id="renameFileButton" label="Rename file" textDecoration="underline" click="renameFile(event)" enabled="{this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0}" toolTip="Rename selected file or folder" icon="@Embed(source='../../assets/segment_import.png')"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 					
 				</mx:HBox>
@@ -621,7 +670,7 @@
 						</mx:HBox>
 						<mx:DataGrid id="filesGrid"  
 									 dragEnabled="true"
-									 showHeaders="false" 
+									 showHeaders="false"
 									 allowMultipleSelection="true"
 									 width="100%" height="100%"
 									 dataProvider="{uploadedFiles}" dragMoveEnabled="true" itemClick="{this.downloadTree.selectedItem = null;}">
@@ -640,7 +689,8 @@
 								 dataProvider="{downloadList}"
 								 borderStyle="solid" 
 								 labelFunction="{getDownloadName}"
-								 dropEnabled="true"  		                
+								 dropEnabled="true"
+								 doubleClickEnabled="false"
 								 dragEnabled="true"
 								 dragMoveEnabled="true" 
 								 allowMultipleSelection="true" 
