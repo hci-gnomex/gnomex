@@ -152,6 +152,11 @@
 					}
 				} else  if (property.@codePropertyType == 'MOPTION') { 
 					propertyValueViewStack[index].selectedIndex = 4;
+					var propertyOptions:XMLListCollection = new XMLListCollection(property.PropertyOption);
+					if(propertyOptions.length < 1) {
+						// Nothing to do if there are no options
+						return;
+					}
 					var cbLen:int = multiselectCheck[index].length;
 					var cbCount:int = 0;
 					if(this.parentDocument is AnalysisEditView) {
