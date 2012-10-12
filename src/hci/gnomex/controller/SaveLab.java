@@ -283,7 +283,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
             }
           }
   
-          // Remove billing accounts no longer in the billing acount list
+          // Remove billing accounts no longer in the billing account list
           List billingAccountsToRemove = new ArrayList();
           if (lab.getBillingAccounts() != null) {
             for(Iterator i = lab.getBillingAccounts().iterator(); i.hasNext();) {
@@ -294,6 +294,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
             }
             for(Iterator i = billingAccountsToRemove.iterator(); i.hasNext();) {
               BillingAccount ba = (BillingAccount)i.next();
+              ba.setUsers( null );
               lab.getBillingAccounts().remove(ba);
               sess.delete(ba);
             }

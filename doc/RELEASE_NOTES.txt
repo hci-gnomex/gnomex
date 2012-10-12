@@ -48,6 +48,7 @@
 * Fixed bug where users in multiple labs or in labs associated with multiple cores would get duplicate emails from email all users link. (mbowler)
 * Fixed screen update issue when annotation automatically set to inactive when delete is tried but aborted. (rcundick)
 * Don't allow topics drag/drop for guest users or users that don't belong to a lab. (rcundick)
+* Fixed problem where a billing account with authorized users assigned to it could not be deleted. (mbowler) 
 
 deploy notes
 ----------------------
