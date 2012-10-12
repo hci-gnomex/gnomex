@@ -505,7 +505,6 @@
 
 				// Annotations
 				analysisProperties.initializePropertiesFromComponents();
-				//params.propertiesXML = "<analysisProperties>" + properties.toXMLString() + "</analysisProperties>";
 				params.propertiesXML = "<analysisProperties>" + analysisProperties.propertiesToSave.toXMLString() + "</analysisProperties>";
 
 				saveAnalysis.send(params);			

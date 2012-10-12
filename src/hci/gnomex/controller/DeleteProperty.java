@@ -207,8 +207,10 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         property.setIsActive("N");
         sess.save(property);
         sess.flush();
-                
-        this.xmlResult = "<NONBLANKVALUES sampleCount='"+ nonBlankSampleCount +"' analysisCount='"+ nonBlankAnalysisCount +"' dataTrackCount='"+ nonBlankDataTrackCount +"'/>";
+        
+        DictionaryHelper.reload(sess);
+        
+        this.xmlResult = "<NONBLANKVALUES idProperty='" + property.getIdProperty().intValue() + "' sampleCount='"+ nonBlankSampleCount +"' analysisCount='"+ nonBlankAnalysisCount +"' dataTrackCount='"+ nonBlankDataTrackCount +"'/>";
         setResponsePage(this.SUCCESS_JSP);        
         
       } catch(Exception e) {

@@ -411,6 +411,9 @@
 				parentApplication.getPropertyList.send();
 				
 			} else if (deleteProperty.lastResult.name() == "NONBLANKVALUES") {
+				idProperty = deleteProperty.lastResult.@idProperty;
+				parentApplication.getPropertyList.send();
+				dispatchEvent(new Event("updateProperties"));				
 				var deleteAnnotation:DeleteAnnotation = DeleteAnnotation(PopUpManager.createPopUp(this, DeleteAnnotation, false));
 				deleteAnnotation.x = removePropertyClick.x - (deleteAnnotation.width/2);		
 				deleteAnnotation.y = removePropertyClick.y;
