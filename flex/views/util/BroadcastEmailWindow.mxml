@@ -222,7 +222,7 @@
 		</mx:VBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="{(fileSelected || this.body.text != '') &amp;&amp; subject.text != '' &amp;&amp; coreFacilitySelected}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
+		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="{(fileSelected || this.body.text != '') &amp;&amp; subject.text != '' &amp;&amp; fromAddress.text != '' &amp;&amp; coreFacilitySelected}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 

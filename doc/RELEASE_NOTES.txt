@@ -45,6 +45,7 @@
 * Added editable from email address on email all gnomex users form. (mbowler)
 * Renamed StringUtil.as to GNomExStringUtil.as to avoid confusion/conflicts with mx.utils.StringUtil. (rcundick)
 * Fixed bugs in analysis annotations and made it so that annotations with no data don't show in view mode. (rcundick)
+* Fixed bug where users in multiple labs or in labs associated with multiple cores would get duplicate emails from email all users link. (mbowler)
 
 deploy notes
 ----------------------
