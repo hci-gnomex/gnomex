@@ -142,7 +142,7 @@
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
-			import views.util.StringUtil; 
+			import views.util.GNomExStringUtil; 
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -466,7 +466,7 @@
 				
 				params.idAnalysis         = analysis.@idAnalysis;
 				params.name               = this.analysisName.text;
-				params.description        = StringUtil.cleanRichTextHTML(this.description.htmlText);
+				params.description        = GNomExStringUtil.cleanRichTextHTML(this.description.htmlText);
 				
 				// If the analysis was assigned to a new lab (through
 				// the drag operation, set the lab on the lab to
@@ -505,7 +505,8 @@
 
 				// Annotations
 				analysisProperties.initializePropertiesFromComponents();
-				params.propertiesXML = "<analysisProperties>" + properties.toXMLString() + "</analysisProperties>";
+				//params.propertiesXML = "<analysisProperties>" + properties.toXMLString() + "</analysisProperties>";
+				params.propertiesXML = "<analysisProperties>" + analysisProperties.propertiesToSave.toXMLString() + "</analysisProperties>";
 
 				saveAnalysis.send(params);			
 			}   	

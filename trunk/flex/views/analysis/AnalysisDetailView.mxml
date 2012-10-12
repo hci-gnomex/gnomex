@@ -45,7 +45,6 @@
 			import mx.events.CollectionEventKind;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import views.util.WebLinksView;
 			
 			import views.analysis.AnalysisEditView;
 			import views.analysis.DownloadProgressView;
@@ -53,6 +52,8 @@
 			import views.util.DownloadHints;
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
+			import views.util.WebLinksView;
+			import mx.utils.StringUtil;
 			
 			[Bindable]
 			private var isGuest:Boolean = true;
@@ -409,11 +410,39 @@
 				webLinksView.setUserLink(topicNumber);
 			}
 			
+			private function filterPropertiesWithValues(item:Object):Boolean {	
+				var propertyType:String = item.@codePropertyType;
+				if (propertyType == 'TEXT' || propertyType == 'OPTION' || propertyType == 'MOPTION') {
+					var txtVal:String = StringUtil.trim(item.@value);
+					if(txtVal.length == 0) {
+						return false;
+					}
+				} else if (propertyType == 'URL') {
+					for each (var propertyValue:XML in  item..PropertyEntryValue) {
+						var url:String = propertyValue.@url;
+						var alias:String = propertyValue.@urlAlias;
+						if (url == 'Enter URL here...' || url == '') {
+							continue;
+						}						
+
+						if (alias != null && alias != 'Enter alias here...' && StringUtil.trim(alias) != "") {
+							url += ',' + alias;
+						}
+					
+						if(url.length > 0) {
+							return true;
+						}						
+					}
+					return false;
+				} 						
+				return true;
+			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
-	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}"/>
+	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}" filterFunction="filterPropertiesWithValues"/>
 	<mx:XMLListCollection id="sortedTopics"
 						  source="{analysis.topics.Topic}">
 		<mx:sort>

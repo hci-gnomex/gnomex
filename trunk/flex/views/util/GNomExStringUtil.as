@@ -1,12 +1,12 @@
 package views.util
 {
-	public class StringUtil
+	public class GNomExStringUtil
 	{
 		public static const  KB:Number = 1024;
 		public static const  MB:Number = Math.pow(1024,2) ;
 		public static const  GB:Number = Math.pow(1024,3);		
 
-		public function StringUtil() {
+		public function GNomExStringUtil() {
 		}
 		
 		public static function cleanRichTextHTML(htmlText:String):String {
@@ -48,7 +48,7 @@ package views.util
 			//str = str.replace(pattern, "");
 			//pattern = /<\/U.*?>/g;
 			//str = str.replace(pattern, "");					
-			return StringUtil.cleanRichTextHTML(str);
+			return GNomExStringUtil.cleanRichTextHTML(str);
 		}
 		
 		public static function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {

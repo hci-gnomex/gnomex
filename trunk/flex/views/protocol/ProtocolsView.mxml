@@ -80,7 +80,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.URLUtil;
-			import views.util.StringUtil;
+			import views.util.GNomExStringUtil;
 			
 			import views.protocol.CreateNewProtocolPopUp;
 
@@ -169,7 +169,7 @@
 					params.codeRequestCategory = codeRequestCategory.selectedItem != null ? codeRequestCategory.selectedItem.@value : "";					
 				}
 				
-				params.protocolDescription = StringUtil.myEscape(description.text);
+				params.protocolDescription = GNomExStringUtil.myEscape(description.text);
 				//params.protocolDescription = description.text;
 				params.protocolUrl = url.text;
 				params.isActive = isActive.selected ? "Y" : "N";

@@ -41,7 +41,7 @@
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
 	import views.topics.NavTopicsView;
-	import views.util.StringUtil;
+	import views.util.GNomExStringUtil;
 
 		
 	private var analysisEditView:AnalysisEditView;
@@ -118,7 +118,7 @@
 			appUsersForLab.addItemAt(emptyNode, 0);
 			
 			appUserSort = new Sort();
-			appUserSort.compareFunction = StringUtil.sortAppUsers;
+			appUserSort.compareFunction = GNomExStringUtil.sortAppUsers;
 			appUsersForLab.sort = appUserSort;
 			appUsersForLab.refresh();
 			ownerCombo.dataProvider = appUsersForLab;

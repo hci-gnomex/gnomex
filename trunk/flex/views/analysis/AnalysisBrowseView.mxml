@@ -34,7 +34,7 @@
 	import views.util.DownloadHints;
 	import mx.core.IFlexDisplayObject;
 	import hci.flex.controls.DropdownLabel;
-	import views.util.StringUtil; 
+	import views.util.GNomExStringUtil; 
 
 
     [Bindable]
@@ -287,7 +287,7 @@
 		
 		
 	public function formatDescriptionField(item:Object, col:DataGridColumn):String {
-		return StringUtil.stripHTMLText(item.@description);
+		return GNomExStringUtil.stripHTMLText(item.@description);
 	}
  	]]>
  	
