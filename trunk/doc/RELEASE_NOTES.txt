@@ -50,6 +50,8 @@
 * Don't allow topics drag/drop for guest users or users that don't belong to a lab. (rcundick)
 * Fixed problem where a billing account with authorized users assigned to it could not be deleted. (mbowler)
 * Removing a member of a lab also removes any ties they have to any billing accounts for that lab. (mbowler) 
+* Fixed failure to set analysis type dropdown to current selection and unwanted scrollbar display problems on analysis protocol window. (rcundick)
+* Fixed bug causing exception when annotation multi-combo created with no define options. (rcundick)
 
 deploy notes
 ----------------------

@@ -422,6 +422,11 @@
 			}
 		} else  if (dataTrackProperty.@codePropertyType == 'MOPTION') { 
 			propertyValueViewStack[index].selectedIndex = 4; 
+			var propertyOptions:XMLListCollection = new XMLListCollection(dataTrackProperty.PropertyOption);
+			if(propertyOptions.length < 1) {
+				// Nothing to do if there are no options
+				return;
+			}
 			var cbLen:int = multiselectCheck[index].length;
 			var cbCount:int = 0;
 			for each (var cbx:CheckBoxRequiredIndicator in multiselectCheck[index]) {

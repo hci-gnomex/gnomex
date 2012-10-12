@@ -304,10 +304,20 @@
 					protocolViews.selectedChild = editProtocol;
 					if (fullProtocol.protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
 						currentState = "AnalysisEditState";
-						this.analysisTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.AnalysisType", fullProtocol.idAnalysisType);
+						for each(var analysisType:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry) {
+							if (analysisType.@idAlignmentPlatform==fullProtocol.idAnalysisType) {
+								this.analysisTypeCombo.selectedItem = analysisType;
+								break;
+							}
+						}						
 					} else {
 						currentState = "";
-						this.codeRequestCategory.selectedItem = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategory", fullProtocol.codeRequestCategory);
+						for each(var requestCategory:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry) {
+							if (requestCategory.@codeRequestCategory==fullProtocol.codeRequestCategory) {
+								this.codeRequestCategory.selectedItem = requestCategory;
+								break;
+							}
+						}	
 					}
 					testForURL();
 				} else {
@@ -479,7 +489,7 @@
 					id="analysisTypeCombo"
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}"
 					value="{fullProtocol.idAnalysisType}"
-					width="100%" change="dirty.setDirty()">
+					width="195" change="dirty.setDirty()">
 					</hci:ComboBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{vbox2}" position="before">
@@ -489,7 +499,7 @@
 						id="appUserCombo" 
 						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry}"
 						value="{fullProtocol.idAppUser}"
-						width="100%" change="dirty.setDirty()">
+						width="195" change="dirty.setDirty()">
 						</hci:ComboBox>
 				</mx:VBox>
 			</mx:AddChild>
@@ -501,7 +511,7 @@
 				<mx:Label 
 					id="analysisTypeDisplay"
 					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AnalysisType', fullProtocol.idAnalysisType)}"
-					width="100%">
+					width="195">
 					</mx:Label>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox2}" position="lastChild">
@@ -509,7 +519,7 @@
 					<mx:Label text="Owner:" fontWeight="bold" width="100" visible="{fullProtocol.idAppUser != '' ? true : false}"/>
 					<mx:Label 
 					  text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', fullProtocol.idAppUser)}"
-					  width="100%"/>
+					  width="195"/>
 				</mx:HBox>
 			</mx:AddChild>
 			
