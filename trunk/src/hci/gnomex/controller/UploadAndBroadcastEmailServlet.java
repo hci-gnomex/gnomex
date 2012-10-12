@@ -97,7 +97,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
       
       
       // Get a list of all active users with email accounts for selected cores.
-      String appUserQueryString = "SELECT a from AppUser a join a.labs l join l.coreFacilities c " +
+      String appUserQueryString = "SELECT DISTINCT a from AppUser a join a.labs l join l.coreFacilities c " +
                                     " where a.isActive = 'Y' and a.email is not NULL and a.email != '' and c.idCoreFacility in (:ids) ORDER BY a.lastName, a.firstName ";
       ArrayList<Integer> coreIds = new ArrayList<Integer>();
       if (req.getParameter("coreFacilityIds") != null && !req.getParameter("coreFacilityIds").equals("")) {
