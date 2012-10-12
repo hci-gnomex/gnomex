@@ -61,6 +61,7 @@ public class PropertyEntryValue extends HibernateDetailObject {
     }
     return alias;
   }
+  
   public String getUrl() {
     String url = "";
     if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {

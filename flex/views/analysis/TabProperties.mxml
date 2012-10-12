@@ -3,16 +3,21 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.controls.LinkButton;
 			import mx.controls.TextInput;
 			import mx.managers.PopUpManager;
+			import mx.utils.StringUtil;
 			
 			import views.admin.PropertyWindow;
 			import views.util.CheckBoxRequiredIndicator;
 			import views.util.TextInputRequiredIndicator;
-			import mx.controls.Alert;
 
 			[Bindable]
 			public var properties:XMLListCollection;
+			
+			public var propertiesToSave:XMLListCollection;
 			
 			[Bindable]
 			public var editable:Boolean;
@@ -74,6 +79,9 @@
 			}
 			
 			private function onCreatePropertyLabel(property:XML, index:int):void {
+				if(property == null) {
+					return;
+				}
 				if (property.@codePropertyType == 'TEXT') {
 					propertyValueViewStack[index].selectedIndex = 1;
 					propertyText[index].text = property.@value;
@@ -92,8 +100,19 @@
 							// Req'd flag only needed for first item
 							urlText[index][0].isRequired = property.@isRequired== 'Y' ? true : false;
 							urlText[index][0].SetBackgroundColor();
+						}	
+						// Change urlLabel for edit mode
+						for each (var uBtn:LinkButton in urlLabel[index]) {
+							uBtn.label = "Edit";
+						}
+						// Show urlRemoveImage for view mode
+						for each (var uImg:Image in urlRemoveImage[index]) {
+							uImg.visible = true;
+							uImg.includeInLayout = true;
 						}						
+						
 					} else {
+						var lastItemIndx:int = aliasText[index].length-1;
 						// If not in edit version then disable editing
 						for each (var aTxt:TextInput in aliasText[index]) {
 							aTxt.editable = false;
@@ -101,7 +120,19 @@
 						for each (var uTxt:TextInputRequiredIndicator in urlText[index]) {
 							uTxt.isRequired = false;
 							uTxt.editable = false;
-						}						
+						}
+						// Change urlLabel for view mode
+						for each (var uBtn1:LinkButton in urlLabel[index]) {
+							uBtn1.label = "Show fields";
+						}
+						// Hide urlRemoveImage for view mode
+						for each (var uImg1:Image in urlRemoveImage[index]) {
+							uImg1.visible = false;
+							uImg1.includeInLayout = false;
+						}
+						// Hide last URL item in view mode (no need to show empty item)
+						urlStack[index][lastItemIndx].visible = false;
+						urlStack[index][lastItemIndx].includeInLayout = false;
 					}
 
 				} else  if (property.@codePropertyType == 'OPTION') {
@@ -148,13 +179,15 @@
 			}
 			
 			public function initializePropertiesFromComponents():void {
+				propertiesToSave = new XMLListCollection();
 				for (var i:int = 0; i < properties.length; i++) {
 					var property:XML = XML(properties.getItemAt(i));
 					if (propertyValueViewStack[i].selectedIndex == 0) {
 						// url
 						property.@value = "";
 						var urlIdx:int = 0;
-						for each (var propertyValue:XML in  property..PropertyValue) {
+						var urlItemDefined:Boolean = false;
+						for each (var propertyValue:XML in  property..PropertyEntryValue) {
 							var url:String = this.urlText[i][urlIdx].text;
 							var alias:String = this.aliasText[i][urlIdx].text;
 							
@@ -163,26 +196,45 @@
 							}
 							
 							var pv:String = url;
-							if (alias != null && alias != 'Enter alias here...') {
+							if (alias != null && alias != 'Enter alias here...' && StringUtil.trim(alias) != "") {
 								pv += ',' + alias;
 							}
 							propertyValue.@value = pv;
+							
+							if(pv.length > 0) {
+								urlItemDefined = true;
+							}
 							urlIdx++;
+						}
+						if(urlItemDefined) {
+							propertiesToSave.addItem(property);
 						}
 						
 					} else if (propertyValueViewStack[i].selectedIndex == 1) {
 						// text
-						property.@value = propertyText[i].text;
+						var textVal:String = propertyText[i].text;
+						property.@value = textVal;
+						if(textVal.length > 0) {
+							propertiesToSave.addItem(property);
+						}
 					} else if (propertyValueViewStack[i].selectedIndex == 2) {
 						// combo
 						property.@value = "";
+						var comboItemSelected:Boolean = false;
 						for each (var option:XML in  property..PropertyOption) {
 							if (propertyCombo[i].selectedItem != null &&
 								option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
 								option.@selected = 'Y';
+								var optName:String = option.@name;
+								if(optName != null && optName.length > 0 && optName != " ") {
+									comboItemSelected = true;
+								}
 							} else {
 								option.@selected = 'N';
 							}
+						}
+						if(comboItemSelected) {
+							propertiesToSave.addItem(property);
 						}
 					} else if (propertyValueViewStack[i].selectedIndex == 3) {
 						// check
@@ -191,6 +243,7 @@
 						// multi-select
 						property.@value = "";		
 						var idx:int = 0;
+						var multiItemSelected:Boolean = false;
 						for each (var opt:XML in  property..PropertyOption) {
 							if (multiselectCheck[i][idx].selected) {
 								opt.@selected = 'Y';
@@ -198,10 +251,14 @@
 									property.@value += ",";
 								}
 								property.@value += opt.@name;
+								multiItemSelected = true;
 							} else {
 								opt.@selected = 'N';
 							}
 							idx++;
+						}
+						if(multiItemSelected) {
+							propertiesToSave.addItem(property);
 						}
 					}
 				}
@@ -279,6 +336,7 @@
 				}
 				var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
 				var urlString:String = values.getItemAt(indices[1]).@url;
+				urlString = urlString.replace(",", "");
 				if (urlString.indexOf("http") < 0) {
 					urlString = "http://" + urlString;
 				}
@@ -351,22 +409,22 @@
 								 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
 						
 					</mx:HBox>
-					<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="250" >
-						<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" >
+					<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="270" >
+						<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" >
 							<mx:Repeater id="urlRepeater" dataProvider="{propertyRepeater.currentItem.PropertyEntryValue}" >
 								<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@url == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
-									<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
+									<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%" horizontalScrollPolicy="off">
 										<mx:LinkButton id="urlLink" label="{urlRepeater.currentItem.@urlDisplay }"  
 													   click="{navigateToURLLink(event.target.instanceIndices)}" 
 													   paddingLeft="0" textDecoration="underline" color="#121CE8" 
-													   width="190" textAlign="left"/>
-										<mx:LinkButton label="Edit" 
+													   width="204" textAlign="left"/>
+										<mx:LinkButton id="urlLabel" label="Edit" 
 													   click="{showURLEdit(event.target.instanceIndices)}" 
-													   styleName="linkMenuButtonSmall"/>
-										<mx:Image source="{parentApplication.iconSmallDelete}"  
+													   styleName="linkMenuButtonSmall" textAlign="left"/>
+										<mx:Image id="urlRemoveImage" source="{parentApplication.iconSmallDelete}"  
 												  click="{removeURL(event.currentTarget.instanceIndices)}" />						
 									</mx:HBox>
-									<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left">
+									<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left" horizontalScrollPolicy="off">
 										<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
 													  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
 													  change="{setDirty()}"
@@ -378,8 +436,8 @@
 													  editable="{editable}"
 													  change="{onChangeURLText(event.target.instanceIndices)}" 
 													  click="{selectURLText(event.currentTarget.instanceIndices)}" 
-													  width="100%" color="#8D7B7B"/>						
-										<mx:LinkButton label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
+													  width="100" color="#8D7B7B"/>						
+										<mx:LinkButton textAlign="left" label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
 									</mx:HBox>
 								</mx:ViewStack>		
 								

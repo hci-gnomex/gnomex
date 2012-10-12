@@ -884,6 +884,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             sess.delete(av);
           }  
           sess.flush();
+          pe.setValues(null);
+          sess.save(pe);
+          sess.flush();
           // delete dataTrack property
           sess.delete(pe);
         }

@@ -50,7 +50,7 @@
 	import mx.rpc.events.ResultEvent;
 	
 	import views.util.PromptXMLListCollection;
-	import views.util.StringUtil;
+	import views.util.GNomExStringUtil;
 	import views.util.WebLinksView;
 	
 	[Bindable]
@@ -217,7 +217,7 @@
 		params.idTopic      		  = parentDocument.browseTree.selectedItem.@idTopic;
 		params.idParentTopic      	  = parentDocument.browseTree.selectedItem.@idParentTopic;
 		params.name                   = this.topicName.text;
-		params.description            = StringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.description            = GNomExStringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
 		params.idLab                  = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
 		params.codeVisibility         = this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "";

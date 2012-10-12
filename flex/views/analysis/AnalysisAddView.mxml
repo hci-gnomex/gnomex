@@ -68,7 +68,7 @@
 		import views.util.DateUtils;
 		import views.util.OrganismsWindow;
 		import views.util.OrganismEvent; 
-		import views.util.StringUtil;
+		import views.util.GNomExStringUtil;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -316,7 +316,7 @@
 				appUsersForLab.addItemAt(emptyNode, 0);
 				
 				appUserSort = new Sort();
-				appUserSort.compareFunction = StringUtil.sortAppUsers;
+				appUserSort.compareFunction = GNomExStringUtil.sortAppUsers;
 				appUsersForLab.sort = appUserSort;
 				appUsersForLab.refresh();
 				ownerCombo.dataProvider = appUsersForLab;

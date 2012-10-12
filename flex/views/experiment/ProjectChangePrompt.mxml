@@ -28,7 +28,7 @@
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
 	
-	import views.util.StringUtil;
+	import views.util.GNomExStringUtil;
 		
 	private var idLab:String;
 	private var idBillingAccount:String;
@@ -87,7 +87,7 @@
 			appUsersForLab.addItemAt(emptyNode, 0);
 			
 			appUserSort = new Sort();
-			appUserSort.compareFunction = StringUtil.sortAppUsers;
+			appUserSort.compareFunction = GNomExStringUtil.sortAppUsers;
 			appUsersForLab.sort = appUserSort;
 			appUsersForLab.refresh();
 			ownerCombo.dataProvider = appUsersForLab;

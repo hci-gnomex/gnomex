@@ -223,7 +223,7 @@
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
 			import views.util.PromptXMLListCollection;
-			import views.util.StringUtil;
+			import views.util.GNomExStringUtil;
         
 		[Embed(source='../../assets/page.png')]
 		[Bindable]
@@ -3122,7 +3122,7 @@
 			// request is being amended
 			if (this.isAmendState()) {
 				request.@amendState = currentState.toString();
-				saveDescription = StringUtil.cleanRichTextHTML(request.@description);
+				saveDescription = GNomExStringUtil.cleanRichTextHTML(request.@description);
 			}
 			
 		}
