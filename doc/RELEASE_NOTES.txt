@@ -49,7 +49,7 @@
 * Fixed screen update issue when annotation automatically set to inactive when delete is tried but aborted. (rcundick)
 * Don't allow topics drag/drop for guest users or users that don't belong to a lab. (rcundick)
 * Fixed problem where a billing account with authorized users assigned to it could not be deleted. (mbowler)
-* Removing a member of a lab also removed any ties they have to any billing accounts for that lab. (mbowler) 
+* Removing a member of a lab also removes any ties they have to any billing accounts for that lab. (mbowler) 
 
 deploy notes
 ----------------------
