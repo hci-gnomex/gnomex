@@ -316,12 +316,35 @@ public class SaveLab extends GNomExCommand implements Serializable {
           //
           // Save lab members
           //
+          // Lab members to keep
           TreeSet members = new TreeSet(new AppUserComparator());
           for(Iterator i = labMemberParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
             Integer idAppUser = (Integer)i.next();
             AppUser appUser = (AppUser)labMemberParser.getAppUserMap().get(idAppUser);     
             members.add(appUser);
           }
+          
+          // Lab members to remove
+          List membersToRemove = new ArrayList();
+          if (lab.getMembers() != null) {
+            for(Iterator i = lab.getMembers().iterator(); i.hasNext();) {
+              AppUser user = (AppUser)i.next();
+              if (!labMemberParser.getAppUserMap().containsKey(user.getIdAppUser())) {
+                membersToRemove.add(user);
+              }
+            }
+            // Remove the lab member from any accounts they are users on
+            if (lab.getBillingAccounts() != null) {
+              for(Iterator i = lab.getBillingAccounts().iterator(); i.hasNext();) {
+                BillingAccount ba = (BillingAccount)i.next();
+                for(Iterator i2 = membersToRemove.iterator(); i2.hasNext();) {
+                  AppUser user = (AppUser)i2.next(); 
+                    ba.getUsers().remove( user );
+                }
+              }
+            }
+          }
+          // Save the members who are still part of the lab
           lab.setMembers(members);
   
           sess.flush();
