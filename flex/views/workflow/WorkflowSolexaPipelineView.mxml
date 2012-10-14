@@ -182,9 +182,23 @@
     	{ 
     		return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.NumberSequencingCycles", item.@idNumberSequencingCycles);
     	}  
-
-		public function handleQ30TextChanges(evt:Event):void {
+		
+		public function handleQ30(event:Event):void 
+		{ 
+			var target:TextInput = event.currentTarget as TextInput;
+			var reg:RegExp = /^[0-9]{0,1}\.?[0-9]{0,3}/g; 
+			var parts:Array = reg.exec(target.text); 
 			
+			if (parts && parts[0]){ 
+				target.text = parts[0]; 
+			} 
+		} 			
+			
+			
+		public function handleQ30TextChangesAlt(evt:Event):void {
+			
+
+			 
 			var target:TextInput = evt.currentTarget as TextInput;
 			
 			if(!target) return;
@@ -288,10 +302,19 @@
 							</mx:Component>
 						</mx:headerRenderer> 
 					</mx:DataGridColumn>					
-					<mx:DataGridColumn headerText="Q30 (%)" width="14" dataField="@q30PercentForDisplay" editable="true">
+					<mx:DataGridColumn headerText="Q30 (%) (eg .345)" width="17" dataField="@q30PercentForDisplay" editable="true">
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Q30 Percent"/>
+									<mx:Label text="(example .345)"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer>
 						<mx:itemEditor>
 							<mx:Component>
-								<mx:TextInput restrict="0-9." change="parentDocument.handleQ30TextChanges(event);"/> 
+								<mx:TextInput  change="parentDocument.handleQ30(event);">
+								</mx:TextInput> 
 							</mx:Component>
 						</mx:itemEditor> 
 					</mx:DataGridColumn>			                
