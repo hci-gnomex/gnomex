@@ -41,7 +41,7 @@ import javax.net.ssl.X509TrustManager;
  */
 public class SaveChromatogramsFromFiles {
   
-  private static  int     sleepInterval = 60000; // Number of milliseconds to sleep between running.  defaults to 60 seconds.
+  private static  int     sleepInterval = 300000; // Number of milliseconds to sleep between running.  defaults to 300 seconds (5 mins).
 
   
   private String userName;
@@ -72,7 +72,6 @@ public class SaveChromatogramsFromFiles {
       } 
       catch (Exception e) {
         System.out.println(getTimeStamp() + "Exception: " + e.getMessage());
-        break;
       }
     }
   }
@@ -170,7 +169,7 @@ public class SaveChromatogramsFromFiles {
         }
       }
       if (!success) {
-        System.err.print(outputXML.toString());
+        System.out.print(outputXML.toString());
         throw new Exception("Unable to login");
       }
       // Capture session id from cookie
@@ -195,7 +194,7 @@ public class SaveChromatogramsFromFiles {
         }
       }
       if (!success) {
-        System.err.print(outputXML.toString());
+        System.out.print(outputXML.toString());
         throw new Exception("Unable to create security advisor");
       }
       
@@ -264,6 +263,7 @@ public class SaveChromatogramsFromFiles {
         }
         System.out.println();
         if (!success) {
+          System.out.println(inputLine);
           throw new Exception("Unable to save chromatogram file");
         }
         if (idPlateWell != null) {
@@ -276,8 +276,8 @@ public class SaveChromatogramsFromFiles {
 
     } catch (Exception e) {
       e.printStackTrace();
-      System.err.println(e.toString());
-      throw new Exception("Aborting SaveChromatogramsFromFile");
+      System.out.println(e.toString());
+      throw new Exception(e.toString());
     } finally {
       if (in != null) {
         try {
