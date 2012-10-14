@@ -84,6 +84,15 @@ DataGrid {
 
 }
 
+DataGridAlternatingGroup {
+	headerStyleName: dataGridHeader;	
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+	alternatingItemColors: #ffffff, #ffffff;
+	
+	
+}
+
 Tree {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
