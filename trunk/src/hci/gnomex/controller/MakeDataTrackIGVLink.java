@@ -103,7 +103,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
 
 			//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.useq (will be converted if autoConvert is true))
-			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, this.dataTrackFileServerWebContext);
+			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
 			File[] filesToLink = link.getFilesToLink();
 			if (filesToLink== null)  throw new Exception ("No files to link?!");
 
