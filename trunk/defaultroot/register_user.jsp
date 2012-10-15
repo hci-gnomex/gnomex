@@ -186,7 +186,7 @@ try {
           <td width="185">
             <%
               if (facility.getDescription() != null) {%>
-                  (<%=facility.getDescription()%>)
+                  <%=facility.getDescription()%>
             <%}%>
           </td>
         </tr> 
