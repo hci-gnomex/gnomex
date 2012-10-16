@@ -54,6 +54,7 @@
 * Fixed bug causing exception when annotation multi-combo created with no define options. (rcundick)
 * Took a new approach to solving application protocol update bug by using a dedicated service rather than the dictionary manager. (rcundick)
 * Set default dropdown selection for analysis protocol after disposing of edit protocol window in analysis edit to blank item. (rcundick)
+* Set maximum text length for annotation description to 2000 characters. (rcundick)
 * Fixed the link to email for reporting software bugs on the About view. (mbowler)
 
 deploy notes
