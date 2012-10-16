@@ -45,6 +45,7 @@
 		import views.admin.PropertyEvent;
 		import views.util.DeleteAnnotation;
 		import views.util.DirtyNote;
+		import mx.events.FlexEvent;
 		
 		private var idProperty:Object = null;
 		
@@ -622,11 +623,12 @@
 			init();
 		}
 		
-		private function applicationFilterRefresh():void{
+		private function applicationFilterRefresh():void {
 			applicationFilterList.filterFunction = filterApplication1;
 			applicationFilterList.refresh();
 			onPropertyRefreshed(null);
 		}
+			
 	]]>
 </mx:Script>
 	
@@ -689,7 +691,7 @@
 					</mx:HBox>
 					<mx:HBox width="100%" verticalGap="0" height="65">
 						<mx:Text text="Description:" width="140"/>
-						<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" height="65" id="description" />
+						<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" height="65" id="description"  maxChars="2000"/>
 					</mx:HBox>
 					<mx:HBox width="100%">
 						<mx:Label text="Owner:" width="140"/>
