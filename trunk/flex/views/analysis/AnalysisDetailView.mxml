@@ -30,7 +30,7 @@
 		fault="parentApplication.onFailHttpRequest('Failed to save analysis files', event)"
 		method="POST" 
 		useProxy="false">
-	</mx:HTTPService>	
+	</mx:HTTPService>
 	
 	<mx:Script>
 		<![CDATA[
@@ -182,8 +182,7 @@
 				analysisTypeName = dict.@display.toString();
 			}
 			private function getAnalysisProtocolName():void {
-				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
-				analysisProtocolName = dict.@display.toString();
+				analysisProtocolName = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol).@label;
 			}
 			private function getOrganismName():void {
 				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);

@@ -228,6 +228,20 @@
 		fault="onFailHttpRequest('Failed to get request', event)"
 		method="POST"
 		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="getProtocolList"
+		url="GetProtocolList.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		useProxy="false"
+		method="POST"		
+		result="onGetProtocolList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get protocol list', event)">
+		<mx:request>
+			<protocolClassName>{"hci.gnomex.model.AnalysisProtocol"}</protocolClassName>
+		</mx:request>
 	</mx:HTTPService>	
 	
         <mx:Style source="css/gnomex_flex.css" />
@@ -268,6 +282,7 @@
 			import views.search.NavSearchView;
 			import views.user.UserPublicView;
 			import views.util.AboutView;
+			import views.util.AnalysisProtocolsEvent;
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
 			import views.util.DownloadHints;
@@ -768,6 +783,8 @@
 			public var das2OrganismList:XMLListCollection;
 			[Bindable]
 			public var coreFacilityList:XMLListCollection;
+			[Bindable]
+			public var protocolList:XMLListCollection;
 			
 			private var properties:Object;
 			
@@ -1178,7 +1195,17 @@
 				if (checkTopicPermission.lastResult.name() != "SUCCESS") {
 					Alert.show(checkTopicPermission.lastResult..ACTMESSAGE.@TEXT);
 				}
-			}			
+			}
+			
+			public function onGetProtocolList(event:ResultEvent):void {
+				protocolList = new XMLListCollection(getProtocolList.lastResult.Protocols.Protocol);
+				var emptyNode:XML = new XML("<Protocol " +
+					" id=''" +
+					" label=''"  +
+					"/>");
+				protocolList.addItemAt(emptyNode, 0);
+				this.dispatchEvent(new AnalysisProtocolsEvent(AnalysisProtocolsEvent.DATA_REFRESHED));
+			}
 
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
@@ -1301,6 +1328,7 @@
 	            	// if we are leaving protocol view, refresh dictionaries
 	            	if (currentView == this.protocolsView) {
 	            		protocolsView.refreshDictionaries();
+						this.getProtocolList.send();
 	            	}
 	            	
             	}
@@ -1950,7 +1978,8 @@
 			private function onGetSessionTimeout(event:ResultEvent):void {
 				var sessionTimeout:int = parseInt(getSessionTimeout.lastResult.@maxInactiveTime);
 				SessionTimeoutData.setThisApplication(this, sessionTimeout); 
-				SessionTimeoutData.startUserSessionTimer();				
+				SessionTimeoutData.startUserSessionTimer();		
+				getProtocolList.send();
 			}	
             
             public function getProperty(name:String):String {
@@ -2550,7 +2579,6 @@
 				
 			}
 		}
-
 
         ]]>
     </mx:Script>
