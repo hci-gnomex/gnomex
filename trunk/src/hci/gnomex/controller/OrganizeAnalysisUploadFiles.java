@@ -133,7 +133,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
             String displayName = contents[3];
             
             if(!f1.renameTo(f2)){
-              throw new Exception("Unable to rename file.  Invalid file name");
+              throw new Exception("Error Renaming File");
             }
             else{
               // Rename the file in the DB
