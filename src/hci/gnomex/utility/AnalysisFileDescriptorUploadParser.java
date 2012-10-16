@@ -46,7 +46,8 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     String directoryName = null;
     
     if (folderNode.getName().equals("Analysis")) {
-      directoryName =folderNode.getAttributeValue("displayName");
+      String [] fileParts = folderNode.getAttributeValue("key").split("-");
+      directoryName = fileParts[2];
       
       } else {
         if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir")) {
