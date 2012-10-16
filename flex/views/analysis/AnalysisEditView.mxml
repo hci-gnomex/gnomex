@@ -138,11 +138,12 @@
 			import views.experiment.ExperimentDetailWindow;
 			import views.protocol.ProtocolsView;
 			import views.topics.NavTopicsView;
+			import views.util.AnalysisProtocolsEvent;
 			import views.util.FileUtil;
+			import views.util.GNomExStringUtil;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
-			import views.util.GNomExStringUtil; 
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -163,7 +164,7 @@
 			
 			[Bindable]
 			private var appUsersForLab:XMLListCollection;
-			private var appUserSort:Sort;
+			private var appUserSort:Sort;			
 			
 			public var parentIdLab:Object = null;
 			
@@ -230,10 +231,9 @@
 				
 				expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
-				analysisProtocolCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
+				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol)
 				organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
 				filteredGenomeBuildList.refresh();
-				//genomeBuildCombo.selectedItem      = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuildLite', analysis.@idGenomeBuild);
 				visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
 				privacyExpirationPicker.text = analysis.@privacyExpirationDate;	
 				
@@ -273,10 +273,7 @@
 			}
 			
 			public function initializeDataProviders():void {
-				
-				analysisTypeCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');								
-				analysisProtocolCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');								
-				
+				analysisTypeCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
 			}
 			
 			private function nextTab():void {
@@ -481,7 +478,7 @@
 				}
 				
 				params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
-				params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@value;
+				params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@id;
 				params.idOrganism         = this.organismCombo.selectedItem.@value;
 				
 				// Genome Builds
@@ -776,15 +773,15 @@
 			}
 			
 			public function onCloseProtocolEditWindow(event:Event):void {
-				parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onRefreshAnalysisProtocol);
-				parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
+				this.addEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
+				parentApplication.getProtocolList.send();
+				protocolWindow.removeEventListener(Event.CLOSE, onCloseProtocolEditWindow);
+				PopUpManager.removePopUp(protocolWindow);
 			}
 			
-			public function onRefreshAnalysisProtocol(event:Event):void {
-				PopUpManager.removePopUp(protocolWindow);
-				analysisProtocolCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');							
-				analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
-				parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onRefreshAnalysisProtocol);				
+			public function onAnalysisProtocolsRefreshed(event:Event):void {
+				this.removeEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
+				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol);
 			}
 			
 			private function showViewWindow():void {
@@ -1120,7 +1117,7 @@
 							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>														
 						</mx:VBox>
 						<mx:VBox verticalGap="0">
-							<util:ComboBoxDatProvChangeFix  width="200" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+							<util:ComboBoxDatProvChangeFix  width="200" id="analysisProtocolCombo" labelField="@label" change="dirty.setDirty();" dataProvider="{parentApplication.protocolList}" />
 						</mx:VBox>
 					</mx:HBox>								
 

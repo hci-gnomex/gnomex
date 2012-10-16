@@ -52,6 +52,7 @@
 * Removing a member of a lab also removes any ties they have to any billing accounts for that lab. (mbowler) 
 * Fixed failure to set analysis type dropdown to current selection and unwanted scrollbar display problems on analysis protocol window. (rcundick)
 * Fixed bug causing exception when annotation multi-combo created with no define options. (rcundick)
+* Took a new approach to solving application protocol update bug by using a dedicated service rather than the dictionary manager. (rcundick)
 
 deploy notes
 ----------------------
