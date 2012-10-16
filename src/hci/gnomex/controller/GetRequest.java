@@ -589,7 +589,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             List samples = requestNode.getChild("samples").getChildren("Sample");
             for (Iterator i1 = samples.iterator(); i1.hasNext();) {
               Element sampleNode = (Element)i1.next();
-              sampleNode.setAttribute("wellName", sampleWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
+              sampleNode.setAttribute("wellName", this.getNonNullString( sampleWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))) ));
               sampleNode.setAttribute("plateName", plateName);
               ArrayList<String> sampleAssays = sampleAssayMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample")));
               for (Iterator assayIter = assayList.keySet().iterator(); assayIter.hasNext();) {
