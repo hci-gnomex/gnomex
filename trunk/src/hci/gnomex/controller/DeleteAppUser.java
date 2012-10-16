@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
@@ -92,6 +93,13 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
               break;
             }
             
+          }
+          // Remove the lab member from any accounts they are users on
+          if (lab.getBillingAccounts() != null) {
+            for(Iterator i2 = lab.getBillingAccounts().iterator(); i2.hasNext();) {
+              BillingAccount ba = (BillingAccount)i2.next();
+              ba.getUsers().remove( appUser );
+            }
           }
         }
         
