@@ -39,7 +39,7 @@
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="To report software bugs and/or provide feedback:" width="340"/>
 				<mx:Text htmlText="&lt;b&gt;Tony Disera&lt;/b&gt;  &lt;i&gt;Email:&lt;/i&gt;" />
-				<mx:LinkButton paddingLeft="0" label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE)), '_blank');" textDecoration="underline" color="#0000ff"/>				
+				<mx:LinkButton paddingLeft="0" label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff"/>				
 			</mx:HBox>
 		</mx:VBox>
 		
