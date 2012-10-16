@@ -773,14 +773,14 @@
 			}
 			
 			public function onCloseProtocolEditWindow(event:Event):void {
-				this.addEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
+				parentApplication.addEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
 				parentApplication.getProtocolList.send();
 				protocolWindow.removeEventListener(Event.CLOSE, onCloseProtocolEditWindow);
 				PopUpManager.removePopUp(protocolWindow);
 			}
 			
 			public function onAnalysisProtocolsRefreshed(event:Event):void {
-				this.removeEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
+				parentApplication.removeEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
 				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol);
 			}
 			
