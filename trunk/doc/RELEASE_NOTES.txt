@@ -53,6 +53,7 @@
 * Fixed failure to set analysis type dropdown to current selection and unwanted scrollbar display problems on analysis protocol window. (rcundick)
 * Fixed bug causing exception when annotation multi-combo created with no define options. (rcundick)
 * Took a new approach to solving application protocol update bug by using a dedicated service rather than the dictionary manager. (rcundick)
+* Set default dropdown selection for analysis protocol after disposing of edit protocol window in analysis edit to blank item. (rcundick)
 
 deploy notes
 ----------------------
