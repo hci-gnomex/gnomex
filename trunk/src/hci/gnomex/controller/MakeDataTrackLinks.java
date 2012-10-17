@@ -159,7 +159,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       //for each file, there might be two for xxx.bam and xxx.bai files, possibly two for converted useq files, plus/minus strands.
 
       for (File f: filesToLink){
-        File annoFile = new File(dir, dataTrackName + DataTrackUtil.stripBadURLChars(f.getName(), "_"));
+        File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
         String dataTrackString = annoFile.toString();
 
         //make soft link
