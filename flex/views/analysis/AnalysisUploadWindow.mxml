@@ -117,7 +117,7 @@
 				getAnalysisDownloadList.send(params);
         
         		refreshUploadFiles();
-				this.addEventListener("refreshUploadFiles", onUploadFinished); 
+				this.addEventListener("refreshUploadFiles", onUploadFinished);
 			}
 			
 			public function refreshFiles():void {
@@ -202,9 +202,9 @@
 				}      	
 			}
 			
-			public function onUploadFinished(event:Event):void {
-        		this.theTab.selectedIndex = 1;
-				refreshUploadFiles();
+			public function onUploadFinished(event:Event):void{
+				this.theTab.selectedIndex = 1;
+				refreshUploadFiles();	
 			}
 			
 			private function onGetAnalysis(event:ResultEvent): void {
@@ -600,7 +600,7 @@
 				renameWindow.oldExperimentName = downloadTree.selectedItem.@displayName;	
 				renameWindow.fileList = this.downloadList;
 				renameWindow.idAnalysis = this.idAnalysis;
-				renameWindow.addEventListener("refreshUploadFiles", onUploadFinished);
+				renameWindow.parentView = this;
 				mx.managers.PopUpManager.centerPopUp(renameWindow);
 				renameWindow.nameExperiment.setFocus();
 			}
@@ -658,7 +658,7 @@
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
 					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()" paddingLeft="0"/>
-					<mx:LinkButton id="renameFileButton" label="Rename file" textDecoration="underline" click="renameFile(event)" enabled="{this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0}" toolTip="Rename selected file or folder" icon="@Embed(source='../../assets/segment_import.png')"/>
+					<mx:LinkButton id="renameFileButton" label="Rename file" textDecoration="underline" click="renameFile(event)" enabled="{this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0 &amp;&amp; this.downloadTree.selectedItems.length == 1}" toolTip="Rename selected file or folder" icon="@Embed(source='../../assets/segment_import.png')"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 					
 				</mx:HBox>
