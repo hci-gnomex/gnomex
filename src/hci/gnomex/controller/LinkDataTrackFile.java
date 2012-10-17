@@ -199,6 +199,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       if (idAnalysisFileOther == null) {
         boolean lookForBam = false;
         boolean lookForBai = false;
+        boolean lookForBigWig = false;
         int pos =  analysisFile.getFileName().lastIndexOf(".");
         String baseFileName = analysisFile.getFileName().substring(0, pos);
         
@@ -206,6 +207,8 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
           lookForBam = true;
         } else if (analysisFile.getFileName().toUpperCase().endsWith(".BAM")){
           lookForBai = true;
+        } else if (analysisFile.getFileName().toUpperCase().endsWith(".USEQ")){
+          lookForBigWig = true;
         }
         for (Iterator i = analysisFile.getAnalysis().getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
@@ -222,7 +225,9 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
               idAnalysisFileOther = af.getIdAnalysisFile();
             } else if (lookForBam && af.getFileName().toUpperCase().endsWith(".BAM")) {
               idAnalysisFileOther = af.getIdAnalysisFile();
-            }
+            } else if (lookForBigWig && (af.getFileName().toUpperCase().endsWith(".BW") || af.getFileName().toUpperCase().endsWith(".BB"))) {
+              idAnalysisFileOther = af.getIdAnalysisFile();
+            } 
           }
         }
       } 
