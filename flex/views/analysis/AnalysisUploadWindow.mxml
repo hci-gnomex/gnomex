@@ -244,7 +244,10 @@
 			private function save():void {
 				var params:Object = new Object();
 				params.idAnalysis = idAnalysis.toString();
-				params.filesXMLString = getDirtyAnalysisFiles().toXMLString();
+				//*****(10/17/2012)getDirtyAnalysisFiles needs to be debugged. It doesn't properly get dirty analysis file.  
+				//Workaround for now since release is imminent is to just send the entire download list to the server.*****
+				//params.filesXMLString = getDirtyAnalysisFiles().toXMLString();  
+				params.filesXMLString = this.downloadList.toXMLString();
 				if (filesToRemove.length > 0) {
 					params.filesToRemoveXMLString = filesToRemove.toXMLString();			
 				}
