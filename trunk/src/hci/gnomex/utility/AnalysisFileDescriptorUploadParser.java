@@ -27,6 +27,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
   protected Map        fileIdMap = new HashMap();
   protected Map        filesToDeleteMap = new HashMap();
   protected Map        filesToRename = new HashMap();
+  protected Map        childrenToMoveMap = new HashMap();
   
   public AnalysisFileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -82,10 +83,8 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
       String [] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
       if(!newFileName.equals(fileName) && !fileName.equals("")){
         filesToRename.put(fileName, contents);
-        if(childFileNode.getAttributeValue("key") != null && !childFileNode.getAttributeValue("key").equals("")){
-          int pos = childFileNode.getAttributeValue("key").lastIndexOf("-");
-          String newKey = childFileNode.getAttributeValue("key").substring(pos) + displayName;
-          childFileNode.setAttribute("key", newKey);
+        if(childFileNode.getAttributeValue("type").equals("dir")){
+          renameDirectoryChildren(childFileNode, newFileName);
         }
       }
       
@@ -131,6 +130,24 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     return newDirectoryNames;
   }
   
+  private void renameDirectoryChildren(Element childFileNode, String newName){
+    for(Element e : (List<Element>)childFileNode.getChildren()){
+      String displayName = e.getAttributeValue("displayName");
+      String fileName = e.getAttributeValue("fileName").replace("\\", "/");
+      String newFileName = newName + "/" + displayName;//fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), newName) + "/" + displayName  ;
+      String fileIdString = e.getAttributeValue("idAnalysisFileString");
+      String qualifiedFilePath = newName.substring(newName.lastIndexOf("/") + 1);
+      String [] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
+ 
+      childrenToMoveMap.put(fileName, contents);
+      
+      if(e.hasChildren()){
+        renameDirectoryChildren(e, newFileName);
+      }
+    }
+    
+  }
+  
   public void parseFilesToRemove() throws Exception {
     
     Element root = this.doc.getRootElement();
@@ -167,6 +184,10 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
   
   public Map getFilesToRenameMap(){
     return filesToRename;
+  }
+  
+  public Map getChildrenToMoveMap(){
+    return childrenToMoveMap;
   }
 
 }
