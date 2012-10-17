@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="370" title="{'Rename' + oldExperimentName }" height="98"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="370" title="{'Rename ' + oldExperimentName }" height="98"
 				horizontalScrollPolicy="off" verticalScrollPolicy="off" xmlns:util="views.util.*" defaultButton="{saveButton}">
 	
 	
@@ -28,6 +28,8 @@
 			public var oldExperimentName:String = "";
 			
 			public var idAnalysis:Object;
+			
+			public var parentView:AnalysisUploadWindow = new AnalysisUploadWindow;
 			
 			private var nameChanged:Boolean = false;
 			
@@ -82,7 +84,7 @@
 					mx.controls.Alert.show(organizeAnalysisUploadFiles.lastResult..ACTMESSAGE.@TEXT);
 				}
 				else{
-					dispatchEvent(new Event("refreshUploadFiles", true));
+					parentView.refreshFiles();
 					PopUpManager.removePopUp(this);
 				}
 				
