@@ -1,7 +1,7 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
-5.5.0 
+5.5
 ---------------------
 * Fixed issue with scrollbars showing up on annotations selection list. (rcundick)
 * Fixed issue with multiselect combo control for annotations showing unnecessary scrollbars, not allowing multiple selections. (rcundick)
@@ -73,6 +73,11 @@ and idProperty > -1
 
 -- Drop PropertyPlatformApplication table (rendered unnecessary by new design)
 drop table PropertyPlatformApplication
+
+5.4.9.2 (Oct 16, 2012)
+---------------------
+* Fixed Data Tracks 'show links' bug that was causing duplicated file name (tdisera)
+* Fixed Data Tracks IGV link bug that was preventing correct generating of .bw/.bb file (tdisera) 
 
 
 5.4.9.1 (Oct 1, 2012)
