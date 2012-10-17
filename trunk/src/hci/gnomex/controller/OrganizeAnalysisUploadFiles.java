@@ -122,9 +122,10 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
             }
           }
           
-          //Rename files 
-          for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
-            String file = (String)i.next();
+          //Rename files for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();)
+          Object [] keys = parser.getFilesToRenameMap().keySet().toArray();
+          for(int i = keys.length - 1; i >= 0; i--) {
+            String file = (String)keys[i];
             File f1 = new File(file);
             String [] contents = (String[]) parser.getFilesToRenameMap().get(file);
             File f2 = new File(contents[0]);
@@ -136,16 +137,36 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               throw new Exception("Error Renaming File");
             }
             else{
-              // Rename the file in the DB
+              // Rename the files in the DB
               if (idFileString != null) {
                 AnalysisFile af;
                 if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                   af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idFileString));
                   af.setFileName(displayName);
                   af.setBaseFilePath(f2.getCanonicalPath());
-                  af.setQualifiedFilePath(qualifiedFilePath);//DEBUG THIS LINE.  FIGURE OUT WHAT QUALIFIED PATH IS
+                  af.setQualifiedFilePath(qualifiedFilePath);
                   sess.save(af);
                   sess.flush();
+                }
+                else{
+                  for(Iterator j = parser.getChildrenToMoveMap().keySet().iterator(); j.hasNext();){
+                    String oldFileName = (String)j.next();
+                    String [] afParts = (String [])parser.getChildrenToMoveMap().get(oldFileName);
+                    if(afParts[1].startsWith("AnalysisFile")){
+                      continue;
+                    }
+                    af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(afParts[1]));
+                    af.setFileName(afParts[3]);
+                    af.setBaseFilePath(afParts[0]);
+                    
+                    String [] filePath = afParts[0].split("/");
+                    af.setQualifiedFilePath(filePath[filePath.length - 2]);
+                    
+                    sess.save(af);
+                    sess.flush();
+                    
+                    
+                  }
                 }
               }
             }
