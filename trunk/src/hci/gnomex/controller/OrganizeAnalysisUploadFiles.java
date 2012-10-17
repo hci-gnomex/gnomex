@@ -9,6 +9,7 @@ import hci.gnomex.utility.AnalysisFileDescriptorUploadParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.lang.reflect.Array;
@@ -307,14 +308,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   File deleteFile = new File(fileName);
                   
                   if (deleteFile.isDirectory()) {
-                    List childrenFiles =  Arrays.asList(deleteFile.listFiles());
-                    for (Iterator i2 = childrenFiles.iterator(); i2.hasNext();) {
-                      File childFile = (File) i2.next();
-                      boolean successDel = childFile.delete();
-                      if (!successDel) { 
-                        // File was not successfully deleted
-                        throw new Exception("Unable to delete file " + childFile.getName());
-                      }
+                    if(!deleteDir(deleteFile)){
+                      throw new Exception("Unable to delete files");
                     }
                   }
                   
@@ -387,6 +382,26 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
     af.setIdAnalysis(Integer.valueOf(idAnalysis));
     return af;
 
+  }
+  
+  private Boolean deleteDir(File childFile) throws IOException{
+    for(String f : childFile.list()){
+      File delFile = new File(childFile.getCanonicalPath() + "/" + f);
+      if(delFile.isDirectory()){
+        deleteDir(delFile);
+        if(!delFile.delete()){
+          return false;
+        }
+      }
+      else{
+        if(!delFile.delete()){
+          return false;
+        }
+      }
+    }
+    
+    return true;
+    
   }
 
 
