@@ -825,10 +825,10 @@ Accordion {
 
 MenuBar {
 	backgroundAlpha: 0;
-	borderColor: #7B877B;
-	highlightAlphas: 0.02, 0;
-	fillAlphas: 1.0, 1.0, 1.0, 1.0;
-	fillColors: #888D96, #222836, #888D96, #2C4D92;
+	borderStyle: none;
+	highlightAlphas: 0, 0;
+	fillAlphas: 0,0,0,0;
+	fillColors: #979595, #222836, #515151, #2C4D92;
 	rollOverColor: #00ff00;
 	selectionColor: #336633;
 	color: #ffffff;
@@ -837,6 +837,7 @@ MenuBar {
 	menuStyleName: menuItem;
 	fontSize: 12;
 	fontWeight: normal;
+	borderColor: #7e7e7e;
 }
 
 .menuItem {
