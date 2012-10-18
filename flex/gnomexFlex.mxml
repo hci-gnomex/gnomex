@@ -304,7 +304,7 @@
 			private var cursorID:Number = 0; 
 
 			[Bindable]
-			[Embed(source="assets/gnomex_logo_alt.png")]
+			[Embed(source="assets/gnomex_logo_alt1.png")]
 			public var iconLogo:Class;
 			
 
@@ -2618,9 +2618,9 @@
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
 				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
-			              
-						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Tahoma" fontSize="14" color="#867D7D" fontWeight="bold"/>
-			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="56"  fontFamily="Arial" visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="14" borderThickness="2"/>
+			               
+						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Verdana" fontSize="12" color="#867D7D" fontWeight="bold"/>
+			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="85"  fontFamily="Verdana" visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
 			              <mx:Button id="lookupButton" 
 			              	 width="30"
 			               	 click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
@@ -2628,7 +2628,7 @@
 				        <mx:Spacer width="100%"/>
 			            <mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
 			              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false"  fontFamily="Verdana" fontSize="12"/>
-		 	              <mx:TextInput id="searchText"  width="118" visible="false"  borderStyle="solid" borderColor="#1691E7" fontFamily="Verdana" fontSize="12" borderThickness="2"/>
+		 	              <mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontFamily="Verdana" fontSize="12" borderThickness="1"/>
 			              <mx:Button id="searchButton" height="18" click="callLater(search)"    fontFamily="Verdana" fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
 			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"  fontFamily="Verdana" fontSize="12">
 			              </mx:LinkButton>
@@ -2642,7 +2642,7 @@
 				        </mx:HBox>
 				      </mx:HBox>
 			      
-			      <mx:HBox width="100%"  backgroundSize="100%"  height="48" backgroundImage="assets/menubar.png" horizontalGap="10"  verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false">
+			      <mx:HBox width="100%"  backgroundSize="100%"  height="50" backgroundImage="assets/menubar1.png" horizontalGap="10"  verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="2"    visible="false">
 
 					  
 					  <mx:LinkButton id="homeLink"  styleName="navLinkButton" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
@@ -2690,7 +2690,7 @@
 		      
 	    <mx:VBox id="mainArea" width="100%" 
 	    	height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
-	    	paddingRight="0" horizontalCenter="0" verticalGap="0" backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
+	    	paddingRight="0" horizontalCenter="0" verticalGap="0"  backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 			   
@@ -2781,6 +2781,7 @@
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
 	 	    <mx:SetStyle target="{requestNumberLabel}" name="fontWeight" value="normal"/>
 	 	    <mx:SetStyle target="{searchLabel}" name="color" value="#867D7D"/>
+	 	    <mx:SetStyle target="{mainArea}" name="backgroundImage" value=""/>
 
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
