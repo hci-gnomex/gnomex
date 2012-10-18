@@ -144,7 +144,6 @@
 			<mx:SetProperty target="{label4}" name="visible" value="true"/>
 		</mx:State>
 		<mx:State name="UserState">
-			<mx:SetStyle target="{label8}" name="paddingTop" value="10"/>
 			<mx:AddChild relativeTo="{button13}" position="before">
 				<mx:LinkButton id="userSampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
 							   click="showPropertyWindow()" 
@@ -152,7 +151,23 @@
 							   includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
 							   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 			</mx:AddChild>
-			<mx:SetProperty target="{label8}" name="text" value="DNA Sequencing Core Facility"/>
+			<mx:SetProperty target="{label4}" name="visible" value="true"/>
+			<mx:SetProperty target="{button8}" name="visible" value="true"/>
+			<mx:SetProperty target="{button12}" name="visible" value="{parentApplication.isCoreGenomics}"/>
+			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
+			<mx:SetProperty target="{vbox1}" name="includeInLayout" value="true"/>
+			<mx:SetProperty target="{button12}" name="includeInLayout" value="{parentApplication.isCoreGenomics}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:AddChild relativeTo="{button12}" position="before" target="{button8}"/>
+			<mx:RemoveChild target="{button22}"/>
+			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button22}"/>
+			<mx:SetProperty target="{button12}" name="label" value="Pricing (Microarray Core)"/>
+			<mx:RemoveChild target="{button3}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:SetProperty target="{linkbutton1}" name="toolTip" value="Purchase Supplies from DNA Sequencing Core Facility"/>
+			<mx:SetProperty target="{linkbutton1}" name="label" value="Purchase Supplies  (DNA Seq Core)"/>
 		</mx:State>
 		<mx:State name="ExternalUserState" basedOn="UserState">
 			<mx:SetProperty target="{button12}" name="toolTip" value="Pricing for Microarray and Genomics Analysis Core Facility"/>
@@ -189,14 +204,11 @@
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{button12}"/>
-			<mx:RemoveChild target="{button8}"/>
 			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:AddChild relativeTo="{button2}" position="before" target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{label2a}"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
-			<mx:RemoveChild target="{label8}"/>
-			<mx:RemoveChild target="{hbox9}"/>
 			<mx:RemoveChild target="{linkbutton1}"/>
 			<mx:AddChild relativeTo="{button7}" position="before" target="{userSampleCharacteristicButton}"/>
 			<mx:RemoveChild target="{vbox14}"/>
@@ -205,7 +217,6 @@
 			<mx:RemoveChild target="{button1}"/>
 			<mx:RemoveChild target="{amendButton}"/>
 			<mx:RemoveChild target="{label4}"/>
-			<mx:RemoveChild target="{button8}"/>
 			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
 			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
 			<mx:RemoveChild target="{label2a}"/>
@@ -264,8 +275,9 @@
 			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 			<mx:AddChild relativeTo="{vbox12}" position="lastChild" target="{submitExternalExperimentButton}"/>
 			<mx:RemoveChild target="{button20}"/>
-			<mx:SetProperty target="{label7}" name="visible" value="{parentApplication.isCoreGenomics}"/>
 			<mx:SetProperty target="{label8}" name="text" value="DNA Seq Core (miscellaneous)"/>
+			<mx:SetProperty target="{button21}" name="visible" value="true"/>
+			<mx:SetProperty target="{label7}" name="visible" value="true"/>
 
 		</mx:State>
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
@@ -543,13 +555,13 @@
 				<mx:LinkButton label="Browse Data Tracks"
 						  visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
 						  click="showDataTracks()" styleName="dashboardButton"  id="button18"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')"  />
-							
+							 
 				<mx:Spacer
 					visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
 					height="20"/>
-				<mx:Label text="Billing" includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}"  id="label4" styleName="welcomeLabel"/>
+				<mx:Label text="Billing"  id="label4" styleName="welcomeLabel"/>
 				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"/>
-				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" includeInLayout="{parentApplication.isCoreGenomics &amp;&amp; parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
+				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
 			</mx:VBox>
 			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox12">
 				<mx:HBox id="hbox5" horizontalGap="2">
@@ -565,11 +577,11 @@
 							   label="Track Usage" styleName="dashboardButton" 
 							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
 				<mx:LinkButton label="Upload and Download Help" click="parentApplication.showUploadDownloadHints()" styleName="dashboardButton"  id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
-				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.isCoreDNASeq &amp;&amp; parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" id="vbox14">
+				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}" id="vbox14">
 					<mx:HBox horizontalGap="2" id="hbox9">
 						<mx:Label text="Miscellaneous - DNA Seq Core " styleName="welcomeLabel" id="label8" paddingTop="10"/>
 					</mx:HBox>
-					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')" id="linkbutton1"/>
+					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" visible="{parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')" id="linkbutton1"/>
 					<mx:LinkButton label="Pricing (DNA Sequencing Core)" visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}" click="showPricingDNASeqCore()" styleName="dashboardButton"  id="button22"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" />
 				</mx:VBox>
 			</mx:VBox>
