@@ -45,19 +45,20 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.validators.NumberValidator;
-        import mx.events.ValidationResultEvent;
+        import hci.flex.controls.DropdownLabel;
+        
         import mx.collections.ArrayCollection;
         import mx.collections.XMLListCollection;
-        import mx.rpc.events.FaultEvent; 
-        import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
-        import hci.flex.controls.DropdownLabel;
+        import mx.controls.TextInput;
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
+        import mx.events.ValidationResultEvent;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.validators.NumberValidator;
+        
         import views.renderers.ComboBoxWorkflowStatus;
-		import mx.validators.NumberValidator; 
-		import mx.controls.TextInput;
 
 		[Bindable]
         public var codeStepNext:String;
@@ -186,12 +187,25 @@
 		public function handleQ30(event:Event):void 
 		{ 
 			var target:TextInput = event.currentTarget as TextInput;
-			var reg:RegExp = /^[0-9]{0,1}\.?[0-9]{0,3}/g; 
-			var parts:Array = reg.exec(target.text); 
-			
-			if (parts && parts[0]){ 
-				target.text = parts[0]; 
-			} 
+			var reg:RegExp = null;
+			if (target.text.lastIndexOf(".") > -1) {
+				reg = /^[0-9]{0,2}\.[0-9]{0,1}/g; 
+				var parts:Array = reg.exec(target.text); 
+				
+				if (parts && parts[0]){ 
+					target.text = parts[0]; 
+				} else {
+					target.text = "";
+				}
+			} else { 
+				var intValue:int = parseInt(target.text); 
+				if (intValue > 100) {
+					intValue = parseInt(target.text.substr(0,2));
+					target.text = String(intValue);
+				} else {
+					target.text = String(intValue);					
+				}
+			}
 		} 			
 			
 			
@@ -302,12 +316,12 @@
 							</mx:Component>
 						</mx:headerRenderer> 
 					</mx:DataGridColumn>					
-					<mx:DataGridColumn headerText="Q30 (%) (eg .345)" width="17" dataField="@q30PercentForDisplay" editable="true">
+					<mx:DataGridColumn headerText="Q30 (%) (eg .345)" width="15" dataField="@q30PercentForDisplay" editable="true">
 						<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
-									<mx:Label text="Q30 Percent"/>
-									<mx:Label text="(example .345)"/>
+									<mx:Label text="Q30 %"/>
+									<mx:Label text="(eg 88.5)"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>
