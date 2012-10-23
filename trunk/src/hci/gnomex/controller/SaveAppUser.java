@@ -104,6 +104,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         boolean isUsedUsername = false;
         boolean isUseduNID = false;
         boolean isManageFacilityError = false;
+        Object [] user = null;
         
         if (appUserScreen.getuNID() != null && 
             !appUserScreen.getuNID().trim().equals("")) {
@@ -118,8 +119,10 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               isUsedUsername = true;
             }            
           } else {
-            if (uNID_AlreadyExists(sess, appUserScreen.getuNID(), null)) {
-              this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " already exists.  Please use another.");
+            List existingUsers = uNID_AlreadyExists(sess, appUserScreen.getuNID(), null);
+            if (existingUsers.size() > 0) {
+              user = (Object[]) existingUsers.get(0);
+              this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.");
               isUseduNID = true;
             }            
           }
@@ -155,8 +158,10 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               isUsedUsername = true;
             }            
           } else {
-            if (uNID_AlreadyExists(sess, appUserScreen.getuNID(), appUserScreen.getIdAppUser())) {
-              this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " already exists.  Please use another.");
+            List existingUsers = uNID_AlreadyExists(sess, appUserScreen.getuNID(), appUserScreen.getIdAppUser());
+            if (existingUsers.size() > 0) {
+              user = (Object[]) existingUsers.get(0);
+              this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.");
               isUseduNID = true;
             }            
           }          
@@ -223,7 +228,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             if(isUsedUsername) {
               outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
             } else if (isUseduNID) {
-              outMsg = "uNID '" + appUserScreen.getuNID() + "' is already being used. Please select a different uNID.";                            
+              outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
             } else {
               outMsg = "Only Admin or Super Admin users can manage core facilities.";
             }
@@ -366,19 +371,20 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     return users.size() > 0;    
   }
   
-  private static boolean uNID_AlreadyExists(Session sess, String uNID, Integer idAppUser) {
+  private static List uNID_AlreadyExists(Session sess, String uNID, Integer idAppUser) {
+    List users = new ArrayList();
     if (uNID == null || uNID.equals("")) {
-      return false;
+      return users;
     }
 
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT a.uNID from AppUser as a where a.uNID = '"); 
+    buf.append("SELECT a.uNID, a.firstName, a.lastName from AppUser as a where a.uNID = '"); 
     buf.append(uNID + "'");
     if (idAppUser != null) {
       buf.append(" AND a.idAppUser != " + idAppUser);
     }
-    List users = sess.createQuery(buf.toString()).list();
-    return users.size() > 0;    
+    users = sess.createQuery(buf.toString()).list();
+    return users;    
   }
 
   private class CoreFacilityCheck implements Serializable {
