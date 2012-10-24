@@ -5,6 +5,9 @@
 ---------------------
 * Display the first and last name of the User whose UNID is trying to be used by an admin creating a new account(tcourdy)
 * Changed b2b link from "New Experiment Order" to "Post Experiment Data"(tcourdy)
+* New raw data window for chromatograms (mbowler)
+* Updates to chromatogram detail view (mbowler)
+* Improvements to parsing abi file data (mbowler)
 
 
 

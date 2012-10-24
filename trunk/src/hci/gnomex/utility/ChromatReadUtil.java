@@ -53,26 +53,65 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       int count = (int) r1.numberOfElements;
       int[] data = new int[count];
       int max = -1;
-      if (r1.elementLength == 2) {
         byte[] shortArray = r1.offsetData;
         int i = 0;
         for ( int s=0; s<shortArray.length; s+=2) {
           data[i] = ((short)((shortArray[s]<<8)|(shortArray[s+1] & 0xff))) & 0xffff;
           max = Math.max(data[i++], max);
         }
-      } else if (r1.elementLength==1) {
-        byte[] byteArray = r1.offsetData;
-        for ( int i=0; i < byteArray.length; i++) {
-          data[i] = byteArray[i] & 0xff;
-          max = Math.max(data[i],max);
-        }
-      }
       return data;
     }
     catch (IOException e) {
       e.printStackTrace();
       return new int[0];
     }
+  }
+  
+  //Returns the raw data for bases G, A, T, C 
+  public int[] getRawData( String base ) {
+    int baseInd;
+    if ( base.equals( "G" ) ) {
+      baseInd = 1;
+    } else if ( base.equals( "A" ) ) {
+      baseInd = 2;
+    } else if ( base.equals( "T" ) ) {
+      baseInd = 3;
+    } else if ( base.equals( "C" ) ) {
+      baseInd = 4;
+    } else {
+      return null; 
+    }
+    
+    try {
+      ABIFParser abiParse = new ABIFParser(abiFile);
+      ABIFParser.TaggedDataRecord r1=abiParse.getDataRecord("DATA", baseInd);
+
+      int count = (int) r1.numberOfElements;
+      int[] data = new int[count];
+      int max = -1;
+      byte[] shortArray = r1.offsetData;
+      int i = 0;
+      for ( int s=0; s<shortArray.length; s+=2) {
+        data[i] = (short)(( (shortArray[s] & 0xff) << 8 ) | ( (shortArray[s+1] & 0xff) << 0 ) );
+        max = Math.max(data[i++], max);
+      }
+
+      return data;
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+      return new int[0];
+    }
+  }
+  
+  public String getRawDataString( String base ) {
+    // Quality to String
+    int[] data = getRawData(base);
+    String rawData = "" + data[0];
+    for ( int i = 0; i < data.length; i=i+2) {
+      rawData += "," + data[i];
+    }
+    return rawData;
   }
   
   public String getInstrModel() {
@@ -165,6 +204,32 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
     try {
       ABIFParser abiParse = new ABIFParser(abiFile);
       ABIFParser.TaggedDataRecord r1=abiParse.getDataRecord("LANE", 1);
+      
+      return   Long.toString(r1.dataRecord >>> 16);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+  
+  public String getReferenceScanNumber() {
+    try {
+      ABIFParser abiParse = new ABIFParser(abiFile);
+      ABIFParser.TaggedDataRecord r1=abiParse.getDataRecord("B1Pt", 2);
+      
+      return   Long.toString(r1.dataRecord >>> 16);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+  
+  public String getAnalysisEndScanNumber() {
+    try {
+      ABIFParser abiParse = new ABIFParser(abiFile);
+      ABIFParser.TaggedDataRecord r1=abiParse.getDataRecord("AEPt", 2);
       
       return   Long.toString(r1.dataRecord >>> 16);
     }
