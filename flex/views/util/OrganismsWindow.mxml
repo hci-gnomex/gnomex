@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="816" height="500" 
+				width="806" height="424" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{closeWindow()}"
@@ -323,12 +323,12 @@
 <mx:XMLListCollection id="genomeBuilds" source="{oList.selectedItem.genomeBuilds.GenomeBuild}"/>
 <mx:VBox width="100%" height="100%" verticalGap="0">
 	
-	<mx:HBox width="100%" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarDarkGrey.png')" borderColor="#FFFFFF" height="30" verticalAlign="middle">
+	<mx:HBox width="100%" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderColor="#FFFFFF" height="30" verticalAlign="middle">
 		<mx:LinkButton label="Add organism" styleName="linkMenuButton" click="addOrganism()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" fontSize="12"/>
 		<mx:LinkButton label="Remove organism" styleName="linkMenuButton" click="removeOrganism()" enabled="{oList.selectedItem != null &amp;&amp; oList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="12"/>
 	</mx:HBox>
 	
-<mx:HDividedBox height="100%" width="100%" >
+<mx:HDividedBox height="100%" width="100%" horizontalGap="6" >
   <mx:VBox height="100%" width="200" styleName="panelBox">
 		<mx:List id="oList" width="100%" height="100%" labelField="@organism" dataProvider="{organisms}" 
 				 itemClick="{onSelectOrganism()}">

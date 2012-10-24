@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="392" height="174" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="370" height="168" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
 
     <mx:HTTPService 
     id="saveExperimentPlatform" 
@@ -98,20 +98,23 @@
 		
 	]]>
 </mx:Script>
-	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-		    <mx:Text text="Name" width="130"/>
+	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Name" width="130"/>
 			<mx:TextInput id="platformName" width="100%" backgroundColor="#FFFFFF" borderColor="#797E81" borderStyle="inset" borderThickness="1"/>
-	</mx:HBox>
-	
-	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-		<mx:Text text="Code Request Category" width="130"/>
-		<mx:TextInput id="codeRequestCategoryField" width="100%" backgroundColor="#FFFFFF" borderColor="#898F93"/>
-	</mx:HBox>
-	
-	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-		<mx:Text text="Type" width="130"/>
-		<mx:ComboBox id="typeCombo" dataProvider="{platformTypes}" labelField="@label" width="100%" change="{updatePlatform()}"/>
-	</mx:HBox>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Code Request Category" width="130"/>
+			<mx:TextInput id="codeRequestCategoryField" width="100%" backgroundColor="#FFFFFF" borderColor="#898F93"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Type" width="130"/>
+			<mx:ComboBox id="typeCombo" dataProvider="{platformTypes}" labelField="@label" width="100%" change="{updatePlatform()}"/>
+		</mx:HBox>
+		
+	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Button label="Save" id="saveButton" click="promptToSave()" icon="@Embed(source='../../assets/save.png')" enabled="{platformName.text != '' &amp;&amp; typeCombo.selectedIndex != 0}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
