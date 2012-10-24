@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="1005" height="588" 
+				width="805" height="508" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
-				title="Configure Annotations">
+				title="Configure Annotations" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
 	
 <mx:HTTPService  
 		id="saveProperty" 
@@ -527,6 +527,9 @@
 		
 		private function filterApplication1(item:Object):Boolean {
 			var doesMatchRequestCategory:Boolean = false;
+			if (platformFilter == null || platformFilter.selectedItem == null) {
+				return true;
+			}
 			if(platformFilter.selectedIndex == 0){
 				return true;
 			}
@@ -638,49 +641,47 @@
 <mx:XMLListCollection id="platformApplications" source="{propertyList.selectedItem.platformApplications.PlatformApplication}" sort="{platformApplicationSorter}"/>
 <mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 <mx:XMLListCollection id="analysisTypes" source="{propertyList.selectedItem.analysisTypes.AnalysisType}"/>
-<mx:VBox width="100%" height="100%" verticalGap="0" verticalAlign="middle" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" horizontalGap="0">
-	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
-		<mx:LinkButton label="Add annotation" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"  fontSize="12"/>
-		<mx:LinkButton label="Remove annotation" styleName="linkMenuButton" mouseUp="removeProperty(event, 'N')" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="12"/>
+<mx:VBox width="100%" height="100%" verticalGap="3" >
+
+<mx:VBox paddingBottom="6" paddingTop="2" paddingLeft="2" paddingRight="2" width="100%" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')">
+	<mx:HBox width="100%" paddingBottom="5" verticalAlign="middle">
+		<mx:LinkButton label="Add" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"  fontSize="11" textDecoration="underline"/>
+		<mx:LinkButton label="Remove" styleName="linkMenuButton" mouseUp="removeProperty(event, 'N')" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="11" textDecoration="underline"/>
+		<mx:Spacer width="100%"/>
+		<mx:VRule height = "20" />
+		<mx:Spacer width="100%"/>
+		<mx:Text text="Show Annotations for"/>
+		<mx:CheckBox label="Samples" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="10"/>
+		<mx:CheckBox label="Analysis" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="10"/>
+		<mx:CheckBox label="Data Tracks" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="10"/>
+		<mx:Spacer width="100%"/>
+		<mx:VRule height="20"/>
 		<mx:Spacer width="100%"/>
 		<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/refresh.png')" click="refresh(event)"/>
 	</mx:HBox>
-	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="5">
-		<mx:Label text="Show Annotations For:" fontSize="12"/>
-		<mx:CheckBox label="Sample" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="11"/>
-		<mx:VRule height = "20" />
-		<mx:CheckBox label="Analysis" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="11"/>
-		<mx:VRule height = "20" />
-		<mx:CheckBox label="DataTrack" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="11"/>
-		<mx:VRule height = "20" />
-		<mx:Label text="Organism:"/>
-		<mx:ComboBox id="organismFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10"/>
-		<mx:VRule height = "20" />
-		<mx:Label text="Analysis:" paddingRight="15"/>
-		<mx:ComboBox id="analysisFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10"/>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="5" paddingLeft="4" paddingBottom="4">
+		<mx:ComboBox id="organismFilter" width="200" prompt="Filter by organism..." itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10"/>
+		<mx:ComboBox id="platformFilter" width="200" prompt="by platform..." itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="applicationFilterRefresh()" labelField="@display" fontSize="10"/>
+		<mx:ComboBox id="applicationFilter" width="200" prompt="by experment type.." itemRenderer="mx.controls.Label" dataProvider="{applicationFilterList}" change="onPropertyRefreshed(null)" labelField="@application" fontSize="10"/>
+		<mx:ComboBox id="analysisFilter" width="170"  prompt="by analysis type..." itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10"/>
+
 	</mx:HBox>
-	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="5">
-		<mx:Spacer width="409" height="2"/>
-		<mx:Label text="Platform:" paddingRight="7"/>
-		<mx:ComboBox id="platformFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="applicationFilterRefresh()" labelField="@display" fontSize="10"/>
-		<mx:VRule height = "20" />
-		<mx:Label text="Application:"/>
-		<mx:ComboBox id="applicationFilter" width="211" itemRenderer="mx.controls.Label" dataProvider="{applicationFilterList}" change="onPropertyRefreshed(null)" labelField="@application" fontSize="10"/>
-	</mx:HBox>
+</mx:VBox>
 	
-<mx:HDividedBox height="100%" width="100%" >
-  <mx:VBox height="100%" width="200" styleName="panelBox">
+	
+<mx:HDividedBox height="100%" width="100%"  horizontalGap="6" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+  <mx:VBox height="100%" width="210">
 		<mx:List id="propertyList" width="100%" height="100%" labelField="@name" dataProvider="{properties}" 
 				 itemClick="{onSelectProperty()}">
 		</mx:List>
   </mx:VBox>	
   <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
-	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
+	<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" backgroundColor="#FFFFFF"/>		
 		<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
 			<mx:TabNavigator tabWidth="140" width="100%" height="100%">
 				<mx:VBox  label="Annotation" width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="10" borderStyle="none">			 
 					<mx:HBox width="100%" verticalGap="0">
-						<mx:Label text="Name:" width="140"/>
+						<mx:Label text="Name" width="90"/>
 						<mx:TextInput text="{propertyList.selectedItem.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="50"/>
 						<mx:HBox >
 							<mx:CheckBox label="Active" id="isActive"  click="setDirty()">
@@ -689,23 +690,9 @@
 							<mx:Spacer width="80"/>
 						</mx:HBox>
 					</mx:HBox>
-					<mx:HBox width="100%" verticalGap="0" height="65">
-						<mx:Text text="Description:" width="140"/>
-						<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" height="65" id="description"  maxChars="2000"/>
-					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:Label text="Owner:" width="140"/>
-						<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%"  verticalAlign="middle">
-						<mx:Label text="Required:" width="140"/>
-						<mx:CheckBox label="(Annotation must be filled in)" id="isRequired"  click="setDirty()">
-							<mx:selected>{propertyList.selectedItem.@isRequired == 'Y' ? true : false}</mx:selected>
-						</mx:CheckBox>
-					</mx:HBox>
 					<mx:HBox height="20" width="100%"  verticalAlign="middle">
 						<mx:HBox verticalAlign="middle">
-							<mx:Text text="Annotation Applies To:" width="140"/>
+							<mx:Text text="Annotates" width="90"/>
 							<mx:HBox>
 								<mx:CheckBox label="Sample" id="sample" click="setDirty()">
 									<mx:selected>{propertyList.selectedItem.@forSample == 'Y' ? true : false}</mx:selected>
@@ -719,9 +706,23 @@
 							</mx:HBox>
 						</mx:HBox>
 					</mx:HBox>
-					<mx:HBox width="100%" verticalGap="0" height="100%">
-						<mx:Label text="Type:" width="140"/>
-						<mx:VBox verticalGap="0">
+					<mx:HBox width="100%"  verticalAlign="middle">
+						<mx:Label text="Required" width="90"/>
+						<mx:CheckBox label="(Annotation must be filled in)" id="isRequired"  click="setDirty()">
+							<mx:selected>{propertyList.selectedItem.@isRequired == 'Y' ? true : false}</mx:selected>
+						</mx:CheckBox>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalGap="0" height="65">
+						<mx:Text text="Description" width="90"/>
+						<mx:TextArea text="{propertyList.selectedItem.@description}" change="{setDirty()}" width="100%" height="65" id="description"  maxChars="2000"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="Owner" width="90"/>
+						<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalGap="0" height="100%" verticalAlign="top">
+						<mx:Label text="Type" width="90"/>
+						<mx:VBox verticalGap="1" height="100%" paddingTop="10">
 							<mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{propertyList.selectedItem.@codePropertyType}">
 							</mx:RadioButtonGroup>
 							<mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
