@@ -1,7 +1,14 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
-5.5
+5.6
+---------------------
+* Display the first and last name of the User whose UNID is trying to be used by an admin creating a new account(tcourdy)
+* Changed b2b link from "New Experiment Order" to "Post Experiment Data"(tcourdy)
+
+
+
+5.5 (Oct 24, 2012)
 ---------------------
 * Fixed issue with scrollbars showing up on annotations selection list. (rcundick)
 * Fixed issue with multiselect combo control for annotations showing unnecessary scrollbars, not allowing multiple selections. (rcundick)
@@ -56,8 +63,6 @@
 * Set default dropdown selection for analysis protocol after disposing of edit protocol window in analysis edit to blank item. (rcundick)
 * Set maximum text length for annotation description to 2000 characters. (rcundick)
 * Fixed the link to email for reporting software bugs on the About view. (mbowler)
-* Display the first and last name of the User whose UNID is trying to be used by an admin creating a new account(tcourdy)
-* Changed b2b link from "New Experiment Order" to "Post Experiment Data"(tcourdy)
 
 deploy notes
 ----------------------
@@ -75,6 +80,8 @@ and idProperty > -1
 
 -- Drop PropertyPlatformApplication table (rendered unnecessary by new design)
 drop table PropertyPlatformApplication
+
+
 
 5.4.9.2 (Oct 16, 2012)
 ---------------------
