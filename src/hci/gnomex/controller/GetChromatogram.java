@@ -34,6 +34,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
   private Boolean includeSeqString = false;
   private Boolean includeQualArray = false;
   private Boolean includeTrace = false;
+  private Boolean includeRaw = false;
 
   public void validate() {
   }
@@ -60,6 +61,10 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
     
     if (request.getParameter("includeTrace") != null && request.getParameter("includeTrace").equals("Y")) {
       includeTrace = true;
+    }
+    
+    if (request.getParameter("includeRaw") != null && request.getParameter("includeRaw").equals("Y")) {
+      includeRaw = true;
     }
   }
 
@@ -239,6 +244,20 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           traceNode.setAttribute("baseCalls", chromatReader.getBaseCalls());
           
           chromNode.addContent(traceNode);
+
+
+        }
+        
+        // RawData
+        if (includeRaw) {
+          
+          Element rawNode = new Element("RawData");
+          rawNode.setAttribute("aRawData", chromatReader.getRawDataString("A"));
+          rawNode.setAttribute("cRawData", chromatReader.getRawDataString("C"));
+          rawNode.setAttribute("gRawData", chromatReader.getRawDataString("G"));
+          rawNode.setAttribute("tRawData", chromatReader.getRawDataString("T"));
+          
+          chromNode.addContent(rawNode);
 
 
         }

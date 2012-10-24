@@ -46,21 +46,19 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
+			import mx.controls.ToolTip;
 			import mx.controls.sliderClasses.Slider;
 			import mx.core.Container;
 			import mx.core.IDataRenderer;
-			import mx.events.CloseEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.CollectionEventKind;
 			import mx.events.FlexEvent;
-			import mx.events.FlexMouseEvent;
-			import mx.events.ItemClickEvent;
-			import mx.events.PropertyChangeEvent;
+			import mx.events.ScrollEvent;
 			import mx.events.SliderEvent;
 			import mx.managers.PopUpManager;
+			import mx.managers.ToolTipManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.StringUtil;
 			
+			private var baseNoTip:ToolTip;
 			[Bindable]
 			private var isInit:Boolean = false;
 			[Bindable]
@@ -90,7 +88,7 @@
 			[Bindable]
 			private var sliderSpacing:int;
 			[Bindable]
-			private var vZoomValue:int;
+			private var vZoomValue:Number = 1;
 			[Bindable]
 			private var q20TraceArray:ArrayCollection;
 			[Bindable]
@@ -108,7 +106,7 @@
 				}
 				
 				// Reset the slider
-				traceSlider.value = 0;
+				traceScroller.scrollPosition = 0;
 				traceXMin = 0;
 				sliderSpacing = hZoomSlider.value;
 				traceXMax = sliderSpacing;
@@ -286,25 +284,45 @@
 			}
 			
 			// Scroll through the trace plot
-			private function dragTrace(event:SliderEvent):void {
-				var currentSlider:Slider=Slider(event.currentTarget);
-				traceXMin = currentSlider.value;
-				traceXMax = currentSlider.value + sliderSpacing;
+			private function moveTrace(event:MouseEvent):void {
+				destroyTT();
+				event.stopImmediatePropagation();
+				event.preventDefault();
+				traceXMin = traceScroller.scrollPosition;
+				traceXMax = traceScroller.scrollPosition + sliderSpacing;
 				q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
 				displaySequence();
 			}
 			
 			// Display information about base number instead of trace x coordinate for slider
-			private function traceSliderDataTipFunc(val:String):String {
-				return "Go to base no: " + findNearestBase(parseInt(val));
+			private function showBaseNo(event:ScrollEvent):void {
+				if ( baseNoTip ) {
+					destroyTT();
+				}
+				var s:String = "Go to base no: " + findNearestBase(Math.round(traceScroller.scrollPosition));
+				var scrollPoint:Point = new Point(traceScroller.x, traceScroller.y );
+				var mousePoint:Point = new Point(mouseX, mouseY);
+				baseNoTip = ToolTipManager.createToolTip(s, localToGlobal(mousePoint).x-10, traceScroller.localToGlobal(scrollPoint).y-61 ) as ToolTip;
+				baseNoTip.setStyle("backgroundColor",0x336699);
+				baseNoTip.setStyle("color","white");
+				baseNoTip.setStyle("fontWeight","bold");
+				baseNoTip.setStyle("alpha",.5);
+				baseNoTip.setStyle("borderThickness",2);
+				baseNoTip.setStyle("borderColor","white");
+				baseNoTip.setStyle("borderStyle","solid");
+				baseNoTip.setStyle("dropShadowEnabled",true);
+			}
+			private function destroyTT():void{
+				if ( baseNoTip ) {
+					ToolTipManager.destroyToolTip(baseNoTip);
+					baseNoTip = null
+				}	
 			}
 			
 			// Scroll through the trace plot
 			private function dragHZoom(event:SliderEvent):void {
-				var currentSlider:Slider=Slider(event.currentTarget);
-				sliderSpacing = currentSlider.value;
-				
-				traceXMax = traceSlider.value + sliderSpacing;
+				sliderSpacing = hZoomSlider.value;
+				traceXMax = traceScroller.scrollPosition + sliderSpacing;
 				q20TraceArray = new ArrayCollection([{x:traceXMin, y:20}, {x:traceXMax, y:20}]);
 				displaySequence();
 			}
@@ -316,14 +334,13 @@
 			
 			// Vertically scroll the trace
 			private function dragVZoom(event:SliderEvent):void {
-				var currentSlider:Slider=Slider(event.currentTarget);
-				vZoomValue = currentSlider.value;
+				vZoomValue = vZoomSlider.value;
 				ty.maximum = traceMax/vZoomValue;
 			}
 			
 			// Display "Zoom in" or "Zoom out" for zoom slider
 			private function vZoomSliderDataTipFunc(val:String):String {
-				return "Zoom " + (parseInt(val) > vZoomValue ? 'in' : 'out');
+				return "Zoom " + (parseFloat(val) > vZoomValue ? 'in' : 'out');
 			}
 			
 			// Find the base that is nearest to an x coordinate from the trace plot
@@ -666,10 +683,20 @@
 					
 					<mx:VBox height="100%" paddingRight="0" paddingLeft="5">
 						<mx:Spacer height="85" width="100%" />
-						<mx:VSlider height="100%" id="vZoomSlider" invertThumbDirection="true"
-									minimum=".5" maximum="5" value="1" 
+						<mx:VSlider height="100%" 
+									id="vZoomSlider" 
+									invertThumbDirection="true"
+									tickLength="5"
+									tickOffset="10"
+									minimum=".5" 
+									maximum="5" 
+									value="1" 
+									tickValues="[1]"
+									snapInterval=".25"
 									change="dragVZoom(event);" 
-									liveDragging="false" dataTipFormatFunction="vZoomSliderDataTipFunc"/>
+									liveDragging="false" 
+									dataTipFormatFunction="vZoomSliderDataTipFunc"
+									toolTip="Vertical Scale"/>
 						<mx:Spacer height="55" width="100%" />
 					</mx:VBox>
 					
@@ -776,7 +803,8 @@
 									axis="{ty}" 
 									tickPlacement="none"
 									visible="false"
-									showLabels="false" labelRotation="180"/>
+									showLabels="false" 
+									labelRotation="180"/>
 							</mx:verticalAxisRenderers>
 							
 							<mx:horizontalAxis>
@@ -840,28 +868,35 @@
 							
 						</mx:LineChart>
 						
-						<mx:HBox id="hSlidersBox" horizontalAlign="center" width="100%">
-							<mx:Spacer height="100%" width="75" />
+						<mx:VBox id="hSlidersBox" horizontalAlign="center" width="100%">
 							
-							<mx:HSlider id="traceSlider" width="100%" 
-										change="dragTrace(event);" 
-										liveDragging="false" 
-										maximum="{aTraceArray.length-sliderSpacing - 1}"
-										minimum="0" dataTipFormatFunction="traceSliderDataTipFunc" height="100%"/> 
-							<mx:HSlider id="hZoomSlider" width="100%" 
+							<mx:HBox width="100%" id="scrollbox">
+								<mx:Spacer  width="25" />
+								<mx:HScrollBar 	id="traceScroller" 
+												width="100%" 
+												height="20" 
+												scroll="showBaseNo(event)"
+												mouseUp="moveTrace(event)" 
+												mouseOut="moveTrace(event)"
+												lineScrollSize="{sliderSpacing/20}" 
+												pageScrollSize="{sliderSpacing/5}" 
+												maxScrollPosition="{aTraceArray.length-sliderSpacing - 1}"
+												minScrollPosition="0" />
+								<mx:Spacer width="25" />
+							</mx:HBox>
+							<mx:HSlider id="hZoomSlider" width="250" 
 										change="dragHZoom(event);" 
 										liveDragging="false" 
-										maximum="2500" value="1250" dataTipFormatFunction="hZoomSliderDataTipFunc"
-										minimum="500"  height="100%"/> 
-							
-							<mx:Spacer height="100%" width="75" />
-						</mx:HBox>
+										maximum="2500" value="1250" 
+										dataTipFormatFunction="hZoomSliderDataTipFunc"
+										toolTip="Horizontal Scale"
+										minimum="500"  height="100%"/>  
+						
+						</mx:VBox>
 						
 						<mx:HBox horizontalAlign="center" width="100%">
 							<mx:Legend dataProvider="{traceGraph}" direction="horizontal"/>
 						</mx:HBox>
-						
-						
 						
 					</mx:VBox>
 				</mx:HBox>

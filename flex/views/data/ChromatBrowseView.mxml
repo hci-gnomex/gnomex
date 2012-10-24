@@ -196,6 +196,14 @@
 					mx.managers.PopUpManager.centerPopUp(addWindow);
 					addWindow.setFocus();
 				}
+				if ( event.columnIndex == 3 ) {
+					var rawWindow:RawChromatWindow;
+					rawWindow = RawChromatWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, RawChromatWindow, true));
+					rawWindow.selectedIdChromatogram = chromatogramGrid.selectedItem.@idChromatogram;
+					rawWindow.init();
+					mx.managers.PopUpManager.centerPopUp(rawWindow);
+					rawWindow.setFocus();
+				}
 				if ( event.columnIndex == 1 && chromatogramGrid.selectedItem != null ) {
 					var url:URLRequest = new URLRequest( chromatogramGrid.selectedItem.@viewURL );
 					navigateToURL( url, '_blank' );
@@ -545,7 +553,9 @@
 				}
 			}
 			
-			
+			private function labelDataTipFunc(item:Object):String {
+				return "View chromatogram details";
+			}
 			
 		]]>
 	</mx:Script>
@@ -777,7 +787,7 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:HBox horizontalAlign="center" >
-								<mx:Image source="@Embed(source='../../assets/tv_chart.png')" />
+								<mx:Image source="@Embed(source='../../assets/tv_chart.png')" toolTip="Download abi file" />
 							</mx:HBox>
 						</mx:Component>
 					</mx:itemRenderer>						
@@ -788,13 +798,33 @@
 								   minWidth="85"
 								   textDecoration="underline"
 								   color="#2017D8"
-								   draggable="false">
+								   draggable="false"
+								   showDataTips="true"
+								   dataTipFunction="labelDataTipFunc">
 					<mx:headerRenderer>
 						<mx:Component>
 							<mx:Label text="Label" textDecoration="none" color="#000000" />
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:DataGridColumn>
+				
+				<mx:DataGridColumn headerText=""
+								   textAlign="center"
+								   editable="false"
+								   resizable="false"
+								   sortable="false"
+								   width="35" 
+								   minWidth="30"
+								   draggable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox horizontalAlign="center" >
+								<mx:Image source="@Embed(source='../../assets/chart_curve.png')" toolTip="View raw data" />
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>						
+				</mx:DataGridColumn>
+				
 				<mx:DataGridColumn dataField="@idPlateWell"
 								   headerText="ID"
 								   width="35" minWidth="20" />
