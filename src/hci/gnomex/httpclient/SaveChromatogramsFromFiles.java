@@ -61,6 +61,7 @@ public class SaveChromatogramsFromFiles {
 
     SaveChromatogramsFromFiles saveChromatograms = new SaveChromatogramsFromFiles(args);
     
+    saveChromatograms.trustCerts(); 
 
     while (true) {
       try {
@@ -152,7 +153,6 @@ public class SaveChromatogramsFromFiles {
         throw new Exception("Please specify all mandatory arguments.  See command line usage.");
       }
       
-      trustCerts(); 
       
       //
       // Login using forms based authentication
@@ -162,7 +162,9 @@ public class SaveChromatogramsFromFiles {
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
       while ((inputLine = in.readLine()) != null) {
-        System.out.println(inputLine);
+        if (debug) {
+          System.out.println(inputLine);
+        }
         if (inputLine.indexOf("<SUCCESS") >= 0) {
           success = true;
           break;
@@ -218,7 +220,9 @@ public class SaveChromatogramsFromFiles {
       for (File f : theFiles) {
         int pos = f.getCanonicalPath().lastIndexOf(f.getName());
         String filePath = f.getCanonicalPath().substring(0, pos - 1);
-        System.out.println(f.getName() + " " + filePath);
+        if (debug) {
+          System.out.println(f.getName() + " " + filePath);
+        }
         
         // Construct request parameters
         String parms = URLEncoder.encode("fileName", "UTF-8") + "=" + URLEncoder.encode(f.getName(), "UTF-8");        
@@ -397,75 +401,75 @@ public class SaveChromatogramsFromFiles {
     return f.format(new Date()) + " "; 
   }
  
-    private void trustCerts() {
-      TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {  
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {  
-          return null;  
-        }  
-
-        public void checkClientTrusted(  
-            java.security.cert.X509Certificate[] certs, String authType) {  
-        }  
-
-        public void checkServerTrusted(  
-          java.security.cert.X509Certificate[] certs, String authType) {  
-          if (debug) {
-            System.out.println("authType is " + authType);  
-            System.out.println("cert issuers");              
-          }
-          for (int i = 0; i < certs.length; i++) {
-            if (debug) {
-              System.out.println("\t" + certs[i].getIssuerX500Principal().getName());  
-              System.out.println("\t" + certs[i].getIssuerDN().getName());                
-            }
-          }  
-        }  
-      } };  
-
-      try {  
-        SSLContext sc = SSLContext.getInstance("SSL");  
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());  
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());  
-      } catch (Exception e) {  
-        e.printStackTrace();  
-        System.exit(1);  
+  private void trustCerts() {
+    TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {  
+      public java.security.cert.X509Certificate[] getAcceptedIssuers() {  
+        return null;  
       }  
 
-    }
-    
-    private boolean copyFile(File f, String targetFileName) {
-      FileChannel in = null;  
-      FileChannel out = null; 
-      boolean success = false;
-      try {  
-        in = new FileInputStream(f).getChannel();  
-        File outFile = new File(targetFileName);  
-        out = new FileOutputStream(outFile).getChannel(); 
-        in.transferTo(0, in.size(), out);
-        in.close();
-        in = null;
-        out.close();
-        out = null; 
-        success  = true;
-      } catch (Exception e) {
-        success = false;  
-      } finally {
-        if (in != null) {
-          try {
-            in.close();                
-          } catch (Exception e){
-          }
+      public void checkClientTrusted(  
+          java.security.cert.X509Certificate[] certs, String authType) {  
+      }  
+
+      public void checkServerTrusted(  
+        java.security.cert.X509Certificate[] certs, String authType) {  
+        if (debug) {
+          System.out.println("authType is " + authType);  
+          System.out.println("cert issuers");              
         }
-        if (out != null) {  
-          try {
-            out.close();                
-          } catch (Exception e) {
+        for (int i = 0; i < certs.length; i++) {
+          if (debug) {
+            System.out.println("\t" + certs[i].getIssuerX500Principal().getName());  
+            System.out.println("\t" + certs[i].getIssuerDN().getName());                
           }
-        }
-  
-      }   
-      return success;
+        }  
+      }  
+    } };  
+
+    try {  
+      SSLContext sc = SSLContext.getInstance("SSL");  
+      sc.init(null, trustAllCerts, new java.security.SecureRandom());  
+      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());  
+    } catch (Exception e) {  
+      System.out.println("Aborting.  Unable to initialize SSLContext " + e.toString());
+      e.printStackTrace();  
+      System.exit(1);  
+    }  
+
+  }
     
+  private boolean copyFile(File f, String targetFileName) {
+    FileChannel in = null;  
+    FileChannel out = null; 
+    boolean success = false;
+    try {  
+      in = new FileInputStream(f).getChannel();  
+      File outFile = new File(targetFileName);  
+      out = new FileOutputStream(outFile).getChannel(); 
+      in.transferTo(0, in.size(), out);
+      in.close();
+      in = null;
+      out.close();
+      out = null; 
+      success  = true;
+    } catch (Exception e) {
+      success = false;  
+    } finally {
+      if (in != null) {
+        try {
+          in.close();                
+        } catch (Exception e){
+        }
+      }
+      if (out != null) {  
+        try {
+          out.close();                
+        } catch (Exception e) {
+        }
+      }
+
+    }   
+    return success;
   }
 
 
@@ -490,6 +494,6 @@ public class SaveChromatogramsFromFiles {
         // Return the information
         return new PasswordAuthentication(userName, password.toCharArray());
     }
-}
+  }
 
 }
