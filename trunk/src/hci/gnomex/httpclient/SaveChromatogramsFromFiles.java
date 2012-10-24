@@ -61,7 +61,6 @@ public class SaveChromatogramsFromFiles {
 
     SaveChromatogramsFromFiles saveChromatograms = new SaveChromatogramsFromFiles(args);
     
-    saveChromatograms.trustCerts(); 
 
     while (true) {
       try {
@@ -152,6 +151,9 @@ public class SaveChromatogramsFromFiles {
         this.printUsage();
         throw new Exception("Please specify all mandatory arguments.  See command line usage.");
       }
+      
+      this.trustCerts(); 
+
       
       
       //
