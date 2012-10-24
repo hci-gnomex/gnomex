@@ -151,13 +151,13 @@ Panel {
 }
 
 TitleWindow {
-	borderColor: #FFFFFF;
-	backgroundColor: #FFFFFF;
+	borderColor: #BDB4B4;
+	backgroundColor: #BDB4B4;
 	cornerRadius: 4;
-	borderThicknessTop: 6;
-	borderThicknessBottom: 6;
-	borderThicknessLeft: 6;
-	borderThicknessRight: 6;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 0;
+	borderThicknessLeft: 0;
+	borderThicknessRight: 0;
 	titleStyleName: titleWindowTitle;
 	headerHeight: 20;
 	controlBarStyleName: titleWindowControlBar;
@@ -167,14 +167,20 @@ TitleWindow {
 	statusStyleName: titleWindowStatus;
 	paddingTop: 4;
 	paddingBottom: 2;
+	barColor: #6FA561;
+	headerColors: #6fa561,#96bd8c;
 }
 .titleWindowTitle
 { 
 	fontSize: 14;
-	color: #000000;
+	color: #FFFFFF;
 	fontFamily: Arial;
 
 }
+
+.titleWindow {
+	headerColors: #0000ff, #ffffff;
+} 
 
 Alert {
 	borderAlpha: .2;
@@ -201,26 +207,6 @@ Alert {
 	backgroundAlpha: .2;
 }
 
-
-TitleWindow {
-	headerColors: #FFFFFF, #FFFFFF; 
-	borderColor: #FFFFFF;
-	backgroundColor: #F0F0F0;
-	cornerRadius: 4;
-	borderThicknessTop: 2;
-	borderThicknessBottom: 2;
-	borderThicknessLeft: 2;
-	borderThicknessRight: 2;
-	titleStyleName: titleWindowTitle;
-	headerHeight: 22;
-	controlBarStyleName: titleWindowControlBar;
-	dropShadowEnabled: true;
-	borderAlpha: 1;
-	backgroundAlpha: 1.0;
-	backgroundSize: "100%";
-	paddingBottom: 1;
-	paddingTop: 0;
-}
 
  
 
