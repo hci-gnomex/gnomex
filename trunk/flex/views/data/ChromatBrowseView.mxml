@@ -996,6 +996,9 @@
 						   click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
 			</mx:AddChild>
 			<mx:RemoveChild target="{filterBox}"/>
+			<mx:RemoveChild target="{comboBox}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{linkbutton2}"/>
 			
 		</mx:State>
 	</mx:states>

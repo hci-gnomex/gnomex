@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-		 width="1000" height="100%" show="init()"
+		 width="1000" height="100%" 
+		 show="init()" 
+		 alpha="1.0"
 		 showCloseButton="true"  
 		 close="{PopUpManager.removePopUp(this)}"
 		 title="{'Chromatogram ' + selectedIdChromatogram + ' - Raw Data'}"
@@ -178,7 +180,15 @@
 	</mx:Script>    	
 	
 	
-	<mx:VBox width="100%" height="100%"    minHeight="0" verticalScrollPolicy="auto">
+	<mx:VBox width="100%" 
+			 height="100%" 
+			 paddingTop="4" 
+			 paddingLeft="4" 
+			 styleName="form" 
+			 paddingRight="4" 
+			 paddingBottom="4"   
+			 minHeight="0" 
+			 verticalScrollPolicy="auto">
 		
 				<mx:HBox  width="100%" horizontalGap="2">
 					

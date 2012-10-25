@@ -244,7 +244,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
                   
                   String fileName;
                   if ( codeReactionType.equals( ReactionType.SEQUENCING_REACTION_TYPE )) {
-                    fileName = idSample + "#" + sampleName + "#" + idPlate;
+                    fileName = sampleName + "_" + idPlateWellString; 
                     fileName = fileName.replaceAll("\\s", "_");
                     response.getOutputStream().print( fileName + "\t" );
                   } else if ( codeReactionType.equals( ReactionType.MITO_DLOOP_REACTION_TYPE )) {
