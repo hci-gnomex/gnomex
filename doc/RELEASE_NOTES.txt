@@ -8,6 +8,9 @@
 * New raw data window for chromatograms (mbowler)
 * Updates to chromatogram detail view (mbowler)
 * Improvements to parsing abi file data (mbowler)
+* Added core facility description to core facility dropdown on submit workauth window (mbowler)
+* Changed the sample name field in the plt file to contain only the sample name and idPlateWell to simplified chromatogram file names (mbowler)
+* Removed the action dropdown and the go and delete buttons from the chromatogram review screen when on experiment detail (mbowler)
 
 
 
