@@ -9,8 +9,8 @@ alter table gnomex.CoreFacility add description varchar(10000) NULL;
 -- Delete extraneous entries in PlatformApplication caused by incorrect db design.
 delete from PlatformApplication
 where idPlatformApplication not in (select idPlatformApplication from PropertyPlatformApplication)
-and idProperty > -1
+and idProperty > -1;
 
 -- Drop PropertyPlatformApplication table (rendered unnecessary by new design)
-drop table PropertyPlatformApplication
+drop table PropertyPlatformApplication;
 
