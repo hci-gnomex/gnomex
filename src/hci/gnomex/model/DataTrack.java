@@ -197,6 +197,19 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
     appUser = u;
   }
   
+  public Integer getIdDataTrackFolder() {
+    int id = 0;
+    if ( this.getFolders() != null ) {
+      for(DataTrackFolder dtf : (Set<DataTrackFolder>)this.getFolders()) {
+        if ( dtf != null && dtf.getIdDataTrackFolder() != 0 ) {
+          id = dtf.getIdDataTrackFolder();
+          break;
+        }
+      }
+    }
+    return id;
+  }
+  
   @SuppressWarnings("unchecked")
 	public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh, String data_root, String analysis_data_root) throws Exception {
 		Document doc = new Document(new Element("DataTrack"));
