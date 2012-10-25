@@ -619,7 +619,7 @@
 										   paddingTop="0" paddingBottom="2" 
 										   textDecoration="underline"
 										   icon="{dataTrackRepeater.currentItem.@codeVisibility == 'PUBLIC' ? parentApplication.iconDataTrackPublic : dataTrackRepeater.currentItem.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : dataTrackRepeater.currentItem.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackMember}"
-										   click="{parentApplication.showDataTrackForNumber(event.currentTarget.getRepeaterItem().@number)}" >
+										   click="{parentApplication.showDataTrackViewForItem(event.currentTarget.getRepeaterItem(), event.currentTarget.getRepeaterItem())}" >
 							</mx:LinkButton>
 							<mx:Text width="100%" text="{dataTrackRepeater.currentItem.@fileName}"/>
 						</mx:HBox>

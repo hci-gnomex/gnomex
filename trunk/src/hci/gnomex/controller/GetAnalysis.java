@@ -291,6 +291,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Element dtNode = new Element("DataTrack");
       dtParentNode.addContent(dtNode);
       dtNode.setAttribute("idDataTrack", dt.getIdDataTrack().toString());
+      dtNode.setAttribute("idDataTrackFolder", dt.getIdDataTrackFolder().toString());
       dtNode.setAttribute("number", dt.getNumber());
       dtNode.setAttribute("name", this.getSecAdvisor().canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)");
       dtNode.setAttribute("createdBy", dt.getCreatedBy() != null ? dt.getCreatedBy() : "");
