@@ -51,6 +51,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
+      PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
 
       String baseURL = scheme + "://" + serverName + ":" + serverPort + contextPath;
        
@@ -65,7 +66,13 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       node.setAttribute( "name", "base_url" );
       node.setAttribute( "value", baseURL );
       doc.getRootElement().addContent( node );
+
       
+      node = new Element("Property");
+      node.setAttribute( "name", "site_logo" );
+      node.setAttribute( "value", (propSiteLogo != null && propSiteLogo.getPropertyValue() != null ? propSiteLogo.getPropertyValue() : "") );
+      doc.getRootElement().addContent( node );
+
       getCoreFacilities( sess, doc );
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
