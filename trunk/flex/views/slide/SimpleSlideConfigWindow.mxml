@@ -19,7 +19,7 @@
 	</mx:HTTPService>
 
 	<mx:Script>
-		<![CDATA[
+		<![CDATA[			
 			import hci.flex.controls.CheckBox;
 			
 			import mx.collections.ArrayCollection;
@@ -42,16 +42,18 @@
 			
 			public var codeApplication:Object;
 			
+			public var tabSetupView:views.experiment.TabSetupView;
+			
 					
-			private function closeWindow():void 
-			{
-				if(dirty.isDirty())
-				{
+			private function closeWindow():void {
+				if(dirty.isDirty()){
 					promptToSaveDirty();
 				}
-				else
-				{
+				else{
 					parentApplication.dictionaryManager.reload();
+					if(tabSetupView != null){
+						tabSetupView.refreshFilteredSlideList();
+					}
 					PopUpManager.removePopUp(this);
 				}
 				
@@ -62,8 +64,7 @@
 				references.refresh();
 				
 				for(var j:int = 0; j < fullAppList.length; j++)
-					for(var k:int = 0; k < references.length; k++)
-					{
+					for(var k:int = 0; k < references.length; k++){
 						if(fullAppList.getItemAt(j).@codeApplication == references.getItemAt(k).@codeApplication)
 							finalAppList.addItem(fullAppList.getItemAt(j));
 					}
@@ -94,15 +95,13 @@
 					save();
 					closeWindow();
 				}
-				else
-				{
+				else{
 					dirty.resetDirty();
 					closeWindow();
 				}
 			}
 			
-			private function save(): void
-			{
+			private function save(): void{
 				dirty.resetDirty();
 				
 				var params:Object = new Object();
@@ -119,10 +118,8 @@
 			}
 				
 			
-			private function onSaveSimple(event:ResultEvent): void
-			{
-				if (saveSimple.lastResult.name() == "SUCCESS") 
-				{
+			private function onSaveSimple(event:ResultEvent): void{
+				if (saveSimple.lastResult.name() == "SUCCESS") {
 					fullSlideDesign = saveSimple.lastResult.@idSlideDesign;
 					mx.controls.Alert.show("Save Successful");
 					
@@ -131,13 +128,9 @@
 
 			}
 			
-			private function updateApplications(application:Object):void
-			{
-				
-				for(var i:int = 0; i < spApplications.length; i++)
-				{
-					if(spApplications.getItemAt(i).@value == application.@value)
-					{
+			private function updateApplications(application:Object):void{
+				for(var i:int = 0; i < spApplications.length; i++){
+					if(spApplications.getItemAt(i).@value == application.@value){
 						spApplications.removeItemAt(i);
 						return;
 					}
