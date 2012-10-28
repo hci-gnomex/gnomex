@@ -835,6 +835,7 @@
 			public var PROPERTY_DEFAULT_VISIBILITY_DATATRACK :String      = "default_visibility_datatrack";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
 			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
+			public var PROPERTY_ID_DEFAULT_INSTITUTION	:String			  = "id_default_institution";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 
