@@ -119,7 +119,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeApplication, lab.lastName, lab.firstName, slideProduct.name, projectLab.lastName, projectLab.firstName, ");
     queryBuf.append("        '', req.codeVisibility,");
     queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
-    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.isExternal, req.name, sample.number ");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.isExternal, req.name, sample.number, req.idInstitution ");
     
     getQueryBody(queryBuf);
     
