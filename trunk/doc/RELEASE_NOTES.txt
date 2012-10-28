@@ -15,6 +15,7 @@
 * Added isLatestBuild checkbox to genome build grid in configure organisms (mbowler)
 * Added institution combo box to the ExperimentVisibility view.(tcourdy)
 * Fixed issue with idInstitution being set to null and thus causing the experiment to not be viewed by anyone.(tcourdy)
+* Fixed bug that was causing the slide product list on the experiment setup view to not refresh properly after creating a new slide(B2B reported bug)(tcourdy)
 
 
 
