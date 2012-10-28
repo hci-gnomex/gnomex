@@ -18,13 +18,15 @@
 
  <mx:Script>
  <![CDATA[ 
- 	import mx.collections.XMLListCollection;   
- 	import mx.rpc.events.ResultEvent;
- 	import views.renderers.ComboBoxVisibility;
- 	import mx.events.CloseEvent;
- 	import mx.controls.Alert;
  	import hci.flex.controls.ComboBox;
  	import hci.flex.controls.DropdownLabel;
+ 	
+ 	import mx.collections.XMLListCollection;
+ 	import mx.controls.Alert;
+ 	import mx.events.CloseEvent;
+ 	import mx.rpc.events.ResultEvent;
+ 	
+ 	import views.renderers.ComboBoxVisibility;
  	
  	private var broadestCodeVisibility:String = "MEM";
  	
@@ -37,6 +39,16 @@
  			}
  		}
  	}
+	 
+	public function init():void{
+		var idDefaultInst:String = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
+
+		for each(var experiment:XML in parentDocument.browseList){
+			if(experiment.@idInstitution == "" || experiment.@idInstitution == null){
+				experiment.@idInstitution = idDefaultInst;
+			}
+		}
+	}
 			
 
  	private function getRequestKind(item:Object, col:int):String {
@@ -88,9 +100,7 @@
     	} else {
     		return 0;
     	}
-    }   
-    
-    
+    }
     
  ]]>
  </mx:Script>
@@ -122,12 +132,15 @@
 		        <mx:DataGridColumn headerText="Requester" width="15" labelFunction="parentDocument.getFullName"  sortCompareFunction="parentDocument.sortFullName" editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Kind" width="20" labelFunction="parentDocument.getExperimentKind"  sortCompareFunction="parentDocument.sortExperimentKind" editable="false"/>
 		       	<mx:DataGridColumn headerText="Microarray" width="40" dataField="@slideProductName"  editable="false"/>
-		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="40" dataField="@codeVisibility" 
+		       	<mx:DataGridColumn headerText="Experiment Visibility" id="visibilityColumn"  width="40" dataField="@codeVisibility" 
 					editorDataField="value" sortCompareFunction="sortVisibility" editable="true" 
 					rendererIsEditor="false" 
 					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"					
 					itemEditor="{ComboBoxVisibility.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"
 				/>
+				<mx:DataGridColumn headerText="Institution" width="40" id="institution" dataField="@idInstitution" editorDataField="value"
+								   rendererIsEditor="false" itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Institution').DictionaryEntry, '@display', '@value', '@idInstitution')}"
+								   itemEditor="{ComboBoxVisibility.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Institution').DictionaryEntry, '@display', '@value', '@idInstitution')}"/>
 	         </mx:columns>
 	       </mx:DataGrid>
 	
