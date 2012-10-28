@@ -17,7 +17,11 @@
 * Fixed issue with idInstitution being set to null and thus causing the experiment to not be viewed by anyone.(tcourdy)
 * Fixed bug that was causing the slide product list on the experiment setup view to not refresh properly after creating a new slide(B2B reported bug)(tcourdy)
 
-
+deploy notes
+----------------------
+--New Property
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
+Values ('id_default_institution', '1', 'ID indicating default institution for visibility of experiments', 'N', null);
 
 5.5 (Oct 24, 2012)
 ---------------------
