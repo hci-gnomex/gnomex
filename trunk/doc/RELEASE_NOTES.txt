@@ -13,6 +13,8 @@
 * Removed the action dropdown and the go and delete buttons from the chromatogram review screen when on experiment detail (mbowler)
 * Changed data track filtering upon linking from an analysis so that the correct DT is selected, but the others are not filtered out (SF Bug #236) (mbowler)
 * Added isLatestBuild checkbox to genome build grid in configure organisms (mbowler)
+* Added institution combo box to the ExperimentVisibility view.(tcourdy)
+* Fixed issue with idInstitution being set to null and thus causing the experiment to not be viewed by anyone.(tcourdy)
 
 
 
