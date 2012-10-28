@@ -865,10 +865,15 @@
 			private function showNewSimpleSlideWindow():void{
 				var slideWindow:SimpleSlideConfigWindow = SimpleSlideConfigWindow(mx.managers.PopUpManager.createPopUp(this, SimpleSlideConfigWindow, true));
 				mx.managers.PopUpManager.centerPopUp(slideWindow);
+				slideWindow.tabSetupView = this;
 				slideWindow.codeRequestCategory = requestCategory.@codeRequestCategory;
 				slideWindow.init();
 				this.setFocus();
 				
+			}
+			
+			public function refreshFilteredSlideList():void{
+				parentDocument.getSlideProductList.send();
 			}
 			
 			private function pickOrganism():void {
