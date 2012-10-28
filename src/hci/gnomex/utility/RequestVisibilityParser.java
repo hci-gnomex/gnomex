@@ -45,6 +45,7 @@ public class RequestVisibilityParser implements Serializable {
       
       String idRequest           = requestNode.getAttributeValue("idRequest");
       String codeVisibility      = requestNode.getAttributeValue("codeVisibility");
+      String idInstitution       = requestNode.getAttributeValue("idInstitution");
       
       Request request = (Request)sess.load(Request.class, new Integer(idRequest));
       
@@ -52,8 +53,12 @@ public class RequestVisibilityParser implements Serializable {
         if (codeVisibility == null || codeVisibility.equals("")) {
           throw new Exception("Visibility is required for experiment " + request.getNumber());
         }
+        if(idInstitution == null || idInstitution.equals("")){
+          throw new Exception("Please specify Institution for experiment " + request.getNumber());
+        }
         
         request.setCodeVisibility(codeVisibility);
+        request.setIdInstitution(Integer.valueOf(idInstitution));
         requests.add(request);
       } else {
         // Skip saving requests that user does not have permission to save
