@@ -107,13 +107,24 @@ String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
 boolean showUserNameChoice = false;
+String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
   if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showUserNameChoice = true;
-  }  
+  }
+    
+  // Get site specific log
+  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
+  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
+    siteLogo = "./" + propSiteLogo.getPropertyValue();
+  }  else {
+    siteLogo = "./assets/gnomex_logo.png";
+  } 
+ 
+  
   
   labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
   facilities = CoreFacility.getActiveCoreFacilities(sess);
@@ -140,6 +151,9 @@ try {
 <div id="content" align="center" bgcolor="white">
 
     <div class="header-bar" >
+      <div class="leftMenu">
+            <img src="<%=siteLogo%>"/>
+      </div>
       <div class="rightMenu" >
           <a href="gnomexFlex.jsp">Login</a> | 
           <a href="change_password.jsp">Change password</a> |    

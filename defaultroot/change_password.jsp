@@ -24,6 +24,7 @@ String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
 boolean showCampusInfoLink = false;
+String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
@@ -31,6 +32,15 @@ try {
   if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showCampusInfoLink = true;
   }  
+  
+  // Get site specific log
+  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
+  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
+    siteLogo = "./" + propSiteLogo.getPropertyValue();
+  }  else {
+    siteLogo = "./assets/gnomex_logo.png";
+  } 
+ 
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
@@ -52,6 +62,9 @@ try {
 
 
 <div class="header-bar" >
+    <div class="leftMenu">
+        <img src="<%=siteLogo%>"/>
+    </div>
    <div class="rightMenu" >
       <a href="gnomexFlex.jsp">Login</a> |    
       <a href="change_password.jsp">Change password</a> |    
