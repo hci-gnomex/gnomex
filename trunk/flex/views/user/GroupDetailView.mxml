@@ -607,6 +607,7 @@
 				editAcctWindow.labName = parentDocument.fullLab.@name;
 				editAcctWindow.coreFacilities = labCoreFacilitiesIManage;
 				editAcctWindow.activeSubmitters = this.activeSubmitters;
+				editAcctWindow.isEdit = true;
 				mx.managers.PopUpManager.centerPopUp(editAcctWindow);
 				this.setFocus();
 				billingAccountGrid.editedItemPosition = null;

@@ -31,11 +31,14 @@ public class BillingAccount extends HibernateDetailObject {
   private String     submitterUID;
   private BigDecimal totalDollarAmount;
   private String     orderFormFileType;
-  private byte []     purchaseOrderForm;
+  private byte []    purchaseOrderForm;
   private Date       startDate;
   private String     shortAcct;
-  private Integer     idCoreFacility;
+  private Integer    idCoreFacility;
   private Set        users;
+  private String     custom1;
+  private String     custom2;
+  private String     custom3;
   
   public byte [] getPurchaseOrderForm() {
     return purchaseOrderForm;
@@ -404,6 +407,27 @@ public class BillingAccount extends HibernateDetailObject {
   
   public void setUsers(Set users) {
     this.users = users;
+  }
+  
+  public String getCustom1() {
+    return custom1;
+  }
+  public void setCustom1(String custom1) {
+    this.custom1 = custom1;
+  }
+  
+  public String getCustom2() {
+    return custom2;
+  }
+  public void setCustom2(String custom2) {
+    this.custom1 = custom2;
+  }
+  
+  public String getCustom3() {
+    return custom3;
+  }
+  public void setCustom3(String custom3) {
+    this.custom3 = custom3;
   }
   
   public BigDecimal getTotalDollarAmountRemaining() {

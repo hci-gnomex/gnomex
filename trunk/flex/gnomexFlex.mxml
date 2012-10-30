@@ -244,6 +244,20 @@
 		</mx:request>
 	</mx:HTTPService>	
 	
+	
+	<mx:HTTPService 
+		id="getAccountFieldsConfiguration" 
+		url="GetAccountFieldsConfiguration.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getAccountFieldsConfiguration"
+		result="onGetAccountFieldsConfiguration(event)"
+		fault="onFailHttpRequest('Failed to get account fields configuration list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+
         <mx:Style source="css/gnomex_flex.css" />
 
         
@@ -738,6 +752,9 @@
 
 			[Bindable]
 			public var siteWelcomeMessage:String = "";
+			
+			[Bindable]
+			public var useConfigurableBillingAccounts:Boolean = false;
 
 	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
@@ -789,6 +806,11 @@
 			[Bindable]
 			public var protocolList:XMLListCollection;
 			
+			[Bindable]
+			public var internalAccountFieldsConfigurationList:XMLListCollection;
+			[Bindable]
+			public var otherAccountFieldsConfigurationList:XMLListCollection;
+			
 			private var properties:Object;
 			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
@@ -838,6 +860,7 @@
 			public var PROPERTY_DEFAULT_VISIBILITY_DATATRACK :String      = "default_visibility_datatrack";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
 			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
+			public var PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS:String      = "configurable_billing_accounts";
 			public var PROPERTY_ID_DEFAULT_INSTITUTION	:String			  = "id_default_institution";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
@@ -1980,6 +2003,13 @@
 					enableApp();
 					
 				}
+
+				if (this.getProperty(this.PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS) == "Y") {
+					this.useConfigurableBillingAccounts = true;
+				} else {
+					this.useConfigurableBillingAccounts = false;
+				}
+
 				getSessionTimeout.send();
             }
 			
@@ -2078,6 +2108,8 @@
 				getOrganismList.send();
 				getPropertyList.send();
 				
+				getAccountFieldsConfiguration.send();
+				
 				showProgress(10);
 				enableApp();
 			}			
@@ -2130,6 +2162,11 @@
 					showProgress(10);
 					enableApp();
 				}
+			}
+			
+			private function onGetAccountFieldsConfiguration(event:ResultEvent):void {
+				this.internalAccountFieldsConfigurationList = new XMLListCollection(getAccountFieldsConfiguration.lastResult.InternalAccountFieldsConfigurationList.InternalAccountFieldsConfiguration);
+				this.otherAccountFieldsConfigurationList = new XMLListCollection(getAccountFieldsConfiguration.lastResult.OtherAccountFieldsConfigurationList.OtherAccountFieldsConfiguration);
 			}
 			
 	        private function enableApp():void {
@@ -2588,7 +2625,6 @@
 				
 			}
 		}
-
         ]]>
     </mx:Script>
     

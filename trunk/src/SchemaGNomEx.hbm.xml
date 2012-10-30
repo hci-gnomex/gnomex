@@ -204,7 +204,9 @@
       <key column="idBillingAccount"/>
       <many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
     </set>
-    
+    <property name="custom1" column="custom1" type="string"/>
+    <property name="custom2" column="custom2" type="string"/>
+    <property name="custom3" column="custom3" type="string"/>
 	</class>
   
   <!-- hci.gnomex.model.Invoice -->
@@ -2019,5 +2021,27 @@
 		</set>
     </class>
   
+    <class name="hci.gnomex.model.InternalAccountFieldsConfiguration" table="InternalAccountFieldsConfiguration">
+      <id name="idInternalAccountFieldsConfiguration" column="idInternalAccountFieldsConfiguration" type="integer">
+        <generator class="native"/>
+      </id> 
+      <property name="fieldName"                    column="fieldName"                    type="string"/>
+      <property name="include"                      column="include"                      type="string"/>
+      <property name="sortOrder"                    column="sortOrder"                    type="integer"/>
+      <property name="displayName"                  column="displayName"                  type="string"/>
+      <property name="isRequired"                   column="isRequired"                   type="string"/>
+      <property name="isNumber"                     column="isNumber"                     type="string"/>
+      <property name="minLength"                    column="minLength"                    type="integer"/>
+      <property name="maxLength"                    column="maxLength"                    type="integer"/>
+    </class>
+
+    <class name="hci.gnomex.model.OtherAccountFieldsConfiguration" table="OtherAccountFieldsConfiguration">
+      <id name="idOtherAccountFieldsConfiguration" column="idOtherAccountFieldsConfiguration" type="integer">
+        <generator class="native"/>
+      </id> 
+      <property name="fieldName"                    column="fieldName"                    type="string"/>
+      <property name="include"                      column="include"                      type="string"/>
+      <property name="isRequired"                   column="isRequired"                   type="string"/>
+    </class>
 	
 </hibernate-mapping>
