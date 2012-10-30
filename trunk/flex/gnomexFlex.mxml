@@ -11,7 +11,7 @@
 	xmlns:protocol="views.protocol.*"
 	xmlns:admin="views.admin.*"
 	xmlns:plate="views.plate.*"
-  	xmlns:data="views.data.*"
+  	xmlns:data="views.data.*"  
  	xmlns:order="views.order.*"
   	xmlns:run="views.run.*"
 	xmlns:slide="views.slide.*"
@@ -302,11 +302,14 @@
 			private var userPublicView:UserPublicView;
 			
 			private var cursorID:Number = 0; 
+			
+			[Bindable]
+			private var siteLogo:String = "";
 
 			[Bindable]
-			[Embed(source="assets/gnomex_logo_alt1.png")]
+			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
-			
+			 			
 
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -877,7 +880,12 @@
 						this.isUnivUserAuth = false;
 					}	
 					baseURL = getLaunchProperties.lastResult.Property.(@name == "base_url").@value;
-					stateStack.selectedChild = initViews; 
+					stateStack.selectedChild = initViews;
+					if (getLaunchProperties.lastResult.Property.(@name == "site_logo").@value != "") {
+						siteLogo = getLaunchProperties.lastResult.Property.(@name == "site_logo").@value;
+					} else {
+						siteLogo = "assets/gnomex_logo.png";
+					}
 					linkbutton1.visible = true;
 					linkbutton3.visible = true;
 					loggedInInit();	
@@ -2614,14 +2622,14 @@
 			      	paddingBottom="6" id="hbox1" 
 			      	paddingTop="6" 
 			      	paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
-						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
-							<mx:Image source="{iconLogo}"/>
+						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="8">
+							<mx:Image source="{siteLogo}"/> 
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
 				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
-			               
-						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Verdana" fontSize="12" color="#867D7D" fontWeight="bold"/>
-			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="85"  fontFamily="Verdana" visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+			                
+						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Verdana" fontSize="12"  />
+			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"  fontFamily="Verdana" visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
 			              <mx:Button id="lookupButton" 
 			              	 width="30"
 			               	 click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
@@ -2657,21 +2665,24 @@
 					  <mx:LinkButton styleName="navLinkButton" id="analysisLink" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
 					  <mx:VRule height="20" id="dataTracksRule" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}" /> 
 					  <util:LinkButtonTwoLines styleName="navLinkButton" id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
-
+					  <mx:VRule height="20" id="topicsRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}"/> 
+					  <mx:LinkButton styleName="navLinkButton" id="topicsLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Topics" click="{theViews.selectedChild = navTopicsView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconTopic}"/>
+					  <mx:VRule height="20" id="usageRule" visible="{isExternalDataSharingSite}"  includeInLayout="{isExternalDataSharingSite}"/> 
+					  <mx:LinkButton styleName="navLinkButton" id="usageLink" visible="{isExternalDataSharingSite}" includeInLayout="{isExternalDataSharingSite}"  label="Usage" click="{theViews.selectedChild = navUsageView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconUsage}"/>
+ 
 					  <mx:VRule height="20" id="workflowRule" visible="{showCoreGenomicsLinks}"  includeInLayout="{showCoreGenomicsLinks}" />
-					  <mx:LinkButton  styleName="navLinkButton" id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}" width="82" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
+					  <mx:LinkButton  styleName="navLinkButton" id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
 					  <mx:VRule height="20" id="billingRule"/>
 					  <mx:LinkButton  styleName="navLinkButton" id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
 					  <mx:VRule height="20" id="usersRule"/>
-					  <util:LinkButtonTwoLines  styleName="navLinkButton"  id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
+					  <util:LinkButtonTwoLines  styleName="navLinkButton"  id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
 
 					  <mx:VRule height="20" id="moreMenuRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}"/>
-					  <mx:MenuBar  height="45"  id="moreMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="80"  styleName="NavMenuBar" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}">
+					  <mx:MenuBar  height="45"  id="moreMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="72"  styleName="NavMenuBar" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}">
 						  <mx:XMLList>
 							  <menuitem label="More..."   >
 								  <menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 								  <menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
-								  <menuitem label="Topics"  icon="iconTopic"/>
 								  <menuitem label="Track Usage"  icon="iconUsage"/>
 								  <menuitem  label="Manage Dictionaries"  icon="iconBook" />
 								  <menuitem label="Configure Annotations" icon="iconConfig" />
@@ -2694,7 +2705,7 @@
 	    	paddingRight="0" horizontalCenter="0" verticalGap="0"  backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
-			   
+			    
 						<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
 						</util:LaunchView> 
 					</mx:ViewStack>
@@ -2780,8 +2791,6 @@
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
-	 	    <mx:SetStyle target="{requestNumberLabel}" name="fontWeight" value="normal"/>
-	 	    <mx:SetStyle target="{searchLabel}" name="color" value="#867D7D"/>
 	 	    <mx:SetStyle target="{mainArea}" name="backgroundImage" value=""/>
 
 	 	</mx:State>
@@ -2792,7 +2801,12 @@
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
 			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
-	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="14"/>
+	 		<mx:SetProperty target="{experimentsLink}" name="width"/>
+	 		<mx:SetProperty target="{analysisLink}" name="width"/>
+	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="9"/>
+	 		<mx:SetProperty target="{moreMenu}" name="width" value="67"/>
+	 		<mx:SetProperty target="{usersLink}" name="width" value="76"/>
+	 		<mx:SetStyle target="{analysisLink}" name="paddingRight" value="1"/>
 			
 		
 	 	</mx:State>
@@ -2828,8 +2842,6 @@
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
 			<mx:RemoveChild target="{workflowLink}"/>
 			<mx:RemoveChild target="{workflowRule}"/>
-			<mx:SetStyle target="{requestNumber}" name="backgroundColor" value="#FFFCFC"/>
-	 		<mx:SetStyle target="{requestNumber}" name="backgroundAlpha" value="1.0"/>
 	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
 	 	</mx:State>
 	 	<mx:State name="ManagerState" basedOn="enabledState">
@@ -2850,13 +2862,6 @@
 			<mx:RemoveChild target="{moreMenuRule}"/>
 			<mx:RemoveChild target="{moreMenu}"/>
 			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
-
-			<mx:AddChild relativeTo="{dataTracksLink}" position="after">
-				<mx:VRule height="20" id="topicsRule1"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{topicsRule1}" position="after">
-				<mx:LinkButton id="topicsLink1" label="Topics" styleName="navLinkButton" click="{theViews.selectedChild = navTopicsView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconTopic}"/>
-			</mx:AddChild>
 			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
 
 		</mx:State>
@@ -2864,17 +2869,14 @@
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 			<mx:RemoveChild target="{submitRequestLink}"/>
 			<mx:RemoveChild target="{submitRequestRule}"/>
+			<mx:RemoveChild target="{submitRequestLinkExternal}"/>
 			<mx:RemoveChild target="{navUsageView}"/>
 			<mx:RemoveChild target="{moreMenuRule}"/>
 			<mx:RemoveChild target="{moreMenu}"/>
 			
-			<mx:AddChild relativeTo="{experimentsLink}" position="after">
-				<mx:VRule height="20" id="topicsRule"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{topicsRule}" position="after">
-				<mx:LinkButton id="topicsLink" label="Topics" styleName="navLinkButton" click="{theViews.selectedChild = navTopicsView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconTopic}"/>
-			</mx:AddChild>
 			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
+			<mx:RemoveChild target="{usageLink}"/>
+			<mx:RemoveChild target="{usageRule}"/>
 			
 	 	</mx:State>
 
@@ -2886,6 +2888,9 @@
 			<mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
 			<mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
 			<mx:SetStyle target="{hbox1}" name="paddingBottom" value="4"/>
+			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="15"/>
+			
+
 		</mx:State>
 
 		 <mx:State name="ManagerESState" basedOn="ManagerState">
@@ -2937,13 +2942,14 @@
 			 </mx:AddChild>
 			 
 			 <mx:RemoveChild target="{moreMenu}"/>
+			 
+			 
 			 <mx:RemoveChild target="{experimentsRule}"/>
 			 <mx:RemoveChild target="{experimentsLink}"/>
 			 
 			 <mx:AddChild relativeTo="{usersLink}"  position="after">
 				 <mx:VRule height="20" id="moreDNARule"/>
 			 </mx:AddChild>
-
 			 <mx:AddChild relativeTo="{moreDNARule}" position="after">
 				 <mx:MenuBar  height="45" styleName="NavMenuBar" id="moreDNASeqMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="80"  >
 					 <mx:XMLList>
@@ -2955,8 +2961,6 @@
 					 </mx:XMLList>
 				 </mx:MenuBar> 
 			</mx:AddChild>
-			 <mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="12"/>
-
 
 		 </mx:State>
 		 
@@ -2964,6 +2968,7 @@
 			 <mx:RemoveChild target="{submitRequestView}"/>
 			 <mx:RemoveChild target="{submitRequestLink}"/>
 			 <mx:RemoveChild target="{submitRequestRule}"/>
+			 <!--
 			 <mx:RemoveChild target="{fillPlateRule}"/>
 			 <mx:RemoveChild target="{fillPlateLink}"/>
 			 <mx:RemoveChild target="{fillRunRule}"/>
@@ -2974,7 +2979,7 @@
 			 <mx:RemoveChild target="{runsLink}"/>
 			 <mx:RemoveChild target="{ordersRule}"/>
 			 <mx:RemoveChild target="{ordersLink}"/>
-
+-->
 		 </mx:State>
 
 		 
