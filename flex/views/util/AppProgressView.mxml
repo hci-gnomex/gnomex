@@ -6,7 +6,7 @@
 	 <mx:VBox   width="100%" height="100%" id="mainArea"  horizontalAlign="center" verticalAlign="middle" backgroundColor="#FFFFFF" verticalGap="20" borderStyle="outset">
 		 <mx:Image source="assets/hciLogoSplash.png" scaleContent="false"/>
 		 
-		 <mx:Text text="Initializing GNomEx"  id="label1"  styleName="progressLabel"/>	 	
+		 <mx:Text text="Initializing GNomEx"  id="label1"  styleName="progressLabel" fontSize="14" fontWeight="bold"/>	 	
 	 </mx:VBox> 
 	 <mx:states>      
 	 	 <mx:State name="StartupState">
