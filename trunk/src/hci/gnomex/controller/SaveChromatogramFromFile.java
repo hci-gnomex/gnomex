@@ -72,10 +72,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       File abiFile = new File(filePath, fileName);
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
       
-      // Create new DB chromatogram object
-      Chromatogram chromatogram = new Chromatogram();
-      sess.save(chromatogram);
-      
+
       // Extract idPlateWell from comments if one wasn't provided
       if ( idPlateWell == 0 ) {
         String comments = chromatReader.getComments();
@@ -84,6 +81,16 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
         String idString = comments.substring(ind1+4, ind2);
         idPlateWell = !idString.equals(null) ? Integer.parseInt(idString):0;
       }
+      
+      // Find out if we already have a chromatogram for this plate well, named the same.
+      Chromatogram chromatogram = (Chromatogram)sess.createQuery("SELECT ch from Chromatogram ch where ch.idPlateWell = " + idPlateWell + " and displayName = '" + fileName + "'").uniqueResult();
+      if (chromatogram == null) {
+        // This is the normal case.  We didn't find a chromatogram, so we create new DB chromatogram object
+        chromatogram = new Chromatogram();
+        sess.save(chromatogram);
+      }
+      
+      
       
       // Get the plate well object from db, make sure it exists
       PlateWell well = (PlateWell) sess.get(PlateWell.class, idPlateWell);
