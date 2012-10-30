@@ -76,6 +76,12 @@ public class PlateWell extends HibernateDetailObject {
     this.idPlate = idPlate;
   }
 
+  public String getIdPlateWellShort()
+  {
+    return this.getIdPlateWell().toString().substring( idPlateWell.toString().length() > 6 ? idPlateWell.toString().length() - 5 : 0 );
+  }
+
+  
   public Plate getPlate()
   {
     return plate;

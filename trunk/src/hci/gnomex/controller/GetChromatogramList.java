@@ -147,6 +147,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         Element cNode = new Element("Chromatogram");
         cNode.setAttribute("idChromatogram", idChromatogram.toString());
         cNode.setAttribute("idPlateWell", idPlateWell.toString());
+        cNode.setAttribute("idPlateWellShort", idPlateWell.toString().substring( idPlateWell.toString().length() > 6 ? idPlateWell.toString().length() - 5 : 0 ));
         cNode.setAttribute("idRequest", idRequest.toString());
         cNode.setAttribute("qualifiedFilePath", qualifiedFilePath);
         cNode.setAttribute("displayName", displayName);
