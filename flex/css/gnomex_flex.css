@@ -661,7 +661,7 @@ Label.titleLabel
 Label.welcomeLabel
 {
 	fontFamily: Verdana;
-	color: 	 #555454;
+	color: 	 #4D4848;
 	fontSize: 14;
 	fontWeight: normal;
 }
@@ -677,8 +677,9 @@ Label.appTitle
 Text.welcomeUserLabel
 {
 	fontFamily: Verdana;
-	color: #5D5D5D;
-	fontSize: 14;
+	color: #686464;
+	fontSize: 12;
+	fontWeight: normal;
 }
 Text.welcomeSessionLabel
 {
