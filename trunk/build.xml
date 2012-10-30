@@ -100,7 +100,7 @@
 
 
 		<delete>
-			<fileset dir="${build.dir}" />
+			<fileset dir="${dist.dir}" />
 		</delete>
 	</target>
 
