@@ -86,6 +86,10 @@
 								   click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
 					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
 					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
+					<mx:LinkButton label="Configure Billing Account Fields" 
+								   visible="{parentApplication.useConfigurableBillingAccounts}"
+								   includeInLayout="{parentApplication.useConfigurableBillingAccounts}"
+								   click="showBillingAccountFields()" styleName="dashboardButton"  id="accountConfigurationButton" icon="@Embed(source='../../assets/account.png')"/>
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{vbox1}"/>
@@ -302,13 +306,15 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.dictionary.DictionaryEditor;
-			import mx.controls.Alert;
 			
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			
 			import views.admin.AlignmentProfileWindow;
+			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.PropertyWindow;
 			import views.experiment.ExperimentEditView;
+			import views.user.EditBillingAcctWindow;
 			
 			public function checkDirty():void {
 			}
@@ -454,12 +460,43 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsersView;
 			}
 			private function showWorkAuthForm():void {
-				var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this, WorkAuthorizationWindow, true));
-				PopUpManager.centerPopUp(workAuthWindow);
-				
-				workAuthWindow.emailAddress.text = parentApplication.getUserEmail();
-				if (workAuthWindow.labCombo.dataProvider.length == 2) {
-					workAuthWindow.labCombo.selectedIndex = 1;
+				var which:String = 'new';
+				if (which == "old") {
+					var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this, WorkAuthorizationWindow, true));
+					PopUpManager.centerPopUp(workAuthWindow);
+					
+					workAuthWindow.emailAddress.text = parentApplication.getUserEmail();
+					if (workAuthWindow.labCombo.dataProvider.length == 2) {
+						workAuthWindow.labCombo.selectedIndex = 1;
+					}
+				} else {
+					var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
+					wa.isEdit = false;
+					wa.ba = new XML("<BillingAccount " +
+						" idBillingAccount='BillingAccount0'" +
+						" accountName=''" +
+						" idCoreFacility=''" +
+						" expirationDateOther=''" + 
+						" startDateOther=''" +
+						" accountNumberBus=''" + 
+						" accountNumberOrg=''" + 
+						" accountNumberFund=''" + 
+						" accountNumberActivity=''" + 
+						" accountNumberProject=''" +  
+						" accountNumberAccount=''" + 
+						" accountNumberAu=''" + 
+						" accountNumberYear=''" +
+						" totalDollarAmountDisplay=''" +
+						" shortAcct=''" +
+						" custom1=''" +
+						" custom2=''" +
+						" custom3=''" +
+						" isDirty='Y'" +
+						" isPO='N'" +
+						" submitterEmail='" + parentApplication.getUserEmail() + "'" +
+						" isApproved='N'" +
+						" isSelectedPeerReviewedFunding='false'" + 
+						"/>");
 				}
 			}			       
 			private function showDictionaries():void {
@@ -469,6 +506,11 @@
 				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this, BroadcastEmailWindow, true));
 				PopUpManager.centerPopUp(broadcastEmailWindow);
 			}			
+			
+			private function showBillingAccountFields():void {
+				var w:BillingAccountFieldsConfigurationWindow = BillingAccountFieldsConfigurationWindow(PopUpManager.createPopUp(this, BillingAccountFieldsConfigurationWindow, true));
+				PopUpManager.centerPopUp(w);
+			}
 			
 			private function showPropertyWindow():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
