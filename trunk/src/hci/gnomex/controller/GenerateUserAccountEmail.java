@@ -135,7 +135,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
         
         // Format email body
         VerifyLabUsersEmailFormatter emailFormatter = new VerifyLabUsersEmailFormatter(sess, l, labName, managers, members, collaborators);
-        String emailBody = emailFormatter.format();
+        String emailBody = emailFormatter.format(this.getSecAdvisor().getAppUser());
         
         
         String subject = "GNomEx user accounts for " + labName + (labName.contains("Lab") || labName.contains("lab") ? "" : " Lab");
@@ -198,8 +198,8 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     }
     
     String from = dictionaryHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    if (lab.getCoreFacilities().size() == 1) {
-      from = dictionaryHelper.getCoreFacilityProperty(((CoreFacility)lab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    if (this.getSecAdvisor().getAppUser().getEmail()!=null) {
+      from = this.getSecAdvisor().getAppUser().getEmail();
     }
     if (send) {
       MailUtil.send(sendTo, 

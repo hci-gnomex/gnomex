@@ -16,6 +16,7 @@
 * Added institution combo box to the ExperimentVisibility view.(tcourdy)
 * Fixed issue with idInstitution being set to null and thus causing the experiment to not be viewed by anyone.(tcourdy)
 * Fixed bug that was causing the slide product list on the experiment setup view to not refresh properly after creating a new slide(B2B reported bug)(tcourdy)
+* Verify users email link show the current user's email address as from address and current user name (and their managing core facilities if any) in email body (mbowler)
 
 deploy notes
 ----------------------
