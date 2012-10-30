@@ -3,8 +3,7 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExFrontController;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
@@ -50,7 +49,7 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
   }
   
 
-  public String format() throws Exception {
+  public String format(AppUser appUser) throws Exception {
 
 
     Element root = new Element("HTML");
@@ -60,7 +59,7 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
     
     formatBody(body);
     
-    formatFooter(body);
+    formatFooter(body, appUser);
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     String buf = out.outputString(doc);
@@ -129,28 +128,25 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
     
   }
   
-  private void formatFooter(Element body) {
-    String coreContacts = "";
-    String coreNames = "";
-    for(Iterator i = lab.getCoreFacilities().iterator(); i.hasNext(); ) {
-      CoreFacility facility = (CoreFacility)i.next();
-      if (!coreContacts.equals("")) {
-        coreContacts += ", ";
-      }
-      coreContacts += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
-      
-      if (!coreNames.equals("")) {
-        coreNames += ", ";
-      }
-      coreNames += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
-    }
+  private void formatFooter(Element body, AppUser appUser) {
+   
     StringBuffer emailFooter = new StringBuffer();
     emailFooter.append("<br>");
     emailFooter.append("Thanks,");
     emailFooter.append("<br>");
-    emailFooter.append(coreContacts);
-    emailFooter.append("<br>");
-    emailFooter.append(coreNames);
+    emailFooter.append(appUser.getFirstLastDisplayName());
+    if ( appUser.getManagingCoreFacilities() != null ) {
+      String coreNames = "";
+      for(Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext(); ) {
+        CoreFacility facility = (CoreFacility)i.next();
+        if (!coreNames.equals("")) {
+          coreNames += ", ";
+        }
+        coreNames += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
+      }
+      emailFooter.append("<br>");
+      emailFooter.append(coreNames);
+    }
      
     body.addContent(emailFooter.toString());
   }
