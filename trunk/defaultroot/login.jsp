@@ -15,22 +15,6 @@
 
 <html>
 
-<head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-
-	<link rel="stylesheet" href="css/login.css" type="text/css" />
-	<title>Login to GNomEx</title>
-	
-	<script type="text/javascript">
-		function setFocus()
-		{
-     		theform.username.focus();
-		}
-	</script>
-</head>
-
 
 
 <body onload="setFocus()">
@@ -47,6 +31,7 @@ GNomExFrontController.setWebContextPath(webContextPath);
 boolean showCampusInfoLink = false;
 boolean itemNotPublic = false;
 String itemType="";
+String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
@@ -54,6 +39,16 @@ try {
   if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showCampusInfoLink = true;
   }  
+
+  // Get site specific log
+  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
+  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
+    siteLogo = "./" + propSiteLogo.getPropertyValue();
+  }  else {
+    siteLogo = "./assets/gnomex_logo.png";
+  } 
+ 
+
 	
   // If launching experiment, analysis, data track, or topic then check for public
   // If public then launch directly as guest user without requiring login
@@ -131,10 +126,44 @@ try {
 
 %>
 
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+	<link rel="stylesheet" href="css/login.css" type="text/css" />
+
+<style type="text/css"> 
+
+.header-bar {
+	float: top;
+	width: 800px;
+	height: 50px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	background: transparent url(<%=siteLogo%> no-repeat;}
+
+</style> 
+
+	<title>Login to GNomEx</title>
+	
+	<script type="text/javascript">
+		function setFocus()
+		{
+     		theform.username.focus();
+		}
+	</script>
+</head>
+
+
+
 
 <div id="content" align="center" bgcolor="white">
 
    <div class="header-bar" >
+       <div class="leftMenu">
+            <img src="<%=siteLogo%>"/>
+       </div>
        <div class="rightMenu" >    
          <a href="change_password.jsp">Change password</a> |    
          <a href="reset_password.jsp">Reset password</a> |    

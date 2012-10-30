@@ -16,7 +16,9 @@
 * Added institution combo box to the ExperimentVisibility view.(tcourdy)
 * Fixed issue with idInstitution being set to null and thus causing the experiment to not be viewed by anyone.(tcourdy)
 * Fixed bug that was causing the slide product list on the experiment setup view to not refresh properly after creating a new slide(B2B reported bug)(tcourdy)
+* Prevent duplicate chromatogram objects from being saved in db in SaveChromatogramFromFile.  (tdisera)
 * Verify users email link show the current user's email address as from address and current user name (and their managing core facilities if any) in email body (mbowler)
+* Allow for site-specific logo on login page and gnomex main nav bar area. (tdisera)
 
 deploy notes
 ----------------------
@@ -79,6 +81,7 @@ Values ('id_default_institution', '1', 'ID indicating default institution for vi
 * Set default dropdown selection for analysis protocol after disposing of edit protocol window in analysis edit to blank item. (rcundick)
 * Set maximum text length for annotation description to 2000 characters. (rcundick)
 * Fixed the link to email for reporting software bugs on the About view. (mbowler)
+* Add property so that site can include site specific logo or title next to gnomex logo and app title in nav bar (tdisera)
 
 deploy notes
 ----------------------
