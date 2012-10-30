@@ -1162,7 +1162,7 @@
 
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-					<mx:VBox verticalGap="6" label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+					<mx:VBox verticalGap="6" label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="Experiment"  width="100" />
@@ -1183,6 +1183,14 @@
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@submitterName}" width="400" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}">
+							<mx:Label text="Submitter Email" width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@email}" width="400"/>
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@phone != ''}" visible="{this.selectedExperiment.@phone != ''}">
+							<mx:Label text="Submitter Phone" width="100"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@phone}" width="400"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" />
