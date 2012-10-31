@@ -1044,7 +1044,7 @@
 	  <!-- Copy example orion config files -->
       <mkdir dir="${sandbox.dir}/server/orion/config" />
 	  <copy todir="${sandbox.dir}/server/orion/config">
-	    <fileset dir="${basedir}/orion_config">
+	    <fileset dir="${basedir}/config/orion_config">
 	      <include name="*/**"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
@@ -1150,7 +1150,7 @@
 	  <!-- Copy example tomcat config files -->
       <mkdir dir="${sandbox.dir}/server/tomcat/conf" />
 	  <copy todir="${sandbox.dir}/server/tomcat/conf">
-	    <fileset dir="${basedir}/tomcat_config">
+	    <fileset dir="${basedir}/config/tomcat_config">
 	      <include name="*/**"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
