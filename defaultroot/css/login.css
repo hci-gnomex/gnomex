@@ -26,10 +26,10 @@ h3 {
 	margin-top: 0px;}
 
 a {
-	color: #9E8D8D;
+	color: #696969;
 	padding: 4px;
 	padding-top: 5px;
-	font-size: 12pt;
+	font-size: 11pt;
 	text-decoration: underline;
 }
 a:active {
@@ -45,6 +45,7 @@ a.login {
 	padding-left: 0px;
 	padding-top: 15px;
 	padding-bottom: 2px;
+     font-size: 12 pt;
 }
   
 a.button {
