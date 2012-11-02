@@ -1,0 +1,217 @@
+GNomEx Configuration Guide
+--------------------------------
+
+
+Dictionaries
+------------
+Many aspects of GNomEx are configurable through dictionaries.  To edit dictionary entries, 
+click on the 'Dictionaries' link in the top right corner of the GNomEx nav bar.  
+The dictionary editor displays all of the different dictionaries in a tree.  
+Click on the folder to see a detailed list of the dictionary entries.  Click on an 
+individual node in the tree to edit a particular entry.  Use the + and - buttons to add 
+or remove a particular dictionary.  If the dictionary entry is used by any reference 
+tables, foreign-key constraints in the database will prevent it from being deleted.  
+Instead, you will need to uncheck the isActive flag on the dictionary entry.  
+
+The following sections describe key configuration points accomplished through dictionary 
+editing.
+
+1.  Properties
+
+    There are a number of configurable properties that you need to 
+    set for your installation.  Click on the upper-right link 'Dictionaries'.
+    Scroll in the left-hand tree to find the node called 'Admin - Property'.  Review
+    the entries and make sure you modify the following properties to 
+    match your environment.
+
+    General installing properties:
+     - production_server: The DNS name or IP address of the production app server.
+     - core_facility_name. 
+     - contact_email_core_facility: The email address that appears on the about page 
+                                    is used as the sender email for auto-generated 
+                                    emails.
+     - contact_name_core_facility
+     - contact_phone_core_facility     
+
+    
+    These are all of the directories on the file system for storing GNomEx data.
+      -	experiment_directory      
+      -	experiment_test_directory: If you have a test server, set this to the directory
+                                   on your test server.  This allows you to write
+                                   test data, but read (download) from the production
+                                   directory.                                   
+      -	analyis_directory        
+      -	analysis_test_directory   
+      -	flowcell_directory				
+      -	flowcell_test_directory   
+      -	lucene_index_directory
+      -	lucene_experiment_index_directory:  This is the directory that will contain
+                                            the lucene experiment index.
+      -	lucene_analysis_index_directory
+      -	lucene_protocol_index_directory	
+      - temp_directory
+
+    A number of properties are used to configure the instructions that appear on 
+    the 'Submit Request' window:
+      - qc_instruction
+      - workauth_instructions
+      - illumina_barcoding_note
+
+2.  Sample Types.
+
+    When submitting an experiment request, the user must specify the sample type 
+    from a dropdown.  GNomEx installs with a number of standard sample types.  If 
+    you want to add a sample type, you must do so in the following dictionaries:
+    
+    - Sample Type:  Add your sample type here.
+    - Sample Type (Request defaults):  Add an entry to indicate what kind of experiments 
+                                       (request category) this sample type is used.
+    - Sample Prep Method (Sample type defaults):  Add entries to indicate which nucleic  
+                                                  acid extract methods (sample prep methods) 
+                                                  are valid for the sample type.
+
+3.  Nucleic Acid Extraction methods.
+
+    When submitting an experiment request, the user must specify the nucleic acid 
+    extraction method from a dropdown.  GNomEx pulls this list from a dictionary 
+    called 'Sample Prep Method'.  To add a new nucleic acid extract method, you must 
+    edit the following dictionaries:
+
+    - Sample Prep Method:  Add your nucleic acid extract method here.
+    - Sample Prep Method (Request defaults):  Add entries to indicate what kind of 
+                                              experiments (request category) this nucleic acid
+                                              extraction method is valid for.
+    - Sample Prep Method (Sample type defaults): Add entries to indicate which nucleic acid 
+                                                  extract methods (sample prep methods) are 
+                                                  valid for the sample type.
+
+3.  Microarray platforms:
+
+    GNomEx can support both one and two-channel microarray experiments.  The GNomEx default 
+    configuration supports both the Agilent and Affymetrix microarray platforms.  To add 
+    a new microarray experiment platform, you must edit the following 
+    dictionaries:
+
+    - Request Category:  Add a new microarray platform here.  Indicate if it is a one 
+                         or two-channel microarray experiment.
+    - Application: Review the list of microarray applications.  Add any if necessary.
+    - Applications allowed for Request Category:  Indicate which microarray applications 
+                                                  are valid for this request category.
+    - Add sample types and nucleic acid extraction methods (see above).
+
+4.  Sample quality applications
+
+    The GNomEx default configuration supports Bioanalyzer and QuBit picoGreen 
+    sample quality experiments.  To support another QC platform, edit the following 
+    dictionaries:
+
+    - Application
+    - Applications allowed for Request Category
+    - Add sample types and nucleic acid extraction methods (see above).
+
+    To modify the properties or add a new Bioanalyzer chip type, modify the following 
+    dictionary:
+
+    - Sample Bioanalyzer Chip Type
+
+
+5.  Next-gen sequencing applications
+
+    The GNomEx default configuration supports the Illumina next-gen sequencing experiment.  
+    If you are using this platform, you can modify the following dictionary as new 
+    sequencing applications are adopted by your core facility:
+
+    - Application
+    - Applications allowed for Request Category
+
+    If you are using a different next-gen sequencing platform, you can still use GNomEx 
+    to submit experiment requests; however, the terminology (flow cell, flow cell channel, 
+    cluster generation) is geared toward the Illumina platform at this time.  To
+    introduce a different next-gen sequencing platform, edit the following 
+    dictionaries:
+
+    - Request Category:  Add a new next-gen sequencing platform here.  
+    - Application
+    - Applications allowed for Request Category
+    - Add sample types and nucleic acid extraction methods (see above).
+    - Illumina Seq Lib Protocol:  Specify the specify lib prep kits available.
+    - Illumina Seq Lib Protocol (applications):  Associate the lib kits with the 
+                                                 sequencing application.
+    - Illumina Number of Sequencing Cycles:  Indicate the number of sequencing cycles 
+                                             performed for the run (read length)
+    - Illumina Single vs. Paired-end Reads
+    - Illumina Barcode Scheme:  Define a group of barcode tags (of same length) to 
+                                be used to multiplex runs.
+    - Illumina Barcode:  Define each unique barcode (sequence) tag.
+
+
+
+
+
+
+
+
+Workflows
+---------
+
+The microarray workflow is designed to work for both one and two-channel experiments 
+and supports slide sets as well as multi-array slides, so it can be easily configured
+to work with other microarray platforms (see dictionary configuration). 
+
+The sample quality workflow is designed to handle Agilent Bioanalyzer, an Invitrogen Qubit, 
+and a NanoDrop spectrophotometer experiments.
+
+The next-gen sequencing workflow supports the Illumina Genome Analyzer platform and
+uses terminology (cluster generation, flow cell, flow cell channels) and functionality
+(multiplexing of barcoded samples in channels) specific to this platform.  To
+support other next-gen sequencing workflows or additional workflows will require
+software development effort on your part.
+
+For example, here is a list of possible changes to the software that would
+be required to support the SOLiD and a FLX/454 next gen sequencing platforms:
+
+1.  The Cluster Gen workflow would have to be changed to support 
+different terminology (flowcell vs. picotiter plate) or general 
+terminology, different configurations (number of "channels") and the 
+ability multiplex.
+ 
+2.  Library prep workflow steps and data captured at each step may vary.  
+
+3. Flow Cell stock would have to be configurable to support different 
+dilutions.  
+ 
+3.  If multiple sequencing instruments (same platform) are supported, 
+the Cluster Gen and Sequencing work lists should be separated to 
+support independent pipelines.
+ 
+4.  If more than one next-gen sequencing platform is supported by a 
+facility, the workflow should be separated out into different work 
+lists and a separate tab on the GNomEx Workflow window.
+
+To make these kind of changes, take a look at the following classes to 
+get an idea of how workflows are supported:
+
+Java Source code (in gnomex/src)
+  hci.gnomex.model.WorkItem - The POJO class that represents items on a work list.
+
+  hci.gnomex.controller.GetWorkItemList - The servlet to return a specific work list.
+  hci.gnomex.model.WorkItemFilter - The helper clas to compose the hibernate queries for
+                                    work lists.
+                                  
+  hci.gnomex.controller.SaveWorkItem... - The servlets to save the data captured
+                                          at each workflow step; a different servlet
+                                          for each workflow step.
+                                    
+                                    
+ Flex Source (in gnomex/flex/views/workflow)
+  NavWorkflowView.mxml - The main view, showing the 2 tabs, one for microarray workflow,
+                         another for the Illumina workflow.
+  Workflow....View.mxml - The work list screen for each workflow step; a different
+                          view for each workflow step.                       
+
+
+
+
+Billing
+-------
+(to be written)

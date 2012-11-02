@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  layout="absolute" width="476" height="308" showCloseButton="true" close="{PopUpManager.removePopUp(this)}">
+	
+	
+<mx:HTTPService  
+	id="getUsageDetail" 
+	url="GetUsageDetail.gx"
+	destination="getUsageDetail"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetUsageDetail(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get usage detail', event)"
+	method="POST"   
+	useProxy="false">
+</mx:HTTPService>
+
+<mx:XMLListCollection id="entries" source="{getUsageDetail.lastResult.Entry}"/>
+	
+<mx:Script>
+<![CDATA[
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	import mx.collections.Grouping;
+	import mx.collections.GroupingCollection;
+	import mx.collections.GroupingField;
+	import mx.collections.IHierarchicalCollectionView;
+	
+	[Bindable]
+	private var params:Object = null;
+	
+	public var groupingCollection:GroupingCollection = null;
+	
+	public function init(params:Object):void {
+		this.params = params;
+		getUsageDetail.send(params);
+	}
+	
+	private function onGetUsageDetail(event:ResultEvent):void {
+		if (getUsageDetail.lastResult.name() == "UsageDetail") {
+			if (params.fieldName == "experimentCount") {
+				this.theStack.selectedIndex = 0;
+				this.experimentGrid.dataProvider = null;
+				createGroupingCollection();
+				this.experimentGrid.dataProvider = groupingCollection;
+				this.experimentGrid.validateNow();
+			} else if (params.fieldName == "analysisCount") {
+				this.theStack.selectedIndex = 1;				
+				this.analysisGrid.dataProvider = null;
+				createGroupingCollection();
+				this.analysisGrid.dataProvider = groupingCollection;
+				this.experimentGrid.validateNow();
+			} else if (params.fieldName == "uploadCount") {
+				this.theStack.selectedIndex = 2;
+				this.uploadGrid.dataProvider = null;
+				createGroupingCollection();
+				this.uploadGrid.dataProvider = groupingCollection;
+				this.experimentGrid.validateNow();
+			} else if (params.fieldName == "downloadCount") {
+				this.theStack.selectedIndex = 3;
+				this.downloadGrid.dataProvider = null;
+				createGroupingCollection();
+				this.downloadGrid.dataProvider = groupingCollection;
+				this.downloadGrid.validateNow();
+			}
+		} else {
+			mx.controls.Alert.show("An error occurred while getting usage detail.");
+		} 
+	}
+	
+	private function createGroupingCollection():void {
+		groupingCollection = new GroupingCollection();
+		groupingCollection.source = entries;
+		var group:Grouping = new Grouping();
+		var gf:GroupingField = new GroupingField();
+		gf.name = "@labName";
+		group.fields = [gf];
+		groupingCollection.grouping  = group;
+		groupingCollection.refresh(); 		
+	}
+		
+]]>
+</mx:Script>
+	<mx:ViewStack  creationPolicy="all" id="theStack" width="100%" height="100%">
+		<mx:VBox width="100%" height="100%">
+			<mx:AdvancedDataGrid  id="experimentGrid" width="100%" height="100%" 				
+								  allowMultipleSelection="false" 
+								  horizontalScrollPolicy="auto" 
+								  sortableColumns="false"
+								  sortExpertMode="true"  
+								  defaultLeafIcon="{null}" 
+								  displayItemsExpanded="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn headerText="Lab" width="200" dataField="@labNameDisplay"/>
+					<mx:AdvancedDataGridColumn headerText="Date" width="60" dataField="@createDate"/>
+					<mx:AdvancedDataGridColumn headerText="Experiment #" width="60" dataField="@number"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>			 
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%">
+			<mx:AdvancedDataGrid  id="analysisGrid" width="100%" height="100%" 				
+								  allowMultipleSelection="false" 
+								  horizontalScrollPolicy="auto" 
+								  sortableColumns="false"
+								  sortExpertMode="true"  
+								  defaultLeafIcon="{null}" 
+								  displayItemsExpanded="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn headerText="Lab" width="200" dataField="@labNameDisplay"/>
+					<mx:AdvancedDataGridColumn headerText="Date" width="60" dataField="@createDate"/>
+					<mx:AdvancedDataGridColumn headerText="Analysis #" width="60" dataField="@number"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>			 
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%">
+			<mx:AdvancedDataGrid  id="uploadGrid" width="100%" height="100%" 				
+								  allowMultipleSelection="false" 
+								  horizontalScrollPolicy="auto" 
+								  sortableColumns="false"
+								  sortExpertMode="true"  
+								  defaultLeafIcon="{null}" 
+								  displayItemsExpanded="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn headerText="Lab" width="200" dataField="@labNameDisplay"/>
+					<mx:AdvancedDataGridColumn headerText="Date" width="60" dataField="@transferDate"/>
+					<mx:AdvancedDataGridColumn headerText="#" width="60" dataField="@number"/>
+					<mx:AdvancedDataGridColumn headerText="Uploads" width="60" dataField="@uploadCount"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>			 
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%">
+			<mx:AdvancedDataGrid  id="downloadGrid" width="100%" height="100%" 				
+								  allowMultipleSelection="false" 
+								  horizontalScrollPolicy="auto" 
+								  sortableColumns="false"
+								  sortExpertMode="true"  
+								  defaultLeafIcon="{null}" 
+								  displayItemsExpanded="true">
+				<mx:columns>
+					<mx:AdvancedDataGridColumn headerText="Lab" width="200" dataField="@labNameDisplay"/>
+					<mx:AdvancedDataGridColumn headerText="Date" width="60" dataField="@transferDate"/>
+					<mx:AdvancedDataGridColumn headerText="#" width="60" dataField="@number"/>
+					<mx:AdvancedDataGridColumn headerText="Downloads" width="60" dataField="@downloadCount"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>			 
+		</mx:VBox>
+	</mx:ViewStack>
+	
+</mx:TitleWindow>

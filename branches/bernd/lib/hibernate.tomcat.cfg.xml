@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Use a Tomcat 5.5 JNDI datasource -->
+
+	 <property name="connection.datasource">java:openejb/Resource/jdbc/gnomex</property>
+	 <!-- <property name="connection.datasource">java:comp/env/jdbc/gnomex</property> -->
+
+
+      <property name="show_sql">false</property>
+	 <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+	 <property name="current_session_context_class">thread</property>
+	 <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+ 
+
+  	 <mapping resource="SchemaGNomEx.hbm.xml"/>
+        
+    </session-factory>
+
+</hibernate-configuration>

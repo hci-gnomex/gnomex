@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add folder" width="374" height="118" defaultButton="{okButton}" titleIcon="@Embed(source='../../assets/folder_add.png')">
+  
+
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+	
+		[Bindable]
+		public var uploadWindow:AnalysisUploadWindow = null;
+
+		
+		private function addFolder():void {
+			uploadWindow.addDownloadFolder(folderName.text);
+			PopUpManager.removePopUp(this);
+		}
+		
+	
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%" styleName="form">
+		<mx:VBox  height="100%" verticalGap="0" width="100%"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<mx:Label text="Folder name"/>
+			<mx:TextInput id="folderName" width="100%"/>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="OK" id="okButton" click="addFolder()" enabled="{folderName.text != ''}" />
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

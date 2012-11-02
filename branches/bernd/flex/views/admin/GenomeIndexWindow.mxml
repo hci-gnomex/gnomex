@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="714" height="380" 
+				 creationComplete="{init()}"
+				 xmlns:util="views.util.*" 
+				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				title="Configure Genome Indexes">
+	
+<mx:HTTPService  
+		id="saveGenomeIndex" 
+		url="SaveGenomeIndex.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveGenomeIndex(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save sample annotation', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+	
+<mx:HTTPService  
+		id="deleteGenomeIndex" 
+		url="DeleteGenomeIndex.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDeleteGenomeIndex(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete sample annotation', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+		
+<mx:Script>
+	<![CDATA[
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.util.DirtyNote;
+	import views.admin.GenomeIndexEvent;
+		
+	private var idGenomeIndex:Object = null;
+		
+	private function setDirty():void {
+		if (saveButton.enabled) {
+			dirty.setDirty();
+		}
+	}
+	
+	private function init():void {
+		genomeIndexes = new XMLListCollection();
+		for each(var sc:XML in parentApplication.genomeIndexList) {
+			genomeIndexes.addItem(sc.copy());
+		}
+		parentApplication.removeEventListener(GenomeIndexEvent.DATA_REFRESHED,
+			onGenomeIndexListRefreshed);		                                  
+		parentApplication.addEventListener(GenomeIndexEvent.DATA_REFRESHED,   
+			onGenomeIndexListRefreshed);
+		
+	}	
+			
+	private function onGenomeIndexListRefreshed(event:Event):void{
+		genomeIndexes = new XMLListCollection();
+		for each(var sc:XML in parentApplication.genomeIndexList) {
+			genomeIndexes.addItem(sc.copy());
+		}
+		dirty.resetDirty();
+	}	
+		
+	private function onSelectGenomeIndex():void {
+		if (genomeIndexList.selectedItem != null) {
+			theViews.selectedIndex = 1;
+			
+			setOrganismCombo();
+
+			dirty.resetDirty();
+		}
+	}
+		
+	private function setOrganismCombo():void {
+		this.organismCombo.selectedItem = null;
+		for each(var organism:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive=='Y')) {
+			if (organism.@idOrganism == genomeIndexList.selectedItem.@idOrganism) {
+				this.organismCombo.selectedItem = organism;
+				break;
+			}
+		}
+	}
+		
+
+	private function addGenomeIndex():void {
+		var newGenomeIndex:XML = new XML("<GenomeIndex " +
+			" idGenomeIndex=''" +
+			" genomeIndexName='enter name here..'" +
+			" webServiceName='enter web service name here..'" +
+			" idOrganism=''" +
+			" isActive='Y'" +
+			" canUpdate='Y'"  +
+			" canDelete='Y'" + 
+			" canRead='Y'" +
+			" />");
+
+		genomeIndexes.addItemAt(newGenomeIndex, 0);
+		 
+		
+		genomeIndexList.selectedItem = newGenomeIndex;
+		genomeIndexList.scrollToIndex(genomeIndexList.selectedIndex);
+		idGenomeIndex = "";
+		
+		this.organismCombo.selectedItem = null;
+		
+		setDirty();
+
+	}
+		
+	private function removeGenomeIndex():void {
+		if (genomeIndexList.selectedItem == null) {
+			return;
+		}
+		idGenomeIndex = "";
+		
+		var params:Object = new Object();
+		params.idGenomeIndex = genomeIndexList.selectedItem.@idGenomeIndex;
+		deleteGenomeIndex.send(params);
+	}
+		
+	private function onDeleteGenomeIndex(event:ResultEvent): void {
+		if (deleteGenomeIndex.lastResult.name() == "SUCCESS") {
+			parentApplication.getGenomeIndexList.send();
+			
+		} else {
+			mx.controls.Alert.show(deleteGenomeIndex.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+		
+		
+	private function save():void {
+		if (genomeIndexList.selectedItem == null) {
+			return;
+		}
+		
+		if(gnIdxName.text.length == 0) {
+			mx.controls.Alert.show("Please provide a value for the Name field.", "Name Required");
+			return;
+		}
+		
+		if(gnIdxWebServiceName.text.length == 0) {
+			mx.controls.Alert.show("Please provide a value for the Web Service Name field.", "Web Service Name Required");
+			return;
+		}
+		
+		if(this.organismCombo.selectedItem == null || this.organismCombo.selectedItem.@value=='') {
+			mx.controls.Alert.show("Please provide a value for the Default Organism field.", "Default Organism Required");
+			return;
+		}
+		
+		var params:Object = new Object();
+		params.idGenomeIndex = genomeIndexList.selectedItem.@idGenomeIndex;
+		params.genomeIndexName = gnIdxName.text;
+		params.webServiceName = gnIdxWebServiceName.text;	
+		params.isActive = this.isActive.selected ? "Y" : "N";
+		params.idOrganism = this.organismCombo.selectedItem.@idOrganism;
+		saveGenomeIndex.send(params);
+		
+	}
+		
+	private function onSaveGenomeIndex(event:ResultEvent): void {
+		if (saveGenomeIndex.lastResult.name() == "SUCCESS") {
+			idGenomeIndex = saveGenomeIndex.lastResult.@idGenomeIndex;
+
+			parentApplication.getGenomeIndexList.send();
+		} else {
+			mx.controls.Alert.show(saveGenomeIndex.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}				
+		
+	]]>
+</mx:Script>
+	
+<mx:XMLListCollection id="genomeIndexes"/>
+<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
+		<mx:LinkButton label="Add Genone Index" styleName="linkMenuButton" click="addGenomeIndex()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
+		<mx:LinkButton label="Remove Genome Index" styleName="linkMenuButton" click="removeGenomeIndex()" enabled="{genomeIndexList.selectedItem != null &amp;&amp; genomeIndexList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+	</mx:HBox>
+	
+<mx:HDividedBox height="100%" width="100%" >
+  <mx:VBox height="100%" width="200" styleName="panelBox">
+		<mx:List id="genomeIndexList" width="100%" height="100%" labelField="@genomeIndexName" dataProvider="{genomeIndexes}" 
+				 itemClick="{onSelectGenomeIndex()}">
+		</mx:List>
+  </mx:VBox>	
+  <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
+	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
+	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
+		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
+			 <mx:HBox width="100%" verticalGap="0">
+			  <mx:Label text="Name:" width="120"/>
+			  <mx:TextInput text="{genomeIndexList.selectedItem.@genomeIndexName}" change="{setDirty()}" width="100%" id="gnIdxName"  maxChars="120"/>
+			  <mx:HBox >
+			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+			    <mx:selected>{genomeIndexList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
+			   </mx:CheckBox>
+			   <mx:Spacer width="80"/>
+			  </mx:HBox>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+			 	<mx:Label text="Web Service Name:" width="120"/>
+			 	<mx:TextInput text="{genomeIndexList.selectedItem.@webServiceName}" change="{setDirty()}" width="100%" id="gnIdxWebServiceName"  maxChars="120"/>
+			 </mx:HBox>
+			 <mx:HBox width="100%" >
+			  <mx:Label text="Organism:" width="120"/>
+			  <mx:ComboBox width="100%" id="organismCombo"
+					  labelField="@display"
+					  change="{setDirty()}"
+					  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive=='Y')}">
+			  </mx:ComboBox>
+
+			 </mx:HBox>
+		</mx:VBox>
+		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+			<util:DirtyNote id="dirty" />
+			<mx:Button id="saveButton" label="Save"  enabled="{genomeIndexList.selectedItem.@canUpdate == 'Y' ? true : false}"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+			
+		</mx:ControlBar>
+	</mx:VBox>
+  </mx:ViewStack>
+
+	
+</mx:HDividedBox>
+</mx:VBox>
+	
+</mx:TitleWindow>

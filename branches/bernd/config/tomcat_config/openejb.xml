@@ -1,0 +1,37 @@
+<Resource id="jdbc/gnomex" type="DataSource"> 
+JdbcDriver com.microsoft.sqlserver.jdbc.SQLServerDriver 
+JdbcUrl jdbc:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor
+UserName SysGNomEx
+Password gnomex_password_goes_here
+  JtaManaged        true
+  DefaultAutoCommit   true
+  InitialSize       3
+  MaxActive         20
+  MinIdle           20
+  MaxIdle           0
+  MaxWait           50000
+  ValidationQuery   SELECT 1
+  TestOnBorrow      true
+  TestOnReturn      false
+  TestWhileIdle     false
+</Resource> 
+
+
+<Resource id="jdbc/gnomexGuest" type="DataSource"> 
+JdbcDriver com.microsoft.sqlserver.jdbc.SQLServerDriver 
+JdbcUrl jdbc:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor
+UserName GuestGNomEx
+Password gnomex_guest_password_goes_here
+  JtaManaged        true
+  DefaultAutoCommit   true
+  InitialSize       3
+  MaxActive         20
+  MinIdle           20
+  MaxIdle           0
+  MaxWait           50000
+  ValidationQuery   SELECT 1
+  TestOnBorrow      true
+  TestOnReturn      false
+  TestWhileIdle     false
+</Resource> 
+

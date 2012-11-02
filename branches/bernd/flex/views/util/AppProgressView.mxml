@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas       
+	xmlns:mx="http://www.adobe.com/2006/mxml" width="318" height="300"  
+	label="horizontal" 
+	xmlns:util="views.util.*"  backgroundAlpha="0.0" backgroundColor="#FFFFF"> 
+	 <mx:VBox   width="100%" height="100%" id="mainArea"  horizontalAlign="center" verticalAlign="middle" backgroundColor="#FFFFFF" verticalGap="20" borderStyle="outset">
+		 <mx:Image source="assets/hciLogoSplash.png" scaleContent="false"/>
+		 
+		 <mx:Text text="Initializing GNomEx"  id="label1"  styleName="progressLabel" fontSize="14" fontWeight="bold"/>	 	
+	 </mx:VBox> 
+	 <mx:states>      
+	 	 <mx:State name="StartupState">
+	 	 	 <mx:SetProperty target="{label1}" name="text">
+	 	 	 </mx:SetProperty>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalAlign" value="middle"/>
+	 	 </mx:State>
+	 	 <mx:State name="LoadingState">
+	 	 	 <mx:RemoveChild target="{label1}"/>
+	 	 	 <mx:AddChild relativeTo="{mainArea}" position="lastChild">
+	 	 	 	 <mx:ProgressBar id="bar"  
+	 	 	 	 	   styleName="appProgressBar"
+	 	 	 	        minimum="0" 
+	 	 	 	        visible="true"         
+	 	 	 	        maximum="100" 
+	 	 	 	   	labelPlacement="top" 
+	 	 	 	   	textAlign="left" 
+	 	 	 	        direction="right" mode="manual" 
+	 	 	 	         label="Loading application settings..."  fontWeight="normal" color="#5D5D5D"/>
+	 	 	 </mx:AddChild>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalGap" value="30"/>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalAlign" value="middle"/>
+	 	 </mx:State>
+	 	 <mx:State name="AuthenticationFailedState" basedOn="StartupState">
+	 	 	 <mx:SetProperty target="{label1}" name="text">
+	 	 	 	 <mx:value>Unable to authenticate to GNomEx.</mx:value>
+	 	 	 </mx:SetProperty>
+	 	 	 <mx:SetStyle name="verticalAlign" value="middle"/>
+	 	 	 <mx:AddChild relativeTo="{mainArea}" position="lastChild">
+	 	 	 	 <mx:Label text="Please try logging in again." styleName="progressLabel" fontSize="16" color="#7B6D64" fontStyle="italic" fontWeight="bold"/>
+	 	 	 </mx:AddChild>
+	 	 	 <mx:SetStyle target="{label1}" name="color" value="#7B6D64"/>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalGap" value="0"/>
+	 	 	 <mx:SetStyle target="{label1}" name="paddingTop" value="20"/>
+	 	 </mx:State>
+	 </mx:states>
+
+</mx:Canvas>

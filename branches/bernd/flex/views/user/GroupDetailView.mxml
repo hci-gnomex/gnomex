@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml"  
+		 xmlns:util="views.util.*"
+		 xmlns:renderers="views.renderers.*" 
+		 height="100%" width="100%" label="Group Detail" 
+		 >
+	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentDocument.fullLab.@name}" />
+	
+	<mx:HTTPService   
+		id="saveGroup" 
+		url="SaveLab.gx"
+		destination="saveGroup" 
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSaveGroup(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save group', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>    
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService 
+		id="uploadOrder" 
+		url="UploadPurchaseOrder.gx"
+		destination="uploadOrder"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		method="POST"
+		fault="parentApplication.onFailHttpRequest('Failed to upload Purchase Order', event)"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="getLab" 
+		url="GetLab.gx"
+		destination="getLab"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="generateUserAccountEmail" 
+		url="GenerateUserAccountEmail.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="onGenerateUserAccountEmail(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to generate user account email', event)"
+		destination="generateUserAccountEmail"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
+	<mx:Script>
+		<![CDATA[
+			import flash.net.FileReference;
+			
+			import hci.flex.controls.CheckBox;
+			import hci.flex.controls.ComboBox;
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.dictionary.DictionaryEditor;
+			import hci.flex.dictionary.DictionaryEvent;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DataGridEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.util.InstitutionWindow;
+			
+			private var savedIdLab:Object = '';
+			private var dictionaryEditor:DictionaryEditor;
+			private var fileRef:FileReference = new FileReference();
+			public var uploadPurchaseOrderURL:String;
+			
+			public function initializeData():void {
+				// Get the list of all users
+				parentApplication.navUsersView.getAppUserList.send();
+				
+				appUsers.refresh();
+				activeAppUsers.refresh();
+				
+				parentApplication.promptedAppUserList.refresh();
+				
+				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
+				
+				pendingBillingAccounts.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingPendingAccountChange);
+				pendingBillingAccounts.refresh();
+			}
+			
+			private function underlyingPendingAccountChange(event:CollectionEvent):void {
+				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+					// ignore refresh and resets 
+					return;
+				}
+				
+				dirty.setDirty();
+			}
+			
+			public function promptToSaveDirty():void {
+				if (dirty.isDirty()) {
+					Alert.show("Your changes to group " + parentDocument.fullLab.@name + " have not been saved.  Save now?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToSaveDirty);
+					
+				} 
+			}
+			
+			
+			private function onPromptToSaveDirty(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					save();
+				} else {
+					dirty.resetDirty();
+				}
+			}
+			
+			private function getSelectedCoreFacilityId():String {
+				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+					return parentApplication.coreFacilitiesICanManage[0].@value;
+				} else {
+					return coreFacilityCombo.selectedItem.@value;
+				}
+			}
+			
+			private function addBillingAccount():void {
+				dirty.setDirty();
+				var node:XML = new XML("<BillingAccount " +
+					" idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
+					" accountName='" + accountName.text + "'" +
+					" idCoreFacility='" + getSelectedCoreFacilityId() + "'" +
+					" expirationDateOther=''" + 
+					" startDateOther=''" +
+					" accountNumberBus=''" + 
+					" accountNumberOrg=''" + 
+					" accountNumberFund=''" + 
+					" accountNumberActivity=''" + 
+					" accountNumberProject=''" +  
+					" accountNumberAccount=''" + 
+					" accountNumberAu=''" + 
+					" accountNumberYear=''" +  
+					" shortAcct=''" +
+					" isDirty='Y'" +
+					" isPO='N'" +
+					" isApproved='Y'" +
+					" isSelectedPeerReviewedFunding='false'" + 
+					"/>");
+				allApprovedAccounts.addItem(node);
+				accountName.text = '';
+				
+				refreshDisplayedAccounts();
+			}
+			
+			private function removeBillingAccount():void {
+				dirty.setDirty();
+				if (billingAccountGrid.selectedIndex != -1) {
+					var ba:Object = billingAccountGrid.selectedItem;
+					allApprovedAccounts.removeItemAt( allApprovedAccounts.getItemIndex(ba) );
+					billingAccounts.removeItemAt( billingAccounts.getItemIndex(ba) );
+				}
+			}
+			private function addInstitution():void {
+				dirty.setDirty();
+				var node:XML = new XML("<Institution " +
+					" idInstitution='" + institutionCombo.selectedItem.@idInstitution + "'" +
+					" institution='" + institutionCombo.selectedItem.@institution + "'" +
+					"/>");
+				institutions.addItem(node);
+			}
+			
+			private function removeInstitution():void {
+				dirty.setDirty();
+				if (institutionsGrid.selectedIndex != -1) {
+					institutions.removeItemAt(institutionsGrid.selectedIndex);
+				}
+			}
+			
+			private function addMember():void {
+				dirty.setDirty();
+				var node:XML = new XML("<AppUser " +
+					" idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
+					" displayName='" + memberCombo.selectedItem.@displayName + "'" +
+					"/>");
+				members.addItem(node);
+				memberCombo.selectedIndex = -1;
+			}
+			
+			private function removeMember():void {
+				dirty.setDirty();
+				if (membersGrid.selectedIndex != -1) {
+					members.removeItemAt(membersGrid.selectedIndex);
+				}
+			}
+			private function addCollaborator():void {
+				dirty.setDirty();
+				var node:XML = new XML("<AppUser " +
+					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
+					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+					"/>");
+				collaborators.addItem(node);
+				collaboratorCombo.selectedIndex = -1;
+			}
+			
+			private function removeCollaborator():void {
+				dirty.setDirty();
+				if (collaboratorsGrid.selectedIndex != -1) {
+					collaborators.removeItemAt(collaboratorsGrid.selectedIndex);
+				}
+			}
+			private function addManager():void {
+				dirty.setDirty();
+				var node:XML = new XML("<AppUser " +
+					" idAppUser='" + managerCombo.selectedItem.@idAppUser + "'" +
+					" displayName='" + managerCombo.selectedItem.@displayName + "'" +
+					"/>");
+				managers.addItem(node);
+				managerCombo.selectedIndex = -1;
+			}
+			
+			private function removeManager():void {
+				dirty.setDirty();
+				if (managersGrid.selectedIndex != -1) {
+					managers.removeItemAt(managersGrid.selectedIndex);
+				}
+			}
+			
+			private function getExpirationDateString(item:Object,col:int):String
+			{
+				return item.@expirationDateOther.toString();
+			}
+			
+			private function getStartDateString(item:Object,col:int):String
+			{
+				return item.@startDateOther.toString();
+			}
+			
+			
+			private function isChartFieldFilledIn(ba:Object):Boolean {
+				if (ba.@accountNumberBus != '' && 
+					ba.@accountNumberBus != '' &&
+					ba.@accountNumberOrg != '' &&
+					ba.@accountNumberFund != '' &&
+					(ba.@accountNumberActivity != '' || ba.@accountNumberProject != '') &&
+					ba.@accountNumberAccount != '' &&
+					ba.@accountNumberAu != '' &&
+					ba.@accountNumberYear != '') {
+					return true;		
+				} else {
+					return false;
+				}
+			}
+			
+			private function isChartFieldBlank(ba:Object):Boolean {
+				if (ba.@accountNumberBus == '' && 
+					ba.@accountNumberBus == '' &&
+					ba.@accountNumberOrg == '' &&
+					ba.@accountNumberFund == '' &&
+					ba.@accountNumberActivity == '' && 
+					ba.@accountNumberProject == '' &&
+					ba.@accountNumberAccount == '' &&
+					ba.@accountNumberAu == '' &&
+					ba.@accountNumberYear == '') {
+					return true;		
+				} else {
+					return false;
+				}
+			}
+			
+			private function blankOutChartFields(ba:Object):void {
+				ba.@accountNumberBus = '';
+				ba.@accountNumberBus = '';
+				ba.@accountNumberOrg = '';
+				ba.@accountNumberFund = '';
+				ba.@accountNumberActivity = ''; 
+				ba.@accountNumberProject = '';
+				ba.@accountNumberAccount = '';
+				ba.@accountNumberAu = '';
+				ba.@accountNumberYear = '';
+			}
+			
+			private function validateAndSave():void {
+				
+				// Check for account chartfield numbers before saving
+				var warningMessage:String = "";
+				for each(var ba:Object in allApprovedAccounts) { 
+					// Only validate dirty billing accounts
+					if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
+						if(ba.@isPO == "" || ba.@isPO == "N") {
+							if (!this.isChartFieldFilledIn(ba)) {
+								if (warningMessage != "") {
+									warningMessage += "\n";
+								}
+								warningMessage += "Not all of the chart fields have been filled in for account " + ba.@accountName + ".";
+							}
+						}else if(ba.@isPO == "Y") {
+							if (!this.isChartFieldBlank(ba)) {
+								if (warningMessage != "") {
+									warningMessage += "\n";
+								}
+								warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
+							}
+						}
+					}
+				}	
+				
+				if (warningMessage == "") {
+					save();
+				}
+				else {
+					Alert.show(warningMessage + "\n\nDo you want to proceed with save?",
+						"Warning", 
+						(Alert.YES | Alert.NO), 
+						this,
+						onPromptToSave); 
+				}
+			}
+			
+			private function onPromptToSave(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					save();
+				}
+			}
+			
+			private function save():void {
+				
+				// Blank out chartfields on PO accounts
+				for each(var ba:Object in allApprovedAccounts) {
+					if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
+						if(ba.@isPO == "Y") {
+							this.blankOutChartFields(ba);
+						}
+					}
+				}
+				
+				var params:Object = new Object();
+				
+				if (parentDocument.fullLab != null) {
+					params.idLab = parentDocument.fullLab.@idLab;			
+				} else {
+					params.idLab = '';
+				}
+				
+				checkEmailFormat();
+				
+				params.firstName =  this.groupFirstName.text;
+				params.lastName =  this.groupLastName.text;
+				params.department = this.department.text;
+				params.contactName =  this.contactName.text;
+				params.contactAddress = this.contactAddress.text;
+				params.contactCity =  this.contactCity.text;
+				params.contactCodeState =  this.contactStateCombo.selectedItem != null ? this.contactStateCombo.selectedItem.@value : "";
+				params.contactZip = this.contactZip.text; 
+				params.contactPhone = this.contactPhone.text;
+				params.contactEmail = this.contactEmail.text;
+				params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
+				params.isActive = this.isActiveCheckBox.selected ? "Y" : "N";
+				params.isExternalPricing = this.isExternalPricingAcademicButton.selected ? "Y" : "N";
+				params.isExternalPricingCommercial = this.isExternalPricingCommercialButton.selected ? "Y" : "N";
+				params.excludeUsage = this.excludeUsageCheckBox.selected ? "Y" : "N"; 
+				
+				for each(var acct:Object in allApprovedAccounts) {
+					acct.@expirationDate = acct.@expirationDateOther;
+					acct.@startDate = acct.@startDateOther;
+				}
+				
+				for each(var pendingAcct:Object in pendingBillingAccounts) {
+					pendingAcct.@expirationDate = pendingAcct.@expirationDateOther;
+					pendingAcct.@startDate = pendingAcct.@startDateOther;
+				}
+				
+				params.accountsXMLString = "<billingAccounts>" + allApprovedAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
+				params.institutionsXMLString = "<institutions>" + institutions.toXMLString() + "</institutions>";
+				params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
+				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
+				params.managersXMLString = "<managers>" + managers.toXMLString() + "</managers>";
+				params.coreFacilitiesXMLString = "<coreFacilities>" + getSelectedCoreFacilities().toXMLString() + "</coreFacilities>";
+				 
+				saveGroup.send(params);		
+				
+			}
+			
+			private function checkEmailFormat():void{
+				var emails:String = this.contactEmail.text;
+				
+			}
+			
+			private function onSaveGroup(event:ResultEvent):void {
+				if (saveGroup.lastResult.name() == "SUCCESS") {
+					savedIdLab = saveGroup.lastResult.@idLab;
+					
+					var params:Object = new Object();
+					params.idLab = savedIdLab;
+					getLab.send(params);
+					
+					refreshBillingTab();
+					
+					dirty.resetDirty();
+				} else {
+					Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
+				}
+				
+			}
+			
+			private function refreshBillingTab():void {
+				coreFacilityCombo.selectedIndex = 0;
+				
+				refreshDisplayedAccounts(); 
+				pendingBillingAccounts.refresh();
+			}
+			
+			public function refreshDisplayedAccounts():void{
+				billingAccounts.source = parentDocument.fullLab.approvedBillingAccounts.BillingAccount
+				billingAccounts.filterFunction = filterByCore;
+				billingAccounts.refresh();
+			}
+			
+			private function onGetLab(event:ResultEvent):void {
+				parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+				
+				var isOnlyCoreIManage:Boolean = false;
+				if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
+					for each ( var cf:Object in parentDocument.fullLab..CoreFacility ) {
+						if ( parentApplication.isCoreFacilityIManage(cf.@idCoreFacility) ) {
+							isOnlyCoreIManage = true;
+							break;
+						}
+					}
+				}
+				if ( isOnlyCoreIManage ) {
+					parentApplication.navUsersView.coreCombo.selectedIndex = 1;
+				} else {
+					parentApplication.navUsersView.coreCombo.selectedIndex = 0;
+				}
+				
+				
+				var itemToSelect:XML = new XML("<Lab id='" + savedIdLab + "'/>");
+				parentApplication.navUsersView.itemToSelect = itemToSelect;
+				
+				parentApplication.navUsersView.refreshGroupList();
+				parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
+				
+				refreshBillingTab();
+			}
+			
+			public function promptToVerifyUserAccounts():void {
+				
+				Alert.show("GNomEx will send an email to " + parentDocument.fullLab.@firstName + " " + parentDocument.fullLab.@lastName  + " to verify the active user accounts." +
+					"\n\nDo you wish to continue?", 
+					null, 
+					(Alert.YES | Alert.NO), this, 
+					onPromptToVerifyUserAccounts);
+				
+			}
+			
+			private function onPromptToVerifyUserAccounts(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					var params:Object = new Object();
+					params.idLab = parentDocument.fullLab.@idLab;
+					generateUserAccountEmail.send(params);
+				}
+			}
+			
+			private function onGenerateUserAccountEmail(event:ResultEvent):void {
+				if (generateUserAccountEmail.lastResult.name() == "SUCCESS") {          		
+					Alert.show("An email has been sent to " + parentDocument.fullLab.@firstName + " " + parentDocument.fullLab.@lastName + ".");         
+				} else {
+					Alert.show("Generate user account email failed. " + generateUserAccountEmail.lastResult..ACTMESSAGE.@TEXT);
+				}         
+			}
+			
+			
+			//
+			// Edit state dictionary
+			//
+			private function editState():void {
+				dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navUsersView, DictionaryEditor, true));
+				dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+					onDictionaryStateInitialized);
+				dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+					onDictionaryStateSelected);			
+				parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+					onDictionaryStateRefreshed);
+				PopUpManager.centerPopUp(dictionaryEditor);
+			}
+			private function onDictionaryStateInitialized(event:Event):void{
+				dictionaryEditor.selectDictionary("hci.gnomex.model.State");
+			}          
+			private function onDictionaryStateRefreshed(event:Event):void{
+				contactStateCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');								
+				contactStateCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.State', parentDocument.fullLab.@contactCodeState);				
+			}	
+			private function onDictionaryStateSelected(event:Event):void{
+				if (this.contactStateCombo.selectedItem != null && this.contactStateCombo.selectedItem.@value != "") {
+					dictionaryEditor.selectDictionaryEntry(contactStateCombo.selectedItem);
+				}
+			}
+			private function checkPricingChange():void {
+				if(isExternalPricingAcademicButton.selected) {
+					if(parentDocument.fullLab.@isExternalPricing != 'Y') {
+						dirty.setDirty();
+					}
+				} else if (isExternalPricingCommercialButton.selected) {
+					if(parentDocument.fullLab.@isExternalPricingCommercial != 'Y') {
+						dirty.setDirty();
+					}
+				} else {
+					if(parentDocument.fullLab.@isExternalPricing == 'Y') {
+						dirty.setDirty();
+					}
+					
+				}
+				
+				
+			}
+			
+			public function setDirtyBillingAccount(billingAccount:Object):void {
+				billingAccount.@isDirty = 'Y';
+				dirty.setDirty();
+			}
+			
+			
+			private function verifyChartfieldEdit(event:DataGridEvent) : void {
+				
+				var theGrid:DataGrid = DataGrid(event.target);
+				// Mark that this billing account is dirty.  We will only warn about
+				// validation when the billing account has been changed.
+				
+				if(theGrid.columns[event.columnIndex].headerText != "Document" && theGrid.dataProvider.length >= event.rowIndex+1 ){
+					setDirtyBillingAccount(theGrid.dataProvider.getItemAt(event.rowIndex));
+				}
+				
+				// PO checkbox, account name, expiration date, and total amount are always editable
+				if (event.dataField == '@isPO' || event.dataField == '@accountName' 
+					|| event.dataField == '@expirationDate' || event.dataField == '@totalDollarAmountDisplay'
+					|| event.dataField == '@startDate' || event.dataField == '@shortAcct') {
+					return;
+				}
+				
+				// Other fields are only editable on non-PO accounts.  
+				if(theGrid.dataProvider.getItemAt(event.rowIndex).@isPO == 'Y') {
+					event.preventDefault(); 
+				} 
+			}
+			
+			
+			private function getSubmitterInfo(item:Object, col:int):String {
+				return item.@submitterEmail + ' ' + item.@submitterUID;
+			}
+			
+			private function showNewInstitutionWindow():void{
+				mx.managers.PopUpManager.centerPopUp(InstitutionWindow(mx.managers.PopUpManager.createPopUp(this, InstitutionWindow, true)));
+				this.setFocus();
+				
+			}
+			
+			public function initForNewLab():void {
+				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+					var facility:Object = coreFacilities.getItemAt(x);
+					coreFacilityCheckbox[x].selected = false;
+					for each (var labFacility:Object in labCoreFacilities) {
+						if (labFacility.@value == facility.@value) {
+							coreFacilityCheckbox[x].selected = true;
+							break;
+						}
+					}
+				}
+				activeSubmitters = new XMLList(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
+				refreshBillingTab();
+			}
+			
+			public function showEditPurchaseOrderWindow(event:MouseEvent):void{
+				if(dirty.isDirty()){
+					Alert.show("Please save existing changes before attempting to upload/remove/view a purchase order form.");
+					return;
+				}
+				var editWindow:EditBillingDocumentWindow = EditBillingDocumentWindow(mx.managers.PopUpManager.createPopUp(this, EditBillingDocumentWindow, true));
+				editWindow.parentView = this;
+				mx.managers.PopUpManager.centerPopUp(editWindow);
+				this.setFocus();
+				
+				
+			}
+			
+			public function accountNameClick( targetGrid:DataGrid ):void {
+				
+				if ( targetGrid.selectedItem != null ) {
+					showEditBillingAcctWindow(targetGrid.selectedItem as XML);
+				}
+			}
+			
+			public function showEditBillingAcctWindow(billingAcct:XML):void{
+				
+				var editAcctWindow:EditBillingAcctWindow = EditBillingAcctWindow(mx.managers.PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
+				editAcctWindow.parentView = this;
+				editAcctWindow.ba = billingAcct;
+				editAcctWindow.labName = parentDocument.fullLab.@name;
+				editAcctWindow.coreFacilities = labCoreFacilitiesIManage;
+				editAcctWindow.activeSubmitters = this.activeSubmitters;
+				editAcctWindow.isEdit = true;
+				mx.managers.PopUpManager.centerPopUp(editAcctWindow);
+				this.setFocus();
+				billingAccountGrid.editedItemPosition = null;
+				
+			}
+			
+			private function getSelectedCoreFacilities():XMLListCollection {
+				var facilities:XMLListCollection = new XMLListCollection();
+				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+					if (coreFacilityCheckbox[x].selected) {
+						var facility:Object = coreFacilities.getItemAt(x);
+						var node:XML = new XML("<CoreFacility " +
+							" idCoreFacility='" + facility.@value + "'" +
+							" facilityName='" + facility.@display + "'" +
+							"/>");
+						facilities.addItem(node);
+					}
+				}
+				return facilities;
+			}
+			
+			private function filterByCore(item:Object):Boolean {
+				if ( parentDocument.fullLab.coreFacilities.CoreFacility.(@idCoreFacility == item.@idCoreFacility).length() == 0 ) {
+					return false;
+				}
+				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+					return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+				} else {
+					return coreFacilityCombo.selectedItem != null ? item.@idCoreFacility==coreFacilityCombo.selectedItem.@value : false;
+				}
+			}
+			private function filterCore(item:Object):Boolean {
+				return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+			}
+			
+		]]>
+	</mx:Script>	  
+	
+	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	<mx:XMLListCollection id="allApprovedAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}"/>
+	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	<mx:XMLListCollection id="institutions" source="{parentDocument.fullLab.institutions.Institution}"/>
+	<mx:XMLListCollection id="institutions1" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value)}"/>
+	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
+	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
+	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}"/>
+	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
+	<mx:XMLListCollection id="activeAppUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser.(@isActive=='Y')}"/>
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
+	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
+	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
+	<mx:XMLList id="activeSubmitters"/>
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	
+	
+	<mx:VBox  height="100%" width="100%" verticalGap="0" >
+		
+		
+		<mx:TabNavigator id="theTab" width="100%" height="100%"  styleName="form" >
+			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
+				
+				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
+					<mx:VBox   height="100%" verticalGap="8" width="100%">
+						<mx:HBox verticalAlign="top" horizontalGap="10" width="100%">
+							<mx:VBox height="100%" width="67%">
+								<mx:HBox width="100%">
+									<mx:VBox  verticalGap="0" width="100%">
+										<mx:Label text="Investigator's First Name"/>
+										<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="100%" change="dirty.setDirty()"/>
+									</mx:VBox>
+									<mx:VBox  verticalGap="0" width="100%">
+										<mx:Label text="Investigator's Last Name (or lab name)"/>
+										<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="100%" change="dirty.setDirty()"/>
+									</mx:VBox>
+									
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
+									<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
+									<mx:CheckBox id="excludeUsageCheckBox" selected="{parentDocument.fullLab.@excludeUsage == 'Y' ? true : false}" label="Exclude from usage charts?" click="dirty.setDirty()"/>
+								</mx:HBox>
+								<mx:HBox width="100%" verticalAlign="top">
+									<mx:VBox  verticalGap="0">
+										<mx:Label text="Phone" />
+										<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="130" change="dirty.setDirty()"/>
+									</mx:VBox>
+									<mx:VBox  verticalGap="0" width="100%"> 
+										<mx:Label text="Department" />
+										<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="100%" change="dirty.setDirty()"/>
+									</mx:VBox>
+									
+								</mx:HBox>
+								<mx:VBox  verticalGap="0" width="100%">
+									<mx:HBox verticalGap="8">
+										<mx:Label text="Email(s) " />
+										<mx:Label text="(For multiple email addresses, place a comma between emails.)" fontStyle="italic"/>
+									</mx:HBox>
+									<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
+								</mx:VBox>
+							</mx:VBox>
+							<mx:VBox verticalGap="0" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" width="33%">
+								<mx:VBox verticalGap="0" height="120" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="100%">
+									<mx:HBox horizontalAlign="left" verticalAlign="top">
+										<mx:Label text="Institutions" paddingTop="3"/>
+										<mx:LinkButton paddingBottom="5"   id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton"/>
+									</mx:HBox>	
+									<mx:HBox horizontalAlign="left" horizontalGap="6">
+										<mx:ComboBox width="150" dataProvider="{institutions1}" id="institutionCombo" labelField="@display" >			       	
+										</mx:ComboBox>
+										<mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+											<mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+										</mx:Button>
+										<mx:Button click="removeInstitution()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{institutionsGrid.selectedItem != null}" width="25"/>
+									</mx:HBox>
+									<mx:Spacer height="2"/>
+									<mx:DataGrid id="institutionsGrid" showHeaders="false" dataProvider="{institutions}" width="100%" height="100%">
+										<mx:columns>
+											<mx:DataGridColumn dataField="@institution" headerText="Name"/>
+										</mx:columns>
+									</mx:DataGrid>			   	
+								</mx:VBox>
+								<mx:Spacer height="2"/>
+								<mx:VBox height="80" verticalGap="0" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="100%">
+									<mx:HBox horizontalAlign="left" verticalAlign="top">
+										<mx:Label text="Core Facilities" paddingTop="3"/>
+									</mx:HBox>	
+									<mx:VBox width="100%" verticalGap="0" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0">
+										<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}">
+											<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox"
+														 enabled="{parentApplication.isCoreFacilityIManage(coreFacilityRepeater.currentItem.@idCoreFacility)?true:false}"
+														 click="dirty.setDirty()"/>   
+										</mx:Repeater>
+									</mx:VBox>			   	
+								</mx:VBox>
+							</mx:VBox>
+							<mx:RadioButtonGroup id="pricingModel"/>
+						</mx:HBox>
+						<mx:HRule width="100%"/>
+						
+					</mx:VBox>
+				</mx:HBox>
+				<mx:HBox label="Membership" paddingLeft="4" height="100%" horizontalGap="8" width="100%" paddingRight="4" paddingBottom="4">
+					<mx:VBox verticalGap="4" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
+						<mx:Label text="Members"/>
+						<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
+							<renderers:FilterComboBox dataProvider="{appUsers.source}" 
+													  labelField="@displayName" 
+													  prompt="Member to add..."
+													  width="170"
+													  id="memberCombo">
+							</renderers:FilterComboBox>
+							<mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+								<mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
+							</mx:Button>
+							<mx:Button click="removeMember()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}" width="25"/>
+						</mx:HBox>
+						<mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%" showHeaders="false">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+							</mx:columns>
+						</mx:DataGrid>			   	
+					</mx:VBox>
+					<mx:VBox width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
+						<mx:Label text="Collaborators"/>
+						<mx:HBox width="100%" horizontalGap="6">
+							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
+													  labelField="@displayName" 
+													  prompt="Collaborator to add..."
+													  width="170"
+													  id="collaboratorCombo">
+							</renderers:FilterComboBox>			 
+							<mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+								<mx:enabled>{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
+							</mx:Button>
+							<mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}" width="25"/>
+						</mx:HBox>
+						<mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%" showHeaders="false">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+							</mx:columns>
+						</mx:DataGrid>			   	
+					</mx:VBox>
+					<mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
+						<mx:Label text="Managers"/>
+						<mx:HBox width="100%" horizontalGap="6">
+							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
+													  labelField="@displayName" 
+													  prompt="Manager to add..."
+													  width="170"
+													  id="managerCombo">
+							</renderers:FilterComboBox>		 
+							<mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+								<mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
+							</mx:Button>
+							<mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
+						</mx:HBox>
+						<mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%" showHeaders="false">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+							</mx:columns>
+						</mx:DataGrid>			   	
+					</mx:VBox>
+					
+					
+				</mx:HBox>
+			</mx:VBox>		
+			<mx:VBox label="Billing Contact" width="100%" height="100%"	verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox  verticalGap="0" height="100%" horizontalAlign="left" horizontalGap="10" width="100%">
+					<mx:VBox height="100%"   verticalGap="10" horizontalGap="3" horizontalAlign="left" borderStyle="none" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%">
+						<mx:HBox verticalGap="0" width="100%">
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Billing Contact" />
+								<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="300" change="dirty.setDirty()"/>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:VBox  verticalGap="0" width="100%">
+							<mx:Label text="Address" />
+							<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="100%" change="dirty.setDirty()"/>
+						</mx:VBox>
+						<mx:HBox verticalGap="0" width="100%">
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="City" />
+								<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="200" change="dirty.setDirty()"/>
+							</mx:VBox>
+							<mx:HBox width="100%">
+								<mx:VBox  verticalGap="0">
+									<mx:Label text="State" /> 
+									<mx:VBox verticalGap="0" horizontalAlign="right">
+										<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="70" change="dirty.setDirty()" labelField="@value">
+										</mx:ComboBox>
+										<mx:LinkButton label="Edit..." textDecoration="underline" color="#2335E5" click="editState()">
+										</mx:LinkButton>						      		
+									</mx:VBox>
+								</mx:VBox>
+								<mx:VBox  verticalGap="0" width="100%">
+									<mx:Label text="Zip" />
+									<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="110" click="dirty.setDirty()"/>
+								</mx:VBox>
+								
+							</mx:HBox>
+						</mx:HBox>
+						
+					</mx:VBox>
+				</mx:HBox>
+				
+			</mx:VBox>
+			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox horizontalGap="12">
+					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' || parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? false : true}" click="checkPricingChange()"/>
+					<mx:RadioButton id="isExternalPricingAcademicButton" label="External Academic Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>
+					<mx:RadioButton id="isExternalPricingCommercialButton" label="External Commercial Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? true : false}" click="checkPricingChange()"/>
+					<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
+						<mx:Label text="Core Facility" />
+						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{labCoreFacilitiesIManage}" editable="false"
+									 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh();}"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:Spacer height="2"/>
+				<mx:Label text="Accounts" fontWeight="bold"/>
+				<mx:HBox horizontalAlign="left" width="100%">
+					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
+						<mx:Label text="Add Account    Name:"/>
+						<mx:TextInput id="accountName" width="100%"/>
+						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}" width="24"/>
+						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
+					</mx:HBox>
+				</mx:HBox>
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
+							 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
+							 horizontalScrollPolicy="auto" variableRowHeight="true"  >
+					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn headerText="PO" id="poActive"  
+										   width="30" 
+										   editable="false"                        	
+										   dataField="@isPO" 
+										   editorDataField="selected" 
+										   textAlign="center" 
+										   itemRenderer="{views.renderers.CheckBoxIsPO.create()}" >
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
+										   editable="false">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="11"  fontFamily="Arial" color="#0000FF"   textDecoration="underline"
+												   click="outerDocument.accountNameClick(outerDocument.billingAccountGrid)"/>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn dataField="@startDate" width="75"
+										   headerText="Start"  
+										   itemEditor="views.renderers.DateFieldStartDate" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getStartDateString"
+										   editorDataField="selectedDate"/>
+						<mx:DataGridColumn dataField="@expirationDate" width="75"
+										   headerText="Expires"  
+										   itemEditor="views.renderers.DateFieldExpiration" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getExpirationDateString"
+										   editorDataField="selectedDate"/>
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Document"  width="100">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton textAlign="left" label="View / Upload" fontSize="11"  fontFamily="Arial" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF"   textDecoration="underline" icon="@Embed(source='../../assets/page.png')"/>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
+										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
+										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
+						<mx:DataGridColumn headerText="Total $ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="80"/>
+						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50"/>
+						<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
+										   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
+										   dataField="@acctUsers"/>
+						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
+						<mx:DataGridColumn headerText="Core Facility" dataField="@idCoreFacility" 
+										   editorDataField="value" editable="{labCoreFacilitiesIManage.length > 1}"  rendererIsEditor="false"  width="130"
+										   itemRenderer="{DropdownLabel.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility')}"
+										   itemEditor="{hci.flex.controls.ComboBox.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility', true)}"/>			                
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:Spacer height="8"/>
+				<mx:Label text="Pending Accounts (check and press 'Save' to approve)" fontWeight="bold"/>
+				<mx:DataGrid width="100%" height="100" 
+							 id="pendingBillingAccountGrid" editable="true" 
+							 itemEditBeginning="verifyChartfieldEdit(event)" 
+							 horizontalScrollPolicy="auto" fontSize="9">
+					<mx:dataProvider>{pendingBillingAccounts}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn headerText=""  
+										   width="24" 
+										   editable="false"                         	
+										   dataField="@isApproved" 
+										   editorDataField="selected" 
+										   textAlign="center" 
+										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isApproved', true)}" >
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
+										   editable="false">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="11"  fontFamily="Arial" color="#0000FF"   textDecoration="underline" 
+												   click="outerDocument.accountNameClick(outerDocument.pendingBillingAccountGrid)"/>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn dataField="@startDate" width="75"
+										   headerText="Start"  
+										   itemEditor="views.renderers.DateFieldStartDate" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getStartDateString"
+										   editorDataField="selectedDate"/>
+						<mx:DataGridColumn dataField="@expirationDate" width="75"
+										   headerText="Expires"  
+										   itemEditor="views.renderers.DateFieldExpiration" 
+										   itemRenderer="mx.controls.Label" 
+										   rendererIsEditor="false" 
+										   labelFunction="getExpirationDateString"
+										   editorDataField="selectedDate"/>
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
+										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
+										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+						<mx:DataGridColumn headerText="Total $ amt" textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Short" dataField="@shortAcct" width="50"/>
+						<mx:DataGridColumn headerText="Created"  editable="false" dataField="@createDate" width="30"/>
+						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
+						<mx:DataGridColumn headerText="UID"  dataField="@submitterUID" width="10"/>
+						
+					</mx:columns>
+				</mx:DataGrid>
+				
+			</mx:VBox>
+		</mx:TabNavigator>
+		
+	</mx:VBox>
+	<mx:ControlBar width="100%"  horizontalAlign="right" id="controlbar1">
+		<mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Verify users"/>
+		<mx:Spacer width="100%"/>
+		<util:DirtyNote id="dirty"/>
+		<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="validateAndSave()" id="button1"/>
+	</mx:ControlBar>
+	
+	
+</mx:VBox>

@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<mx:Canvas styleName="panelWelcomeBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
+		   xmlns:views="views.*"    
+		   xmlns:util="views.util.*"  
+		   creationPolicy="all" width="100%" height="100%"  		
+		   show="init()"
+		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
+	<mx:states> 
+		<mx:State name="GuestState">
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:RemoveChild target="{button13}"/>
+			<mx:RemoveChild target="{usageButton}"/>
+			<mx:SetStyle target="{hbox8}" name="horizontalGap" value="10"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{button14}"/>
+			<mx:RemoveChild target="{button22}"/>
+			<mx:RemoveChild target="{vbox14}"/>
+		</mx:State>
+		<mx:State name="BillingAdminState" basedOn="AdminState">
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{button3}"/>
+			<mx:RemoveChild target="{dictionaryButton}"/>
+			<mx:RemoveChild target="{alignmentProfileButton}"/>
+			<mx:RemoveChild target="{sampleCharacteristicButton}"/>
+			<mx:RemoveChild target="{platformConfigButton}"/>
+			<mx:RemoveChild target="{organismButton}"/>
+			<mx:RemoveChild target="{button0}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (billing admin privileges)'}"/>
+			<mx:RemoveChild target="{hbox7}"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:RemoveChild target="{button18}"/>
+			<mx:RemoveChild target="{button19}"/>
+			<mx:RemoveChild target="{usageButton}"/>
+			<mx:RemoveChild target="{button6}"/>
+			<mx:RemoveChild target="{buttondownloadhint}"/>
+			<mx:RemoveChild target="{label7}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label7}"/>
+			<mx:RemoveChild target="{button20}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button20}"/>
+			<mx:RemoveChild target="{button21}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button21}"/>
+		</mx:State>
+		<mx:State name="AdminState">
+			<mx:AddChild relativeTo="{hbox8}" position="lastChild">
+				<mx:VBox height="100%" verticalGap="1" id="vbox13">
+					<mx:HBox id="hbox1" horizontalGap="2" verticalAlign="middle" verticalGap="2">
+						<mx:Label text="Administration" styleName="welcomeLabel"/>
+					</mx:HBox> 
+					<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
+								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
+					<mx:LinkButton id="alignmentProfileButton"  label="Configure Alignment Profiles" styleName="dashboardButton"  
+								   click="showAlignmentProfileWindow()" 
+								   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isSuperAdmin}"
+								   includeInLayout="{parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isSuperAdmin}"
+								   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>									
+					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
+								   click="showPropertyWindow()" 
+								   visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
+								   includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+								   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platforms" styleName="dashboardButton" 
+								   click="showExperimentPlatformWindow()" 
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   click="showOrganismWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton label="Manage microarray catalog" 
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
+					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
+					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
+					<mx:LinkButton label="Configure Billing Account Fields" 
+								   visible="{parentApplication.useConfigurableBillingAccounts}"
+								   includeInLayout="{parentApplication.useConfigurableBillingAccounts}"
+								   click="showBillingAccountFields()" styleName="dashboardButton"  id="accountConfigurationButton" icon="@Embed(source='../../assets/account.png')"/>
+				</mx:VBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (admin privileges)'}"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label3}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button4}"/>
+			<mx:SetStyle target="{label3}" name="paddingTop" value="8"/>
+			<mx:SetStyle target="{vbox9}" name="verticalGap" value="1"/>
+			<mx:SetStyle target="{vbox12}" name="verticalGap" value="1"/>
+			<mx:SetStyle target="{vbox10}" name="verticalGap"/>
+			<mx:SetStyle target="{hbox8}" name="horizontalGap" value="20"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild">
+				<mx:LinkButton label="Browse Data Tracks" 
+					visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
+					includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+					click="showDataTracks()" styleName="dashboardButton"  id="button19"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')" />
+			</mx:AddChild>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
+				<mx:Label text="Billing" id="label7" styleName="welcomeLabel" paddingTop="10"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
+				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button20"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.pricingURL != ''}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{vbox12}" position="lastChild">
+				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" includeInLayout="{parentApplication.isCoreGenomics}" visible="{parentApplication.isCoreGenomics}" styleName="dashboardButton" id="button21"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{button3}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{vbox14}"/>
+			<mx:AddChild relativeTo="{vbox13}" position="lastChild" target="{vbox14}"/>
+			<mx:SetStyle target="{label8}" name="paddingTop" value="10"/>
+		</mx:State>
+		<mx:State name="UserNonSubmitterState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label4}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:SetProperty target="{button8}" name="visible" value="true"/>
+			<mx:SetProperty target="{button8}" name="includeInLayout" value="true"/>
+			<mx:AddChild relativeTo="{spacer1}" position="before">
+				<mx:Text text="(restricted access)" styleName="welcomeUserLabel"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{label4}" name="includeInLayout" value="true"/>
+			<mx:SetProperty target="{label4}" name="visible" value="true"/>
+		</mx:State>
+		<mx:State name="UserState">
+			<mx:AddChild relativeTo="{button13}" position="before">
+				<mx:LinkButton id="userSampleCharacteristicButton"  label="Configure Annotations" styleName="dashboardButton" 
+							   click="showPropertyWindow()" 
+							   visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  
+							   includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+							   enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{label4}" name="visible" value="true"/>
+			<mx:SetProperty target="{button8}" name="visible" value="true"/>
+			<mx:SetProperty target="{button12}" name="visible" value="{parentApplication.isCoreGenomics}"/>
+			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
+			<mx:SetProperty target="{vbox1}" name="includeInLayout" value="true"/>
+			<mx:SetProperty target="{button12}" name="includeInLayout" value="{parentApplication.isCoreGenomics}"/>
+			<mx:RemoveChild target="{button8}"/>
+			<mx:AddChild relativeTo="{button12}" position="before" target="{button8}"/>
+			<mx:RemoveChild target="{button22}"/>
+			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button22}"/>
+			<mx:SetProperty target="{button12}" name="label" value="Pricing (Microarray Core)"/>
+			<mx:RemoveChild target="{button3}"/>
+			<mx:RemoveChild target="{button5}"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:SetProperty target="{linkbutton1}" name="toolTip" value="Purchase Supplies from DNA Sequencing Core Facility"/>
+			<mx:SetProperty target="{linkbutton1}" name="label" value="Purchase Supplies  (DNA Seq Core)"/>
+		</mx:State>
+		<mx:State name="ExternalUserState" basedOn="UserState">
+			<mx:SetProperty target="{button12}" name="toolTip" value="Pricing for Microarray and Genomics Analysis Core Facility"/>
+			<mx:SetStyle target="{text1}" name="top" value="4"/>
+			<mx:SetStyle target="{text2}" name="top" value="4"/>
+			<mx:SetStyle target="{text2}" name="right" value="4"/>
+			<mx:SetStyle target="{text2}" name="left"/>
+			<mx:SetProperty target="{text1}" name="width"/>
+		</mx:State>
+		<mx:State name="AdminESState" basedOn="AdminState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:SetStyle target="{label6}" name="paddingTop" value="4"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label3}"/>
+			<mx:RemoveChild target="{button4}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button4}"/>
+			<mx:SetStyle target="{label7}" name="paddingTop" value="8"/>
+			<mx:RemoveChild target="{button19}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button19}"/>
+			<mx:RemoveChild target="{button2}"/>
+			<mx:AddChild relativeTo="{label3}" position="before" target="{button2}"/>
+			<mx:RemoveChild target="{label2}"/>
+			<mx:RemoveChild target="{hbox3}"/>
+			<mx:SetStyle target="{label2a}" name="paddingTop"/>
+			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{vbox14}"/>
+		</mx:State>
+		<mx:State name="UserESState" basedOn="UserState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button12}"/>
+			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:AddChild relativeTo="{button2}" position="before" target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:AddChild relativeTo="{button7}" position="before" target="{userSampleCharacteristicButton}"/>
+			<mx:RemoveChild target="{vbox14}"/>
+		</mx:State>
+		<mx:State name="ExternalUserESState" basedOn="ExternalUserState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
+			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:AddChild relativeTo="{button2}" position="before" target="{submitExternalExperimentButton}"/>
+		</mx:State>
+		<mx:State name="UserNonSubmitterESState" basedOn="UserNonSubmitterState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
+			<mx:SetProperty target="{label2}" name="text" value="Experiment Repository"/>
+			<mx:SetProperty target="{label3}" name="text" value="Analysis Repository"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+			<mx:RemoveChild target="{vbox14}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{button8}"/>
+		</mx:State>
+		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
+			<mx:SetStyle target="{label4}" name="paddingTop" value="10"/>
+			<mx:RemoveChild target="{label8}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{hbox9}"/>
+		</mx:State>
+		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (university guest access)'}"/>
+		</mx:State>
+		<mx:State name="AdminDNASeqState" basedOn="AdminState">
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:Label text="DNA Sequencing Core Workflow" id="label0" styleName="welcomeLabel"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Fill Plate"  click="fillPlates('PLATE')"  
+							   styleName="dashboardButton" id="button11"  toolTip="Fill plates" icon="@Embed(source='../../assets/plate_add.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Build Run"  click="fillPlates('RUN')"  
+							   styleName="dashboardButton" id="runButton"  toolTip="Build Run" icon="@Embed(source='../../assets/run_add.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label="Plates and Runs"  click="reviewRuns()"  
+							   styleName="dashboardButton" id="button15"  toolTip="View instrument runs" icon="@Embed(source='../../assets/run_review.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{button11}" position="before">
+				<mx:LinkButton label="Orders"  click="reviewOrders()"  
+							   styleName="dashboardButton" id="button16"  toolTip="Review pending orders" icon="@Embed(source='../../assets/review.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:LinkButton label=" Results"  click="reviewResults()"  
+							   styleName="dashboardButton" id="button17"  toolTip="Review results" icon="@Embed(source='../../assets/tv_chart_review.png')"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{label7}" name="paddingTop" value="10"/>
+			<mx:SetProperty target="{label2}" name="text" value="Experiments"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:AddChild relativeTo="{vbox12}" position="lastChild" target="{label2a}"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:AddChild relativeTo="{vbox12}" position="lastChild" target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{button20}"/>
+			<mx:SetProperty target="{label8}" name="text" value="DNA Seq Core (miscellaneous)"/>
+			<mx:SetProperty target="{button21}" name="visible" value="true"/>
+			<mx:SetProperty target="{label7}" name="visible" value="true"/>
+
+		</mx:State>
+		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (billing admin privileges)'}"/>
+			<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+			<mx:RemoveChild target="{amendButton}"/>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{button11}"/>
+			<mx:RemoveChild target="{runButton}"/>
+			<mx:RemoveChild target="{dictionaryButton}"/>
+			<mx:RemoveChild target="{label2a}"/>
+			<mx:RemoveChild target="{button15}"/>
+			<mx:RemoveChild target="{button16}"/>
+			<mx:RemoveChild target="{button17}"/>
+			<mx:RemoveChild target="{label0}"/>
+			<mx:RemoveChild target="{label7}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label7}"/>
+			<mx:RemoveChild target="{button21}"/>
+			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button21}"/>
+		</mx:State>
+	</mx:states>
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.dictionary.DictionaryEditor;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			
+			import views.admin.AlignmentProfileWindow;
+			import views.admin.BillingAccountFieldsConfigurationWindow;
+			import views.admin.PropertyWindow;
+			import views.experiment.ExperimentEditView;
+			import views.user.EditBillingAcctWindow;
+			
+			public function checkDirty():void {
+			}
+			
+			public function init():void {
+				checkSecurity();
+			}
+			
+			public function checkSecurity():void {
+				if (parentApplication.currentState == "GuestState") {
+					if (parentApplication.isUniversityOnlyUser) {
+						this.currentState = parentApplication.isExternalDataSharingSite ? "UnivGuestESState" : "UnivGuestState"
+					} else {
+						this.currentState = "GuestState";
+					}
+				} else if (parentApplication.isAdminState) {
+					if (parentApplication.isExternalDataSharingSite) {
+						currentState = "AdminESState";
+					} else if (parentApplication.isCoreDNASeq) {
+						currentState = "AdminDNASeqState"
+					} else {
+						currentState = "AdminState";
+					}
+				} else if (parentApplication.isBillingAdminState) {
+					if (parentApplication.isExternalDataSharingSite) {
+						currentState = "AdminESState";
+					} else if (parentApplication.isCoreDNASeq) {
+						currentState = "BillingAdminDNASeqState"
+					} else {
+						currentState = "BillingAdminState";
+					}
+				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
+					currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState";						
+				} else if (parentApplication.isExternalUser)  {
+					currentState = parentApplication.isExternalDataSharingSite ? "ExternalUserESState" : "ExternalUserState";
+				} else {
+					currentState = parentApplication.isExternalDataSharingSite ? "UserESState" : "UserState";
+				}
+			}
+			
+			private function submitRequest():void {
+				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
+				if(this.parentApplication.submitRequestView.request != null && !this.parentApplication.isInternalExperimentSubmission) {
+					this.parentApplication.submitRequestView.startNewRequest();
+				}
+				this.parentApplication.isInternalExperimentSubmission = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
+				// If new experiment then initialize ShowCCNumber checkbox
+				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
+			}
+			
+			private function reviewOrders():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navOrderView;
+			}
+			
+			private function fillPlates( buildState:String ):void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navPlateView;
+				callLater ( function():void {
+					parentApplication.navPlateView.toggleBuildState( buildState );
+					parentApplication.navPlateView.switchToNewState();
+				});
+			}
+			
+			private function reviewRuns():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navRunView;
+			}
+			
+			private function reviewResults():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navDataView;
+			}
+			
+			private function submitExternalExperiment():void {
+				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
+				if(this.parentApplication.submitRequestView.request != null && this.parentApplication.isInternalExperimentSubmission) {
+					this.parentApplication.submitRequestView.startNewRequest();
+				}
+				this.parentApplication.isInternalExperimentSubmission = false;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
+				// If new experiment then initialize ShowCCNumber checkbox
+				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
+			}
+			
+			private function amendRequest():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.amendRequestView;
+			}
+			private function showExperiments():void {
+				this.parentApplication.navExperimentView.shortcutToExperimentListTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navExperimentView;
+			}
+			private function showExperimentDownloads():void {
+				this.parentApplication.navExperimentView.shortcutToDownloadTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navExperimentView;
+			}
+			private function showAnalysis():void {
+				this.parentApplication.navAnalysisView.shortcutToAnalysisListTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navAnalysisView;
+			}
+			private function showDataTracks():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navDataTrackView;
+			}
+			private function showAnalysisDownloads():void {
+				this.parentApplication.navAnalysisView.shortcutToDownloadTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navAnalysisView;
+			} 
+			private function showProtocols():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.protocolsView;
+			}	
+			
+			private function showPricing():void {				
+				var pricingURL:String = parentApplication.getProperty(parentApplication.PROPERTY_PRICING_URL);
+				if (pricingURL == null || pricingURL == "") {
+					Alert.show("Please contact GNomEx support.  The pricing web page is not configured in GNomEx.");
+				} else {
+					navigateToURL(new URLRequest(pricingURL), '_blank');
+				}
+			}
+			private function showPricingDNASeqCore():void {
+				var pricingURL:String = parentApplication.getCoreFacilityProperty(parentApplication.idCoreFacilityDNASeq, parentApplication.PROPERTY_PRICING_URL);
+				if (pricingURL == null || pricingURL == "") {
+					Alert.show("Please contact GNomEx support.  The pricing web page for the DNA Sequencing Core Facility is not configured in GNomEx.");
+				} else {
+					navigateToURL(new URLRequest(pricingURL), '_blank');
+				}
+			}
+			
+			private function changePassword():void {
+				parentApplication.showChangePasswordAfterLogin();
+			}
+			
+			private function showAdvancedSearch():void {				
+				parentApplication.showSearch();
+			}
+			private function showUserPublicView():void {				
+				parentApplication.showUserPublicView();
+			}		
+			private function showSlides():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.slideManagementView;
+			}
+			private function showBilling():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navBillingView;
+			}
+			private function showUsersAndGroups():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsersView;
+			}
+			private function showWorkAuthForm():void {
+				var which:String = 'new';
+				if (which == "old") {
+					var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this, WorkAuthorizationWindow, true));
+					PopUpManager.centerPopUp(workAuthWindow);
+					
+					workAuthWindow.emailAddress.text = parentApplication.getUserEmail();
+					if (workAuthWindow.labCombo.dataProvider.length == 2) {
+						workAuthWindow.labCombo.selectedIndex = 1;
+					}
+				} else {
+					var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
+					wa.isEdit = false;
+					wa.ba = new XML("<BillingAccount " +
+						" idBillingAccount='BillingAccount0'" +
+						" accountName=''" +
+						" idCoreFacility=''" +
+						" expirationDateOther=''" + 
+						" startDateOther=''" +
+						" accountNumberBus=''" + 
+						" accountNumberOrg=''" + 
+						" accountNumberFund=''" + 
+						" accountNumberActivity=''" + 
+						" accountNumberProject=''" +  
+						" accountNumberAccount=''" + 
+						" accountNumberAu=''" + 
+						" accountNumberYear=''" +
+						" totalDollarAmountDisplay=''" +
+						" shortAcct=''" +
+						" custom1=''" +
+						" custom2=''" +
+						" custom3=''" +
+						" isDirty='Y'" +
+						" isPO='N'" +
+						" submitterEmail='" + parentApplication.getUserEmail() + "'" +
+						" isApproved='N'" +
+						" isSelectedPeerReviewedFunding='false'" + 
+						"/>");
+				}
+			}			       
+			private function showDictionaries():void {
+				parentApplication.showDictionaries();				
+			}
+			private function showBroadcastEmailWindow():void {
+				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this, BroadcastEmailWindow, true));
+				PopUpManager.centerPopUp(broadcastEmailWindow);
+			}			
+			
+			private function showBillingAccountFields():void {
+				var w:BillingAccountFieldsConfigurationWindow = BillingAccountFieldsConfigurationWindow(PopUpManager.createPopUp(this, BillingAccountFieldsConfigurationWindow, true));
+				PopUpManager.centerPopUp(w);
+			}
+			
+			private function showPropertyWindow():void {
+				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+			}
+			
+			private function showOrganismWindow():void {
+				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+			}
+			
+			private function showAlignmentProfileWindow():void {
+				var apWindow:AlignmentProfileWindow = AlignmentProfileWindow(PopUpManager.createPopUp(parentApplication.theBody, AlignmentProfileWindow, true));
+				PopUpManager.centerPopUp(apWindow);				
+			}
+			
+			private function showExperimentPlatformWindow():void {
+				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformWindow, true));
+				PopUpManager.centerPopUp(platformWindow);
+				
+			}
+			
+			private function showUsageWindow():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsageView;
+			}
+			
+			private function openPurchaseSuppliesLink(event:MouseEvent):void{
+				var url:URLRequest = new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL));
+				url.method = URLRequestMethod.POST;
+				navigateToURL(url, '_blank');
+			}
+			
+		]]> 
+	</mx:Script>
+	
+	<mx:VBox    
+		width="100%" height="100%"  
+		verticalAlign="middle" horizontalAlign="center"  
+		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10">
+
+		<mx:HBox width="100%" paddingTop="4">
+			<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="8" top="8" id="text1"/>
+			<mx:Text text="{parentApplication.siteWelcomeMessage}" styleName="welcomeUserLabel" right="8" top="8" id="text2"/>
+			<mx:Spacer width="100%" id="spacer1"/>
+			<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
+		</mx:HBox>
+		<mx:Spacer height="100%"/>
+		<mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40" id="hbox8">
+			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox9">
+				<mx:HBox id="hbox3" horizontalGap="2" verticalAlign="middle">
+					<mx:Label text="Experiment" id="label2" styleName="welcomeLabel" />
+				</mx:HBox>
+				<mx:LinkButton label="New Experiment Order"  click="submitRequest()"  
+							   styleName="dashboardButton" id="button1"  toolTip="Create an experiment order" icon="@Embed(source='../../assets/flask_add.png')"/>
+				<mx:LinkButton label="Add services to an Order"  
+							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+							   click="amendRequest()" 
+							   styleName="dashboardButton" id="amendButton"  toolTip="Add microarray or next gen sequencing services to an existing experiment request" icon="@Embed(source='../../assets/flask_edit.png')"/>
+				<mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
+				<mx:LinkButton label="Download Experiment Results" click="showExperimentDownloads()" styleName="dashboardButton"  id="button3"  toolTip="Download experiment raw data files" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:Label text="Experiment Repository" id="label2a" styleName="welcomeLabel" paddingTop="10"
+						  visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"/>
+				<mx:LinkButton label="Post Experiment Data to Repository"  click="submitExternalExperiment()"  
+							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+							   styleName="dashboardButton" id="submitExternalExperimentButton"  toolTip="Submit an experiment to the GNomEx repository and upload associated raw data files" icon="@Embed(source='../../assets/experiment_register.png')"/>
+			</mx:VBox> 
+			<mx:VBox height="100%" verticalAlign="top"  visible="{parentApplication.isCoreGenomics &amp;&amp; parentApplication.showBioinformaticsLinks}"  includeInLayout="{parentApplication.isCoreGenomics &amp;&amp; parentApplication.showBioinformaticsLinks}" horizontalAlign="left" id="vbox1" verticalGap="2" width="268">
+				<mx:HBox id="hbox7" 
+						 visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+						 horizontalGap="2" verticalAlign="middle">
+					<mx:Label text="Analysis" 
+							  visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+							  id="label3" styleName="welcomeLabel"/>
+				</mx:HBox>
+				<mx:LinkButton label="Browse Analyses" 
+							   visible="{parentApplication.showBioinformaticsLinks}"  includeInLayout="{parentApplication.showBioinformaticsLinks}"
+							   click="showAnalysis()" styleName="dashboardButton"  id="button4"  verticalGap="4" 
+							   toolTip="Browse analysis entries, view analysis annotations" icon="@Embed(source='../../assets/map.png')"/>
+				<mx:LinkButton label="Download Analyzed data files" click="showAnalysisDownloads()" 
+							   visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+							   styleName="dashboardButton"  id="button5"  toolTip="Download analysis data files" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:LinkButton label="Browse Data Tracks"
+						  visible="{parentApplication.showBioinformaticsLinks &amp;&amp; parentApplication.dataTrackSupported}"  includeInLayout="{parentApplication.dataTrackSupported &amp;&amp; parentApplication.showBioinformaticsLinks}" 
+						  click="showDataTracks()" styleName="dashboardButton"  id="button18"  verticalGap="4" toolTip="Browse data tracks" icon="@Embed(source='../../assets/datatrack.jpg')"  />
+							 
+				<mx:Spacer
+					visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}"
+					height="20"/>
+				<mx:Label text="Billing"  id="label4" styleName="welcomeLabel"/>
+				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"/>
+				<mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
+			</mx:VBox>
+			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox12">
+				<mx:HBox id="hbox5" horizontalGap="2">
+					<mx:Label text="General" id="label6" styleName="welcomeLabel"/>
+				</mx:HBox>
+				<mx:LinkButton label="Perform advanced search" click="showAdvancedSearch()" styleName="dashboardButton"  id="button7"  toolTip="Perform advanced search on experiments, analysis, and protocols" icon="@Embed(source='../../assets/magnifier.png')"/>
+				<mx:LinkButton label="Change password" click="changePassword()" styleName="dashboardButton"  id="button13"  icon="@Embed(source='../../assets/user.png')" visible="false" includeInLayout="false"/>
+				<mx:LinkButton label="Change user account settings" click="showUserPublicView()" styleName="dashboardButton"  id="button14"  icon="@Embed(source='../../assets/user.png')"/>
+				<mx:LinkButton label="View experiment protocol descriptions" 
+							   visible="{parentApplication.showCoreGenomicsLinks}"  includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+							   click="showProtocols()" styleName="dashboardButton"  id="button6"  icon="@Embed(source='../../assets/bricks.png')"/>
+				<mx:LinkButton id="usageButton"   							  
+							   label="Track Usage" styleName="dashboardButton" 
+							   click="showUsageWindow()" enabled="{parentApplication.showUsage}" icon="@Embed(source='../../assets/chart_bar.png')" disabledIcon="@Embed(source='../../assets/chart_bar_disabled.png')"/>
+				<mx:LinkButton label="Upload and Download Help" click="parentApplication.showUploadDownloadHints()" styleName="dashboardButton"  id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
+				<mx:VBox height="100%" width="268" verticalGap="2" visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}" id="vbox14">
+					<mx:HBox horizontalGap="2" id="hbox9">
+						<mx:Label text="Miscellaneous - DNA Seq Core " styleName="welcomeLabel" id="label8" paddingTop="10"/>
+					</mx:HBox>
+					<mx:LinkButton label="Purchase Supplies" click="openPurchaseSuppliesLink(event)" visible="{parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" includeInLayout="{parentApplication.getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL) != ''}" styleName="dashboardButton" toolTip="Purchase Supplies" icon="@Embed(source='../../assets/money.png')" disabledIcon="@Embed(source='../../assets/money_disable.png')" id="linkbutton1"/>
+					<mx:LinkButton label="Pricing (DNA Sequencing Core)" visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}" click="showPricingDNASeqCore()" styleName="dashboardButton"  id="button22"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money_dollar.png')" />
+				</mx:VBox>
+			</mx:VBox>
+		</mx:HBox>
+		<mx:Spacer height="100%"/>
+		<mx:VBox   bottom="4" left ="4"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FFFFFF" backgroundAlpha="1" id="vbox11" width="100%" height="50" borderStyle="solid" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#40BC23" borderThickness="4" paddingTop="2" paddingRight="4" paddingLeft="4" paddingBottom="2">
+			<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal" fontFamily="Verdana" textAlign="center"  width="100%" height="100%"  />  			
+		</mx:VBox>
+	</mx:VBox>
+</mx:Canvas>
