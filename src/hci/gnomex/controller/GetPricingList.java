@@ -82,7 +82,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
         Document doc = new Document(new Element("Pricing"));
 
         StringBuffer buf = new StringBuffer();
-        buf.append("SELECT p from PriceSheet p ");
+        buf.append("SELECT distinct p from PriceSheet p ");
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.idCoreFacility.length() > 0) {
           buf.append("JOIN p.requestCategories rc ");
           buf.append("WHERE ");
