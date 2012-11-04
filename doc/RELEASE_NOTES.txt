@@ -22,6 +22,7 @@
 * Changes to columns in chromatBrowseView for better viewing.  (mbowler)
 * Show only the last 5 digits in the idPlateWell on chromatogram grid and on plate report. (mbowler)
 * Show submitter email and phone number on experiment detail info tab. Only included in layout if there is info to display. Non visible otherwise.(tcourdy)
+* Fixed bug that was showing duplicate Agilient Microarray sheets in billing pricing view.(tcourdy)
 
 deploy notes
 ----------------------
