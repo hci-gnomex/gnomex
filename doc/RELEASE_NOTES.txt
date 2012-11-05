@@ -24,6 +24,7 @@
 * Show submitter email and phone number on experiment detail info tab. Only included in layout if there is info to display. Non visible otherwise.(tcourdy)
 * Fixed bug that was showing duplicate Agilient Microarray sheets in billing pricing view.(tcourdy)
 * When a user requests a new gnomex account, send a notification email to the primary contact for the lab the user requested to be a part of as well as any managers for the lab.(tcourdy)
+* Added expand/collapse labs button to billing request tree (mbowler)
 
 deploy notes
 ----------------------
