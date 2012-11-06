@@ -320,6 +320,9 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `shortAcct` VARCHAR(10) NULL,
   `startDate` DATETIME NULL,
   `idCoreFacility` INT(10) NULL,
+  `custom1` VARCHAR(50) NULL,
+  `custom2` VARCHAR(50) NULL,
+  `custom3` VARCHAR(50) NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -2802,6 +2805,33 @@ CREATE TABLE `gnomex`.`BillingAccountUser` (
     REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`InternalAccountFieldsConfiguration`;
+CREATE TABLE `gnomex`.`InternalAccountFieldsConfiguration` (
+  idInternalAccountFieldsConfiguration INT(10) NOT NULL AUTO_INCREMENT,
+  fieldName VARCHAR(50) NOT NULL,
+  `include` CHAR(1) NULL,
+  sortOrder INT(10) NULL,
+  displayName VARCHAR(50) NOT NULL,
+  `isRequired` CHAR(1) NOT NULL DEFAULT 'N',
+  `isNumber` CHAR(1) NOT NULL DEFAULT 'N',
+  minLength INT(10) NULL,
+  maxLength INT(10) NULL,
+  PRIMARY KEY (`idInternalAccountFieldsConfiguration`),
+  UNIQUE KEY `UN_InternalAccountFieldsConfiguration` (fieldName),
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`OtherAccountFieldsConfiguration`;
+CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
+  idOtherAccountFieldsConfiguration INT(10) NOT NULL AUTO_INCREMENT,
+  fieldName VARCHAR(50) NOT NULL,
+  `include` CHAR(1) NULL,
+  `isRequired` CHAR(1) NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`idOtherAccountFieldsConfiguration`),
+  UNIQUE KEY `UN_OtherAccountFieldsConfiguration` (fieldName),
 )
 ENGINE = INNODB;
 

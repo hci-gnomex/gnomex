@@ -3,6 +3,7 @@ package hci.gnomex.daemon;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
@@ -130,6 +131,8 @@ public class PendingWorkAuthd extends TimerTask {
 
       dataSource = new BatchDataSource(orionPath, schemaPath);
       app.connect();
+      
+      InternalAccountFieldsConfiguration.reloadConfigurations(sess);
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       

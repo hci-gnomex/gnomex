@@ -64,26 +64,63 @@ public class BillingAccount extends HibernateDetailObject {
   
   
   public String getAccountNumber() {
-    if ((accountNumberBus != null && !accountNumberBus.equals("")) || 
-        (accountNumberOrg != null && !accountNumberOrg.equals("")) || 
-        (accountNumberFund != null && !accountNumberFund.equals("")) || 
-        (accountNumberActivity != null && !accountNumberActivity.equals("")) || 
-        (accountNumberProject != null && !accountNumberProject.equals("")) || 
-        (accountNumberAccount != null && !accountNumberAccount.equals("")) ||
-        (accountNumberAu != null && !accountNumberAu.equals("")) || 
-        (accountNumberYear != null && !accountNumberYear.equals(""))) {
-      return this.getNonNullString(accountNumberBus) + 
-      this.getAccountNumberPart(accountNumberOrg) +
-      this.getAccountNumberPart(accountNumberFund) +
-      this.getAccountNumberPart(accountNumberActivity) + 
-      this.getAccountNumberPart(accountNumberProject) +
-      this.getAccountNumberPart(accountNumberAccount + 
-      this.getAccountNumberPart(accountNumberAu) + 
-      this.getAccountNumberPart(accountNumberYear) );      
+    if (InternalAccountFieldsConfiguration.getUseConfigurableBillingAccounts(null)) {
+      String[] parts = new String[10];
+      for(int i = 0; i < 10; i++) {
+        parts[i] = "";
+      }
+      for(InternalAccountFieldsConfiguration conf:InternalAccountFieldsConfiguration.getConfiguration(null)) {
+        if (conf.getInclude() != null && conf.getInclude().equals("Y")) {
+          int order = 0;
+          if (conf.getSortOrder() != null && conf.getSortOrder() >= 0 && conf.getSortOrder() < 10) {
+            order = conf.getSortOrder();
+          }
+          if (conf.getFieldName().equals(InternalAccountFieldsConfiguration.ACCOUNT)) {
+            parts[order] = getNonNullString(accountNumberAccount);
+          } else if (conf.getFieldName().equals(InternalAccountFieldsConfiguration.PROJECT)) {
+            parts[order] = getNonNullString(accountNumberProject);
+          } else if (conf.getFieldName().equals(InternalAccountFieldsConfiguration.CUSTOM_1)) {
+            parts[order] = getNonNullString(custom1);
+          } else if (conf.getFieldName().equals(InternalAccountFieldsConfiguration.CUSTOM_2)) {
+            parts[order] = getNonNullString(custom2);
+          } else if (conf.getFieldName().equals(InternalAccountFieldsConfiguration.CUSTOM_3)) {
+            parts[order] = getNonNullString(custom3);
+          }
+        }
+      }
+      
+      String accountNumber = "";
+      for(int i = 0; i < 10; i++) {
+        if (parts[i].length() > 0) {
+          if (accountNumber.length() > 0) {
+            accountNumber += "-";
+          }
+          accountNumber += parts[i];
+        }
+      }
+      return accountNumber;
+
     } else {
-      return "";
-    }
-    
+      if ((accountNumberBus != null && !accountNumberBus.equals("")) || 
+          (accountNumberOrg != null && !accountNumberOrg.equals("")) || 
+          (accountNumberFund != null && !accountNumberFund.equals("")) || 
+          (accountNumberActivity != null && !accountNumberActivity.equals("")) || 
+          (accountNumberProject != null && !accountNumberProject.equals("")) || 
+          (accountNumberAccount != null && !accountNumberAccount.equals("")) ||
+          (accountNumberAu != null && !accountNumberAu.equals("")) || 
+          (accountNumberYear != null && !accountNumberYear.equals(""))) {
+        return this.getNonNullString(accountNumberBus) + 
+        this.getAccountNumberPart(accountNumberOrg) +
+        this.getAccountNumberPart(accountNumberFund) +
+        this.getAccountNumberPart(accountNumberActivity) + 
+        this.getAccountNumberPart(accountNumberProject) +
+        this.getAccountNumberPart(accountNumberAccount + 
+        this.getAccountNumberPart(accountNumberAu) + 
+        this.getAccountNumberPart(accountNumberYear) );      
+      } else {
+        return "";
+      }
+    }    
   }  
   
   private String getAccountNumberPart(String part) {
@@ -420,7 +457,7 @@ public class BillingAccount extends HibernateDetailObject {
     return custom2;
   }
   public void setCustom2(String custom2) {
-    this.custom1 = custom2;
+    this.custom2 = custom2;
   }
   
   public String getCustom3() {

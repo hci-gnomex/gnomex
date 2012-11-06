@@ -80,6 +80,15 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     if (n.getAttributeValue("accountNumberYear") != null) {
       billingAccount.setAccountNumberYear(n.getAttributeValue("accountNumberYear"));
     } 
+    if (n.getAttributeValue("custom1") != null) {
+      billingAccount.setCustom1(n.getAttributeValue("custom1"));
+    } 
+    if (n.getAttributeValue("custom2") != null) {
+      billingAccount.setCustom2(n.getAttributeValue("custom2"));
+    } 
+    if (n.getAttributeValue("custom3") != null) {
+      billingAccount.setCustom3(n.getAttributeValue("custom3"));
+    } 
     
     if (n.getAttributeValue("startDate") != null && !n.getAttributeValue("startDate").equals("")) {
       billingAccount.setStartDate(this.parseDate(n.getAttributeValue("startDate")));

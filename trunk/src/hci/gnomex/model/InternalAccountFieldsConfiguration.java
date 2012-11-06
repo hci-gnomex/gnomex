@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.hibernate.Session;
 
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.hibernate3utils.HibernateDetailObject;
 
 
@@ -29,6 +30,7 @@ public class InternalAccountFieldsConfiguration extends HibernateDetailObject im
   public static final String CUSTOM_3           = "custom3";
 
   private static List<InternalAccountFieldsConfiguration> configurations = null;
+  private static Boolean useConfigurableBillingAccounts = false;
   
   public Integer getIdInternalAccountFieldsConfiguration() {
     return idInternalAccountFieldsConfiguration;
@@ -98,6 +100,11 @@ public class InternalAccountFieldsConfiguration extends HibernateDetailObject im
     return configurations;
   }
   
+  public static Boolean getUseConfigurableBillingAccounts(Session sess) {
+    loadConfigurations(sess);
+    return useConfigurableBillingAccounts;
+  }
+  
   public static synchronized void reloadConfigurations(Session sess) {
     configurations = null;
     loadConfigurations(sess);
@@ -112,6 +119,14 @@ public class InternalAccountFieldsConfiguration extends HibernateDetailObject im
       addConfiguration(CUSTOM_1, l);
       addConfiguration(CUSTOM_2, l);
       addConfiguration(CUSTOM_3, l);
+      
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+      String cba = pdh.getProperty(PropertyDictionary.CONFIGURABLE_BILLING_ACCOUNTS);
+      if (cba != null && cba.equals("Y")) {
+        useConfigurableBillingAccounts = true;
+      } else {
+        useConfigurableBillingAccounts = false;
+      }
     }
   }
   

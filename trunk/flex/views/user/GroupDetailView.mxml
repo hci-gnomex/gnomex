@@ -94,10 +94,24 @@
 				
 				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 				
+				if (parentApplication.useConfigurableBillingAccounts) {
+					var newPendingCols:Array = new Array();
+					var newActiveCols:Array = new Array();
+					var oldPendingCols:Array = this.pendingBillingAccountGrid.columns;
+					var oldActiveCols:Array = this.billingAccountGrid.columns;
+					configureAccountColumns(oldActiveCols, newActiveCols);
+					configureAccountColumns(oldPendingCols, newPendingCols);
+					this.pendingBillingAccountGrid.columns = newPendingCols;
+					this.pendingBillingAccountGrid.dataProvider = pendingBillingAccounts;
+					this.billingAccountGrid.columns = newActiveCols;
+					this.billingAccountGrid.dataProvider = billingAccounts;
+				}
+				
 				pendingBillingAccounts.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingPendingAccountChange);
 				pendingBillingAccounts.refresh();
 			}
 			
+		
 			private function underlyingPendingAccountChange(event:CollectionEvent):void {
 				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
 					// ignore refresh and resets 
@@ -105,6 +119,123 @@
 				}
 				
 				dirty.setDirty();
+			}
+		
+			private function configureAccountColumns(oldCols:Array, newCols:Array):void {
+				var nextNewCol:int = 0;
+				var haveInternalAccountFields:Boolean = false;
+				for each (var oldCol:DataGridColumn in oldCols) {
+					if (isInternalAccountField(oldCol)) {
+						if (!haveInternalAccountFields) {
+							nextNewCol = addInternalAccountFields(newCols, nextNewCol);
+							haveInternalAccountFields = true;
+						}
+					} else if (isConfigurableAccountField(oldCol)) {
+						if (isIncludedAccountField(oldCol)) {
+							newCols[nextNewCol] = oldCol;
+							nextNewCol++;
+						}
+					} else {
+						newCols[nextNewCol] = oldCol;
+						nextNewCol++;
+						
+					}
+				}
+			}
+			
+			private function isInternalAccountField(col:DataGridColumn):Boolean {
+				if (col == this.busCol || col == this.pendingBusCol
+					|| col == this.orgCol || col == this.pendingOrgCol
+					|| col == this.fundCol || col == this.pendingFundCol
+					|| col == this.activityCol || col == this.pendingActivityCol
+					|| col == this.projectCol || col == this.pendingProjectCol
+					|| col == this.accountCol || col == this.pendingAccountCol
+					|| col == this.auCol || col == this.pendingAuCol
+					|| col == this.yearCol || col == this.pendingYearCol) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			private function addInternalAccountFields(newCols:Array, nextNewCol:int):int {
+				var lastUsedOrd:int = -1;
+				for(var i:int=1; i<6; i++) {
+					var lastOrd:int = 99;
+					var selectedConfiguration:Object = null;
+					for each(var conf:XML in parentApplication.internalAccountFieldsConfigurationList) {
+						if (conf.attribute("include") == 'Y') {
+							var curOrd:int = int(conf.@sortOrder);
+							if (curOrd > lastUsedOrd && curOrd < lastOrd) {
+								selectedConfiguration = conf;
+								lastOrd = curOrd;
+							}
+						}
+					}
+					if (selectedConfiguration != null) {
+						lastUsedOrd = lastOrd;
+						var newCol:DataGridColumn = new DataGridColumn();
+						newCol.headerText = selectedConfiguration.@displayName;
+						newCol.dataField = getConfigurableInternalDataField(selectedConfiguration);
+						var w:int = new Number(selectedConfiguration.@maxLength);
+						newCol.width = w * 10;
+						newCols[nextNewCol] = newCol;
+						nextNewCol++;
+					}
+				}	
+				
+				return nextNewCol;
+			}
+
+			private function getConfigurableInternalDataField(conf:Object):String {
+				if (conf.@fieldName == "account") {
+					return "@accountNumberAccount";
+				} else if (conf.@fieldName == "project") {
+					return "@accountNumberProject";
+				} else {
+					return "@" + conf.@fieldName;
+				}
+			}
+			
+			private function isConfigurableAccountField(col:DataGridColumn):Boolean {
+				var fieldName:String = getConfigurableAccountFieldName(col);
+				if (fieldName != "") {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			private function isIncludedAccountField(col:DataGridColumn):Boolean {
+				var fieldName:String = getConfigurableAccountFieldName(col);
+				var val:Boolean = false;
+				for each (var conf:Object in parentApplication.otherAccountFieldsConfigurationList) {
+					if (conf.@fieldName == fieldName) {
+						if (conf.attribute("include") == "Y") {
+							val = true;
+						}
+						break;
+					}
+				}
+				
+				return val;
+			}
+			
+			private function getConfigurableAccountFieldName(col:DataGridColumn):String {
+				var fieldName:String = "";
+				if (col == this.pendingStartDateCol || col == this.startDateCol) {
+					fieldName = "startDate";
+				} else if (col == this.pendingExpirationDateCol || col == this.expirationDateCol) {
+					fieldName = "expirationDate";
+				} else if (col == this.pendingFundingAgencyCol || col == this.fundingAgencyCol) {
+					fieldName = "idFundingAgency";
+				} else if (col == this.pendingTotalDollarAmountCol || col == this.totalDollarAmountCol) {
+					fieldName = "totalDollarAmount";
+				} else if (col == this.pendingShortAcctCol || col == this.shortAcctCol) {
+					fieldName = "shortAcct";
+				}
+				
+				return fieldName;
 			}
 			
 			public function promptToSaveDirty():void {
@@ -247,33 +378,62 @@
 			
 			
 			private function isChartFieldFilledIn(ba:Object):Boolean {
-				if (ba.@accountNumberBus != '' && 
-					ba.@accountNumberBus != '' &&
-					ba.@accountNumberOrg != '' &&
-					ba.@accountNumberFund != '' &&
-					(ba.@accountNumberActivity != '' || ba.@accountNumberProject != '') &&
-					ba.@accountNumberAccount != '' &&
-					ba.@accountNumberAu != '' &&
-					ba.@accountNumberYear != '') {
-					return true;		
+				if (parentApplication.useConfigurableBillingAccounts) {
+					for each(var conf:Object in parentApplication.internalAccountFieldsConfigurationList) {
+						if (conf.attribute("include") == "Y" && conf.@isRequired == "Y") {
+							if (getInternalFieldValue(ba, conf).length == 0) {
+								return false;
+							}
+						}
+					}
+					return true;
 				} else {
-					return false;
+					if (ba.@accountNumberBus != '' && 
+						ba.@accountNumberBus != '' &&
+						ba.@accountNumberOrg != '' &&
+						ba.@accountNumberFund != '' &&
+						(ba.@accountNumberActivity != '' || ba.@accountNumberProject != '') &&
+						ba.@accountNumberAccount != '' &&
+						ba.@accountNumberAu != '' &&
+						ba.@accountNumberYear != '') {
+						return true;		
+					} else {
+						return false;
+					}
 				}
 			}
 			
+			private function getInternalFieldValue(ba:Object, conf:Object):String {
+				var attName:String = getConfigurableInternalDataField(conf);
+				// remove @
+				attName = attName.substr(1);
+				return ba.attribute(attName);
+			}
+			
 			private function isChartFieldBlank(ba:Object):Boolean {
-				if (ba.@accountNumberBus == '' && 
-					ba.@accountNumberBus == '' &&
-					ba.@accountNumberOrg == '' &&
-					ba.@accountNumberFund == '' &&
-					ba.@accountNumberActivity == '' && 
-					ba.@accountNumberProject == '' &&
-					ba.@accountNumberAccount == '' &&
-					ba.@accountNumberAu == '' &&
-					ba.@accountNumberYear == '') {
-					return true;		
+				if (parentApplication.useConfigurableBillingAccounts) {
+					for each(var conf:Object in parentApplication.internalAccountFieldsConfigurationList) {
+						if (conf.attribute("include") == "Y") {
+							if (getInternalFieldValue(ba, conf).length > 0) {
+								return false;
+							}
+						}
+					}
+					return true;
 				} else {
-					return false;
+					if (ba.@accountNumberBus == '' && 
+						ba.@accountNumberBus == '' &&
+						ba.@accountNumberOrg == '' &&
+						ba.@accountNumberFund == '' &&
+						ba.@accountNumberActivity == '' && 
+						ba.@accountNumberProject == '' &&
+						ba.@accountNumberAccount == '' &&
+						ba.@accountNumberAu == '' &&
+						ba.@accountNumberYear == '') {
+						return true;		
+					} else {
+						return false;
+					}
 				}
 			}
 			
@@ -287,6 +447,9 @@
 				ba.@accountNumberAccount = '';
 				ba.@accountNumberAu = '';
 				ba.@accountNumberYear = '';
+				ba.@custom1 = '';
+				ba.@custom2 = '';
+				ba.@custom3 = '';
 			}
 			
 			private function validateAndSave():void {
@@ -897,28 +1060,28 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
-						<mx:DataGridColumn dataField="@startDate" width="75"
+						<mx:DataGridColumn dataField="@startDate" width="75" id="startDateCol"
 										   headerText="Start"  
 										   itemEditor="views.renderers.DateFieldStartDate" 
 										   itemRenderer="mx.controls.Label" 
 										   rendererIsEditor="false" 
 										   labelFunction="getStartDateString"
 										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="75"
+						<mx:DataGridColumn dataField="@expirationDate" width="75" id="expirationDateCol"
 										   headerText="Expires"  
 										   itemEditor="views.renderers.DateFieldExpiration" 
 										   itemRenderer="mx.controls.Label" 
 										   rendererIsEditor="false" 
 										   labelFunction="getExpirationDateString"
 										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
-						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
-						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
-						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
-						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
-						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
-						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
-						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30" id="busCol"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50" id="orgCol"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50" id="fundCol"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70" id="activityCol"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70" id="projectCol"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50" id="accountCol"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25" id="auCol"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30" id="yearCol"/>
 						<mx:DataGridColumn headerText="Document"  width="100">
 							<mx:itemRenderer>
 								<mx:Component>
@@ -926,13 +1089,13 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" id="fundingAgencyCol" 
 										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
 										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
-						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
+						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80" id="totalDollarAmountCol"/>
 						<mx:DataGridColumn headerText="Total $ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="80"/>
-						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50"/>
+						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50" id="shortAcctCol"/>
 						<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
 										   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
 										   dataField="@acctUsers"/>
@@ -951,7 +1114,7 @@
 							 horizontalScrollPolicy="auto" fontSize="9">
 					<mx:dataProvider>{pendingBillingAccounts}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn headerText=""  
+						<mx:DataGridColumn headerText=""
 										   width="24" 
 										   editable="false"                         	
 										   dataField="@isApproved" 
@@ -968,34 +1131,34 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:DataGridColumn>
-						<mx:DataGridColumn dataField="@startDate" width="75"
+						<mx:DataGridColumn dataField="@startDate" width="75" id="pendingStartDateCol"
 										   headerText="Start"  
 										   itemEditor="views.renderers.DateFieldStartDate" 
 										   itemRenderer="mx.controls.Label" 
 										   rendererIsEditor="false" 
 										   labelFunction="getStartDateString"
 										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="75"
+						<mx:DataGridColumn dataField="@expirationDate" width="75" id="pendingExpirationDateCol"
 										   headerText="Expires"  
 										   itemEditor="views.renderers.DateFieldExpiration" 
 										   itemRenderer="mx.controls.Label" 
 										   rendererIsEditor="false" 
 										   labelFunction="getExpirationDateString"
 										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" id="pendingFundingAgencyCol"
 										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
 										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
-						<mx:DataGridColumn headerText="Total $ amt" textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
-						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
-						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
-						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
-						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
-						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
-						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
-						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
-						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
-						<mx:DataGridColumn headerText="Short" dataField="@shortAcct" width="50"/>
+						<mx:DataGridColumn headerText="Total $ amt" textAlign="right" dataField="@totalDollarAmountDisplay" width="80" id="pendingTotalDollarAmountCol" />
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30" id="pendingBusCol" />
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50" id="pendingOrgCol" />
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50" id="pendingFundCol" />
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70" id="pendingActivityCol"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70" id="pendingProjectCol"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50" id="pendingAccountCol" />
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25" id="pendingAuCol" />
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30" id="pendingYearCol"/>
+						<mx:DataGridColumn headerText="Short" dataField="@shortAcct" width="50" id="pendingShortAcctCol"/>
 						<mx:DataGridColumn headerText="Created"  editable="false" dataField="@createDate" width="30"/>
 						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
 						<mx:DataGridColumn headerText="UID"  dataField="@submitterUID" width="10"/>
