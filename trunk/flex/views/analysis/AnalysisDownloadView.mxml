@@ -290,17 +290,33 @@
 					Alert.show("Please select the files to delete.");
 					return;
 				} else if (selectedFileList.length == 1) {
-					Alert.show("Are you sure you want to remove the file?",
-						"Confirm",
-						(Alert.YES | Alert.NO), this, 
-						onPromptToRemoveFile,						
-						parentApplication.iconWarning);
+					if ( dataTrackFileSelected() ) {
+						Alert.show("This file is linked to a data track.  Do you want to remove the file and delete the associated data track?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					} else {
+						Alert.show("Are you sure you want to remove the file?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					}
 				} else if (selectedFileList.length > 1 ) {
-					Alert.show("Are you sure you want to remove the files?",
-					"Confirm",
-					(Alert.YES | Alert.NO), this, 
-					onPromptToRemoveFile,						
-					parentApplication.iconWarning);
+					if ( dataTrackFileSelected() ) {
+						Alert.show("At lease one selected file is linked to a data track.  Do you want to remove the files and delete any associated data tracks?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					} else {
+						Alert.show("Are you sure you want to remove the files?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					}
 				}
 			}
 			
@@ -325,11 +341,19 @@
 			}
 			
 			private function promptToRemoveAllFiles():void {
-				Alert.show("Are you sure you want to remove all the files?",
-					"Confirm",
-					(Alert.YES | Alert.NO), this, 
-					onPromptToRemoveAllFiles,						
-					parentApplication.iconWarning);
+				if ( dataTrackFileSelected() ) {
+					Alert.show("At lease one selected file is linked to a data track.  Do you want to remove all the files and delete any associated data tracks?",
+						"Confirm",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToRemoveFile,						
+						parentApplication.iconWarning);
+				} else {
+					Alert.show("Are you sure you want to remove all the files?",
+						"Confirm",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToRemoveAllFiles,						
+						parentApplication.iconWarning);
+				}
 			}
 			
 			private function onPromptToRemoveAllFiles(event:CloseEvent):void  {
@@ -352,7 +376,18 @@
 					} 
 				}
 			}
-
+			
+			private function dataTrackFileSelected():Boolean {
+				var hasDataTrack:Boolean = false;
+				for each(var f:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true")){		
+					if (f.@isSupportedDataTrack == 'Y') {
+						hasDataTrack = true;
+						break
+					}
+				}
+				return hasDataTrack;
+			}
+			
 			public function getDirtyAnalysisFiles():XML{
 				var topNodeShallow:XML = new XML("<Analysis/>");
 				if(downloadList.length > 0) {
@@ -361,7 +396,7 @@
 				}
 				return topNodeShallow;
 			}
-
+			
 			public function getDataTrackAnalysisFiles():XML{
 				var topNodeShallow:XML = new XML("<Analysis/>");
 				if(downloadList.length > 0) {
@@ -395,7 +430,7 @@
 					recurseGetDirty(childNode, childNodeShallow);
 				}
 			}
-
+			
 			private function recurseGetDataTrack(node:XML, nodeShallow:XML):void {
 				for each(var childNode:XML in node.children()) {
 					var keep:Boolean = false;					
@@ -419,13 +454,13 @@
 					recurseGetDataTrack(childNode, childNodeShallow);
 				}
 			}
-
+			
 			private function shallowCopy(source:XML, destination:XML):void {
 				for each(var attr:XML in source.attributes()) {
 					destination[attr.name()] = attr.toString();
 				}
 			}
-
+			
 			
 			public function hasUnregisteredFiles():Boolean {
 				var hasUnregisteredFile:Boolean = false;
@@ -461,14 +496,14 @@
 				filesToDelete.removeAll();
 			}
 			
-      		private function checkEdit(event:AdvancedDataGridEvent):void{
-        		if ( event.itemRenderer.data.@type == "dir"){
-          			event.preventDefault();
-        		} else {
+			private function checkEdit(event:AdvancedDataGridEvent):void{
+				if ( event.itemRenderer.data.@type == "dir"){
+					event.preventDefault();
+				} else {
 					event.itemRenderer.data.@dirty = 'Y';
 					parentDocument.dirty.setDirty();
 				}
-      		}
+			}
 			
 		]]>
 	</mx:Script>
@@ -530,8 +565,8 @@
 							 borderStyle="solid" 
 							 headerWordWrap="false" 
 							 resizableColumns="true"
-               editable="true"
-               itemEditBeginning="checkEdit(event)">						
+							 editable="true"
+							 itemEditBeginning="checkEdit(event)">						
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{downloadList}"/>
 			</mx:dataProvider>						  
