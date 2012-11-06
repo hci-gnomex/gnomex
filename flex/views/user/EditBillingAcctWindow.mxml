@@ -142,6 +142,7 @@
 					currentState = "openSourceEditState";
 				} else {
 					currentState = "openSourceWorkAuthState";
+					this.title = "Enter Work Authorization";
 				}
 				var lastUsedOrd:int = -1;
 				for(var i:int=1; i<6; i++) {
@@ -167,6 +168,7 @@
 					currentState = "internalEditState";
 				} else {
 					currentState = "internalWorkAuthState";
+					this.title = "Enter Work Authorization";
 				}
 			}
 			originalBa = ba.copy();
