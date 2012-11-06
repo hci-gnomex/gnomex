@@ -3,7 +3,9 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PropertyDictionary;
@@ -93,8 +95,10 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         
         req.setCodeRequestStatus( codeRequestStatus );
         
-        if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
-          req.setCreateDate(new java.util.Date());
+        if ( oldRequestStatus!=null ) {
+          if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
+            req.setCreateDate(new java.util.Date());
+          }
         }
         
         // If this is a DNA Seq core request, we need to create the billing items and send confirmation email 
@@ -127,6 +131,10 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
           if ( req.getCompletedDate() == null ) {
             req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
+          }
+          // Now change the billing items for the request from PENDING to COMPLETE
+          for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
           }
         }
         sess.flush();

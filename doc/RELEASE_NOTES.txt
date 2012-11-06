@@ -25,6 +25,8 @@
 * Fixed bug that was showing duplicate Agilient Microarray sheets in billing pricing view.(tcourdy)
 * When a user requests a new gnomex account, send a notification email to the primary contact for the lab the user requested to be a part of as well as any managers for the lab.(tcourdy)
 * Added expand/collapse labs button to billing request tree (mbowler)
+* Billing items change to complete when orders do. (mbowler)
+* Orders are not re-marked complete if they are already complete. (mbowler)
 
 deploy notes
 ----------------------

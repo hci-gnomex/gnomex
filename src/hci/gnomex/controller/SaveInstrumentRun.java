@@ -2,6 +2,8 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
@@ -19,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -243,6 +246,10 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
         if ( status.equals( RequestStatus.COMPLETED ) ) {
           if ( req.getCompletedDate() == null ) {
             req.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+          }
+          // Now change the billing items for the request from PENDING to COMPLETE
+          for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
           }
         }
       }
