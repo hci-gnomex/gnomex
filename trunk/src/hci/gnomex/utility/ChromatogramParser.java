@@ -343,6 +343,13 @@ public class ChromatogramParser extends DetailObject implements Serializable
       // If request is complete, get it and change request status and complete date
       Request req = (Request) sess.get(Request.class, idReq );
       
+      // If the request was already complete or failed, skip it.
+      String oldRequestStatus = req.getCodeRequestStatus();
+      if ( oldRequestStatus != null && ( oldRequestStatus.equals( RequestStatus.COMPLETED ) || oldRequestStatus.equals( RequestStatus.FAILED )) ) {
+        continue;
+      }
+      
+      
       req.setCodeRequestStatus( RequestStatus.COMPLETED );
       req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
       
