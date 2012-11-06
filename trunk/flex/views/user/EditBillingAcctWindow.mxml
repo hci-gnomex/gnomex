@@ -102,6 +102,7 @@
 	useProxy="false">
 	<mx:request>
 		<idLab>{labCombo.selectedItem.@idLab}</idLab>
+		<forWorkAuth>Y</forWorkAuth>
 	</mx:request>
 </mx:HTTPService >
 
