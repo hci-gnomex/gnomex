@@ -33,6 +33,7 @@ public class USeq2Text {
 				//is it stranded
 				USeqArchive ua = new USeqArchive(useqArchives[i]);
 				if (ua.isStranded()){
+					
 					File wigFile = new File (useqArchives[i].getParentFile(), USeqUtilities.removeExtension(useqArchives[i].getName())+"Plus.wig");
 					print2WigFile(useqArchives[i], wigFile, "+");
 					wigFile = new File (useqArchives[i].getParentFile(), USeqUtilities.removeExtension(useqArchives[i].getName())+"Minus.wig");
@@ -187,6 +188,7 @@ public class USeq2Text {
 	/**Prints a UseqArchive binary file to a variable step wig file. Set strand to null for all or use + or - .*/
 	public void print2WigFile (File inputUseqArchive, File outputTextFile, String strand){
 		try {
+			
 			PrintWriter out = new PrintWriter (new FileWriter (outputTextFile));
 			ZipFile zf = new ZipFile(inputUseqArchive);
 			Enumeration<ZipEntry> e = (Enumeration<ZipEntry>) zf.entries();
@@ -210,14 +212,12 @@ public class USeq2Text {
 			boolean bedGraphFormat = false;
 			String graphType = ai.getValue(ArchiveInfo.GRAPH_STYLE_KEY);
 			if (graphType.equals(ArchiveInfo.GRAPH_STYLE_VALUE_STAIRSTEP) || graphType.equals(ArchiveInfo.GRAPH_STYLE_VALUE_HEATMAP)) bedGraphFormat = true;
-
 			//write data slices
-			if (bedGraphFormat){
-				writeBedGraph(zf, e, out, strand);
-			}
+			if (bedGraphFormat) writeBedGraph(zf, e, out, strand);
 
 			else {
 				String chromosome = "";
+				
 				while(e.hasMoreElements()) {
 					ze = e.nextElement();
 					//make a SliceInfo object
@@ -225,11 +225,14 @@ public class USeq2Text {
 					DataInputStream dis = new DataInputStream( new BufferedInputStream(zf.getInputStream(ze)));
 					String extension = si.getBinaryType();
 					//correct strand?
-					if (strand != null && strand.equals(si.getStrand()) == false) continue;
+					if (strand != null && strand.equals(si.getStrand()) == false) {
+						continue;
+					}
 					//add new chromosome line?
 					if (si.getChromosome().equals(chromosome) == false) {
 						chromosome = si.getChromosome();
 						out.println("variableStep chrom="+chromosome);
+
 					}
 					//call appropriate maker
 					//Position
@@ -253,6 +256,7 @@ public class USeq2Text {
 		}
 	}
 	public void writeBedGraph(ZipFile zf, Enumeration<ZipEntry> e, PrintWriter out, String strand) throws IOException {
+		
 		ZipEntry ze;
 		String tab = "\t";
 		String chromosome = null;
@@ -264,16 +268,23 @@ public class USeq2Text {
 			DataInputStream dis = new DataInputStream( new BufferedInputStream(zf.getInputStream(ze)));
 			String extension = si.getBinaryType();
 			//correct strand?
-			if (strand != null && strand.equals(si.getStrand()) == false) continue;
+			if (strand != null && strand.equals(si.getStrand()) == false) {
+				continue;
+				
+			}
 			//new chromosome line?
-			if (chromosome == null) chromosome = si.getChromosome();
+			if (chromosome == null) {
+				chromosome = si.getChromosome();
+			}
+			
 			else if (si.getChromosome().equals(chromosome) == false) {
 				//merge
 				PositionScoreData merged = PositionScoreData.merge(psAL);
 				int[] positions = merged.getBasePositions();
 				float[] scores = merged.getBaseScores();
-
+				
 				//write paired blocks that have the same score
+				int lastPosition = -1;
 				for (int i=0; i< scores.length; i++){
 					int next = i+1;
 					if (next == scores.length) break;
@@ -281,9 +292,19 @@ public class USeq2Text {
 					if (scores[i] == scores[next]){
 						//zero?
 						if (skipZeroBlockBedGraphs && scores[i] == 0) continue;
-						out.print(chromosome); out.print(tab); 
-						out.print(positions[i]); out.print(tab); 
-						out.print(positions[next]+1); out.print(tab); 
+						out.print(chromosome); out.print(tab);
+						
+						//check position
+						int pos = positions[i];
+						if (pos < lastPosition) pos = lastPosition;
+						else lastPosition = pos;
+						out.print(pos); out.print(tab); 
+						
+						pos = positions[next]+1;
+						if (pos < lastPosition) pos = lastPosition;
+						else lastPosition = pos;
+						
+						out.print(pos); out.print(tab); 
 						out.println(scores[i]);
 						i++;
 					}
@@ -294,8 +315,18 @@ public class USeq2Text {
 							//zero?
 							if (skipZeroBlockBedGraphs && scores[i] == 0) continue;
 							out.print(chromosome); out.print(tab); 
-							out.print(positions[i]); out.print(tab); 
-							out.print(positions[i]+1); out.print(tab); 
+							
+							//check position
+							int pos = positions[i];
+							if (pos < lastPosition) pos = lastPosition;
+							else lastPosition = pos;
+							out.print(pos); out.print(tab); 
+							
+							pos = positions[next]+1;
+							if (pos < lastPosition) pos = lastPosition;
+							else lastPosition = pos;
+							
+							out.print(pos); out.print(tab); 
 							out.println(scores[i]);
 						}
 					}
@@ -312,21 +343,24 @@ public class USeq2Text {
 			}
 			//PositionScoreText
 			else if (USeqUtilities.POSITION_SCORE_TEXT.matcher(extension).matches()) {
-				new PositionScoreTextData (dis, si).writePositionScore(out);
+				//new PositionScoreTextData (dis, si).writePositionScore(out);
 				PositionScoreTextData p = new PositionScoreTextData (dis, si);
 				psAL.add(new PositionScoreData (p.getBasePositions(), p.getBaseScores(), si));
 			}
 			else  throw new IOException("\nThis USeq archive lacks score information thus it cannot be made into a bed graph!  Use the native text or bed file output option. \n");
+			
+			
 			dis.close();
 		}
 		
-		//write last chromosome
+		//write last chromosome, might be the first if only one slice!
 		//merge
 		PositionScoreData merged = PositionScoreData.merge(psAL);
 		int[] positions = merged.getBasePositions();
 		float[] scores = merged.getBaseScores();
 
 		//write paired blocks that have the same score
+		int lastPosition = -1;
 		for (int i=0; i< scores.length; i++){
 			int next = i+1;
 			if (next == scores.length) break;
@@ -335,8 +369,17 @@ public class USeq2Text {
 				//zero?
 				if (skipZeroBlockBedGraphs && scores[i] == 0) continue;
 				out.print(chromosome); out.print(tab); 
-				out.print(positions[i]); out.print(tab); 
-				out.print(positions[next]+1); out.print(tab); 
+				//check position
+				int pos = positions[i];
+				if (pos < lastPosition) pos = lastPosition;
+				else lastPosition = pos;
+				out.print(pos); out.print(tab); 
+				
+				pos = positions[next]+1;
+				if (pos < lastPosition) pos = lastPosition;
+				else lastPosition = pos;
+				
+				out.print(pos); out.print(tab); 
 				out.println(scores[i]);
 			}
 		}
@@ -353,7 +396,7 @@ public class USeq2Text {
 	/**This method will process each argument and assign new variables*/
 	public void processArgs(String[] args){
 		Pattern pat = Pattern.compile("-[a-z]");
-		System.out.println("\nArguments: "+USeqUtilities.stringArrayToString(args, " ")+"\n");
+		System.out.println("\n Arguments: "+USeqUtilities.stringArrayToString(args, " ")+"\n");
 		for (int i = 0; i<args.length; i++){
 			String lcArg = args[i].toLowerCase();
 			Matcher mat = pat.matcher(lcArg);
@@ -383,7 +426,7 @@ public class USeq2Text {
 	public static void printDocs(){
 		System.out.println("\n" +
 				"**************************************************************************************\n" +
-				"**                                USeq 2 Text: Aug 2011                             **\n" +
+				"**                                USeq 2 Text: Oct 2012                             **\n" +
 				"**************************************************************************************\n" +
 				"Converts USeq archives to text either as minimal native, bed, or wig graph format. \n" +
 				"\n" +
