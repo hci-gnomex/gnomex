@@ -497,6 +497,7 @@
 						" isApproved='N'" +
 						" isSelectedPeerReviewedFunding='false'" + 
 						"/>");
+					PopUpManager.centerPopUp(wa);
 				}
 			}			       
 			private function showDictionaries():void {

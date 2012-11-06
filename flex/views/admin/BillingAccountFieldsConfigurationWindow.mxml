@@ -64,6 +64,14 @@
 						Alert.show(maxResult.message, "Error", Alert.OK, null, null, parentApplication.iconError);
 						return;
 					}
+					if (i.attribute("include") == "Y") {
+						for each (var j:Object in internalFields) {
+							if (j.@fieldName != i.@fieldName && j.attribute("include") == "Y" && j.@sortOrder == i.@sortOrder) {
+								Alert.show("Sort order must be unique for included internal fields", "Error", Alert.OK, null, null, parentApplication.iconError);
+								return;
+							}
+						} 
+					}
 				}
 				
 				var params:Object = new Object();

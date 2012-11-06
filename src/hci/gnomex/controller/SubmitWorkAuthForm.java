@@ -63,18 +63,6 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     HashMap errors = this.loadDetailObject(request, billingAccount);
     this.addInvalidFields(errors);
     
-    if(request.getParameter("accountNumberBus").length() != 2 || request.getParameter("accountNumberOrg").length() != 5 ||
-        request.getParameter("accountNumberFund").length() != 4 || request.getParameter("accountNumberAccount").length() != 5 ||
-        request.getParameter("accountNumberAu").length() != 1 || request.getParameter("accountNumberYear").length() != 4 ||
-        (request.getParameter("accountNumberActivity").length() != 5 && request.getParameter("accountNumberProject").equals("")) ||
-        (request.getParameter("accountNumberProject").length() != 8) && request.getParameter("accountNumberActivity").equals("") ){
-      
-      this.setResponsePage(this.ERROR_JSP);
-      this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check");
-      return;
-    }
-        
-    
     if (request.getParameter("totalDollarAmountDisplay") != null && !request.getParameter("totalDollarAmountDisplay").equals("")) {
       String tda = request.getParameter("totalDollarAmountDisplay");
       tda = tda.replaceAll("\\$", "");
@@ -100,27 +88,47 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       
       lab = (Lab)sess.load(Lab.class, billingAccount.getIdLab());
       
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_WORK_AUTH_FORMS)) {
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+      String configurable = pdh.getProperty(PropertyDictionary.CONFIGURABLE_BILLING_ACCOUNTS);
+      if (configurable == null || configurable.equals("N")) {
+        if(billingAccount.getAccountNumberBus() == null || billingAccount.getAccountNumberBus().length() != 2 || 
+            billingAccount.getAccountNumberOrg() == null || billingAccount.getAccountNumberOrg().length() != 5 ||
+            billingAccount.getAccountNumberFund() == null || billingAccount.getAccountNumberFund().length() != 4 || 
+            billingAccount.getAccountNumberAccount() == null || billingAccount.getAccountNumberAccount().length() != 5 ||
+            billingAccount.getAccountNumberAu() == null || billingAccount.getAccountNumberAu().length() != 1 || 
+            billingAccount.getAccountNumberYear() == null || billingAccount.getAccountNumberYear().length() != 4 ||
+            ((billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().equals("")) && (billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().length() !=5)) ||
+            ((billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().equals("")) && (billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().length() !=8))) {
+          
+          this.setResponsePage(this.ERROR_JSP);
+          this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check");
+          setResponsePage(this.ERROR_JSP);
+        }
+      }
 
-        billingAccount.setSubmitterUID(this.getSecAdvisor().getUID());
-        billingAccount.setIsApproved("N");
-        billingAccount.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+      if (this.isValid()) {
+        if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_WORK_AUTH_FORMS)) {
+  
+          billingAccount.setSubmitterUID(this.getSecAdvisor().getUID());
+          billingAccount.setIsApproved("N");
+          billingAccount.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+          
+          sess.save(billingAccount);
+           
+          sess.flush();
+          
+          facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
+  
+  
+          this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" />";
         
-        sess.save(billingAccount);
-         
-        sess.flush();
-        
-        facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
-
-
-        this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" />";
-      
-        this.sendConfirmationEmail(sess);
-        
-        setResponsePage(this.SUCCESS_JSP);
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to submit work authorization form.");
-        setResponsePage(this.ERROR_JSP);
+          this.sendConfirmationEmail(sess);
+          
+          setResponsePage(this.SUCCESS_JSP);
+        } else {
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to submit work authorization form.");
+          setResponsePage(this.ERROR_JSP);
+        }
       }
       
     }catch (Exception e){
@@ -192,9 +200,15 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     body.append("<tr><td>Core Facility:</td><td>" + facility.getDisplay() + "</td></tr>");
     body.append("<tr><td>Account:</td><td>" + billingAccount.getAccountName() + "</td></tr>");
     body.append("<tr><td>Chartfield:</td><td>" + billingAccount.getAccountNumber() + "</td></tr>");
-    body.append("<tr><td>Funding Agency:</td><td>" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "</td></tr>");
-    body.append("<tr><td>Effective until:</td><td>" + billingAccount.getExpirationDateOther() + "</td></tr>");
-    body.append("<tr><td>Total Dollar Amount:</td><td>" + billingAccount.getTotalDollarAmountDisplay() + "</td></tr>");
+    if (billingAccount.getIdFundingAgency() != null) {
+      body.append("<tr><td>Funding Agency:</td><td>" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "</td></tr>");
+    }
+    if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
+      body.append("<tr><td>Effective until:</td><td>" + billingAccount.getExpirationDateOther() + "</td></tr>");
+    }
+    if (billingAccount.getTotalDollarAmountDisplay() != null && billingAccount.getTotalDollarAmountDisplay().length() > 0) {
+      body.append("<tr><td>Total Dollar Amount:</td><td>" + billingAccount.getTotalDollarAmountDisplay() + "</td></tr>");
+    }
     body.append("<tr><td>Submitter UID:</td><td>" + billingAccount.getSubmitterUID() + "</td></tr>");
     body.append("<tr><td>Submitter Email:</td><td>" + billingAccount.getSubmitterEmail() + "</td></tr>");
     body.append("</table>");
