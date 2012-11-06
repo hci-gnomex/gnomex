@@ -43,6 +43,7 @@ public class GetLab extends GNomExCommand implements Serializable {
   
   
   private Lab        lab;
+  private Boolean    isForWorkAuth = false;
   
   public void validate() {
   }
@@ -57,6 +58,12 @@ public class GetLab extends GNomExCommand implements Serializable {
       this.addInvalidField("idLab required", "idLab required");
     }
     
+    String wa =  (String) request.getParameter("forWorkAuth");
+    if (wa != null && wa.equals("Y")) {
+      isForWorkAuth = true;
+    } else {
+      isForWorkAuth = false;
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -175,7 +182,23 @@ public class GetLab extends GNomExCommand implements Serializable {
           
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
+
+    } else if (isForWorkAuth) {
+      theLab.excludeMethodFromXML("getMembers");
+      theLab.excludeMethodFromXML("getCollaboratorss");
+      theLab.excludeMethodFromXML("getManagerss");
+      theLab.excludeMethodFromXML("getInstitutions");
+      theLab.excludeMethodFromXML("getProjects");
+      theLab.excludeMethodFromXML("getApprovedBillingAccounts");
+      theLab.excludeMethodFromXML("getPendingBillingAccounts");
+
+      Document doc = new Document(new Element("OpenLabList"));
+      Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      doc.getRootElement().addContent(labNode);
       
+      
+      XMLOutputter out = new org.jdom.output.XMLOutputter();
+      this.xmlResult = out.outputString(doc);
     } else {
       this.xmlResult = "<OpenLabList/>";
     }
