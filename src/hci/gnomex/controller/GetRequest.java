@@ -209,7 +209,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           
           flagPlateInfo(newRequest, request, requestNode);
-          AppUser user = (AppUser) sess.load(AppUser.class, request.getIdSubmitter());
+          
+          AppUser user = null;
+          if(request.getIdSubmitter() != null  && request.getIdSubmitter() != 0){
+            user = (AppUser) sess.load(AppUser.class, request.getIdSubmitter());
+          }
           
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
           requestNode.setAttribute("requestStatus", requestStatus);
@@ -220,8 +224,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
             accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
-          requestNode.setAttribute("email", user.getEmail() != null ? user.getEmail() : "");
-          requestNode.setAttribute("phone", user.getPhone() != null ? user.getPhone() : "");
+          
+          if(user != null){
+            requestNode.setAttribute("email", user.getEmail() != null ? user.getEmail() : "");
+            requestNode.setAttribute("phone", user.getPhone() != null ? user.getPhone() : "");
+          }
           
 
           // Initialize attributes from request category
