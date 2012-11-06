@@ -28,6 +28,8 @@
 * Billing items change to complete when orders do. (mbowler)
 * Orders are not re-marked complete if they are already complete. (mbowler)
 * Deleting analyses and/or analysis files removed the data tracks that are associated with them. (mbowler)
+* Updates to RegisterFiles so that missing analysis files will be removed from the database along with any data tracks associated with those files. Owners of the data tracks will be notified as will owners of the analysis files if there were comments on that file. (mbowler)
+
 
 deploy notes
 ----------------------
