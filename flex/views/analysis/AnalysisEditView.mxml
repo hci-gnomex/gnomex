@@ -437,22 +437,6 @@
 				} 
 				
 				
-				if (filesView.getFilesToDelete().length > 0) {
-					if (analysis.DataTrackList.@count > 0) {
-						var linkedDataTrackCount:int = 0;
-						for each(var fileToDelete:Object in filesView.getFilesToDelete()) {
-							for each( var dt:Object in analysis.DataTrackList.DataTrack) {
-								if (dt.@idAnalysisFile == fileToDelete.@idAnalysisFileString) {
-									linkedDataTrackCount++;
-								}
-							}
-						}
-						if (linkedDataTrackCount > 0) {
-							Alert.show("Please remove or unlink associated data tracks first.");
-							return;
-						}
-					}
-				}
 				
 				if(!analysisProperties.requiredAnnotationsEntered()) {
 					return;		

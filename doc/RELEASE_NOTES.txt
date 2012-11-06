@@ -27,6 +27,7 @@
 * Added expand/collapse labs button to billing request tree (mbowler)
 * Billing items change to complete when orders do. (mbowler)
 * Orders are not re-marked complete if they are already complete. (mbowler)
+* Deleting analyses and/or analysis files removed the data tracks that are associated with them. (mbowler)
 
 deploy notes
 ----------------------
