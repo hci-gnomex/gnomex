@@ -43,6 +43,8 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   private String         coreFacilityName;
   private String         coreFacilityContactName;
   private String         coreFacilityContactPhone;
+  private String         invoiceNote1;
+  private String         invoiceNote2;
 
 
   private DictionaryHelper dictionaryHelper;
@@ -61,6 +63,8 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     this.coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
     this.coreFacilityContactName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
     this.coreFacilityContactPhone = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_PHONE_CORE_FACILITY);
+    this.invoiceNote1 = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.INVOICE_NOTE_1);
+    this.invoiceNote2 = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.INVOICE_NOTE_2);
  
     this.dictionaryHelper = DictionaryHelper.getInstance(sess);
   }
@@ -70,8 +74,9 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     if (acctNum == null || !acctNum.equals("")) {
       acctNum = billingAccount.getAccountName();
     }
-    String subject = billingPeriod.getBillingPeriod() + " Microarray Chargeback" +
-                     " - " + acctNum;
+   
+    String subject = coreFacility.getFacilityName() + " Billing Summary for " + billingPeriod.getBillingPeriod() + " - " + acctNum;
+
     return subject;
   }
   
@@ -113,7 +118,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   public String format() throws Exception {
 
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(coreFacilityName, coreFacilityContactName, coreFacilityContactPhone,
-        billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
+        invoiceNote1, invoiceNote2, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     
     Element root = new Element("HTML");
     Document doc = new Document(root);
