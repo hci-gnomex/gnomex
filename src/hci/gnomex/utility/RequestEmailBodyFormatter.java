@@ -154,7 +154,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     if (introNote != null) {
       
     }
-    Element centera = new Element("CENTER");
+    Element centera = new Element("LEFT");
     
     
     body.addContent(formatter.makeIntroNote(introNote.toString()));
@@ -165,7 +165,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     body.addContent(centera);
 
     
-    Element center = new Element("CENTER");
+    Element center = new Element("LEFT");
     body.addContent(center);
     
     Element h2 = new Element("H2");
@@ -181,7 +181,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     }
 
     
-    Element center1 = new Element("CENTER");
+    Element center1 = new Element("LEFT");
     body.addContent(center1);
     
     if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
