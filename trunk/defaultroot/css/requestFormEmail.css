@@ -3,7 +3,7 @@ body {
       font-family: arial,Helvetica,sans-serif;
       font-size: 9pt;
       width: 700;
-      text-align: center;
+      text-align: left;
       margin-left: auto;
       margin-right: auto;
  }
@@ -93,7 +93,7 @@ H2 {
       margin-bottom: 0;
       font-size: 12pt;
       font-weight: bold;
-      text-align: center;
+      text-align: left;
 } 
 
 h3 {
@@ -109,7 +109,7 @@ h4 {
       margin-bottom: 10;
       font-size: 10pt;
       font-weight: bold;
- 	text-align: center;
+ 	text-align: left;
 }
 
 h5
@@ -117,7 +117,7 @@ h5
   font-size: 10pt;
   font-weight: bold;
   color: #8B7765;
-  text-align: center;
+  text-align: left;
   margin-top: 15;
   margin-bottom: 5;
 }
@@ -135,7 +135,7 @@ h6 {
   border: solid thin;
   border-color: #D8D8D8 ;
   width: 650;
-  text-align: center;
+  text-align: left;
 }
  
 
