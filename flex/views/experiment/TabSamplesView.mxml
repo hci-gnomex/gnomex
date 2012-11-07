@@ -47,7 +47,7 @@
 		[Bindable]
 		private var isExternal:Boolean = false;
 		[Bindable]
-		private var isEditState:Boolean = false;
+		public var isEditState:Boolean = false;
 
 		private var uploadFR:FileReference;
 		private var uploadSampleSheetURL:String;

@@ -427,9 +427,12 @@
 					ssRowCount++;  
 					if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
 						if(ssRowCount <= ssRowList.length()) {
-							if (!tabSamplesView.addSample()) {
-								// add sample failed.
-								break;
+							// Only add sample if we are creating a new experiment (not on edit)
+							if (!tabSamplesView.isEditState) {
+								if (!tabSamplesView.addSample()) {
+									// add sample failed.
+									break;
+								}
 							}
 						}
 					}
