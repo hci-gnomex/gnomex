@@ -11,7 +11,7 @@ CREATE TABLE `gnomex`.`InternalAccountFieldsConfiguration` (
   minLength INT(10) NULL,
   maxLength INT(10) NULL,
   PRIMARY KEY (`idInternalAccountFieldsConfiguration`),
-  UNIQUE KEY `UN_InternalAccountFieldsConfiguration` (fieldName),
+  UNIQUE KEY `UN_InternalAccountFieldsConfiguration` (fieldName)
 )
 ENGINE = INNODB;
 
@@ -22,7 +22,7 @@ CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
   `include` CHAR(1) NULL,
   `isRequired` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idOtherAccountFieldsConfiguration`),
-  UNIQUE KEY `UN_OtherAccountFieldsConfiguration` (fieldName),
+  UNIQUE KEY `UN_OtherAccountFieldsConfiguration` (fieldName)
 )
 ENGINE = INNODB;
 
