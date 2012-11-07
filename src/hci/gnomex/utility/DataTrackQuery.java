@@ -57,6 +57,7 @@ public class DataTrackQuery implements Serializable {
 	private static final int                         DATATRACK_LEVEL = 2;
 	
 	
+	
   private TreeMap<String, TreeMap<GenomeBuild, ?>> organismToGenomeBuild;
   private HashMap<String, TreeMap<String, ?>>      genomeBuildToRootFolders;
   private HashMap<String, TreeMap<String, ?>>      folderToFolders;
@@ -69,6 +70,19 @@ public class DataTrackQuery implements Serializable {
   private HashMap<Integer, DataTrack>              dataTrackMap;
   private HashMap<Integer, DataTrackFolder>        dataTrackFolderMap;
 
+  public static final int       COL_ORGANISM = 0;
+  public static final int       COL_GENOME_BUILD = 1;
+  public static final int       COL_DATATRACK = 4;
+  
+  public static final int       COL_ID_DATATRACK = 0;
+  public static final int       COL_ID_PROPERTY = 1;
+  public static final int       COL_PROPERTY_TYPE = 2;
+  public static final int       COL_PROPERTY_NAME = 3;
+  public static final int       COL_PROPERTY_VALUE = 4;
+  public static final int       COL_PROPERTY_MULTI_VALUE = 5;
+  public static final int       COL_PROPERTY_OPTION = 6;
+
+  
 	@SuppressWarnings("unchecked")
 	public static List<UnloadDataTrack> getUnloadedDataTracks(Session sess, SecurityAdvisor secAdvisor, GenomeBuild genomeBuild) throws Exception {
 		StringBuffer queryBuf = new StringBuffer();
@@ -254,7 +268,7 @@ public class DataTrackQuery implements Serializable {
 	  
 	}
 
-	private StringBuffer getDataTrackQuery(SecurityAdvisor secAdvisor) throws Exception {
+	public StringBuffer getDataTrackQuery(SecurityAdvisor secAdvisor) throws Exception {
 		
 		addWhere = true;
 		queryBuf = new StringBuffer();
@@ -302,6 +316,41 @@ public class DataTrackQuery implements Serializable {
 	}
 
 
+
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor) {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT     DISTINCT ");
+    queryBuf.append("            dataTrack.idDataTrack,  ");
+    queryBuf.append("            prop.idProperty, ");
+    queryBuf.append("            prop.codePropertyType, ");
+    queryBuf.append("            prop.name, ");
+    queryBuf.append("            propEntry.value, ");
+    queryBuf.append("            value.value, ");
+    queryBuf.append("            option.option ");
+    queryBuf.append(" FROM       Organism as org ");
+    queryBuf.append(" JOIN       org.genomeBuilds as gb ");
+    queryBuf.append(" JOIN       gb.dataTrackFolders as folder ");
+    queryBuf.append(" LEFT JOIN  folder.parentFolder as parentFolder ");
+    queryBuf.append(" LEFT JOIN  folder.dataTracks as dataTrack ");
+    queryBuf.append(" LEFT JOIN  dataTrack.collaborators as collab ");
+    queryBuf.append(" JOIN        dataTrack.propertyEntries as propEntry ");
+    queryBuf.append(" JOIN        propEntry.property as prop ");
+    queryBuf.append(" LEFT JOIN   propEntry.values as value ");
+    queryBuf.append(" LEFT JOIN   propEntry.options as option ");
+
+    
+    addWhere = true;
+
+    addCriteria(DATATRACK_LEVEL);
+    
+    if (secAdvisor != null) {
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
+    }
+
+    return queryBuf;
+  }
 	
 	private StringBuffer getSegmentQuery() throws Exception {
 		addWhere = true;
@@ -1133,5 +1182,13 @@ public class DataTrackQuery implements Serializable {
 
 	public void setIsVisibilityOwner(String isVisibilityOwner) {
     this.isVisibilityOwner = isVisibilityOwner;
+  }
+
+  public Integer getIdLab() {
+    return idLab;
+  }
+
+  public void setIdLab(Integer idLab) {
+    this.idLab = idLab;
   }  
 }

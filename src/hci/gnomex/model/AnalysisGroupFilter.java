@@ -29,8 +29,28 @@ public class AnalysisGroupFilter extends DetailObject {
 
 
   private StringBuffer          queryBuf;
-  private boolean              addWhere = true;
+  private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
+  
+  public static final int       COL_ID_ANALYSIS = 7;
+  public static final int       COL_ANALYSIS_NUMBER = 8;
+  public static final int       COL_ANALYSIS_NAME = 9;
+  public static final int       COL_ANALYSIS_DESCRIPTION = 10;
+  public static final int       COL_LAB_LAST_NAME = 13;
+  public static final int       COL_LAB_FIRST_NAME = 14;
+  public static final int       COL_ID_ANALYSIS_TYPE = 15;
+  public static final int       COL_ID_ORGANISM = 17;
+  public static final int       COL_OWNER_LAST_NAME = 19;
+  public static final int       COL_OWNER_FIRST_NAME = 20;
+  public static final int       COL_ID_ANALYSIS_GROUP_NAME = 1;
+
+  public static final int       PROPCOL_ID_ANALYSIS = 0;
+  public static final int       PROPCOL_ID_PROPERTY = 1;
+  public static final int       PROPCOL_PROPERTY_TYPE = 2;
+  public static final int       PROPCOL_PROPERTY_NAME = 3;
+  public static final int       PROPCOL_PROPERTY_VALUE = 4;
+  public static final int       PROPCOL_PROPERTY_MULTI_VALUE = 5;
+  public static final int       PROPCOL_PROPERTY_OPTION = 6;
   
   
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
@@ -66,6 +86,29 @@ public class AnalysisGroupFilter extends DetailObject {
     return queryBuf;
     
   }
+  
+
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor) {
+    addWhere = true;
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append(" a.idAnalysis, ");
+    queryBuf.append(" prop.idProperty, ");
+    queryBuf.append(" prop.codePropertyType, ");
+    queryBuf.append(" prop.name, ");
+    queryBuf.append(" propEntry.value, ");
+    queryBuf.append(" value.value, ");
+    queryBuf.append(" option.option ");
+    
+    getAnnotationQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  
+
   
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
@@ -121,6 +164,27 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" order by aglab.lastName, aglab.firstName, ag.name, a.number ");
   
   }
+  
+  public void getAnnotationQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM                AnalysisGroup as ag ");
+    queryBuf.append(" JOIN                ag.lab as aglab ");
+    queryBuf.append(" LEFT JOIN           ag.analysisItems as a ");
+    queryBuf.append(" JOIN        a.submitter as submitter ");
+    queryBuf.append(" JOIN        a.lab as lab ");
+    queryBuf.append(" LEFT JOIN   a.collaborators as collab ");
+    queryBuf.append(" JOIN        a.propertyEntries as propEntry ");
+    queryBuf.append(" JOIN        propEntry.property as prop ");
+    queryBuf.append(" LEFT JOIN   propEntry.values as value ");
+    queryBuf.append(" LEFT JOIN   propEntry.options as option ");
+    
+    // Only add selection criteria when "all analysis" is not turned on
+    addAnalysisCriteria();
+    addExperimentItemCriteria();
+    
+    addSecurityCriteria();
+  }
+  
   
   private boolean hasExperimentItemCriteria() {
     if (idRequest != null) {
