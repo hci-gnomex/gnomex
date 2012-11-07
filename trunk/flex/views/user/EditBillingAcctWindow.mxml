@@ -142,7 +142,7 @@
 					currentState = "openSourceEditState";
 				} else {
 					currentState = "openSourceWorkAuthState";
-					this.title = "Enter Work Authorization";
+					initWorkAuthState();
 				}
 				var lastUsedOrd:int = -1;
 				for(var i:int=1; i<6; i++) {
@@ -168,7 +168,7 @@
 					currentState = "internalEditState";
 				} else {
 					currentState = "internalWorkAuthState";
-					this.title = "Enter Work Authorization";
+					initWorkAuthState();
 				}
 			}
 			originalBa = ba.copy();
@@ -184,6 +184,16 @@
 			}
 			startDatePicker.text = ba.@startDate.toString();
 			expirationDatePicker.text = ba.@expirationDate.toString();
+			if (ba.@startDate.toString().length == 0 && startDateHBox.visible) {
+				if (ba.@idBillingAccount == null || ba.@idBillingAccount.toString().length == 0 || ba.@idBillingAccount.toString().indexOf("Billing") != -1) {
+					startDatePicker.selectedDate = new Date();
+					// ba.@startDateOther is set in update function since startDatePicker doesn't set text until display
+				}
+			}
+		}
+		
+		private function initWorkAuthState():void {
+			this.title = "Enter Work Authorization";
 		}
 		
 		private function configureOpenSourceInternalField(i:int, conf:Object):void {
@@ -311,6 +321,11 @@
 		}
 		
 		private function update():void {
+			//kludge to pick up defaulting of start date when necssary
+			if (startDateHBox.visible) {
+				ba.@startDateOther = startDatePicker.text;
+			}
+			
 			if (isEdit) {
 				parentView.setDirtyBillingAccount( ba );
 				mx.managers.PopUpManager.removePopUp(this);

@@ -32,6 +32,7 @@
 * Auto add Library QC and Sample QC folders for newly created internal experiments based off of the experiment's code request category.(tcourdy)
 * Add optional billing account field configuration.  See wiki for details.  (bspiglejr)
 * Fix invoice email header for DNA Sequencing core facility.  (bspiglejr)
+* Start date on Work Auth form now defaults to today's date.  (bspiglejr)
 
 
 deploy notes
