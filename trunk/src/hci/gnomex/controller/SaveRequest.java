@@ -829,13 +829,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // transfer logs for this request
         reassignLabForTransferLog(sess);
         sess.flush();
-
-        // Create file server data directories for request.
-        if (requestParser.isNewRequest()) {
-          this.createResultDirectories(requestParser.getRequest(), 
-              dictionaryHelper.getPropertyDictionary(PropertyDictionary.QC_DIRECTORY), 
-              PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-          
+        
+        //Create file server data directories for request based off of code request category
+        Request r = requestParser.getRequest();
+        if (r.getIsExternal().equals("N") && RequestCategory.isIlluminaRequestCategory(r.getCodeRequestCategory())){
+          this.createResultDirectories(r, "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+          this.createResultDirectories(r, "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+        }
+        else if (r.getIsExternal().equals("N") && (RequestCategory.isMicroarrayRequestCategory(r.getCodeRequestCategory()) || r.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY))){
+          this.createResultDirectories(r, "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -2209,7 +2211,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
     
     String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
-    String rootDir = microarrayDir + "/" + createYear;
+    String rootDir = microarrayDir + File.separator + createYear;
     
     boolean success = false;
     if (!new File(rootDir).exists()) {
@@ -2224,6 +2226,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     success = (new File(directoryName)).mkdir();
     if (!success) {
       log.error("Unable to create directory " + directoryName);      
+    }
+    
+    success = new File(directoryName + File.separator + qcDirectory).mkdir();
+    if(!success){
+      log.error("Unable to create directory " + directoryName);
     }
     
     
