@@ -262,6 +262,15 @@ LinkButton.navLinkButton
 	color: #FFFFFF;
 }
 
+LinkButton.reportLinkButton
+{
+	fontWeight: normal;	
+	fontSize: 12;
+	fontFamily: Verdana;
+	color: #000000;
+	fontStyle: underline;
+	textDecoration: underline;
+}
 .normalLinkButton
 {
    fontWeight: normal;
@@ -815,7 +824,6 @@ MenuBar {
 	borderStyle: none;
 	highlightAlphas: 0, 0;
 	fillAlphas: 0,0,0,0;
-	fillColors: #979595, #222836, #515151, #2C4D92;
 	rollOverColor: #00ff00;
 	selectionColor: #336633;
 	color: #ffffff;
@@ -825,6 +833,14 @@ MenuBar {
 	fontSize: 12;
 	fontWeight: normal;
 	borderColor: #7e7e7e;
+}
+
+.menuBox {
+	borderStyle: solid;
+	borderColor: #7e7e7e;
+	verticalAlign: middle;
+	paddingLeft: 10;
+	paddingRight: 10;
 }
 
 .menuItem {
@@ -843,7 +859,6 @@ MenuBar {
 }
 MenuBar.linkMenuBar
 {
-	color: #6A5858;
 	fillAlphas: 0.0, 0.0, 0.0, 0.0;
 	textDecoration: underline;
 	menuStyleName: linkMenuItem;
