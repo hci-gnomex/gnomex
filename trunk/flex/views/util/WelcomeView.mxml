@@ -459,7 +459,7 @@
 			private function showUsersAndGroups():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsersView;
 			}
-			private function showWorkAuthForm():void {
+			public function showWorkAuthForm():void {
 				var which:String = 'new';
 				if (which == "old") {
 					var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this, WorkAuthorizationWindow, true));

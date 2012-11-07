@@ -19,6 +19,7 @@
 	xmlns:billing="views.billing.*"
 	xmlns:util="views.util.*"
 	xmlns:login="views.login.*"
+	xmlns:report="views.report.*"
 	paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
 	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF">
 
@@ -265,6 +266,7 @@
             
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
+			import mx.controls.menuClasses.MenuBarItem;
 			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
@@ -319,7 +321,7 @@
 			
 			[Bindable]
 			private var siteLogo:String = "";
-
+			
 			[Bindable]
 			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
@@ -632,7 +634,37 @@
 			[Embed(source="assets/topic_tag_owner.png")]
 			public var iconTopicOwner:Class;			
 			
-	        
+			
+			[Bindable]
+			[Embed(source="assets/building_go.png")]
+			public var iconWorkflow:Class;
+			
+			[Bindable]
+			[Embed(source="assets/group.png")]
+			public var iconUsers:Class;
+			
+			[Bindable]
+			[Embed(source="assets/review.png")]
+			public var iconOrders:Class;
+			
+			[Bindable]
+			[Embed(source="assets/plate_add.png")]
+			public var iconPlate:Class;
+			
+			[Bindable]
+			[Embed(source="assets/run_add.png")]
+			public var iconInstrumentRun:Class;
+			
+			[Bindable]
+			[Embed(source="assets/tv_chart_review.png")]
+			public var iconResults:Class;
+			
+			
+			[Bindable]
+			[Embed(source="assets/run_review.png")]
+			public var iconPlatesAndRuns:Class;
+				
+    
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]
 	        public var soundDing:Class;
@@ -1401,17 +1433,6 @@
              	} else {
 					isInternalExperimentSubmission = true;
 				}
-				if (isInternalExperimentSubmission) {
-					this.submitRequestLink.visible = true;
-					this.submitRequestLink.includeInLayout = true;
-					this.submitRequestLinkExternal.visible = false;
-					this.submitRequestLinkExternal.includeInLayout = false;
-				} else {
-					this.submitRequestLink.visible = false;
-					this.submitRequestLink.includeInLayout = false;
-					this.submitRequestLinkExternal.visible = true;
-					this.submitRequestLinkExternal.includeInLayout = true;
-				}
              }
 
             public function launchExperimentDownloads():Boolean {
@@ -1723,15 +1744,7 @@
 					currentState = "UserNonSubmitterState";
 				}
 				
-				if (!dataTrackSupported) {
-					if (theViews.contains(navDataTrackView)) {
-						theViews.removeChild(navDataTrackView);
-					}
-					if (linkButtonBarBox.contains(this.dataTracksLink)) {
-						linkButtonBarBox.removeChild(this.dataTracksLink);
-						linkButtonBarBox.removeChild(this.dataTracksRule);
-					}
-				}
+				callLater(this.resizeMenuItems);
             }
 
             private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
@@ -2584,23 +2597,35 @@
 			}
 		}	
 			
-		private function onMoreMenu(event:MenuEvent):void {
+		private function onMenuClick(event:MouseEvent):void {
+			if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
+				return;
+			}
+			showView(event.target.data.@label);
+		}
+	
+		private function onMenuSelect(event:MenuEvent):void {
+			showView(event.label);
+		}
+				
+			
+		private function showView(label:String):void {
 
 			
-			if (event.label == 'Analysis') {
+			if (label == 'Analysis') {
 				theViews.selectedChild = navAnalysisView;
-			} else if (event.label == 'Data Tracks') {
+			} else if (label == 'Data Tracks') {
 				theViews.selectedChild = this.navDataTrackView;
-			} else if (event.label == 'Experiments') {
+			} else if (label == 'Experiments') {
 				theViews.selectedChild = this.navExperimentView;
-			} else if (event.label == 'Topics') {
+			} else if (label == 'Topics') {
 				theViews.selectedChild = this.navTopicsView;
-			} else if (event.label == 'New Analysis') {
+			} else if (label == 'New Analysis') {
 				theViews.selectedChild = navAnalysisView;
 				navAnalysisView.showNewAnalysisWindow();
-			} else if (event.label == "Add Services to Experiment Order") {
+			} else if (label == "Add Services to Experiment Order") {
 				theViews.selectedChild = amendRequestView;
-			} else if (event.label == "Post Experiment Data To Repository") {
+			} else if (label == "Post Experiment Data To Repository") {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 					this.submitRequestView.startNewRequest();
@@ -2609,22 +2634,67 @@
 				this.theViews.selectedChild = this.submitRequestView;
 				// If new experiment then initialize ShowCCNumber checkbox
 				this.submitRequestView.showCCNumberColumn = false;
-			} else if (event.label == "Track Usage") {
+			} else if (label == "Track Usage") {
 				this.theViews.selectedChild = this.navUsageView;
-			} else if (event.label == "Manage Dictionaries") {
+			} else if (label == "Add/Edit Dictionaries") {
 				showDictionaries();
-			} else if (event.label == "Configure Experiment Platform") {
+			} else if (label == "Configure Experiment Platform") {
 				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(theBody, ExperimentPlatformWindow, true));
 				PopUpManager.centerPopUp(platformWindow);
-			} else if (event.label == "Configure Organisms and Genome Builds") {
+			} else if (label == "Configure Organisms and Genome Builds") {
 				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(theBody, OrganismsWindow, true));
 				PopUpManager.centerPopUp(configWindow);
-			} else if (event.label == "Configure Annotations") {
+			} else if (label == "Configure Annotations") {
 				var configAnnotWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(theBody, PropertyWindow, true));
 				PopUpManager.centerPopUp(configAnnotWindow);
 				
+			}  else if (label == "Annotation Report") {
+				navReportView.reportName = "Annotation Report";
+				theViews.selectedChild = navReportView;
+			} else if (label == "New Experiment Order") {				
+				this.isInternalExperimentSubmission = true;
+				theViews.selectedChild = submitRequestView;
+			} else if (label == "Browse Experiments" || label == "Experiments") {
+				theViews.selectedChild = navExperimentView;
+			} else if (label == "Analysis") {
+				theViews.selectedChild = navAnalysisView;
+			} else if (label == "Data Tracks") {
+				theViews.selectedChild = this.navDataTrackView;
+			} else if (label == "Topics") {
+				theViews.selectedChild = navTopicsView;
+			} else if (label == "Workflow") {
+				theViews.selectedChild = navWorkflowView;
+			} else if (label == "Billing") {
+				theViews.selectedChild = navBillingView;
+			} else if (label == "Users and Groups") {
+				theViews.selectedChild = navUsersView;
+			} else if (label == "Orders") {
+				theViews.selectedChild = navOrderView;
+			} else if (label == "Fill Plate") {
+				theViews.selectedChild = navPlateView;
+				navPlateView.toggleBuildState('PLATE');
+			} else if (label == "Build Run") {
+				theViews.selectedChild = navPlateView;
+				navPlateView.toggleBuildState('RUN');
+			} else if (label == "Plates and Runs") {
+				theViews.selectedChild = navRunView;				
+			} else if (label == "Results") {
+				theViews.selectedChild = navDataView;
+			} else if (label == "Submit Work Auth") {
+				this.homeView.showWorkAuthForm();				
+			}
+		
+		
+		
+		}
+			
+			
+		private function resizeMenuItems():void{
+			for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
+				item.width += 15;
 			}
 		}
+			
         ]]>
     </mx:Script>
     
@@ -2639,6 +2709,282 @@
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}" sort="{experimentFactorSorter}"/>
 	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns" unique="true"/>
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
+
+	
+	<mx:XMLList id="adminMenu">
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+		</menuitem>
+
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+			
+		<menuitem label="Topics" icon="iconTopic"   />
+				
+		<menuitem label="Workflow" icon="iconWorkflow"  />
+					
+		<menuitem label="Billing" icon="iconBilling"   />
+
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+		</menuitem>
+			
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+	
+	</mx:XMLList>
+	
+	<mx:XMLList id="billingAdminMenu">
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Billing" icon="iconBilling"   />
+		
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+	
+	<mx:XMLList id="adminESMenu">
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+				
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="managerESMenu">
+		<menuitem label="Post Experiment Data" icon="iconSubmitExperiment"   />
+
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+		
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="userESMenu">
+		<menuitem label="Post Experiment Data" icon="iconSubmitExperiment"   />
+
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="adminDNASeqMenu">
+		
+		<menuitem label="Orders" icon="iconOrders"   />
+		<menuitem label="Fill Plate" icon="iconPlate"   />
+		<menuitem label="Build Run" icon="iconInstrumentRun"   />
+		<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
+		<menuitem label="Results" icon="iconResults"   />
+
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+		</menuitem>
+		 
+
+		<menuitem label="Admin..." icon="iconUsers"   >
+			<menuitem label="Billing" icon="iconBilling"   />
+			<menuitem label="Users and Groups" icon="iconUsers"   />
+		</menuitem>
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+	
+	<mx:XMLList id="userMenu">
+		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
+		
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+		
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="userNoBioinformaticsMenu">
+		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
+
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		
+	</mx:XMLList>
+	<mx:XMLList id="managerNoBioinformaticsMenu">
+		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
+		
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="managerMenu">
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+		</menuitem>
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="userNonSubmitterMenu">
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+		
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="guestMenu">
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
+		
+		<menuitem label="Analysis" icon="iconAnalysis"   />
+		
+		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		
+		<menuitem label="Topics" icon="iconTopic"   />
+		
+		
+	</mx:XMLList>
+
+	<mx:XMLList id="experimentMenuListDNASeq">
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+		</menuitem>
+	</mx:XMLList>
 
 
 	    <mx:VBox id="theBody"   backgroundColor="#FFFFFF"
@@ -2659,7 +3005,7 @@
 			      	paddingTop="6" 
 			      	paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
 						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="8">
-							<mx:Image source="{siteLogo}"/> 
+							<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
 				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
@@ -2687,48 +3033,16 @@
 				        </mx:HBox>
 				      </mx:HBox>
 			      
-			      <mx:HBox width="100%"  backgroundSize="100%"  height="50" backgroundImage="assets/menubar1.png" horizontalGap="10"  verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="2"    visible="false">
+			      <mx:HBox width="100%"  backgroundSize="100%"  height="50" backgroundImage="assets/menubar1.png" horizontalGap="0"  verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" paddingLeft="4" paddingRight="2" paddingTop="2"    visible="false">
 
-					  
-					  <mx:LinkButton id="homeLink"  styleName="navLinkButton" label="Home" click="{theViews.selectedChild = homeView}" textIndent="0" width="70" horizontalGap="0" paddingLeft="1" paddingRight="0" icon="@Embed(source='assets/house.png')"/>
-					  <mx:VRule height="20" id="submitRequestRule"/>
-					  <util:LinkButtonTwoLines  styleName="navLinkButton" id="submitRequestLink" label="New Experiment Order" click="{this.isInternalExperimentSubmission = true;theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="125" icon="@Embed(source='assets/flask_add.png')"/>
-					  <util:LinkButtonTwoLines visible="false" includeInLayout="false"  styleName="navLinkButton" id="submitRequestLinkExternal" label="Post Experiment Data" click="{this.isInternalExperimentSubmission = false;theViews.selectedChild = submitRequestView}" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0" width="125" icon="@Embed(source='assets/flask_add.png')"/>
-					  <mx:VRule height="20"  id="experimentsRule"/>
-					  <mx:LinkButton  styleName="navLinkButton" id="experimentsLink" label="Experiments" click="{theViews.selectedChild = navExperimentView}" width="103" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/flask.png')"/>
-
-					  <mx:VRule height="20" id="analysisRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" />
-					  <mx:LinkButton styleName="navLinkButton" id="analysisLink" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}" label="Analysis"  click="{theViews.selectedChild = navAnalysisView}" width="90" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/map.png')"/>
-					  <mx:VRule height="20" id="dataTracksRule" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}" /> 
-					  <util:LinkButtonTwoLines styleName="navLinkButton" id="dataTracksLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Data Tracks" click="{theViews.selectedChild = navDataTrackView}" width="70" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/datatrack.png')"/>
-					  <mx:VRule height="20" id="topicsRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}"/> 
-					  <mx:LinkButton styleName="navLinkButton" id="topicsLink" visible="{showBioinformaticsLinks}" includeInLayout="{showBioinformaticsLinks}"  label="Topics" click="{theViews.selectedChild = navTopicsView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconTopic}"/>
-					  <mx:VRule height="20" id="usageRule" visible="{isExternalDataSharingSite}"  includeInLayout="{isExternalDataSharingSite}"/> 
-					  <mx:LinkButton styleName="navLinkButton" id="usageLink" visible="{isExternalDataSharingSite}" includeInLayout="{isExternalDataSharingSite}"  label="Usage" click="{theViews.selectedChild = navUsageView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="{iconUsage}"/>
- 
-					  <mx:VRule height="20" id="workflowRule" visible="{showCoreGenomicsLinks}"  includeInLayout="{showCoreGenomicsLinks}" />
-					  <mx:LinkButton  styleName="navLinkButton" id="workflowLink" visible="{showCoreGenomicsLinks}" includeInLayout="{showCoreGenomicsLinks}"  label="Workflow"  click="{theViews.selectedChild = navWorkflowView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/building_go.png')"/>
-					  <mx:VRule height="20" id="billingRule"/>
-					  <mx:LinkButton  styleName="navLinkButton" id="billingLink" label="Billing"  click="{theViews.selectedChild = navBillingView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/money.png')"/>
-					  <mx:VRule height="20" id="usersRule"/>
-					  <util:LinkButtonTwoLines  styleName="navLinkButton"  id="usersLink" label="Users Groups"  click="{theViews.selectedChild = navUsersView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/group.png')"/>
-
-					  <mx:VRule height="20" id="moreMenuRule" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}"/>
-					  <mx:MenuBar  height="45"  id="moreMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="72"  styleName="NavMenuBar" visible="{showBioinformaticsLinks}"  includeInLayout="{showBioinformaticsLinks}">
-						  <mx:XMLList>
-							  <menuitem label="More..."   >
-								  <menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-								  <menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
-								  <menuitem label="Track Usage"  icon="iconUsage"/>
-								  <menuitem  label="Manage Dictionaries"  icon="iconBook" />
-								  <menuitem label="Configure Annotations" icon="iconConfig" />
-								  <menuitem label="Configure Experiment Platform" icon="iconConfig" />
-								  <menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
-							  </menuitem>
-						  </mx:XMLList>
+					  <mx:MenuBar  height="45"   width="100%"  id="mainMenu"  
+								   click="onMenuClick(event)"
+								   itemClick="{onMenuSelect(event)}"  
+								   labelField="@label" iconField="@icon"  dataProvider="{adminMenu}" styleName="NavMenuBar" >
+						  
 					  </mx:MenuBar> 
-
-				  
+						  
+						  
 				  </mx:HBox>
 	      	
 		      	
@@ -2803,6 +3117,9 @@
 						<run:NavRunView id="navRunView" width="100%" height="100%" backgroundAlpha="1.0">
 						</run:NavRunView>
             
+						<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
+						</report:NavReportView>
+						
 			        </mx:ViewStack>
 	    		
 	    	</mx:ViewStack>
@@ -2827,195 +3144,49 @@
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
-	 	    <mx:SetStyle target="{mainArea}" name="backgroundImage" value=""/>
 
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
-	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="0"/>
-	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
-	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
-	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
-			<mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
-	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
-	 		<mx:SetProperty target="{experimentsLink}" name="width"/>
-	 		<mx:SetProperty target="{analysisLink}" name="width"/>
-	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="9"/>
-	 		<mx:SetProperty target="{moreMenu}" name="width" value="67"/>
-	 		<mx:SetProperty target="{usersLink}" name="width" value="76"/>
-	 		<mx:SetStyle target="{analysisLink}" name="paddingRight" value="1"/>
-			
-		
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
 	 	</mx:State>
+		 
 		 <mx:State name="BillingAdminState" basedOn="enabledState">
-			 <mx:SetStyle target="{hbox2}" name="horizontalGap" value="0"/>
-			 <mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
-			 <mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
-			 <mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
-			 <mx:SetProperty target="{this.navUsersView}" name="label" value="Users Groups"/>
-			 <mx:SetStyle target="{navBar}" name="verticalGap"/>
-			 <mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
-			 <mx:RemoveChild target="{submitRequestView}"/>
-			 <mx:RemoveChild target="{submitRequestLink}"/>
-			 <mx:RemoveChild target="{submitRequestRule}"/>
-			 <mx:RemoveChild target="{navWorkflowView}"/>
-			 <mx:RemoveChild target="{workflowLink}"/>
-			 <mx:RemoveChild target="{workflowRule}"/>
-			 <mx:RemoveChild target="{analysisLink}"/>
-			 <mx:RemoveChild target="{analysisRule}"/>
-			 <mx:RemoveChild target="{dataTracksLink}"/>
-			 <mx:RemoveChild target="{dataTracksRule}"/>
-			 <mx:SetStyle target="{hbox1}" name="paddingBottom" value="2"/>
-			 
+			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminMenu}"/>
 		 </mx:State>
+		 
 	 	<mx:State name="UserState" basedOn="enabledState">
-	 		<mx:RemoveChild target="{navBillingView}"/>
-			<mx:RemoveChild target="{billingLink}"/>
-			<mx:RemoveChild target="{billingRule}"/>
-	 		<mx:RemoveChild target="{slideManagementView}"/> 
-	 		<mx:RemoveChild target="{navUsersView}"/>
-			<mx:RemoveChild target="{usersLink}"/>
-			<mx:RemoveChild target="{usersRule}"/>
-	 		<mx:RemoveChild target="{navWorkflowView}"/>
-			<mx:RemoveChild target="{workflowLink}"/>
-			<mx:RemoveChild target="{workflowRule}"/>
-	 		<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? userMenu : userNoBioinformaticsMenu}"/>
 	 	</mx:State>
-	 	<mx:State name="ManagerState" basedOn="enabledState">
-	 		<mx:RemoveChild target="{navBillingView}"/>
-			<mx:RemoveChild target="{billingLink}"/>
-			<mx:RemoveChild target="{billingRule}"/>
-	 		<mx:RemoveChild target="{slideManagementView}"/>
-			<mx:RemoveChild target="{navWorkflowView}"/>
-	 		<mx:SetProperty target="{protocolsView}" name="label" value="Protocols"/>
-			<mx:RemoveChild target="{workflowLink}"/>
-			<mx:RemoveChild target="{workflowRule}"/>
-			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
+
+		 <mx:State name="ManagerState" basedOn="enabledState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? managerMenu : managerNoBioinformaticsMenu}"/>
+
 	 	</mx:State>
 	 	<mx:State name="UserNonSubmitterState" basedOn="UserState">
-	 		<mx:RemoveChild target="{submitRequestView}"/>
-			<mx:RemoveChild target="{submitRequestLink}"/>
-			<mx:RemoveChild target="{submitRequestRule}"/>
-			<mx:RemoveChild target="{moreMenuRule}"/>
-			<mx:RemoveChild target="{moreMenu}"/>
-			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
-			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
-
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userNonSubmitterMenu}"/>
 		</mx:State>
 	 	<mx:State name="GuestState" basedOn="UserState">
-	 		<mx:RemoveChild target="{submitRequestView}"/>
-			<mx:RemoveChild target="{submitRequestLink}"/>
-			<mx:RemoveChild target="{submitRequestRule}"/>
-			<mx:RemoveChild target="{submitRequestLinkExternal}"/>
-			<mx:RemoveChild target="{navUsageView}"/>
-			<mx:RemoveChild target="{moreMenuRule}"/>
-			<mx:RemoveChild target="{moreMenu}"/>
-			
-			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
-			<mx:RemoveChild target="{usageLink}"/>
-			<mx:RemoveChild target="{usageRule}"/>
-			
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{guestMenu}"/>
 	 	</mx:State>
 
 		<mx:State name="AdminESState" basedOn="AdminState">
-			<mx:RemoveChild target="{billingLink}"/>
-			<mx:RemoveChild target="{billingRule}"/>
-			<mx:RemoveChild target="{workflowLink}"/>
-			<mx:RemoveChild target="{workflowRule}"/>
-			<mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
-			<mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
-			<mx:SetStyle target="{hbox1}" name="paddingBottom" value="4"/>
-			<mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="15"/>
-			
-
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminESMenu}"/>
 		</mx:State>
 
 		 <mx:State name="ManagerESState" basedOn="ManagerState">
-			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
-			 <mx:SetProperty target="{submitRequestLink}" name="width" value="90"/>
+			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{managerESMenu}"/>
 		 </mx:State>
 
 		 <mx:State name="UserESState" basedOn="UserState">
-			 <mx:SetProperty target="{submitRequestLink}" name="label" value="Post Experiment Data"/>
-			 <mx:SetProperty target="{submitRequestLink}" name="width" value="120"/>
-			 <mx:SetStyle target="{linkButtonBarBox}" name="horizontalGap" value="20"/>
+			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userESMenu}"/>
 		 </mx:State>
 		 
 		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
-			 <mx:AddChild relativeTo="{submitRequestLink}" position="after">
-			 	<mx:VRule height="20" id="ordersRule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{ordersRule}" position="after">
-			 	<mx:LinkButton id="ordersLink" label="Orders" styleName="navLinkButton" click="{theViews.selectedChild = navOrderView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/review.png')"/>
-			 </mx:AddChild>
-			 
-			 <mx:AddChild relativeTo="{ordersLink}" position="after">
-			 	<mx:VRule height="20" id="fillPlateRule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{fillPlateRule}" position="after">
-			 	<util:LinkButtonTwoLines id="fillPlateLink" label="Fill Plate" styleName="navLinkButton" click="{navPlateView.toggleBuildState('PLATE'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="60" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/plate_add.png')"/>
-			 </mx:AddChild>
-			 
-			 <mx:AddChild relativeTo="{fillPlateLink}" position="after">
-				 <mx:VRule height="20" id="fillRunRule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{fillRunRule}" position="after">
-				 <util:LinkButtonTwoLines id="fillRunLink" label="Build Run" styleName="navLinkButton" click="{navPlateView.toggleBuildState('RUN'); navPlateView.switchToNewState(); theViews.selectedChild = navPlateView}" width="80" textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_add.png')"/>
-			 </mx:AddChild>
-			 
-			 <mx:AddChild relativeTo="{fillRunLink}" position="after">
-			 	<mx:VRule height="20" id="dataRule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{dataRule}" position="after">
-			 	<mx:LinkButton id="dataLink" label="Results"  styleName="navLinkButton" click="{theViews.selectedChild = navDataView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/tv_chart_review.png')"/>
-			 </mx:AddChild>
-			 
-			 
-			 <mx:AddChild relativeTo="{dataLink}"  position="after">
-				 <mx:VRule height="20" id="runsRule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{runsRule}" position="after">
-				 <util:LinkButtonTwoLines width="95"  styleName="navLinkButton" id="runsLink" label="Plates and Runs" click="{theViews.selectedChild = navRunView}"  textIndent="0"  horizontalGap="0" paddingLeft="1" paddingRight="0"  icon="@Embed(source='assets/run_review.png')"/>
-			 </mx:AddChild>
-			 
-			 <mx:RemoveChild target="{moreMenu}"/>
-			 
-			 
-			 <mx:RemoveChild target="{experimentsRule}"/>
-			 <mx:RemoveChild target="{experimentsLink}"/>
-			 
-			 <mx:AddChild relativeTo="{usersLink}"  position="after">
-				 <mx:VRule height="20" id="moreDNARule"/>
-			 </mx:AddChild>
-			 <mx:AddChild relativeTo="{moreDNARule}" position="after">
-				 <mx:MenuBar  height="45" styleName="NavMenuBar" id="moreDNASeqMenu" itemClick="{onMoreMenu(event)}"  labelField="@label" iconField="@icon"  width="80"  >
-					 <mx:XMLList>
-						 <menuitem label="More..."   >
-							 <menuitem label="Experiments" icon="iconFlask" />
-							 <menuitem label="Track Usage" icon="iconUsage" />
-							 <menuitem  label="Manage Dictionaries" icon="iconBook" />
-						 </menuitem>
-					 </mx:XMLList>
-				 </mx:MenuBar> 
-			</mx:AddChild>
-
+			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
 		 </mx:State>
 		 
 		 <mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
-			 <mx:RemoveChild target="{submitRequestView}"/>
-			 <mx:RemoveChild target="{submitRequestLink}"/>
-			 <mx:RemoveChild target="{submitRequestRule}"/>
-			 <!--
-			 <mx:RemoveChild target="{fillPlateRule}"/>
-			 <mx:RemoveChild target="{fillPlateLink}"/>
-			 <mx:RemoveChild target="{fillRunRule}"/>
-			 <mx:RemoveChild target="{fillRunLink}"/>
-			 <mx:RemoveChild target="{dataRule}"/>
-			 <mx:RemoveChild target="{dataLink}"/>
-			 <mx:RemoveChild target="{runsRule}"/>
-			 <mx:RemoveChild target="{runsLink}"/>
-			 <mx:RemoveChild target="{ordersRule}"/>
-			 <mx:RemoveChild target="{ordersLink}"/>
--->
+			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
 		 </mx:State>
 
 		 
