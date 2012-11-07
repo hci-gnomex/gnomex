@@ -41,8 +41,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private String         coreFacilityName;
   private String         contactNameCoreFacility;
   private String         contactPhoneCoreFacility;
+  private String         invoiceNote1;
+  private String         invoiceNote2;
   
- public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+ public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNot2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
    this.billingPeriod  = billingPeriod;
    this.lab            = lab;
    this.billingAccount = billingAccount;
@@ -53,6 +55,8 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
    this.coreFacilityName = coreFacilityName;
    this.contactNameCoreFacility = contactNameCoreFacility;
    this.contactPhoneCoreFacility = contactPhoneCoreFacility;
+   this.invoiceNote1 = invoiceNote1;
+   this.invoiceNote2 = invoiceNote2;
    
  }
  
@@ -62,6 +66,16 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
    String line1 = "This report provides itemized documentation of services that were completed for your lab by the " + coreFacilityName + " during the month of " + billingPeriod.getBillingPeriod() + ".";
    String line2 = "&nbsp;&nbsp;&nbsp; - University of Utah accounts listed on this document will be electronically billed."; 
    String line3 = "&nbsp;&nbsp;&nbsp; - External accounts listed on this document will receive an invoice from the " + coreFacilityName + "."; 
+   if ((this.invoiceNote1 != null && this.invoiceNote1.length() > 0) || this.invoiceNote2 != null && this.invoiceNote2.length() > 0) {
+     line2 = "";
+     if (this.invoiceNote1 != null) {
+       line2 = this.invoiceNote1;
+     }
+     line3 = "";
+     if (this.invoiceNote2 != null) {
+       line3 = this.invoiceNote2;
+     }
+   }
    String line4 = "&nbsp;";
    String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
        
@@ -69,8 +83,12 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
    Element table = new Element("TABLE");   
    table.setAttribute("CELLPADDING", "0");
    table.addContent(makeNoteRow(line1));
-   table.addContent(makeNoteRow(line2));
-   table.addContent(makeNoteRow(line3));
+   if (line2.length() > 0) {
+     table.addContent(makeNoteRow(line2));
+   }
+   if (line3.length() > 0) {
+     table.addContent(makeNoteRow(line3));
+   }
    table.addContent(makeNoteRow(line4));
    table.addContent(makeNoteRow(line5));
    

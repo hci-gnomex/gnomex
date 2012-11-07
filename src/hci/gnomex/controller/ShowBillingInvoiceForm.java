@@ -286,6 +286,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
         billingPeriod, 
         lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
 
@@ -385,6 +387,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility,
         billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
+    String body = emailFormatter.format();
     
     String note = "";
     boolean send = false;
@@ -409,7 +412,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           emailFormatter.getCCList(sess, serverName),
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
           subject, 
-          emailFormatter.format(),
+          body,
           true);
         
         note = "Billing invoice emailed to " + contactEmail + ".";
