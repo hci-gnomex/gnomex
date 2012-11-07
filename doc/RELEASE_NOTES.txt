@@ -33,6 +33,7 @@
 * Add optional billing account field configuration.  See wiki for details.  (bspiglejr)
 * Fix invoice email header for DNA Sequencing core facility.  (bspiglejr)
 * Start date on Work Auth form now defaults to today's date.  (bspiglejr)
+* Left align work item request emails instead of center align.(tcourdy)
 
 
 deploy notes
