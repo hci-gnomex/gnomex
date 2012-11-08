@@ -210,20 +210,22 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             values.add(analysisType);
           } else if (target.equals(TARGET_DATATRACK)) {
             DataTrack dataTrack =  (DataTrack)row[DataTrackQuery.COL_DATATRACK];
-            theId = dataTrack.getIdDataTrack();
-            Organism organism = (Organism)row[DataTrackQuery.COL_ORGANISM];
-            GenomeBuild genomeBuild = (GenomeBuild)row[DataTrackQuery.COL_GENOME_BUILD];
-            
-            String labName = dataTrack.getLab() != null ? dataTrack.getLab().getName() : "";
-            String ownerName = dataTrack.getAppUser() != null ? dataTrack.getAppUser().getDisplayName() : "";
-            
-            values.add(labName);
-            values.add(ownerName);
-            values.add(dataTrack.getNumber());
-            values.add(dataTrack.getName());
-            values.add(dataTrack.getSummary());
-            values.add(organism.getDas2Name());
-            values.add(genomeBuild.getDas2Name());
+            if (dataTrack != null) {
+              theId = dataTrack.getIdDataTrack();
+              Organism organism = (Organism)row[DataTrackQuery.COL_ORGANISM];
+              GenomeBuild genomeBuild = (GenomeBuild)row[DataTrackQuery.COL_GENOME_BUILD];
+              
+              String labName = dataTrack.getLab() != null ? dataTrack.getLab().getName() : "";
+              String ownerName = dataTrack.getAppUser() != null ? dataTrack.getAppUser().getDisplayName() : "";
+              
+              values.add(labName);
+              values.add(ownerName);
+              values.add(dataTrack.getNumber());
+              values.add(dataTrack.getName());
+              values.add(dataTrack.getSummary());
+              values.add(organism.getDas2Name());
+              values.add(genomeBuild.getDas2Name());
+            }
           }
          
           // For analysis and data track results, we may encounter null entries (folders
