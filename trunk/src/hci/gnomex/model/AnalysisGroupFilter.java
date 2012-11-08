@@ -256,6 +256,10 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(" ag.name like '%" + searchText + "%'");
       queryBuf.append(" OR ");
       queryBuf.append(" ag.description like '%" + searchText + "%'");
+      queryBuf.append(" OR ");
+      queryBuf.append(" aglab.firstName like '%" + searchText + "%'");
+      queryBuf.append(" OR ");
+      queryBuf.append(" aglab.lastName like '%" + searchText + "%'");
       queryBuf.append(")");
     }
     
