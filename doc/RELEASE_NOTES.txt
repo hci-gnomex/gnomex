@@ -34,6 +34,10 @@
 * Fix invoice email header for DNA Sequencing core facility.  (bspiglejr)
 * Start date on Work Auth form now defaults to today's date.  (bspiglejr)
 * Left align work item request emails instead of center align.(tcourdy)
+* The year on the Work Auth form now defaults to the current fiscal year.  (bspiglejr)
+* The account on the Work Auth form now defaults to the value of the "account_number_account_default" property.  (bspiglejr)
+* The AU field on Work auth is blanked for Project accounts and set to "1" for Activity accounts.  Project accounts do not allow edit of the AU property.  (bspiglejr)
+* Only allow for Project or Activity to be filled in on the Work Auth form -- not both.  (bspiglejr)
 
 
 deploy notes
