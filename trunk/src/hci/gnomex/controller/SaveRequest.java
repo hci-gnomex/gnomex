@@ -379,7 +379,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
 
           // if this is a new request, create QC work items for each sample
-          if (!requestParser.isExternalExperiment()) {
+          if (!requestParser.isExternalExperiment() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
             if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
               WorkItem workItem = new WorkItem();
               workItem.setIdRequest(requestParser.getRequest().getIdRequest());

@@ -40,6 +40,7 @@
 * Only allow for Project or Activity to be filled in on the Work Auth form -- not both.  (bspiglejr)
 * Fixed bug in analysis view where the search field wasn't narrowing results by the first or last name of the lab.(tcourdy)
 * Genome build defaults to unchecked on Ilumina orders. (bspiglejr)
+* Do not add DNA Seq core samples to QC worklist. (bspiglejr)
 
 
 deploy notes
@@ -47,6 +48,29 @@ deploy notes
 --New Property
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
 Values ('id_default_institution', '1', 'ID indicating default institution for visibility of experiments', 'N', null);
+
+-- Delete worklist items for dna seq core samples.
+begin transaction
+select WorkItem.idWorkItem, Sample.idSample, Request.idRequest, Request.codeRequestCategory
+  into #temp
+  from WorkItem
+  join Sample on Sample.idSample=WorkItem.idSample
+  join Request on Request.idRequest=Sample.idRequest
+  join RequestCategory on request.codeRequestCategory = requestCategory.codeRequestCategory
+  where requestCategory.idCoreFacility = 2
+  order by idWorkItem desc
+select * from #temp
+delete from WorkItem where idWorkItem in (select idWorkItem from #temp)
+drop table #temp
+select WorkItem.idWorkItem, Sample.idSample, Request.idRequest, Request.codeRequestCategory
+  from WorkItem
+  join Sample on Sample.idSample=WorkItem.idSample
+  join Request on Request.idRequest=Sample.idRequest
+  join RequestCategory on request.codeRequestCategory = requestCategory.codeRequestCategory
+  where requestCategory.idCoreFacility = 2
+  order by idWorkItem desc
+rollback transaction
+
 
 5.5 (Oct 24, 2012)
 ---------------------
