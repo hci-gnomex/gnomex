@@ -41,6 +41,7 @@
 * Fixed bug in analysis view where the search field wasn't narrowing results by the first or last name of the lab.(tcourdy)
 * Genome build defaults to unchecked on Ilumina orders. (bspiglejr)
 * Do not add DNA Seq core samples to QC worklist. (bspiglejr)
+* Fixed problem with multiple selection annotation field availability on sample sheet upload. (rcundick)
 
 
 deploy notes

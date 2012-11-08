@@ -365,7 +365,7 @@
 								// to the label(s) that has/have been stored in the spreadsheet
 								var params:Array = ssColItemValue.split(",");
 								var paramsFoundCnt:int = 0;								
-								var options:XMLList = parentDocument.getSampleCharacteristicOptions(node.@dataField.substr(6));
+								var options:XMLList = parentApplication.getPropertyOptions(node.@dataField.substr(6));
 								ssColItemValue = "";
 								var notFoundCnt:int = 0;
 								for each (var thisParam:String in params) {
@@ -379,7 +379,7 @@
 											if(paramsFoundCnt > 0) {
 												ssColItemValue = ssColItemValue + ",";
 											}
-											ssColItemValue = ssColItemValue + optionItem.@idSampleCharacteristicOption;
+											ssColItemValue = ssColItemValue + optionItem.@idPropertyOption;
 											paramsFoundCnt++;
 											break;
 										}
@@ -539,7 +539,7 @@
 						}
 						if ((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
 							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))
-							|| fieldType == "URL") {
+							|| fieldType == "URL" || fieldType == "MOPTION") {
 							
 							var selectedSSColumn:String = "0";
 							
