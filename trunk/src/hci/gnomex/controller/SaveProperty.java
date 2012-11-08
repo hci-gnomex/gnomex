@@ -258,6 +258,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             PlatformApplication pa = null;
             if (paRows.size() > 0) {
               pa = (PlatformApplication) paRows.get(0);
+              platformApplicationsMap.put(pa.getIdPlatformApplication(), null);
             } else {
               pa = new PlatformApplication();
               pa.setIdProperty(sc.getIdProperty());
