@@ -194,6 +194,15 @@
 		
 		private function initWorkAuthState():void {
 			this.title = "Enter Work Authorization";
+			if (!parentApplication.useConfigurableBillingAccounts) {
+				this.year.text = parentApplication.getCurrentFiscalYear();
+				ba.@accountNumberYear = this.year.text;
+				
+				if (parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT) != null) {
+					this.account.text = parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT);
+					ba.@accountNumberAccount = this.account.text;
+				}
+			}
 		}
 		
 		private function configureOpenSourceInternalField(i:int, conf:Object):void {
@@ -450,8 +459,10 @@
 				if (ba.@accountNumberAccount.toString().length != 5 || ba.@accountNumberAccount.toString().search(regEx) != -1) {
 					errorMessage += "- Account must be 5 digits.\n";
 				}
-				if (ba.@accountNumberAu.toString().length != 1 || ba.@accountNumberAu.toString().search(regEx) != -1) {
-					errorMessage += "- A/U must be 1 digit.\n";
+				if (ba.@accountNumberActivity.toString().length > 0) {
+					if (ba.@accountNumberAu.toString().length != 1 || ba.@accountNumberAu.toString().search(regEx) != -1) {
+						errorMessage += "- A/U must be 1 digit.\n";
+					}
 				}
 				if (ba.@accountNumberYear.toString().length != 4 || ba.@accountNumberYear.toString().search(regEx) != -1) {
 					errorMessage += "- Year must be 4 digits.\n";
@@ -625,6 +636,38 @@
 			}
 		}
 		
+		private function onActivityChanged():void {
+			ba.@accountNumberActivity = activity.text;
+			if (currentState == "internalWorkAuthState") {
+				if (ba.@accountNumberActivity.toString().length > 0) {
+					this.au.text = "1";
+					this.au.enabled = true;
+					this.project.text = "";
+					this.project.enabled = false;
+				} else {
+					this.au.text = "";
+					this.au.enabled = false;
+					this.project.enabled = true;
+				}
+				ba.@accountNumberAu = this.au.text;
+				ba.@accountNumberProject = this.project.text;
+			} else {
+				this.au.enabled = true;
+			}
+		}
+		
+		private function onProjectChanged():void {
+			ba.@accountNumberProject = project.text;
+			if (currentState == "internalWorkAuthState") {
+				if (ba.@accountNumberProject.toString().length > 0) {
+					this.activity.text = "";
+					this.activity.enabled = false;
+				} else {
+					this.activity.enabled = true;
+				}
+				ba.@accountNumberActivity = this.activity.text;
+			}
+		}
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="fundingAgencies" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry}"/>
@@ -703,12 +746,12 @@
 					</mx:VBox>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Activity"/>
-						<mx:TextInput id="activity" width="62" maxChars="5" text="{ba.@accountNumberActivity}" focusOut="{ba.@accountNumberActivity = activity.text}"/>
+						<mx:TextInput id="activity" width="62" maxChars="5" text="{ba.@accountNumberActivity}" focusOut="{onActivityChanged()}"/>
 						<mx:Label text="5 digits" styleName="labelSmall"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Project"/>
-						<mx:TextInput id="project" width="72" maxChars="8" text="{ba.@accountNumberProject}" focusOut="{ba.@accountNumberProject = project.text}"/>
+						<mx:TextInput id="project" width="72" maxChars="8" text="{ba.@accountNumberProject}" focusOut="{onProjectChanged()}"/>
 						<mx:Label text="8 digits" styleName="labelSmall"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0">

@@ -894,7 +894,10 @@
 			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
 			public var PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS:String      = "configurable_billing_accounts";
 			public var PROPERTY_ID_DEFAULT_INSTITUTION	:String			  = "id_default_institution";
-			
+			public var PROPERTY_FISCAL_YEAR_BREAK_MONTH :String           = "fiscal_year_break_month";
+			public var PROPERTY_FISCAL_YEAR_BREAK_DAY :String             = "fiscal_year_break_day";
+			public var PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT :String    = "account_number_account_default";
+
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
@@ -2695,6 +2698,25 @@
 			}
 		}
 			
+		public function getCurrentFiscalYear():String {
+			var now:Date = new Date();
+			var yr:Number = now.fullYear;
+			var mo:Number = now.month;
+			var da:Number = now.day;
+			var breakMo:Number = 7;
+			if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH) != null) {
+				breakMo = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH));
+			}
+			var breakDa:Number = 1;
+			if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY) != null) {
+				breakDa = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY));
+			}
+			if (mo > breakMo || (mo == breakMo && da >= breakDa)) {
+				yr = yr + 1;
+			}
+			return yr.toString();
+		}
+
         ]]>
     </mx:Script>
     

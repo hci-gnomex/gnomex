@@ -90,12 +90,13 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       String configurable = pdh.getProperty(PropertyDictionary.CONFIGURABLE_BILLING_ACCOUNTS);
+      boolean hasActivity = (billingAccount.getAccountNumberActivity() != null && billingAccount.getAccountNumberActivity().length() > 0);
       if (configurable == null || configurable.equals("N")) {
         if(billingAccount.getAccountNumberBus() == null || billingAccount.getAccountNumberBus().length() != 2 || 
             billingAccount.getAccountNumberOrg() == null || billingAccount.getAccountNumberOrg().length() != 5 ||
             billingAccount.getAccountNumberFund() == null || billingAccount.getAccountNumberFund().length() != 4 || 
             billingAccount.getAccountNumberAccount() == null || billingAccount.getAccountNumberAccount().length() != 5 ||
-            billingAccount.getAccountNumberAu() == null || billingAccount.getAccountNumberAu().length() != 1 || 
+            (hasActivity && (billingAccount.getAccountNumberAu() == null || billingAccount.getAccountNumberAu().length() != 1)) || 
             billingAccount.getAccountNumberYear() == null || billingAccount.getAccountNumberYear().length() != 4 ||
             ((billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().equals("")) && (billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().length() !=5)) ||
             ((billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().equals("")) && (billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().length() !=8))) {

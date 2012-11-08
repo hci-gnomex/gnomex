@@ -394,7 +394,6 @@
 						ba.@accountNumberFund != '' &&
 						(ba.@accountNumberActivity != '' || ba.@accountNumberProject != '') &&
 						ba.@accountNumberAccount != '' &&
-						ba.@accountNumberAu != '' &&
 						ba.@accountNumberYear != '') {
 						return true;		
 					} else {
