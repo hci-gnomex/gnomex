@@ -39,6 +39,7 @@
 * The AU field on Work auth is blanked for Project accounts and set to "1" for Activity accounts.  Project accounts do not allow edit of the AU property.  (bspiglejr)
 * Only allow for Project or Activity to be filled in on the Work Auth form -- not both.  (bspiglejr)
 * Fixed bug in analysis view where the search field wasn't narrowing results by the first or last name of the lab.(tcourdy)
+* Genome build defaults to unchecked on Ilumina orders. (bspiglejr)
 
 
 deploy notes
