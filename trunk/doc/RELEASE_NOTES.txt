@@ -40,6 +40,8 @@
 * Only allow for Project or Activity to be filled in on the Work Auth form -- not both.  (bspiglejr)
 * Fixed bug in analysis view where the search field wasn't narrowing results by the first or last name of the lab.(tcourdy)
 * Genome build defaults to unchecked on Ilumina orders. (bspiglejr)
+* Fix 'Configure annotations' bug that was removing platform application filter to be removed for property on subsequent save (tdisera)
+* Improve 'Configure annotations' window. (tdisera)
 * Do not add DNA Seq core samples to QC worklist. (bspiglejr)
 * Fixed problem with multiple selection annotation field availability on sample sheet upload. (rcundick)
 
