@@ -361,14 +361,13 @@ public class RegisterFiles extends TimerTask {
                 emailMessage += emailMap.get( emailAddress );
                 emailMessage += "\n";
               }
-              emailMessage += "Data track " + dt.getFileName() + " associated with analysis " + af.getAnalysis().getNumber() + ", file " + af.getFileName() + 
-              " has been removed from the database because the file could not be located on the file system.";
+              emailMessage += "The file " + af.getFileName() + " associated with data track " + dt.getFileName() +  
+              " has been removed from the database because the file could not be located on the file system. " + 
+              "Please remove the data track from GNomEx.";
 
               emailMap.put( emailAddress, emailMessage );
               
               sess.delete( dtf );
-              sess.flush();
-              sess.delete( dt );
               sess.flush();
             }
           }
