@@ -300,7 +300,11 @@ public class SaveChromatogramsFromFiles {
     for (int x = 0; x < childFiles.length; x++) {
       File childFile = childFiles[x];
       if (childFile.isDirectory()) {
-        hashFiles(childFile, theFiles);
+        if (childFiles.length == 0) {
+          childFile.delete();
+        } else {
+          hashFiles(childFile, theFiles);
+        }
       }else {
         if (childFile.getName().toLowerCase().endsWith("ab1") || childFile.getName().toLowerCase().endsWith("abi")) {
           theFiles.add(childFile);
