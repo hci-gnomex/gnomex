@@ -822,39 +822,31 @@ Accordion {
 MenuBar {
 	backgroundAlpha: 0;
 	borderStyle: none;
-	highlightAlphas: 0, 0;
-	fillAlphas: 0,0,0,0;
-	rollOverColor: #00ff00;
-	selectionColor: #336633;
+	fillAlphas: 0,0;
 	color: #ffffff;
-	themeColor: #996666;
 	fontFamily: Verdana;
 	menuStyleName: menuItem;
 	fontSize: 12;
 	fontWeight: normal;
 	borderColor: #7e7e7e;
+	highlightAlphas: 0.1, .1;
+	disabledColor: #000000;
+	errorColor: #000000;
+	selectionColor: #000000;
 }
 
-.menuBox {
-	borderStyle: solid;
-	borderColor: #7e7e7e;
-	verticalAlign: middle;
-	paddingLeft: 10;
-	paddingRight: 10;
-}
+
 
 .menuItem {
 	backgroundAlpha: 0;
 	borderColor: #7B877B;
-	highlightAlphas: 0.02, 0;
 	fillAlphas: 1, 1;
 	fillColors: #B1B6C1, #222836, #3F495E, #3F495E;
-	rollOverColor: #B3EDF2;
-	selectionColor: #336633;
+	rollOverColor: #5FE2EE;
 	color: #ffffff;
-	themeColor: #996666;
-	fontFamily: Arial;
-	fontSize: 14;
+	fontFamily: Verdana;
+	fontSize: 12;
+	selectionColor: #5FE2EE;
 	
 }
 MenuBar.linkMenuBar
