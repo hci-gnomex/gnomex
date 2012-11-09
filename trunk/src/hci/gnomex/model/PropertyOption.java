@@ -73,7 +73,5 @@ public class PropertyOption  extends DictionaryEntry {
   public void setIdProperty(Integer idProperty) {
     this.idProperty = idProperty;
   }
-
-  
     
 }

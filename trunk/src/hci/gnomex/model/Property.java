@@ -192,5 +192,46 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   public void setForDataTrack(String forDataTrack) {
     this.forDataTrack = forDataTrack;
   }
+  
+  
+  public String getAppliesToOrganism() {
+    StringBuffer buf = new StringBuffer();
+    if (getOrganisms() != null) {
+      for (Organism org : (Set<Organism>)getOrganisms()) {
+        if (buf.length() > 0) {
+          buf.append(", ");
+        }
+        buf.append(org.getOrganism());
+      }
+    }
+    return buf.toString();
+  }
+  
+  public String getAppliesToAnalysisType() {
+    StringBuffer buf = new StringBuffer();
+    if (getAnalysisTypes() != null) {
+      for (AnalysisType at : (Set<AnalysisType>)getAnalysisTypes()) {
+        if (buf.length() > 0) {
+          buf.append(", ");
+        }
+        buf.append(at.getAnalysisType());
+      }
+    } 
+    return buf.toString();
+  }    
+  
+  public String getAppliesToPlatform() {
+    StringBuffer buf = new StringBuffer();
+
+    if (getPlatformApplications() != null) {
+      for (PlatformApplication pa : (Set<PlatformApplication>)getPlatformApplications()) {
+        if (buf.length() > 0) {
+          buf.append(", ");
+        }
+        buf.append(pa.getDisplay() + (pa.getApplicationDisplay().length() > 0 ? " " + pa.getApplicationDisplay() : ""));
+      }
+    }
+    return buf.toString();
+  }
     
 }
