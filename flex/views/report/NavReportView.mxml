@@ -135,6 +135,8 @@
 				(Alert.YES | Alert.NO), this, 
 				onPromptToContinue,						
 				parentApplication.iconWarning);	
+		} else {
+			runAnnotationReportImpl();
 		}
 	}
 	private function onPromptToContinue(event:CloseEvent):void {
