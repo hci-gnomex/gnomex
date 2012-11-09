@@ -61,7 +61,7 @@
 		private var idProperty:Object = null;
 		
 		[Bindable]
-		private var property;
+		private var property:Object;
 		
 		[Bindable]
 		public var filteredAppList:XMLListCollection;
@@ -108,7 +108,7 @@
 					}
 				}
 			}
-			reselectCharacteristic()
+			reselectProperty()
 			dirty.resetDirty();
 		}
 		private function filterByAnnotations(sc:XML):Boolean{
@@ -145,13 +145,12 @@
 			}
 		}
 			
-		private function reselectCharacteristic():void {
+		private function reselectProperty():void {
 			var found:Boolean = false;
 			if (idProperty != null) {
 				for each(var sc:Object in properties) {
 					if (sc.@idProperty == idProperty) {
 						propertyList.selectedItem = sc;
-						propertyList.scrollToIndex(propertyList.selectedIndex);
 						found = true;
 						break;
 					}
@@ -159,9 +158,15 @@
 			}
 			if (found) {
 				theViews.selectedIndex = 1;
+				this.onSelectProperty();
+				callLater(scrollToCurrent);
 			} else {
 				theViews.selectedIndex = 0;
 			}
+		}
+		
+		private function scrollToCurrent():void {
+			propertyList.scrollToIndex(propertyList.selectedIndex);
 		}
 			
 		private function onSelectProperty():void {
@@ -285,36 +290,18 @@
 		}
 			
 		private function addProperty():void {
-			var newProperty:XML = new XML("<Property " +
-				" idProperty=''" +
-				" name='enter name here..'" +
-				" isActive='Y'" +
-				" canUpdate='Y'"  +
-				" canDelete='Y'" + 
-				" canRead='Y'" +
-				" mageOntologyCode=''" + 
-				" mageOntologyDefinition=''" + 
-				" description=''" + 
-				" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
-				" codePropertyType='TEXT'" +
-				" forAnalysis='" + (this.showAnalysisAnnotations.selected ? "Y" : "N") + "'" +
-				" forDataTrack='" + (this.showDataTrackAnnotations.selected ? "Y" : "N") + "'" +
-				" forSample='" + (this.showSampleAnnotations.selected ? "Y" : "N") + "'" +
-				" />");
-			property = newProperty;
-			this.theViews.selectedIndex = 1;
-			setOwnerCombo();
+			theViews.selectedIndex = 0;
 			
 			var params:Object = new Object();
 			params.idProperty = '';
 			params.name = 'enter name here..';
 			params.isActive = 'Y';
 			params.isRequired = 'N';
-			params.forSample =  this.sample.selected ? "Y" : "N";
-			params.forDataTrack = this.dataTrack.selected ? "Y" : "N";
-			params.forAnalysis = this.analysis.selected ? "Y" : "N";
+			params.forSample =  "Y";
+			params.forAnalysis = "N";
+			params.forDataTrack = "N";
 			if (parentApplication.hasPermission("canWriteDictionaries")) {
-				params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
+				params.idAppUser = '';			
 			} else {
 				params.idAppUser = parentApplication.getIdAppUser();
 			}
@@ -325,8 +312,6 @@
 			params.analysisTypesXMLString = "<analysisTypes>" + "</analysisTypes>";
 			
 			saveProperty.send(params);
-			
-			idProperty = "";
 		}
 			
 		public function removeProperty(event:MouseEvent, deleteAll:String):void {
@@ -571,7 +556,7 @@
 	<mx:Spacer width="100%"/>
 	<mx:VRule height = "20" />
 	<mx:Spacer width="100%"/>
-	<mx:Text text="Show Annotations for"/>
+	<mx:Text text="Show Annotations for" />
 	<mx:RadioButtonGroup id="radioButtonGroupTarget"/>
 	<mx:RadioButton label="Samples" group="{radioButtonGroupTarget}" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="true" fontSize="10"/>
 	<mx:RadioButton label="Analysis" group="{radioButtonGroupTarget}" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="10"/>
@@ -587,6 +572,7 @@
   <mx:VBox height="100%" width="410">
 		<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelField="@name" 
 				 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
+				 groupItemRenderer="views.renderers.PropertyGroupedItem"
 				 iconFunction="getTreeIcon">
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{properties}"/>
@@ -597,8 +583,9 @@
 						<mx:Component >
 							<mx:HBox horizontalScrollPolicy="off" verticalGap="0">
 								<mx:Label text="{data.@name}"  
-										  fontWeight="{data.@isRequired == 'Y' ? 'bold' : 'normal'}" 
-										  fontStyle="{data.@isRequired == 'Y' ? 'italic' : 'normal'}">			                           	
+										  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
+										  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
+										  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
 								</mx:Label>
 							</mx:HBox>
 						</mx:Component>
