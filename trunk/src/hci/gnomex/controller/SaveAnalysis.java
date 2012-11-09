@@ -11,6 +11,7 @@ import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
+import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
@@ -20,6 +21,7 @@ import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.TransferLog;
+import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisCollaboratorParser;
@@ -507,7 +509,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         // Remove any data track files linked to analysis files
         if (analysisFileParser != null) {
-          removeDataTrackFiles(sess, analysis, analysisFileParser.getAnalysisFileToDeleteMap());
+          removeDataTrackFiles(sess, this.getSecAdvisor(), analysis, analysisFileParser.getAnalysisFileToDeleteMap());
         }
         
         // Get rid of removed analysis files
@@ -621,7 +623,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     return this;
   }
   
-  public static String removeDataTrackFiles(Session sess, Analysis a, Map filesToDeleteMap) throws UnknownPermissionException {
+  public static String removeDataTrackFiles(Session sess, SecurityAdvisor secAd, Analysis a, Map filesToDeleteMap) throws UnknownPermissionException {
     
     // No analysis files to delete
     if (filesToDeleteMap != null) {
@@ -681,11 +683,36 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         DataTrack dt = (DataTrack) row[1];
         sess.delete( dtf );
         sess.flush();
-        sess.delete( dt );
+        
+        for(DataTrackFolder folder : (Set<DataTrackFolder>)dt.getFolders()) {
+          String path = folder.getQualifiedTypeName();
+          if (path.length() > 0) {
+            path += "/";
+          }
+          String typeName = path + dt.getName();
+
+          UnloadDataTrack unload = new UnloadDataTrack();
+          unload.setTypeName(typeName);
+          unload.setIdAppUser( secAd.getIdAppUser());
+          unload.setIdGenomeBuild(dt.getIdGenomeBuild());
+
+          sess.save(unload);
+        }
+
+        //
+        // Delete (unlink) collaborators
+        //
+        dt.setCollaborators(null);
+        sess.flush();
+        
+        // delete database object
+        sess.delete(dt);
+
         sess.flush();
       }
       return "All data track files associated with this analysis have been deleted.";
   }
+  
   
   
   private void getLab(Session sess) throws Exception{
