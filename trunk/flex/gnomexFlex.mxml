@@ -1425,6 +1425,9 @@
              }
               
              public function setDefaultSubmissionState():void {
+				if(isInternalExperimentSubmission == false){
+					return;
+				}
              	if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) != null &&
              	    this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'INTERNAL') {
 					// Default is "submit request" (internal), but if this is an external data sharing
