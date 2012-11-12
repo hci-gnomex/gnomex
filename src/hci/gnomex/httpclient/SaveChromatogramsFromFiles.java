@@ -72,6 +72,10 @@ public class SaveChromatogramsFromFiles {
       } 
       catch (Exception e) {
         System.out.println(getTimeStamp() + "Exception: " + e.getMessage());
+        try {
+          Thread.sleep (sleepInterval);
+        } catch(Exception e1) {
+        }
       }
     }
   }
@@ -141,15 +145,18 @@ public class SaveChromatogramsFromFiles {
       // Make sure mandatory arguments were passed in
       if ( dropFilePath == null || dropFilePath.equals("")) {
         this.printUsage();
-        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+        System.out.println("Please specify all mandatory arguments.  See command line usage.");
+        System.exit(-1);
       }
       if ( archiveFilePath == null || archiveFilePath.equals("")) {
         this.printUsage();
-        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+        System.out.println("Please specify all mandatory arguments.  See command line usage.");
+        System.exit(-1);
       }
       if (server == null || server.equals("")) {
         this.printUsage();
-        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+        System.out.println("Please specify all mandatory arguments.  See command line usage.");
+        System.exit(-1);
       }
       
       this.trustCerts(); 
@@ -209,10 +216,12 @@ public class SaveChromatogramsFromFiles {
       //
       File dropFile = new File(dropFilePath);
       if (!dropFile.exists()) {
-        throw new Exception("Drop file path " + dropFilePath + " does not exist.");
+        System.out.println("Drop file path " + dropFilePath + " does not exist.");
+        System.exit(-1);
       }
       if (!dropFile.isDirectory()) {
-        throw new Exception("Drop file path " + dropFilePath + " is not a directory.");
+        System.out.println("Drop file path " + dropFilePath + " is not a directory.");
+        System.exit(-1);
       }
       
       TreeSet<File> theFiles = new TreeSet<File>();
@@ -247,6 +256,9 @@ public class SaveChromatogramsFromFiles {
 
         in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         while ((inputLine = in.readLine()) != null) {
+          if (debug) {
+            System.out.println(inputLine);
+          }
           if (inputLine.indexOf("<SUCCESS") >= 0) {
             success = true;
             int start = inputLine.indexOf("destDir=\"");
@@ -300,7 +312,8 @@ public class SaveChromatogramsFromFiles {
     for (int x = 0; x < childFiles.length; x++) {
       File childFile = childFiles[x];
       if (childFile.isDirectory()) {
-        if (childFiles.length == 0) {
+        if (childFile.listFiles().length == 0) {
+          System.out.println("deleting empty directory " + childFile.getName());
           childFile.delete();
         } else {
           hashFiles(childFile, theFiles);
