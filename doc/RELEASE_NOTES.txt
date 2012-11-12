@@ -1,6 +1,11 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+
+5.7
+---------------------
+* Fixed bug with importing chromosome segments.  User can now use commas when designating length of segment.(tcourdy)
+
 5.6
 ---------------------
 * Display the first and last name of the User whose UNID is trying to be used by an admin creating a new account(tcourdy)
