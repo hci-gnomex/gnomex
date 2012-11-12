@@ -83,7 +83,10 @@ public class RegisterFiles extends TimerTask {
   private Transaction                  tx;
 
   private String orionPath = "";
-  
+
+  Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
+  Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
+
   public RegisterFiles(String[] args) {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-wakeupHour")) {
@@ -301,8 +304,6 @@ public class RegisterFiles extends TimerTask {
         System.out.println(fileName + " " + fd.getFileSizeText());
       }
       
-      // Map to hold the email addresses and messages for warning on deleting analysis file database objects
-      Map emailMap = new HashMap();
       
       // Now compare to the experiment files already registered in the db
       TreeSet newAnalysisFiles = new TreeSet(new AnalysisFileComparator());
@@ -356,16 +357,10 @@ public class RegisterFiles extends TimerTask {
                 emailAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
               }
               
-              String emailMessage = "";
-              if ( emailMap.containsKey( emailAddress ) ) {
-                emailMessage += emailMap.get( emailAddress );
-                emailMessage += "\n";
-              }
-              emailMessage += "The file " + af.getFileName() + " associated with data track " + dt.getFileName() +  
-              " has been removed from the database because the file could not be located on the file system. " + 
-              "Please remove the data track from GNomEx.";
+              
+              hashForNotification(emailAddress, af, dt);
+              
 
-              emailMap.put( emailAddress, emailMessage );
               
               sess.delete( dtf );
               sess.flush();
@@ -376,7 +371,6 @@ public class RegisterFiles extends TimerTask {
           // If the analysis has any comments, warn the app user that it was deleted.
           if (af.getComments() != null && !af.getComments().trim().equals("")) {
                         
-            
             // Get an email address for the file
             String emailAddress = "";
             if ( af.getAnalysis().getAppUser() != null && af.getAnalysis().getAppUser().getEmail() != null ) {
@@ -391,15 +385,10 @@ public class RegisterFiles extends TimerTask {
               emailAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
             }
             
-            String emailMessage = "";
-            if ( emailMap.containsKey( emailAddress ) ) {
-              emailMessage += emailMap.get( emailAddress );
-              emailMessage += "\n";
-            }
-            emailMessage += "Analysis file " + af.getFileName() + " with comment: '" + af.getComments() + "' has been removed from the database because the file could not be located on the file system.";
 
-            emailMap.put( emailAddress, emailMessage );
+            hashForNotification(emailAddress, af, null);
             
+
           } 
           
         } else {
@@ -411,16 +400,6 @@ public class RegisterFiles extends TimerTask {
             af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
           }
         }
-      }
-      if ( emailMap != null ) {
-        try {
-          sendNotifyEmails( emailMap, dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER) );
-        } catch (Exception e) {
-          
-          // Notify software people that the emails didn't go through?
-          String msg = "Unable to send warning email notifying user that analysis files have been deleted.  " + e.toString();
-          System.out.println(msg);
-        } 
       }
       
       
@@ -454,9 +433,65 @@ public class RegisterFiles extends TimerTask {
       sess.flush();
       tx.commit();
     }
+  
+    try {
+      sendNotifyEmails(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER) );
+    } catch (Exception e) {
+      
+      // Notify software people that the emails didn't go through?
+      String msg = "Unable to send warning email hashForNotificationing user that analysis files have been deleted.  " + e.toString();
+      System.out.println(msg);
+    } 
   }
   
-  private void sendNotifyEmails(Map emailMap, String fromAddress) throws NamingException, MessagingException {
+  private void hashForNotification(String emailAddress, AnalysisFile af, DataTrack dt) {
+    Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
+    if (analysisNumbers == null) {
+      analysisNumbers = new TreeMap<String, String>();
+      emailAnalysisMap.put(emailAddress, analysisNumbers);
+    }
+    analysisNumbers.put(af.getAnalysis().getNumber(), null);
+    emailAnalysisMap.put(emailAddress, analysisNumbers);
+    
+    List fileInfos = analysisFileMap.get(af.getAnalysis().getNumber());
+    if (fileInfos == null) {
+      fileInfos = new ArrayList<AnalysisFileInfo>();
+      analysisFileMap.put(af.getAnalysis().getNumber(), fileInfos);
+    }
+    fileInfos.add(new AnalysisFileInfo(af.getAnalysis().getNumber(), 
+        af.getQualifiedFileName() + "/" + af.getFileName(), 
+        dt, af.getComments()));
+    
+    
+  }
+
+  private void sendNotifyEmails(String fromAddress) throws NamingException, MessagingException {
+    StringBuffer body = new StringBuffer();
+    body.append("The following analysis files no longer exist on the file system and have been removed from the database.  Please remove the associated data tracks.");
+    for ( Iterator i = this.emailAnalysisMap.keySet().iterator(); i.hasNext();) {
+      String emailAddress = (String) i.next();
+      Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
+      for (String analysisNumber : analysisNumbers.keySet()) {
+        body.append("\n\nAnalysis " + analysisNumber);
+        List<AnalysisFileInfo> fileInfos = this.analysisFileMap.get(analysisNumber);
+        for (AnalysisFileInfo info : fileInfos) {
+          body.append("\n\t" + info.analysisFileName + "\t" + info.comment + "\t" + info.dataTrackNumber);
+        }
+      }
+      
+      
+      MailUtil.send( mailProps,
+          emailAddress,
+          null,
+          fromAddress,
+          "GNomEx Analysis file(s) missing from file system",
+          body.toString(),
+          false
+        );
+    }
+  }
+
+  private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException {
     
     for ( Iterator i = emailMap.keySet().iterator(); i.hasNext();) {
       String emailAddress = (String) i.next();
@@ -466,9 +501,9 @@ public class RegisterFiles extends TimerTask {
           emailAddress,
           null,
           fromAddress,
-          "Analysis file missing from file system",
+          "GNomEx Analysis file(s) missing from file system",
           emailMessage,
-          true
+          false
         );
     }
   }
@@ -537,7 +572,7 @@ public class RegisterFiles extends TimerTask {
   
   private HashMap hashFiles(Analysis analysis) throws Exception {
     HashMap fileMap = new HashMap();
-    
+
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List analysisNumbers = new ArrayList<String>();
@@ -630,6 +665,23 @@ public class RegisterFiles extends TimerTask {
         return ef1.getIdAnalysisFile().compareTo(ef2.getIdAnalysisFile());
       }
     }
+  }
+  
+  public static class AnalysisFileInfo {
+    private String analysisNumber;
+    private String analysisFileName;
+    private String dataTrackNumber;
+    private String comment;
+    
+    public AnalysisFileInfo(String analysisNumber, String analysisFileName,
+        DataTrack dataTrack, String comment) {
+      super();
+      this.analysisNumber = analysisNumber;
+      this.analysisFileName = analysisFileName;
+      this.dataTrackNumber = dataTrack != null ? dataTrack.getNumber() : "";
+      this.comment = comment;
+    }
+    
   }
   
 }
