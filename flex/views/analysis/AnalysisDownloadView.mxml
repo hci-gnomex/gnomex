@@ -380,7 +380,7 @@
 			private function dataTrackFileSelected():Boolean {
 				var hasDataTrack:Boolean = false;
 				for each(var f:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true")){		
-					if (f.@isSupportedDataTrack == 'Y') {
+					if (f.@hasDataTrack == 'Y') {
 						hasDataTrack = true;
 						break
 					}

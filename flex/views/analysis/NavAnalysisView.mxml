@@ -859,9 +859,7 @@
 						(Alert.YES | Alert.NO), this, 
 						onPromptToDelete);
 					
-				}
-				
-				if (selectedAnalysis != null) {
+				} else if (selectedAnalysis != null) {
 					Alert.show("Delete analysis " + selectedAnalysis.@name + "?", 
 						null, 
 						(Alert.YES | Alert.NO), this, 
