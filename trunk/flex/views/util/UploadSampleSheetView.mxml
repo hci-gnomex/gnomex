@@ -327,74 +327,79 @@
 								}
 							}
 							if(node.@fieldType == "OPTION") {
-								var optionFound:Boolean = false;
-								// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
-								for each(var col:AdvancedDataGridColumn in tabSamplesView.samplesGrid.columns) {
-									if (col.dataField == node.@dataField) {
-										var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
-										if(thisItemRenderer != null) {
-											var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
-											var thisLabelField:String = thisItemRenderer.properties.labelField;	
-											if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
-												// Strip off @ if it's there -- not needed for this action
-												thisLabelField = thisLabelField.substr(1);
+								if(ssColItemValue.length > 0) {
+									var optionFound:Boolean = false;
+									// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
+									for each(var col:AdvancedDataGridColumn in tabSamplesView.samplesGrid.columns) {
+										if (col.dataField == node.@dataField) {
+											var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
+											if(thisItemRenderer != null) {
+												var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
+												var thisLabelField:String = thisItemRenderer.properties.labelField;	
+												if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
+													// Strip off @ if it's there -- not needed for this action
+													thisLabelField = thisLabelField.substr(1);
+												}
+												var thisValueField:String = thisItemRenderer.properties.valueField;
+												if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
+													// Strip off @ if it's there -- not needed for this action
+													thisValueField = thisValueField.substr(1);
+												}
+												if(thisDataProvider != null) {
+													for each (var dataProviderItem:XML in thisDataProvider) {
+														if(dataProviderItem.@[thisLabelField] == ssColItemValue) {
+															ssColItemValue = dataProviderItem.@[thisValueField];
+															optionFound = true;
+														}
+													}												
+												}											
 											}
-											var thisValueField:String = thisItemRenderer.properties.valueField;
-											if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
-												// Strip off @ if it's there -- not needed for this action
-												thisValueField = thisValueField.substr(1);
-											}
-											if(thisDataProvider != null) {
-												for each (var dataProviderItem:XML in thisDataProvider) {
-													if(dataProviderItem.@[thisLabelField] == ssColItemValue) {
-														ssColItemValue = dataProviderItem.@[thisValueField];
-														optionFound = true;
-													}
-												}												
-											}											
 										}
 									}
-								}
-								if (!optionFound) {
-									writeThisField = false;
-									reportStatus = "Dropdown. No selection found for: " + ssColItemValue;
+									if (!optionFound) {
+										writeThisField = false;
+										reportStatus = "Dropdown. No selection found for: " + ssColItemValue;
+									}
 								}
 							}
 							if(node.@fieldType == "MOPTION") {
 								// If multiple option field then need to find value corresponding
 								// to the label(s) that has/have been stored in the spreadsheet
-								var params:Array = ssColItemValue.split(",");
-								var paramsFoundCnt:int = 0;								
-								var options:XMLList = parentApplication.getPropertyOptions(node.@dataField.substr(6));
-								ssColItemValue = "";
-								var notFoundCnt:int = 0;
-								for each (var thisParam:String in params) {
-									// Loops through one or multiple labels stored in the spreadsheet
-									thisParam = trimSpaces(thisParam);
-									var mOptionFound:Boolean = false;
-									for each (var optionItem:XML in options) {
-										// Compares against Multi Select options and matches up with corresponding values
-										if(optionItem.@option == thisParam) {
-											mOptionFound = true;
-											if(paramsFoundCnt > 0) {
-												ssColItemValue = ssColItemValue + ",";
+								if(ssColItemValue.length > 0) {
+									var params:Array = ssColItemValue.split(",");
+									var paramsFoundCnt:int = 0;								
+									var options:XMLList = parentApplication.getPropertyOptions(node.@dataField.substr(6));
+									ssColItemValue = "";
+									var notFoundCnt:int = 0;
+									for each (var thisParam:String in params) {
+										// Loops through one or multiple labels stored in the spreadsheet
+										thisParam = trimSpaces(thisParam);
+										var mOptionFound:Boolean = false;
+										for each (var optionItem:XML in options) {
+											// Compares against Multi Select options and matches up with corresponding values
+											if(optionItem.@option == thisParam) {
+												mOptionFound = true;
+												if(paramsFoundCnt > 0) {
+													ssColItemValue = ssColItemValue + ",";
+												}
+												ssColItemValue = ssColItemValue + optionItem.@idPropertyOption;
+												paramsFoundCnt++;
+												break;
 											}
-											ssColItemValue = ssColItemValue + optionItem.@idPropertyOption;
-											paramsFoundCnt++;
-											break;
+										}
+										if(!mOptionFound) {
+											if(notFoundCnt == 0) {
+												reportStatus = "Dropdown (multi). No selection found for: " + thisParam;	
+											} else {
+												reportStatus += ", " + thisParam;
+											}
+											notFoundCnt;
 										}
 									}
-									if(!mOptionFound) {
-										if(notFoundCnt == 0) {
-											reportStatus = "Dropdown (multi). No selection found for: " + thisParam;	
-										} else {
-											reportStatus += ", " + thisParam;
-										}
-										notFoundCnt;
+									if(paramsFoundCnt == 0) {
+										writeThisField = false;
 									}
-								}
-								if(paramsFoundCnt == 0) {
-									writeThisField = false;
+									
 								}
 							}
 							if(node.@fieldType == "CHECK") {

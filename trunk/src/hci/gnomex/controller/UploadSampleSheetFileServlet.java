@@ -174,7 +174,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
           currentRow = new Element("Row");
           currentRow.setAttribute("Name", ""+rowNum);
           sampleSheetList.addContent(currentRow);
-          String splitarray[] = strRead.split("\t");
+          String splitarray[] = strRead.split("\t", -1);
           for(int i = 0; i < splitarray.length; i++) {
             String thisEntry = splitarray[i]; 
             int colNum = i+1;

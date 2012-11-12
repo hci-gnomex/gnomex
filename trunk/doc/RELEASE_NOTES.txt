@@ -50,6 +50,7 @@
 * Do not add DNA Seq core samples to QC worklist. (bspiglejr)
 * Fixed problem with multiple selection annotation field availability on sample sheet upload. (rcundick)
 * SaveChromatogramsFromFiles will remove any empty directories in the sequencing core's drop box. (mbowler)
+* Fixed sample sheet upload to not skip blank fields. (rcundick)
 
 
 deploy notes
