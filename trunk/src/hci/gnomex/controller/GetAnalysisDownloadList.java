@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -192,13 +193,13 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             // Show files uploads that are in the staging area.
             if (includeUploadStagingDir.equals("Y")) {
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
-              addExpandedFileNodes(baseDir, aNode, aNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap);
+              addExpandedFileNodes(baseDir, aNode, aNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, sess);
             } else {
               // This will add the uploaded files to the file map so if they are not displayed, 
               // they will not be displayed because they are in the DB.
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
               Element dummyNode = new Element("dummy");
-              addExpandedFileNodes(baseDir, aNode, dummyNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap);
+              addExpandedFileNodes(baseDir, aNode, dummyNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, sess);
             }
 
             List   theFiles     = (List)directoryMap.get(directoryKey);
@@ -249,9 +250,20 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("state", "unchecked");
               fdNode.setAttribute("isSupportedDataTrack", fd.getIsSupportedDataTrack());
               fdNode.setAttribute("viewURL", fd.getViewURL());
+              if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
+                StringBuffer buf = new StringBuffer("SELECT dtf from DataTrackFile as dtf where dtf.idAnalysisFile = '" + fd.getIdAnalysisFileString() + "'");
+                List dataTrackFiles = sess.createQuery(buf.toString()).list();
+                if (dataTrackFiles.size() > 0) {
+                  fdNode.setAttribute("hasDataTrack", "Y");
+                } else {
+                  fdNode.setAttribute("hasDataTrack", "N");
+                } 
+              } else {
+                fdNode.setAttribute("hasDataTrack", "N");
+              }
               
               aNode.addContent(fdNode);
-              recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap);
+              recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap, sess);
               
               fileMap.put(fd.getQualifiedFileName(), null);
             }
@@ -285,9 +297,21 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
             fdNode.setAttribute("isSelected", "N");
             fdNode.setAttribute("state", "unchecked");
-
+            
+            if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
+              StringBuffer buf = new StringBuffer("SELECT dtf from DataTrackFile as dtf where dtf.idAnalysisFile = '" + fd.getIdAnalysisFileString() + "'");
+              List dataTrackFiles = sess.createQuery(buf.toString()).list();
+              if (dataTrackFiles.size() > 0) {
+                fdNode.setAttribute("hasDataTrack", "Y");
+              } else {
+                fdNode.setAttribute("hasDataTrack", "N");
+              } 
+            } else {
+              fdNode.setAttribute("hasDataTrack", "N");
+            }
+            
             aNode.addContent(fdNode);
-            recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap);
+            recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap, sess);
           }
         }
 
@@ -345,7 +369,8 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       String key, 
       DictionaryHelper dh,
       Map knownAnalysisFileMap,
-      Map fileMap) throws XMLReflectException {
+      Map fileMap,
+      Session sess) throws XMLReflectException {
     //
     // Get expanded file list
     //
@@ -401,7 +426,20 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fdNode.setAttribute("isSelected", "N");
           fdNode.setAttribute("state", "unchecked");
           fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
-          recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap);
+
+          if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
+            StringBuffer buf = new StringBuffer("SELECT dtf from DataTrackFile as dtf where dtf.idAnalysisFile = '" + fd.getIdAnalysisFileString() + "'");
+            List dataTrackFiles = sess.createQuery(buf.toString()).list();
+            if (dataTrackFiles.size() > 0) {
+              fdNode.setAttribute("hasDataTrack", "Y");
+            } else {
+              fdNode.setAttribute("hasDataTrack", "N");
+            } 
+          } else {
+            fdNode.setAttribute("hasDataTrack", "N");
+          }
+          
+          recurseAddChildren(fdNode, fd, fileMap, knownAnalysisFileMap, sess);
           
           analysisDownloadNode.addContent(fdNode);
           analysisDownloadNode.setAttribute("isEmpty", "N");
@@ -418,7 +456,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
     }
   }
 
-  public static void recurseAddChildren(Element fdNode, AnalysisFileDescriptor fd, Map fileMap, Map knownFilesMap) throws XMLReflectException {
+  public static void recurseAddChildren(Element fdNode, AnalysisFileDescriptor fd, Map fileMap, Map knownFilesMap, Session sess) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
       if ( fd.getType() == "dir" ) {
         fdNode.setAttribute("isEmpty", "Y");
@@ -481,10 +519,22 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
 
+      if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
+        StringBuffer buf = new StringBuffer("SELECT dtf from DataTrackFile as dtf where dtf.idAnalysisFile = '" + fd.getIdAnalysisFileString() + "'");
+        List dataTrackFiles = sess.createQuery(buf.toString()).list();
+        if (dataTrackFiles.size() > 0) {
+          fdNode.setAttribute("hasDataTrack", "Y");
+        } else {
+          childFdNode.setAttribute("hasDataTrack", "N");
+        } 
+      } else {
+        childFdNode.setAttribute("hasDataTrack", "N");
+      }
+      
       fdNode.addContent(childFdNode);
       fileMap.put(childFd.getQualifiedFileName(), null);
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
-        recurseAddChildren(childFdNode, childFd, fileMap, knownFilesMap);
+        recurseAddChildren(childFdNode, childFd, fileMap, knownFilesMap, sess);
       } else {
         if ( childFd.getType() == "dir" ) {
           childFdNode.setAttribute("isEmpty", "Y");

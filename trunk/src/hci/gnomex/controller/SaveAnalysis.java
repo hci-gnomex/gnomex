@@ -508,7 +508,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         }
         
         // Remove any data track files linked to analysis files
-        if (analysisFileParser != null) {
+        if (analysisFileParser != null && analysisFileParser.getAnalysisFileToDeleteMap() != null) {
           removeDataTrackFiles(sess, this.getSecAdvisor(), analysis, analysisFileParser.getAnalysisFileToDeleteMap());
         }
         
