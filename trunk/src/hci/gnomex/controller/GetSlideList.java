@@ -98,6 +98,10 @@ public class GetSlideList extends GNomExCommand implements Serializable {
             slideNode.setAttribute("isInSlideSet", "N");
           }
         }
+        
+        if(slideNode.getParent() != null){
+          slideNode.detach();
+        }
         doc.getRootElement().addContent(slideNode);
       }
     } 
