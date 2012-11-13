@@ -52,6 +52,7 @@
 * SaveChromatogramsFromFiles will remove any empty directories in the sequencing core's drop box. (mbowler)
 * Fixed sample sheet upload to not skip blank fields. (rcundick)
 * Fixed bug where new request not initialized when new experiment initiated after posting experimental data. (rcundick)
+* Fixed bug that would create a brand new slide configuration instead of updating the slide the user just created in simpleSlideConfigWindow.(tcourdy)
 
 
 deploy notes
