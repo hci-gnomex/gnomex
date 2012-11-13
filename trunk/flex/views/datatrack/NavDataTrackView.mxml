@@ -673,7 +673,7 @@
 		parms.isVisibilityInstitute = this.cbVisibilityInstitute.visible && this.cbVisibilityInstitute.selected ? "Y" : "N";
 	    parms.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@idOrganism : "";
 		parms.idGenomeBuild = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@idGenomeBuild : "";
-		parms.emphasizeText = this.locateText.text == 'Enter search here... ' ? "" : this.locateText.text;;
+		parms.emphasizeText = this.locateText.text == 'Enter search here... ' ? "" : this.locateText.text;
 		
 		getDataTrackList.send(parms);
 	}
