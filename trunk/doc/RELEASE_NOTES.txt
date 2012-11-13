@@ -5,6 +5,7 @@
 5.7
 ---------------------
 * Fixed bug with importing chromosome segments.  User can now use commas when designating length of segment.(tcourdy)
+* Requests with new status are filtered out of the billing list for DNA Seq core. (mbowler)
 
 5.6
 ---------------------
