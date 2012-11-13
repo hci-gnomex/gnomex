@@ -18,6 +18,7 @@ public class BillingItemFilter extends DetailObject {
   private String                requestNumber;
   private String                invoiceLookupNumber;
   private Integer               idCoreFacility;
+  private String                excludeNewRequests;
   
   
   private StringBuffer          queryBuf;
@@ -266,8 +267,15 @@ public class BillingItemFilter extends DetailObject {
         !invoiceLookupNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" (inv.invoiceNumber like '%" + invoiceLookupNumber + "%') ");
-    }     
+    }
+    
+    if (excludeNewRequests != null && excludeNewRequests.equals( "Y" )) {
+      this.addWhereOrAnd();
+      queryBuf.append( " req.codeRequestStatus != 'NEW'" );
+    }
   }
+  
+  
   private void addBillingItemCriteria() {
 
 
@@ -359,6 +367,16 @@ public class BillingItemFilter extends DetailObject {
 
   public void setIdCoreFacility(Integer idCoreFacility) {
     this.idCoreFacility = idCoreFacility;
+  }
+
+  
+  public String getExcludeNewRequests() {
+    return excludeNewRequests;
+  }
+
+  
+  public void setExcludeNewRequests( String excludeNewRequests ) {
+    this.excludeNewRequests = excludeNewRequests;
   }
 
 
