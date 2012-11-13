@@ -12,7 +12,7 @@
 		url="SaveSimpleSlide.gx"
 		resultFormat="e4x"
 		result="onSaveSimple(event)"
-		showBusyCursor="false"
+		showBusyCursor="true"
 		fault="parentApplication.onFailHttpRequest('Failed to save Slide', event)"
 		method="POST"
 		useProxy="false">
@@ -40,10 +40,15 @@
 			[Bindable]
 			public var codeRequestCategory:Object;
 			
+			[Bindable]
+			public var selectedAppValue:Object;
+			
 			public var codeApplication:Object;
 			
 			public var tabSetupView:views.experiment.TabSetupView;
 			
+			public var idSlideProduct:String = "";
+			public var idSlideDesign:String =  "";
 					
 			private function closeWindow():void {
 				if(dirty.isDirty()){
@@ -63,11 +68,15 @@
 				references.filterFunction = filterForData;
 				references.refresh();
 				
-				for(var j:int = 0; j < fullAppList.length; j++)
+				for(var j:int = 0; j < fullAppList.length; j++){
 					for(var k:int = 0; k < references.length; k++){
 						if(fullAppList.getItemAt(j).@codeApplication == references.getItemAt(k).@codeApplication)
 							finalAppList.addItem(fullAppList.getItemAt(j));
 					}
+					if(selectedAppValue != "" && fullAppList.getItemAt(j).@value == selectedAppValue){
+						updateApplications(fullAppList.getItemAt(j));
+					}
+				}
 
 			}
 			
@@ -102,15 +111,16 @@
 			}
 			
 			private function save(): void{
+				saveButton.enabled = false;
 				dirty.resetDirty();
 				
 				var params:Object = new Object();
 				params.name = slideName.text;
 				params.idVendor = sdIdVendor.value;
 				params.idOrganism = sdIdOrganism.value;
-				params.idSlideProduct = "";
+				params.idSlideProduct = idSlideProduct;
 				params.isActive = cBox.selected ? "Y" : "N";
-				params.idSlideDesign = "";
+				params.idSlideDesign = idSlideDesign;
 				
 				params.applicationXMLString = "<applications>"+spApplications.toXMLString()+"</applications>";
 				
@@ -120,11 +130,14 @@
 			
 			private function onSaveSimple(event:ResultEvent): void{
 				if (saveSimple.lastResult.name() == "SUCCESS") {
-					fullSlideDesign = saveSimple.lastResult.@idSlideDesign;
-					mx.controls.Alert.show("Save Successful");
-					
-					//parentApplication.institutionList.send();
-				} 
+					idSlideProduct = saveSimple.lastResult.@idSlideProduct;
+					idSlideDesign = saveSimple.lastResult.@idSlideDesign;
+					saveButton.enabled = true;
+				}
+				else{
+					Alert.show(saveSimple.lastResult..ACTMESSAGE.@TEXT);
+					saveButton.enabled = true;
+				}
 
 			}
 			
@@ -159,7 +172,7 @@
 			<mx:Label width="85" text="Slide Name: " />
 			<mx:TextInput id="slideName" backgroundColor="#FBF8F8" width="413" change="dirty.setDirty()"/>
 			<mx:Label text="Is Active: "/>
-			<mx:CheckBox id="cBox" change="dirty.setDirty()"/>
+			<mx:CheckBox id="cBox" change="dirty.setDirty()" selected="true"/>
 		</mx:HBox>
 		<mx:VBox height="100%" width="100%">
 			<mx:ViewStack id="theViews"  width="100%" height="75" creationPolicy="all">	
@@ -192,9 +205,9 @@
 			<mx:VBox left="213" top="79" width="507" id="vbox1" verticalAlign="top" height="179" backgroundColor="#FFFFFF" verticalGap="0">
 				<mx:Repeater dataProvider="{finalAppList}"
 							 id="checkApplication">
-					<mx:CheckBox id="check" paddingTop="0" label="{checkApplication.currentItem.@application}" data="{checkApplication.currentItem.@value}" change="dirty.setDirty()" click="updateApplications(event.currentTarget.getRepeaterItem())"/>
+					<mx:CheckBox id="check" paddingTop="0" selected="{selectedAppValue != '' &amp;&amp; checkApplication.currentItem.@value == selectedAppValue}" label="{checkApplication.currentItem.@application}" data="{checkApplication.currentItem.@value}" change="dirty.setDirty()" click="updateApplications(event.currentTarget.getRepeaterItem())"/>
 				</mx:Repeater>
-				<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
+				<mx:TextInput id="sdIdSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
 				<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
 				<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
 			</mx:VBox>
