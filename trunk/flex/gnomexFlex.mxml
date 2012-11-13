@@ -2657,7 +2657,9 @@
 			}  else if (label == "Annotation Report") {
 				navReportView.reportName = "Annotation Report";
 				theViews.selectedChild = navReportView;
-			} else if (label == "New Experiment Order") {				
+			} else if (label == "New Experiment Order") {
+				// When beginning a new order always load a new request.
+				this.submitRequestView.request = null;
 				this.isInternalExperimentSubmission = true;
 				theViews.selectedChild = submitRequestView;
 			} else if (label == "Browse Experiments" || label == "Experiments") {

@@ -51,6 +51,7 @@
 * Fixed problem with multiple selection annotation field availability on sample sheet upload. (rcundick)
 * SaveChromatogramsFromFiles will remove any empty directories in the sequencing core's drop box. (mbowler)
 * Fixed sample sheet upload to not skip blank fields. (rcundick)
+* Fixed bug where new request not initialized when new experiment initiated after posting experimental data. (rcundick)
 
 
 deploy notes
