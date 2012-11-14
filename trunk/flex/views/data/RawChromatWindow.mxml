@@ -156,6 +156,10 @@
 			private function dragHZoom(event:SliderEvent):void {
 				sliderSpacing = hZoomSlider.value;
 				xMax = hSlider.scrollPosition + sliderSpacing;
+				if ( xMax > aRawDataArray.length ) {
+					xMax = aRawDataArray.length;
+					xMin = hSlider.scrollPosition = xMax - sliderSpacing;
+				} 
 			}
 			
 			// Display "Zoom in" or "Zoom out" for horizontal zoom slider
