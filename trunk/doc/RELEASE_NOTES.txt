@@ -7,6 +7,7 @@
 * Fixed bug with importing chromosome segments.  User can now use commas when designating length of segment.(tcourdy)
 * Requests with new status are filtered out of the billing list for DNA Seq core. (mbowler)
 * Abi raw data can be and loads as compressed to fit entire trace in graph and loads. (mbowler)
+* When invoice email sent from print screen, response is formatted in HTML instead of XML. (bspiglejr)
 
 5.6
 ---------------------
