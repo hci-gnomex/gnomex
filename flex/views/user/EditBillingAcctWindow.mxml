@@ -203,6 +203,14 @@
 					ba.@accountNumberAccount = this.account.text;
 				}
 			}
+			if (ba.@idLab != null && ba.@idLab != '') {
+				for(var i:int = 0; i < parentApplication.workAuthLabList.length; i++) {
+					if (parentApplication.workAuthLabList[i].@idLab == ba.@idLab) {
+						labCombo.selectedIndex = i;
+						groupSelected();
+					}
+				}
+			}
 		}
 		
 		private function configureOpenSourceInternalField(i:int, conf:Object):void {
