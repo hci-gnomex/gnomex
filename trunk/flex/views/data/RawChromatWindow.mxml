@@ -137,6 +137,9 @@
 				tRawDataArray = new ArrayCollection(tDataArray);
 				vMax = Math.max.apply(null, tDataArray) > vMax ? Math.max.apply(null, tDataArray) : vMax;
 				vMin = Math.min.apply(null, tDataArray) < vMin ? Math.min.apply(null, tDataArray) : vMin;
+				
+				hZoomSlider.value = sliderSpacing = aRawDataArray.length;
+				xMax = hSlider.scrollPosition + sliderSpacing;
 			}
 			
 			
@@ -303,9 +306,8 @@
 							<mx:HSlider id="hZoomSlider" width="250" 
 										change="dragHZoom(event);" 
 										liveDragging="false" 
-										maximum="7500" 
+										maximum="{aRawDataArray.length}" 
 										minimum="100" 
-										value="2500"
 										snapInterval="100"
 										toolTip="Horizontal Scale"
 										dataTipFormatFunction="hZoomSliderDataTipFunc" 
