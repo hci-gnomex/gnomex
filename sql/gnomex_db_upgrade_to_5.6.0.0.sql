@@ -33,5 +33,5 @@ alter table gnomex.BillingAccount add custom3 varchar(50) NULL;
 
 -- New property to indicate if configurable billing is to be used.  Default to Y for open source.
 insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly) 
-  values('configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'Y');
+  values('configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N');
 
