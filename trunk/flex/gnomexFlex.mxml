@@ -266,7 +266,6 @@
             
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
-			import mx.controls.menuClasses.MenuBarItem;
 			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
@@ -277,6 +276,7 @@
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.menuClasses.MenuBarItem;
 			import mx.controls.treeClasses.TreeItemRenderer;
 			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
@@ -296,6 +296,7 @@
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
+			import views.user.EditBillingAcctWindow;
 			import views.user.UserPublicView;
 			import views.util.AboutView;
 			import views.util.AnalysisProtocolsEvent;
@@ -308,7 +309,6 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
-			import views.util.WorkAuthorizationWindow;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -1319,14 +1319,40 @@
 				
 			}
 			
-			private function showWorkAuthWindow():void {
-				var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this.mainArea, WorkAuthorizationWindow, true));
-				PopUpManager.centerPopUp(workAuthWindow);
-				
-				workAuthWindow.emailAddress.text = getUserEmail();
-				if (workAuthWindow.labCombo.dataProvider.length == 2) {
-					workAuthWindow.labCombo.selectedIndex = 1;
+			public function showWorkAuthWindow():void {
+				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
+				wa.isEdit = false;
+				var labLine:String = "";
+				if (this.workAuthLabList.length == 1) {
+					labLine = " idLab='" + this.workAuthLabList[0].@idLab.toString() + "'";
 				}
+				wa.ba = new XML("<BillingAccount " +
+					" idBillingAccount='BillingAccount0'" +
+					labLine +
+					" accountName=''" +
+					" idCoreFacility=''" +
+					" expirationDateOther=''" + 
+					" startDateOther=''" +
+					" accountNumberBus=''" + 
+					" accountNumberOrg=''" + 
+					" accountNumberFund=''" + 
+					" accountNumberActivity=''" + 
+					" accountNumberProject=''" +  
+					" accountNumberAccount=''" + 
+					" accountNumberAu=''" + 
+					" accountNumberYear=''" +
+					" totalDollarAmountDisplay=''" +
+					" shortAcct=''" +
+					" custom1=''" +
+					" custom2=''" +
+					" custom3=''" +
+					" isDirty='Y'" +
+					" isPO='N'" +
+					" submitterEmail='" + getUserEmail() + "'" +
+					" isApproved='N'" +
+					" isSelectedPeerReviewedFunding='false'" + 
+					"/>");
+				PopUpManager.centerPopUp(wa);
 			}			       
 
 

@@ -267,7 +267,6 @@
 			import views.experiment.RequestCloneWindow;
 			import views.slide.SimpleSlideConfigWindow;
 			import views.util.PromptXMLListCollection;
-			import views.util.WorkAuthorizationWindow;
 			
 			[Bindable]
 			public var requestCategory:Object;

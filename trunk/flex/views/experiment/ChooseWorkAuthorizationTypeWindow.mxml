@@ -14,8 +14,6 @@
 			import mx.collections.XMLListCollection;
 			import mx.managers.PopUpManager;
 			import views.user.EditBillingAcctWindow;
-			
-			import views.util.WorkAuthorizationWindow;
 
 			[Bindable]
 			private var urlList:XMLListCollection = new XMLListCollection();
@@ -44,6 +42,8 @@
 				// show window that allows user to enter work auth form directly; otherwise,
 				// show URL that is a printable work auth form.
 				if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == "Y") {
+					parentApplication.showWorkAuthWindow();
+					/*
 					var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(parentApplication.theBody, EditBillingAcctWindow, true));
 					wa.isEdit = false;
 					wa.ba = new XML("<BillingAccount " +
@@ -71,7 +71,7 @@
 						" isApproved='N'" +
 						" isSelectedPeerReviewedFunding='false'" + 
 						"/>");
-					PopUpManager.centerPopUp(wa);
+					PopUpManager.centerPopUp(wa);*/
 				}else {
 					navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');			
 				}
