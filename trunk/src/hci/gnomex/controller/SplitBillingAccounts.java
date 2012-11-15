@@ -103,6 +103,19 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
           parser.parse(sess);
+          
+          // Set up hashmap to keep track of which billing items are still around.
+          HashMap<Integer, Boolean> allBi = new HashMap<Integer, Boolean>();
+          for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
+            BillingItem bi = (BillingItem)i1.next();
+            // Only update percentages for billing items for the given billing period.
+            if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
+              continue;
+            }
+            
+            allBi.put(bi.getIdBillingItem(), false);
+          }
+          
           for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
             BillingAccount ba = (BillingAccount)i.next();
             BigDecimal percentage = parser.getPercentage(ba.getIdBillingAccount());
@@ -121,6 +134,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               }
               
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
+                allBi.put(bi.getIdBillingItem(), true);
                 bi.setPercentagePrice(percentage);
                 bi.setSplitType(splitType);
                 if (bi.getQty() == null) {
@@ -178,6 +192,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 
                 sess.save(billingItem);
                 itemToAdjust = billingItem;
+                allBi.put(billingItem.getIdBillingItem(), true);
               }
             }
             
@@ -185,6 +200,15 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               BigDecimal ip = itemToAdjust.getInvoicePrice();
               ip = ip.add(invoicePrice.subtract(summedInvoicePrice));
               itemToAdjust.setInvoicePrice(ip);
+            }
+          }
+
+          // Remove any billing items no longer in the list
+          for (Integer key:allBi.keySet()) {
+            Boolean inList = allBi.get(key);
+            if (!inList) {
+              BillingItem toDelete = (BillingItem)sess.load(BillingItem.class, key);
+              sess.delete(toDelete);
             }
           }
           
