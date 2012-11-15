@@ -50,6 +50,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                isFragAnal = "N";
   private String                isCherryPick = "N";
   private String                isExternalOnly = "N";
+  private String                showEmptyProjectFolders = "N";
   
   
   
@@ -316,10 +317,13 @@ public class ProjectRequestFilter extends DetailObject {
 
   private void addRequestCriteria() {
 
-    // if not a time search or a search scoped to 'my experiments', then show empty folders.
-    if (idAppUser == null && !lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
+    // Show empty project folders only if requested.
+    if (showEmptyProjectFolders.equals("Y")) {
       this.addWhereOrAnd();
       queryBuf.append("( req.idRequest is null OR ( 1=1 ");
+    } else {
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idRequest is not null ");
     }
     // Search by user 
     if (idAppUser != null){
@@ -492,7 +496,7 @@ public class ProjectRequestFilter extends DetailObject {
     }   
 
     // Close paren for showing empty folders or
-    if (idAppUser == null && !lastWeek.equals("Y") && !lastMonth.equals("Y") && !lastThreeMonths.equals("Y") && !lastYear.equals("Y")) {
+    if (showEmptyProjectFolders.equals("Y")) {
       queryBuf.append(" ) )");
     }
   }
@@ -950,9 +954,15 @@ public class ProjectRequestFilter extends DetailObject {
   public void setAllExperiments(String allExperiments) {
     this.allExperiments = allExperiments;
   }
+  
 
+  public String getShowEmptyProjectFolders() {
+    return showEmptyProjectFolders;
+  }
 
-
+  public void setShowEmptyProjectFolders(String show) {
+    showEmptyProjectFolders = show;
+  }
   
   
 }

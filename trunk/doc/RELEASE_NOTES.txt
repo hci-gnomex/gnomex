@@ -12,6 +12,7 @@
 * Added "Are you sure?" prompt before deleting annotation. (rcundick)
 * Remove annotation without warning when all annotation entries are 'blank'. (rcundick)
 * Topics now show the topic number at the top of the topic detail window. (rcundick)
+* Empty project folders are now not shown in experiment browse unless the new "Show Empty Project Folders" checkbox is checked.  (bspiglejr)
 
 5.6
 ---------------------

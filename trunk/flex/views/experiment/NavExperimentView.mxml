@@ -1008,8 +1008,11 @@
 				params.isMitSeq      = this.MitSeqCheckbox.selected ? "Y" : "N";
 				params.isFragAnal    =  this.FragAnalCheckbox.selected ? "Y" : "N";
 				params.isCherryPick  =  this.CherryPickingCheckbox.selected ? "Y" : "N";
+				
 
 			}
+
+			params.showEmptyProjectFolders = this.showEmptyProjectFolders.selected ? "Y" : "N";
 			
 			params.showSamples = 'N';
 			params.showCategory = 'N';
@@ -1497,25 +1500,30 @@
 		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 					<mx:Spacer width="100%"/>
-					<mx:CheckBox label="DNA (Sanger) Seq" id="CapSeqCheckbox" 
+					<mx:CheckBox label="DNA (Sanger) Seq" id="CapSeqCheckbox" toolTip="DNA (Sanger) Sequencing"
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
-					<mx:CheckBox label="Mitochondrial Seq"  id="MitSeqCheckbox"  
+					<mx:CheckBox label="Mitochondrial Seq"  id="MitSeqCheckbox"  toolTip="Mitochonrial Sequencing"
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(5);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
-					<mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox" 
+					<mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox"  toolTip="Fragment Analysis"
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(6);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
-					<mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox" 
+					<mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox"  toolTip="Cherry Picking"
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(7);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+					<mx:Spacer width="14" id="showEmptyProjectFoldersSpacer"/>
+					<mx:CheckBox label="Show Empty Project Folders"  id="showEmptyProjectFolders" toolTip="Show Empty Project Folders"
+								 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						<mx:click>getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
 		    	</mx:HBox>
 	    	
@@ -1655,7 +1663,7 @@
 			<mx:SetEventHandler target="{externalExperimentsOnlyCheckbox}" name="click" handler="this.allExperimentsCheckbox.selected = false;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());"/>
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
 			<mx:RemoveChild target="{externalExperimentsOnlyCheckbox}"/>
-			<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{externalExperimentsOnlyCheckbox}"/>
+			<mx:AddChild relativeTo="{showEmptyProjectFoldersSpacer}" position="before" target="{externalExperimentsOnlyCheckbox}"/>
 			<mx:AddChild relativeTo="{externalExperimentsOnlyCheckbox}" position="before">
 				<mx:Spacer width="14"/>
 			</mx:AddChild>
@@ -1663,7 +1671,9 @@
 			<mx:SetStyle target="{CapSeqCheckbox}" name="paddingLeft"/>
 			<mx:SetStyle target="{lastYearCheckbox}" name="paddingRight"/>
 			<mx:SetStyle target="{BioanalyzerCheckbox}" name="paddingRight" value="40"/>
-
+			<mx:SetProperty target="{CapSeqCheckbox}" name="label" value="DNA Seq" />
+			<mx:SetProperty target="{MitSeqCheckbox}" name="label" value="Mit Seq" />
+			<mx:SetProperty target="{showEmptyProjectFolders}" name="label" value="Empty Folders" />
 
 		</mx:State>
 
