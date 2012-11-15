@@ -1009,6 +1009,9 @@
 					this.showDataTrackForNumber(number);				
 				} else if (number.indexOf("A") == 0) {
 					this.showAnalysisForNumber(number);				
+				} else if (number.indexOf("T") == 0) {
+					number = number.substr(1);
+					this.showTopicForNumber(number);				
 				} else {
 					showExperiment(number, false);
 					
