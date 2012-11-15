@@ -1072,9 +1072,7 @@ public class Request extends HibernateDetailObject {
       displayName.append(" - ");
       displayName.append(root.getAttributeValue("slideProductName"));      
       displayName.append(" - ");
-      displayName.append(root.getAttributeValue("ownerFirstName"));
-      displayName.append(" ");
-      displayName.append(root.getAttributeValue("ownerLastName"));
+      displayName.append(root.getAttributeValue("labName"));
       displayName.append(" ");
       displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
       
@@ -1093,9 +1091,7 @@ public class Request extends HibernateDetailObject {
         displayName.append(dh.getApplication(root.getAttributeValue("codeApplication")));                
       }
       displayName.append(" - ");
-      displayName.append(root.getAttributeValue("ownerFirstName"));
-      displayName.append(" ");
-      displayName.append(root.getAttributeValue("ownerLastName"));
+      displayName.append(root.getAttributeValue("labName"));
       displayName.append(" ");
       displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
 

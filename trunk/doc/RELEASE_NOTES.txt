@@ -16,6 +16,23 @@
 * When billing item is removed in split view it is now removed in reality as well.  (bspiglejr)
 * Added axis labels to raw chromatogram graph. (mbowler)
 * Zoom sliders on chromatogram trace and raw data graphs is switched so that dragging slider to left is zooming out. (mbowler)
+* Replace owner name with lab name in experiment titles under topics. (rcundick)
+* Fixed issue where PropertyEntryOption records were not being saved for sample annotations of type 'OPTION.' (rcundick)
+
+deploy notes
+----------------------
+-- Create missing PropertyEntryOption entries for sample annotations of type 'OPTION'
+insert into PropertyEntryOption
+(idPropertyEntry, idPropertyOption)
+select pe.idPropertyEntry, pe.valueString as idPropertyOption
+from PropertyEntry pe
+  left join Property p
+  on p.idProperty = pe.idProperty
+  join PropertyOption po
+  on po.idPropertyOption = pe.valueString
+where idSample is not null
+and codePropertyType = 'OPTION'
+
 
 5.6
 ---------------------

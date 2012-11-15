@@ -1133,8 +1133,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       sess.flush();
       
-      // If the sample property type is "multi-option", save the options.
-      if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.MULTI_OPTION)) {
+      // If the sample property type is "option" or "multi-option", save the options.
+      if (value != null && !value.equals("") && 
+          (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
         Set options = new TreeSet();
         String[] valueTokens = value.split(",");
         for (int x = 0; x < valueTokens.length; x++) {
@@ -1147,8 +1148,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
         }
         entry.setOptions(options);
-      }
-        
+      }     
     }
 
     // Delete the existing sample treatments
