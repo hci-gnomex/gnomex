@@ -7,6 +7,7 @@ import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.jdom.Element;
 
 
 
@@ -85,7 +87,32 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = samples.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            nonBlankSampleCount++;
+            boolean isBlankOption = false;
+            if(property.getCodePropertyType().compareTo(PropertyType.OPTION)==0 
+                || property.getCodePropertyType().compareTo(PropertyType.MULTI_OPTION)==0) {
+              if (property.getOptions() != null) {
+                String[] tokens = pe.getValue().split(",");
+                int isBlankCount = 0;
+                for (int x = 0; x < tokens.length; x++) {
+                  Integer optId = Integer.valueOf(tokens[x]);
+                  for(Iterator i = property.getOptions().iterator(); i.hasNext();) {
+                    PropertyOption pa = (PropertyOption) i.next();
+                    if(optId.compareTo(pa.getIdPropertyOption())==0) {
+                      String thisOption = pa.getOption();
+                      if(thisOption == null || thisOption.length() == 0 || thisOption.compareTo(" ")==0) {
+                        isBlankCount++;
+                      }
+                    }
+                  }                  
+                }
+                if(isBlankCount == tokens.length) {
+                  isBlankOption = true;
+                }
+              }             
+            }
+            if(!isBlankOption) {
+              nonBlankSampleCount++;
+            }  
           }
         }        
         
@@ -97,10 +124,27 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = analyses.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            nonBlankAnalysisCount++;
+            boolean isBlankOption = false;
+            if(property.getCodePropertyType().compareTo(PropertyType.OPTION)==0 
+                || property.getCodePropertyType().compareTo(PropertyType.MULTI_OPTION)==0) {
+              if (property.getOptions() != null) {
+                String[] tokens = pe.getValue().split(",");
+                int isBlankCount = 0;
+                for (int x = 0; x < tokens.length; x++) {
+                  if(tokens[x] == null || tokens[x].length() == 0 || tokens[x].compareTo(" ")==0) {
+                    isBlankCount++;
+                  }                                   
+                }
+                if(isBlankCount == tokens.length) {
+                  isBlankOption = true;
+                }
+              }             
+            }
+            if(!isBlankOption) {
+              nonBlankAnalysisCount++;
+            } 
           }
-        }        
-        
+        }             
         
         propertyEntryQuery = new StringBuffer();
         propertyEntryQuery.append("SELECT pe from PropertyEntry as pe");
@@ -110,9 +154,50 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = dataTracks.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            nonBlankDataTrackCount++;
+            boolean isBlankOption = false;
+            if(property.getCodePropertyType().compareTo(PropertyType.OPTION)==0 
+                || property.getCodePropertyType().compareTo(PropertyType.MULTI_OPTION)==0) {
+              if (property.getOptions() != null) {
+                String[] tokens = pe.getValue().split(",");
+                int isBlankCount = 0;
+                for (int x = 0; x < tokens.length; x++) {
+                  if(tokens[x] == null || tokens[x].length() == 0 || tokens[x].compareTo(" ")==0) {
+                    isBlankCount++;
+                  }                                   
+                }
+                if(isBlankCount == tokens.length) {
+                  isBlankOption = true;
+                }
+              }             
+            }
+            if(!isBlankOption) {
+              nonBlankDataTrackCount++;
+            } 
           }
-        }  
+        }
+        
+        if(deleteAll.compareTo("Y")!=0 && 
+            (nonBlankSampleCount > 0 || nonBlankAnalysisCount > 0 || nonBlankDataTrackCount > 0)) {
+          try {
+            sess.clear();
+            property = (Property)sess.load(Property.class, idProperty);
+            property.setIsActive("N");
+            sess.save(property);
+            sess.flush();
+            
+            DictionaryHelper.reload(sess);
+            
+            this.xmlResult = "<NONBLANKVALUES idProperty='" + property.getIdProperty().intValue() + "' sampleCount='"+ nonBlankSampleCount +"' analysisCount='"+ nonBlankAnalysisCount +"' dataTrackCount='"+ nonBlankDataTrackCount +"'/>";
+            setResponsePage(this.SUCCESS_JSP);
+            return this;
+            
+          } catch(Exception e) {
+            log.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
+            e.printStackTrace();
+            throw new RollBackCommandException(e.getMessage());
+            
+          }          
+        }
         
         if(deleteAll.compareTo("Y")==0 && 
             (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES))
@@ -199,27 +284,8 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
-      //this.addInvalidField("constraint", "Property set to inactive.  Unable to delete because of sample annotations on existing experiments.");
-      
-      try {
-        sess.clear();
-        property = (Property)sess.load(Property.class, idProperty);
-        property.setIsActive("N");
-        sess.save(property);
-        sess.flush();
-        
-        DictionaryHelper.reload(sess);
-        
-        this.xmlResult = "<NONBLANKVALUES idProperty='" + property.getIdProperty().intValue() + "' sampleCount='"+ nonBlankSampleCount +"' analysisCount='"+ nonBlankAnalysisCount +"' dataTrackCount='"+ nonBlankDataTrackCount +"'/>";
-        setResponsePage(this.SUCCESS_JSP);        
-        
-      } catch(Exception e) {
-        log.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
-        e.printStackTrace();
-        throw new RollBackCommandException(e.getMessage());
-        
-      }
-      
+      log.error("An exception has occurred in DeleteProperty ", ce);
+      ce.printStackTrace(); 
     } catch (Exception e){
       log.error("An exception has occurred in DeleteProperty ", e);
       e.printStackTrace();

@@ -72,6 +72,7 @@
 		import views.admin.PropertyEvent;
 		import views.util.DeleteAnnotation;
 		import views.util.DirtyNote;
+		import mx.events.CloseEvent;
 		
 		private var idProperty:Object = null;
 		
@@ -84,6 +85,8 @@
 		private var filteredAppListSorter:Sort;
 		
 		private var removePropertyClick:Point;
+		
+		private var deletePropertyParams:Object
 			
 		private function setDirty():void {
 			if (saveButton.enabled) {
@@ -339,12 +342,28 @@
 			removePropertyClick = event.target.localToGlobal(removePropertyClick);
 			
 			
-			var params:Object = new Object();
-			params.idProperty = propertyList.selectedItem.@idProperty;
-			params.deleteAll = deleteAll;
-			deleteProperty.send(params);
-		}
+			deletePropertyParams = new Object();
+			deletePropertyParams.idProperty = propertyList.selectedItem.@idProperty;
+			deletePropertyParams.deleteAll = deleteAll;
 			
+			if(deleteAll == "N") {
+				Alert.show("Are you sure you want to remove annotation '" + propertyList.selectedItem.@name + "'?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveProperty,						
+					parentApplication.iconWarning);				
+			} else {
+				deleteProperty.send(deletePropertyParams);
+			}
+
+		}
+		
+		private function onPromptToRemoveProperty(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				deleteProperty.send(deletePropertyParams);
+			}
+		}		
+		
 		private function onDeleteProperty(event:ResultEvent): void {
 			if (deleteProperty.lastResult.name() == "SUCCESS") {
 				parentApplication.getPropertyList.send();

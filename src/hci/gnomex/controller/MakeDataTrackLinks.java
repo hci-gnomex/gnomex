@@ -128,7 +128,6 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 
       //load dataTrack
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));    
-      String dataTrackName = DataTrackUtil.stripBadURLChars(dataTrack.getName(), "_") +"_"+dataTrack.getFileName()+"_";
 
       //check genome has UCSC name
       GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
@@ -149,8 +148,9 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 
       //make randomWord 6 char long and append genome build names
       String randomWord = UUID.randomUUID().toString();
-      if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
-      if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
+      
+      //if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
+      //if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
 
       //create directory to hold links, need to do this so one can get the actual age of the links and not the age of the linked file
       File dir = new File (urlLinkDir, randomWord);
