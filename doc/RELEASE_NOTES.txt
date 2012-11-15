@@ -11,6 +11,7 @@
 * Use full GUID in data track URL links. (rcundick)
 * Added "Are you sure?" prompt before deleting annotation. (rcundick)
 * Remove annotation without warning when all annotation entries are 'blank'. (rcundick)
+* Topics now show the topic number at the top of the topic detail window. (rcundick)
 
 5.6
 ---------------------
