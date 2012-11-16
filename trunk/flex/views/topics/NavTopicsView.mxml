@@ -222,7 +222,7 @@
 			}
 			topicNumber = "";
 			cbAlwaysExpandTree.selected = false;
-		} 				
+		}
 		
 		callLater(expandAppropriateNodes);  	
 	}
@@ -969,17 +969,21 @@
 		lastTreeItem = event;
 	}
 	
-	
 	private function newTopic():void {
-		showAddTopicWindow(browseTree.selectedItem.name() == 'Topic');
-	}	
-	
-	private function showAddTopicWindow(isChild:Boolean):void {
 		var addTopicWindow:TopicAddWindow = TopicAddWindow(PopUpManager.createPopUp(parentApplication.mainArea, TopicAddWindow, true));
 		PopUpManager.centerPopUp(addTopicWindow);
 		var parentObj:Object = null;
-		if(isChild) {
-			parentObj = browseTree.selectedItem;			
+		if(browseTree.selectedItem != null) {
+			// If tree item selected then find the level at which to add the topic
+			var currentNode:Object = browseTree.selectedItem;	
+			var avoidInfinite:int = 0;
+			while(currentNode.name() != 'Topic' && currentNode.name() != 'Folder' && currentNode != null && avoidInfinite < 100) {
+				currentNode = currentNode.parent();
+				avoidInfinite++;
+			}
+			if(currentNode.name() == 'Topic') {
+				parentObj = currentNode;
+			}
 		}
 
 		addTopicWindow.init(parentObj, this);
@@ -1034,7 +1038,7 @@
 					 id="topBar" horizontalGap="0" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
 				<mx:Text text="Topics" styleName="titleLabel"/>
 				<mx:LinkButton   label="New topic" width="90"
-								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; (browseTree.selectedItem.name() == 'Folder' || browseTree.selectedItem.name() == 'Topic')}"
+								 enabled="{currentState != 'GuestState'}"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
 								 styleName="linkMenuButton"   					        	
