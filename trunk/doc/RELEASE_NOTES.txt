@@ -21,6 +21,7 @@
 * New topic button now enabled all the time (if nothing selected, adds topic at topic level; else adds to selected topic or parent topic if non-topic selection). (rcundick)
 * Updated plate report and plt file creation so that plate well id's are truncated to last 5 digits to match the chromatogram browse grid. (mbowler)
 * Changed plt file so that abi file names will be simplified to sampleName$wellPosition. (mbowler)
+* Multiple selection and batch update status on billing view instead of updating status on whole folder: Shift or ctrl + click will highlight multiple rows.  The status drop down will update the status for all the selected items.  If no items are selected, all of the items' statuses will update. (mbowler)
 
 deploy notes
 ----------------------

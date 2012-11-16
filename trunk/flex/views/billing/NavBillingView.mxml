@@ -202,7 +202,6 @@
  	<![CDATA[
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
-		import mx.events.MenuEvent;
 		
 		import mx.collections.ArrayCollection;
 		import mx.collections.IHierarchicalCollectionView;
@@ -218,6 +217,7 @@
 		import mx.events.CollectionEventKind;
 		import mx.events.DragEvent;
 		import mx.events.ListEvent;
+		import mx.events.MenuEvent;
 		import mx.events.PropertyChangeEvent;
 		import mx.formatters.CurrencyFormatter;
 		import mx.managers.DragManager;
@@ -1946,7 +1946,10 @@
 		}	
 		
 		public function onEdit():void {
-			billingItemGrid.selectedItem.@isDirty = "Y";
+			if ( billingItemGrid.selectedItem != null ) {
+				billingItemGrid.selectedItem.@isDirty = "Y";
+			}
+			billingItemGrid.selectedIndex = -1;
 		}
 		
 		private function getCompleteDateString(item:Object,col:int):String
@@ -1981,14 +1984,28 @@
 		}		
 
 		public function billingStatusCombo_changeHandler(event:ListEvent):void {
-			for each(var request:XML in billingItemsDisplayed){
-				for each(var bi:Object in request.BillingItem){
-					bi.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
-					bi.@isDirty = "Y";
+			if ( billingItemGrid.selectedItems.length == 0 ) {
+				for each(var request:XML in billingItemsDisplayed){
+					for each(var bi:Object in request.BillingItem){
+						bi.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+						bi.@isDirty = "Y";
+					}
+				}
+			} else {
+				for each ( var item:XML in billingItemGrid.selectedItems){
+					if (item.name() == "BillingItem") {
+						item.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+						item.@isDirty = "Y";
+					} else if (item.name() == "Request") {
+						for each ( var bItem:XML in item.BillingItem ) {
+							bItem.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+							bItem.@isDirty = "Y"
+						}
+					}
 				}
 			}
-			
 			billingStatusCombo.selectedItem = billingStatusCombo.prompt;
+			billingItemGrid.selectedIndex = -1;
 		}
 
 		private function getSelectedCoreFacilityId():String {
@@ -2307,13 +2324,13 @@
         			id="billingItemGrid" 
         			dropEnabled="true"  
         			dragDrop="onDragDropBillingItemGrid(event)"
-                    allowMultipleSelection="false" 
+                    allowMultipleSelection="true" 
                     iconFunction="parentApplication.getTreeIcon" 
                     wordWrap="true" 
                     showDataTips="true"
                     headerWordWrap="true" 
-                    selectionMode="singleRow" itemEditEnd="onEdit()" 
-                     alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
+					selectionMode="singleRow" itemEditEnd="onEdit()" 
+                    alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
         		 	<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItemsDisplayed}"/> 
     				</mx:dataProvider> 
@@ -2400,7 +2417,9 @@
 				        	<mx:LinkButton  label="Reassign" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
 				        		<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
 				        	</mx:LinkButton> 
-				        	<mx:LinkButton  label="Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
+				        	<mx:LinkButton  label="Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true">
+								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
+							</mx:LinkButton> 
 				        	<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()" enabled="{billingItemGrid.selectedItem != null}"/>
 				        </mx:HBox>
 					    <mx:Spacer width="100%"/>
