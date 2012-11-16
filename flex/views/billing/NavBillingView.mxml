@@ -2311,8 +2311,12 @@
 							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}" fontFamily="Verdana" fontSize="11"/>
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
-						<mx:ComboBox id="billingStatusCombo" prompt="- Change Status -" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
-									 labelField="@display" toolTip="Use this to change the status of every displayed billing item" change="billingStatusCombo_changeHandler(event)" enabled="false"/>
+						<mx:ComboBox id="billingStatusCombo" 
+									 prompt="- Change Status -" 
+									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
+									 labelField="@display" 
+									 toolTip="Shift or ctrl + click will highlight multiple rows.  This will update the status for all the selected items.  If no items are selected, all of the items' statuses will update." 
+									 change="billingStatusCombo_changeHandler(event)" enabled="false"/>
 					</mx:HBox>
 				</mx:VBox>
 				
