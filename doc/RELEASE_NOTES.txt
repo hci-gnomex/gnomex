@@ -18,6 +18,7 @@
 * Zoom sliders on chromatogram trace and raw data graphs is switched so that dragging slider to left is zooming out. (mbowler)
 * Replace owner name with lab name in experiment titles under topics. (rcundick)
 * Fixed issue where PropertyEntryOption records were not being saved for sample annotations of type 'OPTION.' (rcundick)
+* New topic button now enabled all the time (if nothing selected, adds topic at topic level; else adds to selected topic or parent topic if non-topic selection). (rcundick)
 
 deploy notes
 ----------------------
