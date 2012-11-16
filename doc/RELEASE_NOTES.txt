@@ -19,6 +19,8 @@
 * Replace owner name with lab name in experiment titles under topics. (rcundick)
 * Fixed issue where PropertyEntryOption records were not being saved for sample annotations of type 'OPTION.' (rcundick)
 * New topic button now enabled all the time (if nothing selected, adds topic at topic level; else adds to selected topic or parent topic if non-topic selection). (rcundick)
+* Updated plate report and plt file creation so that plate well id's are truncated to last 5 digits to match the chromatogram browse grid. (mbowler)
+* Changed plt file so that abi file names will be simplified to sampleName$wellPosition. (mbowler)
 
 deploy notes
 ----------------------
