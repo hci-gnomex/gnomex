@@ -24,6 +24,7 @@
 * Multiple selection and batch update status on billing view instead of updating status on whole folder: Shift or ctrl + click will highlight multiple rows.  The status drop down will update the status for all the selected items.  If no items are selected, all of the items' statuses will update. (mbowler)
 * Change line break spacing on request form that is displayed after user submits a request.(tcourdy)
 * Removed server port number from Share Web Links.(tcourdy)
+* Fixed bug that caused experiment setup tab to not refresh properly when switching between internal and external experiments(tcourdy)
 
 deploy notes
 ----------------------
