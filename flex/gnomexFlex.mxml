@@ -2666,9 +2666,10 @@
 					this.submitRequestView.startNewRequest();
 				}
 				this.isInternalExperimentSubmission = false;
-				this.theViews.selectedChild = this.submitRequestView;
+				this.theViews.selectedChild = homeView;
+				callLater(this.homeView.submitExternalExperiment);	
 				// If new experiment then initialize ShowCCNumber checkbox
-				this.submitRequestView.showCCNumberColumn = false;
+				this.submitRequestView.showCCNumberColumn = false; 
 			} else if (label == "Track Usage") {
 				this.theViews.selectedChild = this.navUsageView;
 			} else if (label == "Add/Edit Dictionaries") {
@@ -2690,7 +2691,8 @@
 				// When beginning a new order always load a new request.
 				this.submitRequestView.request = null;
 				this.isInternalExperimentSubmission = true;
-				theViews.selectedChild = submitRequestView;
+				theViews.selectedChild = homeView;
+				callLater(this.homeView.submitRequest);	
 			} else if (label == "Browse Experiments" || label == "Experiments") {
 				theViews.selectedChild = navExperimentView;
 			} else if (label == "Analysis") {
