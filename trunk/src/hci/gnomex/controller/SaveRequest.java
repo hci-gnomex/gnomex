@@ -831,13 +831,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.flush();
         
         //Create file server data directories for request based off of code request category
-        Request r = requestParser.getRequest();
-        if (r.getIsExternal().equals("N") && RequestCategory.isIlluminaRequestCategory(r.getCodeRequestCategory())){
-          this.createResultDirectories(r, "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-          this.createResultDirectories(r, "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+        if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())){
+          this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+          this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
-        else if (r.getIsExternal().equals("N") && (RequestCategory.isMicroarrayRequestCategory(r.getCodeRequestCategory()) || r.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY))){
-          this.createResultDirectories(r, "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+        else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.TYPE_QC))){
+          this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
