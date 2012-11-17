@@ -355,7 +355,7 @@
 				}
 			}
 			
-			private function submitRequest():void {
+			public function submitRequest():void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.parentApplication.submitRequestView.request != null && !this.parentApplication.isInternalExperimentSubmission) {
 					this.parentApplication.submitRequestView.startNewRequest();
@@ -386,7 +386,7 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navDataView;
 			}
 			
-			private function submitExternalExperiment():void {
+			public function submitExternalExperiment():void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.parentApplication.submitRequestView.request != null && this.parentApplication.isInternalExperimentSubmission) {
 					this.parentApplication.submitRequestView.startNewRequest();
