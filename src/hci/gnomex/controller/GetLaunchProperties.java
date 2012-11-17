@@ -53,7 +53,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
       PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
 
-      String baseURL = scheme + "://" + serverName + ":" + serverPort + contextPath;
+      String baseURL = scheme + "://" + serverName  + contextPath;
        
       Document doc = new Document(new Element("LaunchProperties"));
       
