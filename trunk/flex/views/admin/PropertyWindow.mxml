@@ -116,12 +116,14 @@
 		}
 				
 		public function onPropertyRefreshed(event:Event):void {
+			properties.source = null;
+			properties.source = getPropertyList.lastResult..Property;
 			properties.filterFunction = filterByAnnotations;
 			properties.refresh();
 			reselectProperty();
 			dirty.resetDirty();
 		}
-		
+
 		private function filterByAnnotations(item:Object):Boolean{
 			var criteria:Object = radioButtonGroupTarget.selectedValue;
 			
