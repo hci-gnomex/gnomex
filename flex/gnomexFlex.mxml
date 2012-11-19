@@ -2274,7 +2274,8 @@
 				} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
    					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
-					this.showWorkAuthWindow();
+					this.theViews.selectedChild = this.homeView;
+					callLater(showWorkAuthWindow);
 				} else if (launchAppUser() && hasPermission("canAccessAnyObject")) {
 					this.showUserWindow(this.getLaunchIdAppUser());
 	        	} else {
