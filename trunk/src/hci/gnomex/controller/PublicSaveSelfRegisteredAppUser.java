@@ -354,11 +354,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     
     if(requestedLab != null){
-      if(!toAddress.equals("")){
-        toAddress += ",";
-      }
-      
-      if(requestedLab.getContactEmail() != null && !requestedLab.getContactEmail().equals("")){
+      if ( requestedLab.getContactEmail() != null ) {
+        if(!toAddress.equals("") && !requestedLab.getContactEmail().equals("")){
+          toAddress += ",";
+        }
         toAddress += requestedLab.getContactEmail();
       }
       
