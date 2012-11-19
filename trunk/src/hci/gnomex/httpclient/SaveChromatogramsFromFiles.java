@@ -313,8 +313,8 @@ public class SaveChromatogramsFromFiles {
       File childFile = childFiles[x];
       if (childFile.isDirectory()) {
         if (childFile.listFiles().length == 0) {
-          System.out.println("deleting empty directory " + childFile.getName());
-          childFile.delete();
+          System.out.println("encounted empty directory " + childFile.getName());
+          //childFile.delete();
         } else {
           hashFiles(childFile, theFiles);
         }
