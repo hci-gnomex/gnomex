@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="969" height="506" 
+				width="969" height="506"
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
@@ -64,6 +64,7 @@
 		import mx.collections.Sort;
 		import mx.controls.Alert;
 		import mx.controls.Label;
+		import mx.events.CloseEvent;
 		import mx.events.FlexEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
@@ -72,7 +73,6 @@
 		import views.admin.PropertyEvent;
 		import views.util.DeleteAnnotation;
 		import views.util.DirtyNote;
-		import mx.events.CloseEvent;
 		
 		private var idProperty:Object = null;
 		
@@ -112,50 +112,29 @@
 		}	
 		
 		private function onGetPropertyList(event:ResultEvent):void {
+			this.onPropertyRefreshed(null);
 		}
 				
 		public function onPropertyRefreshed(event:Event):void {
-			properties = new XMLListCollection();
-			for each(var sc:XML in parentApplication.propertyList) {
-				if ((this.showSampleAnnotations.selected)
-					|| (this.showDataTrackAnnotations.selected)
-					|| (this.showAnalysisAnnotations.selected)){
-					
-					if(filterByAnnotations(sc)){
-						properties.addItem(sc.copy());
-					}
-				}
-			}
-			reselectProperty()
+			properties.filterFunction = filterByAnnotations;
+			properties.refresh();
+			reselectProperty();
 			dirty.resetDirty();
 		}
-		private function filterByAnnotations(sc:XML):Boolean{
-			var forSample:Boolean = false;
-			var forDataTrack:Boolean = false;
-			var forAnalysis:Boolean = false;
+		
+		private function filterByAnnotations(item:Object):Boolean{
+			var criteria:Object = radioButtonGroupTarget.selectedValue;
 			
-			if(showSampleAnnotations.selected && sc.@forSample == "Y"){
-				forSample = true;
+			if(criteria == null || criteria == ""){
+				return true;
 			}
-			else if(!showSampleAnnotations.selected){
-				forSample = true;
+			else if(criteria == "samples" && item.@forSample == "Y"){
+				return true;
 			}
-			
-			if(showAnalysisAnnotations.selected && sc.@forAnalysis == "Y"){
-				forAnalysis = true;
+			else if(criteria == "analysis" && item.@forAnalysis == "Y"){
+				return true;
 			}
-			else if(!showAnalysisAnnotations.selected){
-				forAnalysis = true;
-			}
-			
-			if(showDataTrackAnnotations.selected && sc.@forDataTrack == "Y"){
-				forDataTrack = true;
-			}
-			else if(!showDataTrackAnnotations.selected){
-				forDataTrack = true;
-			}
-			
-			if(forSample && forAnalysis && forDataTrack){
+			else if(criteria == "dataTracks" && item.@forDataTrack == "Y"){
 				return true;
 			}
 			else{
@@ -449,9 +428,6 @@
 		private function onGetProperty(event:ResultEvent): void {
 			if (getProperty.lastResult.name() == "PropertyList") {
 				property = getProperty.lastResult..Property;
-				
-				
-				
 				organismCombo.selectedItem = null;
 				platformCombo.selectedItem = null;
 				analysisTypeCombo.selectedItem = null;
@@ -471,6 +447,7 @@
 				idProperty = saveProperty.lastResult.@idProperty;
 				parentApplication.getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));
+				getPropertyList.send();
 			} else {
 				Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -562,10 +539,8 @@
 		}
 		
 		private function refresh(event:Event):void{
-			showAnalysisAnnotations.selected = false;
-			showDataTrackAnnotations.selected = false;
-			showSampleAnnotations.selected = false;
-			
+			radioButtonGroupTarget.selection = null;
+			radioButtonGroupTarget.selectedValue = null;
 			init();
 		}
 		public function getTreeIcon(item:Object):Class {
@@ -591,10 +566,10 @@
 	<mx:VRule height = "20" />
 	<mx:Spacer width="100%"/>
 	<mx:Text text="Show Annotations for" />
-	<mx:RadioButtonGroup id="radioButtonGroupTarget"/>
-	<mx:RadioButton label="Samples" group="{radioButtonGroupTarget}" id="showSampleAnnotations" click="onPropertyRefreshed(null)" selected="true" fontSize="10"/>
-	<mx:RadioButton label="Analysis" group="{radioButtonGroupTarget}" id="showAnalysisAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="10"/>
-	<mx:RadioButton label="Data Tracks" group="{radioButtonGroupTarget}" id="showDataTrackAnnotations" click="onPropertyRefreshed(null)" selected="false" fontSize="10"/>
+	<mx:RadioButtonGroup id="radioButtonGroupTarget" itemClick="onPropertyRefreshed(null)"/>
+	<mx:RadioButton label="Samples" value="samples" group="{radioButtonGroupTarget}" id="showSampleAnnotations" fontSize="10"/>
+	<mx:RadioButton label="Analysis" value="analysis" group="{radioButtonGroupTarget}" id="showAnalysisAnnotations" fontSize="10"/>
+	<mx:RadioButton label="Data Tracks" value="dataTracks" group="{radioButtonGroupTarget}" id="showDataTrackAnnotations"  fontSize="10"/>
 	<mx:Spacer width="100%"/>
 	<mx:VRule height="20"/>
 	<mx:Spacer width="100%"/>
@@ -612,11 +587,11 @@
 				<mx:HierarchicalData source="{properties}"/>
 			</mx:dataProvider>						  
 			<mx:columns>
-				<mx:AdvancedDataGridColumn dataField="@name" width="180" headerText="Annotation"  wordWrap="true">
-					<mx:itemRenderer>
-						<mx:Component >
-							<mx:HBox horizontalScrollPolicy="off" verticalGap="0">
-								<mx:Label text="{data.@name}"  
+				<mx:AdvancedDataGridColumn dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
+					<mx:itemRenderer >
+						<mx:Component>
+							<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
+								<mx:Label text="{data.@name}" 
 										  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
 										  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
 										  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
