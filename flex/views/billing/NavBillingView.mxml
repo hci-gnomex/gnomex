@@ -6,7 +6,7 @@
 
 
  
-   <mx:HTTPService                
+   <mx:HTTPService                 
     id="getLab" 
     url="GetLab.gx"
     destination="getLab" 
@@ -202,6 +202,7 @@
  	<![CDATA[
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
+		import mx.controls.menuClasses.MenuBarItem;
 		
 		import mx.collections.ArrayCollection;
 		import mx.collections.IHierarchicalCollectionView;
@@ -237,10 +238,29 @@
 		private var billingItems:XMLListCollection = new XMLListCollection();
 		
 		[Bindable]
+		[Embed(source="../../assets/money.png")]
+		public var iconBilling:Class;
+		
+		[Bindable]
 		[Embed(source="../../assets/page.png")]
 		public var iconReports:Class;
+				
+		[Bindable]
+		[Embed(source="../../assets/feed_disk.png")]
+		public var iconGLInterface:Class;
 		
-
+		[Bindable]
+		[Embed(source="../../assets/printer.png")]
+		public var iconPrintInvoice:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/email_open.png")]
+		public var iconEmailInvoice:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/refresh.png")]
+		public var iconRefresh:Class;
+		
         [Bindable]
         private var billingAccounts:XMLListCollection = new XMLListCollection();
 
@@ -300,7 +320,19 @@
 
       	public function initializeData():void
       	{
-      		glFileButton.visible = parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N" ? false : true;
+      		if (parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N") {
+				menuBar.visible = false;
+				menuBar.includeInLayout = false;
+
+				menuBarNoGLInterface.visible = true;
+				menuBarNoGLInterface.includeInLayout = true;
+			} else {
+				menuBar.visible = true;
+				menuBar.includeInLayout = true;
+
+				menuBarNoGLInterface.visible = false;
+				menuBarNoGLInterface.includeInLayout = false;
+			}
 			
 			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
         	var billingPeriodSort:Sort = new Sort();
@@ -393,7 +425,9 @@
         	
         	currencyFormatter.currencySymbol = "$";
         	currencyFormatter.precision = 2;
-        	currencyFormatter.useThousandsSeparator;        	
+        	currencyFormatter.useThousandsSeparator;     
+			
+			callLater(this.resizeMenuItems);
       	}		
 		public function checkDirty():void {      
 		}
@@ -2053,16 +2087,37 @@
 			}
 				
 		}
-		private function onReportsMenu(event:MenuEvent):void {
-			
-			
-			if (event.label == 'Invoice Report') {
-				showBillingMonthendReport();
-			} else if (event.label == 'Billing by Lab and Experiment Platform') {
-				showBillingSummaryWindow();
-			} else if (event.label == 'Usage Report') {
-				this.showBillingUsageWindow();
+		
+		private function onMenuClick(event:MouseEvent):void {
+			if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
+				return;
 			}
+			doMenu(event.target.data.@label);
+		}
+		
+		private function onMenuSelect(event:MenuEvent):void {
+			doMenu(event.label);
+		}
+		
+		
+		private function doMenu(label:String):void {
+			
+			if (label == 'Invoice Report') {
+				showBillingMonthendReport();
+			} else if (label == 'Billing by Lab and Experiment Platform') {
+				showBillingSummaryWindow();
+			} else if (label == 'Usage Report') {
+				this.showBillingUsageWindow();
+			} else if (label == 'Print Invoice') {
+				this.showBillingInvoice(false);
+			} else if (label == 'Email Invoice') {
+				this.showBillingInvoice(true);
+			} else if (label == 'General Ledger Interface') {
+				this.showBillingGLInterface();
+			} else if (label == 'Refresh') {
+				refresh();
+			}
+
 		}
 
 		private function collapseLabNodes():void {
@@ -2084,6 +2139,18 @@
 			requestTree.validateNow();
 		}
 		
+		private function resizeMenuItems():void{
+			if (this.menuBar.visible) {
+				for each(var item:MenuBarItem in this.menuBar.menuBarItems){
+					item.width += 20;
+				}
+			} else if (this.menuBarNoGLInterface.visible) {
+				for each(var item:MenuBarItem in this.menuBarNoGLInterface.menuBarItems){
+					item.width += 20;
+				}
+			}
+		}
+		
 		
  	]]>
  </mx:Script>	
@@ -2099,34 +2166,45 @@
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
  
 	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
-	                    <mx:HBox  verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2" width="100%" paddingLeft="4">
-							<mx:Image source="assets/money.png"/>
-							<mx:Text text="Billing"   styleName="titleLabel"/>
-							<mx:LinkButton label="Print Invoice" textDecoration="underline" icon="@Embed(source='../../assets/printer.png')" click="showBillingInvoice(false)" fontSize="12" fontFamily="Verdana" paddingLeft="50"/>
-										<mx:VRule height="20"/>
-	                                    <mx:LinkButton label="Email Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice(true)" fontSize="12" fontFamily="Verdana"/>
-	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton  id="glFileButton" label="Generate GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()" fontSize="12"/>
-	                                    <mx:VRule height="20"/>
-							
-							<mx:MenuBar itemClick="{onReportsMenu(event)}"  labelField="@label" iconField="@icon"   styleName="linkMenuBar" color="#000000" fontSize="12" fontFamily="Verdana">
-								<mx:XMLList>
-									<menuitem label="Reports..."  icon="iconReports" >
-										<menuitem label="Invoice Report" />
-										<menuitem label="Billing by Lab and Experiment Platform"  />
-										<menuitem label="Usage Report"  />
-									</menuitem>
-								</mx:XMLList>
-							</mx:MenuBar> 
-							<mx:Spacer width="100%"/>
+            <mx:HBox  verticalAlign="middle" paddingTop="0" paddingBottom="0" horizontalGap="2" width="100%" paddingLeft="0" paddingRight="0">
+				<mx:MenuBar id="menuBar" 
+							click="onMenuClick(event)"
+							itemClick="{onMenuSelect(event)}"   
+							labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="35" width="100%">
+					<mx:XMLList>
+						<menuitem label="Billing"  icon="iconBilling" />
+						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
+						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
+						<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
+						<menuitem label="Reports..."  icon="iconReports" >
+							<menuitem label="Invoice Report" />
+							<menuitem label="Billing by Lab and Experiment Platform"  />
+							<menuitem label="Usage Report"  />
+						</menuitem>
+						<menuitem label="Refresh"  icon="iconRefresh" />
+					</mx:XMLList>
+				</mx:MenuBar> 
 
-                            <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-                                       click="refresh()" toolTip="Refresh"/>
-                	
-                	
-                </mx:HBox>
+				<mx:MenuBar id="menuBarNoGLInterface" 
+							visible="false" includeInLayout="false" 
+							click="onMenuClick(event)"
+							itemClick="{onMenuSelect(event)}"   
+							labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="30" width="100%">
+					<mx:XMLList>
+						<menuitem label="Billing"  icon="iconBilling" />
+						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
+						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
+						<menuitem label="Reports..."  icon="iconReports" >
+							<menuitem label="Invoice Report" />
+							<menuitem label="Billing by Lab and Experiment Platform"  />
+							<menuitem label="Usage Report"  />
+						</menuitem>
+						<menuitem label="Refresh"  icon="iconRefresh" />
+					</mx:XMLList>
+				</mx:MenuBar> 
+	     </mx:HBox>
 
-	      <mx:HBox horizontalGap="8" verticalAlign="top" paddingBottom="2" paddingLeft="4">
+	      <mx:HBox horizontalGap="8" verticalAlign="top" paddingBottom="6" paddingLeft="4" paddingTop="6">
 			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
 				    <mx:Label text="Core Facility" />
 				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"

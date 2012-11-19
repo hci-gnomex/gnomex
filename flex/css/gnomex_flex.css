@@ -849,16 +849,36 @@ MenuBar {
 	selectionColor: #5FE2EE;
 	
 }
-MenuBar.linkMenuBar
+
+MenuBar.linkMenuBar {
+	backgroundAlpha: 0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	color: #000000;
+	fontFamily: Verdana;
+	menuStyleName: menuItem;
+	fontSize: 12;
+	fontWeight: normal;
+	highlightAlphas: 0.1, .1;
+	disabledColor: #000000;
+	errorColor: #000000;
+	selectionColor: #000000;
+	borderColor: #EAECED;
+}
+
+MenuBar.linkMenuBar1
 {
-	fillAlphas: 0.0, 0.0, 0.0, 0.0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	backgroundAlpha: 0;
 	textDecoration: underline;
 	menuStyleName: linkMenuItem;
 }
 .linkMenuItem
 {
+	backgroundAlpha: 0;
+	fillAlphas: 1, 1;
 	color: #6A5858;
-	fillAlphas: 0.0, 0.0, 0.0, 0.0;
 	textDecoration: underline;
 }
 .titleWindowStatus
