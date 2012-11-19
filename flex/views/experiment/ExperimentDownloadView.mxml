@@ -97,7 +97,7 @@
 			private function onGetRequestDownloadList(event:ResultEvent): void {
 				if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
 					Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
-					return;
+					return; 
 				}    	 
 				this.downloadTree.visible = true;
 				setFileCount();
@@ -106,10 +106,16 @@
 				this.downloadList.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 				this.downloadList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 				filesToDelete.removeAll();
-				
+							
+			}
+			 
+			private function expandNodes():void {
+				if(downloadList.length > 0) {
+					downloadTree.expandItem(downloadList.getItemAt(0),true); 
+				}	
 			}
 			
-			private function expandNodes():void {
+			private function expandAllNodes():void {
 				for each (var item3:Object in getRequestDownloadList.lastResult..FileDescriptor.(@type == "dir")) {
 					downloadTree.expandItem(item3, false);
 				}
@@ -417,7 +423,7 @@
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
 							 groupItemRenderer="views.renderers.CheckBoxGroupedItem"
 							 dropEnabled="false"  
-							 displayItemsExpanded="true"
+							 displayItemsExpanded="false"
 							 iconFunction="parentApplication.getTreeIcon"
 							 dragEnabled="false" 
 							 dragMoveEnabled="false"  
