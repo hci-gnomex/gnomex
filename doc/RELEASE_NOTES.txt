@@ -41,7 +41,7 @@ where idSample is not null
 and codePropertyType = 'OPTION'
 
 
-5.6
+5.6 (Nov 13, 2012)
 ---------------------
 * Display the first and last name of the User whose UNID is trying to be used by an admin creating a new account(tcourdy)
 * Changed b2b link from "New Experiment Order" to "Post Experiment Data"(tcourdy)
@@ -88,6 +88,8 @@ and codePropertyType = 'OPTION'
 * Fixed sample sheet upload to not skip blank fields. (rcundick)
 * Fixed bug where new request not initialized when new experiment initiated after posting experimental data. (rcundick)
 * Fixed bug that would create a brand new slide configuration instead of updating the slide the user just created in simpleSlideConfigWindow.(tcourdy)
+* Reworked nav bar to use menu bar rather than individual links.  Combined some links under a main menu item.  Got rid of ‘More…’ menu item and replaced with various menu items link ‘Configure…’ and ‘Experiments…’.
+* Created new Annotations Report.
 
 
 deploy notes
