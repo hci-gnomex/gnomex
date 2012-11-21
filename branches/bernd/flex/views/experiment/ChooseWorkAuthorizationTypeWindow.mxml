@@ -13,8 +13,7 @@
 		<![CDATA[
 			import mx.collections.XMLListCollection;
 			import mx.managers.PopUpManager;
-			
-			import views.util.WorkAuthorizationWindow;
+			import views.user.EditBillingAcctWindow;
 
 			[Bindable]
 			private var urlList:XMLListCollection = new XMLListCollection();
@@ -43,17 +42,42 @@
 				// show window that allows user to enter work auth form directly; otherwise,
 				// show URL that is a printable work auth form.
 				if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == "Y") {
-					var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(parentApplication.theBody, WorkAuthorizationWindow, true));
-					PopUpManager.centerPopUp(workAuthWindow);
-					workAuthWindow.emailAddress.text = parentApplication.getUserEmail();
-					if (workAuthWindow.labCombo.dataProvider.length == 2) {
-						workAuthWindow.labCombo.selectedIndex = 1;
-					}
+					parentApplication.showWorkAuthWindow();
+					/*
+					var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(parentApplication.theBody, EditBillingAcctWindow, true));
+					wa.isEdit = false;
+					wa.ba = new XML("<BillingAccount " +
+						" idBillingAccount='BillingAccount0'" +
+						" accountName=''" +
+						" idCoreFacility=''" +
+						" expirationDateOther=''" + 
+						" startDateOther=''" +
+						" accountNumberBus=''" + 
+						" accountNumberOrg=''" + 
+						" accountNumberFund=''" + 
+						" accountNumberActivity=''" + 
+						" accountNumberProject=''" +  
+						" accountNumberAccount=''" + 
+						" accountNumberAu=''" + 
+						" accountNumberYear=''" +
+						" totalDollarAmountDisplay=''" +
+						" shortAcct=''" +
+						" custom1=''" +
+						" custom2=''" +
+						" custom3=''" +
+						" isDirty='Y'" +
+						" isPO='N'" +
+						" submitterEmail='" + parentApplication.getUserEmail() + "'" +
+						" isApproved='N'" +
+						" isSelectedPeerReviewedFunding='false'" + 
+						"/>");
+					PopUpManager.centerPopUp(wa);*/
 				}else {
 					navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');			
 				}
 				closeWindow();
 			}
+			
 
 		]]>
 	</mx:Script>

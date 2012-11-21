@@ -143,7 +143,7 @@
 					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="170" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%" >
-					<mx:Label text="Ucsc Url" id="Label5"/>
+					<mx:Label text="UCSC Url" id="Label5"/>
 					<mx:TextInput id="ucsc" text="{parentDocument.fullUser.@ucscUrl}" width="200" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:CheckBox id="isActive" label="User is Active"  click="dirty.setDirty()">

@@ -114,14 +114,18 @@
 		
 		
 		public function selectDefaultGenomeBuild():void {
-			if (this.genomeBuildCombo.dataProvider.length > 1) {
-				for each(var genomeBuild:Object in this.genomeBuildCombo.dataProvider) {
-					if (genomeBuild.@isLatestBuild != null && genomeBuild.@isLatestBuild == 'Y') {
-						this.genomeBuildCombo.selectedItem = genomeBuild;
-						propagateGenomeBuild();
-						break;
+			if (alignCheckBox.selected) {
+				if (this.genomeBuildCombo.dataProvider.length > 1) {
+					for each(var genomeBuild:Object in this.genomeBuildCombo.dataProvider) {
+						if (genomeBuild.@isLatestBuild != null && genomeBuild.@isLatestBuild == 'Y') {
+							this.genomeBuildCombo.selectedItem = genomeBuild;
+							propagateGenomeBuild();
+							break;
+						}
 					}
 				}
+			} else {
+				genomeBuildCombo.selectedIndex = 0;
 			}
 		}
 	    
@@ -308,7 +312,25 @@
 			this.checkSeqSetup1Completeness();
         }
 
-		
+		private function onAlignCheckBoxClick():void {
+			if (!alignCheckBox.selected) {
+				genomeBuildCombo.selectedIndex = 0;
+				genomeBuildCombo.enabled = false;
+			} else {
+				genomeBuildCombo.enabled = true;
+				if (genomeBuildCombo.selectedIndex == 0) {
+					this.selectDefaultGenomeBuild();
+				}
+			}
+			this.checkSeqSetup1Completeness();
+		}		
+			
+		private function onGenomeBuildComboChange():void {
+			if (!alignCheckBox.selected) {
+				genomeBuildCombo.selectedIndex = 0;	
+			}
+			this.checkSeqSetup1Completeness();
+		}
 	]]>
 </mx:Script>   
  
@@ -336,8 +358,8 @@
 				<mx:Label text="(2) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
 				<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
 					<mx:HBox width="100%" horizontalGap="2">
-						<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;};this.checkSeqSetup1Completeness();}" selected="true"/>
-						<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="this.propagateGenomeBuild();this.checkSeqSetup1Completeness();" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}">							
+						<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick()}" selected="false"/>
+						<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange()}" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}" enabled="false">							
 						  	</mx:ComboBox>                			
 					</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0">

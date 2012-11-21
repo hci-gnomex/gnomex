@@ -56,6 +56,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private Integer          idCoreFacility;
   private String           action = "show";
   private String           emailAddress = null;
+  private Boolean          respondInHTML = false;
   
  
   public void validate() {
@@ -88,6 +89,9 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     }
     if (request.getParameter("emailAddress") != null && !request.getParameter("emailAddress").equals("")) {
       emailAddress = request.getParameter("emailAddress");
+    }
+    if (request.getParameter("respondInHTML") != null && request.getParameter("respondInHTML").equals("Y")) {
+      respondInHTML = true;
     }
     serverName = request.getServerName();
   }
@@ -286,6 +290,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
         billingPeriod, 
         lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
 
@@ -320,7 +326,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         "&idBillingAccount=" + idBillingAccount + 
         "&idBillingPeriod=" + idBillingPeriod +
         "&idCoreFacility=" + idCoreFacility +
-        "&action=" + ACTION_EMAIL);
+        "&action=" + ACTION_EMAIL +
+        "&respondInHTML=Y");
     String contactEmail = lab.getContactEmail();
     if (contactEmail == null || contactEmail.equals("")) {
       contactEmail = "billing contact";
@@ -385,6 +392,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility,
         billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
+    String body = emailFormatter.format();
     
     String note = "";
     boolean send = false;
@@ -409,7 +417,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           emailFormatter.getCCList(sess, serverName),
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
           subject, 
-          emailFormatter.format(),
+          body,
           true);
         
         note = "Billing invoice emailed to " + contactEmail + ".";
@@ -425,38 +433,40 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         note = "Unable to email invoice to " + contactEmail + " due to the following error: " + e.toString();        
       } 
     }
-    /*
-    if (note.length() == 0) {
-      note = "&nbsp";
+    Document doc = null;
+    if (respondInHTML) {
+      if (note.length() == 0) {
+        note = "&nbsp";
+      }
+      Element root = new Element("HTML");
+      doc = new Document(root);
+  
+      Element head = new Element("HEAD");
+      root.addContent(head);
+  
+      Element link = new Element("link");
+      link.setAttribute("rel", "stylesheet");
+      link.setAttribute("type", "text/css");
+      link.setAttribute("href", "invoiceForm.css");
+      head.addContent(link);
+  
+      Element title = new Element("TITLE");
+      title.addContent("Email Billing Invoice - " + lab.getName() + 
+                       " " + billingAccount.getAccountName());
+      head.addContent(title);
+  
+      Element responseBody = new Element("BODY");
+      root.addContent(responseBody);
+  
+      Element h = new Element("H3");
+      h.addContent(note);   
+      responseBody.addContent(h);
+    } else {
+      Element root = new Element("BillingInvoiceEmail");
+      doc = new Document(root);
+      root.setAttribute("note", note);
+      root.setAttribute("title", "Email Billing Invoice - " + lab.getName() + " " + billingAccount.getAccountName());
     }
-    Element root = new Element("HTML");
-    Document doc = new Document(root);
-
-    Element head = new Element("HEAD");
-    root.addContent(head);
-
-    Element link = new Element("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("type", "text/css");
-    link.setAttribute("href", "invoiceForm.css");
-    head.addContent(link);
-
-    Element title = new Element("TITLE");
-    title.addContent("Email Billing Invoice - " + lab.getName() + 
-                     " " + billingAccount.getAccountName());
-    head.addContent(title);
-
-    Element body = new Element("BODY");
-    root.addContent(body);
-
-    Element h = new Element("H3");
-    h.addContent(note);   
-    body.addContent(h);      
-    */
-    Element root = new Element("BillingInvoiceEmail");
-    Document doc = new Document(root);
-    root.setAttribute("note", note);
-    root.setAttribute("title", "Email Billing Invoice - " + lab.getName() + " " + billingAccount.getAccountName());
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     out.setOmitEncoding(true);

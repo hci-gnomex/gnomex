@@ -256,7 +256,7 @@
 						<mx:TextInput id="lab" maxChars="200" editable="true" enabled="true" width="170" change="setDirty()"/>
 					</mx:VBox>	
 					<mx:VBox verticalGap="1" width="100%">
-						<mx:Label text="Ucsc Url" id="Label5"/>
+						<mx:Label text="UCSC Url" id="Label5"/>
 						<mx:TextInput id="ucsc" text="{publicUser.@ucscUrl}" width="200" change="setDirty()"/>
 					</mx:VBox>						
 				</mx:HBox>

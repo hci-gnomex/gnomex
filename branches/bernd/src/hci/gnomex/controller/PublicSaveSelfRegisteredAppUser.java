@@ -352,6 +352,26 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
       }
     }
+    
+    if(requestedLab != null){
+      if ( requestedLab.getContactEmail() != null ) {
+        if(!toAddress.equals("") && !requestedLab.getContactEmail().equals("")){
+          toAddress += ",";
+        }
+        toAddress += requestedLab.getContactEmail();
+      }
+      
+      for(Iterator managerIter = requestedLab.getManagers().iterator(); managerIter.hasNext();){
+        AppUser manager = (AppUser)managerIter.next();
+        String managerEmail = manager.getEmail();
+        if(managerEmail != null && !managerEmail.equals("")){
+          if(!toAddress.equals("")){
+            toAddress += ",";
+          }
+          toAddress += managerEmail;
+        }
+      } 
+    }
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");

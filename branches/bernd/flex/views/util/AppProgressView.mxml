@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas       
-	xmlns:mx="http://www.adobe.com/2006/mxml" width="318" height="300"  
+	xmlns:mx="http://www.adobe.com/2006/mxml" width="250" height="200"  
 	label="horizontal" 
 	xmlns:util="views.util.*"  backgroundAlpha="0.0" backgroundColor="#FFFFF"> 
-	 <mx:VBox   width="100%" height="100%" id="mainArea"  horizontalAlign="center" verticalAlign="middle" backgroundColor="#FFFFFF" verticalGap="20" borderStyle="outset">
+	 <mx:VBox   width="100%" height="100%" id="mainArea"  horizontalAlign="center" verticalAlign="middle" backgroundColor="#FFFFFF" verticalGap="14" borderStyle="none">
 		 <mx:Image source="assets/hciLogoSplash.png" scaleContent="false"/>
 		 
 		 <mx:Text text="Initializing GNomEx"  id="label1"  styleName="progressLabel" fontSize="14" fontWeight="bold"/>	 	
@@ -25,9 +25,9 @@
 	 	 	 	   	labelPlacement="top" 
 	 	 	 	   	textAlign="left" 
 	 	 	 	        direction="right" mode="manual" 
-	 	 	 	         label="Loading application settings..."  fontWeight="normal" color="#5D5D5D"/>
+	 	 	 	         label="Loading application settings..."  fontWeight="normal" color="#5D5D5D" fontSize="14"/>
 	 	 	 </mx:AddChild>
-	 	 	 <mx:SetStyle target="{mainArea}" name="verticalGap" value="30"/>
+	 	 	 <mx:SetStyle target="{mainArea}" name="verticalGap" value="10"/>
 	 	 	 <mx:SetStyle target="{mainArea}" name="verticalAlign" value="middle"/>
 	 	 </mx:State>
 	 	 <mx:State name="AuthenticationFailedState" basedOn="StartupState">
@@ -36,11 +36,12 @@
 	 	 	 </mx:SetProperty>
 	 	 	 <mx:SetStyle name="verticalAlign" value="middle"/>
 	 	 	 <mx:AddChild relativeTo="{mainArea}" position="lastChild">
-	 	 	 	 <mx:Label text="Please try logging in again." styleName="progressLabel" fontSize="16" color="#7B6D64" fontStyle="italic" fontWeight="bold"/>
+	 	 	 	 <mx:Label text="Please try logging in again." styleName="progressLabel" fontSize="14" color="#107A18" fontStyle="italic" fontWeight="bold"/>
 	 	 	 </mx:AddChild>
 	 	 	 <mx:SetStyle target="{label1}" name="color" value="#7B6D64"/>
 	 	 	 <mx:SetStyle target="{mainArea}" name="verticalGap" value="0"/>
 	 	 	 <mx:SetStyle target="{label1}" name="paddingTop" value="20"/>
+	 	 	 <mx:SetStyle target="{label1}" name="fontSize" value="12"/>
 	 	 </mx:State>
 	 </mx:states>
 

@@ -9,6 +9,9 @@ import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AnalysisType;
+import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFile;
+import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
@@ -18,6 +21,7 @@ import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.TransferLog;
+import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisCollaboratorParser;
@@ -40,6 +44,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -325,15 +330,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           genomeBuildParser.parse(sess);          
         }
         
-        // Make sure that there are not any data track files linked to analysis files
-        if (analysisFileParser != null) {
-          String message = validateAnalysisFilesToRemove(sess, analysis, analysisFileParser);
-          if (message != null && !message.equals("")) {
-            throw new RollBackCommandException(message);
-          }
-        }
-        
-              
+       
         if (isNewAnalysis) {
           sess.save(analysis);
           
@@ -486,6 +483,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         sess.flush();        
 
+        
+        
+        
         //
         // Save analysis files
         //
@@ -507,6 +507,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           }
         }
         
+        // Remove any data track files linked to analysis files
+        if (analysisFileParser != null && analysisFileParser.getAnalysisFileToDeleteMap() != null) {
+          removeDataTrackFiles(sess, this.getSecAdvisor(), analysis, analysisFileParser.getAnalysisFileToDeleteMap());
+        }
+        
         // Get rid of removed analysis files
         if (analysisFileParser != null) {
           String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(baseDir);
@@ -517,7 +522,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
             // Only delete from db if it was already present.
             if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {              
-//              Set aFiles = analysis.getFiles();
               analysis.getFiles().remove(af);
             }
 
@@ -619,62 +623,96 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     return this;
   }
   
-  public static String validateAnalysisFilesToRemove(Session sess, Analysis a, AnalysisFileParser analysisFileParser) throws UnknownPermissionException {
-      String message = null;
+  public static String removeDataTrackFiles(Session sess, SecurityAdvisor secAd, Analysis a, Map filesToDeleteMap) throws UnknownPermissionException {
+    
+    // No analysis files to delete
+    if (filesToDeleteMap != null) {
+      if (filesToDeleteMap.size() == 0) {
+        return null;
+      }
+    } else {
+      if (a.getFiles().size() == 0) {
+        return null;
+      }
+    } 
+
+    // DataTrack and DataTrackFile query 
+    StringBuffer queryBuf = new StringBuffer();
+    int inCount = 0;
+    queryBuf.append("SELECT dtf, dt FROM DataTrack dt ");
+    queryBuf.append("JOIN dt.dataTrackFiles dtf ");
+    queryBuf.append("WHERE dtf.idAnalysisFile IN (");
+    boolean firstTime = true;
+
+    // Get all the AnalysisFile id's from the filesToDeleteMap
+    if ( filesToDeleteMap != null ) {
+      for (Iterator i1 = filesToDeleteMap.keySet().iterator(); i1.hasNext();) {
+        String idAnalysisFile = (String)i1.next();
+        // Analysis files that are on the file system but not yet saved should
+        // be ignored.
+        if (idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
+          continue;
+        }
+        if (!firstTime) {
+          queryBuf.append(",");
+        }
+        queryBuf.append(idAnalysisFile);
+        firstTime = false;
+      } 
+      queryBuf.append(")");
+    } else{
+      for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
+        AnalysisFile af = (AnalysisFile)i.next();
+        queryBuf.append(af.getIdAnalysisFile());
+        inCount++;
+        if (i.hasNext()) {
+          queryBuf.append(",");
+        }
+      }
+      queryBuf.append(")");
+    }
+
+      // Run the Query
+      List dataTrackFiles = sess.createQuery(queryBuf.toString()).list();
       
-      // If there are no analysis files to delete, this validation check can be bypassed.
-      if (analysisFileParser != null) {
-        if (analysisFileParser.getAnalysisFileToDeleteMap().size() == 0) {
-          return message;
-        }
-      } else {
-        if (a.getFiles().size() == 0) {
-          return message;
-        }
-      }
-      StringBuffer queryBuf = new StringBuffer();
-      int inCount = 0;
-      queryBuf.append("SELECT COUNT(*) FROM DataTrack dt ");
-      queryBuf.append("JOIN dt.dataTrackFiles dtf ");
-      queryBuf.append("WHERE dtf.idAnalysisFile IN (");
-      boolean firstTime = true;
-      if (analysisFileParser != null) {
-        for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
-          String idAnalysisFile = (String)i.next();
-          // Analysis files that are on the file system but not yet saved should
-          // be ignored.
-          if (idAnalysisFile.startsWith("AnalysisFile")) {
-            continue;
-          }
-          if (!firstTime) {
-            queryBuf.append(",");
-          }
-          queryBuf.append(idAnalysisFile);
-          inCount++;
-          firstTime = false;
-        } 
-        queryBuf.append(")");
-      } else {
-        for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
-          AnalysisFile af = (AnalysisFile)i.next();
-          queryBuf.append(af.getIdAnalysisFile());
-          inCount++;
-          if (i.hasNext()) {
-            queryBuf.append(",");
-          }
-        }
-        queryBuf.append(")");
-      }
-      // Only perform query if we have at least one idAnalysisFile in the "in" clause
-      if (inCount > 0) {
-        Integer count = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
-        if (count != null && count > 0) {
-          message = "Cannot remove analysis file.  Please remove or unlink releated data tracks first.";
-        }
-      }
-      return message;
       
+      // Delete the DataTrackFiles and DataTracks 
+      for (Iterator i = dataTrackFiles.iterator(); i.hasNext();) {
+        Object[] row = (Object[]) i.next();
+        DataTrackFile dtf = (DataTrackFile) row[0];
+        DataTrack dt = (DataTrack) row[1];
+        sess.delete( dtf );
+        sess.flush();
+        
+        for(DataTrackFolder folder : (Set<DataTrackFolder>)dt.getFolders()) {
+          String path = folder.getQualifiedTypeName();
+          if (path.length() > 0) {
+            path += "/";
+          }
+          String typeName = path + dt.getName();
+
+          UnloadDataTrack unload = new UnloadDataTrack();
+          unload.setTypeName(typeName);
+          unload.setIdAppUser( secAd.getIdAppUser());
+          unload.setIdGenomeBuild(dt.getIdGenomeBuild());
+
+          sess.save(unload);
+        }
+
+        //
+        // Delete (unlink) collaborators
+        //
+        dt.setCollaborators(null);
+        sess.flush();
+        
+        // delete database object
+        sess.delete(dt);
+
+        sess.flush();
+      }
+      return "All data track files associated with this analysis have been deleted.";
   }
+  
   
   
   private void getLab(Session sess) throws Exception{

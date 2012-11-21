@@ -1164,55 +1164,47 @@
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 					<mx:VBox verticalGap="6" label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 
-						<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="Experiment"  width="100" />
 							<mx:TextInput editable="false" text="{requestCategoryName}" width="400"  backgroundColor="#FFFFFF"/>
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="400" />
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="nameBox">
 							<mx:Label text="Name" width="100"/>
 							<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
 						</mx:HBox>
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="Lab group"  width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@labName}" width="400"/>
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@submitterName}" width="400" />
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}">
+						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}" verticalAlign="middle">
 							<mx:Label text="Submitter Email" width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@email}" width="400"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@email}" width="200"/>
+							<mx:Label text="Submitter Phone" paddingLeft="10" width="110"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@phone}" width="200"/>
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@phone != ''}" visible="{this.selectedExperiment.@phone != ''}">
-							<mx:Label text="Submitter Phone" width="100"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@phone}" width="400"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0">
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@createDate}" width="400"/>
-						</mx:HBox>
-						<mx:HBox horizontalGap="0">
-							<mx:Label text="Last modified" width="100" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@createDate}" width="200"/>
+							<mx:Label text="Last modified" width="110"  paddingLeft="10"/>
 							<mx:Text  text="{this.selectedExperiment.@lastModifyDate}"/>
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0">
-							<mx:Label text="{'Owned by'}" width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="400" />
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+							<mx:Text  width="100" text="Visibility" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{visibilityName}" width="200" />
+							<mx:Label text="{'Owned by'}" paddingLeft="10" width="110"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="200" />
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
+						<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle">
 							<mx:Label width="100" text="Completed" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="400" />
-						</mx:HBox>
-						
-						
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="visibilityBox">
-							<mx:Text  width="100" text="Visibility" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{visibilityName}" width="400" />
 						</mx:HBox>
 						<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
 							<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -1741,13 +1733,11 @@
 		<mx:RemoveChild target="{tile1}"/>
 		<mx:RemoveChild target="{label1}"/>
 		<mx:RemoveChild target="{headerBox}"/>
-		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="ExternalSeqState">
-		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 	<mx:State name="BaseSeqState">
-		<mx:AddChild relativeTo="{this.visibilityBox}" position="after">
+		<mx:AddChild relativeTo="{this.nameBox}" position="after">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
 				<mx:Text  width="100" text="Status" />
 				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="400" />
@@ -1803,7 +1793,6 @@
 	<mx:State name="CherryPickState" basedOn="BaseSeqState">
 	</mx:State>
 	<mx:State name="ExternalQCState">
-		<mx:RemoveChild target="{hbox2}"/>
 	</mx:State>
 </mx:states>
 	

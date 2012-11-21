@@ -379,7 +379,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
 
           // if this is a new request, create QC work items for each sample
-          if (!requestParser.isExternalExperiment()) {
+          if (!requestParser.isExternalExperiment() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
             if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
               WorkItem workItem = new WorkItem();
               workItem.setIdRequest(requestParser.getRequest().getIdRequest());
@@ -829,13 +829,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // transfer logs for this request
         reassignLabForTransferLog(sess);
         sess.flush();
-
-        // Create file server data directories for request.
-        if (requestParser.isNewRequest()) {
-          this.createResultDirectories(requestParser.getRequest(), 
-              dictionaryHelper.getPropertyDictionary(PropertyDictionary.QC_DIRECTORY), 
-              PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-          
+        
+        //Create file server data directories for request based off of code request category
+        if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())){
+          this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+          this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+        }
+        else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.TYPE_QC))){
+          this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -1131,8 +1132,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       sess.flush();
       
-      // If the sample property type is "multi-option", save the options.
-      if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.MULTI_OPTION)) {
+      // If the sample property type is "option" or "multi-option", save the options.
+      if (value != null && !value.equals("") && 
+          (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
         Set options = new TreeSet();
         String[] valueTokens = value.split(",");
         for (int x = 0; x < valueTokens.length; x++) {
@@ -1145,8 +1147,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
         }
         entry.setOptions(options);
-      }
-        
+      }     
     }
 
     // Delete the existing sample treatments
@@ -2209,7 +2210,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
     
     String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
-    String rootDir = microarrayDir + "/" + createYear;
+    String rootDir = microarrayDir + File.separator + createYear;
     
     boolean success = false;
     if (!new File(rootDir).exists()) {
@@ -2224,6 +2225,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     success = (new File(directoryName)).mkdir();
     if (!success) {
       log.error("Unable to create directory " + directoryName);      
+    }
+    
+    success = new File(directoryName + File.separator + qcDirectory).mkdir();
+    if(!success){
+      log.error("Unable to create directory " + directoryName);
     }
     
     

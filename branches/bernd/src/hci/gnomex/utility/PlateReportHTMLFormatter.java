@@ -118,6 +118,7 @@ public class PlateReportHTMLFormatter {
             Element well = (Element) i.next();
 
             String idPlateWellString = well.getAttributeValue("idPlateWellShort");
+            idPlateWellString = idPlateWellString != null ? idPlateWellString.substring( idPlateWellString.length() > 6 ? idPlateWellString.length() - 5 : 0 ) : "0"; 
             String sampleName = well.getAttributeValue( "sampleName" ) != null ? well.getAttributeValue( "sampleName" ) : "";
             int endInd = Math.min( sampleName.length(), 10 );
             int midInd = Math.min( sampleName.length(), 5 );

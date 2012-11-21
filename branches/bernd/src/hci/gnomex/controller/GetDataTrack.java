@@ -30,6 +30,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetDataTrack.class);
   
   private Integer idDataTrack;
+  private String dataTrackNumber;
   private String serverName;
   private String baseDir;
   private String analysisBaseDir;
@@ -40,8 +41,10 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
       idDataTrack = new Integer(request.getParameter("idDataTrack"));   
+    } else if ( request.getParameter( "dataTrackNumber" ) != null && !request.getParameter("dataTrackNumber").equals("")) {
+      dataTrackNumber = request.getParameter( "dataTrackNumber" );
     } else {
-      this.addInvalidField("idDataTrack", "idDataTrack is required");
+      this.addInvalidField("Missing parameters", "idDataTrack or dataTrackNumber required");
     }
     serverName = request.getServerName();
   }
@@ -54,9 +57,13 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
-
       
-      DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
+      DataTrack dataTrack;
+      if ( idDataTrack != null && !idDataTrack.equals( "" )) {
+        dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
+      } else {
+        dataTrack = this.getDataTrackFromDataTrackNumber( sess, dataTrackNumber );
+      }
 
       // TODO: GENOPUB Need to send in analysis file data path?  
       if (this.getSecAdvisor().canRead(dataTrack)) {

@@ -6,7 +6,7 @@
 
 
  
-   <mx:HTTPService                
+   <mx:HTTPService                 
     id="getLab" 
     url="GetLab.gx"
     destination="getLab" 
@@ -118,6 +118,7 @@
          <idLab>{labCombo.selectedItem.@idLab}</idLab>       	
          <idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
 		 <idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
+		 <excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>  
        </mx:request>
     </mx:HTTPService >  
     
@@ -136,7 +137,8 @@
 		 <invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
          <idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
          <idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
-         <idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
+         <idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>  
+		 <excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
        </mx:request>
     </mx:HTTPService >          
 	
@@ -155,6 +157,7 @@
 			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
 			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
 			<idCoreFacility>{coreFacilityCombo.selectedItem != null &amp;&amp; requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
     
@@ -199,7 +202,7 @@
  	<![CDATA[
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
-		import mx.events.MenuEvent;
+		import mx.controls.menuClasses.MenuBarItem;
 		
 		import mx.collections.ArrayCollection;
 		import mx.collections.IHierarchicalCollectionView;
@@ -215,6 +218,7 @@
 		import mx.events.CollectionEventKind;
 		import mx.events.DragEvent;
 		import mx.events.ListEvent;
+		import mx.events.MenuEvent;
 		import mx.events.PropertyChangeEvent;
 		import mx.formatters.CurrencyFormatter;
 		import mx.managers.DragManager;
@@ -234,10 +238,29 @@
 		private var billingItems:XMLListCollection = new XMLListCollection();
 		
 		[Bindable]
+		[Embed(source="../../assets/money.png")]
+		public var iconBilling:Class;
+		
+		[Bindable]
 		[Embed(source="../../assets/page.png")]
 		public var iconReports:Class;
+				
+		[Bindable]
+		[Embed(source="../../assets/feed_disk.png")]
+		public var iconGLInterface:Class;
 		
-
+		[Bindable]
+		[Embed(source="../../assets/printer.png")]
+		public var iconPrintInvoice:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/email_open.png")]
+		public var iconEmailInvoice:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/refresh.png")]
+		public var iconRefresh:Class;
+		
         [Bindable]
         private var billingAccounts:XMLListCollection = new XMLListCollection();
 
@@ -297,7 +320,19 @@
 
       	public function initializeData():void
       	{
-      		glFileButton.visible = parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N" ? false : true;
+      		if (parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N") {
+				menuBar.visible = false;
+				menuBar.includeInLayout = false;
+
+				menuBarNoGLInterface.visible = true;
+				menuBarNoGLInterface.includeInLayout = true;
+			} else {
+				menuBar.visible = true;
+				menuBar.includeInLayout = true;
+
+				menuBarNoGLInterface.visible = false;
+				menuBarNoGLInterface.includeInLayout = false;
+			}
 			
 			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
         	var billingPeriodSort:Sort = new Sort();
@@ -354,6 +389,7 @@
 			
  			var params:Object = new Object();
 			params.idCoreFacility = this.getSelectedCoreFacilityId();
+			params.excludeNewRequests = this.getSelectedCoreFacilityId() == "2" ? "Y" : "N";
  			if(this.lastSelectedBillingPeriod == null) {
 	 			var currentBillingPeriod:Object = null;
 				for each( de in billingPeriods) {
@@ -389,7 +425,9 @@
         	
         	currencyFormatter.currencySymbol = "$";
         	currencyFormatter.precision = 2;
-        	currencyFormatter.useThousandsSeparator;        	
+        	currencyFormatter.useThousandsSeparator;     
+			
+			callLater(this.resizeMenuItems);
       	}		
 		public function checkDirty():void {      
 		}
@@ -1942,7 +1980,10 @@
 		}	
 		
 		public function onEdit():void {
-			billingItemGrid.selectedItem.@isDirty = "Y";
+			if ( billingItemGrid.selectedItem != null ) {
+				billingItemGrid.selectedItem.@isDirty = "Y";
+			}
+			billingItemGrid.selectedIndex = -1;
 		}
 		
 		private function getCompleteDateString(item:Object,col:int):String
@@ -1977,14 +2018,28 @@
 		}		
 
 		public function billingStatusCombo_changeHandler(event:ListEvent):void {
-			for each(var request:XML in billingItemsDisplayed){
-				for each(var bi:Object in request.BillingItem){
-					bi.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
-					bi.@isDirty = "Y";
+			if ( billingItemGrid.selectedItems.length == 0 ) {
+				for each(var request:XML in billingItemsDisplayed){
+					for each(var bi:Object in request.BillingItem){
+						bi.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+						bi.@isDirty = "Y";
+					}
+				}
+			} else {
+				for each ( var item:XML in billingItemGrid.selectedItems){
+					if (item.name() == "BillingItem") {
+						item.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+						item.@isDirty = "Y";
+					} else if (item.name() == "Request") {
+						for each ( var bItem:XML in item.BillingItem ) {
+							bItem.@codeBillingStatus = billingStatusCombo.selectedItem.@value;
+							bItem.@isDirty = "Y"
+						}
+					}
 				}
 			}
-			
 			billingStatusCombo.selectedItem = billingStatusCombo.prompt;
+			billingItemGrid.selectedIndex = -1;
 		}
 
 		private function getSelectedCoreFacilityId():String {
@@ -2032,18 +2087,71 @@
 			}
 				
 		}
-		private function onReportsMenu(event:MenuEvent):void {
-			
-			
-			if (event.label == 'Invoice Report') {
-				showBillingMonthendReport();
-			} else if (event.label == 'Billing by Lab and Experiment Platform') {
-				showBillingSummaryWindow();
-			} else if (event.label == 'Usage Report') {
-				this.showBillingUsageWindow();
+		
+		private function onMenuClick(event:MouseEvent):void {
+			if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
+				return;
 			}
+			doMenu(event.target.data.@label);
+		}
+		
+		private function onMenuSelect(event:MenuEvent):void {
+			doMenu(event.label);
+		}
+		
+		
+		private function doMenu(label:String):void {
+			
+			if (label == 'Invoice Report') {
+				showBillingMonthendReport();
+			} else if (label == 'Billing by Lab and Experiment Platform') {
+				showBillingSummaryWindow();
+			} else if (label == 'Usage Report') {
+				this.showBillingUsageWindow();
+			} else if (label == 'Print Invoice') {
+				this.showBillingInvoice(false);
+			} else if (label == 'Email Invoice') {
+				this.showBillingInvoice(true);
+			} else if (label == 'General Ledger Interface') {
+				this.showBillingGLInterface();
+			} else if (label == 'Refresh') {
+				refresh();
+			}
+
 		}
 
+		private function collapseLabNodes():void {
+			for each(var lab:Object in getBillingRequestList.lastResult.Status..Lab) {
+				requestTree.expandItem(lab, false);
+			}
+			requestTree.validateNow();
+			
+		}
+		
+		public function expandAllNodes():void
+		{
+			for each(var lab:Object in getBillingRequestList.lastResult..Lab) {
+				requestTree.expandItem(lab, true);
+			}
+			for each(var status:Object in getBillingRequestList.lastResult.Status) {
+				requestTree.expandItem(status, true);
+			}
+			requestTree.validateNow();
+		}
+		
+		private function resizeMenuItems():void{
+			if (this.menuBar.visible) {
+				for each(var item:MenuBarItem in this.menuBar.menuBarItems){
+					item.width += 20;
+				}
+			} else if (this.menuBarNoGLInterface.visible) {
+				for each(var item:MenuBarItem in this.menuBarNoGLInterface.menuBarItems){
+					item.width += 20;
+				}
+			}
+		}
+		
+		
  	]]>
  </mx:Script>	
 
@@ -2058,34 +2166,45 @@
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
  
 	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
-	                    <mx:HBox  verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2" width="100%" paddingLeft="4">
-							<mx:Image source="assets/money.png"/>
-							<mx:Text text="Billing"   styleName="titleLabel"/>
-							<mx:LinkButton label="Print Invoice" textDecoration="underline" icon="@Embed(source='../../assets/printer.png')" click="showBillingInvoice(false)" fontSize="12" fontFamily="Verdana" paddingLeft="50"/>
-										<mx:VRule height="20"/>
-	                                    <mx:LinkButton label="Email Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice(true)" fontSize="12" fontFamily="Verdana"/>
-	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton  id="glFileButton" label="Generate GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()" fontSize="12"/>
-	                                    <mx:VRule height="20"/>
-							
-							<mx:MenuBar itemClick="{onReportsMenu(event)}"  labelField="@label" iconField="@icon"   styleName="linkMenuBar" color="#000000" fontSize="12" fontFamily="Verdana">
-								<mx:XMLList>
-									<menuitem label="Reports..."  icon="iconReports" >
-										<menuitem label="Invoice Report" />
-										<menuitem label="Billing by Lab and Experiment Platform"  />
-										<menuitem label="Usage Report"  />
-									</menuitem>
-								</mx:XMLList>
-							</mx:MenuBar> 
-							<mx:Spacer width="100%"/>
+            <mx:HBox  verticalAlign="middle" paddingTop="0" paddingBottom="0" horizontalGap="2" width="100%" paddingLeft="0" paddingRight="0">
+				<mx:MenuBar id="menuBar" 
+							click="onMenuClick(event)"
+							itemClick="{onMenuSelect(event)}"   
+							labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="35" width="100%">
+					<mx:XMLList>
+						<menuitem label="Billing"  icon="iconBilling" />
+						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
+						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
+						<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
+						<menuitem label="Reports..."  icon="iconReports" >
+							<menuitem label="Invoice Report" />
+							<menuitem label="Billing by Lab and Experiment Platform"  />
+							<menuitem label="Usage Report"  />
+						</menuitem>
+						<menuitem label="Refresh"  icon="iconRefresh" />
+					</mx:XMLList>
+				</mx:MenuBar> 
 
-                            <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-                                       click="refresh()" toolTip="Refresh"/>
-                	
-                	
-                </mx:HBox>
+				<mx:MenuBar id="menuBarNoGLInterface" 
+							visible="false" includeInLayout="false" 
+							click="onMenuClick(event)"
+							itemClick="{onMenuSelect(event)}"   
+							labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="30" width="100%">
+					<mx:XMLList>
+						<menuitem label="Billing"  icon="iconBilling" />
+						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
+						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
+						<menuitem label="Reports..."  icon="iconReports" >
+							<menuitem label="Invoice Report" />
+							<menuitem label="Billing by Lab and Experiment Platform"  />
+							<menuitem label="Usage Report"  />
+						</menuitem>
+						<menuitem label="Refresh"  icon="iconRefresh" />
+					</mx:XMLList>
+				</mx:MenuBar> 
+	     </mx:HBox>
 
-	      <mx:HBox horizontalGap="8" verticalAlign="top" paddingBottom="2" paddingLeft="4">
+	      <mx:HBox horizontalGap="8" verticalAlign="top" paddingBottom="6" paddingLeft="4" paddingTop="6">
 			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
 				    <mx:Label text="Core Facility" />
 				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
@@ -2159,6 +2278,7 @@
 						displayItemsExpanded="true" 
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
+						change="onRequestNodeSelected()"
 						iconFunction="parentApplication.getTreeIcon"  
 						labelFunction="getTreeLabel"
 						showDataTips="true"
@@ -2170,7 +2290,17 @@
   						  <mx:AdvancedDataGridColumn dataField="@label"  dataTipField="@dataTip"/> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
-       			
+					
+					<mx:HBox horizontalGap="0" width="100%">
+						<mx:ViewStack id="treeExpansionStack" width="100%" selectedIndex="1">
+							<mx:HBox width="100%" horizontalAlign="left">
+								<mx:LinkButton   label="Expand labs" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" />
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="left">
+								<mx:LinkButton  label="Collapse labs" click="{treeExpansionStack.selectedIndex = 0;this.collapseLabNodes()}" textDecoration="underline" />					    	
+							</mx:HBox>
+						</mx:ViewStack>
+					</mx:HBox>
         		</mx:VBox> 
         		
         		<mx:VBox id="priceTab" label="Prices" height="100%" verticalGap="0" width="100%" color="#000000" show="{this.getPricingList.send();}" >
@@ -2259,8 +2389,12 @@
 							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}" fontFamily="Verdana" fontSize="11"/>
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
-						<mx:ComboBox id="billingStatusCombo" prompt="- Change Status -" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
-									 labelField="@display" toolTip="Use this to change the status of every displayed billing item" change="billingStatusCombo_changeHandler(event)" enabled="false"/>
+						<mx:ComboBox id="billingStatusCombo" 
+									 prompt="- Change Status -" 
+									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
+									 labelField="@display" 
+									 toolTip="Shift or ctrl + click will highlight multiple rows.  This will update the status for all the selected items.  If no items are selected, all of the items' statuses will update." 
+									 change="billingStatusCombo_changeHandler(event)" enabled="false"/>
 					</mx:HBox>
 				</mx:VBox>
 				
@@ -2272,13 +2406,13 @@
         			id="billingItemGrid" 
         			dropEnabled="true"  
         			dragDrop="onDragDropBillingItemGrid(event)"
-                    allowMultipleSelection="false" 
+                    allowMultipleSelection="true" 
                     iconFunction="parentApplication.getTreeIcon" 
                     wordWrap="true" 
                     showDataTips="true"
                     headerWordWrap="true" 
-                    selectionMode="singleRow" itemEditEnd="onEdit()" 
-                     alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
+					selectionMode="singleRow" itemEditEnd="onEdit()" 
+                    alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
         		 	<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItemsDisplayed}"/> 
     				</mx:dataProvider> 
@@ -2365,7 +2499,9 @@
 				        	<mx:LinkButton  label="Reassign" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
 				        		<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
 				        	</mx:LinkButton> 
-				        	<mx:LinkButton  label="Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
+				        	<mx:LinkButton  label="Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true">
+								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
+							</mx:LinkButton> 
 				        	<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()" enabled="{billingItemGrid.selectedItem != null}"/>
 				        </mx:HBox>
 					    <mx:Spacer width="100%"/>

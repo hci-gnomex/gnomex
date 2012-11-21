@@ -44,6 +44,8 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
   private SlideProduct slideInfo;
   private SlideProduct slideProduct;
   private SlideDesign slideDesign;
+  private String idSlideProduct;
+  private String idSlideDesign;
   
   private String applicationXMLString = null;
   private Document mcDoc;
@@ -61,6 +63,14 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
     slideInfo = new SlideProduct();
     HashMap errors = this.loadDetailObject(request, slideInfo);
     this.addInvalidFields(errors);
+    
+    if(request.getParameter("idSlideProduct") != null && !request.getParameter("idSlideProduct").equals("")){
+      idSlideProduct = request.getParameter("idSlideProduct");
+    }
+    
+    if(request.getParameter("idSlideDesign") != null && !request.getParameter("idSlideDesign").equals("")){
+      idSlideDesign = request.getParameter("idSlideDesign");
+    }
     
     if (request.getParameter("applicationXMLString") != null && !request.getParameter("applicationXMLString").equals("")) {
       applicationXMLString = request.getParameter("applicationXMLString");
@@ -83,8 +93,19 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
    try{
       Session sess = HibernateSession.currentSession(this.getUsername());
       
-      slideProduct = new SlideProduct();
-      slideDesign = new SlideDesign();
+      if(idSlideProduct != null && !idSlideProduct.equals("")){
+        slideProduct = (SlideProduct) sess.load(SlideProduct.class, Integer.parseInt(idSlideProduct));
+      }
+      else{
+        slideProduct = new SlideProduct();
+      }
+      
+      if(idSlideDesign != null && !idSlideDesign.equals("")){
+        slideDesign = (SlideDesign) sess.load(SlideDesign.class, Integer.parseInt(idSlideDesign));
+      }
+      else{
+        slideDesign = new SlideDesign();
+      }
       
       applicationParser.parse(sess);
       
@@ -105,12 +126,10 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
       //query.append(" where sp.name=" + slideInfo.getName());
       List slide = sess.createQuery(query.toString()).list();
       
-      for(int i = slide.size()-2; i < slide.size(); i++)
-      {
+      for(int i = slide.size()-2; i < slide.size(); i++){
         SlideProduct temp = (SlideProduct) slide.get(i);
         
-        if(temp.getName() == slideInfo.getName())
-        {
+        if(temp.getName() == slideInfo.getName()){
           slideDesign.setName(slideInfo.getName());
           slideDesign.setIsActive(slideInfo.getIsActive());
           slideDesign.setIdSlideProduct(temp.getIdSlideProduct()); 
@@ -130,8 +149,8 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
      } catch (Exception e) {
      }
    }
-   this.xmlResult = "<SUCCESS institution=\"" + slideProduct.getIdSlideProduct()
-   + "\"/>";
+   this.xmlResult = "<SUCCESS idSlideProduct=\"" + slideProduct.getIdSlideProduct() + "\"" 
+   + "idSlideDesign=\"" + slideDesign.getIdSlideDesign() + "\"" + "/>";
    setResponsePage(this.SUCCESS_JSP);
     return this;
   }

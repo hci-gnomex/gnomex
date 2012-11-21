@@ -19,11 +19,8 @@ public class OtherAccountFieldsConfiguration extends HibernateDetailObject imple
   
   public static final String EXPIRATION_DATE                    = "expirationDate";
   public static final String START_DATE                         = "startDate";
-  public static final String SUBMITTER_EMAIL                    = "submitterEmail";
-  public static final String DOCUMENT                           = "document";
   public static final String FUNDING_AGENCY                     = "idFundingAgency";
   public static final String TOTAL_DOLLAR_AMOUNT                = "totalDollarAmount";
-  public static final String USERS                              = "users";
   public static final String SHORT_ACCT                         = "shortAcct";
   
   private static List<OtherAccountFieldsConfiguration> configurations = null;
@@ -72,11 +69,8 @@ public class OtherAccountFieldsConfiguration extends HibernateDetailObject imple
       List l = sess.createQuery("from OtherAccountFieldsConfiguration").list();
       addConfiguration(EXPIRATION_DATE, l);
       addConfiguration(START_DATE, l);
-      addConfiguration(SUBMITTER_EMAIL, l);
-      addConfiguration(DOCUMENT, l);
       addConfiguration(FUNDING_AGENCY, l);
       addConfiguration(TOTAL_DOLLAR_AMOUNT, l);
-      addConfiguration(USERS, l);
       addConfiguration(SHORT_ACCT, l);
     }
   }

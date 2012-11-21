@@ -267,7 +267,6 @@
 			import views.experiment.RequestCloneWindow;
 			import views.slide.SimpleSlideConfigWindow;
 			import views.util.PromptXMLListCollection;
-			import views.util.WorkAuthorizationWindow;
 			
 			[Bindable]
 			public var requestCategory:Object;
@@ -867,6 +866,7 @@
 				mx.managers.PopUpManager.centerPopUp(slideWindow);
 				slideWindow.tabSetupView = this;
 				slideWindow.codeRequestCategory = requestCategory.@codeRequestCategory;
+				slideWindow.selectedAppValue = getApp();
 				slideWindow.init();
 				this.setFocus();
 				
@@ -874,6 +874,7 @@
 			
 			public function refreshFilteredSlideList():void{
 				parentDocument.getSlideProductList.send();
+				updateFilteredSlideProduct();
 			}
 			
 			private function pickOrganism():void {
@@ -897,40 +898,22 @@
 			
 			private function updateFilteredSlideProduct():void{
 				if (parentDocument.filteredSlideProductList != null) {
+					parentDocument.filteredSlideProductList.filterFunction = parentDocument.filterSlideProduct
 					parentDocument.filteredSlideProductList.refresh();
-					parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
-					parentDocument.filteredSlideProductList.refresh();					
+					if (currentState.indexOf("AdminExternal") == 0) {
+						if (currentState.indexOf("Microarray") > 0) {
+							slideProductComboAdmin.dataProvider = parentDocument.filteredSlideProductList;
+							slideProductComboAdmin.dropdown.dataProvider = parentDocument.filteredSlideProductList;
+						}
+					} else if (currentState.indexOf("External") == 0) {
+						if (currentState.indexOf("Microarray") > 0) {
+							slideProductCombo.dataProvider = parentDocument.filteredSlideProductList;
+							slideProductCombo.dropdown.dataProvider = parentDocument.filteredSlideProductList;
+						}
+					}	
 				}
 			}
 			
-			private function filterSlideProduct(item:Object):Boolean{
-				
-				var vendor:String = "";
-				if(item.@idVendor == "2")
-					vendor = "AFFY";
-				else if(item.@idVendor == "1" && request == "AGIL1")
-					vendor = "AGIL1";
-				else if(item.@idVendor == "1" && request == "AGIL")
-					vendor = "AGIL";
-				
-				
-				if(request != "" && experimentApplication != ""){
-					if(item.@idSlideProduct == "" || (this.getIdOrganism().toString() == item.@idOrganism && request == vendor && item.applications.Application.@value == experimentApplication)){
-						return true;
-					}
-					else
-						return false;
-				}
-				else{
-					if(item.@idSlideProduct == "" || (this.getIdOrganism() == item.@idOrganism)){
-						return true;
-					}
-					else
-						return false;
-				}
-				
-				
-			}
 			
 			private function filterRequestCategory(item:Object):Boolean {
 				var keep:Boolean = false;

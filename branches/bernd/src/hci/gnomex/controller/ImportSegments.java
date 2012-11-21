@@ -65,6 +65,7 @@ public class ImportSegments extends GNomExCommand implements Serializable {
           Pattern pat = Pattern.compile("(\\w+)\\s+(\\d+)");
           Pattern ret = Pattern.compile("\\r");
           chromosomeInfo = ret.matcher(chromosomeInfo).replaceAll(""); //just to be safe
+          chromosomeInfo = chromosomeInfo.replaceAll(",", "");
           Matcher mat = pat.matcher(chromosomeInfo);
           while (mat.find()){
             Segment s = new Segment();

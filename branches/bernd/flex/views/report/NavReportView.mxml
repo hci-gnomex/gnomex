@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+		   label="Data Tracks" width="100%" height="100%" 
+		   xmlns:views="views.*"
+		   xmlns:analysis="views.analysis.*"
+		   xmlns:experiment="views.experiment.*"
+		   xmlns:datatrack="views.datatrack.*"
+		   xmlns:topics="views.topics.*"
+		   xmlns:util="views.util.*"
+		   xmlns:renderers="views.renderers.*"
+		   creationPolicy="all"  show="init()"
+		   cornerRadius="10" >
+	<mx:states>
+		<mx:State name="AdminState">
+		</mx:State>
+		<mx:State name="UserState">			
+		</mx:State>
+		<mx:State name="GuestState"/>
+	</mx:states>
+
+
+
+<mx:Script>
+<![CDATA[
+	import hci.flex.controls.CheckBox;
+	import mx.events.CloseEvent;
+	import mx.controls.Alert;
+	import mx.events.ListEvent;
+	
+	private var isInitialized:Boolean = false;
+	public var ignoreToggle:Boolean = false;
+	
+	
+	public var reportName:String = "";
+
+	
+	public function checkDirty():void {
+	}
+
+	
+	public function init():void {
+		checkSecurity();	
+		if (!isInitialized) {
+			initData();
+		}
+		if (reportName == "Annotation Report") {
+			callLater(showAnnotationReport);
+		}
+		
+		isInitialized = true;
+	}
+	
+	public function showAnnotationReport():void {
+		theViews.selectedChild = annotationReportView;		
+	}
+	
+	private function initData():void {
+		
+	}
+	
+	private function refreshAnnotationList():void {
+		properties = new XMLListCollection();
+		for each(var prop:XML in parentApplication.propertyList) {
+			var keep:Boolean = false;
+			
+			
+			if (prop.@name.toString() == "Other") {
+				keep = false;
+			} else if (showSampleAnnotations.selected && prop.@forSample == "Y"){
+				keep = true;
+			} else if (this.showAnalysisAnnotations.selected && prop.@forAnalysis == "Y"){
+				keep = true;			
+			} else if (this.showDataTrackAnnotations.selected && prop.@forDataTrack == "Y"){
+				keep = true;
+			}
+			
+			if (keep) {
+				var property:Object = prop.copy();
+				if (property.@isRequired == "Y") {
+					property.@isSelected = "true";
+				}
+				properties.addItem(property);
+			}
+			
+		}
+	}
+	
+	private function checkSecurity():void {
+		currentState = "";
+		if (parentApplication.hasPermission("canWriteAnyObject")) {
+			currentState = "AdminState";
+		} else if (parentApplication.currentState == "GuestState" || !parentApplication.hasPermission("canSubmitRequests")) {
+			// Users who don't belong to a lab treated same as guests
+			currentState = "GuestState";
+		} else {
+			this.currentState = "UserState";
+		}
+	}
+	
+	private function toggleAnnotationCheck(event:ListEvent):void {
+		if (event.columnIndex == 0) {
+			return;
+		}
+		
+		
+		// We don't want the typing in the the text field for "Other" to be treated
+		// as a toggle off
+		var sc:Object = parentApplication.getSampleProperty(annotationGrid.selectedItem.@idProperty);
+		if (sc == null || sc.@name.toString() == "Other") {
+			if (ignoreToggle) {
+				return;					
+			}
+		}
+		
+		if (annotationGrid.selectedItem.@isRequired == "true") {
+			// Don't toggle a required field.
+			return;		
+		}
+		
+		
+		if (annotationGrid.selectedItem.@isSelected == "true") {
+			
+			annotationGrid.selectedItem.@isSelected = "false";
+			
+		} else {
+			annotationGrid.selectedItem.@isSelected = "true";
+		} 
+	}
+
+	
+	private function runAnnotationReport():void {
+		if (browseLabCombo.selectedItem == null || browseLabCombo.selectedItem.@idLab == '' ) {
+			Alert.show( "Run annotation report for all lab groups?",
+				"Warning",
+				(Alert.YES | Alert.NO), this, 
+				onPromptToContinue,						
+				parentApplication.iconWarning);	
+		} else {
+			runAnnotationReportImpl();
+		}
+	}
+	private function onPromptToContinue(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			runAnnotationReportImpl();
+		}
+	}	
+	
+	private function runAnnotationReportImpl():void {
+		// Place the ids of the selected proeperties in a comma separated list.
+		var idProperties:String = "";
+		for each(var property:Object in properties) {
+			if (property.@isSelected == "true") {
+				if (idProperties.length > 0) {
+					idProperties += ",";
+				}
+				idProperties += property.@idProperty;
+			}
+		}
+		
+		// Call the backend servlet that generates the excel spreadsheet
+		var showUrl:URLRequest = new URLRequest('ShowAnnotationReport.gx' +			
+			'?idLab=' +  (this.browseLabCombo.selectedItem != null ? this.browseLabCombo.selectedItem.@idLab : "") +
+			'&target=' +  this.annotationRadioGroup1.selectedValue +
+			'&idProperties=' + idProperties);
+		navigateToURL(showUrl, '_blank');
+		
+	}
+	
+	private function selectAllAnnotations(select:Boolean):void {
+		for each(var property:Object in properties) {
+			property.@isSelected = select ? "true" : false;
+		}		
+	}
+
+
+]]>
+</mx:Script>
+
+<mx:XMLListCollection id="properties" />
+
+	
+<mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2" >
+	
+		<mx:ViewStack id="theViews" width="100%" height="100%" creationPolicy="auto">
+
+			<mx:Panel id="blankView" width="100%" height="100%">			    	
+			</mx:Panel>
+			
+			<mx:VBox styleName="panelBox"  id="annotationReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+				<mx:Text styleName="titleLabel" text="Annotation Report"/>
+				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+					<mx:HBox width="100%">
+						<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+												  labelField="@name" 
+												  prompt="Select a lab..."
+												  width="200" 
+												  id="browseLabCombo">
+						</renderers:FilterComboBox>
+						
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:RadioButtonGroup id="annotationRadioGroup1"/>
+						<mx:RadioButton label="Experiment samples"  value="SAMPLE" groupName="annotationRadioGroup1" id="showSampleAnnotations" click="refreshAnnotationList()" paddingLeft="2"/>
+						<mx:RadioButton label="Analyses" value="ANALYSIS" groupName="annotationRadioGroup1" id="showAnalysisAnnotations" click="refreshAnnotationList()" />
+						<mx:RadioButton label="Data Tracks" value="DATATRACK" groupName="annotationRadioGroup1" id="showDataTrackAnnotations" click="refreshAnnotationList()" />
+					</mx:HBox>
+					
+					<mx:VBox width="100%" height="100%" verticalGap="0">
+						<mx:HBox width="100%" paddingLeft="0">
+							<mx:LinkButton label="Select all" styleName="formLinkButton" click="{selectAllAnnotations(true)}"  paddingLeft="0"/>
+							<mx:LinkButton label="Unselect all" styleName="formLinkButton" click="{selectAllAnnotations(false)}" />
+						</mx:HBox>
+						<mx:DataGrid id="annotationGrid" height="100%"
+									 dataProvider="{properties}" 
+									 showHeaders="true" headerHeight="20" variableRowHeight="true" width="400" itemClick="toggleAnnotationCheck(event)" rowHeight="20"  >
+							<mx:columns>
+								<mx:DataGridColumn headerText=" " 
+												   width="25" 
+												   editable="true"                        	
+												   dataField="@isSelected" 
+												   editorDataField="selected"
+												   itemRenderer="{hci.flex.controls.CheckBox.getFactory('true', 'false', '@isSelected', true)}">
+								</mx:DataGridColumn>
+								<mx:DataGridColumn  
+									editable="false" editorDataField="selected"  headerText="Annotation"
+									dataField="@name" >
+									<mx:itemRenderer>
+										<mx:Component >
+											<mx:HBox horizontalScrollPolicy="off" verticalGap="0">
+												<mx:Label text="{data.@name}"  
+														  fontWeight="{data.@isRequired == 'Y' ? 'bold' : 'normal'}" 
+														  fontStyle="{data.@isRequired == 'Y' ? 'italic' : 'normal'}">			                           	
+												</mx:Label>
+												<mx:TextInput id="scOtherLabel" fontSize="9"
+															  text="{data.@otherLabel}"
+															  focusIn="{parentDocument.ignoreToggle = true}"
+															  focusOut="{parentDocument.ignoreToggle = false}"
+															  change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}" 
+															  width="{data.@name == 'Other' ? 130 : 0}"  
+															  height="{data.@name == 'Other' ? 20 : 0}"  
+															  visible="{data.@name == 'Other' ? true : false}" 
+															  editable="{data.@name == 'Other' ? true : false}">			                           
+												</mx:TextInput>
+												
+											</mx:HBox>
+										</mx:Component>
+									</mx:itemRenderer>
+								</mx:DataGridColumn>
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:VBox>
+					
+				</mx:VBox>
+
+				<mx:ControlBar width="100%">
+					<mx:Spacer width="100%"/>
+					<mx:Button label="Run" 
+							   click="{runAnnotationReport()}"
+							   enabled="{annotationRadioGroup1.selectedValue != null &amp;&amp; annotationRadioGroup1.selectedValue != ''}" 
+							   icon="@Embed(source='../../assets/arrow_right.png')" 
+							   disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
+				</mx:ControlBar>
+			</mx:VBox>
+			
+		</mx:ViewStack>
+
+
+	
+</mx:VBox>
+	
+</mx:Canvas>

@@ -355,7 +355,7 @@
 				}
 			}
 			
-			private function submitRequest():void {
+			public function submitRequest():void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.parentApplication.submitRequestView.request != null && !this.parentApplication.isInternalExperimentSubmission) {
 					this.parentApplication.submitRequestView.startNewRequest();
@@ -386,7 +386,7 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navDataView;
 			}
 			
-			private function submitExternalExperiment():void {
+			public function submitExternalExperiment():void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.parentApplication.submitRequestView.request != null && this.parentApplication.isInternalExperimentSubmission) {
 					this.parentApplication.submitRequestView.startNewRequest();
@@ -459,45 +459,37 @@
 			private function showUsersAndGroups():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsersView;
 			}
-			private function showWorkAuthForm():void {
-				var which:String = 'new';
-				if (which == "old") {
-					var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this, WorkAuthorizationWindow, true));
-					PopUpManager.centerPopUp(workAuthWindow);
-					
-					workAuthWindow.emailAddress.text = parentApplication.getUserEmail();
-					if (workAuthWindow.labCombo.dataProvider.length == 2) {
-						workAuthWindow.labCombo.selectedIndex = 1;
-					}
-				} else {
-					var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
-					wa.isEdit = false;
-					wa.ba = new XML("<BillingAccount " +
-						" idBillingAccount='BillingAccount0'" +
-						" accountName=''" +
-						" idCoreFacility=''" +
-						" expirationDateOther=''" + 
-						" startDateOther=''" +
-						" accountNumberBus=''" + 
-						" accountNumberOrg=''" + 
-						" accountNumberFund=''" + 
-						" accountNumberActivity=''" + 
-						" accountNumberProject=''" +  
-						" accountNumberAccount=''" + 
-						" accountNumberAu=''" + 
-						" accountNumberYear=''" +
-						" totalDollarAmountDisplay=''" +
-						" shortAcct=''" +
-						" custom1=''" +
-						" custom2=''" +
-						" custom3=''" +
-						" isDirty='Y'" +
-						" isPO='N'" +
-						" submitterEmail='" + parentApplication.getUserEmail() + "'" +
-						" isApproved='N'" +
-						" isSelectedPeerReviewedFunding='false'" + 
-						"/>");
-				}
+			public function showWorkAuthForm():void {
+				parentApplication.showWorkAuthWindow();
+				/*
+				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
+				wa.isEdit = false;
+				wa.ba = new XML("<BillingAccount " +
+					" idBillingAccount='BillingAccount0'" +
+					" accountName=''" +
+					" idCoreFacility=''" +
+					" expirationDateOther=''" + 
+					" startDateOther=''" +
+					" accountNumberBus=''" + 
+					" accountNumberOrg=''" + 
+					" accountNumberFund=''" + 
+					" accountNumberActivity=''" + 
+					" accountNumberProject=''" +  
+					" accountNumberAccount=''" + 
+					" accountNumberAu=''" + 
+					" accountNumberYear=''" +
+					" totalDollarAmountDisplay=''" +
+					" shortAcct=''" +
+					" custom1=''" +
+					" custom2=''" +
+					" custom3=''" +
+					" isDirty='Y'" +
+					" isPO='N'" +
+					" submitterEmail='" + parentApplication.getUserEmail() + "'" +
+					" isApproved='N'" +
+					" isSelectedPeerReviewedFunding='false'" + 
+					"/>");
+				PopUpManager.centerPopUp(wa);*/
 			}			       
 			private function showDictionaries():void {
 				parentApplication.showDictionaries();				

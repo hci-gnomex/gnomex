@@ -607,8 +607,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
     body.append("Core Facility      " + facility.getDisplay() + "\n");
     body.append("Account:           " + billingAccount.getAccountName() + "\n");
     body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
-    body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
-    body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
+    if (billingAccount.getIdFundingAgency() != null) {
+      body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
+    }
+    if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
+      body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
+    }
     body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
     body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
 

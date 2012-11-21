@@ -1,7 +1,47 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
-5.6
+
+5.7
+---------------------
+* Fixed bug with importing chromosome segments.  User can now use commas when designating length of segment.(tcourdy)
+* Requests with new status are filtered out of the billing list for DNA Seq core. (mbowler)
+* Abi raw data can be and loads as compressed to fit entire trace in graph and loads. (mbowler)
+* When invoice email sent from print screen, response is formatted in HTML instead of XML. (bspiglejr)
+* Use full GUID in data track URL links. (rcundick)
+* Added "Are you sure?" prompt before deleting annotation. (rcundick)
+* Remove annotation without warning when all annotation entries are 'blank'. (rcundick)
+* Topics now show the topic number at the top of the topic detail window. (rcundick)
+* Empty project folders are now not shown in experiment browse unless the new "Show Empty Project Folders" checkbox is checked.  (bspiglejr)
+* When billing item is removed in split view it is now removed in reality as well.  (bspiglejr)
+* Added axis labels to raw chromatogram graph. (mbowler)
+* Zoom sliders on chromatogram trace and raw data graphs is switched so that dragging slider to left is zooming out. (mbowler)
+* Replace owner name with lab name in experiment titles under topics. (rcundick)
+* Fixed issue where PropertyEntryOption records were not being saved for sample annotations of type 'OPTION.' (rcundick)
+* New topic button now enabled all the time (if nothing selected, adds topic at topic level; else adds to selected topic or parent topic if non-topic selection). (rcundick)
+* Updated plate report and plt file creation so that plate well id's are truncated to last 5 digits to match the chromatogram browse grid. (mbowler)
+* Changed plt file so that abi file names will be simplified to sampleName$wellPosition. (mbowler)
+* Multiple selection and batch update status on billing view instead of updating status on whole folder: Shift or ctrl + click will highlight multiple rows.  The status drop down will update the status for all the selected items.  If no items are selected, all of the items' statuses will update. (mbowler)
+* Change line break spacing on request form that is displayed after user submits a request.(tcourdy)
+* Removed server port number from Share Web Links.(tcourdy)
+* Fixed bug that caused experiment setup tab to not refresh properly when switching between internal and external experiments(tcourdy)
+
+deploy notes
+----------------------
+-- Create missing PropertyEntryOption entries for sample annotations of type 'OPTION'
+insert into PropertyEntryOption
+(idPropertyEntry, idPropertyOption)
+select pe.idPropertyEntry, pe.valueString as idPropertyOption
+from PropertyEntry pe
+  left join Property p
+  on p.idProperty = pe.idProperty
+  join PropertyOption po
+  on po.idPropertyOption = pe.valueString
+where idSample is not null
+and codePropertyType = 'OPTION'
+
+
+5.6 (Nov 13, 2012)
 ---------------------
 * Display the first and last name of the User whose UNID is trying to be used by an admin creating a new account(tcourdy)
 * Changed b2b link from "New Experiment Order" to "Post Experiment Data"(tcourdy)
@@ -22,12 +62,64 @@
 * Changes to columns in chromatBrowseView for better viewing.  (mbowler)
 * Show only the last 5 digits in the idPlateWell on chromatogram grid and on plate report. (mbowler)
 * Show submitter email and phone number on experiment detail info tab. Only included in layout if there is info to display. Non visible otherwise.(tcourdy)
+* Fixed bug that was showing duplicate Agilient Microarray sheets in billing pricing view.(tcourdy)
+* When a user requests a new gnomex account, send a notification email to the primary contact for the lab the user requested to be a part of as well as any managers for the lab.(tcourdy)
+* Added expand/collapse labs button to billing request tree (mbowler)
+* Billing items change to complete when orders do. (mbowler)
+* Orders are not re-marked complete if they are already complete. (mbowler)
+* Deleting analyses and/or analysis files removed the data tracks that are associated with them. (mbowler)
+* Updates to RegisterFiles so that missing analysis files will be removed from the database along with any data track files associated with those files. Owners of the data tracks will be notified as will owners of the analysis files if there were comments on that file. (mbowler)
+* Auto add Library QC and Sample QC folders for newly created internal experiments based off of the experiment's code request category.(tcourdy)
+* Add optional billing account field configuration.  See wiki for details.  (bspiglejr)
+* Fix invoice email header for DNA Sequencing core facility.  (bspiglejr)
+* Start date on Work Auth form now defaults to today's date.  (bspiglejr)
+* Left align work item request emails instead of center align.(tcourdy)
+* The year on the Work Auth form now defaults to the current fiscal year.  (bspiglejr)
+* The account on the Work Auth form now defaults to the value of the "account_number_account_default" property.  (bspiglejr)
+* The AU field on Work auth is blanked for Project accounts and set to "1" for Activity accounts.  Project accounts do not allow edit of the AU property.  (bspiglejr)
+* Only allow for Project or Activity to be filled in on the Work Auth form -- not both.  (bspiglejr)
+* Fixed bug in analysis view where the search field wasn't narrowing results by the first or last name of the lab.(tcourdy)
+* Genome build defaults to unchecked on Ilumina orders. (bspiglejr)
+* Fix 'Configure annotations' bug that was removing platform application filter to be removed for property on subsequent save (tdisera)
+* Improve 'Configure annotations' window. (tdisera)
+* Do not add DNA Seq core samples to QC worklist. (bspiglejr)
+* Fixed problem with multiple selection annotation field availability on sample sheet upload. (rcundick)
+* SaveChromatogramsFromFiles will remove any empty directories in the sequencing core's drop box. (mbowler)
+* Fixed sample sheet upload to not skip blank fields. (rcundick)
+* Fixed bug where new request not initialized when new experiment initiated after posting experimental data. (rcundick)
+* Fixed bug that would create a brand new slide configuration instead of updating the slide the user just created in simpleSlideConfigWindow.(tcourdy)
+* Reworked nav bar to use menu bar rather than individual links.  Combined some links under a main menu item.  Got rid of ‘More…’ menu item and replaced with various menu items link ‘Configure…’ and ‘Experiments…’.
+* Created new Annotations Report.
+
 
 deploy notes
 ----------------------
 --New Property
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
 Values ('id_default_institution', '1', 'ID indicating default institution for visibility of experiments', 'N', null);
+
+-- Delete worklist items for dna seq core samples.
+begin transaction
+select WorkItem.idWorkItem, Sample.idSample, Request.idRequest, Request.codeRequestCategory
+  into #temp
+  from WorkItem
+  join Sample on Sample.idSample=WorkItem.idSample
+  join Request on Request.idRequest=Sample.idRequest
+  join RequestCategory on request.codeRequestCategory = requestCategory.codeRequestCategory
+  where requestCategory.idCoreFacility = 2
+  order by idWorkItem desc
+select * from #temp
+delete from WorkItem where idWorkItem in (select idWorkItem from #temp)
+drop table #temp
+select WorkItem.idWorkItem, Sample.idSample, Request.idRequest, Request.codeRequestCategory
+  from WorkItem
+  join Sample on Sample.idSample=WorkItem.idSample
+  join Request on Request.idRequest=Sample.idRequest
+  join RequestCategory on request.codeRequestCategory = requestCategory.codeRequestCategory
+  where requestCategory.idCoreFacility = 2
+  order by idWorkItem desc
+rollback transaction
+
 
 5.5 (Oct 24, 2012)
 ---------------------

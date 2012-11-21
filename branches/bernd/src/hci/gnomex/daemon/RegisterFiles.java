@@ -1,19 +1,19 @@
 package hci.gnomex.daemon;
 
-import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetExpandedFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.BatchDataSource;
+import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
@@ -24,11 +24,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,22 +41,12 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.mail.*;
-import javax.mail.internet.*;
-
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
-import javax.swing.text.DateFormatter;
 
 import org.apache.log4j.Level;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -82,6 +67,9 @@ public class RegisterFiles extends TimerTask {
   private static String                serverName = "";
   private static RegisterFiles         app = null;
   
+  private Properties                  mailProps;
+  
+  
   private boolean                      runAsDaemon = false;
   
   private HashMap                      experimentFileMap;
@@ -94,6 +82,11 @@ public class RegisterFiles extends TimerTask {
   
   private Transaction                  tx;
 
+  private String orionPath = "";
+
+  Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
+  Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
+
   public RegisterFiles(String[] args) {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-wakeupHour")) {
@@ -105,10 +98,18 @@ public class RegisterFiles extends TimerTask {
       } else if (args[i].equals ("-daysSince")) {
         daysSince = Integer.valueOf(args[++i]);
       } else if (args[i].equals ("-server")) {
-        serverName = args[i++];
+        serverName = args[++i];
+      } else if (args[i].equals ("-orionPath")) {
+        orionPath = args[++i];
       }
-    } 
-
+    }
+    
+    try {
+      mailProps = new BatchMailer(orionPath).getMailProperties();
+    } catch (Exception e){
+      System.err.println("Cannot initialize mail properties");
+      System.exit(0);
+    }
   }
   
   /**
@@ -276,6 +277,10 @@ public class RegisterFiles extends TimerTask {
   
   
   private void registerAnalysisFiles() throws Exception {
+    
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    
+    
     // Get all of the analysis files created on or after the as-of-date
     StringBuffer buf = new StringBuffer("SELECT a ");
     buf.append(" FROM Analysis a");
@@ -299,9 +304,11 @@ public class RegisterFiles extends TimerTask {
         System.out.println(fileName + " " + fd.getFileSizeText());
       }
       
+      
       // Now compare to the experiment files already registered in the db
       TreeSet newAnalysisFiles = new TreeSet(new AnalysisFileComparator());
       for (Iterator i2 = analysis.getFiles().iterator(); i2.hasNext();) {
+        
         AnalysisFile af= (AnalysisFile)i2.next();
         String directoryName = analysis.getNumber() + "/";
         if (af.getQualifiedFilePath() != null && !af.getQualifiedFilePath().trim().equals("")) {
@@ -312,23 +319,78 @@ public class RegisterFiles extends TimerTask {
         
         // If we don't find the file on the file system, delete it from the db.
         if (fd == null) {
-          System.out.println("WARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
-          // make sure the analysis file isn't linked to data track(s).  if it is, just
-          // log a message and leave the analysis file alone.
+          
+          System.out.println("\nWARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
+          
+          // DataTrack and DataTrackFile query 
           StringBuffer queryBuf = new StringBuffer();
-          queryBuf.append("SELECT COUNT(*) FROM DataTrack dt ");
+          queryBuf.append("SELECT dtf, dt FROM DataTrack dt ");
           queryBuf.append("JOIN dt.dataTrackFiles dtf ");
-          queryBuf.append("WHERE dtf.idAnalysisFile = " +  af.getIdAnalysisFile().toString());
-          Integer count = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
-          if (count != null && count > 0) {
-            System.out.println("WARNING - Bypassing delete of  analysis file " + analysis.getNumber() + " " + af.getIdAnalysisFile() + " "+ af.getQualifiedFileName() + " because at least one data track is linked to it.");
-            newAnalysisFiles.add(af);
-          } else if (af.getComments() != null && !af.getComments().trim().equals("")) {
-            System.out.println("WARNING - Bypassing delete of  analysis file " + analysis.getNumber() + " " + af.getIdAnalysisFile() + " "+ af.getQualifiedFileName() + " because there are comments stored in the db for this file.");
-            newAnalysisFiles.add(af);            
-          } else {
-            // By not adding to newAnalysisFiles set, we are deleting this analysis file
+          queryBuf.append("WHERE dtf.idAnalysisFile = ");
+          queryBuf.append( af.getIdAnalysisFile() );
+          
+          // Run the Query
+          List dataTrackFiles = sess.createQuery(queryBuf.toString()).list();
+          
+          
+          // Data tracks were found, so delete them and warn the owners
+          if ( dataTrackFiles.size() > 0 ) {
+            
+            // Delete the DataTrackFiles and DataTracks 
+            for (Iterator i4 = dataTrackFiles.iterator(); i4.hasNext();) {
+              Object[] row = (Object[]) i4.next();
+              DataTrackFile dtf = (DataTrackFile) row[0];
+              DataTrack dt = (DataTrack) row[1];
+              
+              
+              // Get an email address for the file
+              String emailAddress = "";
+              if ( dt.getAppUser() != null && dt.getAppUser().getEmail() != null ) {
+                emailAddress = dt.getAppUser().getEmail();
+              } 
+              if ( emailAddress == null || emailAddress.equals( "" ) ) {
+                if ( dt.getLab() != null && dt.getLab().getContactEmail() != null ) {
+                  emailAddress = dt.getLab().getContactEmail();
+                }
+              }
+              if (emailAddress == null ||  emailAddress.equals( "" ) ) {
+                emailAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+              }
+              
+              
+              hashForNotification(emailAddress, af, dt);
+              
+
+              
+              sess.delete( dtf );
+              sess.flush();
+            }
           }
+          
+          
+          // If the analysis has any comments, warn the app user that it was deleted.
+          if (af.getComments() != null && !af.getComments().trim().equals("")) {
+                        
+            // Get an email address for the file
+            String emailAddress = "";
+            if ( af.getAnalysis().getAppUser() != null && af.getAnalysis().getAppUser().getEmail() != null ) {
+              emailAddress = af.getAnalysis().getAppUser().getEmail();
+            } 
+            if ( emailAddress == null || emailAddress.equals( "" ) ) {
+              if ( af.getAnalysis().getLab() != null && af.getAnalysis().getLab().getContactEmail() != null ) {
+                emailAddress = af.getAnalysis().getLab().getContactEmail();
+              }
+            }
+            if (emailAddress == null ||  emailAddress.equals( "" ) ) {
+              emailAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+            }
+            
+
+            hashForNotification(emailAddress, af, null);
+            
+
+          } 
+          
         } else {
           // Mark that the file system file has been found
           fd.isFound(true);
@@ -339,6 +401,7 @@ public class RegisterFiles extends TimerTask {
           }
         }
       }
+      
       
       // Now add AnalysisFiles to the db for any files on the file system
       // not found in the db.
@@ -356,11 +419,92 @@ public class RegisterFiles extends TimerTask {
           newAnalysisFiles.add(af);
         }
       }
-      
-      analysis.setFiles(newAnalysisFiles);
+
+      if ( newAnalysisFiles == null || newAnalysisFiles.isEmpty() ){
+
+        analysis.getFiles().clear();
+
+      } else {
+
+        analysis.setFiles(newAnalysisFiles);
+
+      }
       
       sess.flush();
       tx.commit();
+    }
+  
+    try {
+      sendNotifyEmails(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER) );
+    } catch (Exception e) {
+      
+      // Notify software people that the emails didn't go through?
+      String msg = "Unable to send warning email hashForNotificationing user that analysis files have been deleted.  " + e.toString();
+      System.out.println(msg);
+    } 
+  }
+  
+  private void hashForNotification(String emailAddress, AnalysisFile af, DataTrack dt) {
+    Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
+    if (analysisNumbers == null) {
+      analysisNumbers = new TreeMap<String, String>();
+      emailAnalysisMap.put(emailAddress, analysisNumbers);
+    }
+    analysisNumbers.put(af.getAnalysis().getNumber(), null);
+    emailAnalysisMap.put(emailAddress, analysisNumbers);
+    
+    List fileInfos = analysisFileMap.get(af.getAnalysis().getNumber());
+    if (fileInfos == null) {
+      fileInfos = new ArrayList<AnalysisFileInfo>();
+      analysisFileMap.put(af.getAnalysis().getNumber(), fileInfos);
+    }
+    fileInfos.add(new AnalysisFileInfo(af.getAnalysis().getNumber(), 
+        af.getQualifiedFileName() + "/" + af.getFileName(), 
+        dt, af.getComments()));
+    
+    
+  }
+
+  private void sendNotifyEmails(String fromAddress) throws NamingException, MessagingException {
+    StringBuffer body = new StringBuffer();
+    body.append("The following analysis files no longer exist on the file system and have been removed from the database.  Please remove the associated data tracks.");
+    for ( Iterator i = this.emailAnalysisMap.keySet().iterator(); i.hasNext();) {
+      String emailAddress = (String) i.next();
+      Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
+      for (String analysisNumber : analysisNumbers.keySet()) {
+        body.append("\n\nAnalysis " + analysisNumber);
+        List<AnalysisFileInfo> fileInfos = this.analysisFileMap.get(analysisNumber);
+        for (AnalysisFileInfo info : fileInfos) {
+          body.append("\n\t" + info.analysisFileName + "\t" + info.comment + "\t" + info.dataTrackNumber);
+        }
+      }
+      
+      
+      MailUtil.send( mailProps,
+          emailAddress,
+          null,
+          fromAddress,
+          "GNomEx Analysis file(s) missing from file system",
+          body.toString(),
+          false
+        );
+    }
+  }
+
+  private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException {
+    
+    for ( Iterator i = emailMap.keySet().iterator(); i.hasNext();) {
+      String emailAddress = (String) i.next();
+      String emailMessage = (String)emailMap.get(emailAddress);
+      
+      MailUtil.send( mailProps,
+          emailAddress,
+          null,
+          fromAddress,
+          "GNomEx Analysis file(s) missing from file system",
+          emailMessage,
+          false
+        );
     }
   }
   
@@ -428,7 +572,7 @@ public class RegisterFiles extends TimerTask {
   
   private HashMap hashFiles(Analysis analysis) throws Exception {
     HashMap fileMap = new HashMap();
-    
+
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List analysisNumbers = new ArrayList<String>();
@@ -521,6 +665,23 @@ public class RegisterFiles extends TimerTask {
         return ef1.getIdAnalysisFile().compareTo(ef2.getIdAnalysisFile());
       }
     }
+  }
+  
+  public static class AnalysisFileInfo {
+    private String analysisNumber;
+    private String analysisFileName;
+    private String dataTrackNumber;
+    private String comment;
+    
+    public AnalysisFileInfo(String analysisNumber, String analysisFileName,
+        DataTrack dataTrack, String comment) {
+      super();
+      this.analysisNumber = analysisNumber;
+      this.analysisFileName = analysisFileName;
+      this.dataTrackNumber = dataTrack != null ? dataTrack.getNumber() : "";
+      this.comment = comment;
+    }
+    
   }
   
 }
