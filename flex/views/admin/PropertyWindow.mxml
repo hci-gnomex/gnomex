@@ -76,6 +76,40 @@
 		
 		private var idProperty:Object = null;
 		
+		public var reservedSampSheetColNames:Array = ["Multiplex #",
+			"Plate",
+			"ID",
+			"Well",
+			"Ctrl?",
+			"Sample Name",
+			"Source Plate",
+			"Source Well",
+			"Dest. Well",
+			"Reaction Plates",
+			"Redo",
+			"Conc.",
+			"Unit",
+			"Description",
+			"CC Number",
+			"Index Tag",
+			"Sample Type",
+			"Organism",
+			"Organism (other)",
+			"Core to prep lib?",
+			"Nucl. acid extraction meth.",
+			"Chip Type",
+			"QC Conc. ng/uL",
+			"QC 260/230",
+			"QC RIN",
+			"QC Bioanalyzer method",
+			"QC Frag Size (from)",
+			"QC Frag Size (to)",
+			"QC Status",
+			"Seq Lib Protocol", 
+			"Seq Lib QC Bioanalyzer method",
+			"Seq Lib Conc. ng/uL",
+			"Seq Lib Prep Status"];
+		
 		[Bindable]
 		private var property:Object;
 		
@@ -371,6 +405,17 @@
 			scName.text = StringUtil.trim(scName.text);
 			var propertyName:String = scName.text.toLowerCase();
 			
+			
+			for(var i:int=0; i<reservedSampSheetColNames.length; i++)
+			{
+				var thisSSColName:String = reservedSampSheetColNames[i];
+				if(propertyName == thisSSColName.toLowerCase()) {
+					Alert.show("'" + thisSSColName + "' is a reserved name. Please select a different name for the annotation.");
+					return;
+				}
+			}
+			
+			/*
 			if(propertyName == "description") {
 				Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
 				return;
@@ -385,6 +430,7 @@
 				Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
 				return;
 			}
+			*/
 			
 			if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
 				Alert.show("Please choose object the annotation applies to.");
