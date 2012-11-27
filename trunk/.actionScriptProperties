@@ -21,7 +21,6 @@
           </libraryPathEntry>
         </modifiedEntries>
       </libraryPathEntry>
-      <libraryPathEntry kind="3" linkType="1" path="/HCIFlex2/bin/HCIFlex2.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
