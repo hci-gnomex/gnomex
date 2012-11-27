@@ -790,7 +790,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (6,'contact_email_software_bugs','first.last@location.edu','Email address for reporting software bugs', 'N'),
  (7,'contact_name_core_facility','','Core facility\'s contact name', 'N'),
  (8,'contact_email_core_facility','first.last@somwhere.edu','Core facility\'s email adress', 'N'),
- (9,'help_url','http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm','The URL to the GNomEx help documentation', 'N'),
+ (9,'help_url','http://hci-bio-wiki/biowiki','The URL to the GNomEx help documentation', 'N'),
  (10,'pricing_url','','The URL containing pricing info.', 'N'),
  (18,'core_facility_name','Microarray and Genomic Analysis Core Facility','The name of the core facility', 'N'),
  (19,'university_user_authentication','N','Always set to \'N\' for open source GNomEx.  Indicates that authentication is performed against local user name and passwords, stored in GNomEx database.', 'N'),
