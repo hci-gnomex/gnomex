@@ -47,6 +47,7 @@ import javax.naming.NamingException;
 import org.apache.log4j.Level;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.TransactionException;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -84,6 +85,8 @@ public class RegisterFiles extends TimerTask {
 
   private String orionPath = "";
 
+  private String                       errorMessageString = "Error in RegisterFiles";
+  
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
   Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
 
@@ -107,7 +110,25 @@ public class RegisterFiles extends TimerTask {
     try {
       mailProps = new BatchMailer(orionPath).getMailProperties();
     } catch (Exception e){
-      System.err.println("Cannot initialize mail properties");
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+      
+      String msg = "Register files cannot initialize mail properties.   " + e.toString()  + "\n\t";
+      
+      StackTraceElement[] stack = e.getStackTrace();
+      for (StackTraceElement s : stack) {
+        msg = msg + s.toString() + "\n\t\t";
+      };
+      
+      if ( !errorMessageString.equals( "" )) {
+        errorMessageString += "\n";
+      }
+      errorMessageString += msg;
+      
+      this.sendErrorReport( dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER),
+          dictionaryHelper.getPropertyDictionary( PropertyDictionary.GENERIC_NO_REPLY_EMAIL )); 
+      
+      System.err.println(errorMessageString);
+      
       System.exit(0);
     }
   }
@@ -129,9 +150,10 @@ public class RegisterFiles extends TimerTask {
   }
 
   @Override
-  public void run() {
+  public void run(){
     Calendar calendar = Calendar.getInstance();
-
+    errorMessageString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(calendar.getTime()) + "\n";
+    
     try {
       org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
       log.setLevel(Level.ERROR);
@@ -145,12 +167,41 @@ public class RegisterFiles extends TimerTask {
       app.registerAnalysisFiles();
 
     } catch (Exception e) {
-      if (tx != null) {
-        tx.rollback();
+            
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+      
+      String msg = "Could not register experiment or analysis files. Transaction rolled back:   " + e.toString() + "\n\t";
+      
+      StackTraceElement[] stack = e.getStackTrace();
+      for (StackTraceElement s : stack) {
+        msg = msg + s.toString() + "\n\t\t";
       }
       
-      System.out.println(e.toString());
-      e.printStackTrace();
+      try {
+        if (tx != null) {
+          tx.rollback();
+        }
+      }
+      catch(TransactionException te) {
+        msg += "\nTransactionException: " + te.getMessage() + "\n\t";
+        stack = te.getStackTrace();
+        for (StackTraceElement s : stack) {
+          msg = msg + s.toString() + "\n\t\t";
+        }
+      } finally {}
+      
+      if ( !errorMessageString.equals( "" )) {
+        errorMessageString += "\n";
+      }
+      errorMessageString += msg;
+      
+      
+      this.sendErrorReport( dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER),
+          dictionaryHelper.getPropertyDictionary( PropertyDictionary.GENERIC_NO_REPLY_EMAIL )); 
+      
+      System.err.println(errorMessageString);
+      
+      
     } finally {
     }
 
@@ -439,8 +490,22 @@ public class RegisterFiles extends TimerTask {
     } catch (Exception e) {
       
       // Notify software people that the emails didn't go through?
-      String msg = "Unable to send warning email hashForNotificationing user that analysis files have been deleted.  " + e.toString();
-      System.out.println(msg);
+      String msg = "Unable to send warning email notifying user that analysis files have been deleted:  " + e.toString() + "\n\t";
+      
+      StackTraceElement[] stack = e.getStackTrace();
+      for (StackTraceElement s : stack) {
+        msg = msg + s.toString() + "\n\t\t";
+      };
+            
+      if ( !errorMessageString.equals( "" )) {
+        errorMessageString += "\n";
+      }
+      errorMessageString += msg;
+      
+      this.sendErrorReport( dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER),
+          dictionaryHelper.getPropertyDictionary( PropertyDictionary.GENERIC_NO_REPLY_EMAIL )); 
+      
+      System.err.println(errorMessageString);
     } 
   }
   
@@ -506,6 +571,21 @@ public class RegisterFiles extends TimerTask {
           false
         );
     }
+  }
+  
+  private void sendErrorReport(String softwareTestEmail, String fromAddress)  {
+    try {  
+    MailUtil.send( mailProps,
+          softwareTestEmail,
+          null,
+          fromAddress,
+          "Register Files Error",
+          errorMessageString,
+          false
+        );
+    } catch (Exception e) {
+      System.err.println( "Register files unable to send error report.   " + e.toString() );
+    } 
   }
   
   private Map hashFiles(Session sess, String requestNumber, java.util.Date createDate, String codeRequestCategory, Integer idCoreFacility)  throws Exception {
