@@ -2145,8 +2145,8 @@
 					item.width += 20;
 				}
 			} else if (this.menuBarNoGLInterface.visible) {
-				for each(var item:MenuBarItem in this.menuBarNoGLInterface.menuBarItems){
-					item.width += 20;
+				for each(var item2:MenuBarItem in this.menuBarNoGLInterface.menuBarItems){
+					item2.width += 20;
 				}
 			}
 		}
