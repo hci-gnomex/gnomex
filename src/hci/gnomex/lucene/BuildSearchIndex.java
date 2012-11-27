@@ -60,6 +60,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private PropertyDictionaryHelper propertyHelper;
   private Map dictionaryMap;
+  private IndexWriter globalIndexWriter;
   
   private String serverName;
   
@@ -127,6 +128,9 @@ public class BuildSearchIndex extends DetailObject {
       
       System.out.println(new Date() + " building lucene topic index...");
       app.buildTopicIndex();
+
+      System.out.println(new Date() + " writing lucene global index...");
+      app.writeGlobalIndex();
       
       System.out.println(new Date() + " disconnecting...");
       System.out.println();
@@ -165,6 +169,7 @@ public class BuildSearchIndex extends DetailObject {
     cacheDictionary("hci.gnomex.model.AnalysisType", "AnalysisType");
     cacheDictionary("hci.gnomex.model.AnalysisProtocol", "AnalysisProtocol");
     
+    globalIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_GLOBAL_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
   }
   
   private void cacheDictionary(String className, String objectName) {
@@ -214,8 +219,7 @@ public class BuildSearchIndex extends DetailObject {
       List rows = (List)projectRequestMap.get(key);
       
       
-      Document doc = buildExperimentDocument(idProject, idRequest, rows);
-      experimentIndexWriter.addDocument(doc);
+      addExperimentDocument(experimentIndexWriter, idProject, idRequest, rows);
     }
     experimentIndexWriter.optimize();
     experimentIndexWriter.close();
@@ -240,8 +244,7 @@ public class BuildSearchIndex extends DetailObject {
       Integer idProtocol  = new Integer((String)keyTokens[1]);
       Object[] row = (Object[])protocolMap.get(key);
       
-      Document doc = buildProtocolDocument(protocolType, idProtocol, row);
-      protocolIndexWriter.addDocument(doc);
+      buildProtocolDocument(protocolIndexWriter, protocolType, idProtocol, row);
     }
     protocolIndexWriter.optimize();
     protocolIndexWriter.close();
@@ -273,8 +276,7 @@ public class BuildSearchIndex extends DetailObject {
       
       StringBuffer analysisFileComments = (StringBuffer)analysisFileCommentsMap.get(idAnalysis);
       
-      Document doc = buildAnalysisDocument(idAnalysisGroup, idAnalysis, row, analysisFileComments);
-      analysisIndexWriter.addDocument(doc);
+      buildAnalysisDocument(analysisIndexWriter, idAnalysisGroup, idAnalysis, row, analysisFileComments);
     }
     analysisIndexWriter.optimize();
     analysisIndexWriter.close();
@@ -307,8 +309,7 @@ public class BuildSearchIndex extends DetailObject {
       Integer idDataTrack = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
       Object[] row = (Object[])datatrackMap.get(key);
       
-      Document doc = buildDataTrackDocument(idDataTrackFolder, idDataTrack, row);
-      datatrackIndexWriter.addDocument(doc);
+      buildDataTrackDocument(datatrackIndexWriter, idDataTrackFolder, idDataTrack, row);
     }
     datatrackIndexWriter.optimize();
     datatrackIndexWriter.close();
@@ -331,13 +332,16 @@ public class BuildSearchIndex extends DetailObject {
       Integer idTopic = new Integer(key);
       Object[] row = (Object[])topicMap.get(key);
       
-      Document doc = buildTopicDocument(idTopic, row);
-      topicIndexWriter.addDocument(doc);
+      buildTopicDocument(topicIndexWriter, idTopic, row);
     }
     topicIndexWriter.optimize();
     topicIndexWriter.close();
   }
   
+  private void writeGlobalIndex() throws Exception {
+    globalIndexWriter.optimize();
+    globalIndexWriter.close();
+  }
   
   private void getProjectRequestData(Session sess) throws Exception{
     //
@@ -1137,7 +1141,7 @@ public class BuildSearchIndex extends DetailObject {
   }
 
   
-  private Document buildExperimentDocument(Integer idProject, Integer idRequest, List rows) {
+  private void addExperimentDocument(IndexWriter experimentIndexWriter, Integer idProject, Integer idRequest, List rows) throws IOException {
     
     Document doc = new Document();
     //
@@ -1529,7 +1533,18 @@ public class BuildSearchIndex extends DetailObject {
     text.append(requestTopics.toString());
     text.append(" "); 
     */       
-
+    
+    // Build organism list for global index
+    String globalIdOrganism = "";
+    if (idOrganismSamples.length() > 0) {
+      globalIdOrganism = idOrganismSamples.toString();
+    }
+    if (idOrganismSlideProduct != null) {
+      if (globalIdOrganism.length() > 0) {
+        globalIdOrganism += " ";
+      }
+      globalIdOrganism += idOrganismSlideProduct.toString();
+    }
     
     Map nonIndexedFieldMap = new HashMap();
     nonIndexedFieldMap.put(ExperimentIndexHelper.ID_PROJECT, idProject.toString());
@@ -1587,11 +1602,42 @@ public class BuildSearchIndex extends DetailObject {
     
     ExperimentIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
-    return doc;
+    experimentIndexWriter.addDocument(doc);
     
+    Map globalNonIndexedFieldMap = new HashMap();
+    Map globalIndexedFieldMap = new HashMap();
+    if (requestCategory == null || requestCategory.length() == 0) {
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROJECT_FOLDER);
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, "");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, projectName);
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");
+      
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLabProject != null ? idLabProject.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME, labProject != null ? labProject : "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, text.toString());
+    } else {
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, requestCategory);
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idRequest != null ? idRequest.toString() : "unknown");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, requestNumber != null ? requestNumber : "");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, experimentName != null ? experimentName : "");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_REQUEST_CATEGORY, codeRequestCategory);
+      
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLabRequest != null ? idLabRequest.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, globalIdOrganism != null ? globalIdOrganism : "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME, labRequest != null ? labRequest : "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, text.toString());
+      
+    }
+    
+    Document globalDoc = new Document();
+    GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
+    globalIndexWriter.addDocument(globalDoc);
   }
   
-  private Document buildProtocolDocument(String protocolType, Integer idProtocol, Object[] row) {
+  private void buildProtocolDocument(IndexWriter protocolIndexWriter, String protocolType, Integer idProtocol, Object[] row) throws IOException {
     
     Document doc = new Document();
     
@@ -1612,10 +1658,29 @@ public class BuildSearchIndex extends DetailObject {
     
     ProtocolIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
-    return doc;
+    protocolIndexWriter.addDocument(doc);
+    
+    
+    Map globalNonIndexedFieldMap = new HashMap();
+    Map globalIndexedFieldMap = new HashMap();
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROTOCOL);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idProtocol.toString());
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, "");
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.PROTOCOL_CLASS_NAME, className);
+    
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, "g1");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, "g1");
+    globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,"");
+    globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, name + " " + description);
+    
+    Document globalDoc = new Document();
+    GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
+    globalIndexWriter.addDocument(globalDoc);
   }
 
-  private Document buildAnalysisDocument(Integer idAnalysisGroup, Integer idAnalysis, Object[] row, StringBuffer analysisFileComments) {
+  private void buildAnalysisDocument(IndexWriter analysisIndexWriter, Integer idAnalysisGroup, Integer idAnalysis, Object[] row, StringBuffer analysisFileComments) throws IOException {
     
     Document doc = new Document();
 
@@ -1821,10 +1886,29 @@ public class BuildSearchIndex extends DetailObject {
     
     AnalysisIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
-    return doc;
+    analysisIndexWriter.addDocument(doc);
+    
+    
+    Map globalNonIndexedFieldMap = new HashMap();
+    Map globalIndexedFieldMap = new HashMap();
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.ANALYSIS);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idAnalysis != null ? idAnalysis.toString() : "");
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, number);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, idOrganism != null ? idOrganism.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,labName != null ? labName : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
+    
+    Document globalDoc = new Document();
+    GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
+    globalIndexWriter.addDocument(globalDoc);
+
   }
 
-  private Document buildDataTrackDocument(Integer idDataTrackFolder, Integer idDataTrack, Object[] row) {
+  private void buildDataTrackDocument(IndexWriter datatrackIndexWriter, Integer idDataTrackFolder, Integer idDataTrack, Object[] row) throws IOException {
     
     Document doc = new Document();
 
@@ -2027,11 +2111,28 @@ public class BuildSearchIndex extends DetailObject {
     
     DataTrackIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
-    return doc;
+    datatrackIndexWriter.addDocument(doc);
+    
+    Map globalNonIndexedFieldMap = new HashMap();
+    Map globalIndexedFieldMap = new HashMap();
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.DATA_TRACK);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idDataTrack != null ? idDataTrack.toString() : "unknown");
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, fileName);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, idOrganism != null ? idOrganism.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,labName != null ? labName : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
+    
+    Document globalDoc = new Document();
+    GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
+    globalIndexWriter.addDocument(globalDoc);
   }
   
 
-  private Document buildTopicDocument(Integer idTopic, Object[] row) {
+  private void buildTopicDocument(IndexWriter topicIndexWriter, Integer idTopic, Object[] row) throws IOException {
     
     Document doc = new Document();
         
@@ -2079,7 +2180,24 @@ public class BuildSearchIndex extends DetailObject {
     
     TopicIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
-    return doc;
+    topicIndexWriter.addDocument(doc);
+    
+    Map globalNonIndexedFieldMap = new HashMap();
+    Map globalIndexedFieldMap = new HashMap();
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.TOPIC);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idTopic != null ? idTopic.toString() : "unknown");
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, topicName);
+    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, "g1");
+    globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,labName != null ? labName : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
+    
+    Document globalDoc = new Document();
+    GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
+    globalIndexWriter.addDocument(globalDoc);
   }
 
   

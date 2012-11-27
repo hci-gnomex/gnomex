@@ -45,6 +45,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
   private List<SearchListEntry> analysisSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> dataTrackSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> protocolSearchList = new ArrayList<SearchListEntry>();
+  private List<SearchListEntry> topicSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> allObjectsSearchList = new ArrayList<SearchListEntry>();
   
   public void validate() {
@@ -109,6 +110,9 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
         
         addEntry(sess, property, dataTrackSearchList);
       }
+      
+      // Add topic properties
+      addLabEntry(sess, topicSearchList);
 
       Document xmlDoc = this.buildXMLDocument();
       
@@ -219,6 +223,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     buildSearchList(doc.getRootElement(), analysisSearchList, "AnalysisSearchList");
     buildSearchList(doc.getRootElement(), dataTrackSearchList, "DataTrackSearchList");
     buildSearchList(doc.getRootElement(), protocolSearchList, "ProtocolSearchList");
+    buildSearchList(doc.getRootElement(), topicSearchList, "TopicSearchList");
     buildSearchList(doc.getRootElement(), allObjectsSearchList, "AllObjectsSearchList");
     buildDictionaryMap(doc.getRootElement());
     
