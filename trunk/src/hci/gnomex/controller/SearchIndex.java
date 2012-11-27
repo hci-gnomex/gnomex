@@ -11,6 +11,8 @@ import hci.gnomex.lucene.DataTrackFilter;
 import hci.gnomex.lucene.DataTrackIndexHelper;
 import hci.gnomex.lucene.ExperimentFilter;
 import hci.gnomex.lucene.ExperimentIndexHelper;
+import hci.gnomex.lucene.GlobalFilter;
+import hci.gnomex.lucene.GlobalIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
 import hci.gnomex.lucene.ProtocolIndexHelper;
 import hci.gnomex.lucene.SearchListParser;
@@ -71,7 +73,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private ProtocolFilter   protocolFilter = null;
   private AnalysisFilter   analysisFilter = null;
   private DataTrackFilter  dataTrackFilter = null;
-  private TopicFilter  topicFilter = null;
+  private TopicFilter      topicFilter = null;
+  private GlobalFilter     globalFilter = null;
   
   private String listKind = "SearchList";
   
@@ -104,6 +107,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private Map labTopicMap = null;
   private Map topicMap = null;
   private List<Integer> topicIds = null;
+  
+  private ArrayList rankedGlobalNodes = null;
   
   private ArrayList rankedRequestNodes = null;
 
@@ -147,9 +152,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
    
     serverName = request.getServerName();
 
+    globalFilter = new GlobalFilter();
+    HashMap errors = this.loadDetailObject(request, globalFilter);
+    this.addInvalidFields(errors);
     
     experimentFilter = new ExperimentFilter();
-    HashMap errors = this.loadDetailObject(request, experimentFilter);
+    errors = this.loadDetailObject(request, experimentFilter);
     this.addInvalidFields(errors);
     
     protocolFilter = new ProtocolFilter();
@@ -183,6 +191,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         protocolFilter.setSearchListText(searchListParser.getSearchText());
         dataTrackFilter.setSearchListText(searchListParser.getSearchText());
         topicFilter.setSearchListText(searchListParser.getSearchText());
+        topicFilter.setIdLabList(searchListParser.getIdLabList());
+        globalFilter.setSearchListText(searchListParser.getSearchText());
         experimentFilter.setIdLabList(searchListParser.getIdLabList());
         experimentFilter.setIdOrganismList(searchListParser.getIdOrganismList());
         analysisFilter.setIdLabList(searchListParser.getIdLabList());
@@ -190,6 +200,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         dataTrackFilter.setIdLabList(searchListParser.getIdLabList());
         dataTrackFilter.setIdOrganismList(searchListParser.getIdOrganismList());
         topicFilter.setIdLabList(searchListParser.getIdLabList());
+        globalFilter.setIdLabList(searchListParser.getIdLabList());
+        globalFilter.setIdOrganismList(searchListParser.getIdOrganismList());
       } catch (Exception je ) {
         log.error( "Cannot parse searchXMLString", je );
         this.addInvalidField( "searchXMLString", "Invalid search xml");
@@ -211,6 +223,33 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
       
       
+      
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch && !isProtocolOnlySearch) {
+
+        //
+        // Global search
+        //
+        IndexReader globalIndexReader = IndexReader.open(ph.getQualifiedProperty(PropertyDictionary.LUCENE_GLOBAL_INDEX_DIRECTORY, serverName));      
+        Searcher globalSearcher = new IndexSearcher(globalIndexReader);
+        
+        //  Build a Query object
+        String globalSearchText = globalFilter.getSearchText().toString();
+        
+        if (globalSearchText != null && globalSearchText.trim().length() > 0) {
+          log.debug("Lucene global search: " + globalSearchText);
+          QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+          myQueryParser.setAllowLeadingWildcard(true);
+          Query query = myQueryParser.parse(globalSearchText);          
+          
+          // Search for the query
+          Hits globalHits = globalSearcher.search(query);
+          processGlobalHits(dh, globalHits, globalSearchText);
+          
+        } else {
+          buildGlobalMap(dh, globalIndexReader);
+          
+        }
+      }
       
       if (!isAnalysisOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
         //
@@ -471,6 +510,13 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     return this;
   }
   
+  private void processGlobalHits(DictionaryHelper dh, Hits hits, String searchText) throws Exception {
+
+    // Map search results
+    this.buildGlobalMap(dh, hits);
+    
+  }
+
   private void processHits(Hits hits, String searchText, DictionaryHelper dh) throws Exception {
     
     // Show hits
@@ -516,6 +562,29 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     // Map search results
     this.buildTopicMap(hits);
     
+  }
+  
+  private void buildGlobalMap(DictionaryHelper dh, Hits hits) throws Exception{
+    
+
+    rankedGlobalNodes = new ArrayList();
+    
+    for (int i = 0; i < hits.length(); i++) {
+      org.apache.lucene.document.Document doc = hits.doc(i);
+      float score = hits.score(i);
+      mapGlobalDocument(dh, doc, i, score);
+      
+    }
+  }
+  
+  private void buildGlobalMap(DictionaryHelper dh, IndexReader indexReader) throws Exception{
+    
+    rankedGlobalNodes = new ArrayList();
+        
+    for (int i = 0; i < indexReader.numDocs(); i++) {
+      org.apache.lucene.document.Document doc = indexReader.document(i);
+      mapGlobalDocument(dh, doc, -1, -1);      
+    }
   }
   
   private void buildProjectRequestMap(Hits hits, DictionaryHelper dh) throws Exception{
@@ -682,6 +751,69 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
   }
 
+  
+  private void mapGlobalDocument(DictionaryHelper dh, org.apache.lucene.document.Document doc, int rank, float score) {
+    
+    String globalObjectType          = doc.get(GlobalIndexHelper.OBJECT_TYPE) != null ? doc.get(GlobalIndexHelper.OBJECT_TYPE) : "unknown";
+    String globalId                  = doc.get(GlobalIndexHelper.ID) != null ? doc.get(GlobalIndexHelper.ID) : "";
+    String globalNumber              = doc.get(GlobalIndexHelper.NUMBER) != null ? doc.get(GlobalIndexHelper.NUMBER) : "";
+    String globalName                = doc.get(GlobalIndexHelper.NAME) != null ? doc.get(GlobalIndexHelper.NAME) : ""; 
+    String globalCodeVisibility      = doc.get(GlobalIndexHelper.CODE_VISIBILITY) != null ? doc.get(GlobalIndexHelper.CODE_VISIBILITY) : "";
+    String globalIdLab               = doc.get(GlobalIndexHelper.ID_LAB) != null ? doc.get(GlobalIndexHelper.ID_LAB) : "";
+    String globalIdOrganism          = doc.get(GlobalIndexHelper.ID_ORGANISM) != null ? doc.get(GlobalIndexHelper.ID_ORGANISM) : "";
+    String globalLabName             = doc.get(GlobalIndexHelper.LAB_NAME) != null ? doc.get(GlobalIndexHelper.LAB_NAME) : "";
+    String globalCodeRequestCategory = doc.get(GlobalIndexHelper.CODE_REQUEST_CATEGORY) != null ? doc.get(GlobalIndexHelper.CODE_REQUEST_CATEGORY) : "";
+    String globalClassName           = doc.get(GlobalIndexHelper.PROTOCOL_CLASS_NAME) != null ? doc.get(GlobalIndexHelper.PROTOCOL_CLASS_NAME) : "";
+    
+    String icon = "";
+    String objectTypeDisplayName = "";
+    if (globalObjectType.equals(GlobalIndexHelper.PROJECT_FOLDER)) {
+      icon="assets/folder.png";
+      objectTypeDisplayName = "Project Folder";
+    } else if (globalObjectType.equals(GlobalIndexHelper.PROTOCOL)) {
+      icon="assets/brick.png";
+      objectTypeDisplayName = "Protocol";
+    } else if (globalObjectType.equals(GlobalIndexHelper.ANALYSIS)) {
+      icon = "assets/map.png";
+      objectTypeDisplayName = "Analysis";
+    } else if (globalObjectType.equals(GlobalIndexHelper.DATA_TRACK)) {
+      icon = "assets/datatrack.png";
+      objectTypeDisplayName = "Data Track";
+    } else if (globalObjectType.equals(GlobalIndexHelper.TOPIC)) {
+      icon = "assets/topic_tag.png";
+      objectTypeDisplayName = "Topic";
+    } else {
+      RequestCategory cat = dh.getRequestCategoryObject(globalCodeRequestCategory);
+      if (cat != null) {
+        icon = cat.getIcon();
+        if (icon == null) {
+          icon = "assets/flask.png";
+        }
+      } else {
+        icon = "assets/error.png";
+      }
+      objectTypeDisplayName = globalObjectType;
+    } 
+    Element node = new Element("Global");
+    node.setAttribute("objectType",        globalObjectType);
+    node.setAttribute("id",                globalId);
+    node.setAttribute("number",            globalNumber);
+    node.setAttribute("name",              globalName);
+    node.setAttribute("codeVisibility",    globalCodeVisibility);
+    node.setAttribute("labName",           globalLabName);
+    node.setAttribute("icon",              icon);
+    node.setAttribute("objectTypeDisplay", objectTypeDisplayName);
+    node.setAttribute("className",         globalClassName);
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    }
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");                    
+    }
+    
+    rankedGlobalNodes.add(node);
+  }
   
   private void mapProtocolDocument(org.apache.lucene.document.Document doc, int rank, float score) {
     
@@ -1161,30 +1293,48 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   } 
   
   private org.jdom.Document buildXMLDocument() throws Exception {
-    org.jdom.Document xmlDoc = new org.jdom.Document(new Element(listKind));
+    Element root = new Element(listKind);
+    org.jdom.Document xmlDoc = new org.jdom.Document(root);
     
+    if (isAnalysisOnlySearch) {
+      root.setAttribute("SearchScope", "AnalysisOnly");
+    } else if (isDataTrackOnlySearch) {
+      root.setAttribute("SearchScope", "DatatrackOnly");
+    } else if (isProtocolOnlySearch) {
+      root.setAttribute("SearchScope", "ProtocolOnly");
+    } else if (isTopicOnlySearch) {
+      root.setAttribute("SearchScope", "TopicOnly");
+    } else if (isExperimentOnlySearch) {
+      root.setAttribute("SearchScope", "ExperimentOnly");
+    } else {
+      root.setAttribute("SearchScope", "Global");
+    }
+    
+    if (!isAnalysisOnlySearch && !isDataTrackOnlySearch && !isProtocolOnlySearch && !isTopicOnlySearch && !isExperimentOnlySearch) {
+      buildGlobalList(root);
+    }
     if (!isAnalysisOnlySearch && !isDataTrackOnlySearch && !isProtocolOnlySearch && !isTopicOnlySearch) {
-      buildProjectRequestList(xmlDoc.getRootElement());
-      buildRequestList(xmlDoc.getRootElement());      
+      buildProjectRequestList(root);
+      buildRequestList(root);      
     }
     if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
-      buildProtocolList(xmlDoc.getRootElement());
+      buildProtocolList(root);
     }
     if (!isExperimentOnlySearch && !isAnalysisOnlySearch && !isProtocolOnlySearch && !isTopicOnlySearch) {
      // buildDataTrackFolderList(doc.getRootElement());
       DataTrackQuery q = new DataTrackQuery(dataTrackIds);
       Element qElem = q.getDataTrackDocument(this.getSecAdvisor().getReadOnlyHibernateSession(this.username), this.getSecAdvisor()).getRootElement();
       qElem.setName("DataTrackFolderList");
-      xmlDoc.getRootElement().addContent(qElem);
-      buildDataTrackList(xmlDoc.getRootElement());
+      root.addContent(qElem);
+      buildDataTrackList(root);
     }
     if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isTopicOnlySearch) {
-      buildAnalysisGroupList(xmlDoc.getRootElement());
-      buildAnalysisList(xmlDoc.getRootElement());      
+      buildAnalysisGroupList(root);
+      buildAnalysisList(root);      
     }
     if (!isExperimentOnlySearch && !isProtocolOnlySearch && !isDataTrackOnlySearch && !isAnalysisOnlySearch && topicsSupported) {
-      buildLabTopicList(xmlDoc.getRootElement());      
-      buildTopicList(xmlDoc.getRootElement());      
+      buildLabTopicList(root);      
+      buildTopicList(root);      
     }
     
     return xmlDoc;
@@ -1353,6 +1503,17 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
   }
   
+  
+  private void buildGlobalList(Element root) {
+    Element parent = new Element("GlobalList");
+    root.addContent(parent);
+    
+    // For each protocol node
+    for(Iterator i = rankedGlobalNodes.iterator(); i.hasNext();) {
+      Element globalNode = (Element)i.next();
+      parent.addContent(globalNode);
+    }
+  }
   
   private void buildProtocolList(Element root) {
     Element parent = new Element("ProtocolList");
