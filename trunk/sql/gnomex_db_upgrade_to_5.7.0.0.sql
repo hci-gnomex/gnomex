@@ -1,3 +1,5 @@
+use gnomex;
+
 -- Create missing PropertyEntryOption entries for sample annotations of type 'OPTION'
 insert into PropertyEntryOption
 (idPropertyEntry, idPropertyOption)
@@ -8,11 +10,14 @@ from PropertyEntry pe
   join PropertyOption po
   on po.idPropertyOption = pe.valueString
 where idSample is not null
-and codePropertyType = 'OPTION'
+and codePropertyType = 'OPTION';
+
+-- Set help url to GNomEx Wiki
+update PropertyDictionary set propertyValue = 'http://hci-bio-wiki/biowiki' where propertyName = 'help_url';
 
 
---Change the foreign key constraint rules for the following tables so that user can delete institutions
---and not receive FK constraint violations.
+-- Change the foreign key constraint rules for the following tables so that user can delete institutions
+-- and not receive FK constraint violations.
 ALTER TABLE DataTrack DROP CONSTRAINT FK_DataTrack_Institution;
 alter table DataTrack add constraint FK_DataTrack_Institution 
     foreign key (idInstitution) references Institution(idInstitution) on delete set null;
@@ -28,3 +33,4 @@ alter table Topic add constraint FK_Topic_Institution
 ALTER TABLE Request DROP CONSTRAINT FK_Request_Institution;
 alter table Request add constraint FK_Request_Institution 
     foreign key (idInstitution) references Institution(idInstitution) on delete set null;  
+
