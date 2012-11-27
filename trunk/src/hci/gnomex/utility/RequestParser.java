@@ -278,14 +278,20 @@ public class RequestParser implements Serializable {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
-      request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));  
-      if ( n.getAttributeValue("codeRequestStatus").equals( RequestStatus.COMPLETED ) ) {
-        if ( request.getCompletedDate() == null ) {
-          request.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
-        }
-        // Now change the billing items for the request from PENDING to COMPLETE
-        for (BillingItem billingItem : (Set<BillingItem>)request.getBillingItems()) {
-          billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+      // Don't change request status to submitted unless the request is in new status
+      if ( n.getAttributeValue( "codeRequestStatus" ).equals( RequestStatus.SUBMITTED )&& 
+          ( request.getCodeRequestStatus()!=null && !request.getCodeRequestStatus().equals( RequestStatus.NEW ))){
+        //Do nothing
+      } else { 
+        request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));  
+        if ( n.getAttributeValue("codeRequestStatus").equals( RequestStatus.COMPLETED ) ) {
+          if ( request.getCompletedDate() == null ) {
+            request.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+          }
+          // Now change the billing items for the request from PENDING to COMPLETE
+          for (BillingItem billingItem : (Set<BillingItem>)request.getBillingItems()) {
+            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+          }
         }
       }
     } else if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
