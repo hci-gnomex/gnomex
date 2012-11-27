@@ -7,6 +7,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
@@ -275,6 +277,28 @@ public class SaveLab extends GNomExCommand implements Serializable {
             BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);
             ba.setIdLab(lab.getIdLab());
             sess.save(ba);
+            
+            //If the billing account isPO then change billing status of all billingItems in the account 
+            List billingItems = sess.createQuery("select bi from BillingItem bi where idBillingAccount = " + ba.getIdBillingAccount()).list();
+            if(ba.getIsPO().equals("Y")){
+              for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
+                BillingItem bi = (BillingItem)bIterator.next();
+                if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED)){
+                  bi.setCodeBillingStatus(BillingStatus.APPROVED_PO);
+                  sess.save(bi);
+                }
+              }
+            }
+            else if(ba.getIsPO().equals("N")){
+              for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
+                BillingItem bi = (BillingItem)bIterator.next();
+                if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO)){
+                  bi.setCodeBillingStatus(BillingStatus.APPROVED);
+                  sess.save(bi);
+                }
+              }  
+            }
+            sess.flush();
   
             // If billing account has just been approved, send out a notification
             // email to submitter of work auth form as well as lab managers
