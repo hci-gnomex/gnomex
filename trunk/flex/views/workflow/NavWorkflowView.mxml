@@ -23,12 +23,7 @@
 			public var solexaFlowCellChannels:int = 0;
 			
 		public function switchTo(codeStep:String):void {
-			if (codeStep == 'HSEQQC') {
-				this.navBar.selectedChild = this.hiSeqTab;
-				this.detailViews.selectedChild = this.hiSeqViews;
-				this.hiSeqViews.selectedChild = this.workflowHiSeqQCView;
-				callLater(onHiSeqWorklistChange);
-			} else if (codeStep == 'HSEQPREP') {
+			if (codeStep == 'HSEQPREP') {
 				this.navBar.selectedChild = this.hiSeqTab;
 				this.detailViews.selectedChild = this.hiSeqViews;
 				this.hiSeqViews.selectedChild = this.workflowHiSeqPrepView;
@@ -43,11 +38,6 @@
 				this.detailViews.selectedChild = this.hiSeqViews;
 				this.hiSeqViews.selectedChild = this.workflowHiSeqPipelineView;
 				callLater(onHiSeqWorklistChange);
-			} else if (codeStep == 'MISEQQC') {
-				this.navBar.selectedChild = this.miSeqTab;
-				this.detailViews.selectedChild = this.miSeqViews;
-				this.miSeqViews.selectedChild = this.workflowMiSeqQCView;
-				callLater(onMiSeqWorklistChange);
 			} else if (codeStep == 'MISEQPREP') {
 				this.navBar.selectedChild = this.miSeqTab;
 				this.detailViews.selectedChild = this.miSeqViews;
@@ -118,9 +108,7 @@
 		}
 		        
         private function onMicroarrayWorklistChange():void {
-        	if (microarrayViews.selectedChild == workflowQCView) {
-        		workflowQCView.getWorkListQC.send();
-        	} else if (microarrayViews.selectedChild == workflowLabelingView) {
+        	if (microarrayViews.selectedChild == workflowLabelingView) {
         		workflowLabelingView.getWorkList.send();
         	} else if (microarrayViews.selectedChild  == workflowHybView) {
         		workflowHybView.getWorkList.send();
@@ -133,11 +121,7 @@
         }
 			
         private function onSolexaWorklistChange():void {
-        	if (solexaViews.selectedChild == workflowSolexaQCView) {
-        		workflowSolexaQCView.codeStepNext = "SEQQC";
-				workflowSolexaQCView.initTitle();
-        		workflowSolexaQCView.getWorkList.send();
-        	} else if (solexaViews.selectedChild == workflowSolexaPrepView) {
+        	if (solexaViews.selectedChild == workflowSolexaPrepView) {
         		workflowSolexaPrepView.codeStepNext = "SEQPREP";
 				workflowSolexaPrepView.titleInit();
         		workflowSolexaPrepView.getWorkList.send();
@@ -156,11 +140,7 @@
         }
 			
         private function onHiSeqWorklistChange():void {
-        	if (hiSeqViews.selectedChild == workflowHiSeqQCView) {
-        		workflowHiSeqQCView.codeStepNext = "HSEQQC";
-				workflowHiSeqQCView.initTitle();
-        		workflowHiSeqQCView.getWorkList.send();
-        	} else if (hiSeqViews.selectedChild == workflowHiSeqPrepView) {
+        	if (hiSeqViews.selectedChild == workflowHiSeqPrepView) {
         		workflowHiSeqPrepView.codeStepNext = "HSEQPREP";
 				workflowHiSeqPrepView.titleInit();
         		workflowHiSeqPrepView.getWorkList.send();
@@ -181,11 +161,7 @@
         }
 
 		private function onMiSeqWorklistChange():void {
-			if (miSeqViews.selectedChild == workflowMiSeqQCView) {
-				workflowMiSeqQCView.codeStepNext = "MISEQQC";
-				workflowMiSeqQCView.initTitle();
-				workflowMiSeqQCView.getWorkList.send();
-			} else if (miSeqViews.selectedChild == workflowMiSeqPrepView) {
+			if (miSeqViews.selectedChild == workflowMiSeqPrepView) {
 				workflowMiSeqPrepView.codeStepNext = "MISEQPREP";
 				workflowMiSeqPrepView.titleInit();
 				workflowMiSeqPrepView.getWorkList.send();
@@ -204,7 +180,10 @@
 		}   
 			
         private function onTabChange():void {
-        	if (this.navBar.selectedChild == this.solexaTab) {
+			if (this.navBar.selectedChild == this.combinedQCTab) {
+				combinedWorkflowQCView.getWorkListQC.send();
+				this.detailViews.selectedChild=combinedWorkflowQCView;
+			} else	if (this.navBar.selectedChild == this.solexaTab) {
         		this.flowCellView.codeSequencingPlatform = "GAIIX";
 				this.flowCellView.titleLabel.text = 'Illumina GAIIx Flow Cells';
         		this.flowCellView.lookupField.text = '';
@@ -277,7 +256,7 @@
 				<mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			  		<mx:Text text="Microarray and Sample Quality" width="100%" fontWeight="normal" color="#000000" paddingTop="4" fontFamily="Verdana"/>
 			  		
-			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12" fontFamily="Verdana">
+			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="3"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12" fontFamily="Verdana">
 			  		</mx:LinkBar>
 				
 				</mx:VBox>
@@ -296,7 +275,11 @@
 
 				</mx:VBox>
 			</mx:Canvas>
-			
+			<mx:Canvas id="combinedQCTab" width="100%" height="100%" icon="@Embed('../../assets/chart_curve.png')" toolTip="QC Worklist" fontSize="12">
+				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+					<mx:Text text="Combined QC Worklist" width="100%" fontWeight="normal" color="#000000" paddingTop="4" fontFamily="Verdana"/>		  		
+				</mx:VBox>
+			</mx:Canvas>			
 		</mx:TabNavigator>
 		    
 			
@@ -304,9 +287,6 @@
 		<mx:ViewStack id="detailViews" width="100%" height="100%">
 			<mx:ViewStack id="microarrayViews"  visible="true" height="100%" width="100%"  >
 
-
-	           <workflow:WorkflowQCView label="Sample Quality" id="workflowQCView" icon="@Embed('../../assets/chart_curve.png')"/> 
-	           
 	           <workflow:WorkflowLabelingView label="Labeling" id="workflowLabelingView" icon="@Embed('../../assets/asterisk_yellow.png')"/>
 	    
 	           <workflow:WorkflowHybView label="Hybridization" id="workflowHybView" icon="@Embed('../../assets/basket_put.png')"/>
@@ -317,10 +297,8 @@
                </mx:Canvas>
                 
             </mx:ViewStack>
-			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="6"  >
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
 			
-			   <workflow:WorkflowSolexaQCView label="Sample Quality" id="workflowSolexaQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
-			   
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/chart_line.png')"/>
 
 			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowSolexaAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
@@ -330,10 +308,8 @@
 			   <mx:Canvas id="blankSolexa" label=""/>
 			   
 			</mx:ViewStack>
-		   <mx:ViewStack id="hiSeqViews"  visible="true" height="100%" width="100%" selectedIndex="6"  >
+		   <mx:ViewStack id="hiSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
 			
-			   <workflow:WorkflowSolexaQCView label="Sample Quality" id="workflowHiSeqQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
-			   
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView" icon="@Embed('../../assets/chart_line.png')"/>
 
 			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconHiSeq}"/> 	           
@@ -343,9 +319,7 @@
 			   <mx:Canvas id="blankHiSeq" label=""/>
 			   
 			</mx:ViewStack>
-			<mx:ViewStack id="miSeqViews"  visible="true" height="100%" width="100%" selectedIndex="6"  >
-				
-				<workflow:WorkflowSolexaQCView label="Sample Quality" id="workflowMiSeqQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
+			<mx:ViewStack id="miSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
 				
 				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="@Embed('../../assets/chart_line.png')"/>
 				
@@ -355,7 +329,8 @@
 				
 				<mx:Canvas id="blankMiSeq" label=""/>
 				
-			</mx:ViewStack>			
+			</mx:ViewStack>	
+			<workflow:WorkflowQCView id="combinedWorkflowQCView" icon="@Embed('../../assets/chart_curve.png')"/>
 			<workflow:FlowCellView id="flowCellView"/>
 			
 			
