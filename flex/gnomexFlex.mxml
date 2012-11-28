@@ -1018,6 +1018,24 @@
 				} 
 			}
 			
+			public function showProjectFolder(idProject:String, idLab:String):void {
+				navExperimentView.selectedRequestNumber = null;
+				navExperimentView.selectedIdRequest = null;
+				navExperimentView.selectedIdLab = idLab;
+				navExperimentView.selectedIdProject = idProject;
+				navExperimentView.showPromptToUpload = false;
+				if (navExperimentView.isInitialized) {
+					navExperimentView.refreshExperimentsForProjectFolderLookup();
+				}
+				
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navExperimentView;
+				
+				// Reset the experiment search components.
+				callLater(navExperimentView.resetSearchComponents);
+			}
+			
 			public function showExperiment(requestNumber:String, showPromptToUpload:Boolean):void {
 				navExperimentView.selectedRequestNumber = requestNumber;
 				navExperimentView.selectedIdRequest = null;

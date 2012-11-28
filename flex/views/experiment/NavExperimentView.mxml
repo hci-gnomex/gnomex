@@ -99,6 +99,22 @@
 	  <idLab>{selectedIdLab}</idLab>
     </mx:request>
   </mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getProjectForLookup" 
+		url="GetProject.gx"
+		destination="getProject"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetProjectForLookup(event)"
+		method="POST"
+		fault="parentApplication.onFailHttpRequest('Failed to get project', event)"
+		useProxy="false">
+		<mx:request>
+			<idProject>{selectedIdProject}</idProject>
+			<idLab>{selectedIdLab}</idLab>
+		</mx:request>
+	</mx:HTTPService>
   
   <mx:HTTPService  
     id="saveRequestProject" 
@@ -214,7 +230,9 @@
    					} else {
 						refreshExperimentsForLookup();
    					}
-   				} 
+   				} else if (this.selectedIdProject != null && this.selectedIdLab != null) {
+					refreshExperimentsForProjectFolderLookup();
+				}
    			}
    			if (this.shortcutToDownloadTab) {
         		this.experimentViews.selectedChild = this.browseView;
@@ -226,6 +244,12 @@
 
 			isInitialized = true;
 
+		}
+			
+		public function refreshExperimentsForProjectFolderLookup():void {
+			if (this.selectedIdLab != null && this.selectedIdProject != null) {
+				getProjectForLookup.send();
+			}
 		}
 		
 		public function refreshExperimentsForLookup():void {
@@ -294,8 +318,13 @@
 			}
         	  
         	if (getProjectRequestList.lastResult..Request.length() == 0) {
-        		browseTree.visible = false;
-        		this.treeExpansionStack.visible = false;
+				if (getProjectRequestList.lastResult..Project.length() == 0) {
+	        		browseTree.visible = false;
+    	    		this.treeExpansionStack.visible = false;
+				} else {
+					browseTree.visible = true;
+					this.treeExpansionStack.visible = true;
+				}
 				
 				// If this is the first refresh and no experiments were returned, ask if search
 				// should be broadened
@@ -874,12 +903,17 @@
 				selectedExperiment = getRequestFromNav.lastResult.Request.(reg["test"](@number));
 				selectedRequestNumber = selectedExperiment.@number.toString();
 			}
-				
+			
+			refreshProjectListForSelectedProject(selectedExperiment.@idProject, false);
+		}
+			
+		private function refreshProjectListForSelectedProject(idProject:String, showEmptyFolders:Boolean):void {
 			var params:Object = new Object();
-			params.idProject = selectedExperiment.@idProject;
+			params.idProject = idProject;
 			params.showSamples = "N";
 			params.showCategory = "N";
-			
+			params.showEmptyProjectFolders = showEmptyFolders ? "Y" : "N";
+
 			// Need this workaround to prevent type #1009 error.
 			this.browseTree.setFocus();
 			
@@ -907,6 +941,10 @@
 		
 		private function onGetProject(event:ResultEvent):void {
 			selectedProject = getProject.lastResult.Project.(@idProject == selectedIdProject);
+			refreshSelectedProject()
+		}
+			
+		private function refreshSelectedProject():void {
 			browseView.refreshDownloadList();
 			browseView.refreshTrackList();
 			browseView.refreshVisibilityList();
@@ -918,6 +956,12 @@
 			browseView.projectDetailView.checkSecurity();
 			browseView.projectDetailView.setupDataListeners();
 
+		}
+		
+		private function onGetProjectForLookup(event:ResultEvent):void {
+			selectedProject = getProjectForLookup.lastResult.Project.(@idProject == selectedIdProject);
+			refreshSelectedProject();
+			refreshProjectListForSelectedProject(this.selectedIdProject, true);
 		}
 
 		public function getTreeLabel(item:Object):String {
