@@ -1810,21 +1810,21 @@ CREATE TABLE gnomex.PropertyPlatform (
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
--- Add table PlatformApplication
-DROP TABLE IF EXISTS `gnomex`.`PlatformApplication`;
-CREATE TABLE gnomex.PlatformApplication (
+-- Add table PropertyPlatformApplication
+DROP TABLE IF EXISTS `gnomex`.`PropertyPlatformApplication`;
+CREATE TABLE gnomex.PropertyPlatformApplication (
     idPlatformApplication INT(10) NOT NULL AUTO_INCREMENT,
     idProperty INT(10) NOT NULL,
     codeRequestCategory VARCHAR(10) NOT NULL,
     codeApplication VARCHAR(10),
     PRIMARY KEY (idPlatformApplication),
-    CONSTRAINT FK_PlatformApplication_Property FOREIGN KEY (idProperty)
+    CONSTRAINT FK_PropertyPlatformApplication_Property FOREIGN KEY (idProperty)
         REFERENCES gnomex.Property (idProperty)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_PlatformApplication_RequestCategory FOREIGN KEY (codeRequestCategory)
+    CONSTRAINT FK_PropertyPlatformApplication_RequestCategory FOREIGN KEY (codeRequestCategory)
         REFERENCES gnomex.RequestCategory (codeRequestCategory)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_PlatformApplication_Application FOREIGN KEY (codeApplication)
+    CONSTRAINT FK_PropertyPlatformApplication_Application FOREIGN KEY (codeApplication)
         REFERENCES gnomex.Application (codeApplication)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT UNQ_PropertyPlatform_idProp_codeReq_app

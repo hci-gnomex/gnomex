@@ -224,7 +224,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     StringBuffer buf = new StringBuffer();
 
     if (getPlatformApplications() != null) {
-      for (PlatformApplication pa : (Set<PlatformApplication>)getPlatformApplications()) {
+      for (PropertyPlatformApplication pa : (Set<PropertyPlatformApplication>)getPlatformApplications()) {
         if (buf.length() > 0) {
           buf.append(", ");
         }

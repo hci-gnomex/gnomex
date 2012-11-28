@@ -6,7 +6,7 @@ import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.Organism;
-import hci.gnomex.model.PlatformApplication;
+import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyOption;
@@ -240,9 +240,9 @@ public class SaveProperty extends GNomExCommand implements Serializable {
           for(Iterator i = this.platformsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
             Element platformNode = (Element)i.next();
             
-            // See if this PlatformApplication object already exists
+            // See if this PropertyPlatformApplication object already exists
             StringBuffer queryBuf = new StringBuffer("select pa");
-            queryBuf.append(" from PlatformApplication as pa");
+            queryBuf.append(" from PropertyPlatformApplication as pa");
             queryBuf.append(" where pa.idProperty = " + sc.getIdProperty().toString() + " and");
             queryBuf.append(" pa.codeRequestCategory = '" + platformNode.getAttributeValue("codeRequestCategory") + "' and");
             queryBuf.append(" pa.codeApplication ");
@@ -255,12 +255,12 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             Query query = sess.createQuery(queryBuf.toString());
             List paRows = (List)query.list();   
             
-            PlatformApplication pa = null;
+            PropertyPlatformApplication pa = null;
             if (paRows.size() > 0) {
-              pa = (PlatformApplication) paRows.get(0);
+              pa = (PropertyPlatformApplication) paRows.get(0);
               platformApplicationsMap.put(pa.getIdPlatformApplication(), null);
             } else {
-              pa = new PlatformApplication();
+              pa = new PropertyPlatformApplication();
               pa.setIdProperty(sc.getIdProperty());
               pa.setCodeRequestCategory(platformNode.getAttributeValue("codeRequestCategory"));
               if (platformNode.getAttributeValue("codeApplication").length() > 0) {
@@ -274,7 +274,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             }
             // Reload to insure RequestCategory and Application objects are populated
             Integer idPlatformApplication = pa.getIdPlatformApplication();
-            pa = (PlatformApplication)sess.load(PlatformApplication.class, idPlatformApplication); 
+            pa = (PropertyPlatformApplication)sess.load(PropertyPlatformApplication.class, idPlatformApplication); 
            
             RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, pa.getCodeRequestCategory()); 
             pa.setRequestCategory(rc);
@@ -291,14 +291,14 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         List platformApplicationsToRemove = new ArrayList();
         if (sc.getPlatformApplications() != null) {
           for(Iterator i = sc.getPlatformApplications().iterator(); i.hasNext();) {
-            PlatformApplication pa = (PlatformApplication) i.next();
+            PropertyPlatformApplication pa = (PropertyPlatformApplication) i.next();
             
             if (!platformApplicationsMap.containsKey(pa.getIdPlatformApplication())) {
               platformApplicationsToRemove.add(pa);
             }
           }
           for(Iterator i = platformApplicationsToRemove.iterator(); i.hasNext();) {
-            PlatformApplication pa = (PlatformApplication)i.next();
+            PropertyPlatformApplication pa = (PropertyPlatformApplication)i.next();
             sess.delete(pa);
           }
         }
@@ -372,8 +372,8 @@ public class SaveProperty extends GNomExCommand implements Serializable {
   }
   private class PlatformApplicationsComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
-      PlatformApplication pa1 = (PlatformApplication)o1;
-      PlatformApplication pa2 = (PlatformApplication)o2;
+      PropertyPlatformApplication pa1 = (PropertyPlatformApplication)o1;
+      PropertyPlatformApplication pa2 = (PropertyPlatformApplication)o2;
       
       int compVal = pa1.getRequestCategory().getRequestCategory().compareTo(pa2.getRequestCategory().getRequestCategory());
       if(compVal==0) {

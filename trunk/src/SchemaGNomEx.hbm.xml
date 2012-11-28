@@ -1642,9 +1642,9 @@
 			<key column="idProperty"/>
 			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>			
 		</set>
-		<set name="platformApplications" table="PlatformApplication" lazy="false" cascade="delete" inverse="true">
+		<set name="platformApplications" table="PropertyPlatformApplication" lazy="false" cascade="delete" inverse="true">
 			<key column="idProperty"/>
-			<one-to-many class="hci.gnomex.model.PlatformApplication"/>			
+			<one-to-many class="hci.gnomex.model.PropertyPlatformApplication"/>			
 		</set>
 		<set name="analysisTypes" table="PropertyAnalysisType" lazy="false" cascade="delete">
 			<key column="idProperty"/>
@@ -1653,8 +1653,8 @@
 	</class>
 	
 	
-		<!-- hci.gnomex.model.PlatformApplication-->
-	<class name="hci.gnomex.model.PlatformApplication" table="PlatformApplication">
+		<!-- hci.gnomex.model.PropertyPlatformApplication-->
+	<class name="hci.gnomex.model.PropertyPlatformApplication" table="PropertyPlatformApplication">
 		<id name="idPlatformApplication" column="idPlatformApplication" type="integer">
 			<generator class="native"/>
 		</id>

@@ -1397,7 +1397,7 @@
 			}
 			
 			var filterByPlatformApplication:Boolean = false;
-			if (property.descendants("PlatformApplication").length() > 0) {
+			if (property.descendants("PropertyPlatformApplication").length() > 0) {
 				filterByPlatformApplication = true;	
 			}
 			
