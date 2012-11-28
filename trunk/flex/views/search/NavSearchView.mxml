@@ -206,7 +206,11 @@
         }
         
         private function onExperimentRowSelected():void  {
-        	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber, false);
+			if (resultsGrid.selectedItem.hasOwnProperty("@requestNumber") && resultsGrid.selectedItem.@requestNumber != null && resultsGrid.selectedItem.@requestNumber != '') {
+	        	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber, false);
+			} else {
+				parentApplication.showProjectFolder(resultsGrid.selectedItem.@idProject, resultsGrid.selectedItem.@idLab);
+			}
 			shrinkWindow();
         }
 
@@ -298,7 +302,7 @@
 		private function onGlobalRowSelected():void  {
 			if (resultsGlobalGrid.selectedItem != null) {
 				if (resultsGlobalGrid.selectedItem.@objectType == "globalObjectTypeProjectFolder") {
-					//todo
+					parentApplication.showProjectFolder(resultsGlobalGrid.selectedItem.@id, resultsGlobalGrid.selectedItem.@idLab);
 				} else if (resultsGlobalGrid.selectedItem.@objectType == "globalObjectTypeProtocol") {
 					parentApplication.showProtocol(resultsGlobalGrid.selectedItem.@id, 
 						resultsGlobalGrid.selectedItem.@className);    		

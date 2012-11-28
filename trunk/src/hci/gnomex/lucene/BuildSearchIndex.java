@@ -1283,6 +1283,10 @@ public class BuildSearchIndex extends DetailObject {
       experimentName           = (String) row[37];
       idCoreFacility           = (Integer)row[40];
       
+      // Don't index rows with no labs.
+      if (idLabProject == null &&  (idLabRequest == null || idLabRequest.equals(-99))) {
+        return;
+      }
       
       slideProductOrganism     = idOrganismSlideProduct != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganismSlideProduct.toString()) : null;
       requestCategory          = getDictionaryDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
@@ -1608,7 +1612,7 @@ public class BuildSearchIndex extends DetailObject {
     Map globalIndexedFieldMap = new HashMap();
     if (requestCategory == null || requestCategory.length() == 0) {
       globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROJECT_FOLDER);
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, "");
+      globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idProject.toString());
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, projectName);
       globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");

@@ -797,6 +797,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     Element node = new Element("Global");
     node.setAttribute("objectType",        globalObjectType);
     node.setAttribute("id",                globalId);
+    node.setAttribute("idLab",             globalIdLab);
     node.setAttribute("number",            globalNumber);
     node.setAttribute("name",              globalName);
     node.setAttribute("codeVisibility",    globalCodeVisibility);
@@ -1156,6 +1157,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("labName", doc.get(ExperimentIndexHelper.LAB_NAME) != null ? doc.get(ExperimentIndexHelper.LAB_NAME) : "");
     node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     node.setAttribute("idSlideProduct", doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) : "");
+    node.setAttribute("idLab", doc.get(ExperimentIndexHelper.ID_LAB) != null ? doc.get(ExperimentIndexHelper.ID_LAB) : "");
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());          
       node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
@@ -1172,6 +1174,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("idProject", idProject.toString());
     node.setAttribute("projectName",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     node.setAttribute("label",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
+    node.setAttribute("idLab", doc.get(ExperimentIndexHelper.ID_LAB) != null ? doc.get(ExperimentIndexHelper.ID_LAB) : "");
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());          
       node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
