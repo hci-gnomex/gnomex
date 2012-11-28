@@ -25,7 +25,7 @@
     
     <mx:HTTPService 
     id="saveWorkItemQC" 
-    url="SaveWorkItemQualityControl.gx"
+    url="SaveCombinedWorkItemQualityControl.gx"
     resultFormat="e4x"
     destination="saveWorkItemQualityControl"
     showBusyCursor="true"

@@ -102,7 +102,11 @@
 			} else if (this.DataTracksRadioButton.selected) {
 				params.searchList = this.dataTrackSearchList;
 			} else if (this.TopicsRadioButton.selected) {
-				params.searchList = this.topicSearchList;
+				// Kludge because apparently a single entry xmllist is not sent to the back end???
+				var x:XML = new XML("<Field displayName='Dummy' searchName='dummy'/>");
+				var y:XMLList = this.topicSearchList.copy();
+				y.appendChild(x);
+				params.searchList = y;
 			} else {
 				params.searchList = this.allObjectsSearchList;
 			}
@@ -114,6 +118,8 @@
 			
         private function onSearchIndex(event:ResultEvent): void {        	
         	parentDocument.searchViews.selectedChild = parentDocument.searchResultsView;
+			parentDocument.setResultsLinkBars(searchGNomEx.lastResult.@SearchScope);
+			
         	parentDocument.onViewSwitch();
         	parentDocument.setResultsCount();
         	
