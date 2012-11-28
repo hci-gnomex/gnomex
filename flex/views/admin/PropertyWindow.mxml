@@ -138,6 +138,9 @@
 			// We use this technique xml.copy() to prevent duplication of applications 
 			// that somehow happens when we add services, then submit request or vice versa
 			filteredAppList = new XMLListCollection();
+			for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
+				filteredAppList.addItem(i.copy());
+			}
 			filteredAppListSorter = new Sort();
 			filteredAppListSorter.compareFunction = this.sortApplication;
 			filteredAppList.sort = filteredAppListSorter;	
@@ -289,7 +292,7 @@
 					}
 				}				
 				
-				var newPlatformApplication:XML = new XML("<PlatformApplication" +
+				var newPlatformApplication:XML = new XML("<PropertyPlatformApplication" +
 					" idProperty='" + property.@idProperty + "'" +
 					" codeRequestCategory='" + codeRequestCategory  + "'" +
 					" display='" + platformCombo.selectedItem.@display  + "'" +
@@ -602,7 +605,7 @@
 <mx:XMLListCollection id="properties" source="{getPropertyList.lastResult..Property}"/>
 <mx:XMLListCollection id="options" source="{property.options.PropertyOption}"/>
 <mx:XMLListCollection id="organisms" source="{property.organisms.Organism}"/>
-<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PlatformApplication}" sort="{platformApplicationSorter}"/>
+<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PropertyPlatformApplication}" sort="{platformApplicationSorter}"/>
 <mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 <mx:XMLListCollection id="analysisTypes" source="{property.analysisTypes.AnalysisType}"/>
 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
@@ -746,16 +749,7 @@
 						<mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platformApplications}" width="100%" height="100%">
 							<mx:columns>
 								<mx:DataGridColumn dataField="@display"/>
-								<mx:DataGridColumn dataField="@applicationDisplay"/>
-								<!--mx:DataGridColumn headerText="Application"  
-								id="applicationCol"
-								dataField="@codeApplication"  
-								editorDataField="value" 
-								sortable="true" 
-								editable="true" 
-								rendererIsEditor="false"  
-								itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"                
-								itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication', null, true)}"/-->															 
+								<mx:DataGridColumn dataField="@applicationDisplay"/>															 
 							</mx:columns>
 						</mx:DataGrid>			   	
 					</mx:VBox>

@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.PlatformApplication;
+import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
@@ -231,7 +231,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         //       
         if (property.getPlatformApplications() != null) {
           for(Iterator i = property.getPlatformApplications().iterator(); i.hasNext();) {
-            PlatformApplication pa = (PlatformApplication) i.next();
+            PropertyPlatformApplication pa = (PropertyPlatformApplication) i.next();
             sess.delete(pa);            
           }
         }

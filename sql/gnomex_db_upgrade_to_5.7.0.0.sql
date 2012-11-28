@@ -34,3 +34,12 @@ ALTER TABLE Request DROP CONSTRAINT FK_Request_Institution;
 alter table Request add constraint FK_Request_Institution 
     foreign key (idInstitution) references Institution(idInstitution) on delete set null;  
 
+
+-- Create PropertyPlatformApplication from PlatformApplication table
+-- and then delete PlatformApplication   
+CREATE TABLE PropertyPlatformApplication LIKE PlatformApplication;
+
+INSERT INTO PropertyPlatformApplication SELECT * FROM PlatformApplication;
+
+DROP TABLE PlatformApplication;
+
