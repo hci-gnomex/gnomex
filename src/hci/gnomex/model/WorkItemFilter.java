@@ -320,9 +320,20 @@ public class WorkItemFilter extends DetailObject {
     //  Search by next step 
     if (codeStepNext != null && !codeStepNext.equals("")){
       this.addWhereOrAnd();
-      queryBuf.append(" wi.codeStepNext = '");
-      queryBuf.append(codeStepNext);
-      queryBuf.append("'");
+      if(this.codeStepNext.equals(Step.QUALITY_CONTROL_STEP) ||
+          this.codeStepNext.equals(Step.SEQ_QC) ||
+          this.codeStepNext.equals(Step.HISEQ_QC) ||
+          this.codeStepNext.equals(Step.MISEQ_QC)) {
+        // Sample Quality lists are now combined
+        queryBuf.append(" (wi.codeStepNext = '" + Step.QUALITY_CONTROL_STEP + "' OR");
+        queryBuf.append(" wi.codeStepNext = '" + Step.SEQ_QC + "' OR");
+        queryBuf.append(" wi.codeStepNext = '" + Step.HISEQ_QC + "' OR");
+        queryBuf.append(" wi.codeStepNext = '" + Step.MISEQ_QC + "')");        
+      } else {
+        queryBuf.append(" wi.codeStepNext = '");
+        queryBuf.append(codeStepNext);
+        queryBuf.append("'");        
+      }
     }
   }
   
