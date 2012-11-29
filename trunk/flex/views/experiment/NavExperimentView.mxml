@@ -213,7 +213,7 @@
 			// Only initialize experiments if the user clicked on
 			// Experiments link in top nav bar. (Bypass
 			// if looking up experiment based on its number.)
-			if (selectedRequestNumber == null) {
+			if (selectedRequestNumber == null && (this.selectedIdProject == null || this.selectedIdLab == null)) {
 				
             	initializeExperiments();
    			} 
@@ -326,15 +326,17 @@
 					this.treeExpansionStack.visible = true;
 				}
 				
-				// If this is the first refresh and no experiments were returned, ask if search
-				// should be broadened
-				if ((currentState == null || currentState == "") && myExperimentsCheckbox.selected && refreshCount == 1) {
-					Alert.show("No experiments found.  Do you want to broaden the list to include all experiments from your lab?", "", 					
-						Alert.YES | Alert.NO, this, onPromptToShowLabExperiments);
-				} else if ((currentState == null || currentState == "") && this.myLabsExperimentsCheckbox && refreshCount == 2) {
-					Alert.show("No experiments found.  Do you want to broaden the list to include all experiments?", "", 
-						Alert.YES | Alert.NO, this, onPromptToShowAllExperiments);
-				} 
+				if (this.selectedIdProject == null) {
+					// If this is the first refresh and no experiments were returned, ask if search
+					// should be broadened
+					if ((currentState == null || currentState == "") && myExperimentsCheckbox.selected && refreshCount == 1) {
+						Alert.show("No experiments found.  Do you want to broaden the list to include all experiments from your lab?", "", 					
+							Alert.YES | Alert.NO, this, onPromptToShowLabExperiments);
+					} else if ((currentState == null || currentState == "") && this.myLabsExperimentsCheckbox && refreshCount == 2) {
+						Alert.show("No experiments found.  Do you want to broaden the list to include all experiments?", "", 
+							Alert.YES | Alert.NO, this, onPromptToShowAllExperiments);
+					}
+				}
         	} else {
         		browseTree.visible = true;
         		this.treeExpansionStack.visible = true;
@@ -904,15 +906,11 @@
 				selectedRequestNumber = selectedExperiment.@number.toString();
 			}
 			
-			refreshProjectListForSelectedProject(selectedExperiment.@idProject, false);
-		}
-			
-		private function refreshProjectListForSelectedProject(idProject:String, showEmptyFolders:Boolean):void {
 			var params:Object = new Object();
-			params.idProject = idProject;
+			params.idProject = selectedExperiment.@idProject;
 			params.showSamples = "N";
 			params.showCategory = "N";
-			params.showEmptyProjectFolders = showEmptyFolders ? "Y" : "N";
+			params.showEmptyProjectFolders = "N";
 
 			// Need this workaround to prevent type #1009 error.
 			this.browseTree.setFocus();
@@ -961,7 +959,29 @@
 		private function onGetProjectForLookup(event:ResultEvent):void {
 			selectedProject = getProjectForLookup.lastResult.Project.(@idProject == selectedIdProject);
 			refreshSelectedProject();
-			refreshProjectListForSelectedProject(this.selectedIdProject, true);
+			
+			var params:Object = new Object();
+			params.idProject = selectedIdProject;
+			params.showSamples = "N";
+			params.showCategory = "N";
+			params.showEmptyProjectFolders = "Y";
+			
+			// Need this workaround to prevent type #1009 error.
+			this.browseTree.setFocus();
+			
+			// For normal users, make sure we scope to the
+			// correct level to show the empty project folder just looked up.
+			if (currentState == null || currentState == "") {
+				if (!parentApplication.isMyLab(selectedProject.@idLab)) {		
+					params.publicExperimentsInOtherGroups = "Y";
+					this.publicExperimentsOtherGroupsCheckbox.selected = true;
+				}
+			} else {
+				// Make sure empty project folder will show.
+				params.showMyLabsAlways = "Y";
+				this.myLabsExperimentsCheckbox.selected = true;
+			}
+			getProjectRequestList.send(params);
 		}
 
 		public function getTreeLabel(item:Object):String {
