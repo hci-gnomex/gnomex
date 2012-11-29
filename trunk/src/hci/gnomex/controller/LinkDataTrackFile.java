@@ -213,7 +213,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         for (Iterator i = analysisFile.getAnalysis().getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
           int afPos = af.getFileName().lastIndexOf(".");
-          String afBaseFileName = af.getFileName().substring(0, afPos);
+          String afBaseFileName;
           // We may have file names without extensions, so handle this case.
           if (afPos == -1) {
             afBaseFileName = af.getFileName();
