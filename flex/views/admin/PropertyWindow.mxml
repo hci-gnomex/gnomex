@@ -56,14 +56,14 @@
 		 
 <mx:Script>
 	<![CDATA[
-		import flash.events.MouseEvent;
-		import flash.geom.Point;
+		import flash.events.MouseEvent;		import flash.geom.Point;
 		
 		import hci.flex.controls.DropdownLabel;
 		
 		import mx.collections.Sort;
 		import mx.controls.Alert;
 		import mx.controls.Label;
+		import mx.events.AdvancedDataGridEvent;
 		import mx.events.CloseEvent;
 		import mx.events.FlexEvent;
 		import mx.managers.PopUpManager;
@@ -217,7 +217,24 @@
 				}
 			}
 		}
-			
+		
+		private function autoScroll(event:AdvancedDataGridEvent):void{
+			var selectedAnnot:XML= XML(event.item);
+			var index: int = 0;
+			for each(var a:XML in properties){
+				if(a == selectedAnnot){
+					index = properties.getItemIndex(a);
+					break;
+				}
+			}
+			if(index >= ((properties.length)/1.5)){
+				propertyList.verticalScrollPosition = index + selectedAnnot.children().length() - 1;
+			}
+			else{
+				propertyList.verticalScrollPosition = index;
+			}
+		}
+		
 		private function setOwnerCombo():void {
 			this.ownerCombo.selectedItem = null;
 			this.ownerCombo.enabled = true;
@@ -385,10 +402,12 @@
 		private function onDeleteProperty(event:ResultEvent): void {
 			if (deleteProperty.lastResult.name() == "SUCCESS") {
 				parentApplication.getPropertyList.send();
+				getPropertyList.send();
 				
 			} else if (deleteProperty.lastResult.name() == "NONBLANKVALUES") {
 				idProperty = deleteProperty.lastResult.@idProperty;
 				parentApplication.getPropertyList.send();
+				getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));				
 				var deleteAnnotation:DeleteAnnotation = DeleteAnnotation(PopUpManager.createPopUp(this, DeleteAnnotation, false));
 				deleteAnnotation.x = removePropertyClick.x - (deleteAnnotation.width/2);		
@@ -482,7 +501,7 @@
 				organismCombo.selectedItem = null;
 				platformCombo.selectedItem = null;
 				analysisTypeCombo.selectedItem = null;
-				
+	
 				setOwnerCombo();
 				
 				dirty.resetDirty();
@@ -632,13 +651,13 @@
   <mx:VBox height="100%" width="410">
 		<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelField="@name" 
 				 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
-				 groupItemRenderer="views.renderers.PropertyGroupedItem"
+				 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll()}" itemOpen="{autoScroll(event)}"
 				 iconFunction="getTreeIcon">
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{properties}"/>
 			</mx:dataProvider>						  
 			<mx:columns>
-				<mx:AdvancedDataGridColumn dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
+				<mx:AdvancedDataGridColumn id="annotation" dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
 					<mx:itemRenderer >
 						<mx:Component>
 							<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
