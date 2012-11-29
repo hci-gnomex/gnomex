@@ -863,7 +863,8 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (89,'generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y'),
  (90,'experiment_default_view', 'my experiments', 'Indicates default experiment view for non-admin users.  Values are "my experiments", "my lab" or "all".', 'N'),
  (91,'experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.', 'N'),
- (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N');
+ (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
+ (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N');
  
  
 
