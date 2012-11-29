@@ -43,3 +43,8 @@ INSERT INTO PropertyPlatformApplication SELECT * FROM PlatformApplication;
 
 DROP TABLE PlatformApplication;
 
+-- Add a property for das2_url (should have been added way back when datatracks introduced....
+INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
+('das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N');
+
+
