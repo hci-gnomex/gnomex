@@ -75,26 +75,16 @@ public class Constants {
 
   public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] 
                                                                 {
-    ".bar",
     ".bam",
     ".bai",
-    ".bed",
-    ".bgn",
-    ".bgr",
-    ".bps",
-    ".bp1",
-    ".bp2",
-    ".brs",
-    ".cyt",
-    ".ead",
-    ".gff", 
-    ".gtf",
-    ".psl",
     ".useq",
-    ".bulkUpload",
     ".bb", 
-    ".bw"
-                                                                };
+    ".bw",
+    ".bed",
+    ".bgr",
+    ".gff", 
+    ".gtf"
+  };
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] {
     ".bed", 
