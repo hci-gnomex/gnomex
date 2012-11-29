@@ -302,7 +302,7 @@
 		private function onGlobalRowSelected():void  {
 			if (resultsGlobalGrid.selectedItem != null) {
 				if (resultsGlobalGrid.selectedItem.@objectType == "globalObjectTypeProjectFolder") {
-					parentApplication.showProjectFolder(resultsGlobalGrid.selectedItem.@id, resultsGlobalGrid.selectedItem.@idLab);
+					parentApplication.showProjectFolder(resultsGlobalGrid.selectedItem.@idProject, resultsGlobalGrid.selectedItem.@idLab);
 				} else if (resultsGlobalGrid.selectedItem.@objectType == "globalObjectTypeProtocol") {
 					parentApplication.showProtocol(resultsGlobalGrid.selectedItem.@id, 
 						resultsGlobalGrid.selectedItem.@className);    		

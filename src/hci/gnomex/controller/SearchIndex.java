@@ -235,19 +235,37 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         //  Build a Query object
         String globalSearchText = globalFilter.getSearchText().toString();
         
+        // Build a Query to represent the security filter
+        String globalSecuritySearchText = this.buildGlobalSecuritySearch();
+        
         if (globalSearchText != null && globalSearchText.trim().length() > 0) {
           log.debug("Lucene global search: " + globalSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(globalSearchText);          
           
+          // Build security filter        
+          QueryWrapperFilter filter = this.buildSecurityQueryFilter(globalSecuritySearchText);
+          
           // Search for the query
-          Hits globalHits = globalSearcher.search(query);
+          Hits globalHits = null;
+          if (filter == null) {
+            globalHits = globalSearcher.search(query);
+          } else {
+            globalHits = globalSearcher.search(query, filter); 
+          }
           processGlobalHits(dh, globalHits, globalSearchText);
           
         } else {
-          buildGlobalMap(dh, globalIndexReader);
-          
+          if (globalSecuritySearchText != null) {
+            QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+            myQueryParser.setAllowLeadingWildcard(true);
+            Query query = myQueryParser.parse(globalSecuritySearchText);
+            Hits globalHits = globalSearcher.search(query);
+            processGlobalHits(dh, globalHits, globalSecuritySearchText);
+          } else {
+            buildGlobalMap(dh, globalIndexReader);
+          }          
         }
       }
       
@@ -764,6 +782,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     String globalLabName             = doc.get(GlobalIndexHelper.LAB_NAME) != null ? doc.get(GlobalIndexHelper.LAB_NAME) : "";
     String globalCodeRequestCategory = doc.get(GlobalIndexHelper.CODE_REQUEST_CATEGORY) != null ? doc.get(GlobalIndexHelper.CODE_REQUEST_CATEGORY) : "";
     String globalClassName           = doc.get(GlobalIndexHelper.PROTOCOL_CLASS_NAME) != null ? doc.get(GlobalIndexHelper.PROTOCOL_CLASS_NAME) : "";
+    String globalProjectId           = doc.get(GlobalIndexHelper.ID_PROJECT) != null ? doc.get(GlobalIndexHelper.ID_PROJECT) : "";
     
     String icon = "";
     String objectTypeDisplayName = "";
@@ -792,7 +811,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       } else {
         icon = "assets/error.png";
       }
-      objectTypeDisplayName = globalObjectType;
+      objectTypeDisplayName = cat.getRequestCategory();
     } 
     Element node = new Element("Global");
     node.setAttribute("objectType",        globalObjectType);
@@ -805,6 +824,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("icon",              icon);
     node.setAttribute("objectTypeDisplay", objectTypeDisplayName);
     node.setAttribute("className",         globalClassName);
+    node.setAttribute("idProject",         globalProjectId);
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());
       node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
@@ -1599,6 +1619,38 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
   }
   
+  private String buildGlobalSecuritySearch() throws Exception {
+    boolean scopeToGroup = true;
+    if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
+      scopeToGroup = false;
+    }
+    
+    
+    StringBuffer searchText = new StringBuffer();
+    
+    
+    boolean addedFilter = this.getSecAdvisor().buildLuceneSecurityFilter(searchText, 
+                                                                    GlobalIndexHelper.ID_LAB,
+                                                                    GlobalIndexHelper.ID_INSTITUTION,
+                                                                    GlobalIndexHelper.ID_CORE_FACILITY,
+                                                                    GlobalIndexHelper.ID_PROJECT_CORE_FACILITY,
+                                                                    GlobalIndexHelper.COLLABORATORS,
+                                                                    GlobalIndexHelper.ID_APPUSER,
+                                                                    GlobalIndexHelper.CODE_VISIBILITY,
+                                                                    scopeToGroup,
+                                                                    GlobalIndexHelper.ID_LAB_FOLDER, 
+                                                                    GlobalIndexHelper.ID + ":unknown",
+                                                                    true);
+
+   
+    if (addedFilter) {
+      log.debug("Security filter: " + searchText.toString());
+      return searchText.toString();           
+    } else {
+      return null;
+    }
+  }
+  
   private String buildSecuritySearch() throws Exception {
     boolean scopeToGroup = true;
     if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
@@ -1613,12 +1665,14 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     ExperimentIndexHelper.ID_LAB,
                                                                     ExperimentIndexHelper.ID_INSTITUTION,
                                                                     ExperimentIndexHelper.ID_CORE_FACILITY,
+                                                                    ExperimentIndexHelper.ID_PROJECT_CORE_FACILITY,
                                                                     ExperimentIndexHelper.COLLABORATORS,
                                                                     ExperimentIndexHelper.ID_APPUSER,
                                                                     ExperimentIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
                                                                     ExperimentIndexHelper.ID_LAB_PROJECT, 
-                                                                    ExperimentIndexHelper.ID_REQUEST + ":unknown" );
+                                                                    ExperimentIndexHelper.ID_REQUEST + ":unknown",
+                                                                    false);
 
    
     if (addedFilter) {
@@ -1642,12 +1696,14 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     AnalysisIndexHelper.ID_LAB,
                                                                     AnalysisIndexHelper.ID_INSTITUTION,
                                                                     null,
+                                                                    null,
                                                                     AnalysisIndexHelper.COLLABORATORS,
                                                                     AnalysisIndexHelper.ID_APPUSER,
                                                                     AnalysisIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
                                                                     AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, 
-                                                                    AnalysisIndexHelper.ID_ANALYSIS + ":unknown" );
+                                                                    AnalysisIndexHelper.ID_ANALYSIS + ":unknown",
+                                                                    false);
 
     
     if (addedFilter) {
@@ -1671,12 +1727,14 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     DataTrackIndexHelper.ID_LAB,
                                                                     DataTrackIndexHelper.ID_INSTITUTION,
                                                                     null,
+                                                                    null,
                                                                     DataTrackIndexHelper.COLLABORATORS,
                                                                     DataTrackIndexHelper.ID_APPUSER,
                                                                     DataTrackIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
                                                                     DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, 
-                                                                    DataTrackIndexHelper.ID_DATATRACK + ":unknown" );
+                                                                    DataTrackIndexHelper.ID_DATATRACK + ":unknown",
+                                                                    false);
 
     
     if (addedFilter) {
@@ -1701,11 +1759,13 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     TopicIndexHelper.ID_INSTITUTION,
                                                                     null,
                                                                     null,
+                                                                    null,
                                                                     TopicIndexHelper.ID_APPUSER,
                                                                     TopicIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
                                                                     null, 
-                                                                    TopicIndexHelper.ID_TOPIC + ":unknown" );
+                                                                    TopicIndexHelper.ID_TOPIC + ":unknown",
+                                                                    false);
 
     
     if (addedFilter) {

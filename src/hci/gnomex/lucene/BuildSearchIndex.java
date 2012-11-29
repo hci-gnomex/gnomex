@@ -80,6 +80,7 @@ public class BuildSearchIndex extends DetailObject {
   private Map datatrackAnnotationMap;
   private Map<Integer, DataTrackFolderPath> dataTrackFolderMap;
   private Map topicMap;
+  private Map<Integer, List<Integer>> labCoreFacilityMap;
   
   
 
@@ -205,6 +206,9 @@ public class BuildSearchIndex extends DetailObject {
     
     // Get collaborators 
     getRequestCollaborators(sess);
+    
+    // Get core facilities for labs
+    getLabCoreFacilities(sess);
     
     //
     // Write Experiment Lucene Index.
@@ -958,6 +962,29 @@ public class BuildSearchIndex extends DetailObject {
     }   
   }
   
+  private void getLabCoreFacilities(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT l.idLab, ");
+    buf.append("       c.idCoreFacility ");
+    buf.append("FROM   Lab l ");
+    buf.append("JOIN   l.coreFacilities as c ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    this.labCoreFacilityMap = new HashMap<Integer, List<Integer>>();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idLab = (Integer)row[0];
+      
+      List<Integer> rows = labCoreFacilityMap.get(idLab);
+      if (rows == null) {
+        rows = new ArrayList<Integer>();
+        labCoreFacilityMap.put(idLab, rows);
+      }
+      rows.add((Integer)row[1]);
+    }   
+  }
+  
   private void getAnalysisCollaborators(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT a.idAnalysis, ");
@@ -1191,8 +1218,8 @@ public class BuildSearchIndex extends DetailObject {
     Integer      idInstitution = null;
     String       experimentName = null;
     Integer      idCoreFacility = null;
-    
-    
+    String       idProjectCoreFacility = null;
+
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
       Object[] row = (Object[])i1.next();
       
@@ -1449,6 +1476,18 @@ public class BuildSearchIndex extends DetailObject {
       }
     } 
     
+    // Obtain core facility ids for the project lab
+    StringBuffer idProjectCoreFacilityBuf = new StringBuffer();
+    if (idLabProject != null) {
+      List<Integer> facilities = this.labCoreFacilityMap.get(idLabProject);
+      if (facilities != null) {
+        for(Integer f:facilities) {
+          idProjectCoreFacilityBuf.append(f.toString()).append(" ");
+        }
+      }
+    }
+    idProjectCoreFacility = idProjectCoreFacilityBuf.toString();
+    
     /* RC_8.2
     // Get the current request (if applicable) to obtain the list of topics it belongs to
     StringBuffer requestTopics = new StringBuffer();
@@ -1596,6 +1635,8 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_ANNOTATIONS, projectAnnotations.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, codeExperimentDesigns.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS, codeExperimentFactors.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.ID_PROJECT_CORE_FACILITY, idProjectCoreFacility);
+    
     // Output the annotation properties.
     for(Iterator i = sampleAnnotationsByProperty.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
@@ -1611,27 +1652,36 @@ public class BuildSearchIndex extends DetailObject {
     Map globalNonIndexedFieldMap = new HashMap();
     Map globalIndexedFieldMap = new HashMap();
     if (requestCategory == null || requestCategory.length() == 0) {
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROJECT_FOLDER);
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idProject.toString());
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, projectName);
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");
       
+      globalIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROJECT_FOLDER);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID, "unknown");
+      globalIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");
       globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLabProject != null ? idLabProject.toString() : null);
       globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, "");
       globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME, labProject != null ? labProject : "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_PROJECT, idProject.toString());
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, idLabProject != null ? idLabProject.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_PROJECT_CORE_FACILITY, idProjectCoreFacility);
       globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, text.toString());
     } else {
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, requestCategory);
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idRequest != null ? idRequest.toString() : "unknown");
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, requestNumber != null ? requestNumber : "");
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, experimentName != null ? experimentName : "");
-      globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");
       globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_REQUEST_CATEGORY, codeRequestCategory);
       
+      globalIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, requestCategory);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID, idRequest != null ? idRequest.toString() : "unknown");
       globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLabRequest != null ? idLabRequest.toString() : null);
       globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, globalIdOrganism != null ? globalIdOrganism : "");
       globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME, labRequest != null ? labRequest : "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, requestCodeVisibility != null ? requestCodeVisibility : "");
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_INSTITUTION, idInstitution !=  null ? idInstitution.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_CORE_FACILITY, idCoreFacility != null ? idCoreFacility.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, idLabProject != null ? idLabProject.toString() : null);
+      globalIndexedFieldMap.put(GlobalIndexHelper.ID_PROJECT_CORE_FACILITY, idProjectCoreFacility);
       globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, text.toString());
       
     }
@@ -1667,16 +1717,16 @@ public class BuildSearchIndex extends DetailObject {
     
     Map globalNonIndexedFieldMap = new HashMap();
     Map globalIndexedFieldMap = new HashMap();
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROTOCOL);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idProtocol.toString());
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, "");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.PROTOCOL_CLASS_NAME, className);
     
+    globalIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.PROTOCOL);
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID, idProtocol.toString());
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, "g1");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, "g1");
     globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,"");
+    globalIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, "");
     globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, name + " " + description);
     
     Document globalDoc = new Document();
@@ -1895,15 +1945,19 @@ public class BuildSearchIndex extends DetailObject {
     
     Map globalNonIndexedFieldMap = new HashMap();
     Map globalIndexedFieldMap = new HashMap();
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.ANALYSIS);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idAnalysis != null ? idAnalysis.toString() : "");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, number);
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
     
+    globalIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.ANALYSIS);
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID, idAnalysis != null ? idAnalysis.toString() : "unknown");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, idOrganism != null ? idOrganism.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,labName != null ? labName : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, agIdLab.toString());
     globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
     
     Document globalDoc = new Document();
@@ -2119,22 +2173,25 @@ public class BuildSearchIndex extends DetailObject {
     
     Map globalNonIndexedFieldMap = new HashMap();
     Map globalIndexedFieldMap = new HashMap();
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.DATA_TRACK);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idDataTrack != null ? idDataTrack.toString() : "unknown");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, fileName);
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
     
+    globalIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.DATA_TRACK);
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID, idDataTrack != null ? idDataTrack.toString() : "unknown");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, idOrganism != null ? idOrganism.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,labName != null ? labName : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, dtfIdLab == null ? "" : dtfIdLab.toString());
     globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
     
     Document globalDoc = new Document();
     GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
     globalIndexWriter.addDocument(globalDoc);
   }
-  
 
   private void buildTopicDocument(IndexWriter topicIndexWriter, Integer idTopic, Object[] row) throws IOException {
     
@@ -2188,22 +2245,23 @@ public class BuildSearchIndex extends DetailObject {
     
     Map globalNonIndexedFieldMap = new HashMap();
     Map globalIndexedFieldMap = new HashMap();
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.TOPIC);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.ID, idTopic != null ? idTopic.toString() : "unknown");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, topicName);
-    globalNonIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
     
+    globalIndexedFieldMap.put(GlobalIndexHelper.OBJECT_TYPE, GlobalIndexHelper.TOPIC);
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID, idTopic != null ? idTopic.toString() : "unknown");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_ORGANISM, "g1");
     globalIndexedFieldMap.put(GlobalIndexHelper.LAB_NAME,labName != null ? labName : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
     
     Document globalDoc = new Document();
     GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
     globalIndexWriter.addDocument(globalDoc);
   }
-
   
   // Bypassed dtd validation when reading data sources.
   public class DummyEntityRes implements EntityResolver
