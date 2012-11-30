@@ -44,15 +44,16 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.validators.NumberValidator;
-        import mx.events.ValidationResultEvent;
         import mx.collections.ArrayCollection;
         import mx.collections.XMLListCollection;
-        import mx.rpc.events.FaultEvent; 
-        import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
+        import mx.events.ValidationResultEvent;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.validators.NumberValidator;
+        
         import views.renderers.ComboBoxWorkflowStatus;
         
         [Bindable]
@@ -66,11 +67,21 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
+			
+		private var worklistFilterType:String = "";
         
         private function refreshWorkList():void {
         	dirty.resetDirty();
         	getWorkListQC.send();
         }
+			
+		public function setWorklistFilter(filterType:String, windowTitle:String):void {
+			titleLabel.text = windowTitle;
+			worklistFilterType = filterType;
+			workList.filterFunction = filterWorkListByExpType;
+			requestNumberCombo.selectedIndex = 0;
+			workList.refresh();
+		}
  
 		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
 			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
@@ -223,10 +234,18 @@
         	}        	
         	return keep;
         }
-        
 
-           
-
+		private function filterWorkListByExpType(item:Object):Boolean {
+			var keep:Boolean = true;
+			if(worklistFilterType.length > 0) {
+				keep = false;
+				if (item.@codeStepNext == worklistFilterType) {
+					keep = true;
+				}				
+			}        	
+			return keep;
+		}
+			
         ]]>
     </mx:Script> 
     
