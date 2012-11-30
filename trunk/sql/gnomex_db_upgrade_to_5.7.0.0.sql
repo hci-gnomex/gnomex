@@ -48,3 +48,66 @@ INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, 
 ('das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N');
 
 
+-- Change foreign key constraint rules so that we delete associations between the appropriate tables in
+-- order to avoid foreign key constraint violations when deleting protocols from the protocol view.
+ALTER TABLE Analysis DROP CONSTRAINT FK_Analysis_AnalysisProtocol;
+alter table Analysis add constraint FK_Analysis_AnalysisProtocol 
+    foreign key (idAnalysisProtocol) references AnalysisProtocol(idAnalysisProtocol) on delete set null;   
+        
+ALTER TABLE Sample DROP CONSTRAINT FK_Sample_SeqLibProtocol;
+alter table Sample add constraint FK_Sample_SeqLibProtocol 
+    foreign key (idSeqLibProtocol) references SeqLibProtocol(idSeqLibProtocol) on delete set null;
+    
+ALTER TABLE SeqLibProtocolApplication DROP CONSTRAINT FK_SeqLibProtocolApplication_SeqLibProtocol;
+alter table SeqLibProtocolApplication add constraint FK_SeqLibProtocolApplication_SeqLibProtocol 
+    foreign key (idSeqLibProtocol) references SeqLibProtocol(idSeqLibProtocol) on delete cascade;          
+     
+ALTER TABLE Hybridization DROP CONSTRAINT FK_Hybridization_ScanProtocol;
+alter table Hybridization add constraint FK_Hybridization_ScanProtocol 
+    foreign key (idScanProtocol) references ScanProtocol(idScanProtocol) on delete set null; 
+    
+ALTER TABLE RequestCategoryApplication DROP CONSTRAINT FK_RequestCategoryApplication_ScanProtocol;
+alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_ScanProtocol 
+    foreign key (idScanProtocolDefault) references ScanProtocol(idScanProtocol) on delete set null;
+
+ALTER TABLE SampleTypeApplication DROP CONSTRAINT FK_SampleTypeMicroarrayCategory_ScanProtocol;
+alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_ScanProtocol 
+    foreign key (idScanProtocolDefault) references ScanProtocol(idScanProtocol) on delete set null;
+    
+ALTER TABLE LabeledSample DROP CONSTRAINT FK_LabeledSample_LabelingProtocol;
+alter table LabeledSample add constraint FK_LabeledSample_LabelingProtocol 
+    foreign key (idLabelingProtocol) references LabelingProtocol(idLabelingProtocol) on delete set null;
+    
+ALTER TABLE RequestCategoryApplication DROP CONSTRAINT FK_RequestCategoryApplication_LabelingProtocol;
+alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_LabelingProtocol 
+    foreign key (idLabelingProtocolDefault) references LabelingProtocol(idLabelingProtocol) on delete set null;
+
+ALTER TABLE SampleTypeApplication DROP CONSTRAINT FK_SampleTypeMicroarrayCategory_LabelingProtocol;
+alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_LabelingProtocol 
+    foreign key (idLabelingProtocolDefault) references LabelingProtocol(idLabelingProtocol) on delete set null;
+    
+ALTER TABLE SampleTypeApplication DROP CONSTRAINT FK_SampleTypeMicroarrayCategory_HybProtocol;
+alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_HybProtocol 
+    foreign key (idHybProtocolDefault) references HybProtocol(idHybProtocol) on delete set null;
+    
+ALTER TABLE RequestCategoryApplication DROP CONSTRAINT FK_RequestCategoryApplication_HybProtocol;
+alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_HybProtocol 
+    foreign key (idHybProtocolDefault) references HybProtocol(idHybProtocol) on delete set null;
+      
+ALTER TABLE Hybridization DROP CONSTRAINT FK_Hybridization_HybProtocol;
+alter table Hybridization add constraint FK_Hybridization_HybProtocol 
+    foreign key (idHybProtocol) references HybProtocol(idHybProtocol) on delete set null;
+    
+ALTER TABLE Hybridization DROP CONSTRAINT FK_Hybridization_FeatureExtractionProtocol;
+alter table Hybridization add constraint FK_Hybridization_FeatureExtractionProtocol 
+    foreign key (idFeatureExtractionProtocol) references FeatureExtractionProtocol(idFeatureExtractionProtocol) on delete set null;                                      
+    
+ALTER TABLE RequestCategoryApplication DROP CONSTRAINT FK_RequestCategoryApplication_FeatureExtractionProtocol;
+alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_FeatureExtractionProtocol 
+    foreign key (idFeatureExtractionProtocolDefault) references FeatureExtractionProtocol(idFeatureExtractionProtocol) on delete set null;    
+    
+ ALTER TABLE SampleTypeApplication DROP CONSTRAINT FK_SampleTypeMicroarrayCategory_FeatureExtractionProtocol;
+alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_FeatureExtractionProtocol 
+    foreign key (idFeatureExtractionProtocolDefault) references FeatureExtractionProtocol(idFeatureExtractionProtocol) on delete set null;
+
+
