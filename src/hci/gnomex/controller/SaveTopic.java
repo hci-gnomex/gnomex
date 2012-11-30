@@ -200,16 +200,9 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         }
       }
     } else {
-      // A child topic must belong to the same group as the parent.
-      if (topic.getParentTopic() != null &&
-          topic.getParentTopic().getIdLab() != null) {
-
-        if (load.getIdLab() == null ||
-            !topic.getParentTopic().getIdLab().equals(load.getIdLab())) {
-          throw new Exception("Topic '" + load.getName() + "' must belong to group '" + 
-              DictionaryHelper.getInstance(sess).getLabObject(topic.getParentTopic().getIdLab()).getName() + "'");
-        }
-      } 
+      if (load.getIdLab() == null) {
+        throw new Exception("Please assign this topic to a lab.");
+      }
     }
   }  
 }

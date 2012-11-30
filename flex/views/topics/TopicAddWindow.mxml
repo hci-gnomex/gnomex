@@ -166,11 +166,6 @@
 			return;        		
 		} 
 		var selectedIdLab:String = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
-		if(parentTopic != null && parentTopic.@idLab != selectedIdLab) {
-			ownerCombo.setFocus();
-			Alert.show("Lab for child topic must be the same as its parent (" + parentTopic.@lab + ")");
-			return;  			
-		}
 		var params:Object = new Object();
 		params.idParentTopic      	  = idParentTopic;
 		params.name                   = this.topicName.text;
