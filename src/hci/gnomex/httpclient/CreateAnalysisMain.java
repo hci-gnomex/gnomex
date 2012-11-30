@@ -43,6 +43,7 @@ public class CreateAnalysisMain {
   private String propertiesFileName = "/properties/gnomex_httpclient.properties";
   private boolean debug = false;
   private String server;
+  private String serverURL;
   private String lab;
   private String organism;
   private String genomeBuild;
@@ -74,6 +75,8 @@ public class CreateAnalysisMain {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
+      } else if (args[i].equals("-serverURL")) {
+        serverURL = args[++i];
       } else if (args[i].equals("-lab")) {
         lab = args[++i];
       } else if (args[i].equals("-genomeBuild")) {
@@ -151,12 +154,20 @@ public class CreateAnalysisMain {
         throw new Exception("Please specify all mandatory arguments.  See command line usage.");
       }
       
+      if (server == null && serverURL == null) {
+        this.printUsage();
+        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+      }
+      
       trustCerts(); 
       
       //
       // Login using forms based authentication
       //
-      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
+      if (serverURL == null) {
+        serverURL = (server.equals("localhost") ? "http://" : "https://") + server;
+      }
+      URL url = new URL(serverURL + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
       URLConnection conn = url.openConnection();
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
@@ -177,7 +188,7 @@ public class CreateAnalysisMain {
       //
       // Create a security advisor
       //
-      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
+      url = new URL(serverURL + "/gnomex/CreateSecurityAdvisor.gx");
       conn = url.openConnection();
       for (String cookie : cookies) {
         conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
@@ -223,7 +234,7 @@ public class CreateAnalysisMain {
 
       success = false;
       outputXML = new StringBuffer();
-      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/SaveAnalysis.gx");
+      url = new URL(serverURL + "/gnomex/SaveAnalysis.gx");
       conn = url.openConnection();
       conn.setDoOutput(true);
       for (String cookie : cookies) {
