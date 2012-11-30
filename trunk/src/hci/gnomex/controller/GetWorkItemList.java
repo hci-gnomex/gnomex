@@ -313,6 +313,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
             } else {
               experimentType = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", n.getAttributeValue("qualCodeBioanalyzerChipType"));
+              if(experimentType == null || experimentType.length()==0) {
+                // If nothing in BioanalyzerChipType then use RequestCategory so the column isn't blank
+                experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
+              }
             }
             n.setAttribute("experimentType", experimentType == null ? "" : experimentType);
             
