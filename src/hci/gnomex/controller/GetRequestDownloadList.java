@@ -607,6 +607,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       Element childFdNode = childFd.toXMLDocument(null, childFd.DATE_OUTPUT_ALTIO).getRootElement();
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
+      childFdNode.setAttribute( "dir", fdNode.getAttributeValue( "displayName" ) != null ? fdNode.getAttributeValue( "displayName" ) : "" );
 
       childFdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
       childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
