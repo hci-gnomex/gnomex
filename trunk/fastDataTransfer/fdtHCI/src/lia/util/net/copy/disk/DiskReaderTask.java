@@ -98,7 +98,7 @@ public class DiskReaderTask extends GenericDiskTask {
     private void logToAppLogger(FileSession fileSession) {
       if (FDT.config.getAppLogger() != null && !FDT.config.getAppLogger().equals("")) {
         try {
-          SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+          SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS a");
           Process process = Runtime.getRuntime().exec( new String[] { "/bin/sh", FDT.config.getAppLogger(), 
               "-fileName", fileSession.getFile().getAbsolutePath(), 
               "-type", "download",
