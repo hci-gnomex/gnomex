@@ -457,6 +457,7 @@
 			<url-pattern>GetPrice*.gx</url-pattern>
 			<url-pattern>GetPricing*.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
+			<url-pattern>GetExperimentOverviewList.gx</url-pattern>
 			<url-pattern>GetUsageData.gx</url-pattern>
 			<url-pattern>GetUsageDetail.gx</url-pattern>
 			<url-pattern>LinkDataTrackFile.gx</url-pattern>

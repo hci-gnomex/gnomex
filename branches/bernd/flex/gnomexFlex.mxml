@@ -19,6 +19,7 @@
 	xmlns:billing="views.billing.*"
 	xmlns:util="views.util.*"
 	xmlns:login="views.login.*"
+	xmlns:reporting="views.reporting.*"
 	xmlns:report="views.report.*"
 	paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
 	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF">
@@ -2722,6 +2723,8 @@
 				theViews.selectedChild = navDataView;
 			} else if (label == "Submit Work Auth") {
 				this.homeView.showWorkAuthForm();				
+			} else if (label == "Experiment Overview") {
+				theViews.selectedChild = experimentOverview;
 			}
 		
 		
@@ -2776,6 +2779,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="Experiment Overview" icon="iconFlask" />
 		</menuitem>
 
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -2940,6 +2944,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="Experiment Overview" icon="iconFlask" />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -3127,6 +3132,9 @@
 						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 						</util:WelcomeView>  
 			
+						<reporting:ExperimentOverview id="experimentOverview" width="100%" height="100%" backgroundAlpha="1.0">
+						</reporting:ExperimentOverview>	
+						
 					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 			            </experiment:ExperimentEditView>

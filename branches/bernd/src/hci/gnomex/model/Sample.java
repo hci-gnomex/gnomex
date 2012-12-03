@@ -75,6 +75,12 @@ public class Sample extends HibernateDetailObject {
   private Set         labeledSamples;
   private Set         wells;
   
+  // Bernd added
+  private SequenceLane	sequenceLane;
+  private WorkItem		workitem;
+  
+  
+  
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
   private String      idSampleString;  // a non-persistent variable used for estimated billing charges
@@ -752,4 +758,22 @@ public class Sample extends HibernateDetailObject {
     return rxnPlateNames;
     
   }
+
+  // Bernd added
+  
+public SequenceLane getSequenceLane() {
+	return sequenceLane;
+}
+
+public void setSequenceLane(SequenceLane sequenceLane) {
+	this.sequenceLane = sequenceLane;
+}
+
+public WorkItem getWorkitem() {
+	return workitem;
+}
+
+public void setWorkitem(WorkItem workitem) {
+	this.workitem = workitem;
+}
 }

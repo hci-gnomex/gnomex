@@ -10,7 +10,7 @@
 
 	    
   <Resource auth="Container" 
-    mail.smtp.host="yourmailserver.someplace.somewhere.edu" 
+    mail.smtp.host="smtp.nki.nl" 
     name="mail/MailSession" 
     type="javax.mail.Session"/>
 

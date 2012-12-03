@@ -83,6 +83,9 @@ public class Request extends HibernateDetailObject {
   private Integer         idSubmitter;
   private AppUser         submitter;
   
+  // Bernd added
+  private Application	  application;
+  
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
@@ -1193,5 +1196,13 @@ public class Request extends HibernateDetailObject {
     }
     return redoSamples.toString();
   }
+  
+  // Bernd added
+public Application getApplication() {
+	return application;
+}
+public void setApplication(Application application) {
+	this.application = application;
+}
   
 }

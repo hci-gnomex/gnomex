@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<mx:Canvas styleName="panelNotificationBar"  xmlns:mx="http://www.adobe.com/2006/mxml"   
+		   xmlns:util="views.util.*"
+		   xmlns:views="views.*" 
+		   xmlns:workflow="views.workflow.*"  
+		   xmlns:WorkflowView="WorkflowView.*" 
+		   creationPolicy="all" 
+		   creationComplete="init()"
+		   width="600" height="400"
+		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off">
+	
+	<mx:HTTPService 
+		id="getWorkList" 
+		url="GetWorkItemList.gx"
+		resultFormat="e4x"
+		destination="getWorkList"
+		showBusyCursor="true"
+		result="onGetWorkList(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
+		useProxy="false">
+		<mx:request>
+			<codeStepNext>{codeStepNext}</codeStepNext>
+		</mx:request>
+	</mx:HTTPService >
+
+	
+	<!--
+		Create additional controller to query and process the getWorkItemList calls more effectively.
+		Generate one single query that returns the results in a similar fashion as a concurrent service call to getWorkItemList.gx does.
+		
+	-->
+		
+	<mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.dictionary.DictionaryEditor;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.LinkButton;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.admin.PropertyEvent;
+			import views.admin.PropertyWindow;
+			import views.workflow.NavWorkflowView;
+			
+			[Bindable]
+			public var codeStepNext:String; 
+			
+			[Bindable]
+			public var requestNumbers:ArrayCollection;
+			
+			[Bindable]
+			public var requestNumberCount:int = 0;
+			
+			[Bindable]
+			private var worklist:XMLList;		
+			
+			private var steps:Array = new Array('HSEQPREP','HSEQASSEM','HSEQPIPE','MISEQQC','MISEQPREP','MISEQASSEM','MISEQPIPE','SEQQC','SEQPREP','SEQASSEM','SEQPIPE','QC','LABEL','HYB','EXT');
+			
+			[Bindable]
+			public var stepsCalcPre:Object = new Object();				
+			
+			[Bindable]
+			public var stepsCalcPost:Object = new Object();
+			
+			[Bindable]
+			public var stepsNumExpPre:Object = new Object();
+		
+			[Bindable]
+			public var stepsNumExpPost:Object = new Object();
+			
+			public function init():void {
+				codeStepNext = "HSEQQC";
+				getWorkList.send();
+			}
+ 
+			private function onGetWorkList(event:ResultEvent):void {
+				if (event.result.name() == "WorkItemList") {
+					worklist = getWorkList.lastResult..WorkItem;
+					refreshRequestNumbers();
+					// Save worklist length (total amount of samples in list for workflow step codeStepNext)
+					stepsCalcPre[codeStepNext] = worklist.length();
+					
+					if (steps.length > 0) {
+						codeStepNext = steps[0];
+						steps.shift();
+						var params:Object = new Object();
+						params.codeStepNext = codeStepNext;
+						getWorkList.send(params);
+						
+					}else{
+						// Copy Arrays for data binding.
+						stepsNumExpPost = stepsNumExpPre;
+						stepsCalcPost = stepsCalcPre;
+						
+						// Cleaning up a bit.
+						stepsCalcPre = null;
+						stepsNumExpPre = null;
+					}
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
+				}
+			}
+			
+			private function refreshRequestNumbers():void {
+				requestNumbers = new ArrayCollection();
+				var blankItem:Object = new Object();
+				blankItem.data = "";
+				blankItem.label = "";
+				requestNumbers.addItem(blankItem);
+				
+				for(var x:Number = 0; x < workList.length; x++) {
+					var item:Object = workList.getItemAt(x, 0);
+					
+					var found:Boolean = false;
+					for(var i:Number = 0; i < requestNumbers.length; i++) {
+						if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						var newItem:Object = new Object();
+						newItem.data = item.@requestNumber;
+						newItem.label = item.@requestNumber;
+						requestNumbers.addItem(newItem);
+					}
+				}
+				
+				if(requestNumbers.length != 0){
+					requestNumberCount = requestNumbers.length - 1;
+				}else{
+					requestNumberCount = 0;
+				}
+				stepsNumExpPre[codeStepNext] = requestNumberCount;
+			}
+			
+		]]> 
+	</mx:Script>
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@isActive == 'Y')}" />
+	
+	<mx:HBox id="NotifyMainHBox" visible="true">
+	
+		<mx:VBox id="vNotificationBar" 
+				 visible="true" 
+				 width="600" height="400" borderStyle="none"
+				 cornerRadius="7" 
+				 horizontalAlign="center" horizontalGap="6" horizontalScrollPolicy="off" 
+				 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
+				 styleName="customLinkBar"
+				 verticalAlign="middle">
+			<mx:HBox id="notifyIconBox" width="700" horizontalAlign="center">
+	
+			<!--	<mx:Image height="18" source="assets/exclamation.png"/>
+				<mx:Label id="notifyMainLabel" enabled="true" fontSize="16" fontStyle="italic"
+						  fontWeight="bold" text="Notifications" visible="true" /> -->
+			</mx:HBox>
+	
+			<mx:HBox id="notifyCoreContainer" visible="true">
+				<mx:HDividedBox width="16" />
+				
+				<mx:Image source="assets/house_go.png"/>
+				<mx:Label id="notifyCoreLabel" enabled="true" fontSize="10" fontStyle="normal"
+						  fontWeight="bold" text="Core Facility: "
+						  textDecoration="none" />
+				<mx:ComboBox id="notifyCoreCombo" height="19" dataProvider="{coreFacilities}" labelField="@display" visible="{coreFacilities.length-1 >= 2 ? true : false}" includeInLayout="{coreFacilities.length-1 >= 2 ? true : false}" selectedIndex="1" />
+				
+				<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(1).@display}" visible="{coreFacilities.length-1 &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length-1 &lt; 2 ? true : false}" />
+			</mx:HBox>
+			
+			<mx:HDividedBox width="16" height="7" alpha="0"  />
+			<mx:HBox id="notifyHeaderLabels" visible="true">
+				<mx:HDividedBox width="145" />
+				
+				<mx:Label id="headerQCLabel" styleName="dashboardButton" text="QC"/>
+				<mx:HDividedBox width="5" />
+				<mx:VRule height="20" />
+
+				<mx:Label id="headerLibPrepLabel" styleName="dashboardButton" text="Lib Prep."/>
+
+				<mx:VRule height="20" />
+				<mx:Label id="headerSeqRunLabel" styleName="dashboardButton" text="Seq Run Setup" />
+
+				<mx:VRule height="20" />
+				<mx:Label id="headerPipeLabel" styleName="dashboardButton" text="Pipeline" />
+			</mx:HBox>
+
+			<mx:HBox>
+				<mx:HDividedBox width="16" height="1" alpha="0"  />
+				<mx:HRule width="450" id="HRule01"/>
+			</mx:HBox>
+			
+			<mx:HDividedBox width="16" height="3" alpha="0"  />
+			
+			<mx:HBox horizontalAlign="left"> <!-- Start of notification box --> 
+			
+				<mx:VBox id="rowHeaderLabelsSEQ" visible="true">
+
+					<mx:HBox>
+						<mx:HDividedBox width="16" />
+						
+						<mx:Image source="assets/DNA_diag_lightening.png" click="init()"/>
+						<mx:Label id="notifyHSEQLabel" enabled="true" fontSize="10" fontStyle="normal"
+								  fontWeight="bold" text="HiSeq2000"
+								  textDecoration="none" />
+					</mx:HBox>
+					<mx:VDividedBox height="2" />
+					
+					<mx:HBox>
+						<mx:HDividedBox width="16" />
+						
+						<mx:Image source="assets/DNA_diag_miseq.png"/>
+						<mx:Label id="notifyMSEQLabel" width="72" enabled="true" fontSize="10"
+								  fontStyle="normal" fontWeight="bold" text="MiSeq" textDecoration="none"/>
+					</mx:HBox>
+					<mx:VDividedBox height="1" />
+					
+					<mx:HBox>
+						<mx:HDividedBox width="16" />
+						
+						<mx:Image source="assets/DNA_diag.png" />
+						<mx:Label id="notifyGALabel" width="72" enabled="true" fontSize="10"
+								  fontStyle="normal" fontWeight="bold" text="GAIIx" textDecoration="none"/>
+					</mx:HBox>
+
+				</mx:VBox>
+				<mx:HDividedBox width="7" />
+				
+				<mx:VBox id="QCbox">
+					<mx:LinkButton id="HlbQC" label="{stepsCalcPost['HSEQQC']} ({stepsNumExpPost['HSEQQC']})" click="{parentApplication.externalViewSwitch('HSEQQC')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="MlbQC" label="{stepsCalcPost['MISEQQC']} ({stepsNumExpPost['MISEQQC']})" click="{parentApplication.externalViewSwitch('MISEQQC')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="SlbQC" label="{stepsCalcPost['SEQQC']} ({stepsNumExpPost['SEQQC']})" click="{parentApplication.externalViewSwitch('SEQQC')}" >
+					</mx:LinkButton>
+				</mx:VBox>
+				<mx:HDividedBox width="13" />
+				<mx:VBox id="PREPbox">
+					<mx:LinkButton id="HlbLib" label="{stepsCalcPost['HSEQPREP']} ({stepsNumExpPost['HSEQPREP']})" click="{parentApplication.externalViewSwitch('HSEQPREP')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="MlbLib" label="{stepsCalcPost['MISEQPREP']} ({stepsNumExpPost['MISEQPREP']})" click="{parentApplication.externalViewSwitch('MISEQPREP')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="SlbLib" label="{stepsCalcPost['SEQPREP']} ({stepsNumExpPost['SEQPREP']})" click="{parentApplication.externalViewSwitch('SEQPREP')}" >
+					</mx:LinkButton>
+				</mx:VBox>
+				<mx:HDividedBox width="41" />
+				
+				<mx:VBox id="ASSEMbox">
+					<mx:LinkButton id="HlbSeq" label="{stepsCalcPost['HSEQASSEM']}" click="{parentApplication.externalViewSwitch('HSEQASSEM')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="MlbSeq" label="{stepsCalcPost['MISEQASSEM']}" click="{parentApplication.externalViewSwitch('MISEQASSEM')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="SlbSeq" label="{stepsCalcPost['SEQASSEM']}" click="{parentApplication.externalViewSwitch('SEQASSEM')}" >
+					</mx:LinkButton>
+				</mx:VBox>
+				<mx:HDividedBox width="60" />
+				<mx:VBox id="PIPEbox">
+					<mx:LinkButton id="HlbPipe" label="{stepsCalcPost['HSEQPIPE']}" click="{parentApplication.externalViewSwitch('HSEQPIPE')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="MlbPipe" label="{stepsCalcPost['MISEQPIPE']}" click="{parentApplication.externalViewSwitch('MISEQPIPE')}" >
+					</mx:LinkButton>
+					<mx:LinkButton id="SlbPipe" label="{stepsCalcPost['SEQPIPE']}" click="{parentApplication.externalViewSwitch('SEQPIPE')}" >
+					</mx:LinkButton>
+				</mx:VBox>
+			</mx:HBox> <!-- End of notification box -->
+				
+			
+		<mx:HDividedBox width="16" height="7" alpha="0"  />
+			<mx:HBox id="notifyHeaderMALabels" visible="true">
+				<mx:HDividedBox width="145" />
+				
+				<mx:Label id="headerQCMALabel" styleName="dashboardButton" text="QC"/>
+				<mx:HDividedBox width="5" />
+				<mx:VRule height="20" />
+				<mx:Label id="headerLabLabel" styleName="dashboardButton" text="Labeling"/>
+				<mx:VRule height="20" />
+				<mx:Label id="headerHybLabel" styleName="dashboardButton" text="Hybridization" />
+				<mx:VRule height="20" />
+				<mx:Label id="headerScanLabel" styleName="dashboardButton" text="Scan / FF" />
+			</mx:HBox>
+			
+			<mx:HBox>
+				<mx:HDividedBox width="16" height="1" alpha="0"  />
+				<mx:HRule width="450" id="HRule02"/>	
+			</mx:HBox>
+			
+			<mx:HBox horizontalAlign="left"> <!-- Start of notification box --> 
+				
+				<mx:VBox id="rowHeaderLabelsMA" visible="true">
+					<mx:HBox>
+						<mx:HDividedBox width="16" />
+						
+						<mx:Image source="assets/microarray.png"/>
+						<mx:Label id="notifyMALabel" width="72" enabled="true" fontSize="10"
+								  fontStyle="normal" fontWeight="bold" text="Microarray"
+								  textDecoration="none"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:HDividedBox width="7" />
+				<mx:VBox id="QCboxMA">
+					<mx:LinkButton id="MAlbQC" label="{stepsCalcPost['QC']} ({stepsNumExpPost['QC']})" click="{parentApplication.externalViewSwitch('MAQC')}">
+					</mx:LinkButton>
+				</mx:VBox>
+				<mx:HDividedBox width="13" />
+				<mx:VBox id="LABELboxMA">
+					<mx:LinkButton id="MAlbLab" label="{stepsCalcPost['LABEL']} ({stepsNumExpPost['LABEL']})" click="{parentApplication.externalViewSwitch('MALAB')}">
+					</mx:LinkButton>
+				</mx:VBox>
+				<mx:HDividedBox width="27" />
+				<mx:VBox id="HYBboxMA">
+					<mx:LinkButton id="MAlbHyb" label="{stepsCalcPost['HYB']} ({stepsNumExpPost['HYB']})" click="{parentApplication.externalViewSwitch('MAHYB')}">
+					</mx:LinkButton>
+				</mx:VBox>
+				<mx:HDividedBox width="35" />
+				<mx:VBox id="SCANboxMA">
+					<mx:LinkButton id="MAlbScan" label="{stepsCalcPost['EXT']} ({stepsNumExpPost['EXT']})" click="{parentApplication.externalViewSwitch('MAEXT')}">
+					</mx:LinkButton>
+				</mx:VBox>
+				
+			</mx:HBox> <!-- End of notification box -->
+			
+		</mx:VBox>
+
+	</mx:HBox>
+</mx:Canvas>

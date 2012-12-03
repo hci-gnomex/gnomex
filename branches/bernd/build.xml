@@ -345,7 +345,7 @@
 			output="${build.dir}/${flexapp.name}.swf">
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 	        <source-path path-element="${FLEX_HOME}/frameworks"/>
-      		<source-path path-element="${hciflex.dir}"/>
+      		<!--<source-path path-element="${hciflex.dir}"/> -->
 			<compiler.debug>true</compiler.debug>			
 		</mxmlc>
 		<html-wrapper 
@@ -1269,9 +1269,9 @@
 	<!-- project hciFlex2                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-    <target name="refreshHCIFlex" depends="init">
+<!--    <target name="refreshHCIFlex" depends="init"> -->
 		<!-- Copy flex files normally in hciFlex2 directly to gnomex/flex -->
-	    <copy todir="${basedir}/flex">
+<!--	    <copy todir="${basedir}/flex">
 	      <fileset dir="${hciflex.dir}">
 	        <include name="assets/**"/>
 	        <include name="hci/**"/>
@@ -1282,7 +1282,7 @@
 	      </fileset>
 	    </copy>
 		
-	</target>
+	</target> -->
 	
     <!-- ============================================== -->
 	<!--                                                -->
