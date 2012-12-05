@@ -56,7 +56,8 @@
 		 
 <mx:Script>
 	<![CDATA[
-		import flash.events.MouseEvent;		import flash.geom.Point;
+		import flash.events.MouseEvent;
+		import flash.geom.Point;
 		
 		import hci.flex.controls.DropdownLabel;
 		
@@ -110,6 +111,8 @@
 			"Seq Lib Conc. ng/uL",
 			"Seq Lib Prep Status"];
 		
+		private var nameFieldDefault:String = 'enter name here..';
+		
 		[Bindable]
 		private var property:Object;
 		
@@ -154,7 +157,9 @@
 				
 		public function onPropertyRefreshed(event:Event):void {
 			properties.source = null;
-			properties.source = getPropertyList.lastResult..Property;
+			if(getPropertyList.lastResult != null) {
+				properties.source = getPropertyList.lastResult..Property;
+			}
 			properties.filterFunction = filterByAnnotations;
 			properties.refresh();
 			reselectProperty();
@@ -343,11 +348,22 @@
 		}
 			
 		private function addProperty():void {
+			for each(var sc:Object in properties) {
+				var thisPropName:String = StringUtil.trim(sc.@name);
+				thisPropName = thisPropName.toLowerCase();
+				
+				if(nameFieldDefault.toLocaleLowerCase() == thisPropName) {
+					Alert.show('There is already an annotation with the default name ("' 
+						+ nameFieldDefault.toLocaleLowerCase() 
+						+ '"). You must either rename or delete it before creating a new one.');
+					return;
+				}
+			}			
 			theViews.selectedIndex = 0;
 			
 			var params:Object = new Object();
 			params.idProperty = '';
-			params.name = 'enter name here..';
+			params.name = nameFieldDefault;
 			params.isActive = 'Y';
 			params.isRequired = 'N';
 			params.forSample =  "Y";
@@ -436,23 +452,6 @@
 					return;
 				}
 			}
-			
-			/*
-			if(propertyName == "description") {
-				Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
-				return;
-			}
-			
-			if(propertyName == "sample name") {
-				Alert.show("'Sample Name' is a reserved term. Please select a different name for the annotation.");
-				return;
-			}
-			
-			if(propertyName == "organism") {
-				Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
-				return;
-			}
-			*/
 			
 			if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
 				Alert.show("Please choose object the annotation applies to.");
