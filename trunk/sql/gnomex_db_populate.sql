@@ -806,6 +806,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (29,'lucene_protocol_index_directory','/home/gnomex/luceneIndex/Protocol','The file directory for storing lucene index files on protocol data.', 'Y'),
  (30,'experiment_directory','/home/gnomex/experimentData/','The file directory where experiment results are stored. NOTE: must end in /', 'Y'),
  (32,'analysis_directory','/home/gnomex/analysisData/','The file directory where analysis files are stored. NOTE: must end in /', 'Y'),
+ (33,'lucene_global_index_directory','/home/gnomex/luceneIndex/Global/','The file directory for storing lucene index files on combined data for all object types.','Y'),
  (34,'flowcell_directory','/home/gnomex/flowCellData/','The file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
  (35,'flowcell_test_directory','/home/gnomex/flowCellData/','The test file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
  (36,'billing_core_facility_business_unit','','Always blank for open source GNomEx', 'Y'),
