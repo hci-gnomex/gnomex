@@ -2,7 +2,7 @@
 <mx:Text xmlns:mx="http://www.adobe.com/2006/mxml"
 		 implements="mx.controls.listClasses.IDropInListItemRenderer, views.renderers.MultiselectRendererCommonInterface"
 		 toolTip="click to edit…" click="callLater(openPopup)" doubleClickEnabled="true"
-		 text="{txt}">
+		 text="{txt}" fontSize="9">
 	
 	<mx:Script>
 		<![CDATA[
@@ -75,7 +75,7 @@
 					}
 					if (isSelected) {
 						if (txt.length > 0) {
-							txt += ",";
+							txt += MultiselectPopupCommon.DISPLAY_DELIM;
 						}
 						txt += option.@display;
 					}
