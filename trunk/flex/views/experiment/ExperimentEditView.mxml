@@ -1423,7 +1423,7 @@
 					keep = false;
 					var reqCategory:Object = this.getRequestCategory();
 					if (reqCategory != null) {
-						for each(var pa:XML in property.descendants("PlatformApplication")) {
+						for each(var pa:XML in property.descendants("PropertyPlatformApplication")) {
 							if (reqCategory.@codeRequestCategory.toString() == pa.@codeRequestCategory) {
 								if(pa.@codeApplication == "" || this.codeApplication == pa.@codeApplication) {
 									keep = true;
