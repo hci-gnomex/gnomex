@@ -333,7 +333,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
             
             // Verify that grand total matches expected grand total
-            if (!this.totalPrice.equals(this.expectedGrandTotalPrice)) {
+            if (this.totalPrice.compareTo(this.expectedGrandTotalPrice) != 0) {
               this.addInvalidField("UnexpectedTotal", "The GNomEx GL interface for " + 
                   billingPeriod.getBillingPeriod() + 
                   " could not be generated.  The total price $" + 
