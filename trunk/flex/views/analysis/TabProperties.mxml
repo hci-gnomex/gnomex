@@ -177,7 +177,7 @@
 				} else if (property.@codePropertyType == 'CHECK') {
 					propertyValueViewStack[index].selectedIndex = 3;
 					propertyCheck[index].selected = property.@value == 'Y' ? true : false;
-					if(!this.parentDocument is AnalysisEditView) {
+					if (!(this.parentDocument is AnalysisEditView)) {
 						propertyCheck[index].enabled = false;
 					} 
 				}
@@ -244,6 +244,7 @@
 					} else if (propertyValueViewStack[i].selectedIndex == 3) {
 						// check
 						property.@value = propertyCheck[i].selected ? 'Y' : 'N';
+						propertiesToSave.addItem(property);
 					} else if (propertyValueViewStack[i].selectedIndex == 4) {
 						// multi-select
 						property.@value = "";		
