@@ -88,7 +88,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     
     if (request.getParameter("grandTotalPrice") != null ) {
       if (request.getParameter("grandTotalPrice").equals("")) {
-        expectedGrandTotalPrice = new BigDecimal(0);
+        expectedGrandTotalPrice = new BigDecimal(0.00);
       } else {
         String grandTotalPrice = request.getParameter("grandTotalPrice");
         grandTotalPrice = grandTotalPrice.replaceAll("\\$", "");
