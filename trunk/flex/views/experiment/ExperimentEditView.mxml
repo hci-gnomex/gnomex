@@ -3198,6 +3198,9 @@
 					request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
 				}
 			}
+			else{
+				request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
+			}
 
 			// Collaborators
 			request.replace("collaborators", <collaborators></collaborators>);
