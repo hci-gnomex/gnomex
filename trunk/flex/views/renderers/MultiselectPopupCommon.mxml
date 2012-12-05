@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
-				width="286" height="220" showCloseButton="true" creationComplete="centerMe()"
-				 paddingLeft="4" paddingRight="4" paddingTop="4" close="cancel()" paddingBottom="4">
+				width="278" height="338" showCloseButton="true" creationComplete="centerMe()"
+				  paddingLeft="4" paddingRight="4" paddingTop="4" close="cancel()" paddingBottom="4">
 	
 	
 	
@@ -24,6 +24,9 @@
 			[Bindable]
 			public var allowMultipleChoice:Boolean;
 			
+			public static var DISPLAY_DELIM:String = "      ";
+
+			
 			public var opener:Object;
 			
 			public function initializeData(title:String, value:String, allOptions:XMLList, allowMultipleChoice:Boolean = true):void {
@@ -31,7 +34,11 @@
 				this.allowMultipleChoice = allowMultipleChoice;
 				
 				var values:Array = new Array();
-				values = value.split(",");
+				if (value.indexOf(DISPLAY_DELIM) > -1) {
+					values = value.split(DISPLAY_DELIM);					
+				} else {
+					values = value.split(",");
+				} 
 				var idx:Object = null;
 
 				options = new XMLListCollection();
