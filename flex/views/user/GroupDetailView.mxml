@@ -5,7 +5,7 @@
 		 height="100%" width="100%" label="Group Detail" 
 		 >
 	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentDocument.fullLab.@name}" />
-	
+	 
 	<mx:HTTPService   
 		id="saveGroup" 
 		url="SaveLab.gx"
@@ -829,90 +829,127 @@
 		
 		
 		<mx:TabNavigator id="theTab" width="100%" height="100%"  styleName="form" >
-			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
+			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0" paddingBottom="4" paddingLeft="4" paddingRight="4" verticalGap="10">
 				
-				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
-					<mx:VBox   height="100%" verticalGap="8" width="100%">
-						<mx:HBox verticalAlign="top" horizontalGap="10" width="100%">
-							<mx:VBox height="100%" width="67%">
-								<mx:HBox width="100%">
-									<mx:VBox  verticalGap="0" width="100%">
-										<mx:Label text="Investigator's First Name"/>
-										<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="100%" change="dirty.setDirty()"/>
-									</mx:VBox>
-									<mx:VBox  verticalGap="0" width="100%">
-										<mx:Label text="Investigator's Last Name (or lab name)"/>
-										<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="100%" change="dirty.setDirty()"/>
-									</mx:VBox>
-									
-								</mx:HBox>
-								<mx:HBox width="100%">
-									<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
-									<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
-									<mx:CheckBox id="excludeUsageCheckBox" selected="{parentDocument.fullLab.@excludeUsage == 'Y' ? true : false}" label="Exclude from usage charts?" click="dirty.setDirty()"/>
-								</mx:HBox>
-								<mx:HBox width="100%" verticalAlign="top">
-									<mx:VBox  verticalGap="0">
-										<mx:Label text="Phone" />
-										<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="130" change="dirty.setDirty()"/>
-									</mx:VBox>
-									<mx:VBox  verticalGap="0" width="100%"> 
-										<mx:Label text="Department" />
-										<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="100%" change="dirty.setDirty()"/>
-									</mx:VBox>
-									
-								</mx:HBox>
-								<mx:VBox  verticalGap="0" width="100%">
-									<mx:HBox verticalGap="8">
-										<mx:Label text="Email(s) " />
-										<mx:Label text="(For multiple email addresses, place a comma between emails.)" fontStyle="italic"/>
-									</mx:HBox>
-									<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
-								</mx:VBox>
-							</mx:VBox>
-							<mx:VBox verticalGap="0" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" width="33%">
-								<mx:VBox verticalGap="0" height="120" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="100%">
-									<mx:HBox horizontalAlign="left" verticalAlign="top">
-										<mx:Label text="Institutions" paddingTop="3"/>
-										<mx:LinkButton paddingBottom="5"   id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton"/>
-									</mx:HBox>	
-									<mx:HBox horizontalAlign="left" horizontalGap="6">
-										<mx:ComboBox width="150" dataProvider="{institutions1}" id="institutionCombo" labelField="@display" >			       	
-										</mx:ComboBox>
-										<mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-											<mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
-										</mx:Button>
-										<mx:Button click="removeInstitution()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{institutionsGrid.selectedItem != null}" width="25"/>
-									</mx:HBox>
-									<mx:Spacer height="2"/>
-									<mx:DataGrid id="institutionsGrid" showHeaders="false" dataProvider="{institutions}" width="100%" height="100%">
-										<mx:columns>
-											<mx:DataGridColumn dataField="@institution" headerText="Name"/>
-										</mx:columns>
-									</mx:DataGrid>			   	
-								</mx:VBox>
-								<mx:Spacer height="2"/>
-								<mx:VBox height="80" verticalGap="0" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="100%">
-									<mx:HBox horizontalAlign="left" verticalAlign="top">
-										<mx:Label text="Core Facilities" paddingTop="3"/>
-									</mx:HBox>	
-									<mx:VBox width="100%" verticalGap="0" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0">
-										<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}">
-											<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox"
-														 enabled="{parentApplication.isCoreFacilityIManage(coreFacilityRepeater.currentItem.@idCoreFacility)?true:false}"
-														 click="dirty.setDirty()"/>   
-										</mx:Repeater>
-									</mx:VBox>			   	
-								</mx:VBox>
-							</mx:VBox>
-							<mx:RadioButtonGroup id="pricingModel"/>
+
+				<mx:HBox width="100%">
+					<mx:VBox  verticalGap="0">
+						<mx:Label text="First name"/>
+						<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="190" change="dirty.setDirty()"/>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0" width="100%">
+						<mx:Label text="Last name (or lab name)"/>
+						<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="100%" change="dirty.setDirty()"/>
+					</mx:VBox>
+					
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:VBox  verticalGap="0">
+						<mx:Label text="Phone" />
+						<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="190" change="dirty.setDirty()"/>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0" width="100%">
+						<mx:HBox verticalGap="8">
+							<mx:Label text="Email(s) " />
+							<mx:Label text="(For multiple email addresses, place a comma between emails.)" fontStyle="italic"/>
 						</mx:HBox>
-						<mx:HRule width="100%"/>
-						
+						<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()" height="34"/>
+					</mx:VBox>
+
+				</mx:HBox>
+
+				<mx:HBox horizontalGap="0" verticalGap="0" verticalAlign="middle">
+					<mx:Label text="Pricing structure" width="196"/>
+					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' || parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? false : true}" click="checkPricingChange()"/>
+					<mx:RadioButton id="isExternalPricingAcademicButton" label="External Academic Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()" paddingTop="0"/>
+					<mx:RadioButton id="isExternalPricingCommercialButton" label="External Commercial Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? true : false}" click="checkPricingChange()" paddingTop="0"/>
+				</mx:HBox>
+
+				<mx:HBox width="100%" horizontalGap="20">
+					<mx:VBox verticalGap="0">
+						<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
+						<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()" paddingTop="0" repeatDelay="0"/>
+						<mx:CheckBox id="excludeUsageCheckBox" selected="{parentDocument.fullLab.@excludeUsage == 'Y' ? true : false}" label="Exclude from usage charts?" click="dirty.setDirty()" paddingTop="0"/>
+					</mx:VBox>
+					<mx:RadioButtonGroup id="pricingModel"/>
+
+				</mx:HBox>
+
+				<mx:HBox width="100%" verticalAlign="top">
+					<mx:VBox  verticalGap="0" width="100%"> 
+						<mx:Label text="Department" />
+						<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="100%" change="dirty.setDirty()"/>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0" borderStyle="none" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="100%" height="100%">
+						<mx:HBox horizontalAlign="left" verticalAlign="top">
+							<mx:Label text="Core Facilities"/>
+						</mx:HBox>	
+						<mx:VBox width="100%" verticalGap="0" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0">
+							<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}">
+								<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox"
+											 enabled="{parentApplication.isCoreFacilityIManage(coreFacilityRepeater.currentItem.@idCoreFacility)?true:false}"
+											 click="dirty.setDirty()"/>   
+							</mx:Repeater>
+						</mx:VBox>			   	
+					</mx:VBox>
+					<mx:VBox verticalGap="0" height="104" borderStyle="none" borderThickness="1" width="100%">
+						<mx:HBox horizontalAlign="left" verticalAlign="top" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0">
+							<mx:Label text="Institutions"/>
+							<mx:LinkButton paddingBottom="0"   id="newProjectButton1" label="New/Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton" fontSize="9" paddingRight="0" paddingTop="0"/>
+						</mx:HBox>	
+						<mx:HBox horizontalAlign="left" horizontalGap="6">
+							<mx:ComboBox width="150" dataProvider="{institutions1}" id="institutionCombo" labelField="@display" >			       	
+							</mx:ComboBox>
+							<mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+								<mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+							</mx:Button>
+							<mx:Button click="removeInstitution()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{institutionsGrid.selectedItem != null}" width="25"/>
+						</mx:HBox>
+						<mx:Spacer height="2"/>
+						<mx:DataGrid id="institutionsGrid" showHeaders="false" dataProvider="{institutions}" height="100%" width="100%">
+							<mx:columns>
+								<mx:DataGridColumn dataField="@institution" headerText="Name"/>
+							</mx:columns>
+						</mx:DataGrid>			   	
+					</mx:VBox>
+					
+				</mx:HBox>
+
+				<mx:HBox width="100%">
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Billing Contact"/>
+						<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="180"/>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0" width="100%">
+						<mx:Label text="Address" />
+						<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="100%" change="dirty.setDirty()"/>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0">
+						<mx:Label text="City" />
+						<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="140" change="dirty.setDirty()"/>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0">
+						<mx:HBox horizontalGap="0" verticalAlign="middle">
+							<mx:Label text="State" /> 
+							<mx:LinkButton label="Edit..." textDecoration="underline" color="#2335E5" click="editState()" fontSize="9" paddingTop="0">
+							</mx:LinkButton>
+						</mx:HBox>
+						<mx:VBox verticalGap="0" horizontalAlign="right">
+							<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="74" change="dirty.setDirty()" labelField="@value">
+							</mx:ComboBox>
+						</mx:VBox>
+					</mx:VBox>
+					<mx:VBox  verticalGap="0">
+						<mx:Label text="Zip" />
+						<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="80" click="dirty.setDirty()"/>
 					</mx:VBox>
 				</mx:HBox>
-				<mx:HBox label="Membership" paddingLeft="4" height="100%" horizontalGap="8" width="100%" paddingRight="4" paddingBottom="4">
-					<mx:VBox verticalGap="4" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
+
+			</mx:VBox>		
+			
+			
+			<mx:HBox label="Membership" paddingLeft="4" height="100%" horizontalGap="2" width="100%" paddingRight="4" paddingBottom="4">
+					<mx:VBox verticalGap="1" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
 						<mx:Label text="Members"/>
 						<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
 							<renderers:FilterComboBox dataProvider="{appUsers.source}" 
@@ -932,7 +969,7 @@
 							</mx:columns>
 						</mx:DataGrid>			   	
 					</mx:VBox>
-					<mx:VBox width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
+					<mx:VBox width="100%" verticalGap="1" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
 						<mx:Label text="Collaborators"/>
 						<mx:HBox width="100%" horizontalGap="6">
 							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
@@ -950,87 +987,41 @@
 							<mx:columns>
 								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 							</mx:columns>
-						</mx:DataGrid>			   	
-					</mx:VBox>
-					<mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
-						<mx:Label text="Managers"/>
-						<mx:HBox width="100%" horizontalGap="6">
-							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
-													  labelField="@displayName" 
-													  prompt="Manager to add..."
-													  width="170"
-													  id="managerCombo">
-							</renderers:FilterComboBox>		 
-							<mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								<mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
-							</mx:Button>
-							<mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
-						</mx:HBox>
-						<mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%" showHeaders="false">
-							<mx:columns>
-								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
-							</mx:columns>
-						</mx:DataGrid>			   	
-					</mx:VBox>
-					
-					
-				</mx:HBox>
-			</mx:VBox>		
-			<mx:VBox label="Billing Contact" width="100%" height="100%"	verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:HBox  verticalGap="0" height="100%" horizontalAlign="left" horizontalGap="10" width="100%">
-					<mx:VBox height="100%"   verticalGap="10" horizontalGap="3" horizontalAlign="left" borderStyle="none" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%">
-						<mx:HBox verticalGap="0" width="100%">
-							<mx:VBox  verticalGap="0">
-								<mx:Label text="Billing Contact" />
-								<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="300" change="dirty.setDirty()"/>
-							</mx:VBox>
-						</mx:HBox>
-						<mx:VBox  verticalGap="0" width="100%">
-							<mx:Label text="Address" />
-							<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="100%" change="dirty.setDirty()"/>
-						</mx:VBox>
-						<mx:HBox verticalGap="0" width="100%">
-							<mx:VBox  verticalGap="0">
-								<mx:Label text="City" />
-								<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="200" change="dirty.setDirty()"/>
-							</mx:VBox>
-							<mx:HBox width="100%">
-								<mx:VBox  verticalGap="0">
-									<mx:Label text="State" /> 
-									<mx:VBox verticalGap="0" horizontalAlign="right">
-										<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="70" change="dirty.setDirty()" labelField="@value">
-										</mx:ComboBox>
-										<mx:LinkButton label="Edit..." textDecoration="underline" color="#2335E5" click="editState()">
-										</mx:LinkButton>						      		
-									</mx:VBox>
-								</mx:VBox>
-								<mx:VBox  verticalGap="0" width="100%">
-									<mx:Label text="Zip" />
-									<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="110" click="dirty.setDirty()"/>
-								</mx:VBox>
-								
+						</mx:DataGrid>	
+						
+						<mx:VBox  width="100%" verticalGap="1" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="10" paddingBottom="2" borderThickness="1">
+							<mx:Label text="Managers"/>
+							<mx:HBox width="100%" horizontalGap="6">
+								<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
+														  labelField="@displayName" 
+														  prompt="Manager to add..."
+														  width="170"
+														  id="managerCombo">
+								</renderers:FilterComboBox>		 
+								<mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+									<mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
+								</mx:Button>
+								<mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
 							</mx:HBox>
-						</mx:HBox>
+							<mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%" showHeaders="false">
+								<mx:columns>
+									<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+								</mx:columns>
+							</mx:DataGrid>			   	
+						</mx:VBox>
+						
 						
 					</mx:VBox>
+			</mx:HBox>
+			
+			
+			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="0" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="0">
+				<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
+					<mx:ComboBox id="coreFacilityCombo" width="300" dataProvider="{labCoreFacilitiesIManage}" editable="false"
+								 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh();}" prompt="Core facility..."/>
 				</mx:HBox>
-				
-			</mx:VBox>
-			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:HBox horizontalGap="12">
-					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' || parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? false : true}" click="checkPricingChange()"/>
-					<mx:RadioButton id="isExternalPricingAcademicButton" label="External Academic Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>
-					<mx:RadioButton id="isExternalPricingCommercialButton" label="External Commercial Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? true : false}" click="checkPricingChange()"/>
-					<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
-						<mx:Label text="Core Facility" />
-						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{labCoreFacilitiesIManage}" editable="false"
-									 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh();}"/>
-					</mx:HBox>
-				</mx:HBox>
-				<mx:Spacer height="2"/>
-				<mx:Label text="Accounts" fontWeight="bold"/>
 				<mx:HBox horizontalAlign="left" width="100%">
-					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
+					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle" paddingTop="6" paddingBottom="2">
 						<mx:Label text="Add Account    Name:"/>
 						<mx:TextInput id="accountName" width="100%"/>
 						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}" width="24"/>
@@ -1105,8 +1096,7 @@
 										   itemEditor="{hci.flex.controls.ComboBox.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility', true)}"/>			                
 					</mx:columns>
 				</mx:DataGrid>
-				<mx:Spacer height="8"/>
-				<mx:Label text="Pending Accounts (check and press 'Save' to approve)" fontWeight="bold"/>
+				<mx:Label text="Pending Accounts (check and press 'Save' to approve)" fontWeight="bold" paddingTop="6"/>
 				<mx:DataGrid width="100%" height="100" 
 							 id="pendingBillingAccountGrid" editable="true" 
 							 itemEditBeginning="verifyChartfieldEdit(event)" 
@@ -1166,6 +1156,8 @@
 				</mx:DataGrid>
 				
 			</mx:VBox>
+
+		
 		</mx:TabNavigator>
 		
 	</mx:VBox>
