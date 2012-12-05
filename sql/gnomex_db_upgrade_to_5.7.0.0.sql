@@ -111,3 +111,6 @@ alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory
     foreign key (idFeatureExtractionProtocolDefault) references FeatureExtractionProtocol(idFeatureExtractionProtocol) on delete set null;
 
 
+-- New property for lucene global search
+insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly)
+  values('lucene_global_index_directory','/home/gnomex/luceneIndex/Global/','The file directory for storing lucene index files on combined data for all object types.','Y');
