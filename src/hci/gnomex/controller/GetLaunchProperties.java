@@ -31,6 +31,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
   private String scheme;
   private String serverName;
   private String contextPath;
+  private boolean isSecure = false;
   private int serverPort;
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
@@ -39,7 +40,8 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       scheme = request.getScheme();
       serverPort = request.getServerPort();  
       serverName = request.getServerName();
-      contextPath = request.getContextPath();      
+      contextPath = request.getContextPath();  
+      isSecure = request.isSecure();
   	} catch (Exception e) {
   		log.error(e.getClass().toString() + ": " + e);
   		e.printStackTrace();
@@ -53,7 +55,13 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
       PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
 
-      String baseURL = scheme + "://" + serverName  + contextPath;
+      String baseURL = "";
+      if(serverPort == 80 || (serverPort == 443 && isSecure)){
+        baseURL = scheme + "://" + serverName  + contextPath;
+      }
+      else{
+        baseURL = scheme + "://" + serverName + ":" + serverPort  + contextPath;
+      }
        
       Document doc = new Document(new Element("LaunchProperties"));
       
