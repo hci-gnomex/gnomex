@@ -348,7 +348,7 @@
 		}
 			
 		private function addProperty():void {
-			for each(var sc:Object in properties) {
+			for each(var sc:Object in getPropertyList.lastResult..Property) {
 				var thisPropName:String = StringUtil.trim(sc.@name);
 				thisPropName = thisPropName.toLowerCase();
 				
@@ -356,6 +356,7 @@
 					Alert.show('There is already an annotation with the default name ("' 
 						+ nameFieldDefault.toLocaleLowerCase() 
 						+ '"). You must either rename or delete it before creating a new one.');
+					refresh(null);
 					return;
 				}
 			}			
@@ -459,7 +460,7 @@
 				return;
 			}
 			
-			for each(var sc:Object in properties) {
+			for each(var sc:Object in getPropertyList.lastResult..Property) {
 				var thisPropName:String = StringUtil.trim(sc.@name);
 				thisPropName = thisPropName.toLowerCase();
 				if(propertyList.selectedItem != sc && propertyName == thisPropName) {
