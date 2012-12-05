@@ -38,6 +38,7 @@ import javax.net.ssl.X509TrustManager;
 public class TransferLoggerMain {
   
   private String      server;
+  private String      serverURL;
   private String      type;
   private String      method;
   private String      fileName;
@@ -75,6 +76,8 @@ public class TransferLoggerMain {
         return;
       } else if (args[i].equals("-server")) {
         server = args[++i];
+      } else if (args[i].equals("-serverURL")) {
+        serverURL = args[++i];
       } else if (args[i].equals("-type")) {
         type = args[++i];
       } else if (args[i].equals("-method")) {
@@ -96,7 +99,7 @@ public class TransferLoggerMain {
   
   private void printUsage() {
     System.out.println("java hci.gnomex.utility.TransferLogger " + "\n" +
-        "-server application server name" + "\n" +
+        "-server | -serverURL server name or server url (e.g. http://server.somewhere.edu:8008)" + "\n" +
         "-method http|fdt" + "\n" +
         "-type upload|download" + "\n" + 
         "-fileName fileName" + "\n" +
@@ -123,20 +126,36 @@ public class TransferLoggerMain {
       loadProperties();
 
       // Make sure mandatory arguments were passed in
-      if (server == null || server.equals("") ||
-          fileName == null || fileName.equals("") || 
-          type == null || type.equals("") ||
-          method == null || method.equals("")) {
+      if ((server == null || server.equals("")) && (serverURL == null || serverURL.equals(""))) {
         this.printUsage();
-        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+        throw new Exception("server or serverURL is required");
+      }
+      
+      if (fileName == null || fileName.equals("")) {
+        this.printUsage();
+        throw new Exception("fileName is required");
+      }
+      if (type == null || type.equals("")) {
+        this.printUsage();
+        throw new Exception("type is required");
+        
+      }
+      if (method == null || method.equals("")) {
+        this.printUsage();
+        throw new Exception("method is required");
       }
 
+
       trustCerts(); 
+      
+      if (serverURL == null || serverURL.equals("")) {
+        serverURL = (server.equals("localhost") ? "http://" : "https://") + server;
+      }
 
       //
       // Login using forms based authentication
       //
-      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
+      URL url = new URL(serverURL + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
       URLConnection conn = url.openConnection();
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       success = false;
@@ -157,7 +176,7 @@ public class TransferLoggerMain {
       //
       // Create a security advisor
       //
-      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
+      url = new URL(serverURL + "/gnomex/CreateSecurityAdvisor.gx");
       conn = url.openConnection();
       for (String cookie : cookies) {
         conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
@@ -199,7 +218,7 @@ public class TransferLoggerMain {
 
       success = false;
       outputXML = new StringBuffer();
-      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/SaveTransferLog.gx");
+      url = new URL(serverURL + "/gnomex/SaveTransferLog.gx");
       conn = url.openConnection();
       conn.setDoOutput(true);
       for (String cookie : cookies) {
