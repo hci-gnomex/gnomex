@@ -2730,9 +2730,11 @@
 				theViews.selectedChild = navOrderView;
 			} else if (label == "Fill Plate") {
 				theViews.selectedChild = navPlateView;
+				navPlateView.removeRun();
 				navPlateView.toggleBuildState('PLATE');
 			} else if (label == "Build Run") {
 				theViews.selectedChild = navPlateView;
+				navPlateView.removeRun();
 				navPlateView.toggleBuildState('RUN');
 			} else if (label == "Plates and Runs") {
 				theViews.selectedChild = navRunView;				
