@@ -194,11 +194,11 @@
 						var urlItemDefined:Boolean = false;
 						for each (var propertyValue:XML in  property..PropertyEntryValue) {
 							var url:String = '';
-							if(urlIdx < this.urlText[i].length) {
+							if(i < urlText.length && urlText[i] != null && urlIdx < this.urlText[i].length) {
 								url = this.urlText[i][urlIdx].text;
 							}
 							var alias:String = '';
-							if(urlIdx < this.aliasText[i].length) {
+							if(i < aliasText.length && aliasText[i] != null && urlIdx < this.aliasText[i].length) {
 								alias = this.aliasText[i][urlIdx].text;
 							}							
 							
