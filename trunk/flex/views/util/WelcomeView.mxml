@@ -386,6 +386,7 @@
 			private function fillPlates( buildState:String ):void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navPlateView;
 				callLater ( function():void {
+					parentApplication.navPlateView.removeRun();
 					parentApplication.navPlateView.toggleBuildState( buildState );
 					parentApplication.navPlateView.switchToNewState();
 				});
