@@ -1239,6 +1239,7 @@
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5"/>
 			</mx:AddChild>
+			<mx:SetStyle target="{vbox1}" name="borderStyle" value="none"/>
 		</mx:State>
 		
 		

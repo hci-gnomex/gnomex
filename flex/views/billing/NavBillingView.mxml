@@ -2164,7 +2164,7 @@
   <mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
  
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
-	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false" paddingBottom="2">
+	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false" paddingBottom="2">
             <mx:HBox  verticalAlign="middle" paddingTop="0" paddingBottom="0" horizontalGap="10" width="100%" paddingLeft="2" paddingRight="2">
 				<mx:Label styleName="titleLabel" text="Billing" width="50"/>
 				<mx:MenuBar id="menuBar" 

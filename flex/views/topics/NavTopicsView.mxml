@@ -12,6 +12,7 @@
 		   cornerRadius="10" >
 	<mx:states>
 		<mx:State name="AdminState">
+			<mx:SetStyle target="{vbox2}" name="borderStyle" value="none"/>
 		</mx:State>
 		<mx:State name="UserState"/>
 		<mx:State name="GuestState"/>
@@ -1032,7 +1033,7 @@
 	
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox styleName="panelBox" width="100%" 
-			 verticalGap="10" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" borderStyle="outset" dropShadowEnabled="false">
+			 verticalGap="10" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" borderStyle="outset" dropShadowEnabled="false" id="vbox2">
 
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" horizontalGap="10" paddingLeft="2" paddingRight="2" borderStyle="none">
