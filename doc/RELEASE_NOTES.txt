@@ -2,29 +2,59 @@
 ---------------------
 
 
-5.7
+5.7 (Dec 6, 2012)
 ---------------------
-* Fixed bug with importing chromosome segments.  User can now use commas when designating length of segment.(tcourdy)
-* Requests with new status are filtered out of the billing list for DNA Seq core. (mbowler)
-* Abi raw data can be and loads as compressed to fit entire trace in graph and loads. (mbowler)
-* When invoice email sent from print screen, response is formatted in HTML instead of XML. (bspiglejr)
-* Use full GUID in data track URL links. (rcundick)
-* Added "Are you sure?" prompt before deleting annotation. (rcundick)
-* Remove annotation without warning when all annotation entries are 'blank'. (rcundick)
-* Topics now show the topic number at the top of the topic detail window. (rcundick)
-* Empty project folders are now not shown in experiment browse unless the new "Show Empty Project Folders" checkbox is checked.  (bspiglejr)
-* When billing item is removed in split view it is now removed in reality as well.  (bspiglejr)
-* Added axis labels to raw chromatogram graph. (mbowler)
-* Zoom sliders on chromatogram trace and raw data graphs is switched so that dragging slider to left is zooming out. (mbowler)
-* Replace owner name with lab name in experiment titles under topics. (rcundick)
-* Fixed issue where PropertyEntryOption records were not being saved for sample annotations of type 'OPTION.' (rcundick)
-* New topic button now enabled all the time (if nothing selected, adds topic at topic level; else adds to selected topic or parent topic if non-topic selection). (rcundick)
-* Updated plate report and plt file creation so that plate well id's are truncated to last 5 digits to match the chromatogram browse grid. (mbowler)
-* Changed plt file so that abi file names will be simplified to sampleName$wellPosition. (mbowler)
-* Multiple selection and batch update status on billing view instead of updating status on whole folder: Shift or ctrl + click will highlight multiple rows.  The status drop down will update the status for all the selected items.  If no items are selected, all of the items' statuses will update. (mbowler)
-* Change line break spacing on request form that is displayed after user submits a request.(tcourdy)
-* Removed server port number from Share Web Links.(tcourdy)
-* Fixed bug that caused experiment setup tab to not refresh properly when switching between internal and external experiments(tcourdy)
+* Allow commas when importing segments	GNOM-35	Tarik Courdy
+* Auto create folders	GNOM-37	Tarik Courdy
+* Add type-ahead dropdown to Analysis for admins for single lab browsing.	GNOM-207	Tony Di Sera
+* #227 Page caching / switching between New Experiment Order and Post Experiment Data	GNOM-13	Tarik Courdy
+* #270 Default Topic Visibility to Institute for CvDC	GNOM-25	Robb Cundick
+* #191 Data Tracks FDT Download not working with space in Folder	GNOM-7	Robb Cundick
+* #271 Nested Topics should be NOT required to be owned by the same lab group	GNOM-26	Robb Cundick
+* #245 Expansion not visible for bottom annotation without scrolling	GNOM-19	Tarik Courdy
+* #248 Topics should show the topic #	GNOM-23	Robb Cundick
+* Show search results in one list	GNOM-58	Ben Spigle
+* #246 Activate New topic button at opening of Topics	GNOM-20	Robb Cundick
+* Sample annotations for single and multi-select options not saving correctly	GNOM-56	Robb Cundick
+* URL for Data Track 'URL Link' should use full GUID to obfuscate link	GNOM-60	Robb Cundick
+* Show all data tracks in folder when looking up by data track Number	GNOM-57	Megan Bowler
+* #228 Data tracks should only come from restricted file types	GNOM-14	Tony Di Sera
+* #232 DataTracks DAS/?2 refresh doesn't load all tracks	GNOM-15	Tony Di Sera
+* #244 When refreshing data tracks, .bw files are not loaded	GNOM-18	Tony Di Sera
+* #211 Data Track "String index out of range" error	GNOM-11	Tony Di Sera
+* #179 Foreign Key Violation when deleting an Institution	GNOM-6	Tarik Courdy
+* 265 Remove port # from Topic and other Share Web URLs	GNOM-32	Tarik Courdy
+* Remove annotation without warning when all annotation entries are 'blank'.	GNOM-52	Robb Cundick
+* Remove Annotation doesn't show "Are you sure?" before deleting.	GNOM-51	Robb Cundick
+* #247 Replace name with lab group in topics	GNOM-22	Robb Cundick
+* Rename PlatformApplication	GNOM-54	Robb Cundick
+* Investigate User Account signup error	GNOM-63	Megan Bowler
+* Some Instrument runs were saving with null reaction type	GNOM-185	Megan Bowler
+* Allow for multiple selection and batch status changes for billing items. (Instead of doing the whole folder)	GNOM-36	Megan Bowler
+* Don't allow an order in processing to have status changed back to submitted	GNOM-42	Megan Bowler
+* Daemon to clean out files older than a week (at a directory level) for DNASeqCoreArchive (command line argument to the daemon).	GNOM-40	Megan Bowler
+* Broken filter on Instrument Runs	GNOM-181	Megan Bowler
+* Plate does not refresh when leaving plate view in the middle of filling it (and coming back to fille plate later)	GNOM-205	Megan Bowler
+* Signify when a user has Univ Only access so that it is obvious to the user that he doesn't have a user account	GNOM-188	Tony Di Sera
+* #249 Please eliminate empty Project folders in Experiments	GNOM-24	Ben Spigle
+* #96 Can't delete Seq Lib Protocol	GNOM-31	Tarik Courdy
+* Changes to chromat raw data and trace graphs	GNOM-38	Megan Bowler
+* FDT session timeout	GNOM-61	Tony Di Sera
+* Rebuild hci-bio-test Orion and Tomcat environment	GNOM-191	Tony Di Sera
+* Move fdt server to another box	GNOM-62	Tony Di Sera
+* Run Register files every weekend on all experiment and analysis files	GNOM-55	Megan Bowler
+* Email errors to gnomex support when error occurs in RegisterFiles	GNOM-43	Megan Bowler
+* #83 FDT transfer logger show am rather than pm for times	GNOM-30	Robb Cundick
+* New requests (not yet submitted) show up in the pending folder on billing view. Only orders that have been submitted should appear in the tree.	GNOM-50	Megan Bowler
+* Have a combined QC worklist (for Illumina, Microarray and Sample quality orders)	GNOM-46	Robb Cundick
+* #81 When acct isPO toggles, change approved status on billing	GNOM-29	Tarik Courdy
+* #173 Update of billing account after split	GNOM-5	Ben Spigle
+* Launching gnomex with SubmitWorkAuth window munjes main menu	GNOM-49	Tony Di Sera
+* Confirmation Invoice Email from Print Email	GNOM-39	Ben Spigle
+* #239 Reorganize main links on Core Ordering Webpage	GNOM-16	Tony Di Sera
+* Reorganize layout of Group Detail Window	GNOM-199	Tony Di Sera
+* #208 Line breaks in description	GNOM-10	Tarik Courdy
+* Wrap experiment types in grid on Config Experiment Platforms window	GNOM-196	Tony Di Sera
 
 deploy notes
 ----------------------
