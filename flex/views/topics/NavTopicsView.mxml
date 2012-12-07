@@ -1032,52 +1032,43 @@
 	
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox styleName="panelBox" width="100%" 
-			 verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" borderStyle="outset">
+			 verticalGap="10" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" borderStyle="outset" dropShadowEnabled="false">
 
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
-					 id="topBar" horizontalGap="0" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
-				<mx:Text text="Topics" styleName="titleLabel"/>
-				<mx:LinkButton   label="New topic" width="90"
+					 id="topBar" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" horizontalGap="10" paddingLeft="2" paddingRight="2" borderStyle="none">
+				<mx:Text text="Topics" styleName="titleLabel" width="80"/>
+				<mx:LinkButton   label="New topic" 
 								 enabled="{currentState != 'GuestState'}"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
-								 styleName="linkMenuButton"   					        	
 								 toolTip="New topic" 
 								 click="{newTopic()}" 
 								 id="linkbutton1"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/topic_tag_new_disable.png')" 
-								 icon="@Embed(source='../../assets/topic_tag_new.png')"/>
-				<mx:VRule height="20" id="vrule1" width="2" 							   
-						  visible="{currentState != 'GuestState'}"
-						  includeInLayout="{currentState != 'GuestState'}"/>
+								 icon="@Embed(source='../../assets/topic_tag_new.png')" />
 				<mx:LinkButton   label="Delete"
 								 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null  &amp;&amp; browseTree.selectedItem.name() != 'Folder'  &amp;&amp; browseTree.selectedItem.name() != 'Category'}"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
-								 styleName="linkMenuButton"   					        	
 								 toolTip="Remove link between topic and experiment, analysis, or datatrack" 
 								 click="{promptToRemoveSelectedItems()}" 
 								 id="removeButton"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/cross_disable.png')" 
-								 icon="@Embed(source='../../assets/cross.png')"/>
-				<mx:VRule height="20" id="vrule4" width="2" 							   
-						  visible="{currentState != 'GuestState'}"
-						  includeInLayout="{currentState != 'GuestState'}"/>				
+								 icon="@Embed(source='../../assets/cross.png')" />
 				<mx:LinkButton   label="Link to data"
 								 enabled="true"
 								 visible="{currentState != 'GuestState'}"
 								 includeInLayout="{currentState != 'GuestState'}"
-								 styleName="linkMenuButton"   					        	
 								 toolTip="Link experiments, analysis, or data tracks" 
 								 click="{this.mainViewStack.selectedChild = this.topicLinkView}" 
 								 id="linkToDataButton"  textAlign="left" 
 								 disabledIcon="@Embed(source='../../assets/link_disable.png')" 
-								 icon="@Embed(source='../../assets/link.png')"/>
+								 icon="@Embed(source='../../assets/link.png')" />
 				<mx:Spacer width="100%"/>
 				<mx:LinkButton 	 label="Refresh" 
 								 icon="@Embed(source='../../assets/action_refresh.gif')" 
 								 click="refreshTopics()" 
-								 textDecoration="underline" 
+								 textDecoration="none" 
 								 paddingRight="0" 
 								 id="linkbutton2" 
 								 paddingLeft="0"/>
