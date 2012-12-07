@@ -1684,7 +1684,7 @@
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox styleName="panelBox"
 			 width="100%" 
-			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')">
+			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderStyle="outset">
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="2">
 				<mx:Image source="assets/datatrack.jpg"/>

@@ -220,7 +220,6 @@
    			
    			if (this.shortcutToDownloadTab || this.shortcutToExperimentListTab) {
    				if (this.currentState == "AdminState") {
-   					this.lastMonthCheckbox.selected = true;
    					this.refreshExperiments();
    				}
    			} else {
@@ -1501,9 +1500,9 @@
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
  
   <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
-   <mx:VBox styleName="panelBox"    width="100%" verticalGap="0" borderColor="#030000" backgroundColor="#FFFFFF" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" borderStyle="none">
-	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1" >
-		<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0" verticalAlign="middle" >
+   <mx:VBox styleName="panelBox"    width="100%" verticalGap="0" borderColor="#030000" backgroundColor="#FFFFFF" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" borderStyle="outset">
+	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1"  width="100%">
+		<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0" verticalAlign="middle"  width="100%">
 			<mx:Text text="Experiments"   styleName="titleLabel"/>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
  				
@@ -1600,7 +1599,7 @@
 	
 	   
 			
-			<mx:VBox styleName="panelBox"   width="260" height="100%" id="navPanel" >
+			<mx:VBox styleName="panelBox"   width="268" height="100%" id="navPanel" >
 				<mx:Text id="messageLabel"  width="100%" fontFamily="Arial" fontStyle="italic"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" >
 					<mx:VBox id="treeContainer"  width="100%" height="100%" paddingLeft="2" verticalGap="0" >
@@ -1637,13 +1636,10 @@
 															
 							</mx:HBox>
 							<mx:HBox>
-								<mx:LinkButton  label="Delete exp." id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
+								<mx:LinkButton  label="Delete experiment" id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
 												click="experimentDetailView.detail.promptToDeleteExperiment()"
 												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
 									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
-								</mx:LinkButton>
-								<mx:LinkButton label="Drag-and-drop hint" 
-											   click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
 								</mx:LinkButton>
 							</mx:HBox>
 							<mx:HBox horizontalGap="0">
@@ -1656,6 +1652,9 @@
 									</mx:HBox>
 								</mx:ViewStack>
 								<mx:VBox styleName="hintBox" id="vbox2">
+									<mx:LinkButton label="Drag-and-drop hint" 
+												   click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
+									</mx:LinkButton>
 								</mx:VBox>
 							</mx:HBox>
 							
