@@ -2713,6 +2713,7 @@
 				theViews.selectedChild = homeView;
 				callLater(this.homeView.submitRequest);	
 			} else if (label == "Browse Experiments" || label == "Experiments") {
+				this.navExperimentView.shortcutToExperimentListTab = true;
 				theViews.selectedChild = navExperimentView;
 			} else if (label == "Analysis") {
 				theViews.selectedChild = navAnalysisView;
@@ -3068,7 +3069,7 @@
 
 	    <mx:VBox id="theBody"   backgroundColor="#FFFFFF"
 	    	width="100%" height="100%" 
-	    	verticalGap="0"  
+	    	verticalGap="4"  
 	    	paddingTop="0" paddingLeft="2" 
 	    	paddingRight="2" paddingBottom="2" borderStyle="outset">
 	    
@@ -3122,7 +3123,8 @@
 					  <mx:MenuBar  height="40"   width="100%"  id="mainMenu"   
 								   click="onMenuClick(event)"
 								   itemClick="{onMenuSelect(event)}"  
-								   labelField="@label" iconField="@icon"  dataProvider="{adminMenu}" styleName="NavMenuBar" >
+								   labelField="@label" iconField="@icon"  dataProvider="{adminMenu}" styleName="NavMenuBar" buttonMode="true"
+								   useHandCursor="true" >
 						  
 					  </mx:MenuBar> 
 						  
