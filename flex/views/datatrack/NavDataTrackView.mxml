@@ -16,6 +16,7 @@
 			<mx:SetStyle target="{linkbutton3}" name="paddingRight" value="1"/>
 			<mx:SetStyle target="{duplicateButton}" name="paddingRight" value="1"/>
 			<mx:SetStyle target="{downloadButton}" name="paddingRight" value="1"/>
+			<mx:SetStyle target="{vbox2}" name="dropShadowEnabled" value="false"/>
 		</mx:State>
 		<mx:State name="UserState">
 			<mx:SetStyle target="{hbox6}" name="fontSize" value="11"/>
@@ -1684,7 +1685,7 @@
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox styleName="panelBox"
 			 width="100%" 
-			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderStyle="outset">
+			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderStyle="outset" id="vbox2">
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="2">
 				<mx:Image source="assets/datatrack.jpg"/>
