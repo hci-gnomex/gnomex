@@ -3080,18 +3080,15 @@
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 			      <mx:HBox width="100%"  
-				  horizontalAlign="left" verticalAlign="middle" horizontalGap="20"  
+				  horizontalAlign="left" verticalAlign="middle" horizontalGap="8"  
 			      	paddingBottom="4" id="hbox1" 
 			      	paddingTop="6" 
 			      	paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
-						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="8">
-							<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
-						</mx:HBox>
+						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
 						<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
 									   label="Home" visible="false" 
 									   click="{theViews.selectedChild = homeView}"
 									   icon="@Embed(source='assets/house.png')"/>
-						<mx:Spacer width="100%"/>
 				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
 			                
 						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Verdana" fontSize="12"  />
@@ -3107,6 +3104,8 @@
 			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"  fontFamily="Verdana" fontSize="12">
 			              </mx:LinkButton>
 			            </mx:HBox>
+					  
+					  <mx:Spacer width="100%"/>
 				        
 				        <mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
 				        	<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
