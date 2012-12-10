@@ -38,6 +38,12 @@ public class ProjectFilter extends DetailObject {
     queryBuf.append(" FROM        Project as proj ");
     queryBuf.append(" LEFT JOIN   proj.requests as req ");
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
+
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) && secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      // Admins must do security limit by lab core facility.
+      queryBuf.append(" JOIN                proj.lab as projectLab ");
+      queryBuf.append(" LEFT JOIN           projectLab.coreFacilities as labFacilities ");
+    }
     
     addRequestCriteria();
     addSecurityCriteria();
@@ -67,7 +73,7 @@ public class ProjectFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    secAdvisor.buildSpannedSecurityCriteria(queryBuf, "proj", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest");
+    secAdvisor.buildSpannedSecurityCriteria(queryBuf, "proj", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest", "labFacilities");
   }
     
   

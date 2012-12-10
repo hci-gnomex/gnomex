@@ -5,6 +5,7 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.lucene.GlobalIndexHelper;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisGroup;
@@ -1847,7 +1848,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.appUser = appUser;
   }
   
-  public boolean buildSpannedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, String classShortName, String collabClassShortName, boolean isFirstCriteria, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
+  public boolean buildSpannedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, String classShortName, String collabClassShortName, boolean isFirstCriteria, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria, String labCoreFacilitiesName) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       
       // GNomex is not restricted
@@ -1857,7 +1858,22 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // GNomex admin is restricted to objects for their core facility
       queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
       isFirstCriteria = false;
+      queryBuf.append(" ( ");
+      
+      // Pick up "empty" projects or analysis groups that don't have any children but
+      // belong to same lab user is member or manager of.
+      if (leftJoinExclusionCriteria != null && labCoreFacilitiesName != null) {
+        queryBuf.append(" ( ");
+        appendCoreFacilityCriteria(queryBuf, labCoreFacilitiesName);
+        queryBuf.append(" AND ");
+        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
+        queryBuf.append(" ) ");
+        queryBuf.append(" OR ");
+      } 
+
       appendCoreFacilityCriteria(queryBuf, classShortName);
+      
+      queryBuf.append(" ) ");
       
     } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
@@ -2288,10 +2304,21 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
   }
 
+  private void appendLuceneCoreFacilitiesIManage(StringBuffer searchText) {
+    boolean firstTime = true;
+    for (CoreFacility cf : (Set<CoreFacility>)this.getCoreFacilitiesIManage()) {
+      if (!firstTime) {
+        searchText.append(" ");
+        firstTime = false;
+      }
+      searchText.append(cf.getIdCoreFacility());
+    }
+
+  }
 
   public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String institutionField, String coreFacilityField, 
-      String collaboratorField, String ownerField,String visibilityField, boolean scopeToGroup, 
-      String inheritedLabField, String leftJoinExclusionCriteria) {
+      String projectCoreFacilityField, String collaboratorField, String ownerField,String visibilityField, boolean scopeToGroup, 
+      String inheritedLabField, String leftJoinExclusionCriteria, Boolean forGlobal) {
     boolean addedFilter = false;
     
     // Admins
@@ -2299,26 +2326,43 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     } 
     else if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
       if (coreFacilityField != null) {
+        if (forGlobal) {
+          searchText.append(" ( ");
+        }
         if (this.getCoreFacilitiesIManage().isEmpty()) {
           throw new RuntimeException("Unable to filter experiments by core facility because admin not associated with any core facilty");
         }
         searchText.append(" ( ");
         searchText.append(coreFacilityField + ":(");
-        boolean firstTime = true;
-        for (CoreFacility cf : (Set<CoreFacility>)this.getCoreFacilitiesIManage()) {
-          if (!firstTime) {
-            searchText.append(" ");
-            firstTime = false;
-          }
-          searchText.append(cf.getIdCoreFacility());
-        }
+        appendLuceneCoreFacilitiesIManage(searchText);
         searchText.append(")");
         searchText.append(" ) ");
+        
+        searchText.append(" OR ( ( ").append(leftJoinExclusionCriteria).append(" ) AND ( ").append(projectCoreFacilityField).append(":(");
+        appendLuceneCoreFacilitiesIManage(searchText);
+        searchText.append(") ) )");
         addedFilter = true;
+      }
+      if (addedFilter && forGlobal) {
+        // close opening paren added in top forglobal
+        searchText.append(" ) ");
+
+        // Global searches have all object types and admin security restrictions only apply to experiments and empty project folders.
+        searchText.append(" OR ( ");
+        searchText.append(GlobalIndexHelper.OBJECT_TYPE).append(":(").append(GlobalIndexHelper.ANALYSIS);
+        searchText.append(" ").append(GlobalIndexHelper.PROTOCOL);
+        searchText.append(" ").append(GlobalIndexHelper.TOPIC);
+        searchText.append(" ").append(GlobalIndexHelper.DATA_TRACK);
+        searchText.append(")");
+        
+        searchText.append(" ) ");
       }
     }
     // GNomEx users
     else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      if (forGlobal) {
+        searchText.append(" ( ");
+      }
       searchText.append(" ( ");
       
       boolean added = buildLuceneOwnershipFilter(searchText, labField, ownerField, visibilityField);
@@ -2375,12 +2419,25 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         searchText.append(" ) ");
 
         searchText.append(" ) ");
-        return true;
+        addedFilter = true;
+      }
+      if (addedFilter && forGlobal) {
+        // Global searches have all object types and non-admin security restrictions do not apply to protocols
+        searchText.append(" OR ").append(GlobalIndexHelper.OBJECT_TYPE).append(":").append(GlobalIndexHelper.PROTOCOL);
+        searchText.append(" ) ");
       }
     }
     // Guest
     else {
+      if (forGlobal) {
+        searchText.append(" ( ");
+      }
       addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false);        
+      if (addedFilter && forGlobal) {
+        // Global searches have all object types and non-admin security restrictions do not apply to protocols
+        searchText.append(" OR ").append(GlobalIndexHelper.OBJECT_TYPE).append(":").append(GlobalIndexHelper.PROTOCOL);
+        searchText.append(" ) ");
+      }
     }
     
     return addedFilter;

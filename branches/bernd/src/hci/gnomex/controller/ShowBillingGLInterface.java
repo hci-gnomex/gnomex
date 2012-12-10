@@ -85,14 +85,20 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       this.addInvalidField("idCoreFacility", "idCoreFacility is required");
     }
 
-    if (request.getParameter("grandTotalPrice") != null) {
-      String grandTotalPrice = request.getParameter("grandTotalPrice");
-      grandTotalPrice = grandTotalPrice.replaceAll("\\$", "");
-      grandTotalPrice = grandTotalPrice.replaceAll(",", "");
-      expectedGrandTotalPrice = new BigDecimal(grandTotalPrice);
+    
+    if (request.getParameter("grandTotalPrice") != null ) {
+      if (request.getParameter("grandTotalPrice").equals("")) {
+        expectedGrandTotalPrice = new BigDecimal(0.00);
+      } else {
+        String grandTotalPrice = request.getParameter("grandTotalPrice");
+        grandTotalPrice = grandTotalPrice.replaceAll("\\$", "");
+        grandTotalPrice = grandTotalPrice.replaceAll(",", "");
+        expectedGrandTotalPrice = new BigDecimal(grandTotalPrice);
+      }
     } else {
       this.addInvalidField("grandTotalPrice", "grandTotalPrice is required");
     }
+    
     
     if (request.getParameter("revisionNumber") != null && !request.getParameter("revisionNumber").equals("")) {
       revisionNumber = new Integer(request.getParameter("revisionNumber"));
@@ -327,7 +333,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
             
             // Verify that grand total matches expected grand total
-            if (!this.totalPrice.equals(this.expectedGrandTotalPrice)) {
+            if (this.totalPrice.compareTo(this.expectedGrandTotalPrice) != 0) {
               this.addInvalidField("UnexpectedTotal", "The GNomEx GL interface for " + 
                   billingPeriod.getBillingPeriod() + 
                   " could not be generated.  The total price $" + 

@@ -141,7 +141,7 @@ public class DataTrackFolder extends DetailObject implements Serializable {
 
      if (parent != null) {
        if (parent.getName() != null) {
-         qualifiedName = parent.getName() + "/" + qualifiedName;
+         qualifiedName = parent.getName().trim() + "/" + qualifiedName;
 
          qualifiedName = parent.recurseGetParentName(qualifiedName);
        }

@@ -2142,11 +2142,11 @@
 		private function resizeMenuItems():void{
 			if (this.menuBar.visible) {
 				for each(var item:MenuBarItem in this.menuBar.menuBarItems){
-					item.width += 20;
+					item.width += 14;
 				}
 			} else if (this.menuBarNoGLInterface.visible) {
 				for each(var item2:MenuBarItem in this.menuBarNoGLInterface.menuBarItems){
-					item2.width += 20;
+					item2.width += 14;
 				}
 			}
 		}
@@ -2164,15 +2164,16 @@
   <mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
  
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
- 
-	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
-            <mx:HBox  verticalAlign="middle" paddingTop="0" paddingBottom="0" horizontalGap="2" width="100%" paddingLeft="0" paddingRight="0">
+	    <mx:VBox styleName="panelBox" horizontalGap="4" paddingTop="0" paddingRight="0" paddingLeft="0" verticalGap="0" width="100%" borderStyle="none" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false" paddingBottom="2">
+            <mx:HBox  verticalAlign="middle" paddingTop="0" paddingBottom="0" horizontalGap="10" width="100%" paddingLeft="2" paddingRight="2">
+				<mx:Label styleName="titleLabel" text="Billing" width="50"/>
 				<mx:MenuBar id="menuBar" 
 							click="onMenuClick(event)"
 							itemClick="{onMenuSelect(event)}"   
-							labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="35" width="100%">
+							labelField="@label" iconField="@icon"  styleName="linkMenuBar"
+							buttonMode="true"
+							useHandCursor="true" fontSize="11" height="30">
 					<mx:XMLList>
-						<menuitem label="Billing"  icon="iconBilling" />
 						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
 						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
 						<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
@@ -2184,6 +2185,17 @@
 						<menuitem label="Refresh"  icon="iconRefresh" />
 					</mx:XMLList>
 				</mx:MenuBar> 
+				<mx:Spacer width="100%"/>
+				<mx:HBox verticalGap="0" verticalAlign="middle" horizontalGap="0">
+				<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0"  paddingTop="0" fontSize="9"/>
+				<mx:TextInput id="requestNumberText" enter="refresh()" width="75" backgroundColor="#FFFFFF">
+				</mx:TextInput>			   	
+				</mx:HBox>
+				<mx:HBox verticalGap="0" horizontalAlign="left" verticalAlign="middle" horizontalGap="0">
+				<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0"  paddingTop="0" fontSize="9"/>
+				<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refresh()" backgroundColor="#FFFFFF">
+				</mx:TextInput>			   	
+				</mx:HBox>
 
 				<mx:MenuBar id="menuBarNoGLInterface" 
 							visible="false" includeInLayout="false" 
@@ -2204,58 +2216,48 @@
 				</mx:MenuBar> 
 	     </mx:HBox>
 
-	      <mx:HBox horizontalGap="8" verticalAlign="top" paddingBottom="6" paddingLeft="4" paddingTop="6">
-			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
-				    <mx:Label text="Core Facility" />
+	      <mx:HBox horizontalGap="10" verticalAlign="top" paddingLeft="62" paddingTop="4" width="100%">
+			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
+				    <mx:Label text="Core Facility"/>
 				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
 							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()"/>
 			    </mx:VBox>
 		    	<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 					<mx:HBox horizontalGap="8" verticalAlign="middle" verticalGap="0">
 						<mx:VBox verticalGap="0" paddingTop="0" paddingLeft="0" verticalAlign="middle">
-							<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period"/>
+							<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" fontSize="9"/>
 							<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130"/>					
 						</mx:VBox>
 						<mx:VBox verticalGap="0">
-							<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0"/>
+							<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" fontSize="9"/>
 							<mx:ComboBox id="labCombo" 
 										 labelField="@name"
 										 dataProvider="{parentApplication.promptedLabList}"
-										 visible="true"  width="180" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()">
+										 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()">
 							</mx:ComboBox>				   
 						</mx:VBox>
 					</mx:HBox>
 		    	</mx:VBox>  
 
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="left" paddingRight="0">
-					<mx:VBox verticalGap="0"> 
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="left" paddingRight="0" width="100%">
+					<mx:VBox verticalGap="0" width="100%" minWidth="352" verticalScrollPolicy="off" horizontalScrollPolicy="off"> 
 						<mx:HBox horizontalGap="1" paddingBottom="0" paddingTop="0">
-							<mx:RadioButton label="Account name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+							<mx:RadioButton label="Account name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" fontSize="9">
 								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="Account #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
+							<mx:RadioButton label="Account #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0" fontSize="9">
 								<mx:click>{pickAccountDropdownLabel()}</mx:click>
 							</mx:RadioButton>
 							
 						</mx:HBox>
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
-							 visible="true"  width="272" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()">
+							 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()">
 						</mx:ComboBox>
 						
 					</mx:VBox>
 			   	
 		    	</mx:HBox> 
-		    	<mx:VBox verticalGap="0" verticalAlign="middle">
-					<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" />
-					<mx:TextInput id="requestNumberText" enter="refresh()" width="75">
-					</mx:TextInput>			   	
-		    	</mx:VBox>
-		    	<mx:VBox verticalGap="0" horizontalAlign="left" verticalAlign="middle">
-					<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0" />
-					<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refresh()">
-					</mx:TextInput>			   	
-		    	</mx:VBox>
 
 		   </mx:HBox> 	
 	    </mx:VBox>
@@ -2264,7 +2266,7 @@
         	<mx:TabNavigator height="100%" width="220" id="billingTabNavigator"
         		paddingTop="2" styleName="navTabNavigator" 
         		paddingLeft="4" paddingRight="4" paddingBottom="4"
- 				change="{onBillingTabChange()}" dropShadowEnabled="true">
+ 				change="{onBillingTabChange()}" dropShadowEnabled="false" >
         		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
@@ -2282,7 +2284,7 @@
 						iconFunction="parentApplication.getTreeIcon"  
 						labelFunction="getTreeLabel"
 						showDataTips="true"
-						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="true" fontSize="11" fontFamily="Verdana">
+						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="false" fontSize="11" fontFamily="Verdana">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
 				        </mx:dataProvider>		 				  
@@ -2316,7 +2318,7 @@
   									</mx:VBox>
 					</mx:Tile>
 					<mx:LinkButton label="Drag-and-drop hint" 
-						click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')" fontSize="9" fontFamily="Verdana">
+						click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')" fontSize="9" fontFamily="Verdana" fontStyle="italic" fontWeight="normal">
 					</mx:LinkButton>
 					
 					<util:AdvancedDataGridAS id="pricingTree" width="100%" height="100%" 
@@ -2347,22 +2349,22 @@
 						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCommercialCurrency"  headerText="Commercial" width="30" textAlign="right" showDataTips="true" /> 
   					    </util:columns>
   					</util:AdvancedDataGridAS>
-  					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0">
-  							<mx:VBox verticalGap="0">
-  								<mx:HBox width="100%">
-  									<mx:CheckBox label="Show prices" id="showPricesCheckbox" selected="true" click="{this.getPricingList.send()}"/>
-  									<mx:CheckBox label="Show price criteria" id="showPriceCriteriaCheckbox" click="{this.getPricingList.send()}"/>
-  									<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}"/>
+  					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0" >
+  							<mx:VBox verticalGap="0" >
+  								<mx:HBox width="100%"  fontFamily="Verdana" fontSize="10">
+  									<mx:CheckBox label="Show prices" id="showPricesCheckbox" selected="true" click="{this.getPricingList.send()}" />
+  									<mx:CheckBox label="Show price criteria" id="showPriceCriteriaCheckbox" click="{this.getPricingList.send()}" />
+  									<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}" />
   									<mx:Spacer width="100%"/>
   								</mx:HBox>
   								<mx:HBox  horizontalGap="0" >
-	  								<mx:LinkButton label="New sheet" textDecoration="underline" click="showNewPriceSheetView()" textAlign="left" icon="@Embed(source='../../assets/pricesheet_add.png')" paddingLeft="0">
+	  								<mx:LinkButton label="New sheet" textDecoration="underline" click="showNewPriceSheetView()" textAlign="left" icon="@Embed(source='../../assets/pricesheet_add.png')" paddingLeft="0" >
 	  								</mx:LinkButton>
-	  								<mx:LinkButton label="New category" textDecoration="underline" click="showNewPriceCategoryView()" textAlign="left" >
+	  								<mx:LinkButton label="New category" textDecoration="underline" click="showNewPriceCategoryView()" textAlign="left"  >
 	  									<mx:icon>@Embed(source='../../assets/folder_money_add.png')</mx:icon>
 	  								</mx:LinkButton>
-	  								<mx:LinkButton label="New price" textDecoration="underline" click="showNewPriceView()"  textAlign="left" icon="@Embed(source='../../assets/money_add.png')"/>
-	  								<mx:LinkButton  enabled="{this.pricingTree.selectedItem != null}" label="Remove" textDecoration="underline" click="promptForRemovePricing()" textAlign="left" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')"/>
+	  								<mx:LinkButton label="New price" textDecoration="underline" click="showNewPriceView()"  textAlign="left" icon="@Embed(source='../../assets/money_add.png')"  />
+	  								<mx:LinkButton  enabled="{this.pricingTree.selectedItem != null}" label="Remove" textDecoration="underline" click="promptForRemovePricing()" textAlign="left" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" />
   								</mx:HBox>
   							</mx:VBox>
   					</mx:ControlBar>        		    

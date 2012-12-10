@@ -99,6 +99,22 @@
 	  <idLab>{selectedIdLab}</idLab>
     </mx:request>
   </mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getProjectForLookup" 
+		url="GetProject.gx"
+		destination="getProject"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetProjectForLookup(event)"
+		method="POST"
+		fault="parentApplication.onFailHttpRequest('Failed to get project', event)"
+		useProxy="false">
+		<mx:request>
+			<idProject>{selectedIdProject}</idProject>
+			<idLab>{selectedIdLab}</idLab>
+		</mx:request>
+	</mx:HTTPService>
   
   <mx:HTTPService  
     id="saveRequestProject" 
@@ -197,14 +213,13 @@
 			// Only initialize experiments if the user clicked on
 			// Experiments link in top nav bar. (Bypass
 			// if looking up experiment based on its number.)
-			if (selectedRequestNumber == null) {
+			if (selectedRequestNumber == null && (this.selectedIdProject == null || this.selectedIdLab == null)) {
 				
             	initializeExperiments();
    			} 
    			
    			if (this.shortcutToDownloadTab || this.shortcutToExperimentListTab) {
    				if (this.currentState == "AdminState") {
-   					this.lastMonthCheckbox.selected = true;
    					this.refreshExperiments();
    				}
    			} else {
@@ -214,7 +229,9 @@
    					} else {
 						refreshExperimentsForLookup();
    					}
-   				} 
+   				} else if (this.selectedIdProject != null && this.selectedIdLab != null) {
+					refreshExperimentsForProjectFolderLookup();
+				}
    			}
    			if (this.shortcutToDownloadTab) {
         		this.experimentViews.selectedChild = this.browseView;
@@ -226,6 +243,12 @@
 
 			isInitialized = true;
 
+		}
+			
+		public function refreshExperimentsForProjectFolderLookup():void {
+			if (this.selectedIdLab != null && this.selectedIdProject != null) {
+				getProjectForLookup.send();
+			}
 		}
 		
 		public function refreshExperimentsForLookup():void {
@@ -294,18 +317,25 @@
 			}
         	  
         	if (getProjectRequestList.lastResult..Request.length() == 0) {
-        		browseTree.visible = false;
-        		this.treeExpansionStack.visible = false;
+				if (getProjectRequestList.lastResult..Project.length() == 0) {
+	        		browseTree.visible = false;
+    	    		this.treeExpansionStack.visible = false;
+				} else {
+					browseTree.visible = true;
+					this.treeExpansionStack.visible = true;
+				}
 				
-				// If this is the first refresh and no experiments were returned, ask if search
-				// should be broadened
-				if ((currentState == null || currentState == "") && myExperimentsCheckbox.selected && refreshCount == 1) {
-					Alert.show("No experiments found.  Do you want to broaden the list to include all experiments from your lab?", "", 					
-						Alert.YES | Alert.NO, this, onPromptToShowLabExperiments);
-				} else if ((currentState == null || currentState == "") && this.myLabsExperimentsCheckbox && refreshCount == 2) {
-					Alert.show("No experiments found.  Do you want to broaden the list to include all experiments?", "", 
-						Alert.YES | Alert.NO, this, onPromptToShowAllExperiments);
-				} 
+				if (this.selectedIdProject == null) {
+					// If this is the first refresh and no experiments were returned, ask if search
+					// should be broadened
+					if ((currentState == null || currentState == "") && myExperimentsCheckbox.selected && refreshCount == 1) {
+						Alert.show("No experiments found.  Do you want to broaden the list to include all experiments from your lab?", "", 					
+							Alert.YES | Alert.NO, this, onPromptToShowLabExperiments);
+					} else if ((currentState == null || currentState == "") && this.myLabsExperimentsCheckbox && refreshCount == 2) {
+						Alert.show("No experiments found.  Do you want to broaden the list to include all experiments?", "", 
+							Alert.YES | Alert.NO, this, onPromptToShowAllExperiments);
+					}
+				}
         	} else {
         		browseTree.visible = true;
         		this.treeExpansionStack.visible = true;
@@ -874,12 +904,13 @@
 				selectedExperiment = getRequestFromNav.lastResult.Request.(reg["test"](@number));
 				selectedRequestNumber = selectedExperiment.@number.toString();
 			}
-				
+			
 			var params:Object = new Object();
 			params.idProject = selectedExperiment.@idProject;
 			params.showSamples = "N";
 			params.showCategory = "N";
-			
+			params.showEmptyProjectFolders = "N";
+
 			// Need this workaround to prevent type #1009 error.
 			this.browseTree.setFocus();
 			
@@ -907,6 +938,10 @@
 		
 		private function onGetProject(event:ResultEvent):void {
 			selectedProject = getProject.lastResult.Project.(@idProject == selectedIdProject);
+			refreshSelectedProject()
+		}
+			
+		private function refreshSelectedProject():void {
 			browseView.refreshDownloadList();
 			browseView.refreshTrackList();
 			browseView.refreshVisibilityList();
@@ -918,6 +953,34 @@
 			browseView.projectDetailView.checkSecurity();
 			browseView.projectDetailView.setupDataListeners();
 
+		}
+		
+		private function onGetProjectForLookup(event:ResultEvent):void {
+			selectedProject = getProjectForLookup.lastResult.Project.(@idProject == selectedIdProject);
+			refreshSelectedProject();
+			
+			var params:Object = new Object();
+			params.idProject = selectedIdProject;
+			params.showSamples = "N";
+			params.showCategory = "N";
+			params.showEmptyProjectFolders = "Y";
+			
+			// Need this workaround to prevent type #1009 error.
+			this.browseTree.setFocus();
+			
+			// For normal users, make sure we scope to the
+			// correct level to show the empty project folder just looked up.
+			if (currentState == null || currentState == "") {
+				if (!parentApplication.isMyLab(selectedProject.@idLab)) {		
+					params.publicExperimentsInOtherGroups = "Y";
+					this.publicExperimentsOtherGroupsCheckbox.selected = true;
+				}
+			} else {
+				// Make sure empty project folder will show.
+				params.showMyLabsAlways = "Y";
+				this.myLabsExperimentsCheckbox.selected = true;
+			}
+			getProjectRequestList.send(params);
 		}
 
 		public function getTreeLabel(item:Object):String {
@@ -1437,9 +1500,9 @@
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
  
   <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
-   <mx:VBox styleName="panelBox"    width="100%" verticalGap="0" borderColor="#030000" backgroundColor="#FFFFFF" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" borderStyle="none">
-	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1" >
-		<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0" verticalAlign="middle" >
+   <mx:VBox styleName="panelBox"    width="100%" verticalGap="0" borderColor="#030000" backgroundColor="#FFFFFF" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" borderStyle="outset" dropShadowEnabled="false" id="vbox3">
+	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1"  width="100%">
+		<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0" verticalAlign="middle"  width="100%">
 			<mx:Text text="Experiments"   styleName="titleLabel"/>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
  				
@@ -1536,7 +1599,7 @@
 	
 	   
 			
-			<mx:VBox styleName="panelBox"   width="260" height="100%" id="navPanel" >
+			<mx:VBox styleName="panelBox"   width="268" height="100%" id="navPanel" >
 				<mx:Text id="messageLabel"  width="100%" fontFamily="Arial" fontStyle="italic"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" >
 					<mx:VBox id="treeContainer"  width="100%" height="100%" paddingLeft="2" verticalGap="0" >
@@ -1573,13 +1636,10 @@
 															
 							</mx:HBox>
 							<mx:HBox>
-								<mx:LinkButton  label="Delete exp." id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
+								<mx:LinkButton  label="Delete experiment" id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
 												click="experimentDetailView.detail.promptToDeleteExperiment()"
 												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; selectedExperiment != null &amp;&amp; selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
 									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
-								</mx:LinkButton>
-								<mx:LinkButton label="Drag-and-drop hint" 
-											   click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
 								</mx:LinkButton>
 							</mx:HBox>
 							<mx:HBox horizontalGap="0">
@@ -1592,6 +1652,9 @@
 									</mx:HBox>
 								</mx:ViewStack>
 								<mx:VBox styleName="hintBox" id="vbox2">
+									<mx:LinkButton label="Drag-and-drop hint" 
+												   click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
+									</mx:LinkButton>
 								</mx:VBox>
 							</mx:HBox>
 							
@@ -1674,6 +1737,8 @@
 			<mx:SetProperty target="{CapSeqCheckbox}" name="label" value="DNA Seq" />
 			<mx:SetProperty target="{MitSeqCheckbox}" name="label" value="Mit Seq" />
 			<mx:SetProperty target="{showEmptyProjectFolders}" name="label" value="Empty Folders" />
+			<mx:SetStyle target="{vbox1}" name="verticalGap" value="3"/>
+			<mx:SetStyle target="{vbox3}" name="borderStyle" value="none"/>
 
 		</mx:State>
 

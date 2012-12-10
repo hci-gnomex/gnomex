@@ -1759,7 +1759,7 @@
 			
 			
 			// Function to delete the run
-			private function removeRun():void {
+			public function removeRun():void {
 				if ( !isInitialized ) {
 					return;
 				}

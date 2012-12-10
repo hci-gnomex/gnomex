@@ -177,7 +177,7 @@
 				} else if (property.@codePropertyType == 'CHECK') {
 					propertyValueViewStack[index].selectedIndex = 3;
 					propertyCheck[index].selected = property.@value == 'Y' ? true : false;
-					if(!this.parentDocument is AnalysisEditView) {
+					if (!(this.parentDocument is AnalysisEditView)) {
 						propertyCheck[index].enabled = false;
 					} 
 				}
@@ -193,8 +193,14 @@
 						var urlIdx:int = 0;
 						var urlItemDefined:Boolean = false;
 						for each (var propertyValue:XML in  property..PropertyEntryValue) {
-							var url:String = this.urlText[i][urlIdx].text;
-							var alias:String = this.aliasText[i][urlIdx].text;
+							var url:String = '';
+							if(i < urlText.length && urlText[i] != null && urlIdx < this.urlText[i].length) {
+								url = this.urlText[i][urlIdx].text;
+							}
+							var alias:String = '';
+							if(i < aliasText.length && aliasText[i] != null && urlIdx < this.aliasText[i].length) {
+								alias = this.aliasText[i][urlIdx].text;
+							}							
 							
 							if (url == 'Enter URL here...' || url == '') {
 								continue;
@@ -244,6 +250,7 @@
 					} else if (propertyValueViewStack[i].selectedIndex == 3) {
 						// check
 						property.@value = propertyCheck[i].selected ? 'Y' : 'N';
+						propertiesToSave.addItem(property);
 					} else if (propertyValueViewStack[i].selectedIndex == 4) {
 						// multi-select
 						property.@value = "";		

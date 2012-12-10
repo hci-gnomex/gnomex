@@ -806,6 +806,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (29,'lucene_protocol_index_directory','/home/gnomex/luceneIndex/Protocol','The file directory for storing lucene index files on protocol data.', 'Y'),
  (30,'experiment_directory','/home/gnomex/experimentData/','The file directory where experiment results are stored. NOTE: must end in /', 'Y'),
  (32,'analysis_directory','/home/gnomex/analysisData/','The file directory where analysis files are stored. NOTE: must end in /', 'Y'),
+ (33,'lucene_global_index_directory','/home/gnomex/luceneIndex/Global/','The file directory for storing lucene index files on combined data for all object types.','Y'),
  (34,'flowcell_directory','/home/gnomex/flowCellData/','The file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
  (35,'flowcell_test_directory','/home/gnomex/flowCellData/','The test file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
  (36,'billing_core_facility_business_unit','','Always blank for open source GNomEx', 'Y'),
@@ -863,7 +864,8 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (89,'generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y'),
  (90,'experiment_default_view', 'my experiments', 'Indicates default experiment view for non-admin users.  Values are "my experiments", "my lab" or "all".', 'N'),
  (91,'experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.', 'N'),
- (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N');
+ (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
+ (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N');
  
  
 

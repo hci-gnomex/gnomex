@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 
 
-public class PlatformApplication extends DictionaryEntry implements Comparable, Serializable {
+public class PropertyPlatformApplication extends DictionaryEntry implements Comparable, Serializable {
 
   private Integer         idPlatformApplication;
   private Integer         idProperty;

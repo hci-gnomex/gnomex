@@ -64,6 +64,7 @@
 		import mx.collections.Sort;
 		import mx.controls.Alert;
 		import mx.controls.Label;
+		import mx.events.AdvancedDataGridEvent;
 		import mx.events.CloseEvent;
 		import mx.events.FlexEvent;
 		import mx.managers.PopUpManager;
@@ -110,6 +111,8 @@
 			"Seq Lib Conc. ng/uL",
 			"Seq Lib Prep Status"];
 		
+		private var nameFieldDefault:String = 'enter name here..';
+		
 		[Bindable]
 		private var property:Object;
 		
@@ -138,6 +141,9 @@
 			// We use this technique xml.copy() to prevent duplication of applications 
 			// that somehow happens when we add services, then submit request or vice versa
 			filteredAppList = new XMLListCollection();
+			for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
+				filteredAppList.addItem(i.copy());
+			}
 			filteredAppListSorter = new Sort();
 			filteredAppListSorter.compareFunction = this.sortApplication;
 			filteredAppList.sort = filteredAppListSorter;	
@@ -151,7 +157,9 @@
 				
 		public function onPropertyRefreshed(event:Event):void {
 			properties.source = null;
-			properties.source = getPropertyList.lastResult..Property;
+			if(getPropertyList.lastResult != null) {
+				properties.source = getPropertyList.lastResult..Property;
+			}
 			properties.filterFunction = filterByAnnotations;
 			properties.refresh();
 			reselectProperty();
@@ -214,7 +222,24 @@
 				}
 			}
 		}
-			
+		
+		private function autoScroll(event:AdvancedDataGridEvent):void{
+			var selectedAnnot:XML= XML(event.item);
+			var index: int = 0;
+			for each(var a:XML in properties){
+				if(a == selectedAnnot){
+					index = properties.getItemIndex(a);
+					break;
+				}
+			}
+			if(index >= ((properties.length)/1.5)){
+				propertyList.verticalScrollPosition = index + selectedAnnot.children().length() - 1;
+			}
+			else{
+				propertyList.verticalScrollPosition = index;
+			}
+		}
+		
 		private function setOwnerCombo():void {
 			this.ownerCombo.selectedItem = null;
 			this.ownerCombo.enabled = true;
@@ -289,7 +314,7 @@
 					}
 				}				
 				
-				var newPlatformApplication:XML = new XML("<PlatformApplication" +
+				var newPlatformApplication:XML = new XML("<PropertyPlatformApplication" +
 					" idProperty='" + property.@idProperty + "'" +
 					" codeRequestCategory='" + codeRequestCategory  + "'" +
 					" display='" + platformCombo.selectedItem.@display  + "'" +
@@ -323,11 +348,23 @@
 		}
 			
 		private function addProperty():void {
+			for each(var sc:Object in getPropertyList.lastResult..Property) {
+				var thisPropName:String = StringUtil.trim(sc.@name);
+				thisPropName = thisPropName.toLowerCase();
+				
+				if(nameFieldDefault.toLocaleLowerCase() == thisPropName) {
+					Alert.show('There is already an annotation with the default name ("' 
+						+ nameFieldDefault.toLocaleLowerCase() 
+						+ '"). You must either rename or delete it before creating a new one.');
+					refresh(null);
+					return;
+				}
+			}			
 			theViews.selectedIndex = 0;
 			
 			var params:Object = new Object();
 			params.idProperty = '';
-			params.name = 'enter name here..';
+			params.name = nameFieldDefault;
 			params.isActive = 'Y';
 			params.isRequired = 'N';
 			params.forSample =  "Y";
@@ -382,10 +419,12 @@
 		private function onDeleteProperty(event:ResultEvent): void {
 			if (deleteProperty.lastResult.name() == "SUCCESS") {
 				parentApplication.getPropertyList.send();
+				getPropertyList.send();
 				
 			} else if (deleteProperty.lastResult.name() == "NONBLANKVALUES") {
 				idProperty = deleteProperty.lastResult.@idProperty;
 				parentApplication.getPropertyList.send();
+				getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));				
 				var deleteAnnotation:DeleteAnnotation = DeleteAnnotation(PopUpManager.createPopUp(this, DeleteAnnotation, false));
 				deleteAnnotation.x = removePropertyClick.x - (deleteAnnotation.width/2);		
@@ -415,30 +454,13 @@
 				}
 			}
 			
-			/*
-			if(propertyName == "description") {
-				Alert.show("'Description' is a reserved word. Please select a different name for the annotation.");
-				return;
-			}
-			
-			if(propertyName == "sample name") {
-				Alert.show("'Sample Name' is a reserved term. Please select a different name for the annotation.");
-				return;
-			}
-			
-			if(propertyName == "organism") {
-				Alert.show("'Organism' is a reserved word. Please select a different name for the annotation.");
-				return;
-			}
-			*/
-			
 			if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
 				Alert.show("Please choose object the annotation applies to.");
 				this.sample.setFocus();
 				return;
 			}
 			
-			for each(var sc:Object in properties) {
+			for each(var sc:Object in getPropertyList.lastResult..Property) {
 				var thisPropName:String = StringUtil.trim(sc.@name);
 				thisPropName = thisPropName.toLowerCase();
 				if(propertyList.selectedItem != sc && propertyName == thisPropName) {
@@ -479,7 +501,7 @@
 				organismCombo.selectedItem = null;
 				platformCombo.selectedItem = null;
 				analysisTypeCombo.selectedItem = null;
-				
+	
 				setOwnerCombo();
 				
 				dirty.resetDirty();
@@ -602,7 +624,7 @@
 <mx:XMLListCollection id="properties" source="{getPropertyList.lastResult..Property}"/>
 <mx:XMLListCollection id="options" source="{property.options.PropertyOption}"/>
 <mx:XMLListCollection id="organisms" source="{property.organisms.Organism}"/>
-<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PlatformApplication}" sort="{platformApplicationSorter}"/>
+<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PropertyPlatformApplication}" sort="{platformApplicationSorter}"/>
 <mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 <mx:XMLListCollection id="analysisTypes" source="{property.analysisTypes.AnalysisType}"/>
 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
@@ -629,13 +651,13 @@
   <mx:VBox height="100%" width="410">
 		<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelField="@name" 
 				 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
-				 groupItemRenderer="views.renderers.PropertyGroupedItem"
+				 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll()}" itemOpen="{autoScroll(event)}"
 				 iconFunction="getTreeIcon">
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{properties}"/>
 			</mx:dataProvider>						  
 			<mx:columns>
-				<mx:AdvancedDataGridColumn dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
+				<mx:AdvancedDataGridColumn id="annotation" dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
 					<mx:itemRenderer >
 						<mx:Component>
 							<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
@@ -746,16 +768,7 @@
 						<mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platformApplications}" width="100%" height="100%">
 							<mx:columns>
 								<mx:DataGridColumn dataField="@display"/>
-								<mx:DataGridColumn dataField="@applicationDisplay"/>
-								<!--mx:DataGridColumn headerText="Application"  
-								id="applicationCol"
-								dataField="@codeApplication"  
-								editorDataField="value" 
-								sortable="true" 
-								editable="true" 
-								rendererIsEditor="false"  
-								itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"                
-								itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication', null, true)}"/-->															 
+								<mx:DataGridColumn dataField="@applicationDisplay"/>															 
 							</mx:columns>
 						</mx:DataGrid>			   	
 					</mx:VBox>

@@ -208,6 +208,7 @@
 				} else if (call.marker == "doneSaveProtocol") {
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
+					parentApplication.getProtocolList.send();
 					dirty.resetDirty();
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
@@ -216,6 +217,7 @@
 					this.saveProtocolButton.enabled = false;
 					this.deleteProtocolButton.enabled = false;
 					this.titleLabelText = "Protocol: ";
+					parentApplication.getProtocolList.send();
 					callGetProtocolList();
 					dirty.resetDirty();
 				}

@@ -53,6 +53,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       CODE_EXPERIMENT_FACTORS = "codeExperimentFactors";
   public static final String       SAMPLE_ANNOTATIONS = "sampleAnnotations";
   public static final String       PROJECT_ANNOTATIONS = "projectAnnotations";
+  public static final String       ID_PROJECT_CORE_FACILITY = "idProjectCoreFacility";
   public static final String       TEXT = "text";
 
   

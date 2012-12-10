@@ -132,8 +132,8 @@ h5
 h6 {
   font-size: 10pt;
   font-weight: normal;
-  font-style: italic;
-  line-height: 0;
+  font-style: normal;
+  line-height: .25;
   margin-top: 0;
   margin-bottom: 0;
   margin-left: 10;
