@@ -29,20 +29,23 @@
 <mx:Script>
 	<![CDATA[
 		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.rpc.events.FaultEvent;
-		import mx.rpc.events.ResultEvent;
-		import mx.controls.Alert;
-		import mx.events.CloseEvent;
-		import mx.events.ListEvent;
+		
+		import hci.flex.controls.CheckBox;
 		import hci.flex.dictionary.DictionaryEditor;
 		import hci.flex.dictionary.DictionaryEvent;
+		
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
-		import hci.flex.controls.CheckBox;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
 		
 		private var closeWindowAfterSave:Boolean = false;
 		public var fromSubmitRequestWindow:Boolean = false;
 		private var dictionaryEditor:DictionaryEditor;
+		public var fromWelcomeView:Boolean = false;
 		
 		
 		public function checkSecurity():void {
@@ -174,11 +177,13 @@
         	if (saveProject.lastResult.name() == "SUCCESS") {
         		resetDirty();
 				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
-				if (fromSubmitRequestWindow) {
-					parentApplication.submitRequestView.setupView.onProjectAdded(saveProject.lastResult.@idProject);
-				}else {
-					parentApplication.navExperimentView.getProject.send();
-					parentApplication.navExperimentView.refreshExperiments();
+				if(!fromWelcomeView){
+					if (fromSubmitRequestWindow) {
+						parentApplication.submitRequestView.setupView.onProjectAdded(saveProject.lastResult.@idProject);
+					}else {
+						parentApplication.navExperimentView.getProject.send();
+						parentApplication.navExperimentView.refreshExperiments();
+					}
 				}
         		
         		if (closeWindowAfterSave) {
