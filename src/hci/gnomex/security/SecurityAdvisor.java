@@ -210,8 +210,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       isUniversityOnlyUser = false;
     }
     
-    // Is this a GNomEx external user? 
-    if (appUser == null) {
+    // Is this a GNomEx external user?  -- uncomment the && ... in order to simulate non-GNomEx University user using UNID
+    if (appUser == null /*&& !uid.equals("UNID")*/) {
       queryBuf = new StringBuffer();
       queryBuf.append(" SELECT user from AppUser as user ");
       queryBuf.append(" WHERE  user.userNameExternal =  '" + uid + "' ");
