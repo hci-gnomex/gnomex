@@ -752,6 +752,7 @@ CREATE TABLE `gnomex`.`ExperimentFile` (
   `fileName` VARCHAR(2000) NULL,
   `fileSize` DECIMAL(14,0) NULL,
   `idRequest` INT(10) NULL,
+  `createDate` DATE NULL,
   PRIMARY KEY (`idExperimentFile`),
   CONSTRAINT `FK_ExperimentFile_Request` FOREIGN KEY `FK_RequestFile_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)

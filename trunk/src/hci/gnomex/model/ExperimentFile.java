@@ -16,7 +16,8 @@ public class ExperimentFile extends HibernateDetailObject {
   private Request        request;
   private String         fileName;
   private BigDecimal     fileSize;
-  
+  private Date           createDate;
+
   public Integer getIdExperimentFile() {
     return idExperimentFile;
   }
@@ -47,7 +48,13 @@ public class ExperimentFile extends HibernateDetailObject {
   public void setFileSize(BigDecimal fileSize) {
     this.fileSize = fileSize;
   }
-  
+  public Date getCreateDate() {
+    return createDate;
+  }
+  public void setCreateDate(Date createDate) {
+    this.createDate = createDate;
+  }
+
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getRequest");

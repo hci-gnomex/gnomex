@@ -3,17 +3,27 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.SystemUtils;
+
 import org.hibernate.Session;
 
 
 public class FileDescriptor extends DetailObject implements Serializable {
+  private final static DateFormat FORMATTER = new SimpleDateFormat("dd/MM/yyyy  hh:mm");
+
   private static final double    KB = Math.pow(2, 10);
   private static final double    MB = Math.pow(2, 20);
   private static final double    GB = Math.pow(2, 30);
@@ -28,8 +38,11 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private String    zipEntryName;
   private String    directoryName;
   private String    flowCellIndicator;
+  private String    absolutePath;
+  private String    simpleName;
   private List      children = new ArrayList();
-  
+  private Date      createDate;
+  private Boolean   createDateLoaded = false;
   
   private boolean   found = false;
   
@@ -39,7 +52,9 @@ public class FileDescriptor extends DetailObject implements Serializable {
   public FileDescriptor(String requestNumber, String displayName, File file, String zipEntryName) {
     this.requestNumber = requestNumber;
     this.displayName = displayName;
-    
+    this.absolutePath = file.getAbsolutePath();
+    this.simpleName = file.getName();
+
     this.fileSize = file.length();
     this.lastModifyDate  = new Date(file.lastModified());
     try {
@@ -256,5 +271,36 @@ public class FileDescriptor extends DetailObject implements Serializable {
   
   public boolean isFound() {
     return this.found;
+  }
+
+  public Date getCreateDate() {
+    if (!createDateLoaded) {
+      loadCreateDate();
+    }
+    return createDate;
+  }
+
+  private void loadCreateDate() {
+    try {
+      this.createDateLoaded = true;
+      // Create date can only be obtained for windows OS.
+      if (System.getProperty("os.name").startsWith("Windows")) {
+        Runtime systemShell = Runtime.getRuntime();
+        Process output = systemShell.exec(String.format("cmd /c dir /Q /R /TC %s ", this.absolutePath));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(output.getInputStream()));
+        String outputLine = null;
+        while ((outputLine = reader.readLine()) != null) {
+          if (outputLine.contains(simpleName)) {
+            this.createDate = FORMATTER.parse(outputLine.substring(0, 17));
+          }
+        }
+      }
+    } catch(IOException e) {
+    } catch(ParseException e) {
+    }
+  }
+
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getCreateDate");
   }
 }
