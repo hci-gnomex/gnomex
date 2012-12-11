@@ -21,7 +21,7 @@
 	xmlns:login="views.login.*"
 	xmlns:report="views.report.*"
 	paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF">
+	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*">
 
 
 
@@ -267,6 +267,7 @@
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
 			
+			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
 			import hci.flex.renderers.RendererFactory;
@@ -309,6 +310,7 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
+			import views.experiment.ProjectDetailWindow;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -663,6 +665,10 @@
 			[Bindable]
 			[Embed(source="assets/run_review.png")]
 			public var iconPlatesAndRuns:Class;
+			
+			[Bindable]
+			[Embed(source="assets/folder_add.png")]
+			public var iconFolderAdd:Class;
 				
     
 	        [Bindable]
@@ -2743,7 +2749,15 @@
 				theViews.selectedChild = navDataView;
 			} else if (label == "Submit Work Auth") {
 				this.homeView.showWorkAuthForm();				
+			} else if (label == "New Project") {
+				var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
+				projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+				projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+				projectDetailWindow.projectDetailView.fromWelcomeView = true;
+				PopUpManager.centerPopUp(projectDetailWindow);
+				
 			}
+			
 		
 		
 		
@@ -2797,6 +2811,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 
 		<menuitem label="Analysis" icon="iconAnalysis"   />
