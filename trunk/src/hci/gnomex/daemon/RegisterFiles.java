@@ -347,8 +347,8 @@ public class RegisterFiles extends TimerTask {
   
   private java.sql.Date getEffectiveRequestFileCreateDate(FileDescriptor fd, java.util.Date requestCreateDate) {
     java.sql.Date createDate = null;
-    if (fd.getCreateDate() != null) {
-      createDate = new java.sql.Date(fd.getCreateDate().getTime());
+    if (fd.getLastModifyDate() != null) {
+      createDate = new java.sql.Date(fd.getLastModifyDate().getTime());
     } else if (requestCreateDate != null) {
       createDate = new java.sql.Date(requestCreateDate.getTime());
     }
