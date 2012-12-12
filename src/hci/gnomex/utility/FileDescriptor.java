@@ -273,7 +273,8 @@ public class FileDescriptor extends DetailObject implements Serializable {
     return this.found;
   }
 
-  public Date getCreateDate() {
+  // Change this to public to allow getting of create date.  Private now because it is an expensive operation.
+  private Date getCreateDate() {
     if (!createDateLoaded) {
       loadCreateDate();
     }
