@@ -270,6 +270,7 @@
 						" index ='" + well.position + "'" + 
 						" idSample ='" + well.idSample + "'" + 
 						" idRequest ='" + well.idRequest + "'" + 
+						" requestNumber ='" + well.requestNumber + "'" + 
 						" idPlateWell ='" + well.idPlateWell + "'" + 
 						" idAssay ='" + well.idAssay + "'" +  
 						" idPrimer ='" + well.idPrimer + "'" + 
