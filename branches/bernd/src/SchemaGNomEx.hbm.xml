@@ -408,6 +408,7 @@
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="fileName" column="fileName" type="string"/>
 		<property name="fileSize" column="fileSize" type="big_decimal"/>
+    <property name="createDate" column="createDate" type="date"/>
 	</class>	
 	
 	<!-- hci.gnomex.model.FlowCell -->

@@ -70,6 +70,8 @@
 					protocolsView.lastSavedProtocolId = createProtocol.lastResult.@idProtocolSaved;
 					protocolsView.lastSelectedProtocolClass = protocolClassName;
 					protocolsView.callGetProtocolList();
+					parentApplication.getProtocolList.send();
+					parentApplication.dictionaryManager.call("reload", "");
 					PopUpManager.removePopUp(this);
 				}
 			}

@@ -209,6 +209,7 @@
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
 					parentApplication.getProtocolList.send();
+					parentApplication.dictionaryManager.call("reload", "");
 					dirty.resetDirty();
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
@@ -218,6 +219,7 @@
 					this.deleteProtocolButton.enabled = false;
 					this.titleLabelText = "Protocol: ";
 					parentApplication.getProtocolList.send();
+					parentApplication.dictionaryManager.call("reload", "");
 					callGetProtocolList();
 					dirty.resetDirty();
 				}

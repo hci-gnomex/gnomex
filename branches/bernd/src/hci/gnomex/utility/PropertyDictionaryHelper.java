@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 
@@ -131,7 +132,8 @@ public class PropertyDictionaryHelper implements Serializable {
   
   
   private void loadProperties(Session sess)  {
-    List properties = sess.createQuery("select p from PropertyDictionary as p").list();
+    Query propQuery = sess.createQuery("select p from PropertyDictionary as p");
+    List properties = propQuery.list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
       PropertyDictionary prop = (PropertyDictionary)i.next();
       String name = prop.getPropertyName();

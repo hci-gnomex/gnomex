@@ -83,7 +83,9 @@ public class RegisterFiles extends TimerTask {
   
   private Transaction                  tx;
 
-  private String orionPath = "";
+  private String                       orionPath = "";
+  
+  private Boolean                      sendMail = true;
 
   private String                       errorMessageString = "Error in RegisterFiles";
   
@@ -104,11 +106,15 @@ public class RegisterFiles extends TimerTask {
         serverName = args[++i];
       } else if (args[i].equals ("-orionPath")) {
         orionPath = args[++i];
-      }
+      } else if (args[i].equals ("-doNotSendMail")) {
+        sendMail = false;
+      } 
     }
     
     try {
-      mailProps = new BatchMailer(orionPath).getMailProperties();
+      if (sendMail) {
+        mailProps = new BatchMailer(orionPath).getMailProperties();
+      }
     } catch (Exception e){
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
@@ -297,9 +303,21 @@ public class RegisterFiles extends TimerTask {
           } else {
             // Mark that the file system file has been found
             fd.isFound(true);
+            Boolean changed = false;
             // If the file size is different on the file system, update the ExperimentFile
             if (ef.getFileSize() == null || !ef.getFileSize().equals(BigDecimal.valueOf(fd.getFileSize()))) {
               ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
+              changed = true;
+            }
+            if (ef.getFileSize() == null || !ef.getFileSize().equals(BigDecimal.valueOf(fd.getFileSize()))) {
+              ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
+              changed = true;
+            }
+            if (ef.getCreateDate() == null) {
+              ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, createDate));
+              changed = true;
+            }
+            if (changed) {
               sess.save(ef);
             }
           }
@@ -316,6 +334,7 @@ public class RegisterFiles extends TimerTask {
           ef.setIdRequest(idRequest);
           ef.setFileName(fileName);
           ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
+          ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, createDate));
           sess.save(ef);
         }
       }
@@ -326,6 +345,16 @@ public class RegisterFiles extends TimerTask {
     }
   }
   
+  private java.sql.Date getEffectiveRequestFileCreateDate(FileDescriptor fd, java.util.Date requestCreateDate) {
+    java.sql.Date createDate = null;
+    if (fd.getLastModifyDate() != null) {
+      createDate = new java.sql.Date(fd.getLastModifyDate().getTime());
+    } else if (requestCreateDate != null) {
+      createDate = new java.sql.Date(requestCreateDate.getTime());
+    }
+    
+    return createDate;
+  }
   
   private void registerAnalysisFiles() throws Exception {
     
@@ -545,14 +574,16 @@ public class RegisterFiles extends TimerTask {
       }
       
       
-      MailUtil.send( mailProps,
-          emailAddress,
-          null,
-          fromAddress,
-          "GNomEx Analysis file(s) missing from file system",
-          body.toString(),
-          false
-        );
+      if (sendMail) {
+        MailUtil.send( mailProps,
+            emailAddress,
+            null,
+            fromAddress,
+            "GNomEx Analysis file(s) missing from file system",
+            body.toString(),
+            false
+          );
+      }
     }
   }
 
@@ -562,20 +593,23 @@ public class RegisterFiles extends TimerTask {
       String emailAddress = (String) i.next();
       String emailMessage = (String)emailMap.get(emailAddress);
       
-      MailUtil.send( mailProps,
-          emailAddress,
-          null,
-          fromAddress,
-          "GNomEx Analysis file(s) missing from file system",
-          emailMessage,
-          false
-        );
+      if (sendMail) {
+        MailUtil.send( mailProps,
+            emailAddress,
+            null,
+            fromAddress,
+            "GNomEx Analysis file(s) missing from file system",
+            emailMessage,
+            false
+          );
+      }
     }
   }
   
   private void sendErrorReport(String softwareTestEmail, String fromAddress)  {
-    try {  
-    MailUtil.send( mailProps,
+    try {
+      if (sendMail) {
+        MailUtil.send( mailProps,
           softwareTestEmail,
           null,
           fromAddress,
@@ -583,6 +617,7 @@ public class RegisterFiles extends TimerTask {
           errorMessageString,
           false
         );
+      }
     } catch (Exception e) {
       System.err.println( "Register files unable to send error report.   " + e.toString() );
     } 
