@@ -310,6 +310,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              idRequest.toString());
+    requestNode.setAttribute("requestNumber",          requestNumber);
     requestNode.setAttribute("label",                  label);
     requestNode.setAttribute("requestSubmitDate",      createDate == null ? ""  : this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH));
     requestNode.setAttribute("idLab",                  idLab == null ? "" : idLab.toString());
@@ -393,6 +394,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     Element n = new Element("Well");
     n.setAttribute("sampleName",     sampleName != null ? sampleName : "");
     n.setAttribute("idRequest",      idRequest != null ? idRequest.toString() : "");
+    n.setAttribute("requestNumber",  requestNumber != null ? requestNumber : "");
     n.setAttribute("idLab",          idLab != null ? idLab.toString() : "");
     n.setAttribute("idSample",       idSample != null ? idSample.toString() : "");
     n.setAttribute("type",           requestCategory.getRequestCategory());

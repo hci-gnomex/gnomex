@@ -487,6 +487,7 @@
 						plateWell.@sampleName =   wc.sampleName;
 						plateWell.@idSample = wc.idSample;
 						plateWell.@idRequest = wc.idRequest;
+						plateWell.@requestNumber = wc.requestNumber;
 						samplesOnPlate.push( plateWell );
 					}
 				}
@@ -540,13 +541,14 @@
 				var samplesOnPlate:Array = new Array();
 				
 				for each ( var wc:WellContainer in activePlate.getWells()) {
-					if ( wc.groupId == selectedGroupId && wc.hasSample ) {
+					if ( wc.requestNumber == selectedGroupId && wc.hasSample ) {
 						indices.push( wc.position );
 						var plateWell:XML = <PlateWell />;
 						plateWell.@wellPosition = wc.row + (wc.col < 10 ? '0' + wc.col : wc.col.toString());
 						plateWell.@sampleName =  wc.sampleName;
 						plateWell.@idSample = wc.idSample;
 						plateWell.@idRequest = wc.idRequest;
+						plateWell.@requestNumber = wc.requestNumber;
 						samplesOnPlate.push( plateWell );
 						submitDate.text = wc.submitDate;
 						submitter.text = wc.submitter;
@@ -600,6 +602,7 @@
 						plateWell.@sampleName = well.sampleName;
 						plateWell.@idSample = well.idSample;
 						plateWell.@idRequest = well.idRequest;
+						plateWell.@requestNumber = well.requestNumber;
 						samplesOnPlate.push( plateWell );
 					}
 				}
@@ -1072,7 +1075,7 @@
 							
 							if ( !activePlate.getWell( index ).hasSample && activePlate.getWell( index ).isControl != "Y" ) {
 								
-								item.@groupId = item.@idRequest;
+								item.@groupId = item.@requestNumber;
 								if ( reactionState == MIT || reactionState == FRAG ) {
 									item.@groupId = item.@label;
 								}
@@ -1389,7 +1392,7 @@
 				for each ( var pw:Object in plateObject..PlateWell ) {
 					var ind:int = pw.@position;
 					
-					pw.@groupId = pw.@idRequest;
+					pw.@groupId = pw.@requestNumber;
 					
 					if ( reactionState == MIT || reactionState == FRAG ) {
 						pw.@groupId = pw.@label;
@@ -1846,7 +1849,7 @@
 					
 					if ( onPlate ) {
 						if ( selection.name() == "Request" ) {
-							selectedGroupId = selection.@idRequest;
+							selectedGroupId = selection.@requestNumber;
 						} else if ( selection.name() == "Assay" ) {
 							selectedGroupId = selection.@label;
 						} else if ( selection.name() == "Primer" ) {
@@ -1885,6 +1888,7 @@
 									plateWell.@sampleName = well.sampleName;
 									plateWell.@idSample = well.idSample;
 									plateWell.@idRequest = well.idRequest;
+									plateWell.@requestNumber = well.requestNumber;
 									samplesOnPlate.push( plateWell );
 								}
 							}
@@ -1902,13 +1906,14 @@
 										pWell.@sampleName = well.sampleName;
 										pWell.@idSample = well.idSample;
 										pWell.@idRequest = well.idRequest;
+										pWell.@requestNumber = well.requestNumber;
 										samplesOnPlate.push( pWell );
 									}
 								}
 							}
 						}
 					}
-					displayOrderInfo( selection.@idRequest );
+					displayOrderInfo( selection.@requestNumber );
 				} else {
 					colorPick.selectNone();
 					
@@ -1923,6 +1928,7 @@
 										pw.@sampleName = well.sampleName;
 										pw.@idSample = well.idSample;
 										pw.@idRequest = well.idRequest;
+										pw.@requestNumber = well.requestNumber;
 										samplesOnPlate.push( pw );
 									}
 								}
@@ -3186,18 +3192,7 @@
 								<mx:Text id="plateCreateDateText" width="140" height="100%" />
 								
 							</mx:HBox>
-							<mx:HBox width="100%"
-									 verticalAlign="middle"
-									 horizontalGap="0"
-									 paddingRight="4"
-									 visible="{wellGrid.dataProvider.length > 0}"
-									 includeInLayout="{wellGrid.dataProvider.length > 0}">
-								
-								<mx:Label text="# Wells:" fontWeight="bold" />
-								<mx:Spacer width="100%" height="100%" />
-								<mx:Text id="numberWellsText" width="140" height="100%" />
-								
-							</mx:HBox>
+							
 							<mx:Label text="  Wells:"
 									  fontWeight="bold"
 									  visible="{wellGrid.dataProvider.length > 0}"
@@ -3214,21 +3209,35 @@
 											 selectable="false"
 											 width = "100%"
 											 height = "100%"
-											 showHeaders="false" 
 											 sortableColumns="false" 
 											 editable="false"
 											 variableRowHeight="true">
 									<mx:columns>
 										<mx:DataGridColumn textAlign = "center"
+														   headerText="Pos."
 														   dataField = "@wellPosition"
 														   width = "40" />
 										<mx:DataGridColumn textAlign = "center"
+														   headerText="Name"
 														   dataField = "@sampleName" />
 										<mx:DataGridColumn textAlign = "center"
-														   dataField = "@idRequest" />
+														   headerText="Order"
+														   dataField = "@requestNumber" />
 									</mx:columns>
 								</mx:DataGrid>
 								
+							</mx:HBox>
+							
+							<mx:HBox width="100%"
+									 verticalAlign="middle"
+									 horizontalGap="0"
+									 paddingRight="4"
+									 horizontalAlign="right"
+									 visible="{wellGrid.dataProvider.length > 0}"
+									 includeInLayout="{wellGrid.dataProvider.length > 0}">
+								<mx:Spacer width="100%" height="100%" />
+								<mx:Text id="numberWellsText"  height="100%" />
+								<mx:Label text="total" paddingRight="15" height="100%"  />
 							</mx:HBox>
 							
 						</mx:VBox>
@@ -3419,12 +3428,7 @@
 							<mx:Text id="submitDate" width="100%" />
 							
 						</mx:HBox>
-						<mx:HBox width="100%" paddingRight="4">
-							
-							<mx:Label text="Number of Samples on Plate:" fontWeight="bold" />
-							<mx:Text id="numberSamples" width="100%" />
-							
-						</mx:HBox>
+						
 						<mx:Label text="  Samples on Plate:" fontWeight="bold" id="label3" />
 						<mx:HBox width="100%" horizontalAlign="center" paddingRight="4">
 							
@@ -3433,19 +3437,27 @@
 										 selectable="false"
 										 width = "100%"
 										 height = "100%"
-										 showHeaders="false" 
 										 sortableColumns="false" 
 										 editable="false">
 								<mx:columns>
-									<mx:DataGridColumn textAlign = "center"
+									<mx:DataGridColumn headerText="Pos." 
+										               textAlign = "center"
 													   dataField = "@wellPosition" 
 													   width = "40" />
-									<mx:DataGridColumn textAlign = "center"
+									<mx:DataGridColumn headerText="Name" 
+													   textAlign = "center"
 													   dataField = "@sampleName" />
-									<mx:DataGridColumn textAlign = "center"
-													   dataField = "@idRequest" />
 								</mx:columns>
 							</mx:DataGrid>
+						</mx:HBox>
+						
+						<mx:HBox width="100%"
+								 verticalAlign="middle"
+								 horizontalGap="0"
+								 paddingRight="4"
+								 horizontalAlign="right">
+							<mx:Text id="numberSamples"  height="100%"/>
+							<mx:Label text="total" paddingRight="15" height="100%" />
 						</mx:HBox>
 						
 					</mx:VBox>
@@ -3472,12 +3484,7 @@
 							<mx:Text id="grName" width="100%" />
 							
 						</mx:HBox>
-						<mx:HBox width="100%" paddingRight="4">
-							
-							<mx:Label text="Number of Samples:" fontWeight="bold" />
-							<mx:Text id="groupNumSamp" width="100%" />
-							
-						</mx:HBox>
+						
 						<mx:Label text="  Samples:" fontWeight="bold" />
 						<mx:HBox width="100%" horizontalAlign="center" paddingRight="4">
 							
@@ -3486,19 +3493,30 @@
 										 selectable="false"
 										 width = "100%"
 										 height = "100%"
-										 showHeaders="false" 
 										 sortableColumns="false" 
 										 editable="false">
 								<mx:columns>
 									<mx:DataGridColumn textAlign = "center"
+													   headerText="Pos."
 													   dataField = "@wellPosition"
 													   width = "40" />
 									<mx:DataGridColumn textAlign = "center"
+													   headerText="Name"
 													   dataField = "@sampleName" />
 									<mx:DataGridColumn textAlign = "center"
-													   dataField = "@idRequest" />
+													   headerText="Order"
+													   dataField = "@requestNumber" />
 								</mx:columns>
 							</mx:DataGrid>
+						</mx:HBox>
+						
+						<mx:HBox width="100%"
+								 verticalAlign="middle"
+								 horizontalGap="0"
+								 paddingRight="4"
+								 horizontalAlign="right">
+							<mx:Text id="groupNumSamp" height="100%" />
+							<mx:Label text="total" paddingRight="15" height="100%" />
 						</mx:HBox>
 						
 					</mx:VBox>
