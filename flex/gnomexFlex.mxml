@@ -2859,6 +2859,7 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -2948,6 +2949,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		 
 
@@ -2976,6 +2978,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -3025,6 +3028,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
