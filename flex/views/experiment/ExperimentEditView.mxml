@@ -2225,12 +2225,9 @@
 			
 		}
 		
-		private function addDescriptionFieldToAnnotations(sc:XMLList, isSelected:Boolean):void {
+		private function addDescriptionFieldToAnnotations(sc:XMLList):void {
 			var scXML:XML = sc[0];
-			var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;
-			if(isSelected) {
-				descNode.@isSelected = "true";
-			}			
+			var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;		
 			scXML.appendChild(descNode);
 			this.propertyEntries.refresh();
 		}
@@ -2238,7 +2235,7 @@
 		private function onGetNewRequest(event:ResultEvent):void {
 			existingLanes = null;
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries, true);			
+				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);			
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idSubmitter = setupView.idAppUser;
@@ -3415,8 +3412,7 @@
 		
 		private function onGetRequest(event:ResultEvent):void {
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).PropertyEntries, 
-					getRequest.lastResult..Request.(@idRequest = request.@idRequest).@hasSampleDescription=="Y");			
+				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).PropertyEntries);			
 			}	
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
 			
