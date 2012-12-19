@@ -229,7 +229,7 @@
 										  label="{coreFacilityRepeater.currentItem.@display}" width="206"
 										  data="{coreFacilityRepeater.currentItem.@value}"
 										  selected="{coreFacilityRepeater.currentItem.@selected == 'Y' ? true : false}"
-										  enabled="{parentApplication.hasPermission('canAdministerAllCoreFacilities')}"
+										  enabled="{parentApplication.isCoreFacilityIManage(coreFacilityRepeater.currentItem.@value)?true:false}"
 										  click="dirty.setDirty()" />							
 					  </mx:HBox>
 				  </mx:Repeater>
