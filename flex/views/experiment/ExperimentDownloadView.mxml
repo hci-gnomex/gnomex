@@ -17,6 +17,21 @@
 		</mx:request>
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="cacheFDTFileDownloadList" 
+		url="CacheFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onCacheFDTFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
+	
 	
 	<mx:HTTPService  
 		id="getRequestDownloadList" 
@@ -41,10 +56,10 @@
 			
 			import hci.flex.controls.CheckBox;
 			
+			import mx.collections.Sort;
+			import mx.collections.SortField;
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.CollectionEventKind;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.formatters.DateFormatter;
@@ -56,6 +71,7 @@
 			import views.util.FileUtil;
 			
 			public var downloadProgressWindow:DownloadProgressView;
+			private var downloadWindow:ExperimentDownloadWindow;
 			
 			[Bindable]
 			public var uploadButtonsVisible:Boolean = false;
@@ -65,19 +81,17 @@
 			
 			[Bindable]
 			public var rowCountMessage:String = new String();
-			
-			[Bindable]
-			public var downloadSizeMessage:String = new String();
-			
+						
 			[Bindalbe]
 			public var request:Object;
 			
 			[Bindable]
 			public var browseMessage:String = new String();
 			
+			public var browseParameters:Object;
 			
 			[Bindable]
-			private var selectedFileList:XMLListCollection;
+			public var selectedFileList:XMLListCollection;
 			
 			private var estimatedDownloadSize:Number;
 			
@@ -103,9 +117,6 @@
 				setFileCount();
 				callLater(expandNodes);
 				parentDocument.filterList();
-				this.downloadList.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
-				this.downloadList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
-				filesToDelete.removeAll();
 							
 			}
 			 
@@ -120,19 +131,9 @@
 					downloadTree.expandItem(item3, false);
 				}
 			}
+						
 			
-			private function getSelectedFolders():void {
-				resultKeys = "";
-				for(var i:Number = 0; i < downloadList.length; i++) {
-					if (downloadList[i].@isSelected != null && downloadList[i].@isSelected.toString() == "true") {
-						resultKeys += downloadList[i].@key + ":"; 
-					}
-				}     	
-			}
-			
-			
-			public function downloadExpandedFiles():void {
-				var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
+			public function downloadExpandedFiles(selectedFiles:XMLList):void {      	
 				selectedFileList = new XMLListCollection(selectedFiles);
 				
 				filesExceedingMaxMessage = "";
@@ -172,9 +173,8 @@
 			}
 			
 			public function setFileCount():void {
-				rowCountMessage = getRequestDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s).";    	
+				rowCountMessage = getRequestDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s)";    	
 			}
-			
 			
 			
 			private function onCacheFileDownloadList(event:ResultEvent):void {
@@ -192,7 +192,7 @@
 					title = "Download file exceeds maximum size"; 
 					Alert.show( message,
 						title,
-						(Alert.OK | Alert.CANCEL), this, 
+						(Alert.OK | Alert.NO), parentApplication.theBody, 
 						onAlternateDownloadFiles,						
 						parentApplication.iconWarning);
 					
@@ -206,30 +206,29 @@
 					message = "Ready to download approximately " + FileUtil.getFileSizeText(call.marker) + " of data.  Proceed?";
 					Alert.show( message,
 						title,
-						(Alert.YES | Alert.NO), this, 
+						(Alert.YES | Alert.NO), parentApplication.theBody, 
 						onDownloadFiles,						
 						parentApplication.iconWarning);
 				}
 				
 				
 			}
-			
-			
+						
 			private function onDownloadFiles(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					var parms:URLVariables = new URLVariables();
 					parms.mode =  "zip";
 					var progressWindow:DownloadProgressView = new DownloadProgressView();
-					progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+					progressWindow.init(parentApplication.theBody, this.DOWNLOAD_FILES_URL, parms, downloadWindow.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 				}
 			}    
 			
 			private function onAlternateDownloadFiles(event:CloseEvent):void {
 				if (event.detail==Alert.OK) {
 					if (parentApplication.isFDTSupported) {
-						parentDocument.downloadFilesUsingFDT();
+						this.downloadFilesUsingFDT(selectedFileList.source);
 					} else {
-						parentDocument.showAlternateDownloadPage();	
+						this.showAlternateDownloadPage(selectedFileList.source);	
 					}
 				} 		
 			}
@@ -255,24 +254,60 @@
 				}
 			}
 			
-			
-			private function underlyingDownloadsChange(event:CollectionEvent):void {
-				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-					// ignore refresh and resets 
-					return;
-				}
+			public function downloadFilesUsingFDT(selectedFiles:XMLList):void {
+				selectedFileList = new XMLListCollection(selectedFiles);					
 				
-				var selectedDownloadSize:Number = 0;
-				var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
-				for each(var file:Object in selectedFiles) {
-					if (file.@type != "dir") {
-						var size:Number = FileUtil.getEstimatedCompressedSize(file);
-						selectedDownloadSize += size;
-					}
+				if (selectedFileList.length == 0) {
+					mx.controls.Alert.show("Please select the files to download.");
+				} else {
+					cacheFDTFileDownloadList.send();
 				}
-				downloadSizeMessage = "Ready to download " + FileUtil.getFileSizeText(selectedDownloadSize);
+			}
+			
+			private function onCacheFDTFileDownloadList(event:ResultEvent):void {
+				// We have cached the selected analysis files
+				// Now call the URL to start the FDT app using webstart
+				showFastDataTransferDownloadPage();
+			}
+			
+			public function showFastDataTransferDownloadPage():void {
+				var paramStr:String =  selectedFileList.toXMLString();			
+				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
+				url.contentType = "text/xml";
+				url.method = URLRequestMethod.GET;
+				navigateToURL(url, '_self');						
+			}
+			
+			public function showAlternateDownloadPage(selectedFiles:XMLList):void {
+				// Sort by request number to avoid duplicates
+				var filesCollection:XMLListCollection = new XMLListCollection(selectedFiles);
+				var sortByNum:Sort = new Sort();
+				sortByNum.fields = [new SortField("requestNumber")];
+				filesCollection.sort = sortByNum;
+				filesCollection.refresh();
+				
+				var requestNumbers:String = "";
+				var previous:String = "";
+				for each(var dl:Object in filesCollection.source) {
+					var currentNum:String = dl.@requestNumber;
+					if ( currentNum != previous ) {
+						if (requestNumbers.length > 0) {
+							requestNumbers += ":"
+						}
+						requestNumbers += currentNum;
+					}
+					previous = currentNum;
+				}
+				if (requestNumbers.length > 0) {
+					var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+						(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+						'.gx?requestNumbers=' + 
+						requestNumbers);
+					navigateToURL(url1, '_blank');	
+				}
 				
 			}
+			
 			
 			private function showExperimentUploadWindow():void {
 				var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
@@ -290,6 +325,16 @@
 				}
 			}
 			
+			public function showDownloadWindow():void {
+				if (this.browseParameters != null) {	  
+					downloadWindow = ExperimentDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentDownloadWindow, true));
+					downloadWindow.downloadView = this;
+					downloadWindow.browseParameters = this.browseParameters;
+					PopUpManager.centerPopUp(downloadWindow);
+					downloadWindow.init();
+				}
+			}
+			
 			private function showExperimentFDTUploadWindow():void {
 				var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
 				var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
@@ -298,86 +343,11 @@
 				}
 			}
 			
-			private function removeFile():void  {
-				var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
-				selectedFileList = new XMLListCollection(selectedFiles);
-				
-				if (selectedFileList.length == 0) {
-					Alert.show("Please select the files to delete.");
-					return;
-				}
-				Alert.show("Are you sure you want to remove the file?",
-					"Confirm",
-					(Alert.YES | Alert.NO), this, 
-					onPromptToRemoveFile,						
-					parentApplication.iconWarning);
-			}
 			
-			private function onPromptToRemoveFile(event:CloseEvent):void {
-				if (event.detail == Alert.YES) {
-					removeFileImpl();
-				}
-			}
-			
-			private function removeFileImpl():void {
-				parentDocument.dirty.setDirty();
-				for each (var f:Object in getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true")){
-					filesToDelete.addItem(f);
-					
-					var children:XMLList = XMLList(f.parent()).children();
-					for (var i:Number = 0; i < children.length(); i++){
-						if (children[i] == f){
-							delete children[i];
-						}
-					} 
-				}
-			}
-			
-			private function promptToRemoveAllFiles():void {
-				Alert.show("Are you sure you want to remove all the files?",
-					"Confirm",
-					(Alert.YES | Alert.NO), this, 
-					onPromptToRemoveAllFiles,						
-					parentApplication.iconWarning);
-			}
-			
-			private function onPromptToRemoveAllFiles(event:CloseEvent):void  {
-				if (event.detail == Alert.YES) {
-					removeAllFilesImpl();
-				}
-			}
-			
-			private function removeAllFilesImpl():void  {
-				parentDocument.dirty.setDirty();
-				//		for each(var f:Object in downloadTree) {
-				//			filesToDelete.addItem(f);
-				//		}
-				//		
-				//		var children:XMLList = downloadList.children();
-				//		for (var i:Number = 0; i < children.length(); i++){
-				//			delete children[i];
-				//		}
-				//		
-				for each (var f:Object in getRequestDownloadList.lastResult..FileDescriptor){
-					filesToDelete.addItem(f);
-					
-					var children:XMLList = XMLList(f.parent()).children();
-					for (var i:Number = 0; i < children.length(); i++){
-						if (children[i] == f){
-							delete children[i];
-						}
-					} 
-				}
-			}
-			
-			public function getFilesToDelete():XMLListCollection{
-				return filesToDelete;
-			}
 		]]>
 	</mx:Script>
 	
 	<mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.Request}"/>
-	<mx:XMLListCollection  id="filesToDelete"  />
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" verticalGap="0">
 		
@@ -385,43 +355,34 @@
 			<mx:Label text="{browseMessage}"/>			
 		</mx:HBox>
 		
-		<mx:HBox id="deleteButtonsContainer"  includeInLayout="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" visible="{this.uploadButtonsVisible || this.removeFileButtonsVisible}" horizontalAlign="right" paddingTop="2" paddingBottom="2">
-			<mx:LinkButton label="Upload files" 
-						   click="showExperimentUploadWindow()" 
-						   visible="{this.uploadButtonsVisible}"
-						   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
+		<mx:HBox  paddingTop="2" paddingBottom="2" verticalAlign="middle">	
+			<mx:HBox includeInLayout="{this.removeFileButtonsVisible || this.uploadButtonsVisible}" 
+					 visible="{this.removeFileButtonsVisible || this.uploadButtonsVisible}" 
+					 horizontalAlign="right" paddingTop="2" paddingBottom="2">
+				<mx:LinkButton label="Upload files" 
+							   click="showExperimentUploadWindow()" 
+							   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
+							   textAlign="left"/>
+				<mx:LinkButton label="FDT Upload files" 
+							   visible="{parentApplication.isFDTSupported}"
+							   includeInLayout="{parentApplication.isFDTSupported}"
+							   click="showExperimentFDTUploadWindow()" 
+							   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
+				<mx:LinkButton label="Manage files"  
+							   click="showExperimentOrganizeWindow()" 
+							   toolTip="Add, delete, rename files and folders."
+							   id="uploadOrganizeLink" 
+							   textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" 
+							   textAlign="left"/>
+			</mx:HBox>
+			<mx:LinkButton label="Download files"  
+						   click="showDownloadWindow()" 
+						   id="downloadLink" 
+						   textDecoration="underline" icon="@Embed(source='../../assets/download.png')" 
 						   textAlign="left"/>
-			<mx:LinkButton label="FDT Upload files" 
-						   visible="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
-						   includeInLayout="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
-						   click="showExperimentFDTUploadWindow()" 
-						   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
-			<mx:LinkButton label="Organize files"  
-						   visible="{this.uploadButtonsVisible}"
-						   click="showExperimentOrganizeWindow()" 
-						   id="uploadOrganizeLink" 
-						   textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" 
-						   textAlign="left"/>
-			<mx:LinkButton textDecoration="underline" 
-						   visible="{this.removeFileButtonsVisible}"
-						   includeInLayout="{this.removeFileButtonsVisible}"
-						   label="Remove (from file system)" 
-						   icon="@Embed(source='../../assets/delete.png')" 
-						   id="deleteFileButton" 
-						   toolTip="Delete selected files" 
-						   click="removeFile()"/>
-			<mx:LinkButton textDecoration="underline" 
-						   visible="{this.removeFileButtonsVisible}"
-						   includeInLayout="{this.removeFileButtonsVisible}"
-						   label="Delete all" 
-						   icon="@Embed('../../assets/folder_delete.png')"  
-						   id="clearFilesButton" 
-						   toolTip="Delete all files" 
-						   click="promptToRemoveAllFiles()"/>
 		</mx:HBox>
 		<mx:Spacer height="6" includeInLayout="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}" visible="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}"/>
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
-							 groupItemRenderer="views.renderers.CheckBoxGroupedItem"
 							 dropEnabled="false"  
 							 displayItemsExpanded="false"
 							 iconFunction="parentApplication.getTreeIcon"
@@ -432,6 +393,7 @@
 							 sortableColumns="false"
 							 borderStyle="solid" 
 							 headerWordWrap="false" 
+							 allowMultipleSelection="true"
 							 resizableColumns="true">						
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{downloadList}"/>
@@ -445,8 +407,6 @@
 			</mx:columns>
 		</mx:AdvancedDataGrid>
 		<mx:HBox width="100%" horizontalAlign="left">
-			<mx:Label text="{downloadSizeMessage}" fontWeight="normal" fontStyle="normal" />
-			<mx:Spacer width="100%"/>
 			<mx:Label text="{rowCountMessage}" />
 		</mx:HBox>
 		
