@@ -244,18 +244,21 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("JOIN   req.billingItems bi ");
     buf.append("WHERE  bi.idBillingAccount != " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.idRequest in (");
-    Boolean first = true;
-    for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
-      String requestNumber = (String)i.next();      
-      Request request = (Request)requestMap.get(requestNumber);
-      if (!first) {
-        buf.append(", ");
+    
+    if(requestMap.keySet().iterator().hasNext()){
+      buf.append("AND    bi.idRequest in (");
+      Boolean first = true;
+      for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+        String requestNumber = (String)i.next();      
+        Request request = (Request)requestMap.get(requestNumber);
+        if (!first) {
+          buf.append(", ");
+        }
+        first = false;
+        buf.append(request.getIdRequest().toString());
       }
-      first = false;
-      buf.append(request.getIdRequest().toString());
+      buf.append(")");
     }
-    buf.append(")");
     
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       buf.append(" AND ");
@@ -263,7 +266,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       buf.append(" ");
     }
     
-    buf.append("ORDER BY req.number, bi.idBillingAccount, bi.idBillingItem ");
+    buf.append(" ORDER BY req.number, bi.idBillingAccount, bi.idBillingItem ");
     
     results = sess.createQuery(buf.toString()).list();
     
