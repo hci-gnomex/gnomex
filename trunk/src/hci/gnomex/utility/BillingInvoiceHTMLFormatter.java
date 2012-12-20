@@ -103,8 +103,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     table.setAttribute("CELLPADDING", "0");
     table.addContent(makeRow(lab.getName()));
     table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
-    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback")); 
-    table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
+    if(invoice != null){
+      table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+    }
     
     return table;
  }
