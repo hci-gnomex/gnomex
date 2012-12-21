@@ -225,6 +225,7 @@
 		
 		private function autoScroll(event:AdvancedDataGridEvent):void{
 			var selectedAnnot:XML= XML(event.item);
+			idProperty = selectedAnnot.@idProperty;
 			var index: int = 0;
 			for each(var a:XML in properties){
 				if(a == selectedAnnot){
@@ -238,6 +239,8 @@
 			else{
 				propertyList.verticalScrollPosition = index;
 			}
+			
+			reselectProperty();
 		}
 		
 		private function setOwnerCombo():void {
@@ -518,6 +521,7 @@
 				parentApplication.getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));
 				getPropertyList.send();
+				this.reselectProperty();
 			} else {
 				Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -651,7 +655,7 @@
   <mx:VBox height="100%" width="410">
 		<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelField="@name" 
 				 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
-				 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll()}" itemOpen="{autoScroll(event)}"
+				 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
 				 iconFunction="getTreeIcon">
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{properties}"/>
