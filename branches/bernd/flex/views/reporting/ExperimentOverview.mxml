@@ -23,6 +23,7 @@
 			<seqInstrument>{seqInstrument}</seqInstrument>
 			<experimentId>{expID}</experimentId>
 			<lab>{Lab}</lab>
+			<coreFacilityId>{CF}</coreFacilityId>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -50,12 +51,6 @@
 		</mx:request>
 	</mx:HTTPService >
 	
-	<!--
-		Fix hibernate schema to support linking / mapping of the required SQL tables.
-		
-	-->
-	
-	
 	<mx:XMLListCollection id="experimentList" source="{getExperimentList.lastResult.ExperimentOverview}"/>
 	<mx:XMLListCollection id="labs" source="{getLabList.lastResult.Lab}"/>
 	<mx:XMLListCollection id="appUsers" source="{getAppUserList.lastResult..AppUser}" />
@@ -78,6 +73,7 @@
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
 			
 			import views.util.PromptXMLListCollection;
 			
@@ -97,9 +93,8 @@
 			public var expID:String;
 			[Bindable]
 			public var Lab:String;
-
 			[Bindable]
-			private var requestNumberscopy:ArrayCollection;
+			public var CF:String;
 			
 			[Bindable]
 			private var requestNumbers:ArrayCollection;			
@@ -108,12 +103,11 @@
 				getExperimentList.send();
 				getLabList.send();
 				getAppUserList.send();
-				refreshRequestNumbers();
-				requestNumberscopy = requestNumbers;
 			}
 			
 			private function onGetExperimentList(event:ResultEvent):void {
-				if (event.result.name() == "ExperimentOverviewList") { 
+				if (event.result.name() == "ExperimentOverviewList") {
+					refreshRequestNumbers();
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
 				}
@@ -138,10 +132,15 @@
 				} 
 			}
 			
+			protected function corefacilityFilter_changeHandler(event:ListEvent):void
+			{
+				CF = cfSelector.selectedItem.@idCoreFacility; 
+				getExperimentList.send();
+			}
+			
 			protected function workflowStatusFilter_changeHandler(event:ListEvent):void
 			{
 				workflowStatus = workflowStatusFilter.selectedItem.@codeStep;
-				//Alert.show("Workflow status: " + workflowStatusFilter.selectedItem.@codeStep);
 				getExperimentList.send();
 			}
 			
@@ -153,7 +152,7 @@
 			
 			protected function requesterFilter_changeHandler(event:ListEvent):void
 			{
-				requestingUser = requesterFilter.selectedItem.value;
+				requestingUser = requesterFilter.selectedItem.@idAppUser;
 				getExperimentList.send();
 			}
 			
@@ -177,7 +176,7 @@
 			
 			protected function experimentIdFilter_changeHandler(event:ListEvent):void
 			{
-				expID = experimentIdFilter.selectedItem.value;
+				expID = experimentIdFilter.selectedLabel.toString();
 				getExperimentList.send();
 			}
 			
@@ -198,6 +197,8 @@
 			{
 				workflowStatusFilter.selectedIndex = -1;
 				workflowStatus = null;
+				cfSelector.selectedIndex = -1;
+				CF = null;
 				experimentTypeFilter.selectedIndex = -1;
 				expType = null;
 				requesterFilter.selectedIndex = -1;
@@ -217,6 +218,21 @@
 				getExperimentList.send();
 			}
 			
+			private function refreshExperimentList():void {
+				getExperimentList.send();
+			}
+			
+			private function filterRequestNumbers(item:Object):Boolean {
+				var keep:Boolean = true;
+				if (experimentIdFilter.selectedItem != null && experimentIdFilter.selectedItem.label != "") {
+					keep = false;
+					if (item.@experimentId == experimentIdFilter.selectedItem.label) {
+						keep = true;
+					}
+				}        	
+				return keep;
+			}
+			
 			private function refreshRequestNumbers():void {
 				requestNumbers = new ArrayCollection();
 				
@@ -225,23 +241,28 @@
 				blankItem.label = "";
 				requestNumbers.addItem(blankItem);
 				
-				for(var x:Number = 0; x < experimentList.source.length; x++) {
-					var item:Object = experimentList.source.getItemAt(x, 0);
+				for(var x:Number = 0; x < experimentList.length; x++) {
+					var item:Object = experimentList.getItemAt(x, 0);
 					
 					var found:Boolean = false;
 					for(var i:Number = 0; i < requestNumbers.length; i++) {
-						if (requestNumbers.getItemAt(i).label == item.@expNumber) {
+						if (requestNumbers.getItemAt(i).label == item.@experimentId) {
 							found = true;
 							break;
 						}
 					}
 					if (found == false) {
 						var newItem:Object = new Object();
-						newItem.data = item.@expNumber;
-						newItem.label = item.@expNumber;
+						newItem.data = item.@experimentId;
+						newItem.label = item.@experimentId;
 						requestNumbers.addItem(newItem);
 					}
 				}
+			}
+			
+			private function expIdLabelFunction(item:Object):String {
+				var cat:String = item.label.toString();
+				return cat;
 			}
 			
 		]]>
@@ -251,16 +272,15 @@
 		<mx:VBox id="headerBox" width="100%" height="10%">
 			<mx:Label id="headerLabel" fontSize="16" fontWeight="bold" text="Experiment Overview"/>
 			<mx:Label id="headerLabel2" fontSize="12" fontWeight="bold" text="Filter Options:"/>
-			<!-- Core facility selection 
-					1. User is super admin, provide core facility selection dropdown (+Option for ALL). 
-					2. User is admin of core facility, preselect core facility and disable dropdown 
-			-->
+
 			<mx:HBox>
-				<mx:HBox id="horizontalCFSelectorContainer" width="104">
+				<mx:HBox id="horizontalCFSelectorContainer" width="110">
 					<mx:Label id="coreFacilitySelectLabel" text="Core Facility: " />
 				</mx:HBox>
-			
-				<mx:ComboBox id="cfSelector" labelField="@display" dataProvider="{coreFacilities}" />
+
+				<mx:ComboBox id="cfSelector" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length-1 >= 2 ? true : false}" includeInLayout="{coreFacilities.length-1 >= 2 ? true : false}" selectedIndex="1" />
+				
+				<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(1).@display}" visible="{coreFacilities.length-1 &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length-1 &lt; 2 ? true : false}" />				
 			</mx:HBox>			
 		
 			<mx:HBox id="horizontalMainContainer" horizontalGap="12" paddingTop="0">
@@ -298,9 +318,8 @@
 					<mx:Label id="exportTypeLabel" text="Export as:"/>
 				</mx:VBox>
 				<mx:VBox id="filterBoxRightCombo">
-					<mx:ComboBox id="experimentIdFilter" change="experimentIdFilter_changeHandler(event)" dataProvider="{requestNumberscopy}">
-					</mx:ComboBox>
-					<mx:ComboBox id="labFilter" change="labFilter_changeHandler(event)" labelField="@name" dataProvider="{labs}" />
+					<mx:ComboBox id="experimentIdFilter" change="experimentIdFilter_changeHandler(event)" dataProvider="{requestNumbers}" />
+					<mx:ComboBox id="labFilter" 		 change="labFilter_changeHandler(event)" labelField="@name" dataProvider="{labs}" />
 					<mx:ComboBox id="exportType" change="exportType_changeHandler(event)">
 						<mx:String></mx:String>
 						<mx:String>Excel 2003</mx:String>
@@ -327,7 +346,7 @@
 			</mx:dataProvider> 
 			
 			<mx:columns>
-				<mx:AdvancedDataGridColumn  dataField="@expNumber" editable="false" headerText="Experiment ID" width="60">
+				<mx:AdvancedDataGridColumn  dataField="@experimentId" editable="false" headerText="Experiment ID" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@expCreateDate" editable="false" headerText="Submission Date" width="60">
 				</mx:AdvancedDataGridColumn>
@@ -361,8 +380,8 @@
 					
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@expNumSeqCycles"  editable="false" headerText="# Cycles"   width="32" />
-				<mx:AdvancedDataGridColumn  dataField="@samplePrepDate" editable="false" headerText="Library Prep Completed" width="60">
-				</mx:AdvancedDataGridColumn> 
+				<mx:AdvancedDataGridColumn  dataField="@samplePrepDate" editable="false" headerText="Library Prep Completed" width="60" />
+				  
 				<mx:AdvancedDataGridColumn  dataField="@expInstrument" editable="false" headerText="Instrument" width="60">
 				</mx:AdvancedDataGridColumn>
 			</mx:columns>

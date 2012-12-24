@@ -72,7 +72,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             n.setAttribute("sampleBarcode",              row[2] == null ? "" :  (String)row[2]);
             n.setAttribute("samplePrepDate",             row[3] == null ? "" :  this.formatDate((java.util.Date)row[3]));
             n.setAttribute("expCodeApp",	             row[4] == null ? "" :  (String)row[4]);
-            n.setAttribute("expNumber",  	             row[5] == null ? "" :  (String)row[5]);
+            n.setAttribute("experimentId", 	             row[5] == null ? "" :  (String)row[5]);
             n.setAttribute("expCreateDate",              row[6] == null ? "" :  this.formatDate((java.util.Date)row[6]));
             n.setAttribute("expStatus",  	             row[7] == null ? "" :  (String)row[7]);
             n.setAttribute("userFirstName",          	 row[8] == null ? "" :  (String)row[8]);
@@ -84,7 +84,12 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             n.setAttribute("expNumSeqCycles",			 row[14] == null ? "" : ((Integer)row[14]).toString());
             n.setAttribute("expInstrument", 			 row[15] == null ? "" : (String)row[15]);
             n.setAttribute("labLastName",		         row[16] == null ? "" :  (String)row[16]);
-          //  n.setAttribute("sampleCodeStepNext", 		 row[17] == null ? "" : (String)row[17]);
+            n.setAttribute("sampleCodeStepNext",		 row[17] == null ? "" : (String)row[17]);
+            n.setAttribute("idCoreFacility",	 		 row[18] == null ? "" : ((Integer)row[18]).toString());
+            
+            System.err.println("Sample: === " + (String)row[1]);
+            System.err.println("Core Facility: === " + ((Integer)row[18]).toString());
+            System.err.println("Code Step Next === " + (String)row[17]);
             
             String labFullName = "";
             if (row[16] != null) {

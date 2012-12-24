@@ -19,6 +19,7 @@ public class ExperimentOverview extends HibernateDetailObject {
   private String				seqInstrument;
   private String				experimentId;
   private String				lab;
+  private String				coreFacilityId;
   
   
 	public String getWorkflow() {
@@ -83,6 +84,14 @@ public class ExperimentOverview extends HibernateDetailObject {
 
 	public void setLab(String Lab) {
 		this.lab = Lab;
+	}
+
+	public String getCoreFacilityId() {
+		return coreFacilityId;
+	}
+
+	public void setCoreFacilityId(String coreFacilityId) {
+		this.coreFacilityId = coreFacilityId;
 	}
 
   /*private Integer         idWorkItem;

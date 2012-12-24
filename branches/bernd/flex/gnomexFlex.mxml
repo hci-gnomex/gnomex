@@ -2756,7 +2756,8 @@
 				projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
 				projectDetailWindow.projectDetailView.fromWelcomeView = true;
 				PopUpManager.centerPopUp(projectDetailWindow);
-				
+			} else if (label == "Experiment Overview") {
+				theViews.selectedChild = experimentOverview;
 			}
 			
 		
@@ -2813,6 +2814,7 @@
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Experiment Overview" icon="iconFlask" />
 		</menuitem>
 
 		<menuitem label="Analysis" icon="iconAnalysis"   />

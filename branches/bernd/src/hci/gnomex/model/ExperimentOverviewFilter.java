@@ -22,6 +22,7 @@ public class ExperimentOverviewFilter extends DetailObject {
   private String				seqInstrument;
   private String				experimentId;
   private String				lab;
+  private String				coreFacilityId;
   
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -35,15 +36,13 @@ public class ExperimentOverviewFilter extends DetailObject {
     // Make separate function for appending filter queries.
   }
 
-    
-  
   private StringBuffer getQuery() {
     queryBuf = new StringBuffer();
     addWhere = true;
       
     addBaseColumns(queryBuf);
     addBaseQueryBody(queryBuf);
-    
+/*    
     System.err.println("WorkFlow = " + workflow);
     System.err.println("ExpType = " + expType);
     System.err.println("RequestUser = " + requestUser);
@@ -52,7 +51,8 @@ public class ExperimentOverviewFilter extends DetailObject {
     System.err.println("SeqInstrument = " + seqInstrument);
     System.err.println("ExperimentID = " + experimentId);
     System.err.println("Lab = " + lab);
-    
+    System.err.println("Core Facility Id = " + coreFacilityId);
+*/    
     addRequestCriteria();
 
     return queryBuf;
@@ -69,7 +69,7 @@ public class ExperimentOverviewFilter extends DetailObject {
 	  queryBuf.append(" srt.seqRunType, ");
 	  queryBuf.append(" nsc.numberSequencingCycles, ");
 	  queryBuf.append(" ins.instrument, lab.lastName, ");
-	  queryBuf.append(" wi.codeStepNext ");
+	  queryBuf.append(" wi.codeStepNext, req.idCoreFacility ");
    } 
 
   private void addBaseQueryBody(StringBuffer queryBuf) {
@@ -146,6 +146,16 @@ public class ExperimentOverviewFilter extends DetailObject {
     	queryBuf.append(lab);
     	queryBuf.append("'");
     }
+    
+    // Filter by Core Facility Id
+    if(coreFacilityId != null){
+    	this.addWhereOrAnd();
+    	queryBuf.append(" req.idCoreFacility = '");
+    	queryBuf.append(coreFacilityId);
+    	queryBuf.append("'");
+    }
+    
+    System.err.println(queryBuf);
   }
 
   
@@ -242,5 +252,13 @@ public class ExperimentOverviewFilter extends DetailObject {
   
   public String getLab(){
 	  return lab;
+  }
+  
+  public String getCoreFacilityId() {
+  	  return coreFacilityId;
+  }
+
+  public void setCoreFacilityId(String coreFacilityId) {
+	  this.coreFacilityId = coreFacilityId;
   }
 }
