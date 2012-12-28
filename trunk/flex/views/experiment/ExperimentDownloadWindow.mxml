@@ -211,7 +211,6 @@
 						numFilesToDownload.text = filesToDownload.source..FileDescriptor.(@type!='dir').length() + ' file(s)';
 						
 						filesToDownload.refresh();
-						sortDownloadList(fileNode);
 						
 						filesTree.selectedItem = null;
 						
@@ -219,25 +218,6 @@
 				}	
 			}
 			
-			// Sort all of the download folders by name since the xmllistcollection (filesToDownload) only sorts top elements (Request)
-			// Also, expand the download folder containing the file/folder just added
-			private function sortDownloadList(file:XML):void{
-				var sort:Sort = new Sort()
-				sort.fields = [new SortField("@displayName")];
-				for each (var node:XML in filesToDownload.source)
-				{
-					var xcoll:XMLListCollection = new XMLListCollection(node.children());
-					xcoll.sort = sort;
-					xcoll.refresh();
-					node.setChildren(xcoll.copy());
-					if ( node.@requestNumber == file.@requestNumber ) {
-						downloadTree.expandItem(node, true);
-						for each ( var folder:XML in node.RequestDownload.(@itemNumber == file.@itemNumber) ) {
-							downloadTree.expandItem(folder, true);
-						}
-					}
-				}
-			}
 			
 			private function createReqNode(item:XML):XML {
 				var node:XML = <Request/>;

@@ -196,7 +196,6 @@
 						numFilesToDownload.text = filesToDownload.source..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)';
 						
 						filesToDownload.refresh();
-						sortDownloadList(fileNode);
 						
 						filesTree.selectedItem = null;
 						
@@ -204,27 +203,6 @@
 				}	
 			}
 			
-			// Sort all of the download folders by name since the xmllistcollection (filesToDownload) only sorts top elements (Analysis)
-			// Also, expand the download folder containing the file/folder just added
-			private function sortDownloadList(file:XML):void{
-				var sort:Sort = new Sort()
-				sort.fields = [new SortField("@displayName")];
-				for each (var node:XML in filesToDownload.source)
-				{
-					var xcoll:XMLListCollection = new XMLListCollection(node.children());
-					xcoll.sort = sort;
-					xcoll.refresh();
-					node.setChildren(xcoll.copy());
-					if ( node.@number == file.@analysisNumber ) {
-						downloadTree.expandItem(node, true);
-						for each ( var folder:XML in node.AnalysisFileDescriptor.(@type == 'dir') ) {
-							if ( folder.(@fileName == file.@fileName).length() > 0 ){
-								downloadTree.expandItem(folder, true);
-							}
-						}
-					}
-				}
-			}
 			
 			private function createANode(item:XML):XML {
 				var node:XML = <Analysis/>;

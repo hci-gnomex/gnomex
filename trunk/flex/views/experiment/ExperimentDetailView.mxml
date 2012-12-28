@@ -569,7 +569,8 @@
 		
 		public function checkForFileView():void {
 			if(theTab.contains(this.filesView)) {
-				theTab.selectedChild = filesView;			
+				theTab.selectedChild = filesView;	
+				callLater(filesView.showDownloadWindow);
 			}
 		}	
 	
