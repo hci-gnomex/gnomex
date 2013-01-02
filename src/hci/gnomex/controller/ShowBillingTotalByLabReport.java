@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -41,7 +42,7 @@ import org.hibernate.Session;
 
 public class ShowBillingTotalByLabReport extends ReportCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingMonthendReport.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingTotalByLabReport.class);
   
   
   private java.sql.Date    startDate;
@@ -62,6 +63,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   private BigDecimal grandTotalMitSeq = new BigDecimal("0");
   private BigDecimal grandTotalFragAnal = new BigDecimal("0");
   private BigDecimal grandTotalCherryPick = new BigDecimal("0");
+  private BigDecimal grandTotalDiskUsage = new BigDecimal("0");
   private BigDecimal grandTotal = new BigDecimal("0");
 
   
@@ -138,6 +140,8 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
           TreeMap cherryPickMap = new TreeMap();
           getBillingItems(sess, RequestCategory.TYPE_CHERRY_PICKING, labMap, cherryPickMap);
 
+          TreeMap diskUsageMap = new TreeMap();
+          getBillingItems(sess, DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY, labMap, diskUsageMap);
        
           if (isValid()) {
             // set up the ReportTray
@@ -174,8 +178,11 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               columns.add(makeReportColumn("Cherry Picking", 21));
               columns.add(makeReportColumn("%", 22));
               columns.add(makeReportColumn("", 23));
-              columns.add(makeReportColumn("Total", 24));
+              columns.add(makeReportColumn("Disk Usage", 24));
               columns.add(makeReportColumn("%", 25));
+              columns.add(makeReportColumn("", 26));
+              columns.add(makeReportColumn("Total", 27));
+              columns.add(makeReportColumn("%", 28));
               
             } else if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
               columns.add(makeReportColumn("Capillary Sequencing", 3));
@@ -203,8 +210,11 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               columns.add(makeReportColumn("Sample Quality", 9));
               columns.add(makeReportColumn("%", 10));
               columns.add(makeReportColumn("", 11));
-              columns.add(makeReportColumn("Total", 12));
+              columns.add(makeReportColumn("Disk Usage", 12));
               columns.add(makeReportColumn("%", 13));
+              columns.add(makeReportColumn("", 14));
+              columns.add(makeReportColumn("Total", 15));
+              columns.add(makeReportColumn("%", 16));
               
             }
             
@@ -221,6 +231,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               BigDecimal totalPriceMitSeq          = mitSeqMap.containsKey(key) ? (BigDecimal)mitSeqMap.get(key) : new BigDecimal(0);      
               BigDecimal totalPriceFragAnal        = fragAnalMap.containsKey(key) ? (BigDecimal)fragAnalMap.get(key) : new BigDecimal(0);      
               BigDecimal totalPriceCherryPick      = cherryPickMap.containsKey(key) ? (BigDecimal)cherryPickMap.get(key): new BigDecimal(0);      
+              BigDecimal totalPriceDiskUsage       = diskUsageMap.containsKey(key) ? (BigDecimal)diskUsageMap.get(key): new BigDecimal(0);      
               
 
               ReportRow reportRow = new ReportRow();
@@ -239,6 +250,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
                 total = total.add(totalPriceMitSeq != null ? totalPriceMitSeq : new BigDecimal(0));
                 total = total.add(totalPriceFragAnal != null ? totalPriceFragAnal : new BigDecimal(0));
                 total = total.add(totalPriceCherryPick != null ? totalPriceCherryPick : new BigDecimal(0));
+                total = total.add(totalPriceDiskUsage != null ? totalPriceDiskUsage : new BigDecimal(0));
 
                 BigDecimal illuminaPercent = totalPriceIllumina != null && totalPriceIllumina.intValue() > 0 ? totalPriceIllumina.divide(grandTotalIllumina, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal microarrayPercent = totalPriceMicroarray != null && totalPriceMicroarray.intValue() > 0 ? totalPriceMicroarray.divide(grandTotalMicroarray, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
@@ -247,6 +259,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
                 BigDecimal mitSeqPercent = totalPriceQC != null && totalPriceMitSeq.intValue() > 0 ? totalPriceMitSeq.divide(grandTotalMitSeq, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal fragAnalPercent = totalPriceFragAnal != null && totalPriceFragAnal.intValue() > 0 ? totalPriceFragAnal.divide(grandTotalFragAnal, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal cherryPickPercent = totalPriceCherryPick != null && totalPriceCherryPick.intValue() > 0 ? totalPriceCherryPick.divide(grandTotalCherryPick, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+                BigDecimal diskUsagePercent = totalPriceDiskUsage != null && totalPriceDiskUsage.intValue() > 0 ? totalPriceDiskUsage.divide(grandTotalDiskUsage, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal totalPercent = total != null && total.intValue() > 0 ? total.divide(grandTotal, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                
                 values.add(totalPriceIllumina != null ? currencyFormat.format(totalPriceIllumina) : "");
@@ -269,6 +282,9 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
                 values.add("");
                 values.add(totalPriceCherryPick != null ? currencyFormat.format(totalPriceCherryPick) : "");
                 values.add(cherryPickPercent.compareTo(zero) > 0 ? percentFormat.format(cherryPickPercent) : "");
+                values.add("");
+                values.add(totalPriceDiskUsage != null ? currencyFormat.format(totalPriceDiskUsage) : "");
+                values.add(diskUsagePercent.compareTo(zero) > 0 ? percentFormat.format(diskUsagePercent) : "");
                 values.add("");
                 values.add(total != null ? currencyFormat.format(total) : "");
                 values.add(totalPercent.compareTo(zero) > 0 ? percentFormat.format(totalPercent) : "< 1%");
@@ -309,6 +325,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
                 BigDecimal illuminaPercent = totalPriceIllumina != null && totalPriceIllumina.intValue() > 0 ? totalPriceIllumina.divide(grandTotalIllumina, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal microarrayPercent = totalPriceMicroarray != null && totalPriceMicroarray.intValue() > 0 ? totalPriceMicroarray.divide(grandTotalMicroarray, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal qcPercent = totalPriceQC != null && totalPriceQC.intValue() > 0 ? totalPriceQC.divide(grandTotalQC, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+                BigDecimal diskUsagePercent = totalPriceDiskUsage != null && totalPriceDiskUsage.intValue() > 0 ? totalPriceDiskUsage.divide(grandTotalDiskUsage, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 BigDecimal totalPercent = total != null && total.intValue() > 0 ? total.divide(grandTotal, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 
                 values.add(totalPriceIllumina != null ? currencyFormat.format(totalPriceIllumina) : "");
@@ -319,6 +336,9 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
                 values.add("");
                 values.add(totalPriceQC != null ? currencyFormat.format(totalPriceQC) : "");
                 values.add(qcPercent.compareTo(zero) > 0 ? percentFormat.format(qcPercent) : "");
+                values.add("");
+                values.add(totalPriceDiskUsage != null ? currencyFormat.format(totalPriceDiskUsage) : "");
+                values.add(diskUsagePercent.compareTo(zero) > 0 ? percentFormat.format(diskUsagePercent) : "");
                 values.add("");
                 values.add(total != null ? currencyFormat.format(total) : "");
                 values.add(totalPercent.compareTo(zero) > 0 ? percentFormat.format(totalPercent) : "< 1%");
@@ -333,6 +353,9 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
             List values  = new ArrayList();
 
             if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+              values.add("");
+              values.add("");
+              values.add("");
               values.add("");
               values.add("");
               values.add("");
@@ -380,6 +403,9 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               values.add("");
               
             }else {
+              values.add("");
+              values.add("");
+              values.add("");
               values.add("");
               values.add("");
               values.add("");
@@ -427,6 +453,9 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               values.add(grandTotalCherryPick != null ? currencyFormat.format(grandTotalCherryPick) : "");
               values.add("");
               values.add("");
+              values.add(grandTotalDiskUsage != null ? currencyFormat.format(grandTotalDiskUsage) : "");
+              values.add("");
+              values.add("");
               values.add(grandTotal != null ? currencyFormat.format(grandTotal) : "");
               values.add("");
               
@@ -458,6 +487,9 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               values.add("");
               values.add("");
               values.add(grandTotalQC != null ? currencyFormat.format(grandTotalQC) : "");
+              values.add("");
+              values.add("");
+              values.add(grandTotalDiskUsage != null ? currencyFormat.format(grandTotalDiskUsage) : "");
               values.add("");
               values.add("");
               values.add(grandTotal != null ? currencyFormat.format(grandTotal) : "");
@@ -516,15 +548,22 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   
   private void getBillingItems(Session sess, String requestCategoryType, Map labMap, Map map) throws Exception {
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT lab, rc, bi.invoicePrice ");
-    buf.append("FROM   Request req ");
-    buf.append("JOIN   req.requestCategory as rc ");
-    buf.append("JOIN   req.billingItems bi ");
+    buf.append("SELECT lab, bi.invoicePrice ");
+    if (!requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
+      buf.append("FROM   Request req ");
+      buf.append("JOIN   req.requestCategory as rc ");
+      buf.append("JOIN   req.billingItems bi ");
+    } else {
+      buf.append("FROM   DiskUsageByMonth dsk ");
+      buf.append("JOIN   dsk.billingItems bi ");
+    }
     buf.append("JOIN   bi.lab as lab ");
     buf.append("JOIN   bi.billingPeriod as bp ");
     buf.append("WHERE  bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
     buf.append("AND    bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "' ");
-    buf.append("AND    rc.type = '" + requestCategoryType + "'");
+    if (!requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
+      buf.append("AND    rc.type = '" + requestCategoryType + "'");
+    }
   
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       buf.append(" AND ");
@@ -536,21 +575,20 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     
     List results = sess.createQuery(buf.toString()).list();
     
-    fillMap(labMap, map, results);
+    fillMap(requestCategoryType, labMap, map, results);
     
   }
   
   
   
-  private void fillMap(Map labMap, Map map, List results) {
+  private void fillMap(String requestCategoryType, Map labMap, Map map, List results) {
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
       Lab    lab                 = (Lab)row[0];
       String labLastName         = lab.getLastName() != null ? lab.getLastName() : "";
       String labFirstName        = lab.getFirstName() != null ? lab.getFirstName() : "";
-      RequestCategory requestCategory = (RequestCategory)row[1];
-      BigDecimal totalPrice      = row[2] != null ? (BigDecimal)row[2] : new BigDecimal(0);
+      BigDecimal totalPrice      = row[1] != null ? (BigDecimal)row[1] : new BigDecimal(0);
       
       String key = labLastName;
       if (!labFirstName.equals("")) {
@@ -570,20 +608,22 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       if (totalPrice != null) {
         grandTotal = grandTotal.add(totalPrice);
         
-        if (requestCategory.getType().equals(RequestCategory.TYPE_ILLUMINA)) {
+        if (requestCategoryType.equals(RequestCategory.TYPE_ILLUMINA)) {
           grandTotalIllumina = grandTotalIllumina.add(totalPrice);
-        }else if (requestCategory.getType().equals(RequestCategory.TYPE_QC)) {
+        }else if (requestCategoryType.equals(RequestCategory.TYPE_QC)) {
           grandTotalQC = grandTotalQC.add(totalPrice);
-        }else if (requestCategory.getType().equals(RequestCategory.TYPE_MICROARRAY)) {
+        }else if (requestCategoryType.equals(RequestCategory.TYPE_MICROARRAY)) {
           grandTotalMicroarray = grandTotalMicroarray.add(totalPrice);
-        }else if (requestCategory.getType().equals(RequestCategory.TYPE_CAP_SEQ)) {
+        }else if (requestCategoryType.equals(RequestCategory.TYPE_CAP_SEQ)) {
           grandTotalCapSeq = grandTotalCapSeq.add(totalPrice);
-        }else if (requestCategory.getType().equals(RequestCategory.TYPE_MITOCHONDRIAL_DLOOP)) {
+        }else if (requestCategoryType.equals(RequestCategory.TYPE_MITOCHONDRIAL_DLOOP)) {
           grandTotalMitSeq = grandTotalMitSeq.add(totalPrice);
-        }else if (requestCategory.getType().equals(RequestCategory.TYPE_FRAGMENT_ANALYSIS)) {
+        }else if (requestCategoryType.equals(RequestCategory.TYPE_FRAGMENT_ANALYSIS)) {
           grandTotalFragAnal = grandTotalFragAnal.add(totalPrice);
-        }else if (requestCategory.getType().equals(RequestCategory.TYPE_CHERRY_PICKING)) {
+        }else if (requestCategoryType.equals(RequestCategory.TYPE_CHERRY_PICKING)) {
           grandTotalCherryPick = grandTotalCherryPick.add(totalPrice);
+        } else if (requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
+          grandTotalDiskUsage = grandTotalDiskUsage.add(totalPrice);
         }
       }
       

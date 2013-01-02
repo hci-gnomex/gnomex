@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
@@ -106,7 +107,6 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     Element requestNode = null;
     
     NumberFormat nf = NumberFormat.getCurrencyInstance();
-    boolean firstTime = true;
     BigDecimal invoicePrice = new BigDecimal("0");
     invoicePrice.setScale(2);
     BigDecimal totalPrice = new BigDecimal("0");
@@ -218,7 +218,83 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       }
     }
 
-    
+
+    Integer prevIdDiskUsage = -1;
+    prevIdLab = -1;
+    prevIdBillingAccount = -1;
+    // add any disk usage nodes
+    StringBuffer diskUsageBuf = billingItemFilter.getDiskUsageBillingItemQuery();
+    log.info("Query: " + diskUsageBuf.toString());
+    List diskUsageBillingItems = (List)sess.createQuery(diskUsageBuf.toString()).list();
+    for(Iterator i = diskUsageBillingItems.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      String codeBillingStatus    = (String)row[0]  == null ? ""  : (String)row[0];
+      Integer idDiskUsage         = (Integer)row[1];
+      Integer idLab               = (Integer)row[2];
+      Integer idCoreFacility      = (Integer)row[3];
+      String labLastName          = (String)row[4]  == null ? ""  : (String)row[4];
+      String labFirstName         = (String)row[5]  == null ? ""  : (String)row[5];
+      BillingItem billingItem     = (BillingItem)row[6];
+      String labIsExternalPricing = (String)row[7];
+      String labIsExternalPricingCommercial = (String)row[8];
+
+      String labName = Lab.formatLabName(labLastName, labFirstName);
+      
+      if (!prevIdDiskUsage.equals(idDiskUsage) || 
+          !prevIdLab.equals(billingItem.getIdLab()) ||
+          !prevIdBillingAccount.equals(billingItem.getIdBillingAccount())) {
+        
+        // Create the new request node
+        requestNode = new Element("Request");
+        requestNode.setAttribute("idRequest", idDiskUsage.toString());
+        requestNode.setAttribute("idLab", billingItem.getIdLab().toString());
+        requestNode.setAttribute("requestNumber", "Disk Usage");
+        requestNode.setAttribute("label", "Disk Usage");
+        requestNode.setAttribute("codeRequestCategory", DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY);        
+        requestNode.setAttribute("idCoreFacility", idCoreFacility != null ? idCoreFacility.toString() : "");
+        requestNode.setAttribute("icon", DiskUsageByMonth.DISK_USAGE_ICON);
+        requestNode.setAttribute("type", "Disk Usage");
+        requestNode.setAttribute("submitter", "");
+        requestNode.setAttribute("billingLabName", labName);        
+        requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountNameAndNumber());       
+        requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
+        requestNode.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+        requestNode.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+        requestNode.setAttribute("isDirty", "N");
+
+        
+        doc.getRootElement().addContent(requestNode);
+        
+        invoicePrice = new BigDecimal(0);
+        invoicePrice.setScale(2);
+        totalPrice = new BigDecimal(0);
+        totalPrice.setScale(2);
+      }
+      
+      // Attach the billing item
+      Element billingItemNode = billingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+      billingItemNode.setAttribute("other", "N");
+      billingItemNode.setAttribute("isDirty","N");
+      billingItemNode.setAttribute("currentCodeBillingStatus", billingItem.getCodeBillingStatus());
+      if (billingItem.getInvoicePrice() != null) {
+        billingItemNode.setAttribute("invoicePrice", nf.format(billingItem.getInvoicePrice().doubleValue()));        
+      }
+      requestNode.addContent(billingItemNode);
+      
+      // Sum the prices
+      invoicePrice = invoicePrice.add(billingItem.getInvoicePrice() != null ? billingItem.getInvoicePrice() : new BigDecimal(0));
+      requestNode.setAttribute("invoicePrice", nf.format(invoicePrice.doubleValue()));
+      totalPrice = totalPrice.add(billingItem.getTotalPrice() != null ? billingItem.getTotalPrice() : new BigDecimal(0));
+      requestNode.setAttribute("totalPrice", nf.format(totalPrice.doubleValue()));
+      
+      
+      
+      prevIdRequest = billingItem.getIdRequest();
+      prevIdLab = billingItem.getIdLab();
+      prevIdBillingAccount = billingItem.getIdBillingAccount();
+    }
+
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
     

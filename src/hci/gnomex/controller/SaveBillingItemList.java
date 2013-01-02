@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
@@ -165,6 +166,10 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
               if (billingItem.getIdRequest() != null) {
                 Request req = (Request)sess.load(Request.class, billingItem.getIdRequest());
                 billingItem.setIdCoreFacility(req.getIdCoreFacility());
+              }
+              if (billingItem.getIdDiskUsageByMonth() != null) {
+                DiskUsageByMonth dsk = (DiskUsageByMonth)sess.load(DiskUsageByMonth.class, billingItem.getIdDiskUsageByMonth());
+                billingItem.setIdCoreFacility(dsk.getIdCoreFacility());
               }
             }
             billingItem.resetInvoiceForBillingItem(sess);

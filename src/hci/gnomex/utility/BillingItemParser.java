@@ -3,6 +3,7 @@ package hci.gnomex.utility;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.framework.model.DetailObject;
 
@@ -31,7 +32,6 @@ public class BillingItemParser extends DetailObject implements Serializable {
   private Document   doc;
   private List<BillingItem>       billingItems = new ArrayList<BillingItem>();
   private List<BillingItem>       billingItemsToRemove = new ArrayList<BillingItem>();
-  private Map<Integer, HashSet>   requestMap = new HashMap<Integer, HashSet>();
   private List<Invoice>           invoices = new ArrayList<Invoice>();
   
   
@@ -71,6 +71,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
         billingItem.setIdPriceCategory(!node.getAttributeValue("idPriceCategory").equals("") ? new Integer(node.getAttributeValue("idPriceCategory")) : null);
         billingItem.setIdBillingPeriod(!node.getAttributeValue("idBillingPeriod").equals("") ? new Integer(node.getAttributeValue("idBillingPeriod")) : null);
         billingItem.setIdPrice(!node.getAttributeValue("idPrice").equals("") ? new Integer(node.getAttributeValue("idPrice")) : null);
+        billingItem.setIdDiskUsageByMonth(!node.getAttributeValue("idDiskUsageByMonth").equals("") ? new Integer(node.getAttributeValue("idDiskUsageByMonth")) : null);
         billingItem.setIdRequest(!node.getAttributeValue("idRequest").equals("") ? new Integer(node.getAttributeValue("idRequest")) : null);
         billingItem.setIdBillingAccount(!node.getAttributeValue("idBillingAccount").equals("") ? new Integer(node.getAttributeValue("idBillingAccount")) : null);
         billingItem.setIdLab(!node.getAttributeValue("idLab").equals("") ? new Integer(node.getAttributeValue("idLab")) : null);
@@ -134,14 +135,6 @@ public class BillingItemParser extends DetailObject implements Serializable {
         String currentCodeBillingStatus = node.getAttributeValue("currentCodeBillingStatus");
         billingItem.setCurrentCodeBillingStatus(currentCodeBillingStatus);
         
-        HashSet billingPeriodSet = (HashSet)requestMap.get(billingItem.getIdRequest());   
-        if(billingPeriodSet == null) {
-          billingPeriodSet = new HashSet();
-        }
-        billingPeriodSet.add(billingItem.getIdBillingPeriod());
-        requestMap.put(billingItem.getIdRequest(), billingPeriodSet);
-
-        
         billingItems.add(billingItem);
       }
     
@@ -161,14 +154,6 @@ public class BillingItemParser extends DetailObject implements Serializable {
         } else {
           billingItem = (BillingItem)sess.load(BillingItem.class, new Integer(idBillingItemString));
           billingItemsToRemove.add(billingItem);
-          HashSet billingPeriodSet = (HashSet)requestMap.get(billingItem.getIdRequest());   
-          if(billingPeriodSet == null) {
-            billingPeriodSet = new HashSet();
-          }
-          billingPeriodSet.add(billingItem.getIdBillingPeriod());
-          requestMap.put(billingItem.getIdRequest(), billingPeriodSet);          
-          
-          //requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
         }
       }
     }
@@ -204,14 +189,6 @@ public class BillingItemParser extends DetailObject implements Serializable {
   
   public List getBillingItemsToRemove() {
     return billingItemsToRemove;
-  }
-  
-  public Set getIdRequests() {
-    return requestMap.keySet();
-  }
-  
-  public HashSet getIdBillingPeriodsForRequest(Integer idRequest) {
-    return (HashSet)requestMap.get(idRequest);
   }
   
   public List<Invoice> getInvoices() {
