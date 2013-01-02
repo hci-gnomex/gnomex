@@ -10,6 +10,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
@@ -44,8 +45,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   
   private static final String     ACTION_SHOW  = "show";
   private static final String     ACTION_EMAIL = "email";
+  public static final String      DISK_USAGE_NUMBER_PREFIX = "ZZZZDiskUsage"; // Leading Z's to make it sort last.
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingInvoiceForm.class);  
+  
   public String SUCCESS_JSP = "/getHTML.jsp";
 
   private String           serverName;
@@ -183,6 +186,12 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   
   public static void cacheBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
     throws Exception {
+    cacheRequestBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+    cacheDiskUsageBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+  }
+  
+  public static void cacheRequestBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
+      throws Exception {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT req, bi ");
     buf.append("FROM   Request req ");
@@ -279,6 +288,64 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       if (billingItems == null) {
         billingItems = new ArrayList();
         relatedBillingItemMap.put(req.getNumber(), billingItems);
+      }
+      billingItems.add(bi);
+    }    
+  }
+  
+  public static void cacheDiskUsageBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
+      throws Exception {
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT dsk, bi ");
+    buf.append("FROM   DiskUsageByMonth dsk ");
+    buf.append("JOIN   dsk.billingItems bi ");
+    buf.append("WHERE  bi.idLab = " + idLab + " ");
+    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
+    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_PO + "')");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
+    buf.append("ORDER BY dsk.idDiskUsageByMonth, bi.idBillingItem ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    
+    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      DiskUsageByMonth dsk    =  (DiskUsageByMonth)row[0];
+      BillingItem bi          =  (BillingItem)row[1];
+      
+      // Exclude any disk usage that have
+      // pending billing items.  (shouldn't be any)
+      boolean hasPendingItems = false;
+      for(Iterator i1 = dsk.getBillingItems().iterator(); i1.hasNext();) {
+        BillingItem item = (BillingItem)i1.next();
+        
+        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+            item.getIdBillingAccount().equals(idBillingAccount)) {
+          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+            hasPendingItems = true;
+            break;
+          }          
+        }
+      }
+      if (hasPendingItems) {
+        continue;
+      }
+      
+      String diskUsageNumber = DISK_USAGE_NUMBER_PREFIX + dsk.getIdDiskUsageByMonth().toString();
+      requestMap.put(diskUsageNumber, dsk);
+      
+      List billingItems = (List)billingItemMap.get(diskUsageNumber);
+      if (billingItems == null) {
+        billingItems = new ArrayList();
+        billingItemMap.put(diskUsageNumber, billingItems);
       }
       billingItems.add(bi);
     }    

@@ -2499,12 +2499,12 @@
 				      <mx:HBox width="100%" horizontalAlign="right" horizontalGap="0" verticalAlign="middle">
 				        <mx:HBox width="100%" horizontalGap="0">
 				        	<mx:LinkButton  label="Reassign" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
-				        		<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
+								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request' &amp;&amp; billingItemGrid.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request' &amp;&amp; requestTree.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) ? true : false}</mx:enabled>
 				        	</mx:LinkButton> 
 				        	<mx:LinkButton  label="Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true">
-								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
+								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request' &amp;&amp; billingItemGrid.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request' &amp;&amp; requestTree.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) ? true : false}</mx:enabled>
 							</mx:LinkButton> 
-				        	<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()" enabled="{billingItemGrid.selectedItem != null}"/>
+				        	<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove billing item"  textDecoration="underline" click="removeBillingItem()" enabled="{billingItemGrid.selectedItem != null}"/>
 				        </mx:HBox>
 					    <mx:Spacer width="100%"/>
 				        <util:DirtyNote id="dirty" />

@@ -108,6 +108,7 @@ CREATE TABLE `gnomex`.`AnalysisFile` (
   `idAnalysis` INT(10) NULL,
   `qualifiedFilePath` varchar(300) null,
   `baseFilePath` varchar(300) null,
+  `createDate` DATE NULL,
   PRIMARY KEY (`idAnalysisFile`),
   CONSTRAINT `FK_AnalysisFile_Analysis` FOREIGN KEY `FK_AnalysisFile_Analysis` (`idAnalysis`)
     REFERENCES `gnomex`.`Analysis` (`idAnalysis`)

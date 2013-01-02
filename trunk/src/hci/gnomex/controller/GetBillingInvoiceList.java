@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -69,13 +70,27 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
       billingItemFilter.setBillingPeriod(bp);
     }
     
+    TreeMap<Integer, Invoice> invoiceMap = new TreeMap<Integer, Invoice>();
+    
     StringBuffer buf = billingItemFilter.getBillingInvoiceQuery();
     log.info("Query: " + buf.toString());
     List invoices = sess.createQuery(buf.toString()).list();
-
-    Document doc = new Document(new Element("BillingInvoiceList"));
     for(Iterator i = invoices.iterator(); i.hasNext();) {
       Invoice invoice = (Invoice)i.next();
+      invoiceMap.put(invoice.getIdInvoice(), invoice);
+    }
+    
+    buf = billingItemFilter.getDiskUsageInvoiceQuery();
+    log.info("Query: " + buf.toString());
+    invoices = sess.createQuery(buf.toString()).list();
+    for(Iterator i = invoices.iterator(); i.hasNext();) {
+      Invoice invoice = (Invoice)i.next();
+      invoiceMap.put(invoice.getIdInvoice(), invoice);
+    }
+    
+    Document doc = new Document(new Element("BillingInvoiceList"));
+    for(Integer key: invoiceMap.keySet()) {
+      Invoice invoice = invoiceMap.get(key);
       Element invoiceNode = invoice.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
       doc.getRootElement().addContent(invoiceNode);
     }

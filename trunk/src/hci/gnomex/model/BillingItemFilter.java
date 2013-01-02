@@ -126,6 +126,41 @@ public class BillingItemFilter extends DetailObject {
     return queryBuf;
     
   }
+  
+  
+  public StringBuffer getBillingDiskUsageQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        bi.codeBillingStatus, ");
+    queryBuf.append("        dsk.idDiskUsageByMonth, ");
+    queryBuf.append("        bi.idLab, ");
+    queryBuf.append("        lab.lastName, ");
+    queryBuf.append("        lab.firstName, ");
+    queryBuf.append("        dsk.asOfDate, ");
+    queryBuf.append("        ba, ");
+    queryBuf.append("        lab.isExternalPricing, ");
+    queryBuf.append("        lab.isExternalPricingCommercial, ");
+    queryBuf.append("        bi.idInvoice, ");
+    queryBuf.append("        lab.contactEmail ");
+    
+    queryBuf.append(" FROM        DiskUsageByMonth as dsk ");
+    queryBuf.append(" JOIN        dsk.billingItems as bi ");
+    queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
+    queryBuf.append(" JOIN        bi.billingAccount as ba ");
+    queryBuf.append(" JOIN        bi.lab as lab ");
+    
+    addDiskUsageCriteria();
+    addBillingItemCriteria();
+    
+    this.addSecurityCriteria();
+    
+    queryBuf.append(" order by bi.codeBillingStatus, dsk.idDiskUsageByMonth, lab.lastName, lab.firstName, ba.accountName ");
+    
+    return queryBuf;
+    
+  }
 
   public StringBuffer getBillingItemQuery() {
     getBaseBillingItemQuery();
@@ -138,6 +173,35 @@ public class BillingItemFilter extends DetailObject {
     return queryBuf;
     
   }  
+  
+  public StringBuffer getDiskUsageBillingItemQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        bi.codeBillingStatus, ");
+    queryBuf.append("        dsk.idDiskUsageByMonth, ");
+    queryBuf.append("        dsk.idLab, ");
+    queryBuf.append("        dsk.idCoreFacility, ");
+    queryBuf.append("        lab.lastName, ");
+    queryBuf.append("        lab.firstName, ");
+    queryBuf.append("        bi, ");
+    queryBuf.append("        lab.isExternalPricing, ");
+    queryBuf.append("        lab.isExternalPricingCommercial ");
+    
+    queryBuf.append(" FROM        DiskUsageByMonth as dsk ");
+    queryBuf.append(" JOIN        dsk.billingItems as bi ");
+    queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
+    queryBuf.append(" JOIN        bi.billingAccount as ba ");
+    queryBuf.append(" JOIN        bi.lab as lab ");
+    
+    addDiskUsageCriteria();
+    addBillingItemCriteria();
+    
+    queryBuf.append(" order by dsk.idDiskUsageByMonth, bi.idLab, bi.idBillingAccount, bi.idBillingItem");
+    
+    return queryBuf;
+  }
   
   public StringBuffer getRelatedBillingItemQuery(Set idRequests) {
     getBaseBillingItemQuery();
@@ -182,6 +246,29 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" JOIN        bi.invoice as inv ");
     
     addRequestCriteria();
+    addBillingItemCriteria();
+    
+    this.addSecurityCriteria();
+    
+    queryBuf.append(" order by inv.idInvoice ");
+    
+    return queryBuf;
+    
+  }
+  
+  public StringBuffer getDiskUsageInvoiceQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        inv ");
+    queryBuf.append(" FROM        DiskUsageByMonth as dsk ");
+    queryBuf.append(" JOIN        dsk.billingItems as bi ");
+    queryBuf.append(" JOIN        bi.billingAccount as ba ");
+    queryBuf.append(" JOIN        bi.lab as lab ");
+    queryBuf.append(" JOIN        bi.invoice as inv ");
+    
+    addDiskUsageCriteria();
     addBillingItemCriteria();
     
     this.addSecurityCriteria();
@@ -275,6 +362,42 @@ public class BillingItemFilter extends DetailObject {
     }
   }
   
+  
+
+  private void addDiskUsageCriteria() {
+
+    // Search by lab 
+    if (idLab != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" bi.idLab =");
+      queryBuf.append(idLab);
+    }
+    
+    if (idCoreFacility != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" dsk.idCoreFacility =");
+      queryBuf.append(idCoreFacility);
+    }
+    // Search by billing account 
+    if (idBillingAccount != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" dsk.idBillingAccount = ");
+      queryBuf.append(idBillingAccount);
+    } 
+    // Search by request number Note that search by request number excludes all disk usage rows.
+    if (requestNumber != null && 
+        !requestNumber.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append("1 = 2");
+    }     
+    
+    // Search by invoice number 
+    if (invoiceLookupNumber != null && 
+        !invoiceLookupNumber.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" (inv.invoiceNumber like '%" + invoiceLookupNumber + "%') ");
+    }
+  }
   
   private void addBillingItemCriteria() {
 

@@ -21,6 +21,7 @@ public class AnalysisFile extends HibernateDetailObject {
   private BigDecimal     fileSize;
   private String         qualifiedFilePath;
   private String         baseFilePath;
+  private Date           createDate;
   
 
   public Integer getIdAnalysis() {
@@ -134,6 +135,16 @@ public class AnalysisFile extends HibernateDetailObject {
 
   public void setFileSize(BigDecimal fileSize) {
     this.fileSize = fileSize;
+  }
+
+  
+  public Date getCreateDate() {
+    return createDate;
+  }
+
+  
+  public void setCreateDate(Date createDate) {
+    this.createDate = createDate;
   }
   
   public File getFile(String baseDir) {

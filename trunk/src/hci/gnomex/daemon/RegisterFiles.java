@@ -80,6 +80,7 @@ public class RegisterFiles extends TimerTask {
   private String                       baseAnalysisDir;
   private String                       flowCellDirFlag;
   private Calendar                     asOfDate;
+  private Calendar                     runDate;  // Date program is being run.
   
   private Transaction                  tx;
 
@@ -157,8 +158,8 @@ public class RegisterFiles extends TimerTask {
 
   @Override
   public void run(){
-    Calendar calendar = Calendar.getInstance();
-    errorMessageString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(calendar.getTime()) + "\n";
+    runDate = Calendar.getInstance();
+    errorMessageString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(runDate.getTime()) + "\n";
     
     try {
       org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
@@ -346,12 +347,8 @@ public class RegisterFiles extends TimerTask {
   }
   
   private java.sql.Date getEffectiveRequestFileCreateDate(FileDescriptor fd, java.util.Date requestCreateDate) {
-    java.sql.Date createDate = null;
-    if (fd.getLastModifyDate() != null) {
-      createDate = new java.sql.Date(fd.getLastModifyDate().getTime());
-    } else if (requestCreateDate != null) {
-      createDate = new java.sql.Date(requestCreateDate.getTime());
-    }
+    
+    java.sql.Date createDate = new java.sql.Date(runDate.getTime().getTime());
     
     return createDate;
   }
@@ -479,6 +476,10 @@ public class RegisterFiles extends TimerTask {
           if (af.getFileSize() == null || !af.getFileSize().equals(BigDecimal.valueOf(fd.getFileSize()))) {
             af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
           }
+          // If create date not set, then set it
+          if (af.getCreateDate() == null) {
+            af.setCreateDate(this.getEffectiveAnalysisFileCreateDate(fd, analysis.getCreateDate()));
+          }
         }
       }
       
@@ -496,6 +497,7 @@ public class RegisterFiles extends TimerTask {
           af.setBaseFilePath(fd.getBaseFilePath());
           af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
           af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar + analysis.getNumber());
+          af.setCreateDate(this.getEffectiveAnalysisFileCreateDate(fd, analysis.getCreateDate()));
           newAnalysisFiles.add(af);
         }
       }
@@ -506,7 +508,9 @@ public class RegisterFiles extends TimerTask {
 
       } else {
 
-        analysis.setFiles(newAnalysisFiles);
+//        analysis.setFiles(newAnalysisFiles);
+        analysis.getFiles().clear();
+        analysis.getFiles().addAll(newAnalysisFiles);
 
       }
       
@@ -538,6 +542,12 @@ public class RegisterFiles extends TimerTask {
     } 
   }
   
+  private java.sql.Date getEffectiveAnalysisFileCreateDate(AnalysisFileDescriptor fd, java.util.Date analysisCreateDate) {
+    java.sql.Date createDate = new java.sql.Date(runDate.getTime().getTime());
+    
+    return createDate;
+  }
+
   private void hashForNotification(String emailAddress, AnalysisFile af, DataTrack dt) {
     Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
     if (analysisNumbers == null) {
