@@ -66,7 +66,7 @@ public class ComputeMonthlyDiskUsage {
   private Boolean                         sendReports = false;
   private String                          orionPath = "";
   private String                          testEmailAddress = "";
-  private String                          baseURL = "http://h005973/gnomex";
+  private String                          baseURL = "";
   
   private Boolean                         diskUsageForExperiments = false;
   private Boolean                         diskUsageForAnalysis = false;
@@ -103,8 +103,27 @@ public class ComputeMonthlyDiskUsage {
         sendMail = false;
       } else if (args[i].equals ("-testEmailAddress")) {
         testEmailAddress = args[++i];
+      } else if (args[i].equals ("-help")) {
+        showHelp();
+        System.exit(0);
       } 
     }
+  }
+  
+  private void showHelp() {
+    System.out.println("Computes monthly disk charges creating both DiskUsageByMonth rows and BillingItem rows.");
+    System.out.println("The 'disk_usage_for_analysis' and 'disk_usage_for_experiments' properties control if charges are computed for the core facility.");
+    System.out.println("Optionally emails report of expected disk usage charges to lab contacts.");
+    System.out.println("Switches:");
+    System.out.println("   -computeForPreviousMonth - Causes charges to be computed for previous calendar month.");
+    System.out.println("   -overrideAutoPreviousMonth - By default program computes for previous month if run in 1st 5 days of month.  This overrides.");
+    System.out.println("   -doNotStoreBillingItems - Creates DiskUsageByMonth items but does not create the billing items.  Often used with -sendReports.");
+    System.out.println("   -sendReports - Sends reports of current expected charges to lab managers.");
+    System.out.println("   -server - server for Hibernate connection.");
+    System.out.println("   -orionPath - path to Orion directory to get mail properties.");
+    System.out.println("   -doNotSendEmail - used for debugging if no email server available.  Emails are created but not sent.");
+    System.out.println("   -testEmailAddress - Overrides all lab emails with this email address.  Used for testing.");
+    System.out.println("   -help - gives this message.  Note no other processing is performed if the -help switch is specified.");
   }
   
   /**
@@ -239,15 +258,13 @@ public class ComputeMonthlyDiskUsage {
         calendar.add(Calendar.MONTH, -1);
       }
     }
- 
+    String computeDateString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+    Query billingPeriodQuery = sess.createQuery("select b from BillingPeriod b where '" + computeDateString + "' between b.startDate and b.endDate");
+    billingPeriod = (BillingPeriod)billingPeriodQuery.uniqueResult();
+    
     this.softwareTesterEmail = ph.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     this.baseURL = ph.getQualifiedProperty(PropertyDictionary.BST_LINKAGE_GNOMEX_URL, serverName);
-    
-    String computeDateString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-    
-    Query billingPeriodQuery = sess.createQuery("select b from BillingPeriod b where '" + computeDateString + "' between b.startDate and b.endDate");
-    billingPeriod = (BillingPeriod)billingPeriodQuery.uniqueResult();
     
     processingStatement = "Processing " + facility.getFacilityName();
     if (!diskUsageForExperiments && !diskUsageForAnalysis) {
