@@ -1,6 +1,7 @@
 package hci.gnomex.daemon;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.daemon.RegisterFiles.AnalysisFileInfo;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
@@ -34,6 +36,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Level;
 import org.hibernate.Query;
@@ -63,6 +66,7 @@ public class ComputeMonthlyDiskUsage {
   private Boolean                         sendReports = false;
   private String                          orionPath = "";
   private String                          testEmailAddress = "";
+  private String                          baseURL = "http://h005973/gnomex";
   
   private Boolean                         diskUsageForExperiments = false;
   private Boolean                         diskUsageForAnalysis = false;
@@ -238,6 +242,7 @@ public class ComputeMonthlyDiskUsage {
  
     this.softwareTesterEmail = ph.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    this.baseURL = ph.getQualifiedProperty(PropertyDictionary.BST_LINKAGE_GNOMEX_URL, serverName);
     
     String computeDateString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
     
@@ -490,7 +495,7 @@ public class ComputeMonthlyDiskUsage {
       if (ba != null) {
         invoice = invoiceMap.get(ba.getIdBillingAccount());
       }
-      if (totalIncrements.compareTo(BigDecimal.ZERO) <= 0 || ba == null) {
+      if (lab.isExternalLab() || totalIncrements.compareTo(BigDecimal.ZERO) <= 0 || ba == null) {
         // Don't need billing items if no charge and can't have them if no billing account
         if (usage.getBillingItems().size() > 0) {
           modified = true;
@@ -576,7 +581,7 @@ public class ComputeMonthlyDiskUsage {
       BillingAccount ba = billingAccountMap.get(usage.getIdLab());
       BigDecimal totalIncrements = getTotalIncrements(usage);
 
-      if (totalIncrements.compareTo(BigDecimal.ZERO) > 0) {
+      if (totalIncrements.compareTo(BigDecimal.ZERO) > 0 && !lab.isExternalLab()) {
         sendReport(lab, ba, usage, totalIncrements);
       }
     }
@@ -600,9 +605,13 @@ public class ComputeMonthlyDiskUsage {
     StringBuffer body = new StringBuffer();
     if (ba != null) {
       String accountName = ba.getAccountNameAndNumber();
-      body.append("Lab ").append(lab.getName()).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" to account '").append(accountName).append("' on disk usage of ").append(diskSizeForDisplay).append(" gigabytes of storage.");
+      body.append(lab.getFormattedLabName()).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" to account '").append(accountName)
+        .append("' on disk usage of ").append(diskSizeForDisplay).append(" gigabytes of storage.");
     } else {
-      body.append("Lab ").append(lab.getName()).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ").append(diskSizeForDisplay).append(" gigabytes of storage.");
+      body.append(lab.getFormattedLabName()).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
+        .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
+      body.append("The lab has no active billing accounts.  Please submit a work authorization to avoid file deletions(")
+        .append("<a href=\"").append(getLaunchWorkAuthUrl()).append("\">Work Authorization</a>).");
     }
       
     if (sendMail) {
@@ -613,14 +622,18 @@ public class ComputeMonthlyDiskUsage {
             fromEmailAddress,
             "GNomEx Disk Usage Charges",
             body.toString(),
-            false
+            true
           );
       } catch(Exception ex) {
-        System.err.println("Unable to send email to lab " + lab.getName() + " with email " + emailAddress + " because of exception: " + ex.getMessage());
+        System.err.println("Unable to send email to lab " + lab.getFormattedLabName() + " with email " + emailAddress + " because of exception: " + ex.getMessage());
       }
     }
   }
   
+  public String getLaunchWorkAuthUrl() {
+    return baseURL + "?launchWindow=WorkAuthForm";  
+  }
+
   private void removeUsage(CoreFacility facility, Map<Integer, DiskUsageByMonth> newUsageMap, Map<Integer, DiskUsageByMonth> existingUsageMap) {
     Boolean modified = false;
     for(Integer key: existingUsageMap.keySet()) {

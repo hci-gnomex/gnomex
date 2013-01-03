@@ -246,6 +246,9 @@ public class Lab extends HibernateDetailObject {
     this.lastName = lastName;
   }
 
+  public String getFormattedLabName() {
+    return formatLabName(getLastName(), getFirstName());
+  }
 
   public static String formatLabName(String lastName, String firstName) {
     
@@ -320,6 +323,12 @@ public class Lab extends HibernateDetailObject {
   public void setCoreFacilities(Set coreFacilities) {
     this.coreFacilities = coreFacilities;
   }  
+  
+  public Boolean isExternalLab() {
+    return (getIsExternalPricing() != null && getIsExternalPricing().equals("Y"))
+    || (getIsExternalPricingCommercial() != null && getIsExternalPricingCommercial().equals("Y"));
+  }
+  
   public List getApprovedBillingAccounts() {
     ArrayList approvedBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
