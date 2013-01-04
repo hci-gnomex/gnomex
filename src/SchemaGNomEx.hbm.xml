@@ -962,6 +962,7 @@
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="idLab" column="idLab" type="integer"/>
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
 	</class>
 		
 	<!-- hci.gnomex.model.WorkItem -->
