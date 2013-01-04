@@ -20,11 +20,21 @@
 					   textDecoration="underline" 
 					   icon="@Embed(source='../../assets/arrow_left.png')"/>	
 		<mx:Spacer width="100%"/>
+		<mx:LinkButton label="Create Fasta file"
+					   paddingRight="1"
+					   paddingLeft="1"
+					   click="createFastaFile()"
+					   textDecoration="underline"
+					   id="fastaButton" 
+					   visible="{this.isInit}"
+					   includeInLayout="{this.isInit}"/>
 		<mx:LinkButton label="Print Chromatogram" 
 					   id="printButton"
 					   textDecoration="underline" 
 					   icon="@Embed(source='../../assets/printer.png')"
-					   click="doPrint();"/>
+					   click="doPrint();" 
+					   visible="{this.isInit}"
+					   includeInLayout="{this.isInit}"/>
 	</mx:HBox>
 	
 	<mx:HTTPService  
@@ -413,6 +423,15 @@
 			// Close the window by clicking outside
 			protected function mouseDownOutsideHandler(event:Object):void {
 				PopUpManager.removePopUp(this);
+			}
+			
+			// Create the .fasta file
+			private function createFastaFile():void {
+				
+				var url:URLRequest = new URLRequest('DownloadFastaFileServlet.gx' +
+					'?idChromatogram=' + selectedIdChromatogram);
+				navigateToURL( url, '_blank' );
+				
 			}
 			
 			// Print the chromatogram information
