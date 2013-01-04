@@ -27,6 +27,7 @@ public class TransferLog extends HibernateDetailObject {
   private Integer          idRequest;
   private Integer          idLab;
   private Lab              lab;
+  private Request          request;
   
   public Integer getIdTransferLog() {
     return idTransferLog;
@@ -99,5 +100,11 @@ public class TransferLog extends HibernateDetailObject {
   }
   public void setLab(Lab lab) {
     this.lab = lab;
+  }
+  public Request getRequest() {
+    return request;
+  }
+  public void setRequest(Request request) {
+    this.request = request;
   } 
 }
