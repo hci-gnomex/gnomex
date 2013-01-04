@@ -717,6 +717,10 @@
 				var approvedItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Approved');
 				jumpApproved.visible =  approvedItems.length() ? true : false;
 				
+				for each(var status:Object in getBillingRequestList.lastResult.Status) {
+					requestTree.expandItem(status, true);
+				}
+				
 				getBillingItemList.send();
 			}  else {
 				var message:String = getBillingRequestList.lastResult.ERROR.@message;
@@ -2277,7 +2281,7 @@
         		    
 					<mx:AdvancedDataGrid id="requestTree" width="100%" height="100%"  
 						showHeaders="false"  
-						displayItemsExpanded="true" 
+						displayItemsExpanded="false" 
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
 						change="onRequestNodeSelected()"
@@ -2294,7 +2298,7 @@
   					</mx:AdvancedDataGrid>
 					
 					<mx:HBox horizontalGap="0" width="100%">
-						<mx:ViewStack id="treeExpansionStack" width="100%" selectedIndex="1">
+						<mx:ViewStack id="treeExpansionStack" width="100%" selectedIndex="0">
 							<mx:HBox width="100%" horizontalAlign="left">
 								<mx:LinkButton   label="Expand labs" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" />
 							</mx:HBox>
