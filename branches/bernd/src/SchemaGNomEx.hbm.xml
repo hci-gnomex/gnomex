@@ -877,9 +877,17 @@
 			<one-to-many class="hci.gnomex.model.PlateWell"/>
 		</set>
 
-		<!-- Bernd additions -->
-		<many-to-one name="sequenceLane" column="idSample" class="hci.gnomex.model.SequenceLane" cascade="none" insert="false" update="false" />
-		<many-to-one name="workitem" column="idSample" class="hci.gnomex.model.WorkItem" cascade="none" insert="false" update="false" />    
+		<set name="sequenceLanes" table="SequenceLane" lazy="true" cascade="none" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.SequenceLane" />
+		</set>
+		
+		<set name="workItems" table="WorkItem" lazy="true" cascade="none"  >
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.WorkItem" />
+		</set>
+		
+		
   </class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->

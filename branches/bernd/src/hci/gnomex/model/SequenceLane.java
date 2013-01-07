@@ -40,16 +40,7 @@ public class SequenceLane extends HibernateDetailObject {
   private FlowCellChannel flowCellChannel;
   private NumberSequencingCycles numberSeqCycles;
   private SeqRunType	  seqRunType;
-  private SequenceLane	  sequenceLane;
-  
-  public void setSequenceLane(SequenceLane sl){
-	  this.sequenceLane = sl;
-  }
-  
-  public SequenceLane getSequenceLane(){
-	  return sequenceLane;
-  }
-  
+
   public void setSeqRunType(SeqRunType srt){
 	  this.seqRunType = srt;
   }
