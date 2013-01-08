@@ -200,7 +200,7 @@
 				</mx:HBox>				
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution"/>
-					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" change="checkVisibilitySetupCompleteness()">			       	
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()">			       	
 					</mx:ComboBox>	
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
