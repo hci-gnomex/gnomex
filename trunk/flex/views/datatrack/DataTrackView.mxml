@@ -1017,11 +1017,16 @@
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
 						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" label="Members   (all members of the group)"/>
+						<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
+							<mx:Text width="207" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0">									
+								<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
+							</mx:Text>
+						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
-						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 0}" label="Institution  (all groups that are part of institution)"/>
-						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
+						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 1}" label="Institution  (all groups that are part of institution)"/>
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : instituteCombo.selectedIndex}" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
 						</mx:ComboBox>					
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
