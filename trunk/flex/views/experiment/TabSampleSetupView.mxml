@@ -822,7 +822,7 @@
         source="{this.sampleOrganismCombo}"
         lowerThanMinError="This field is required."
         property="selectedIndex"
-        minValue="1" />
+        minValue="0" />
     <mx:NumberValidator id="sampleTypeValidator"
         source="{this.sampleTypeCombo}"
         lowerThanMinError="This field is required."
