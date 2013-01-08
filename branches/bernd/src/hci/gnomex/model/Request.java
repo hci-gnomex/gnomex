@@ -998,6 +998,15 @@ public class Request extends HibernateDetailObject {
   public void setPlateWells( Set plateWells ) {
     this.plateWells = plateWells;
   }
+  
+  // Bernd added
+  public Application getApplication() {
+	return application;
+  }
+  public void setApplication(Application application) {
+	this.application = application;
+  }
+
   @SuppressWarnings("unchecked")
   public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
     Document doc = new Document(new Element("Request"));
@@ -1054,6 +1063,9 @@ public class Request extends HibernateDetailObject {
     root.setAttribute("isSelected",             "N");
     root.setAttribute("analysisNames",          "");
     root.setAttribute("idSubmitter",              this.getNonNullString(this.getIdSubmitter()));
+    
+    // Bernd added
+    root.setAttribute("application",			this.getNonNullString(this.getApplication()));
     
     if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       root.setAttribute("requestPublicNote",          "(Public) ");
@@ -1195,14 +1207,5 @@ public class Request extends HibernateDetailObject {
       }
     }
     return redoSamples.toString();
-  }
-  
-  // Bernd added
-public Application getApplication() {
-	return application;
-}
-public void setApplication(Application application) {
-	this.application = application;
-}
-  
+  }  
 }

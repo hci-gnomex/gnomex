@@ -52,7 +52,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-              
+
         /// Process filter calling here 
         TreeMap clusterGenMap = new TreeMap();
         Document doc = new Document(new Element("ExperimentOverviewList"));
@@ -86,10 +86,6 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             n.setAttribute("labLastName",		         row[16] == null ? "" :  (String)row[16]);
             n.setAttribute("sampleCodeStepNext",		 row[17] == null ? "" : (String)row[17]);
             n.setAttribute("idCoreFacility",	 		 row[18] == null ? "" : ((Integer)row[18]).toString());
-            
-            System.err.println("Sample: === " + (String)row[1]);
-            System.err.println("Core Facility: === " + ((Integer)row[18]).toString());
-            System.err.println("Code Step Next === " + (String)row[17]);
             
             String labFullName = "";
             if (row[16] != null) {

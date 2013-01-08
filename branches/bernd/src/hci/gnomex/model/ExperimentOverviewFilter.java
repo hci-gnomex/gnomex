@@ -33,7 +33,7 @@ public class ExperimentOverviewFilter extends DetailObject {
     
     // Get Base query. 
     return getQuery();
-    // Make separate function for appending filter queries.
+
   }
 
   private StringBuffer getQuery() {
@@ -42,17 +42,6 @@ public class ExperimentOverviewFilter extends DetailObject {
       
     addBaseColumns(queryBuf);
     addBaseQueryBody(queryBuf);
-/*    
-    System.err.println("WorkFlow = " + workflow);
-    System.err.println("ExpType = " + expType);
-    System.err.println("RequestUser = " + requestUser);
-    System.err.println("SeqType = " + seqType);
-    System.err.println("SeqLength = " + seqLength);
-    System.err.println("SeqInstrument = " + seqInstrument);
-    System.err.println("ExperimentID = " + experimentId);
-    System.err.println("Lab = " + lab);
-    System.err.println("Core Facility Id = " + coreFacilityId);
-*/    
     addRequestCriteria();
 
     return queryBuf;
@@ -76,7 +65,7 @@ public class ExperimentOverviewFilter extends DetailObject {
 	  queryBuf.append(" FROM         Sample s ");
 	  queryBuf.append(" JOIN    s.request as req ");
 	  queryBuf.append(" JOIN         req.appUser appU ");
-	  queryBuf.append(" LEFT JOIN    s.sequenceLane l ");
+	  queryBuf.append(" LEFT JOIN    s.sequenceLanes l ");
 	  queryBuf.append(" LEFT JOIN    req.lab lab ");
 	  queryBuf.append(" LEFT JOIN    req.application app ");
 	  queryBuf.append(" LEFT JOIN    l.seqRunType srt ");
@@ -84,7 +73,7 @@ public class ExperimentOverviewFilter extends DetailObject {
 	  queryBuf.append(" LEFT JOIN    l.flowCellChannel fcc ");
 	  queryBuf.append(" LEFT JOIN    fcc.flowCell fc");
 	  queryBuf.append(" LEFT JOIN    fc.instrument ins ");
-	  queryBuf.append(" LEFT JOIN	 s.workitem wi ");
+	  queryBuf.append(" LEFT JOIN	 s.workItems wi ");
   }
   
   
@@ -154,8 +143,6 @@ public class ExperimentOverviewFilter extends DetailObject {
     	queryBuf.append(coreFacilityId);
     	queryBuf.append("'");
     }
-    
-    System.err.println(queryBuf);
   }
 
   

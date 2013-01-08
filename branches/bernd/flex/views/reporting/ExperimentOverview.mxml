@@ -107,7 +107,9 @@
 			
 			private function onGetExperimentList(event:ResultEvent):void {
 				if (event.result.name() == "ExperimentOverviewList") {
-					refreshRequestNumbers();
+					if(expID == null || expID == ""){
+						refreshRequestNumbers();
+					}
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
 				}
@@ -176,8 +178,15 @@
 			
 			protected function experimentIdFilter_changeHandler(event:ListEvent):void
 			{
-				expID = experimentIdFilter.selectedLabel.toString();
-				getExperimentList.send();
+				if(experimentIdFilter.selectedLabel.toString() == "" || experimentIdFilter.selectedItem == null){
+					expID = null;
+					getExperimentList.send();
+				}else{
+					if (expID != experimentIdFilter.selectedLabel.toString()) {
+						expID = experimentIdFilter.selectedLabel.toString();
+						getExperimentList.send();
+					}
+				}
 			}
 			
 			protected function exportType_changeHandler(event:ListEvent):void
@@ -216,26 +225,16 @@
 				exportType.selectedIndex = -1;
 				
 				getExperimentList.send();
+				refreshRequestNumbers();
 			}
 			
 			private function refreshExperimentList():void {
 				getExperimentList.send();
 			}
 			
-			private function filterRequestNumbers(item:Object):Boolean {
-				var keep:Boolean = true;
-				if (experimentIdFilter.selectedItem != null && experimentIdFilter.selectedItem.label != "") {
-					keep = false;
-					if (item.@experimentId == experimentIdFilter.selectedItem.label) {
-						keep = true;
-					}
-				}        	
-				return keep;
-			}
-			
 			private function refreshRequestNumbers():void {
 				requestNumbers = new ArrayCollection();
-				
+					
 				var blankItem:Object = new Object();
 				blankItem.data = "";
 				blankItem.label = "";
@@ -259,16 +258,12 @@
 					}
 				}
 			}
-			
-			private function expIdLabelFunction(item:Object):String {
-				var cat:String = item.label.toString();
-				return cat;
-			}
-			
+
 		]]>
 	</mx:Script>
-	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@isActive == 'Y')}" />
-			<mx:VBox id="mainContainer" width="100%" height="100%">
+		<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
+		
+	<mx:VBox id="mainContainer" width="100%" height="100%">
 		<mx:VBox id="headerBox" width="100%" height="10%">
 			<mx:Label id="headerLabel" fontSize="16" fontWeight="bold" text="Experiment Overview"/>
 			<mx:Label id="headerLabel2" fontSize="12" fontWeight="bold" text="Filter Options:"/>
@@ -278,9 +273,9 @@
 					<mx:Label id="coreFacilitySelectLabel" text="Core Facility: " />
 				</mx:HBox>
 
-				<mx:ComboBox id="cfSelector" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length-1 >= 2 ? true : false}" includeInLayout="{coreFacilities.length-1 >= 2 ? true : false}" selectedIndex="1" />
+				<mx:ComboBox id="cfSelector" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="1" /> 
+				<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(0).@display}" visible="{coreFacilities.length &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length &lt; 2 ? true : false}" />
 				
-				<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(1).@display}" visible="{coreFacilities.length-1 &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length-1 &lt; 2 ? true : false}" />				
 			</mx:HBox>			
 		
 			<mx:HBox id="horizontalMainContainer" horizontalGap="12" paddingTop="0">
@@ -315,24 +310,32 @@
 					<mx:Label id="experimentIdLabel" text="Experiment ID: " />
 					<mx:VDividedBox height="2" />
 					<mx:Label id="labFilterLabel" text="Lab: " />
-					<mx:Label id="exportTypeLabel" text="Export as:"/>
 				</mx:VBox>
 				<mx:VBox id="filterBoxRightCombo">
 					<mx:ComboBox id="experimentIdFilter" change="experimentIdFilter_changeHandler(event)" dataProvider="{requestNumbers}" />
 					<mx:ComboBox id="labFilter" 		 change="labFilter_changeHandler(event)" labelField="@name" dataProvider="{labs}" />
+				</mx:VBox>
+				
+			</mx:HBox>
+			<mx:HBox>
+				<mx:HBox width="108">
+					<mx:Label text="Export as:" />
+				</mx:HBox>
+					
 					<mx:ComboBox id="exportType" change="exportType_changeHandler(event)">
 						<mx:String></mx:String>
 						<mx:String>Excel 2003</mx:String>
 						<mx:String>Excel 2010</mx:String>
 						<mx:String>PDF</mx:String>
 						<mx:String>Tab Separated</mx:String>
-					</mx:ComboBox>	
-				</mx:VBox>
-				
+					</mx:ComboBox>
 			</mx:HBox>
-			<mx:Label text="Showing {experimentList.source.length()} item(s)" />
-			<mx:LinkButton id="resetButton" click="resetFilters()" label="Reset Filters" />
-							
+			<mx:HBox horizontalAlign="right" width="100%">
+				<mx:HBox width="95%">
+					<mx:Label text="Showing {experimentList.source.length()} item(s)" />
+				</mx:HBox>
+					<mx:LinkButton id="resetButton" click="resetFilters()" label="Reset Filters" />
+			</mx:HBox>
 		</mx:VBox>	
 
 		<mx:AdvancedDataGrid id="experimentOverview" width="100%" height="90%"
