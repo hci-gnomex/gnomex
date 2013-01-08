@@ -4,7 +4,7 @@
 	title="{'Add new data track to ' + parentName}"	
 	showCloseButton="true" 
 	width="458" 
-	height="230" 
+	height="240" 
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconDataTrackNew}"
 	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" >
@@ -66,7 +66,7 @@
 		
 		var idLab:Object = idLab;
 		if (idLab == null) {
-			if (!parentApplication.hasPermission('canWriteAnyObject') || 
+			if (!parentApplication.hasPermission('canWriteAnyObject') && 
 				(parent != null && parent.@idLab != null && parent.@idLab != "")) {
 				idLab = parent.@idLab;		
 			}
@@ -165,6 +165,7 @@
 			saveDataTrack.send()
 		}
 	}
+		
 	]]>
 </mx:Script>
     
@@ -190,6 +191,9 @@
 					<mx:HBox width="100%" id="visibilityBox">
 						<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="100%"></mx:ComboBox>							        					
 					</mx:HBox>
+						<mx:Text id="institutionNote" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
+							<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
+						</mx:Text>
 					</mx:VBox>
 			            	
         </mx:VBox>
@@ -200,7 +204,7 @@
 	
 	<mx:ControlBar horizontalAlign="right">
 	    <mx:Button id="saveButton"  
-			enabled="{dataTrackName.text != null &amp;&amp; dataTrackName.text != '' &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != '' &amp;&amp; (visibilityCombo.selectedItem.@value == 'PUBLIC' || (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')) ? true : false}" 
+			enabled="{dataTrackName.text != null &amp;&amp; dataTrackName.text != '' &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != '' &amp;&amp; (visibilityCombo.selectedItem.@value == 'PUBLIC' || (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')) ? true : false}" 
 			icon="{parentApplication.iconSave}" 
 			disabledIcon="{parentApplication.iconSaveDisabled}" 
 			label="Save"
