@@ -45,7 +45,6 @@ public class ExperimentOverviewFilter extends DetailObject {
     addRequestCriteria();
 
     return queryBuf;
-    
   }
 
   public void addBaseColumns(StringBuffer queryBuf) {

@@ -100,6 +100,12 @@
 			private var requestNumbers:ArrayCollection;			
 			
 			public function init():void {
+				if(coreFacilities.length < 2){
+					CF = coreFacilities.getItemAt(0).@idCoreFacility;
+				}else{
+					CF = cfSelector.selectedItem.@idCoreFacility;
+				}
+				
 				getExperimentList.send();
 				getLabList.send();
 				getAppUserList.send();
