@@ -28,7 +28,7 @@ String parm2 = request.getParameter("parm2");
          </table>
          <br>
          <br>
-         <INPUT type="submit" name="submit" value="Login to GNomEx">
+         <INPUT type="submit" name="submit" value="Sign in to GNomEx">
          <input type="hidden" name="launchAction" value="">
          <input type="hidden" name="launchParm1" value="<%= parm1 %>">
          <input type="hidden" name="launchParm2" value="<%= parm2 %>">
