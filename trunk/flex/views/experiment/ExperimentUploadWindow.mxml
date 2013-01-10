@@ -260,7 +260,9 @@
 					params.isMicroarray  = "N";
 					params.isNextGenSeq  = "N";
 					params.isBioanalyzer = "N";
-					parentView.downloadView.getRequestDownloadList.send(params);
+					if(parentView.downloadView != null){
+						parentView.downloadView.getRequestDownloadList.send(params);
+					}
 				} 	 
 			}
 			private function getFilesGridRowNumber(item:Object,col:int):String
