@@ -116,6 +116,11 @@ if (userNameExternal == null) {
   userNameExternal = "";
 } 
 
+String uNID = (String) ((request.getParameter("uNID") != null)?request.getParameter("uNID"):"");
+if (uNID == null) {
+  uNID = "";
+} 
+
 
 List labs = null;
 
@@ -238,7 +243,7 @@ try {
       
       <div id="UofUDiv" style="display:none;">
         <div id="univUserNameArea1" class="col1"><div class="right">uNID</div></div>
-        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID" id="uNID"></div>
+        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID" id="uNID" value="<%=uNID%>"></div>
         <div class="col1"></div> 
         <div class="col2"><note class="inline"><i>Format should be a "u" followed by 7 digits (u0000000)</i></note></div>
       </div>
