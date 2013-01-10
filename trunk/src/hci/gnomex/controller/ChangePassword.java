@@ -223,7 +223,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   	StringBuffer content = new StringBuffer();
     content.append("Your GNomEx password has been reset. Your new temporary password is:<br><br>" + newPwd + "<br><br>");
     content.append("Please take a moment to change your temporary password to a new password the next time you log in.<br>");
-    content.append("<a href=\"" + launchAppURL + "\">" + "Login to " + Constants.APP_NAME + "</a>");      
+    content.append("<a href=\"" + launchAppURL + "\">" + "Sign in to " + Constants.APP_NAME + "</a>");      
 
     MailUtil.send(
   		email,

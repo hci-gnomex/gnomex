@@ -45,7 +45,7 @@ a.login {
 	padding-left: 0px;
 	padding-top: 15px;
 	padding-bottom: 2px;
-     font-size: 12 pt;
+    font-size: 12 pt;
 }
   
 a.button {
@@ -55,6 +55,12 @@ a.button {
 	color: blue;
 }
 
+a.buttonLarge {
+	font-size: 12pt;
+	cursor: hand; 
+	cursor: pointer;
+	color: blue;
+}
 
 a.other {
 	color: blue;
@@ -79,12 +85,18 @@ a.other {
 	background-color: #ececd9;
 	overflow: auto;
 	padding: 10px;
-	width: 320px;
+	width: 360px;
 	float: center;
 	color: #696969;
 	border: 1px solid #8B8970;
 }
 
+.boxClear {
+	overflow: auto;
+	padding: 10px;
+	width: 350px;
+	float: center;
+}
 
 .boxMedium {
 	background-color: #ececd9;
@@ -102,7 +114,7 @@ a.other {
 	border: 1px solid #8B8970;
 	overflow: hidden;
 	padding: 10px;
-	width: 430px;
+	width: 435px;
 	float: center;
 	color: #696969;
 }
@@ -130,7 +142,7 @@ a.other {
 .col1 {
 	clear:both;
 	float:left;
-	width: 100px;
+	width: 110px;
 	padding-top: 2px;
 	margin-top: 2px;
 	padding-right: 2px;
@@ -154,25 +166,44 @@ a.other {
 	padding-right: 10px;
 	margin-right: 10px;
 }
-
-.singleCol {
-	clear:both;
-	float:left;
-	padding-top: 2px;
-	margin-top: 2px;
-	padding-right: 2px;
-	margin-right: 2px;
+.boxCenter {
+	overflow: auto;
+	padding: 10px;
+	padding-top: 5px;
+	margin-top: 5px;
+	padding-bottom: 1px;
+	margin-bottom: 0px;
+	width: 330px;
+	float: center;
 }
-
 
 note {
 	padding: 2px;
 	padding-bottom: 4px;
 	font-size: 8pt;
 	font-style: italic;
-	font-style: oblique;
 }
 
+note.inline {
+	float: right;
+	padding-right: 2px;
+	margin-right: 5px;
+	padding-top: 2px;
+	margin-top: 2px;
+	color: #696969;
+	font-size: 8pt;
+	font-style: italic;
+}
+
+note.centered {
+	clear:both;
+	float:center;
+	padding-right: 14px;
+	margin-right: 14px;
+	padding-left: 12px;
+	margin-left: 12px;
+	padding-bottom: 0px;
+}
 
 .topPanel {
 	float: top;
@@ -199,6 +230,13 @@ note {
 	padding-right: 20px;
 }
 
+.buttonPanelShort {
+	float: right;
+	padding-top: 2px;
+	margin-top: 2px;
+	padding-right: 20px;
+}
+
 input.submit {
 	font-size: 11pt;
 	color: #696969;
@@ -212,9 +250,8 @@ input.text {
 	float: left;
 	font-size: 10pt;
 	color: #696969;
-	width: 185;  
+	width: 205;  
 }
-
 
 
 input.text.textWide {
