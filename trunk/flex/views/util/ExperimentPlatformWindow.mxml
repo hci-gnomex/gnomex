@@ -656,7 +656,7 @@
 													   itemRenderer="views.renderers.LabelActive"
 													   rendererIsEditor="false"
 													   width="200"
-													   editable="true" dataField="@display" >
+													   editable="true" wordWrap="true" dataField="@display" >
 									</mx:DataGridColumn>
 									<mx:DataGridColumn headerText="Theme"  
 													   id="applicationThemeCol"
