@@ -5,7 +5,7 @@ package views.renderers
 	import mx.controls.Label;
 	import mx.core.IFactory;
 	
-	public class LabelActive extends mx.controls.Label
+	public class LabelActive extends mx.controls.Text
 	{   public var _dataField:String;	
 		
 		public static function create(dataField:String):IFactory {
