@@ -649,18 +649,24 @@
 			if (currentState == "internalWorkAuthState") {
 				if (ba.@accountNumberActivity.toString().length > 0) {
 					this.au.text = "1";
-					this.au.enabled = true;
+					this.au.enabled = false;
+					this.auBox.visible = true;
+					this.auBox.includeInLayout = true;
 					this.project.text = "";
 					this.project.enabled = false;
 				} else {
 					this.au.text = "";
 					this.au.enabled = false;
+					this.auBox.visible = false;
+					this.auBox.includeInLayout = false;
 					this.project.enabled = true;
 				}
 				ba.@accountNumberAu = this.au.text;
 				ba.@accountNumberProject = this.project.text;
 			} else {
 				this.au.enabled = true;
+				this.auBox.visible = true;
+				this.auBox.includeInLayout = true;
 			}
 		}
 		
@@ -754,12 +760,12 @@
 					</mx:VBox>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Activity"/>
-						<mx:TextInput id="activity" width="62" maxChars="5" text="{ba.@accountNumberActivity}" focusOut="{onActivityChanged()}"/>
+						<mx:TextInput id="activity" width="62" maxChars="5" text="{ba.@accountNumberActivity}" change="{onActivityChanged()}"/>
 						<mx:Label text="5 digits" styleName="labelSmall"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Project"/>
-						<mx:TextInput id="project" width="72" maxChars="8" text="{ba.@accountNumberProject}" focusOut="{onProjectChanged()}"/>
+						<mx:TextInput id="project" width="72" maxChars="8" text="{ba.@accountNumberProject}" change="{onProjectChanged()}"/>
 						<mx:Label text="8 digits" styleName="labelSmall"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0">
@@ -767,7 +773,7 @@
 						<mx:TextInput id="account" width="62" maxChars="5" text="{ba.@accountNumberAccount}" focusOut="{ba.@accountNumberAccount = account.text}"/>
 						<mx:Label text="5 digits" styleName="labelSmall"/>
 					</mx:VBox>
-					<mx:VBox verticalGap="0">
+					<mx:VBox verticalGap="0" id="auBox">
 						<mx:Label text="A/U"/>
 						<mx:TextInput id="au" width="47" maxChars="1" text="{ba.@accountNumberAu}" focusOut="{ba.@accountNumberAu = au.text}"/>
 						<mx:Label text="1 digit" styleName="labelSmall"/>
