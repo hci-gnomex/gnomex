@@ -133,10 +133,7 @@
 		
 		private function init():void {
 			getPropertyList.send();
-			parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
-				onPropertyRefreshed);		                                  
-			parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
-				onPropertyRefreshed);
+			addEventListener(PropertyEvent.DATA_REFRESHED, onPropertyRefreshed);
 			
 			// We use this technique xml.copy() to prevent duplication of applications 
 			// that somehow happens when we add services, then submit request or vice versa
@@ -188,7 +185,7 @@
 			
 		private function reselectProperty():void {
 			var found:Boolean = false;
-			if (idProperty != null) {
+			if (idProperty != null && idProperty != "") {
 				for each(var sc:Object in properties) {
 					if (sc.@idProperty == idProperty) {
 						propertyList.selectedItem = sc;
@@ -373,6 +370,17 @@
 			params.forSample =  "Y";
 			params.forAnalysis = "N";
 			params.forDataTrack = "N";
+			
+			if(radioButtonGroupTarget.selectedValue == "analysis"){
+				params.forAnalysis = "Y";
+			}
+			else if(radioButtonGroupTarget.selectedValue == "samples"){
+				params.forSample = "Y";
+			}
+			else if(radioButtonGroupTarget.selectedValue == "dataTracks"){
+				params.forDataTrack = "Y";
+			}
+			
 			if (parentApplication.hasPermission("canWriteDictionaries")) {
 				params.idAppUser = '';			
 			} else {
