@@ -3177,19 +3177,19 @@
 				if (visibilityView.institutionCombo != null && visibilityView.institutionCombo.selectedItem != null) {
 					request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;					
 				}
-				else{
+				else if(parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION) != null){
 					request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
 				}
+				else{
+					request.@idInstitution = "";
+				}
 			}
-			else{
-				request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
-			}
-
+			
 			// Collaborators
 			request.replace("collaborators", <collaborators></collaborators>);
 			for each(var collaborator:Object in visibilityView.collaborators) {
 				request.collaborators.appendChild(collaborator);
-		 	}
+			}
 			
 			request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
 			
