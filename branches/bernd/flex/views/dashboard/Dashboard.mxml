@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="100%" height="100%" backgroundAlpha="1.0" creationComplete="init()"
+		   creationPolicy="all" hideEffect="{parentApplication.fadeOut}"
+		   horizontalScrollPolicy="off" showEffect="{parentApplication.fadeIn}"
+		   xmlns:db="views.dashboard.*"
+		   verticalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+			
+		]]> 
+	</mx:Script>
+	<mx:HBox y="50" horizontalAlign="center" width="100%">
+		<mx:Label height="106" fontSize="33" text="GNomEx Dashboard" />
+	</mx:HBox>
+
+	<mx:Grid id="DashboardGrid" x="0" y="156" width="100%" height="85%" horizontalAlign="center"
+			 horizontalGap="8" verticalGap="6">
+		
+		<mx:GridRow width="90%" height="40%" fontSize="22">
+			<mx:GridItem horizontalAlign="center">
+				<mx:Label text="News" />
+			</mx:GridItem>
+			<mx:GridItem width="378" horizontalAlign="center">
+				<mx:Label text="Notifications" />
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="90%" height="40%">
+			<mx:GridItem horizontalAlign="center" borderStyle="outset" borderThickness="1">
+				<db:RunStatusHub>
+					
+				</db:RunStatusHub>
+			</mx:GridItem>
+			<mx:GridItem horizontalAlign="center">
+				<mx:Label text="FAQ" />
+			</mx:GridItem>
+		</mx:GridRow>
+	</mx:Grid>
+	
+</mx:Canvas>
