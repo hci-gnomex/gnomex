@@ -285,7 +285,7 @@ Build Instructions
    
 3. Run Ant build on build.xml with target=all-tomcat
    >cd path/to/gnomex
-   >ant all-tomcat
+   >ant all-opensource-tomcat release
 
 4. A new gnomex.war file will be placed in path/to/tomcat/webapps  
    Restart Tomcat and gnomex will be deployed.
