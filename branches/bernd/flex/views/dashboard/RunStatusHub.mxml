@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 				xmlns:db="views.dashboard.*" 
-				title="Sequencer Status" 
+				title="Sequencer Status - {conLabel}" 
 				width="536" height="370">   
 
+<mx:Style>
+	Connected {
+		fontWeight: bold;
+		color: green;
+	}
+	
+	Disconnected {
+		fontWeight: bold;
+		color: red;
+	}
+	
+</mx:Style>				
+				
 <mx:Script>
 	<![CDATA[
 		
@@ -11,16 +24,44 @@
 		
 		// Variables
 		[Bindable]
-		private activeRuns:int = 0;
+		private var conStatus:Boolean = false;
 		
 		[Bindable]
-		private finishedRuns:int = 0;
+		private var conLabel:Label;
 		
 		[Bindable]
-		private haltedRuns:int = 0;
+		public var activeRuns:int = 0;
 		
 		[Bindable]
-		private turnRuns:int = 0;
+		private var finishedRuns:int = 0;
+		
+		[Bindable]
+		private var haltedRuns:int = 0;
+		
+		[Bindable]
+		private var turnRuns:int = 0;
+		
+		public function init():void {
+			// Retrieve initial SummaryCollection from MetrixServer using controller.
+			
+			// Set Connection status
+			if(conStatus){
+				conLabel.text = "Connected";
+				conLabel.setStyle("Connected");
+			}else{
+				conLabel.text = "Disconnected";
+				conLabel.setStyle("Disconnected");
+			}
+			
+			// Set counts for global status counters
+			 // activeRuns
+			 // finishedRuns
+			 // haltedRuns
+			 // turnRuns
+			
+			// Set timer -- Polling with 10 minute interval.
+			
+		}
 	]]>
 </mx:Script>
 	
@@ -36,31 +77,31 @@
 		</mx:HBox>
 		<mx:HRule width="100%" />
 			
-			<mx:HBox id="titleContainer" width="100%" horizontalAlign="center">
-				<mx:Label id="mainTitle" text="Current Active Sequencing Machines" fontSize="22" />
+			<mx:HBox id="titleContainer" width="100%" horizontalAlign="center" borderStyle="solid" borderThickness="1">
+				<mx:Label id="mainTitle" text="Current Active Sequencing Machines" fontSize="18" />
 			</mx:HBox>
-			<mx:VDividedBox height="3"/>
-			<mx:VBox>
+			
+			<mx:VBox width="100%" verticalScrollBar="auto">
 				<!-- 
 				Use Mx:Repeater for all available sequencing machines.
 				Call GetRunsByState.gx - Create XML format? 
 				-->
 				
 				<mx:Repeater id="repStatus" dataProvider="{}" startingIndex="1" count="3" >
-					<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="2">
-						<mx:HBox id="runProgress">
+					<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%">
+						<mx:HBox id="runProgress" width="100%">
 							<mx:Label id="seqMachine1" text="{instrumentName}" />
-							<mx:ProgressBar id="progress1" width="431" label="%1 / %2 Cycles"
+							<mx:ProgressBar id="progress1" width="75%" label="%1 / %2 Cycles"
 											labelPlacement="center" mode="manual" />
 						</mx:HBox>
 						<mx:HBox id="runInfo" width="100%">
-							<mx:Label id="runId" text="Run name: {sumRunId}" />
+							<mx:Label id="runId" text="Run name: {sumRunId}" /> <!-- Run identifier -->
 							<mx:VRule height="20" />
 							<mx:Label id="runType" text="Run type: {sumRunType}" />	<!-- Single End / Paired End-->
 							<mx:VRule height="20" />
-							<mx:Label id="runDate" text="Run date: {sumRunDate}" />
+							<mx:Label id="runDate" text="Run date: {sumRunDate}" /> <!-- Start date of run -->
 						</mx:HBox>
-						<mx:Label id="runPhase" text="Current phase: {runPhase}" />
+						<mx:Label id="runPhase" text="Current phase: {runPhase}" /> <!-- Current phase of run -->
 					</mx:VBox>
 				</mx:Repeater>
 			</mx:VBox>
