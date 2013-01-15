@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.daemon.RegisterFiles.AnalysisFileInfo;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
@@ -66,18 +65,19 @@ public class ComputeMonthlyDiskUsage {
   private Boolean                         sendReports = false;
   private String                          orionPath = "";
   private String                          testEmailAddress = "";
-  private String                          baseURL = "";
+  private String                          baseURL = null;
   
   private Boolean                         diskUsageForExperiments = false;
   private Boolean                         diskUsageForAnalysis = false;
   private BigDecimal                      diskUsageIncrement;
+  private String                          diskUsageIncrementString = "";
   private BigDecimal                      diskUsageFreePerIncrement;
   private BigDecimal                      diskUsageFreeBeforeCharge;
   private Integer                         analysisGracePeriod;
   private Integer                         experimentGracePeriod;
   private PriceCategory                   priceCategory;
   private Price                           price;
-  private String                          softwareTesterEmail;
+  private String                          gnomexSupportEmail;
   private String                          fromEmailAddress;
   
   private Date                            runDate;
@@ -97,6 +97,8 @@ public class ComputeMonthlyDiskUsage {
         sendReports = true;
       } else if (args[i].equals ("-server")) {
         serverName = args[++i];
+      } else if (args[i].equals ("-gnomexServerURL")) {
+        baseURL = args[++i];
       } else if (args[i].equals ("-orionPath")) {
         orionPath = args[++i];
       } else if (args[i].equals ("-doNotSendMail")) {
@@ -201,12 +203,12 @@ public class ComputeMonthlyDiskUsage {
     } else {
       diskUsageForAnalysis = false;
     }
-    if (diskUsageIncrementString != null) {
-      diskUsageIncrement = new BigDecimal(diskUsageIncrementString.replaceAll(",", ""));
-      diskUsageIncrement = diskUsageIncrement.multiply(gigabyte); // property in gigabytes.
-    } else {
-      diskUsageIncrement = new BigDecimal("100000000000");
+    if (diskUsageIncrementString == null) {
+      diskUsageIncrementString = "100"; // default to 100 gigabytes.
     }
+    diskUsageIncrement = new BigDecimal(diskUsageIncrementString.replaceAll(",", ""));
+    diskUsageIncrement = diskUsageIncrement.multiply(gigabyte); // property in gigabytes.
+    this.diskUsageIncrementString = diskUsageIncrementString; 
     if (diskUsageFreePerIncrementString != null) {
       diskUsageFreePerIncrement = new BigDecimal(diskUsageFreePerIncrementString.replaceAll(",", ""));
       diskUsageFreePerIncrement = diskUsageFreePerIncrement.multiply(gigabyte); // property in gigabytes
@@ -262,9 +264,18 @@ public class ComputeMonthlyDiskUsage {
     Query billingPeriodQuery = sess.createQuery("select b from BillingPeriod b where '" + computeDateString + "' between b.startDate and b.endDate");
     billingPeriod = (BillingPeriod)billingPeriodQuery.uniqueResult();
     
-    this.softwareTesterEmail = ph.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName, facility.getIdCoreFacility());
+    if (gnomexSupportEmail == null) {
+      gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName, facility.getIdCoreFacility());
+    }
     this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    this.baseURL = ph.getQualifiedProperty(PropertyDictionary.BST_LINKAGE_GNOMEX_URL, serverName);
+
+    if (baseURL == null) {
+      baseURL = (serverName.equals("localhost")  || serverName.equals("h005973") ? "http://" : "https://") + serverName + "/gnomex/";
+    }
+    if (!baseURL.endsWith("/")) {
+      baseURL += "/";
+    }
     
     processingStatement = "Processing " + facility.getFacilityName();
     if (!diskUsageForExperiments && !diskUsageForAnalysis) {
@@ -280,7 +291,8 @@ public class ComputeMonthlyDiskUsage {
   
   private void computeDiskUsage(CoreFacility facility) {
     Map<Integer, Lab> labMap = getLabMap(facility);
-    Map<Integer, DiskUsageByMonth> newUsageMap = getDiskUsage(facility);
+    Map<Integer, DiskUsageByMonth> newUsageMap = getDiskUsage(diskUsageForExperiments, diskUsageForAnalysis, sess, 
+        billingPeriod, experimentGracePeriod, analysisGracePeriod, facility);
     Map<Integer, DiskUsageByMonth> existingUsageMap = getExistingDiskUsage(facility);
     Map<Integer, BillingAccount> billingAccountMap = getBillingAccountMap(facility);
     Map<Integer, Invoice> invoiceMap = getInvoiceMap(facility);
@@ -313,21 +325,23 @@ public class ComputeMonthlyDiskUsage {
     return labMap;
   }
   
-  private Map<Integer, DiskUsageByMonth> getDiskUsage(CoreFacility facility) {
+  // Public static because also used by DeleteOldExperimentAndAnalysisFiles
+  public static Map<Integer, DiskUsageByMonth> getDiskUsage(Boolean diskUsageForExperiments, Boolean diskUsageForAnalysis, Session sess, 
+      BillingPeriod billingPeriod, Integer experimentGracePeriod, Integer analysisGracePeriod, CoreFacility facility) {
     Map<Integer, DiskUsageByMonth> usageMap = new HashMap<Integer, DiskUsageByMonth>();
     
     if (diskUsageForExperiments) {
-      loadExperimentUsageData(usageMap, facility);
+      loadExperimentUsageData(sess, billingPeriod, experimentGracePeriod, usageMap, facility);
     }
     
     if (diskUsageForAnalysis) {
-      loadAnalysisUsageData(usageMap, facility);
+      loadAnalysisUsageData(sess, billingPeriod, analysisGracePeriod, usageMap, facility);
     }
     
     return usageMap;
   }
   
-  private void loadAnalysisUsageData(Map<Integer, DiskUsageByMonth> usageMap, CoreFacility facility) {
+  private static void loadAnalysisUsageData(Session sess, BillingPeriod billingPeriod,  Integer analysisGracePeriod, Map<Integer, DiskUsageByMonth> usageMap, CoreFacility facility) {
     // Figure grace period.
     Calendar assessDateCal = Calendar.getInstance();
     assessDateCal.setTime(billingPeriod.getEndDate());
@@ -366,7 +380,7 @@ public class ComputeMonthlyDiskUsage {
     }
   }
   
-  private void loadExperimentUsageData(Map<Integer, DiskUsageByMonth> usageMap, CoreFacility facility) {
+  private static void loadExperimentUsageData(Session sess, BillingPeriod billingPeriod, Integer experimentGracePeriod, Map<Integer, DiskUsageByMonth> usageMap, CoreFacility facility) {
     // Figure grace period.
     Calendar assessDateCal = Calendar.getInstance();
     assessDateCal.setTime(billingPeriod.getEndDate());
@@ -540,7 +554,7 @@ public class ComputeMonthlyDiskUsage {
   private BillingItem newBillingItem(DiskUsageByMonth usage, Lab lab, BigDecimal totalIncrements, BillingAccount ba, Invoice invoice) {
     BillingItem bi = new BillingItem();
     bi.setCategory("Disk Usage");
-    bi.setDescription("Disk Usage");
+    bi.setDescription("Disk Usage per " + this.diskUsageIncrementString + "GB");
     bi.setQty(totalIncrements.intValue());
     bi.setUnitPrice(price.getEffectiveUnitPrice(lab));
     bi.setInvoicePrice(getTotalCharge(totalIncrements, lab));
@@ -610,22 +624,32 @@ public class ComputeMonthlyDiskUsage {
       emailAddress = testEmailAddress;
     }
     if (emailAddress == null || emailAddress.length() == 0) {
-      emailAddress = this.softwareTesterEmail;
+      emailAddress = this.gnomexSupportEmail;
     }
     BigDecimal totalCharge = getTotalCharge(totalIncrements, lab);
     BigDecimal totalSize = usage.getAssessedDiskSpace();
     totalSize = totalSize.movePointLeft(9); // Change to gigabytes
-    totalSize = totalSize.setScale(2, BigDecimal.ROUND_UP);
+    totalSize = totalSize.setScale(0, BigDecimal.ROUND_UP);
     String chargeForDisplay = NumberFormat.getCurrencyInstance().format(totalCharge);
     String diskSizeForDisplay = NumberFormat.getNumberInstance().format(totalSize);
+    String labName = "";
+    if (lab.getFirstName() != null && lab.getFirstName().length() > 0) {
+      labName = lab.getFirstName();
+      if (lab.getLastName() != null && lab.getLastName().length() > 0) {
+        labName += " ";
+      }
+    }
+    labName += lab.getLastName();
+    labName += " ";
+    labName += "Lab";
     
     StringBuffer body = new StringBuffer();
     if (ba != null) {
       String accountName = ba.getAccountNameAndNumber();
-      body.append(lab.getFormattedLabName()).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" to account '").append(accountName)
+      body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" to account '").append(accountName)
         .append("' on disk usage of ").append(diskSizeForDisplay).append(" gigabytes of storage.");
     } else {
-      body.append(lab.getFormattedLabName()).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
+      body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
         .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
       body.append("The lab has no active billing accounts.  Please submit a work authorization to avoid file deletions(")
         .append("<a href=\"").append(getLaunchWorkAuthUrl()).append("\">Work Authorization</a>).");
@@ -648,7 +672,7 @@ public class ComputeMonthlyDiskUsage {
   }
   
   public String getLaunchWorkAuthUrl() {
-    return baseURL + "?launchWindow=WorkAuthForm";  
+    return baseURL + "gnomexFlex.jsp?launchWindow=WorkAuthForm";  
   }
 
   private void removeUsage(CoreFacility facility, Map<Integer, DiskUsageByMonth> newUsageMap, Map<Integer, DiskUsageByMonth> existingUsageMap) {
@@ -698,7 +722,7 @@ public class ComputeMonthlyDiskUsage {
     if (sess != null) {
       
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-      String toAddress = softwareTesterEmail;
+      String toAddress = gnomexSupportEmail;
       if (testEmailAddress.length() > 0) {
         toAddress = testEmailAddress;
       }

@@ -166,7 +166,7 @@ public class RequestParser implements Serializable {
           request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
           request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate")));   
           
-          if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
+          if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("") && !n.getAttributeValue("idInstitution").equals("null")) {
             request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
           } 
         }

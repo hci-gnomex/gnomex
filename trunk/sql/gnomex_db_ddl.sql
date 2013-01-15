@@ -386,7 +386,7 @@ CREATE TABLE `gnomex`.`DiskUsageByMonth` (
   `totalExperimentDiskSpace` DECIMAL(16, 0) NOT NULL,
   `assessedExperimentDiskSpace` DECIMAL(16, 0) NOT NULL,
   idBillingPeriod INT(10) NOT NULL,
-  idBillingAccount INT(10) NOT NULL,
+  idBillingAccount INT(10) NULL,
   idCoreFacility INT(10) NOT NULL,
   PRIMARY KEY (`idDiskUsageByMonth`),
   CONSTRAINT `FK_DiskUsageByMonth_Lab` FOREIGN KEY  (`idLab`)
@@ -1576,6 +1576,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isSampleBarcodingOptional` CHAR(1) NULL,
   `isInternal` CHAR(1) NULL,
   `isExternal` CHAR(1) NULL,
+  `refrainFromAutoDelete` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
