@@ -86,11 +86,27 @@ public class DiskUsageByMonth extends HibernateDetailObject {
   }
   
   public BigDecimal getTotalDiskSpace() {
-    return totalExperimentDiskSpace.add(totalAnalysisDiskSpace);
+    if (totalExperimentDiskSpace == null && totalAnalysisDiskSpace == null) {
+      return BigDecimal.ZERO;
+    } else if (totalExperimentDiskSpace == null) {
+      return totalAnalysisDiskSpace;
+    } else if (totalAnalysisDiskSpace == null) {
+      return totalExperimentDiskSpace;
+    } else {
+      return totalExperimentDiskSpace.add(totalAnalysisDiskSpace);
+    }
   }
   
   public BigDecimal getAssessedDiskSpace() {
-    return assessedExperimentDiskSpace.add(totalAnalysisDiskSpace);
+    if (assessedExperimentDiskSpace == null && assessedAnalysisDiskSpace == null) {
+      return BigDecimal.ZERO;
+    } else if (assessedExperimentDiskSpace == null) {
+      return assessedAnalysisDiskSpace;
+    } else if (assessedAnalysisDiskSpace == null) {
+      return assessedExperimentDiskSpace;
+    } else {
+      return assessedExperimentDiskSpace.add(assessedAnalysisDiskSpace);
+    }
   }
   
   public Integer getIdBillingAccount() {

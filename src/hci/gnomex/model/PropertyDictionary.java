@@ -85,6 +85,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        DISK_USAGE_ANALYSIS_GRACE_PERIOD_IN_MONTHS = "disk_usage_analysis_grace_period_in_months";
   public static final String        DISK_USAGE_EXPERIMENT_GRACE_PERIOD_IN_MONTHS = "disk_usage_experiment_grace_period_in_months";
   public static final String        DISK_USAGE_PRICE_CATEGORY_NAME      = "disk_usage_price_category_name";
+  public static final String        GNOMEX_SUPPORT_EMAIL                = "gnomex_support_email";
 
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";

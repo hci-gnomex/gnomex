@@ -147,6 +147,14 @@ public class AnalysisFile extends HibernateDetailObject {
     this.createDate = createDate;
   }
   
+  public Date getEffectiveCreateDate() {
+    if (uploadDate == null) {
+      return createDate;
+    } else {
+      return uploadDate;
+    }
+  }
+  
   public File getFile(String baseDir) {
     String filePath = "";
     if (baseFilePath == null || baseFilePath.equals("")) {

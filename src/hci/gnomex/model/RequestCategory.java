@@ -50,6 +50,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   isSampleBarcodingOptional;
   private String   isInternal;
   private String   isExternal;
+  private String   refrainFromAutoDelete;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
@@ -258,6 +259,14 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setIsExternal(String isExternal) {
     this.isExternal = isExternal;
+  }
+
+  public String getRefrainFromAutoDelete() {
+    return refrainFromAutoDelete;
+  }
+
+  public void setRefrainFromAutoDelete(String refrainFromAutoDelete) {
+    this.refrainFromAutoDelete = refrainFromAutoDelete;
   }
   
 

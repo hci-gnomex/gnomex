@@ -17,7 +17,7 @@ CREATE TABLE `gnomex`.`DiskUsageByMonth` (
   `totalExperimentDiskSpace` DECIMAL(16, 0) NOT NULL,
   `assessedExperimentDiskSpace` DECIMAL(16, 0) NOT NULL,
   idBillingPeriod INT(10) NOT NULL,
-  idBillingAccount INT(10) NOT NULL,
+  idBillingAccount INT(10) NULL,
   idCoreFacility INT(10) NOT NULL,
   PRIMARY KEY (`idDiskUsageByMonth`),
   CONSTRAINT `FK_DiskUsageByMonth_Lab` FOREIGN KEY  (`idLab`)
@@ -48,3 +48,8 @@ alter table BillingItem add
     REFERENCES `gnomex`.`DiskUsageByMonth` (`idDiskUsageByMonth`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+ --Flag on request category to exclude category from auto delete
+ alter table RequestCategory add refrainFromAutoDelete CHAR(1);
+ update RequestCategory set refrainFromAutoDelete='Y';
+ 

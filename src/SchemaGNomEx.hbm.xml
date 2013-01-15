@@ -1603,7 +1603,7 @@
 		<property name="isSampleBarcodingOptional" column="isSampleBarcodingOptional" type="string"/>
 		<property name="isInternal" column="isInternal" type="string"/>
 		<property name="isExternal" column="isExternal" type="string"/>
-	
+	  <property name="refrainFromAutoDelete" column="refrainFromAutoDelete" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
