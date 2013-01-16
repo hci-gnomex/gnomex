@@ -76,8 +76,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
   private String                analysisFilesXMLString;
   private Document              analysisFilesDoc;
-  private String                analysisFilesToDeleteXMLString;
-  private Document              analysisFilesToDeleteDoc;
   private AnalysisFileParser    analysisFileParser;
   
   private Integer               originalIdLab = null;
@@ -152,19 +150,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     
     if (request.getParameter("analysisFilesXMLString") != null && !request.getParameter("analysisFilesXMLString").equals("")) {
       analysisFilesXMLString = request.getParameter("analysisFilesXMLString");
-      if (request.getParameter("analysisFilesToDeleteXMLString") != null && !request.getParameter("analysisFilesToDeleteXMLString").equals("")) {
-        analysisFilesToDeleteXMLString = request.getParameter("analysisFilesToDeleteXMLString");
-      }
       
       reader = new StringReader(analysisFilesXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
         analysisFilesDoc = sax.build(reader);
-
-        reader = new StringReader(analysisFilesToDeleteXMLString);
-        analysisFilesToDeleteDoc = sax.build(reader);
         
-        analysisFileParser = new AnalysisFileParser(analysisFilesDoc, analysisFilesToDeleteDoc);
+        analysisFileParser = new AnalysisFileParser(analysisFilesDoc, null);
       } catch (JDOMException je ) {
         log.error( "Cannot parse analysisFilesXMLString", je );
         this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
