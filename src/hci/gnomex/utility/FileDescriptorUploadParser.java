@@ -39,7 +39,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     for(Iterator i = root.getChildren("RequestDownload").iterator(); i.hasNext();) {
       Element folderNode = (Element)i.next();      
       String requestNumber = folderNode.getAttributeValue("requestNumber");
-      String []keyTokens = folderNode.getAttributeValue("key").split("-");
+      String []keyTokens = folderNode.getAttributeValue("key").split(Constants.DOWNLOAD_KEY_SEPARATOR);
       String directoryName = keyTokens[3];
       if(folderNode.getAttribute("newName") != null && !folderNode.getAttribute("newName").equals("")){
         foldersToRename.put(directoryName, folderNode.getAttributeValue("newName"));
@@ -60,7 +60,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   private void recurseDirectories(Element folderNode, String parentDir) {
     String directoryName = null;
     if (folderNode.getName().equals("RequestDownload")) {
-      String []keyTokens = folderNode.getAttributeValue("key").split("-");
+      String []keyTokens = folderNode.getAttributeValue("key").split(Constants.DOWNLOAD_KEY_SEPARATOR);
       directoryName = keyTokens[3];
       
     } else if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir")) {
