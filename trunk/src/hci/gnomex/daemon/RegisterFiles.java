@@ -1,6 +1,7 @@
 package hci.gnomex.daemon;
 
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetExpandedFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
@@ -73,8 +74,6 @@ public class RegisterFiles extends TimerTask {
   
   private boolean                      runAsDaemon = false;
   
-  private HashMap                      experimentFileMap;
-  
   private String                       baseExperimentDir;
   private String                       baseFlowCellDir;
   private String                       baseAnalysisDir;
@@ -90,6 +89,9 @@ public class RegisterFiles extends TimerTask {
 
   private String                       errorMessageString = "Error in RegisterFiles";
   
+  private String                          gnomexSupportEmail;
+  private String                          fromEmailAddress;
+
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
   Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
 
@@ -115,10 +117,11 @@ public class RegisterFiles extends TimerTask {
     try {
       if (sendMail) {
         mailProps = new BatchMailer(orionPath).getMailProperties();
+        System.out.println("WARNING: Emails are enabled.");
+      } else {
+        System.out.println("Emails are disabled.");
       }
     } catch (Exception e){
-      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-      
       String msg = "Register files cannot initialize mail properties.   " + e.toString()  + "\n\t";
       
       StackTraceElement[] stack = e.getStackTrace();
@@ -131,8 +134,7 @@ public class RegisterFiles extends TimerTask {
       }
       errorMessageString += msg;
       
-      this.sendErrorReport( dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER),
-          dictionaryHelper.getPropertyDictionary( PropertyDictionary.GENERIC_NO_REPLY_EMAIL )); 
+      this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
       
       System.err.println(errorMessageString);
       
@@ -174,8 +176,6 @@ public class RegisterFiles extends TimerTask {
       app.registerAnalysisFiles();
 
     } catch (Exception e) {
-            
-      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       String msg = "Could not register experiment or analysis files. Transaction rolled back:   " + e.toString() + "\n\t";
       
@@ -202,9 +202,7 @@ public class RegisterFiles extends TimerTask {
       }
       errorMessageString += msg;
       
-      
-      this.sendErrorReport( dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER),
-          dictionaryHelper.getPropertyDictionary( PropertyDictionary.GENERIC_NO_REPLY_EMAIL )); 
+      this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
       
       System.err.println(errorMessageString);
       
@@ -220,6 +218,12 @@ public class RegisterFiles extends TimerTask {
     baseFlowCellDir     = ph.getFlowCellDirectory(serverName);
     baseAnalysisDir     = ph.getAnalysisDirectory(serverName);
     flowCellDirFlag     = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+    
+    gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName);
+    if (gnomexSupportEmail == null) {
+      gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName);
+    }
+    this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     
     // Figure out how far back we should look at experiments
     
@@ -241,49 +245,28 @@ public class RegisterFiles extends TimerTask {
   
   private void registerExperimentFiles() throws Exception {
     // Hash experiment files
-    experimentFileMap = new HashMap();
-    StringBuffer buf = new StringBuffer("SELECT ef ");
-    buf.append(" FROM Request r ");
-    buf.append(" JOIN r.files as ef ");
-    if (asOfDate != null) {
-      buf.append(" WHERE r.createDate >= '" + new SimpleDateFormat("yyyy-MM-dd").format(asOfDate.getTime()) + "'");
-    }
-    List results = sess.createQuery(buf.toString()).list();
-    for (Iterator i = results.iterator(); i.hasNext();) {
-      ExperimentFile ef = (ExperimentFile)i.next();
-      List files = (List)experimentFileMap.get(ef.getIdRequest());
-      if (files == null) {
-        files = new ArrayList();
-        experimentFileMap.put(ef.getIdRequest(), files);
-      }
-      files.add(ef);
-    }
+    StringBuffer buf = new StringBuffer();
     
     // Get all of the experiments created on or after the as-of-date
-    buf = new StringBuffer("SELECT r.number, r.createDate, r.codeRequestCategory, r.idRequest, r.idCoreFacility ");
+    buf = new StringBuffer("SELECT r ");
     buf.append(" FROM Request r");
     if (asOfDate != null) {
       buf.append(" WHERE r.createDate >= '" + new SimpleDateFormat("yyyy-MM-dd").format(asOfDate.getTime()) + "'");
     }
     System.out.println(buf.toString());
-    results = sess.createQuery(buf.toString()).list();
+    List results = sess.createQuery(buf.toString()).list();
     
     // For each experiment
     for (Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      String requestNbr            = (String)row[0];
-      java.util.Date createDate     = (java.util.Date)row[1];
-      String codeRequestCategory   = (String)row[2];
-      Integer idRequest            = (Integer)row[3];
-      Integer idCoreFacility       = (Integer)row[4];
+      Request request = (Request)i.next();
       
-      String baseRequestNumber = Request.getBaseRequestNumber(requestNbr);
+      String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
 
       System.out.println("\n" + baseRequestNumber);
       tx = sess.beginTransaction();
       
       // Get all of the files from the file system
-      Map fileMap = hashFiles(sess, baseRequestNumber, createDate, codeRequestCategory, idCoreFacility);
+      Map fileMap = hashFiles(sess, baseRequestNumber, request.getCreateDate(), request.getCodeRequestCategory(), request.getIdCoreFacility());
       for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
         String fileName = (String)i1.next();
         FileDescriptor fd = (FileDescriptor)fileMap.get(fileName);
@@ -291,9 +274,10 @@ public class RegisterFiles extends TimerTask {
       }
       
       // Now compare to the experiment files already registered in the db
-      List experimentFiles = (List)experimentFileMap.get(idRequest);
-      if (experimentFiles != null) {
-        for (Iterator i2 = experimentFiles.iterator(); i2.hasNext();) {
+      TreeSet newExperimentFiles = new TreeSet(new ExperimentFileComparator());
+      if (request.getFiles() != null) {
+
+        for (Iterator i2 = request.getFiles().iterator(); i2.hasNext();) {
           ExperimentFile ef = (ExperimentFile)i2.next();
           FileDescriptor fd = (FileDescriptor)fileMap.get(ef.getFileName());
           
@@ -315,12 +299,13 @@ public class RegisterFiles extends TimerTask {
               changed = true;
             }
             if (ef.getCreateDate() == null) {
-              ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, createDate));
+              ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, request.getCreateDate()));
               changed = true;
             }
             if (changed) {
               sess.save(ef);
             }
+            newExperimentFiles.add(ef);
           }
         }        
       }
@@ -332,14 +317,20 @@ public class RegisterFiles extends TimerTask {
         FileDescriptor fd = (FileDescriptor)fileMap.get(fileName);
         if (!fd.isFound()) {
           ExperimentFile ef = new ExperimentFile();
-          ef.setIdRequest(idRequest);
+          ef.setIdRequest(request.getIdRequest());
           ef.setFileName(fileName);
           ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
-          ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, createDate));
+          ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, request.getCreateDate()));
           sess.save(ef);
+          newExperimentFiles.add(ef);
         }
       }
       
+      request.getFiles().clear();
+      
+      if (newExperimentFiles != null && newExperimentFiles.size() > 0) {
+        request.getFiles().addAll(newExperimentFiles);
+      }
       
       sess.flush();
       tx.commit();
@@ -354,9 +345,6 @@ public class RegisterFiles extends TimerTask {
   }
   
   private void registerAnalysisFiles() throws Exception {
-    
-    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    
     
     // Get all of the analysis files created on or after the as-of-date
     StringBuffer buf = new StringBuffer("SELECT a ");
@@ -431,7 +419,7 @@ public class RegisterFiles extends TimerTask {
                 }
               }
               if (emailAddress == null ||  emailAddress.equals( "" ) ) {
-                emailAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+                emailAddress = this.gnomexSupportEmail;
               }
               
               
@@ -459,7 +447,7 @@ public class RegisterFiles extends TimerTask {
               }
             }
             if (emailAddress == null ||  emailAddress.equals( "" ) ) {
-              emailAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+              emailAddress = this.gnomexSupportEmail;
             }
             
 
@@ -519,7 +507,7 @@ public class RegisterFiles extends TimerTask {
     }
   
     try {
-      sendNotifyEmails(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER) );
+      sendNotifyEmails(this.gnomexSupportEmail );
     } catch (Exception e) {
       
       // Notify software people that the emails didn't go through?
@@ -535,8 +523,7 @@ public class RegisterFiles extends TimerTask {
       }
       errorMessageString += msg;
       
-      this.sendErrorReport( dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER),
-          dictionaryHelper.getPropertyDictionary( PropertyDictionary.GENERIC_NO_REPLY_EMAIL )); 
+      this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
       
       System.err.println(errorMessageString);
     } 
@@ -654,8 +641,6 @@ public class RegisterFiles extends TimerTask {
       if (directoryKeys != null) {
         for(Iterator i2 = directoryKeys.iterator(); i2.hasNext();) {
           String directoryKey = (String)i2.next();
-          String[] dirTokens = directoryKey.split("-");
-          String directoryName = dirTokens[1];
 
           List   theFiles     = (List)directoryMap.get(directoryKey);
 
@@ -793,10 +778,10 @@ public class RegisterFiles extends TimerTask {
   }
   
   public static class AnalysisFileInfo {
-    private String analysisNumber;
-    private String analysisFileName;
-    private String dataTrackNumber;
-    private String comment;
+    public String analysisNumber;
+    public String analysisFileName;
+    public String dataTrackNumber;
+    public String comment;
     
     public AnalysisFileInfo(String analysisNumber, String analysisFileName,
         DataTrack dataTrack, String comment) {

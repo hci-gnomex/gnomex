@@ -546,7 +546,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
   public static Set getAnalysisDownloadFolders(String baseDir, String analysisNumber, String createYear) {
 
-    TreeSet folders = new TreeSet<String>(new FolderComparator());
+    TreeSet folders = new TreeSet<String>();
     String directoryName = baseDir + createYear + File.separator + analysisNumber;
     File fd = new File(directoryName);
 

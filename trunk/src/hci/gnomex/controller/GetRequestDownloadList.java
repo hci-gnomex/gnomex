@@ -131,8 +131,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         
-        String baseKey = createYear + "-" + sortDate + "-" + requestNumber;
-        String key = baseKey + "-" + hybNumber + "-" + idCoreFacility;
+        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber;
+        String key = baseKey + Constants.DOWNLOAD_KEY_SEPARATOR + hybNumber + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility;
         
         rowMap.put(key, row);
       }
@@ -159,7 +159,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         // files will be in 7633R even though request # is now 7633R1).
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
         
-        String baseKey = createYear + "-" + sortDate + "-" + requestNumber;
+        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber;
         
         // Now read the request directory to identify all its subdirectories
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
@@ -210,7 +210,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
        
-        String baseKey = createYear + "-" + sortDate + "-" + requestNumberBase; 
+        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumberBase; 
         
         // Now read the request directory to identify all its subdirectories
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
@@ -219,7 +219,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           // If we didn't add any row map entries (because there are no subdirectories under
           // request directory), just add the base directory so that we get have
           // something in the rowmap to get the root files from.
-          rowMap.put(baseKey + "-" + this.DUMMY_DIRECTORY + "-" + idCoreFacility, row);
+          rowMap.put(baseKey + Constants.DOWNLOAD_KEY_SEPARATOR + this.DUMMY_DIRECTORY + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility, row);
         } else {
           int foldersHashed = this.hashFolders(folders, rowMap, dh, baseKey, row);
           
@@ -228,7 +228,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           // have the request in the hash to get the root files from or at least
           // create the Request node.
           if (foldersHashed == 0) {
-            rowMap.put(baseKey + "-" + this.DUMMY_DIRECTORY + "-" + idCoreFacility, row);
+            rowMap.put(baseKey + Constants.DOWNLOAD_KEY_SEPARATOR + this.DUMMY_DIRECTORY + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility, row);
           }
         }
         
@@ -244,7 +244,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       
       for(Iterator i = rowMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
-        String[] tokens = key.split("-");
+        String[] tokens = key.split(Constants.DOWNLOAD_KEY_SEPARATOR);
         String createYear = tokens[0];
         String resultDir = "";
         if (tokens.length > 3) {
@@ -447,7 +447,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               String theCreateYear  = dateTokens[2];
               String sortDate = theCreateYear + createMonth + createDay;      
 
-              String fcKey = theCreateYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + fcFolder.getIdCoreFacility() + "-" + dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+              String fcKey = theCreateYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + fcFolder.getRequestNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + fcFolder.getFlowCellNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + fcFolder.getIdCoreFacility() + Constants.DOWNLOAD_KEY_SEPARATOR + dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
               String fcCodeRequestCategory = row[2] == null ? "" : (String)row[2];
               
               Element n1 = new Element("RequestDownload");
@@ -520,7 +520,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       if (folderName.equals(Constants.UPLOAD_STAGING_DIR)) {
         continue;
       }
-      String key = baseKey + "-" + folderName + "-" + idCoreFacility;
+      String key = baseKey + Constants.DOWNLOAD_KEY_SEPARATOR + folderName + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility;
       Object[] newRow = new Object[row.length];
       for(int x = 0; x < row.length; x++) {
         newRow[x] = row[x];
@@ -553,7 +553,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     if (directoryKeys != null) {
       for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
         String directoryKey = (String)i1.next();
-        String[] dirTokens = directoryKey.split("-");
+        String[] dirTokens = directoryKey.split(Constants.DOWNLOAD_KEY_SEPARATOR);
         String directoryName = dirTokens[1];
 
         
@@ -782,8 +782,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       
       
-      String[] tokens1 = key1.split("-", 4);
-      String[] tokens2 = key2.split("-", 4);
+      String[] tokens1 = key1.split(Constants.DOWNLOAD_KEY_SEPARATOR, 4);
+      String[] tokens2 = key2.split(Constants.DOWNLOAD_KEY_SEPARATOR, 4);
       
       String yr1           = tokens1[0];
       String date1         = tokens1[1];

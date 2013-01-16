@@ -205,7 +205,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           String theCreateYear  = dateTokens[2];
           String sortDate = theCreateYear + createMonth + createDay;    
           
-          String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG) + "-" + experiment.getIdCoreFacility();
+          String fcKey = flowCell.getCreateYear() + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + flowCell.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG) + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getIdCoreFacility();
           if (keys.length() > 0) {
             keys.append(":");
           }
@@ -220,7 +220,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
         List directoryKeys   = (List)requestMap.get(experiment.getNumber());
         for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
           String directoryKey = (String)i1.next();
-          String dirTokens[] = directoryKey.split("-");
+          String dirTokens[] = directoryKey.split(Constants.DOWNLOAD_KEY_SEPARATOR);
           String theDirectory = dirTokens[1];
           
           List   theFiles     = (List)directoryMap.get(directoryKey);
