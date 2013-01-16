@@ -609,8 +609,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
 
               // if this is a not a new request, but these is a new sequence lane,
-              // create a work item for the Cluster Gen (Assemble) worklist.              
-              if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest()  && isNewLane)) {
+              // create a work item for the Cluster Gen (Assemble) worklist.     
+              // Also ignore this if this is a QC Amend as seqPrep work items were created above.
+              if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane)) {
                 WorkItem workItem = new WorkItem();
                 workItem.setIdRequest(requestParser.getRequest().getIdRequest());
                 workItem.setSequenceLane(lane);
