@@ -789,13 +789,20 @@
 			var ids:Dictionary = getSelectedWorkItemIds();
 			var numIds:int = 0;
 			var numbers:String = "";
+			var doAppend:Boolean = true;
 			for (var key:* in ids) {
 				var item:XML = ids[key];
 				numIds++;
-				if (numbers.length > 0) {
-					numbers += ", ";
+				if (doAppend) {
+					if (numbers.length > 0) {
+						numbers += ", ";
+					}
+					numbers += item.@laneNumber.toString(); 
+					if (numbers.length >= 1000) {
+						numbers += ", ...";
+						doAppend = false;
+					}
 				}
-				numbers += item.@laneNumber.toString(); 
 			}
 			
 			if (numIds < 1) {
