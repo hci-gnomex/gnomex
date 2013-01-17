@@ -958,18 +958,20 @@
 	 *
 	 */
 	public function createIGVLink():void {
-	
 		if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
-			Alert.show("Patience! Converting useq to bw/bb format.");
+			Alert.show("Creating an IGV data repository containing all user-visible datatracks affiliated with IGV-supported genome builds. " + 
+			"If there are unconverted USeq files, this can take a significant amount of time.  When finished, a URL link will be displayed. " +
+			"Paste the link into IGV's Data Registry URL field.  If new data tracks are added, a new repository must be created, but the " +
+			"link will remain valid");
 		}
 		makeIGVLink.send();
 	}
 	
 	private function onMakeIGVLink(event:ResultEvent):void {
 		if (makeIGVLink.lastResult.name() == "SUCCESS") {
-			//modify boolean so subsequent calls don't relaunch IGV
-			launchIGVString = "no";
-			navigateToURL(new URLRequest(makeIGVLink.lastResult.@igvURL),"IGV");
+			var txt:String = makeIGVLink.lastResult.@igvURL;
+			var alert:Alert = Alert.show(txt, "IGV Link:");
+			alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
 		}
 		else {
 			//this should never happen

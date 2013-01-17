@@ -36,6 +36,7 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   private String        coordTestRange;
   private String        coordAuthority;
   private String        ucscName;
+  private String		igvName;
   private String        dataPath;
   private Set           segments = new TreeSet();
   private Set           dataTracks = new TreeSet();;
@@ -51,7 +52,7 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
     return getIdGenomeBuild().toString();
   }
 
-
+  
   
   public String getIsActive() {
     return isActive;
@@ -148,6 +149,10 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   public String getUcscName() {
     return ucscName;
   }
+  
+  public String getIgvName() {
+	  return this.igvName;
+  }
 
   public String getDataPath() {
     return dataPath;
@@ -212,6 +217,10 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
   public void setUcscName(String ucscName) {
     this.ucscName = ucscName;
   }
+  
+  public void setIgvName(String igvName) {
+	  this.igvName = igvName;
+  }
 
   public void setDataPath(String dataPath) {
     this.dataPath = dataPath;
@@ -243,6 +252,7 @@ public class GenomeBuild extends DictionaryEntry implements Serializable, Dictio
     root.setAttribute("das2Name",       this.getDas2Name() != null ? this.getDas2Name() : "");
     root.setAttribute("genomeBuildName",this.getGenomeBuildName() != null ? this.getGenomeBuildName() : "");
     root.setAttribute("ucscName",       this.getUcscName() != null ? this.getUcscName() : "");
+    root.setAttribute("igvName",		this.getIgvName() != null ? this.getIgvName() : "");
     root.setAttribute("buildDate",      this.getBuildDate() != null ? DataTrackUtil.formatDate(this.getBuildDate()) : "");       
     root.setAttribute("idOrganism",     this.getIdOrganism().toString());       
     root.setAttribute("coordURI",       this.getCoordURI() != null ? this.getCoordURI().toString() : ""); 
