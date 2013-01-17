@@ -68,6 +68,7 @@
 		params.buildDate         = this.buildDate.text;
 		params.ucscName          = this.ucscGenomeName.text;
 		params.das2Name          = this.das2Name.text;
+		params.igvName			 = this.igvGenomeName.text;
 		params.idOrganism        = parentDocument.browseTree.selectedItem.@idOrganism;
 		params.coordURI          = this.coordURI.text;
 		params.coordSource       = this.coordSource.text;
@@ -192,6 +193,10 @@
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="UCSC name:" width="120"/>
 			<mx:TextInput id="ucscGenomeName"  width="250" text="{parentDocument.browseTree.selectedItem.@ucscName}" change="dirtyGenomeBuild.setDirty()" maxChars="200"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="IGV name:" width="120"/>
+			<mx:TextInput id="igvGenomeName"  width="250" text="{parentDocument.browseTree.selectedItem.@igvName}" change="dirtyGenomeBuild.setDirty()" maxChars="200"/>
 		</mx:HBox>
 		<mx:HBox width="100%"  horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="Coord URI:" width="120"/>
