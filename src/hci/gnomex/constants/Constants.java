@@ -71,11 +71,14 @@ public class Constants {
   public static final String UCSC_EXECUTABLE_DIR_NAME = "UCSCExecutables";
   public static final String UCSC_WIG_TO_BIG_WIG_NAME = "wigToBigWig";
   public static final String UCSC_BED_TO_BIG_BED_NAME = "bedToBigBed";
+  public static final String SAMTOOLS_BGZIP_NAME = "bgzip";
+  public static final String SAMTOOLS_TABIX_NAME = "tabix";
 
   public static final Pattern HTML_BRACKETS = Pattern.compile("<[^>]+>");
 
-  public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] 
-                                                                {
+  /*Keep lower case.*/
+  public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
+    ".bam.bai",    //this must precede ".bam"  and ".bai"                                                   
     ".bam",
     ".bai",
     ".useq",
@@ -84,7 +87,9 @@ public class Constants {
     ".bed",
     ".bgr",
     ".gff", 
-    ".gtf"
+    ".gtf",
+    ".vcf.gz",
+    ".vcf.tbi"
   };
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] {
@@ -100,8 +105,11 @@ public class Constants {
     ".bb",
     ".bw",
     ".bam",
-    ".bai"
+    ".bai",
+    ".vcf.gz",
+    ".vcf.tbi"
   };
+  
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS = new String[] 
                                                               {
@@ -273,5 +281,7 @@ public class Constants {
     "  text-align: left;",
     "}"
   };
+ 
+    
       
 }
