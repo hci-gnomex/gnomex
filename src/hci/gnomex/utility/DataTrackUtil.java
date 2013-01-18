@@ -455,13 +455,14 @@ public class DataTrackUtil {
   }
 
 
-  /**Returns 'bigWig' , 'bigBed', 'bam', or null for xxx.bw, xxx.bb, xxx.bam*/
+	/**Returns 'bigWig' , 'bigBed', 'bam', 'vcfTabix', or null for xxx.bw, xxx.bb, xxx.bam, xxx.vcf.gz*/
   public static String fetchUCSCDataType(File[] filesToLink) {
     for (File f: filesToLink){
       String name = f.getName();
       if (name.endsWith(".bw")) return "bigWig";
       if (name.endsWith(".bb")) return "bigBed";
       if (name.endsWith(".bam")) return "bam";
+      if (name.endsWith(".vcf.gz")) return "vcfTabix";
     }
     return null;
   }
