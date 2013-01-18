@@ -562,7 +562,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
     if (fileName.endsWith(".useq") && ucscLink.equals("none")) {
       ucscLink = "convert";
     }
-    else if (fileName.endsWith(".bb") || fileName.endsWith(".bw") || fileName.endsWith(".bam")) {
+    else if (fileName.endsWith(".bb") || fileName.endsWith(".bw") || fileName.endsWith(".bam") || fileName.endsWith(".vcf.gz")) {
       ucscLink = "link";
     }
     return ucscLink;
