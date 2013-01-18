@@ -464,7 +464,11 @@ public class UploadDataTrackFileServlet extends HttpServlet {
   }
 
   /**Checks the bulk upload file before making any dataTracks. Returns null if all OK or error messages.
-   * @author davidnix*/
+   * @author davidnix
+   * 
+   * Don't think this is in use anymore! Delete? - Nix
+   * 
+   * */
   private String validateBulkUploadFile(File spreadSheet)   {
     //for each line check params are OK
     BufferedReader in = null;
