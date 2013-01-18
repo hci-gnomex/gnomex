@@ -320,7 +320,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			UCSCLinkFiles link;
 			if (getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || getSecAdvisor().isOwner(dataTrack.getIdAppUser()) || 
 					getSecAdvisor().isGroupIAmMemberOf(dataTrack.getIdLab()) || getSecAdvisor().isGroupICollaborateWith(dataTrack.getIdLab())) {
-				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.useq (will be converted if autoConvert is true))
+				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.tbi, xxx.useq (will be converted if autoConvert is true))
 				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),true);
 			} else {
 				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
@@ -329,7 +329,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			
 			//'link' will be null if the user can read the track, doesn't own the track and the bw has not yet been created.
 			if (link != null) {
-				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.useq (will be converted if autoConvert is true))
+				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.tbi, xxx.useq (will be converted if autoConvert is true))
 				//UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
 				File[] filesToLink = link.getFilesToLink();
 				if (filesToLink== null)  throw new Exception ("No files to link?!");
@@ -339,7 +339,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 				MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
 
-				//for each file, there might be two for xxx.bam and xxx.bai files, possibly two for converted useq files, plus/minus strands, otherwise just one.
+				//for each file, there might be two for xxx.bam and xxx.bai files, vcf files, possibly two for converted useq files, plus/minus strands, otherwise just one.
 				ArrayList<String> names = new ArrayList<String>();
 				ArrayList<String> fileURLs = new ArrayList<String>();
 				for (File f: filesToLink){
@@ -351,7 +351,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 					DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
 
 					//is it a bam index xxx.bai? If so then skip AFTER making soft link.
-					if (annoString.endsWith(".bai")) continue;
+					if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.tbi")) continue;
 					
 					//stranded?
 					String strand = "";
