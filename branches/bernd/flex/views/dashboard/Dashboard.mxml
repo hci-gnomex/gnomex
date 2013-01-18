@@ -12,7 +12,7 @@
 		]]> 
 	</mx:Script>
 	<mx:HBox y="50" horizontalAlign="center" width="100%">
-		<mx:Label height="106" fontSize="33" text="GNomEx Dashboard" />
+		<mx:Label height="106" fontSize="33" text="GNomEx Hub" />
 	</mx:HBox>
 
 	<mx:Grid id="DashboardGrid" x="0" y="156" width="100%" height="85%" horizontalAlign="center"

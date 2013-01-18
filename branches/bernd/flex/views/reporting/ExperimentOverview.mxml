@@ -3,6 +3,7 @@
 		   width="100%" height="100%"
 		   xmlns:views="views.*"
 		   xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:db="views.dashboard.*"
 		   creationComplete="init()">
 
 	<mx:HTTPService 
@@ -395,7 +396,10 @@
 				</mx:AdvancedDataGridColumn>
 			</mx:columns>
 			
-		</mx:AdvancedDataGrid> 
+		</mx:AdvancedDataGrid>
+		<db:RunStatusHub>
+			
+		</db:RunStatusHub>
 	</mx:VBox>
 
 </mx:Canvas>

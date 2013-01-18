@@ -28,7 +28,7 @@ import org.jdom.output.XMLOutputter;
 public class GetNotificationOverview extends GNomExCommand implements Serializable {
   
   
-private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentOverviewList.class);
+private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetNotificationOverview.class);
   
   private NotificationOverviewFilter filter;
   
@@ -51,10 +51,8 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
-        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
         /// Process filter calling here 
-        TreeMap clusterGenMap = new TreeMap();
         Document doc = new Document(new Element("NotificationOverviewList"));
         
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
