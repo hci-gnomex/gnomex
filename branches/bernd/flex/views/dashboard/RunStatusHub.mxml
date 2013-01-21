@@ -30,13 +30,16 @@
 	}
 	
 </mx:Style>				
-
-	<mx:XMLListCollection id="MIList" source="{metrixInterface.lastResult.Summary}"/> 
 	
+	<mx:XMLListCollection id="MIList" source="{metrixInterface.lastResult.Summary}"/> 
+
 <mx:Script>
 	<![CDATA[
 		
 		// Imports
+		import flash.events.TimerEvent;
+		import flash.utils.Timer;
+		
 		import mx.collections.ArrayCollection;
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
@@ -58,19 +61,19 @@
 		private var conStatus:Boolean = false;
 				
 		[Bindable]
-		public var activeRuns:int = 0;
+		public var activeRuns:String = "0";
 		
 		[Bindable]
-		private var finishedRuns:int = 0;
+		private var finishedRuns:String = "0";
 		
 		[Bindable]
-		private var haltedRuns:int = 0;
+		private var haltedRuns:String = "0";
 		
 		[Bindable]
-		private var turnRuns:int = 0;
-
+		private var turnRuns:String = "0";
+		
 		[Bindable]
-		private var totalCycle:int = 0
+		private var refreshTimer:Timer = new Timer(600000);
 		
 		public function init():void {
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
@@ -81,15 +84,11 @@
 			conLabel.setStyle("fontWeight", "bold");
 			conLabel.setStyle("color", "red");
 			conStatus = false;
-
-			
-			// Set counts for global status counters
-			 // activeRuns
-			 // finishedRuns
-			 // haltedRuns
-			 // turnRuns
-			
-			// Set timer -- Polling with 10 minute interval.
+		}
+		
+		public function refreshData(e:TimerEvent):void{
+			metrixInterface.send();
+			refreshTimer.removeEventListener(TimerEvent.TIMER, refreshData);
 		}
 		
 		private function onGetMetrixInterface(event:ResultEvent):void {
@@ -98,7 +97,43 @@
 				conLabel.setStyle("fontWeight","bold");
 				conLabel.setStyle("color","green");
 				conStatus = true;
-			} else {
+				
+			 	if(MIList.length == 0){
+					titleContainer.visible = false;
+					noneActive.visible = true;
+					refreshTimer.delay = 60000;
+				}else{
+					titleContainer.visible = true;
+					noneActive.visible = false;
+					refreshTimer.delay = 600000;
+				}
+				
+			// Set counts for global status counters
+				// activeRuns
+				if(metrixInterface.lastResult.@active != ""){
+					activeRuns = metrixInterface.lastResult.@active;
+				}
+				
+				// finishedRuns
+				if(metrixInterface.lastResult.@finished != ""){
+					finishedRuns = metrixInterface.lastResult.@finished;
+				}
+				
+				// haltedRuns
+				if(metrixInterface.lastResult.@error != ""){
+					haltedRuns = metrixInterface.lastResult.@error;
+				}
+				
+				// turnRuns
+				if(metrixInterface.lastResult.@turn != ""){
+					turnRuns = metrixInterface.lastResult.@turn;
+				}
+			
+				// Set timer -- Polling with 10 minute interval.
+
+				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
+				refreshTimer.start();
+		} else {
 				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
 			}
 		}
@@ -128,16 +163,15 @@
 		</mx:HBox>
 		<mx:HRule width="100%" />
 			
-			<mx:HBox id="titleContainer" width="100%" horizontalAlign="center" borderStyle="solid" borderThickness="1">
+			<mx:HBox id="titleContainer" width="100%" horizontalAlign="center" borderStyle="solid" borderThickness="1" visible="true">
 				<mx:Label id="mainTitle" text="Current Active Sequencing Machines" fontSize="18" />
 			</mx:HBox>
-			
+			<mx:HBox id="noneActive" width="100%" horizontalAlign="center" borderStyle="solid" borderThickness="1" visible="false">
+				<mx:Label id="noneActiveLabel" text="No active runs" fontSize="18" />
+			</mx:HBox>
+
+		
 			<mx:VBox id="main" width="100%">
-				<!-- 
-				Use Mx:Repeater for all available sequencing machines.
-				Call GetRunsByState.gx - Create XML format? 
-				-->
-				
 				<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
 					<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%">
 						<mx:HBox id="runProgress" width="100%">
