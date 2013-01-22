@@ -72,7 +72,13 @@
 		</servlet-class>
 	</servlet>
 	
-	
+	<servlet>
+    <servlet-name>DownloadFastaFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.DownloadFastaFileServlet
+    </servlet-class>
+  </servlet>
+  
 	<servlet>
 		<servlet-name>DownloadABIRunFileServlet</servlet-name>
 		<servlet-class>
@@ -291,7 +297,11 @@
 		<url-pattern>/DownloadChromatogramServlet.gx</url-pattern>
 	</servlet-mapping>
 
-
+  <servlet-mapping>
+    <servlet-name>DownloadFastaFileServlet</servlet-name>
+    <url-pattern>/DownloadFastaFileServlet.gx</url-pattern>
+  </servlet-mapping>
+  
 	<servlet-mapping>
 		<servlet-name>DownloadABIRunFileServlet</servlet-name>
 		<url-pattern>/DownloadABIRunFileServlet.gx</url-pattern>

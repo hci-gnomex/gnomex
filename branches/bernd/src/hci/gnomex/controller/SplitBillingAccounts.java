@@ -7,30 +7,30 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountSplitParser;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
-import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -52,6 +52,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
   private BillingAccountSplitParser    parser;
   private String                       totalPriceString;
   private String                       splitType;
+  private String                       serverName;
   
   
   public void validate() {
@@ -89,9 +90,8 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         this.addInvalidField( "accountXMLString", "Invalid xml");
       }
     }
-
-  
     
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -122,7 +122,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             BigDecimal invoicePrice = parser.getInvoicePrice(ba.getIdBillingAccount());
             BigDecimal summedInvoicePrice = new BigDecimal(0);
             BillingItem itemToAdjust = null;
-            
+           
             boolean found = false;
             // For billing account, find all matching billing items for the request and
             // change the percentage.
@@ -212,6 +212,31 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             }
           }
           
+          //send invoice email to labs
+          for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
+            BillingAccount ba = (BillingAccount)i.next();
+            Lab lab = (Lab)sess.load(Lab.class, ba.getIdLab());
+            CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, ba.getIdCoreFacility());
+            BillingPeriod bp = (BillingPeriod)sess.load(BillingPeriod.class, idBillingPeriod);
+            TreeMap billingItemMap = new TreeMap();
+            TreeMap relatedBillingItemMap = new TreeMap();
+            TreeMap requestMap = new TreeMap();
+            Boolean allItemsApproved = true;
+            ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), ba.getIdBillingAccount(), ba.getIdCoreFacility(), billingItemMap, relatedBillingItemMap, requestMap);
+            for(Iterator j = parser.getRequest().getBillingItems().iterator(); j.hasNext();){
+              BillingItem bi = (BillingItem)j.next();
+              if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO))
+                allItemsApproved = false;
+                break;
+            }
+            
+            if(allItemsApproved){
+              this.sendInvoiceEmail(sess, lab.getContactEmail(), cf, bp, lab, ba, billingItemMap, relatedBillingItemMap, requestMap);
+            }
+          }
+          
+          
+          
           sess.flush();
           
           
@@ -244,6 +269,65 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     
     return this;
   }
+  
+  private void sendInvoiceEmail(Session sess, String contactEmail, CoreFacility coreFacility,
+      BillingPeriod billingPeriod, Lab lab,
+      BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap,
+      Map requestMap) throws Exception {
+
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+
+    String queryString="from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("idCoreFacility", coreFacility.getIdCoreFacility());
+    query.setParameter("idBillingPeriod", idBillingPeriod);
+    query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
+    Invoice invoice = (Invoice)query.uniqueResult();
+    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility,
+        billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
+    String subject = emailFormatter.getSubject();
+    String body = emailFormatter.format();
+
+    String note = "";
+    boolean send = false;
+    if (contactEmail != null && !contactEmail.equals("")) {
+      if (dh.isProductionServer(serverName)) {
+        send = true;
+      } else {
+        if (contactEmail.equals(dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+          send = true;
+          subject = "(TEST) " + subject;
+        } else {
+          note = "Bypassing send on test system.";
+        }
+      }     
+    } else {
+      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName();
+    }
+
+    if (send) {
+      try {
+        MailUtil.send(contactEmail, emailFormatter.getCCList(sess, serverName),
+            PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
+            subject, 
+            body,
+            true);
+
+        note = "Billing invoice emailed to " + contactEmail + ".";
+
+        // Set last email date
+        if (invoice != null) {
+          invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
+          sess.save(invoice);
+          sess.flush();
+        }
+      } catch( Exception e) {
+        log.error("Unable to send invoice email to " + contactEmail, e);
+        note = "Unable to email invoice to " + contactEmail + " due to the following error: " + e.toString();        
+      } 
+    }
+  }  
+
   
   private BigDecimal getComputedInvoicePrice(BillingItem bi, BigDecimal percentage, BigDecimal invoicePrice, BigDecimal totalPrice) {
     BigDecimal newInvoicePrice = bi.getInvoicePrice();

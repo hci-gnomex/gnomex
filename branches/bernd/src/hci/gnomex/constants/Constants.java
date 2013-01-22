@@ -53,6 +53,7 @@ public class Constants {
   public static final String              AMEND_ADD_SEQ_LANES             = "SolexaLaneAmendState";
   
   public static final String              UPLOAD_STAGING_DIR              = "upload_staging";
+  public static final String              DOWNLOAD_KEY_SEPARATOR          = "\t";
   
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");
   
@@ -70,11 +71,14 @@ public class Constants {
   public static final String UCSC_EXECUTABLE_DIR_NAME = "UCSCExecutables";
   public static final String UCSC_WIG_TO_BIG_WIG_NAME = "wigToBigWig";
   public static final String UCSC_BED_TO_BIG_BED_NAME = "bedToBigBed";
+  public static final String SAMTOOLS_BGZIP_NAME = "bgzip";
+  public static final String SAMTOOLS_TABIX_NAME = "tabix";
 
   public static final Pattern HTML_BRACKETS = Pattern.compile("<[^>]+>");
 
-  public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] 
-                                                                {
+  /*Keep lower case.*/
+  public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
+    ".bam.bai",    //this must precede ".bam"  and ".bai"                                                   
     ".bam",
     ".bai",
     ".useq",
@@ -83,7 +87,9 @@ public class Constants {
     ".bed",
     ".bgr",
     ".gff", 
-    ".gtf"
+    ".gtf",
+    ".vcf.gz",
+    ".vcf.tbi"
   };
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] {
@@ -99,8 +105,11 @@ public class Constants {
     ".bb",
     ".bw",
     ".bam",
-    ".bai"
+    ".bai",
+    ".vcf.gz",
+    ".vcf.tbi"
   };
+  
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS = new String[] 
                                                               {
@@ -118,6 +127,160 @@ public class Constants {
   public static final int ERROR_CODE_INVALID_NAME              = 907;
   public static final int ERROR_CODE_BULK_FILE_UPLOAD          = 908;
 
+  public static final String[] DELETE_OLD_EXPERIMENT_AND_ANALYSIS_FILES_CSS = new String[] {
+    "body {",
+    "  font-family: arial,Helvetica,sans-serif;",
+    "  font-size: 9pt;",
+    "  width: 960;",
+    "  text-align: left;",
+    "  margin-left: auto;",
+    "  margin-right: auto;",
+    "}",
+    "",
+    "table {",
+    "  width: 960;",
+    "}",
+    "",
+    "table.grid {",
+    "  border: none;",
+    "  width: 960;",
+    "}",
+    "",
+    "hr {",
+    "  width: 960;",
+    "  text-align: left;",
+    "  color: #9E9E9E;",
+    "  background-color: #9E9E9E;",
+    "  margin-bottom: 10px;",
+    "}",
+    "",
+    "H3 {",
+    "  font-size: 10pt;",
+    "  font-weight: bold;",
+    "  padding-top: 0;",
+    "  padding-right: 8;",
+    "  padding-bottom: 0;",
+    "}",
+    "",
+    "caption{",
+    "  font-size: 10pt;",
+    "  color: black;",
+    "  font-weight: bold;",
+    "  padding-top: 15;",
+    "  padding-bottom: 5;",
+    "  text-align: left;",
+    "}",
+    "",
+    "td.value {",
+    "  font-size: 10pt;",
+    "  padding-top: 0;",
+    "  padding-bottom: 0;",
+    "}",
+    "",
+    "td.label {",
+    "  font-size: 9pt;",
+    "  font-weight: bold;",
+    "  padding-top: 0;",
+    "  padding-right: 8;",
+    "  padding-bottom: 0;",
+    "}",
+    "",
+    "td.note {",
+    "  font-size: 10pt;",
+    "  padding-top: 4;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "}",
+    "",
+    "td.grid {",
+    "  font-size: 9pt;",
+    "  padding-top: 4;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "}",
+    "",
+    "td.gridrelated {",
+    "  font-size: 8pt;",
+    "  font-style: italic;",
+    "  padding-top: 0;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "  cell",
+    "}",
+    "",
+    "td.gridright {",
+    "  font-size: 9pt;",
+    "  text-align: RIGHT;",
+    "  padding-top: 4;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "}",
+    "td.gridrightrelated {",
+    "  font-size: 8pt;",
+    "  font-style: italic;",
+    "  text-align: RIGHT;",
+    "  padding-top: 0;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "}",
+    "",
+    "td.gridcenter {",
+    "  font-size: 9pt;",
+    "  text-align: CENTER;",
+    "  padding-top: 4;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "}",
+    "",
+    "td.gridtotal {",
+    "  font-size: 9pt;",
+    "  font-weight: bold;",
+    "  text-align: RIGHT;",
+    "  padding-top: 4;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "  border-color: #CDCDC1;",
+    "  border-top: thin  solid;",
+    "  border-width: 1;",
+    "}",
+    "",
+    "td.gridempty {",
+    "  width: 150;",
+    "}",
+    "",
+    "td.gridemptysmall {",
+    "  border-color: #CDCDC1;",
+    "  width: 50;",
+    "}",
+    "",
+    "th {",
+    "  font-size: 9pt;",
+    "  font-weight: bold;",
+    "  text-decoration: underline;",
+    "  padding-top: 8;",
+    "  padding-bottom: 0;",
+    "  padding-right: 8;",
+    "  padding-left: 4;",
+    "  text-align: left;",
+    "  border: none;",
+    "}",
+    "",
+    "th.right {",
+    "  text-align: right;",
+    "}",
+    "",
+    "  a {",
+    "  font-size: 9pt;",
+    "  text-align: left;",
+    "}"
+  };
  
     
       

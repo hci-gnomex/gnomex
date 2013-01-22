@@ -31,7 +31,6 @@
     import mx.managers.PopUpManager;
 	import mx.containers.TitleWindow;
 	import views.analysis.AnalysisGroupWindow;
-	import views.util.DownloadHints;
 	import mx.core.IFlexDisplayObject;
 	import hci.flex.controls.DropdownLabel;
 	import views.util.GNomExStringUtil; 
@@ -209,11 +208,7 @@
 		return theIcon;
 	}
 	
-	private function showDownloadHints():void {
-		var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this, DownloadHints, true));
-		PopUpManager.centerPopUp(hints);			 		
-	}
-
+	
 
     public static function sortAnalysisNumber(item1:Object, item2:Object):int {
     	var n1:String  = item1.@number;

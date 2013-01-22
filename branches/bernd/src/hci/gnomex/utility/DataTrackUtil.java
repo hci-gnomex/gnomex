@@ -308,10 +308,17 @@ public class DataTrackUtil {
     return createRandomWords(nonAmbiguousLetters, lengthOfWord,1)[0];
   }
   
+  public static UCSCLinkFiles fetchUCSCLinkFiles(List<File> files, String webContextPath, boolean autoConvert) throws Exception {
+	  boolean origAutoConvertUSeqArchives = autoConvertUSeqArchives;
+	  autoConvertUSeqArchives = autoConvert;
+	  UCSCLinkFiles lf = fetchUCSCLinkFiles(files,webContextPath);
+	  autoConvertUSeqArchives = origAutoConvertUSeqArchives;
+	  return lf;
+  }
+  
   /**Returns null if no appropriate file is found for http linking or a UCSCLinkFiles object that will let you know if on the fly useq conversion is going on.
    * For bw and bb, only one file will be returned for useq files converted to bw, might have two, one for each strand, for bam will have two, bam and its index bai.*/
   public static UCSCLinkFiles fetchUCSCLinkFiles(List<File> files, String webContextPath) throws Exception{
-
     if (urlLinkFileExtensions == null){
       urlLinkFileExtensions = new HashSet<String>();
       for (String ext: Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) urlLinkFileExtensions.add(ext);
@@ -448,13 +455,14 @@ public class DataTrackUtil {
   }
 
 
-  /**Returns 'bigWig' , 'bigBed', 'bam', or null for xxx.bw, xxx.bb, xxx.bam*/
+	/**Returns 'bigWig' , 'bigBed', 'bam', 'vcfTabix', or null for xxx.bw, xxx.bb, xxx.bam, xxx.vcf.gz*/
   public static String fetchUCSCDataType(File[] filesToLink) {
     for (File f: filesToLink){
       String name = f.getName();
       if (name.endsWith(".bw")) return "bigWig";
       if (name.endsWith(".bb")) return "bigBed";
       if (name.endsWith(".bam")) return "bam";
+      if (name.endsWith(".vcf.gz")) return "vcfTabix";
     }
     return null;
   }

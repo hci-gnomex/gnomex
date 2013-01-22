@@ -260,7 +260,9 @@
 					params.isMicroarray  = "N";
 					params.isNextGenSeq  = "N";
 					params.isBioanalyzer = "N";
-					parentView.downloadView.getRequestDownloadList.send(params);
+					if(parentView.downloadView != null){
+						parentView.downloadView.getRequestDownloadList.send(params);
+					}
 				} 	 
 			}
 			private function getFilesGridRowNumber(item:Object,col:int):String
@@ -288,25 +290,6 @@
 					this.downloadTree.selectedIndex = 0;
 				}
 				
-				var allow:Boolean = false;
-				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',getRequest.lastResult.Request.@codeRequestCategory);
-				if (requestCategory.@type == 'ILLUMINA') {
-					allow = true;
-				} else {
-					var parent:XML = XML(downloadTree.selectedItem);
-					if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "Request") {
-						parent = XML(downloadTree.selectedItem).parent();
-					} 
-					
-					if (parent.name() != 'Request') {
-						allow = true;
-					}
-				}
-				if (!allow) {
-					Alert.show("Cannot create base directories for Microaray or Sample Quality experiments.  Please organize subdirectories underneath base directories provided.");
-					return;
-				}
-				
 				var addFolderWindow:FolderAddWindow = FolderAddWindow(PopUpManager.createPopUp(DisplayObject(parentApplication.theBody), FolderAddWindow, true));
 				PopUpManager.centerPopUp(addFolderWindow);
 				addFolderWindow.uploadWindow = this;
@@ -316,7 +299,7 @@
 			public function addDownloadFolder(folderName:String):void {
 				
 				var parent:XML = XML(downloadTree.selectedItem);
-				if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "Request") {
+				if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "Request" && parent.name() != "RequestDownload") {
 					parent = XML(downloadTree.selectedItem).parent();
 				} 
 				

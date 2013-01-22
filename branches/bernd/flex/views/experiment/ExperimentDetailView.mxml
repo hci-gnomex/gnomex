@@ -18,20 +18,6 @@
   </mx:HTTPService>
 	
 	
-	<mx:HTTPService  
-		id="cacheFDTFileDownloadList" 
-		url="CacheFileDownloadList.gx"
-		destination="cacheFileDownloadList"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onCacheFDTFileDownloadList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
-		method="POST"
-		useProxy="false">
-		<mx:request>
-			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
-		</mx:request>
-	</mx:HTTPService>
   	 
 <mx:Script>
 	<![CDATA[
@@ -266,8 +252,6 @@
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
 			
-			this.refreshDownloadList();
-
 //			this.theTab.selectedIndex = 0;
 			
 			// Need to refresh download list here; otherwise last selected experiment's
@@ -585,7 +569,8 @@
 		
 		public function checkForFileView():void {
 			if(theTab.contains(this.filesView)) {
-				theTab.selectedChild = filesView;			
+				theTab.selectedChild = filesView;	
+				callLater(filesView.showDownloadWindow);
 			}
 		}	
 	
@@ -1009,6 +994,7 @@
 				var params:Object = new Object();
 				params.idRequest = this.selectedExperiment.@idRequest;
 				filesView.getRequestDownloadList.send(params);
+				filesView.browseParameters = params;
 				theTab.selectedChild = filesView;
 			}
 		}
@@ -1023,19 +1009,12 @@
 		[Bindable]
 		private var selectedFileList:XMLListCollection;
 		
-		public function downloadFilesUsingFDT():void {
-			var selectedFiles:XMLList = filesView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
-			selectedFileList = new XMLListCollection(selectedFiles);					
-			
-			if (selectedFileList.length == 0) {
-				mx.controls.Alert.show("Please select the files to download.");
-			} else {
-				cacheFDTFileDownloadList.send();
-			}
-		}
-		
 		public function alignSelectedFiles():void {
-			var selectedFiles:XMLList = filesView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
+			var selectedFiles:XMLList = new XMLList();
+			for(var i:int = 0; i < filesView.downloadTree.selectedItems.length; i++) {
+				var item:XML = XML(filesView.downloadTree.selectedItems[i]);
+				selectedFiles += item;
+			}
 			selectedFileList = new XMLListCollection(selectedFiles);
 			
 			var folderPath:String = "";
@@ -1078,44 +1057,6 @@
 			}
 		}
 		
-		private function onCacheFDTFileDownloadList(event:ResultEvent):void {
-			// We have cached the selected analysis files
-			// Now call the URL to start the FDT app using webstart
-			showFastDataTransferDownloadPage();
-		}
-		
-		public function showFastDataTransferDownloadPage():void {
-			var paramStr:String =  selectedFileList.toXMLString();			
-			var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
-			url.contentType = "text/xml";
-			url.method = URLRequestMethod.GET;
-			navigateToURL(url, '_self');						
-		}
-		
-		public function showAlternateDownloadPage():void {
-			if (parentDocument.parentDocument.selectedIdRequest != null) {
-				var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
-					(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-					'.gx?idRequest=' + 
-					parentDocument.parentDocument.selectedIdRequest);
-				navigateToURL(url, '_blank');					 
-			} else if (theTab.selectedChild == filesView ) {
-				var requestNumbers:String = "";
-				for each(var dl:Object in filesView.downloadList) {
-					if (requestNumbers.length > 0) {
-						requestNumbers += ":"
-					}
-					requestNumbers += dl.@requestNumber;
-				}
-				if (requestNumbers.length > 0) {
-					var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
-						(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-						'.gx?requestNumbers=' + 
-						requestNumbers);
-					navigateToURL(url1, '_blank');	
-				}
-			}
-		}
 		
 		public function isControlLabelFunction(item:Object, column:AdvancedDataGridColumn):String
 		{
@@ -1453,33 +1394,20 @@
 				</mx:HBox>						   
 			</mx:TabNavigator>
 			
-		
+	
 	<mx:ControlBar width="100%" >
 		<mx:HBox  verticalAlign="middle" 
 				  visible="{theTab.selectedChild==filesView}" 
 				  includeInLayout="{theTab.selectedChild==filesView}" 
 				  width="100%" horizontalAlign="left" 
 				  id="downloadExpandedFilesButtonView"  >
-			<mx:Button id="downloadExpandedFilesButton" 
-					   click="filesView.downloadExpandedFiles()" 
-					   icon="@Embed('../../assets/download.png')" 
-					   toolTip="Download selected files"
-					   label="Download"/>
-			<mx:Button id="fdt_downloadButton" visible="{parentApplication.isFDTSupported ? true : false}" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-					   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>			
 			<mx:HBox  verticalAlign="middle" 
 					  width="100%" horizontalAlign="left" 
 					  id="hideButtonsBox">
-				<mx:Button id="http_downloadButton" visible="{parentApplication.isFDTSupported ? false : true}" 
-						   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
-						   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
-						   icon="@Embed(source='../../assets/download_large.png')"/>
 				<mx:Button id="alignSelectedFilesButton" 
 						   click="this.alignSelectedFiles()" 
 						   icon="@Embed('../../assets/align.png')" 
-						   toolTip="Run automated alignment on selected files" 
+						   toolTip="Run automated alignment on selected files." 
 						   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
 						   label="Run Alignment"/>
 			</mx:HBox>

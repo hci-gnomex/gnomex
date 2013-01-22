@@ -108,6 +108,7 @@ CREATE TABLE `gnomex`.`AnalysisFile` (
   `idAnalysis` INT(10) NULL,
   `qualifiedFilePath` varchar(300) null,
   `baseFilePath` varchar(300) null,
+  `createDate` DATE NULL,
   PRIMARY KEY (`idAnalysisFile`),
   CONSTRAINT `FK_AnalysisFile_Analysis` FOREIGN KEY `FK_AnalysisFile_Analysis` (`idAnalysis`)
     REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
@@ -374,6 +375,40 @@ CREATE TABLE `gnomex`.`Invoice` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`DiskUsageByMonth`;
+CREATE TABLE `gnomex`.`DiskUsageByMonth` (
+  idDiskUsageByMonth INT(10) NOT NULL AUTO_INCREMENT,
+  idLab INT(10) NOT NULL,
+  `asOfDate` datetime NOT NULL,
+  `lastCalcDate` datetime NOT NULL,
+  `totalAnalysisDiskSpace` DECIMAL(16, 0) NOT NULL,
+  `assessedAnalysisDiskSpace` DECIMAL(16, 0) NOT NULL,
+  `totalExperimentDiskSpace` DECIMAL(16, 0) NOT NULL,
+  `assessedExperimentDiskSpace` DECIMAL(16, 0) NOT NULL,
+  idBillingPeriod INT(10) NOT NULL,
+  idBillingAccount INT(10) NULL,
+  idCoreFacility INT(10) NOT NULL,
+  PRIMARY KEY (`idDiskUsageByMonth`),
+  CONSTRAINT `FK_DiskUsageByMonth_Lab` FOREIGN KEY  (`idLab`)
+    REFERENCES `gnomex`.`Lab` (`idLab`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_DiskUsageByMonth_CoreFacility` FOREIGN KEY  (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_DiskUsageByMonth_BillingAccount` FOREIGN KEY  (`idBillingAccount`)
+    REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_DiskUsageByMonth_BillingPeriod` FOREIGN KEY  (`idBillingPeriod`)
+    REFERENCES `gnomex`.`BillingPeriod` (`idBillingPeriod`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  UNIQUE KEY `UN_InternalAccountFieldsConfiguration` (idCoreFacility, idBillingPeriod, idLab)
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`BillingItem`;
 CREATE TABLE `gnomex`.`BillingItem` (
   `idBillingItem` INT(10) NOT NULL AUTO_INCREMENT,
@@ -387,7 +422,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `codeBillingStatus` VARCHAR(10) NULL,
   `idPriceCategory` INT(10) NULL,
   `idPrice` INT(10) NULL,
-  `idRequest` INT(10) NOT NULL,
+  `idRequest` INT(10) NULL,
   `idBillingAccount` INT(10) NOT NULL,
   `percentagePrice` DECIMAL(3, 2) NOT NULL,
   `notes` VARCHAR(500) NULL,
@@ -396,6 +431,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `splitType` CHAR(1) NULL,
   `idCoreFacility` INT(10) NULL,
   `idInvoice` INT(10) NULL,
+  `idDiskUsageByMonth` INT(10) NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
@@ -1540,6 +1576,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isSampleBarcodingOptional` CHAR(1) NULL,
   `isInternal` CHAR(1) NULL,
   `isExternal` CHAR(1) NULL,
+  `refrainFromAutoDelete` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)

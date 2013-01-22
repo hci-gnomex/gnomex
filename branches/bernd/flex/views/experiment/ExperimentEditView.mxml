@@ -184,20 +184,7 @@
     useProxy="false">
   </mx:HTTPService>
 	
-	<mx:HTTPService  
-		id="cacheFDTFileDownloadList" 
-		url="CacheFileDownloadList.gx"
-		destination="cacheFileDownloadList"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onCacheFDTFileDownloadList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
-		method="POST"
-		useProxy="false">
-		<mx:request>
-			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
-		</mx:request>
-	</mx:HTTPService>
+	
   
 	<mx:Script>
 		<![CDATA[
@@ -222,8 +209,8 @@
 			import views.experiment.ConvertIlluminaRequestWindow;
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
-			import views.util.PromptXMLListCollection;
 			import views.util.GNomExStringUtil;
+			import views.util.PromptXMLListCollection;
         
 		[Embed(source='../../assets/page.png')]
 		[Bindable]
@@ -2178,7 +2165,6 @@
 			this.refreshDownloadList();				
 
 
-			this.refreshDownloadList();
 		    postSetupEditForm();
 
 		}
@@ -2225,12 +2211,9 @@
 			
 		}
 		
-		private function addDescriptionFieldToAnnotations(sc:XMLList, isSelected:Boolean):void {
+		private function addDescriptionFieldToAnnotations(sc:XMLList):void {
 			var scXML:XML = sc[0];
-			var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;
-			if(isSelected) {
-				descNode.@isSelected = "true";
-			}			
+			var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;		
 			scXML.appendChild(descNode);
 			this.propertyEntries.refresh();
 		}
@@ -2238,7 +2221,7 @@
 		private function onGetNewRequest(event:ResultEvent):void {
 			existingLanes = null;
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries, true);			
+				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);			
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idSubmitter = setupView.idAppUser;
@@ -3194,19 +3177,19 @@
 				if (visibilityView.institutionCombo != null && visibilityView.institutionCombo.selectedItem != null) {
 					request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;					
 				}
-				else{
+				else if(parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION) != null){
 					request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
 				}
+				else{
+					request.@idInstitution = "";
+				}
 			}
-			else{
-				request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
-			}
-
+			
 			// Collaborators
 			request.replace("collaborators", <collaborators></collaborators>);
 			for each(var collaborator:Object in visibilityView.collaborators) {
 				request.collaborators.appendChild(collaborator);
-		 	}
+			}
 			
 			request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
 			
@@ -3230,9 +3213,6 @@
 				params.assaysXMLString = this.selectedAssaysCollection;
 			}
 			
-			if (downloadView.getFilesToDelete().length > 0) {
-				params.filesToRemoveXMLString = downloadView.getFilesToDelete().toXMLString();			
-			}
 
 			saveExistingRequest.send(params);			
 			
@@ -3415,8 +3395,7 @@
 		
 		private function onGetRequest(event:ResultEvent):void {
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).PropertyEntries, 
-					getRequest.lastResult..Request.(@idRequest = request.@idRequest).@hasSampleDescription=="Y");			
+				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).PropertyEntries);			
 			}	
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
 			
@@ -4292,6 +4271,7 @@
 			uploadWindow.init(request);
 			uploadWindow.theTab.selectedIndex = 1;
 		}
+		
 
 		public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
@@ -4463,15 +4443,16 @@
 				// view by default.  Only show downloads at request or project level.
 				if (parentDocument is NavOrderView) {
 					downloadView.getRequestDownloadList.send(getBrowseParametersOrderView());
+					downloadView.browseParameters = getBrowseParametersOrderView();
 					downloadView.browseMessage = "";
 				} else {
 					if (parentDocument.selectedIdProject != null || 
 						parentDocument.selectedIdRequest != null) {
 						downloadView.getRequestDownloadList.send(getBrowseParameters());
+						downloadView.browseParameters = getBrowseParameters();
 						downloadView.browseMessage = "";
 					} else {
 						downloadView.browseMessage = "Click on a project or request to narrow download selection.";
-						downloadView.downloadSizeMessage = "";
 						downloadView.rowCountMessage = "";
 						downloadView.downloadTree.visible = false;
 					}
@@ -4491,69 +4472,9 @@
 				var params:Object = new Object();
 				params.requestNumber = parentDocument.selectedExperiment.@number;
 				downloadView.getRequestDownloadList.send(params);
-				
+				downloadView.browseParameters = params;
 			}
-			public function showAlternateDownloadPage():void {
-				var url:URLRequest = null;
-				if (parentDocument is NavOrderView) {
-					url = new URLRequest('ShowRequestDownloadForm' + 
-						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-						'.gx?idRequest=' + 
-						request.@idRequest.toString());
-					navigateToURL(url, '_blank');					 
-				} else if (parentDocument.selectedIdRequest != null) {
-					url = new URLRequest('ShowRequestDownloadForm' + 
-						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-						'.gx?idRequest=' + 
-						parentDocument.selectedIdRequest);
-					navigateToURL(url, '_blank');					 
-				} else if (this.theTab.selectedChild == this.downloadView) {
-					var requestNumbers:String = "";
-					for each(var dl:Object in this.downloadView.downloadList) {
-						if (requestNumbers.length > 0) {
-							requestNumbers += ":"
-						}
-						requestNumbers += dl.@requestNumber;
-					}
-					if (requestNumbers.length > 0) {
-						var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
-							(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-							'.gx?requestNumbers=' + 
-							requestNumbers);
-						navigateToURL(url1, '_blank');					
 						
-					}
-					
-				}
-			}
-			public function downloadFilesUsingFDT():void {
-				var selectedFiles:XMLList = downloadView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");
-				selectedFileList = new XMLListCollection(selectedFiles);					
-				
-				if (selectedFileList.length == 0) {
-					mx.controls.Alert.show("Please select the files to download.");
-				} else {
-					cacheFDTFileDownloadList.send();
-				}
-			}
-			
-			private function onCacheFDTFileDownloadList(event:ResultEvent):void {
-				// We have cached the selected analysis files
-				// Now call the URL to start the FDT app using webstart
-				showFastDataTransferDownloadPage();
-			}
-			
-			
-			public function showFastDataTransferDownloadPage():void {
-				
-				var paramStr:String =  selectedFileList.toXMLString();			
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
-				url.contentType = "text/xml";
-				url.method = URLRequestMethod.GET;
-				navigateToURL(url, '_self');					
-				
-			}
-			
 			private function propagateDesign():void {
 				this.request.@captureLibDesignId = designText.text;	
 			}
@@ -4817,21 +4738,6 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%"   horizontalAlign="left" paddingRight="1" id="hbox8">
-				<mx:HBox  visible="{theTab.selectedChild==downloadView}" verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
-					<mx:Button id="downloadExpandedFilesButton" 
-							   click="downloadView.downloadExpandedFiles()" 
-							   icon="@Embed('../../assets/download.png')" 
-							   toolTip="Download selected files"
-							   label="Download"/>
-					<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
-							   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-							   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
-							   icon="@Embed(source='../../assets/download_large.png')"/>
-					<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
-							   includeInLayout="{parentApplication.isFDTSupported ? false : true}"
-							   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
-							   icon="@Embed(source='../../assets/download_large.png')"/>
-				</mx:HBox>
 				<mx:Spacer width="100%"/>
 	 	        <util:DirtyNote id="dirty"  />
  				<mx:Button id="saveButton" label="Save" 

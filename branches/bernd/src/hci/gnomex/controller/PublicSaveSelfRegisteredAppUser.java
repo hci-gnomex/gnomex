@@ -54,7 +54,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private Boolean        existingLab = false;
   private Boolean        uofuAffiliate = false;
   private CoreFacility   facility = null;
-  private String         facilityId = null;
+  private String         idFacility = null;
   private String         department = null;
   private String         serverName;
   
@@ -96,8 +96,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       appUserScreen.setDepartment( department );
     }
     
-    if (request.getParameter("facilityRadio") != null ) {
-      facilityId = request.getParameter("facilityRadio");
+    if (request.getParameter("idFacility") != null && !request.getParameter("idFacility").equals("") ) {
+      idFacility = request.getParameter("idFacility");
     } else {
       this.addInvalidField("facilityRqrd", "Please select a core facility");
     }
@@ -169,8 +169,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       List activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
       if (activeFacilities.size() == 1) {
         facility = (CoreFacility)activeFacilities.get(0);
-      } else if (facilityId != null && facilityId.length() > 0) {
-        Integer id = Integer.parseInt(facilityId);
+      } else if (idFacility != null && idFacility.length() > 0) {
+        Integer id = Integer.parseInt(idFacility);
         facility = (CoreFacility)sess.load(CoreFacility.class, id);
       }
       

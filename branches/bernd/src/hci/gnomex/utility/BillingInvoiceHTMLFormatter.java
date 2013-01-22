@@ -2,10 +2,12 @@ package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.ShowBillingInvoiceForm;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Invoice;
@@ -103,8 +105,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     table.setAttribute("CELLPADDING", "0");
     table.addContent(makeRow(lab.getName()));
     table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
-    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback")); 
-    table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
+    if(invoice != null){
+      table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+    }
     
     return table;
  }
@@ -122,7 +126,6 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     boolean showPercentCol = false;
     for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
       String requestNumber = (String)i.next();      
-      Request request = (Request)requestMap.get(requestNumber);      
       List billingItems = (List)billingItemMap.get(requestNumber);
       BigDecimal totalPriceForRequest = new BigDecimal(0);
       for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
@@ -163,18 +166,33 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
     
     for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
-      String requestNumber = (String)i.next();
-      Request request = (Request)requestMap.get(requestNumber);      
-      List billingItems = (List)billingItemMap.get(requestNumber);
-      String client = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";        
+      String number = (String)i.next();
+      Request request = null;
+      DiskUsageByMonth dsk = null;
+      if (number.startsWith(ShowBillingInvoiceForm.DISK_USAGE_NUMBER_PREFIX)) {
+        dsk = (DiskUsageByMonth)requestMap.get(number);
+      } else {
+        request = (Request)requestMap.get(number);
+      }
+      List billingItems = (List)billingItemMap.get(number);
+      String client = "";
+      if (request != null) {
+        client = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";
+      } else { 
+        client = "Disk Usage";
+      }
       
       
       Element rowR = new Element("TR");
       table.addContent(rowR);
-      this.addCell(rowR, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
-      this.addCell(rowR, request.getNumber());
-      this.addCell(rowR, client);
-      
+      if (request != null) {
+        this.addCell(rowR, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
+        this.addCell(rowR, request.getNumber());
+        this.addCell(rowR, client);
+      } else {
+        this.addCell(rowR, this.formatDate(dsk.getAsOfDate()));
+        this.addCell(rowR, client, 2);
+      }
       BigDecimal totalPriceForRequest = new BigDecimal(0);
       for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
         BillingItem bi = (BillingItem)i1.next();
@@ -207,7 +225,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       this.addEmptyCell(rowt2, new Integer(columnCount - 1));
       this.addTotalCell(rowt2, totalPriceForRequest != null ? currencyFormat.format(totalPriceForRequest) : "&nbsp;");
       
-      billingItems = (List)relatedBillingItemMap.get(requestNumber);
+      billingItems = (List)relatedBillingItemMap.get(number);
       if (billingItems != null) {
         Integer idBillingAccount = -1;
         for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
@@ -347,6 +365,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   
   private void addCell(Element row, String value, String cssClass, Integer colSpan) {
     addCell(row, value, cssClass, colSpan, null);
+  }
+  
+  private void addCell(Element row, String value, Integer colSpan) {
+    addCell(row, value, "grid", colSpan, null);
   }
   
   private void addCell(Element row, String value, String cssClass, Integer colSpan, String align) {

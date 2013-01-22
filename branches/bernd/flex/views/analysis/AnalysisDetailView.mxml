@@ -7,21 +7,6 @@
 	 
 	
 	<mx:HTTPService  
-		id="cacheFDTFileDownloadList" 
-		url="CacheAnalysisFileDownloadList.gx"
-		destination="cacheAnalysisFileDownloadList"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onCacheFDTFileDownloadList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
-		method="POST"
-		useProxy="false">
-		<mx:request>
-			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
-		</mx:request>
-	</mx:HTTPService>
-	
-	<mx:HTTPService  
 		id="saveAnalysisFiles" 
 		url="SaveAnalysisFiles.gx"
 		resultFormat="e4x"
@@ -47,9 +32,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.analysis.AnalysisEditView;
-			import views.analysis.DownloadProgressView;
 			import views.datatrack.DistributeDataTrackWindow;
-			import views.util.DownloadHints;
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
 			import views.util.WebLinksView;
@@ -60,8 +43,7 @@
 
 			[Bindable]
 			public var rowCountMessage:String = new String();
-			[Bindable]
-			public var downloadSizeMessage:String = new String();
+			
 			[Bindable]
 			private var analysisTypeName:String;
 			[Bindable]
@@ -128,6 +110,7 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
 				
 				if (parentApplication.isGuestMode()) {
 					isGuest = true;
@@ -142,6 +125,8 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
+				
 			}
 			
 			private function getChannel1SampleName(item:Object, col:int):String {
@@ -248,25 +233,13 @@
 				parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
 			}
 			
-			private function showDownloadHints():void {
-				var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this, DownloadHints, true));
-				PopUpManager.centerPopUp(hints);			 		
-			}
-			
-			
-			public function downloadFilesUsingFDT():void {
-				var selectedFiles:XMLList = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");
-				selectedFileList = new XMLListCollection(selectedFiles);					
-				
-				if (selectedFileList.length == 0) {
-					mx.controls.Alert.show("Please select the files to download.");
-				} else {
-					cacheFDTFileDownloadList.send();
-				}
-			} 
 			
 			public function alignSelectedFiles():void {
-				var selectedFiles:XMLList = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");
+				var selectedFiles:XMLList = new XMLList();
+				for(var i:int = 0; i < filesView.downloadTree.selectedItems.length; i++) {
+					var item:XML = XML(filesView.downloadTree.selectedItems[i]);
+					selectedFiles += item;
+				}
 				selectedFileList = new XMLListCollection(selectedFiles);	
 				
 				var folderPath:String = "";
@@ -309,51 +282,13 @@
 				}
 			}			
 			
-			private function onCacheFDTFileDownloadList(event:ResultEvent):void {
-				// We have cached the selected analysis files
-				// Now call the URL to start the FDT app using webstart
-				showFastDataTransferDownloadPage();
-			}
 			
-			public function showFastDataTransferDownloadPage():void {	
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadAnalysisServlet.gx');	
-				url.contentType = "text/xml";
-				url.method = URLRequestMethod.GET;
-				navigateToURL(url, '_self');					
-			}
-			
-			
-			private function showAlternateDownloadPage():void {
-				var url:URLRequest = new URLRequest('ShowAnalysisDownloadForm' + 
-					(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-					'.gx?idAnalysis=' + 
-					this.analysis.@idAnalysis);
-				navigateToURL(url, '_blank');					
-			}
-			
+						
 			public function setFileCount():void {
 				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
 			}
 			
-			private function underlyingDownloadsChange(event:CollectionEvent):void {
-				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-					// ignore refresh and resets 
-					return;
-				}
-				
-				var selectedDownloadSize:Number = 0;
-				var selectedFiles:XMLList = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");        	
-				for each(var file:Object in selectedFiles) {
-					if (file.@type != "dir") {
-						var size:Number = FileUtil.getEstimatedCompressedSize(file);
-						selectedDownloadSize += size;
-					}
-				}
-				downloadSizeMessage = "Ready to download " + FileUtil.getFileSizeText(selectedDownloadSize);
-				
-			}
-			
-			
+						
 			private function expandDownloadList():void {
 				if (filesView.downloadTree != null) { // Necessary?
 					for each(var r:Object in filesView.getAnalysisDownloadList.lastResult.Analysis) {
@@ -649,21 +584,6 @@
 	
 	<mx:ControlBar>
 		<mx:HBox width="100%">
-			<mx:Button id="downloadExpandedFilesButton" 
-					   click="filesView.downloadExpandedFiles()"
-					   icon="@Embed('../../assets/download.png')" 
-					   toolTip="Download selected folders"
-					   label="Download"  
-					   visible="{theTab.selectedChild == filesView}"
-					   includeInLayout="{theTab.selectedChild == filesView}"/>
-			<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}" 
-					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}"
-					   label="FDT Download" click="{this.downloadFilesUsingFDT()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}" 
-					   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}"
-					   label="HTTP Download"  
-					   click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 			<mx:HBox  verticalAlign="middle" 
 					  width="100%" horizontalAlign="left" includeInLayout="true" visible="true"
 					  id="hideButtonsBox">
@@ -675,11 +595,7 @@
 						   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported  &amp;&amp; parentApplication.isAdminState}"
 						   label="Run Alignment"/>	
 			</mx:HBox>	
-			<mx:LinkButton  label="Downloading tips" textDecoration="underline" 
-							visible="{theTab.selectedChild == filesView}"
-							includeInLayout="{theTab.selectedChild == filesView}"
-							click="showDownloadHints()" styleName="hintLink" 
-							icon="@Embed(source='../../assets/information.png')" fontStyle="italic"/>			
+			
 		</mx:HBox>
 		
 	</mx:ControlBar>

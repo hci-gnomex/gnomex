@@ -10,6 +10,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -143,70 +144,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       if (this.isValid()) { 
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
           
-
-          StringBuffer buf = new StringBuffer();
-          buf.append("SELECT req, bi ");
-          buf.append("FROM   Request req ");
-          buf.append("JOIN   req.billingItems bi ");
-          buf.append("JOIN   bi.lab as lab ");
-          buf.append("JOIN   bi.billingAccount as ba ");
-          buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
-          buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-          buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-          if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-            buf.append(" AND ");
-            secAdvisor.appendCoreFacilityCriteria(buf, "bi");
-            buf.append(" ");
-          }
-          buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
-          
-          List results = sess.createQuery(buf.toString()).list();
-          TreeMap requestMap = new TreeMap();
-          TreeMap billingItemMap = new TreeMap();
-          
           CoreFacility core = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
           
-          for(Iterator i = results.iterator(); i.hasNext();) {
-            Object[] row = (Object[])i.next();
-            Request req    =  (Request)row[0];
-            BillingItem bi =  (BillingItem)row[1];
-            
-            // Bypass PO billing accounts
-            if (bi.getBillingAccount().getIsPO() != null && bi.getBillingAccount().getIsPO().equals("Y")) {
-              continue;
-            }
-            
-            
-            // Exclude any requests that have billing items with status
-            // other than status provided in parameter.
-            boolean mixedStatus = false;
-            for (Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
-              BillingItem item = (BillingItem)i1.next();
-              if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
-                  item.getIdBillingAccount().equals(bi.getIdBillingAccount())) {
-                if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
-                  mixedStatus = true;
-                }
-              }
-            }
-            if (mixedStatus) {
-              continue;
-            }
-
-            
-            String key = bi.getLabName() + "_" +
-                         bi.getBillingAccount().getIdBillingAccount() +  "_" +
-                         req.getNumber();
-            
-            requestMap.put(key, req);
-            
-            List billingItems = (List)billingItemMap.get(key);
-            if (billingItems == null) {
-              billingItems = new ArrayList();
-              billingItemMap.put(key, billingItems);
-            }
-            billingItems.add(bi);
-          }
+          TreeMap billingItemMap = new TreeMap();
+          
+          addBillingItems(sess, "req", billingItemMap);
+          addBillingItems(sess, "dsk", billingItemMap);
           
           BillingAccount prevBillingAccount = null;
           String prevLabName = null;
@@ -280,9 +223,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             
             boolean firstTime = true;
             
-            for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+            for(Iterator i = billingItemMap.keySet().iterator(); i.hasNext();) {
               String key = (String)i.next();
-              Request request = (Request)requestMap.get(key);      
               
               
 
@@ -322,14 +264,14 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               if (accountDescription.length() > 0) {
                 accountDescription += ",";
               }
-              accountDescription += request.getNumber();
+              accountDescription += requestNumber;
 
             
             }
 
           }
 
-          if (requestMap.size() > 0) {
+          if (billingItemMap.size() > 0) {
             addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
             
             // Verify that grand total matches expected grand total
@@ -346,10 +288,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
             
             // Get the total price for all external PO billing items
-            buf = new StringBuffer();
+            StringBuffer buf = new StringBuffer();
             buf.append("SELECT sum(bi.invoicePrice) ");
-            buf.append("FROM   Request req ");
-            buf.append("JOIN   req.billingItems bi ");
+            buf.append("FROM   BillingItem bi ");
             buf.append("JOIN   bi.lab as lab ");
             buf.append("JOIN   bi.billingAccount as ba ");
             buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
@@ -360,7 +301,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               secAdvisor.appendCoreFacilityCriteria(buf, "bi");
               buf.append(" ");
             }
-           results = sess.createQuery(buf.toString()).list();
+           List results = sess.createQuery(buf.toString()).list();
             if (results.size() > 0) {
               BigDecimal totalPriceExternalPO = (BigDecimal)results.get(0);
               if (totalPriceExternalPO != null) {
@@ -421,7 +362,85 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     return this;
   }
   
+  private void addBillingItems(Session sess, String mainObject, TreeMap billingItemMap) {
+    StringBuffer buf = new StringBuffer();
+    if (mainObject.equals("req")) {
+      buf.append("SELECT req, bi ");
+      buf.append("FROM   Request req ");
+      buf.append("JOIN   req.billingItems bi ");
+    } else {
+      buf.append("SELECT dsk, bi ");
+      buf.append("FROM   DiskUsageByMonth dsk ");
+      buf.append("JOIN   dsk.billingItems bi ");
+    }
+    buf.append("JOIN   bi.lab as lab ");
+    buf.append("JOIN   bi.billingAccount as ba ");
+    buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
+    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    if (mainObject.equals("req")) {
+      buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
+    } else {
+      buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, dsk.idDiskUsageByMonth, bi.idBillingItem ");
+    }
+    
+    List results = sess.createQuery(buf.toString()).list();
+    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      String number = "";
+      Set allBillingItems = null;
+      if (mainObject.equals("req")) {
+        Request req    =  (Request)row[0];
+        allBillingItems = req.getBillingItems();
+        number = req.getNumber();
+      } else { 
+        DiskUsageByMonth dsk = (DiskUsageByMonth)row[0];
+        allBillingItems = dsk.getBillingItems();
+        number = "Disk Usage";
+      }
+      BillingItem bi =  (BillingItem)row[1];
+      
+      // Bypass PO billing accounts
+      if (bi.getBillingAccount().getIsPO() != null && bi.getBillingAccount().getIsPO().equals("Y")) {
+        continue;
+      }
+      
+      
+      // Exclude any requests that have billing items with status
+      // other than status provided in parameter.
+      boolean mixedStatus = false;
+      for (Iterator i1 = allBillingItems.iterator(); i1.hasNext();) {
+        BillingItem item = (BillingItem)i1.next();
+        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+            item.getIdBillingAccount().equals(bi.getIdBillingAccount())) {
+          if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
+            mixedStatus = true;
+          }
+        }
+      }
+      if (mixedStatus) {
+        continue;
+      }
 
+      
+      String key = bi.getLabName() + "_" +
+                   bi.getBillingAccount().getIdBillingAccount() +  "_" +
+                   number;
+      
+      List billingItems = (List)billingItemMap.get(key);
+      if (billingItems == null) {
+        billingItems = new ArrayList();
+        billingItemMap.put(key, billingItems);
+      }
+      billingItems.add(bi);
+    }
+  }
   
   private void addAccountTotalRows(String labName, BillingAccount billingAccount, String description) {
     ReportRow reportRow = new ReportRow();

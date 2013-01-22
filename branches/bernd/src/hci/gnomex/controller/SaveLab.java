@@ -147,11 +147,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }
 
-    if (request.getParameter("accountsXMLString") != null && !request.getParameter("accountsXMLString").equals("")) {
-      accountsXMLString = request.getParameter("accountsXMLString");
-    }
-
-
 
     if (request.getParameter("managersXMLString") != null && !request.getParameter("managersXMLString").equals("")) {
       managersXMLString = request.getParameter("managersXMLString");
@@ -239,6 +234,30 @@ public class SaveLab extends GNomExCommand implements Serializable {
         this.addInvalidField("Duplicate Lab Name", "The lab name " + labFirstName + labScreen.getLastName() + " is already in use.");
         setResponsePage(this.ERROR_JSP);
       }
+      
+      accountParser.parse(sess);
+      Boolean containsErrors = false;
+      for(Iterator i = accountParser.getBillingAccountMap().keySet().iterator(); i.hasNext();) {
+        String idBillingAccountString = (String)i.next();
+        BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);    
+        if(ba.getIsPO().equals("Y")){
+          continue;
+        }
+        Boolean hasActivity = ba.getAccountNumberActivity().length() > 0;
+        if(ba.getAccountNumberBus().length() != 2 || ba.getAccountNumberOrg().length() != 5
+            || ba.getAccountNumberFund().length() != 4 || (hasActivity && ba.getAccountNumberActivity().length() != 5) 
+            || ((!hasActivity) && ba.getAccountNumberProject().length() != 8) || ba.getAccountNumberAccount().length() != 5
+            || (hasActivity && ba.getAccountNumberAu().length() != 1) || ba.getAccountNumberYear().length() != 4){
+          containsErrors = true;
+          break;
+        }
+      }
+      
+      if(containsErrors){
+        this.addInvalidField("Account Chartfield Errors", "There are problems with your billing account chartfield(s)");
+        this.setResponsePage(this.ERROR_JSP);
+      }
+      
 
       if (isValid()) {
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
@@ -269,6 +288,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
           }
   
   
+          
           //
           // Save billing accounts
           //

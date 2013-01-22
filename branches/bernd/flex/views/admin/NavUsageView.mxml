@@ -13,20 +13,17 @@
 			<mx:AddChild relativeTo="{blankPanel}" position="lastChild">
 				<mx:Label text="  You do not have sufficient permissions to view usage data." fontSize="11"/>
 			</mx:AddChild>
+			<mx:SetProperty target="{linkbutton1}" name="enabled" value="false"/>
+			<mx:SetProperty target="{linkbutton2}" name="enabled" value="false"/>
 			<mx:SetProperty target="{linkbutton3}" name="enabled" value="false"/>
 			<mx:SetProperty target="{linkbutton4}" name="enabled" value="false"/>
 			<mx:SetProperty target="{linkbutton5}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton6}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton7}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton1}" name="enabled" value="false"/>
-			<mx:SetProperty target="{label2}" name="enabled" value="false"/>
+			<mx:SetProperty target="{experimentTab}" name="enabled" value="false"/>
+			<mx:SetProperty target="{analysisTab}" name="enabled" value="false"/>
+			<mx:SetProperty target="{filesTab}" name="enabled" value="false"/>
 			<mx:SetProperty target="{label1}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton9}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton8}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton10}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton11}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton12}" name="enabled" value="false"/>
-			<mx:SetProperty target="{linkbutton13}" name="enabled" value="false"/>
+			<mx:SetProperty target="{label2}" name="enabled" value="false"/>
+			<mx:SetProperty target="{coreFacilityCombo}" name="enabled" value="false"/>
 		</mx:State>
 	</mx:states>
 	
@@ -46,6 +43,7 @@
 			<asOfLastYear>{asOfLastYear.selected ? 'Y' : 'N'}</asOfLastYear>
 			<asOfLast2Years>{asOfLast2Years.selected ? 'Y' : 'N'}</asOfLast2Years>
 			<endRank>{endRank}</endRank>
+			<currentView>{theTab.selectedChild.label}</currentView>
 		</mx:request>
 	</mx:HTTPService>
 
@@ -72,13 +70,27 @@
 		[Bindable]
 		private var endRank:Object =  20;
 		
+		[Bindable]
+		private var coreFacilities:XMLListCollection = new XMLListCollection;
+		
 		
 		private function init():void {
 			checkSecurity();
-			if (currentState != "DisabledState") {
+			
+			coreFacilities.addItem(new XML("<DictionaryEntry display='' idCoreFacility=''/>"));
+			coreFacilities.addAll(new XMLListCollection(parentApplication.myCoreFacilities));
+			
+			if (currentState != "DisabledState" && !coreFacilityCombo.visible) {
 				getUsageData.send();
 			}
 			
+			if(coreFacilityCombo.visible){
+				linkbutton1.enabled = false;
+				linkbutton2.enabled = false;
+				linkbutton3.enabled = false;
+				linkbutton4.enabled = false;
+				linkbutton5.enabled = false;
+			}
 		}
 
 		public function checkDirty():void {
@@ -97,9 +109,17 @@
 		private function onGetUsageData(event:ResultEvent):void {
 			if (getUsageData.lastResult.name() == "UsageData") {
 				// success
-				if (chartStack.selectedIndex == 0) {
+				if(theTab.selectedChild == this.experimentTab){
+					chartStack.selectedChild = experimentsByLabPanel;
+					buttonStack.selectedIndex = 1;
+				}
+				else if(theTab.selectedChild == this.analysisTab){
+					chartStack.selectedChild = analysisByLabPanel;
+					buttonStack.selectedIndex = 1;
+				}
+				else{
 					chartStack.selectedChild = daysSincePanel;
-					buttonStack.selectedIndex = 1;				
+					buttonStack.selectedIndex = 1;
 				}
 			} else {
 				mx.controls.Alert.show("An error occurred while getting usage data.");
@@ -152,42 +172,89 @@
 			detailWindow.init(params);
 		}
 		
+		private function onTabChange():void {
+			if (theTab.selectedChild == this.experimentTab && coreFacilityCombo.visible) {
+				chartStack.selectedChild = this.blankPanel;
+				linkbutton1.enabled = false;
+				linkbutton2.enabled = false;
+				linkbutton3.enabled = false;
+				linkbutton4.enabled = false;
+				linkbutton5.enabled = false;
+			} else {
+				coreFacilityCombo.selectedIndex = 0;
+				getUsageData.send();
+			}
+		}
+		
+		private function enableLinkButtons():void{
+			if(coreFacilityCombo.selectedIndex == 0){
+				linkbutton1.enabled = false;
+				linkbutton2.enabled = false;
+				linkbutton3.enabled = false;
+				linkbutton4.enabled = false;
+				linkbutton5.enabled = false;
+			}
+			else{
+				linkbutton1.enabled = true;
+				linkbutton2.enabled = true;
+				linkbutton3.enabled = true;
+				linkbutton4.enabled = true;
+				linkbutton5.enabled = true;
+				getUsageData.send();
+			}
+		}
+
+		
 
 
 
 
 	]]></mx:Script> 
-
+	
 	<mx:HDividedBox width="100%" height="100%">
-		<mx:VBox  height="100%" styleName="panelBox" width="210"
+		<mx:VBox  height="100%" styleName="panelBox" width="245"
 				 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
 			<mx:HBox horizontalGap="1" verticalAlign="middle">
 				<mx:Image source="assets/chart_bar.png">
 				</mx:Image>
 				<mx:Label text=" Usage" styleName="titleLabel" />
 			</mx:HBox>
-			<mx:ComboBox width="200" selectedIndex="1"
-						 dataProvider="{parentApplication.myCoreFacilities}"
-						 labelField="@display"
-						 includeInLayout="{parentApplication.myCoreFacilities.length() > 1}"
-						 visible="{parentApplication.myCoreFacilities.length() > 1}"
-						 change="{getUsageData.send()}"
-						 id="coreFacilityCombo"/>
-			<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label2"/>
-			<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton3"/>
-			<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton4"/>
-			<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1}"  paddingLeft="8" id="linkbutton5"/>
-			<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton6"/>
-			<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton7"/>
-			<mx:LinkButton label="Disk Space"             click="{chartStack.selectedChild = diskSpaceByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton8"/>
-			<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label1"/>
-			<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton1"/>
-			<mx:LinkButton label="Experiments by Type" click="{chartStack.selectedChild = experimentsByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton11"/>
-			<mx:LinkButton label="Seq Experiments by Application" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton12"/>
-			<mx:LinkButton label="Analysis by Type" click="{chartStack.selectedChild = analysisByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton13"/>
-			<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton9"/>
-			<mx:LinkButton label="Disk Space by Category" click="{chartStack.selectedChild = diskSpaceByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton10"/>
-			<mx:LinkButton label="Top ranked Downloads"     click="{chartStack.selectedChild = topRankedDownloadsPanel}"  enabled="false" paddingLeft="8" id="linkbutton2"/>
+			<mx:TabNavigator id="theTab" styleName="form" width="100%" height="100%" change="{onTabChange()}">
+				<mx:VBox label="Experiments" id="experimentTab" height="100%" width="100%" color="#000000">
+					<mx:ComboBox width="200" selectedIndex="1"
+								 dataProvider="{coreFacilities}"
+								 labelField="@display"
+								 includeInLayout="{coreFacilities.length > 1 &amp;&amp; (parentApplication.isAdminState || parentApplication.isSuperAdmin) &amp;&amp; parentApplication.coreFacilitiesICanManage.length() > 1}"
+								 visible="{coreFacilities.length > 1 &amp;&amp; (parentApplication.isAdminState || parentApplication.isSuperAdmin) &amp;&amp; parentApplication.coreFacilitiesICanManage.length() > 1}"
+								 change="{enableLinkButtons()}"
+								 id="coreFacilityCombo"/>
+					
+					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label1"/>
+					<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton1"/>
+					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label2"/>
+					<mx:LinkButton label="Experiments by Type" click="{chartStack.selectedChild = experimentsByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton2"/>
+					<mx:LinkButton label="Next Gen Experiments by Application" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton3"/>
+					<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton4"/>
+					<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton5"/>
+				</mx:VBox>
+				<mx:VBox label="Analysis" id="analysisTab" height="100%" width="100%" color="#000000">
+					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4"/>
+					<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
+					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4"/>
+					<mx:LinkButton label="Analysis by Type" click="{chartStack.selectedChild = analysisByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8"/>
+					<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2;}"  paddingLeft="8" />
+					<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0; }"  paddingLeft="8"/>
+				</mx:VBox>
+				<mx:VBox label="Files" id="filesTab" height="100%" width="100%" color="#000000">
+					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" />
+					<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
+					<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1; }"  paddingLeft="8" />
+					<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1; }"  paddingLeft="8" />
+					<mx:LinkButton label="Disk Space"             click="{chartStack.selectedChild = diskSpaceByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" />
+					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" />
+					<mx:LinkButton label="Disk Space by Category" click="{chartStack.selectedChild = diskSpaceByTypePanel;buttonStack.selectedIndex = 0; }"  paddingLeft="8"/>
+				</mx:VBox>
+			</mx:TabNavigator>
 		</mx:VBox> 
 
 
@@ -395,7 +462,7 @@
 					</mx:LineChart>
 					<mx:Legend dataProvider="{activityByWeekChart}" direction="horizontal" fontWeight="normal"/>
 					<mx:HBox width="100%" verticalAlign="bottom" paddingTop="15">
-						<mx:Label text="Experiments and Analysis by Week" fontWeight="bold" width="210"/>
+						<mx:Label text="{theTab.selectedChild == this.experimentTab ? 'Experiments by Week' : 'Analysis by Week'}" fontWeight="bold" width="210"/>
 						<mx:Spacer width="20"/>
 						<mx:HBox styleName="instructionBox" verticalAlign="middle">
 							<mx:Text text="Click on chart to see details"/>
@@ -415,15 +482,15 @@
 						<mx:series> 
 							<mx:LineSeries 
 								yField="@experimentCount"  id="experimentCount"  
-								displayName="# of Experiments"
+								displayName="# of Experiments" visible="{theTab.selectedChild == this.experimentTab}" includeInLayout="{theTab.selectedChild == this.experimentTab}"
 								/>
 							<mx:LineSeries 
 								yField="@analysisCount"  id="analysisCount" 
-								displayName="# of Analysis"
+								displayName="# of Analysis" visible="{theTab.selectedChild == this.analysisTab}" includeInLayout="{theTab.selectedChild == this.analysisTab}"
 								/>
 						</mx:series>
 					</mx:LineChart>
-					<mx:Legend dataProvider="{activityByWeekChart1}" direction="horizontal"/>
+					<!--<mx:Legend dataProvider="{theTab.selectedChild == this.experimentTab ? activityByWeekChart1.legendData.getItemAt(0) : activityByWeekChart1.legendData.getItemAt(1)}" direction="horizontal" />-->
 				</mx:VBox>
 				
 				
@@ -500,12 +567,12 @@
 						<mx:Spacer width="100%"/>
 						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummarySeqExperimentsByApp.@experimentCount)}" fontWeight="bold"/> 
 					</mx:HBox>
-					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart" 
+					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart" scaleX="1.5" scaleY="1.5"  
 								  dataProvider="{getUsageData.lastResult.SummarySeqExperimentsByApp.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:series>
 							<mx:PieSeries 
 								field="@experimentCount" labelField="@labelFull"
-								nameField="@label" labelPosition="insideWithCallout"
+								nameField="@label" labelPosition="callout"
 								/>
 						</mx:series>
 					</mx:PieChart>

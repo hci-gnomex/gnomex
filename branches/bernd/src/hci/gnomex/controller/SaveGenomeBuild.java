@@ -233,6 +233,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
     gb.setCoordVersion(gbScreen.getCoordVersion());
     gb.setCoordSource(gbScreen.getCoordSource());
     gb.setUcscName(gbScreen.getUcscName());
+    gb.setIgvName(gbScreen.getIgvName());
   }
   
 

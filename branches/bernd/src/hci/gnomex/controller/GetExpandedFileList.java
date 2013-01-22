@@ -216,7 +216,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
 
-      String tokens[] = key.split("-");
+      String tokens[] = key.split(Constants.DOWNLOAD_KEY_SEPARATOR);
       String createYear = tokens[0];
       String createDate = tokens[1];
       String requestNumber = tokens[2];
@@ -229,7 +229,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       }
       
 
-      String directoryKey = requestNumber + "-" + resultDirectory;
+      String directoryKey = requestNumber + Constants.DOWNLOAD_KEY_SEPARATOR + resultDirectory;
       
       String directoryName = null;
       String theBaseDir;

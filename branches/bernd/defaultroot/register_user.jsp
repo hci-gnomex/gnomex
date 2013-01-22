@@ -1,6 +1,5 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
 <%@ page import="org.hibernate.Session" %>
-<%@ page import="hci.gnomex.model.CoreFacility" %>
 <%@ page import="hci.gnomex.model.Lab" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
@@ -11,7 +10,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <link rel="stylesheet" href="css/login.css?v1.0" type="text/css" />
-  <title>Create a new GNomEx Account</title>
+  <title>Create a new GNomEx account</title>
   
 <script  type="text/javascript" language="JavaScript">
   function setFocus()
@@ -64,6 +63,9 @@
   }
 
 <%
+
+String idFacility = (String) ((request.getParameter("idFacility") != null)?request.getParameter("idFacility"):"");
+
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 if (message == null) {
   message = "";
@@ -89,18 +91,38 @@ if (phone == null) {
   phone = "";
 }
 
-String facilityRadio = (String) ((request.getParameter("facilityRadio") != null)?request.getParameter("facilityRadio"):"");
-if (facilityRadio == null) {
-  facilityRadio = "";
-}
-
 String labDropdown = (String) ((request.getParameter("labDropdown") != null)?request.getParameter("labDropdown"):"");
 if (labDropdown == null) {
   labDropdown = "";
 }
 
+String newLab = (String) ((request.getParameter("newLab") != null)?request.getParameter("newLab"):"");
+if (newLab == null) {
+  newLab = "";
+}
+
+String department = (String) ((request.getParameter("department") != null)?request.getParameter("department"):"");
+if (department == null) {
+  department = "";
+}
+
+String institute = (String) ((request.getParameter("institute") != null)?request.getParameter("institute"):"");
+if (institute == null) {
+  institute = "";
+}
+
+String userNameExternal = (String) ((request.getParameter("userNameExternal") != null)?request.getParameter("userNameExternal"):"");
+if (userNameExternal == null) {
+  userNameExternal = "";
+} 
+
+String uNID = (String) ((request.getParameter("uNID") != null)?request.getParameter("uNID"):"");
+if (uNID == null) {
+  uNID = "";
+} 
+
+
 List labs = null;
-List facilities = null;
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
@@ -124,11 +146,8 @@ try {
     siteLogo = "./assets/gnomex_logo.png";
   } 
  
-  
-  
   labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
-  facilities = CoreFacility.getActiveCoreFacilities(sess);
-  
+    
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
@@ -155,10 +174,9 @@ try {
             <img src="<%=siteLogo%>"/>
       </div>
       <div class="rightMenu" >
-          <a href="gnomexFlex.jsp">Login</a> | 
+          <a href="gnomexFlex.jsp">Sign in</a> | 
           <a href="change_password.jsp">Change password</a> |    
-          <a href="reset_password.jsp">Reset password</a> |    
-          <a href="register_user.jsp">Create a new account</a> 
+          <a href="reset_password.jsp">Reset password</a> 
       </div>
     </div>
 
@@ -181,34 +199,6 @@ try {
       
       <div class="empty"></div>
       <br>
-      <div id="coreFacilityDiv"><div class="col1"><div class="left">
-      <table border=0 width="425" class="facilities">
-        <tr>
-          <td colspan="2">
-          Choose Core Facility
-          </td>
-        </tr>
-        <%
-          Iterator facilityIter = facilities.iterator();
-          while (facilityIter.hasNext()) {
-            CoreFacility facility = (CoreFacility) facilityIter.next();
-        %>
-        <tr>
-          <td width="240">
-          <label><input type="radio" name="facilityRadio" id="facilityRadio<%=facility.getIdCoreFacility()%>" value="<%=facility.getIdCoreFacility()%>"/> <%=facility.getFacilityName()%></label>
-          </td>
-          <td width="185">
-            <%
-              if (facility.getDescription() != null) {%>
-                  <%=facility.getDescription()%>
-            <%}%>
-          </td>
-        </tr> 
-            <%}%>
-      </table>
-      </div></div>
-      </div>       
-      <div class="empty"></div>
       
       <div id="labDiv">
         <div class="col1"><div class="right">Choose Lab</div></div>
@@ -233,10 +223,10 @@ try {
        
       <div id="newLabDiv" style="display:none;">   
         <div class="col1"><div class="right">Lab Name</div></div>
-        <div class="col2"><input type="text" class="textWide"  name="newLab" onkeypress="return checkAlphaNumeric(event)"/></div>
+        <div class="col2"><input type="text" class="textWide"  name="newLab" value="<%=newLab%>" onkeypress="return checkAlphaNumeric(event)"/></div>
 
         <div class="col1"><div class="right">Department</div></div>
-        <div class="col2"><input type="text" class="textWide"  name="department" /></div>
+        <div class="col2"><input type="text" class="textWide"  name="department" value="<%=department%>"/></div>
       </div>
 
       
@@ -250,19 +240,20 @@ try {
     </div>
 <% }  %>
       <div class="emptySmall"></div>
-      <div id="UofUDiv" style="display:none;width:100%;">
-        <div id="univUserNameArea1" class="col1"><div class="right">University ID</div></div>
-        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID" id="uNID"></div>
-        <div class="col1"><div class="right"> </div></div>
-        <div class="col2"><note>Format should be a "u" followed by 7 digits (u0000000)</note></div>
+      
+      <div id="UofUDiv" style="display:none;">
+        <div id="univUserNameArea1" class="col1"><div class="right">uNID</div></div>
+        <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID" id="uNID" value="<%=uNID%>"></div>
+        <div class="col1"></div> 
+        <div class="col2"><note class="inline"><i>Format should be a "u" followed by 7 digits (u0000000)</i></note></div>
       </div>
 
       <div id="externalDiv" style="display:none">
         <div class="col1"><div class="right">Institute</div></div>
-        <div class="col2"><input type="text" class="textWide" name="institute" id="institute" /></div>
+        <div class="col2"><input type="text" class="textWide" name="institute" id="institute" value="<%=institute%>"/></div>
         
         <div id="externalUserNameArea1" class="col1"><div class="right">User name</div></div>
-        <div id="externalUserNameArea2" class="col2"><input type="text" class="textWide" name="userNameExternal" id="userNameExternal"></div>
+        <div id="externalUserNameArea2" class="col2"><input type="text" class="textWide" name="userNameExternal" id="userNameExternal" value="<%=userNameExternal%>"></div>
 
     
         <div id="externalPasswordArea1" class="col1"><div class="right">Password</div></div>
@@ -277,26 +268,12 @@ try {
   </div>
 
 </div>
+    <input type="hidden" name="idFacility" value="<%=idFacility%>" />
     <input type="hidden" name="responsePageSuccess" value="/register_user_success.jsp"/>
     <input type="hidden" name="responsePageError" value="/register_user.jsp"/>
 
 <script  type="text/javascript" language="JavaScript">
-<%
-if (facilityRadio.length() > 0) {
-%>
-  document.getElementById("facilityRadio<%=facilityRadio%>").checked = true;
-<%
-}
-if (facilities != null && facilities.size() > 1) {
-%>
-  document.getElementById("coreFacilities").style.display = "block";
-<%
-} else {
-%>
-  document.getElementById("coreFacilities").style.display = "none";
-<%
-}
-%>
+
 <%
 if (!showUserNameChoice) {
 %>
@@ -305,7 +282,7 @@ if (!showUserNameChoice) {
 }
 %>
 </script>
-    </form>
+</form>
 
 
 </body>

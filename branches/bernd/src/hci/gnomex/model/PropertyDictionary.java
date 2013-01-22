@@ -45,6 +45,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        EXPERIMENT_SUBMISSION_DEFAULT_MODE  = "experiment_submission_default_mode";
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
   public static final String        BST_LINKAGE_SUPPORTED               = "bst_linkage_supported";  
+  public static final String        BST_LINKAGE_GNOMEX_URL              = "bst_linkage_gnomex_url";
   public static final String        FDT_SUPPORTED                       = "fdt_supported";
   public static final String        HTTP_PORT                           = "http_port";
   public static final String        FDT_USER                            = "fdt_user";
@@ -75,7 +76,17 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONFIGURABLE_BILLING_ACCOUNTS       = "configurable_billing_accounts";
   public static final String        INVOICE_NOTE_1                      = "invoice_note_1";
   public static final String        INVOICE_NOTE_2                      = "invoice_note_2";
-  
+  public static final String        DISK_USAGE_FOR_EXPERIMENTS          = "disk_usage_for_experiments";
+  public static final String        DISK_USAGE_FOR_ANALYSIS             = "disk_usage_for_analysis";
+  public static final String        DISK_USAGE_INCREMENT                = "disk_usage_increment";
+  public static final String        DISK_USAGE_MONTHLY_CHARGE_PER_GB    = "disk_usage_monthly_charge_per_gb";
+  public static final String        DISK_USAGE_FREE_PER_INCREMENT       = "disk_usage_free_per_increment";
+  public static final String        DISK_USAGE_FREE_GB                  = "disk_usage_free_gb";
+  public static final String        DISK_USAGE_ANALYSIS_GRACE_PERIOD_IN_MONTHS = "disk_usage_analysis_grace_period_in_months";
+  public static final String        DISK_USAGE_EXPERIMENT_GRACE_PERIOD_IN_MONTHS = "disk_usage_experiment_grace_period_in_months";
+  public static final String        DISK_USAGE_PRICE_CATEGORY_NAME      = "disk_usage_price_category_name";
+  public static final String        GNOMEX_SUPPORT_EMAIL                = "gnomex_support_email";
+
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";

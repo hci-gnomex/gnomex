@@ -7,7 +7,7 @@
 		 title="{'View Chromatogram ' + selectedIdChromatogram}"
 		 xmlns:util="views.util.*" >
 	
-	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" >
+	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" width="100%">
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" 
 				  styleName="titleLabel" 
@@ -18,7 +18,23 @@
 		<mx:LinkButton label="Back" 
 					   click="{parentDocument.chromatViews.selectedIndex = 0}" 
 					   textDecoration="underline" 
-					   icon="@Embed(source='../../assets/arrow_left.png')"/>		
+					   icon="@Embed(source='../../assets/arrow_left.png')"/>	
+		<mx:Spacer width="100%"/>
+		<mx:LinkButton label="Create Fasta file"
+					   paddingRight="1"
+					   paddingLeft="1"
+					   click="createFastaFile()"
+					   textDecoration="underline"
+					   id="fastaButton" 
+					   visible="{this.isInit}"
+					   includeInLayout="{this.isInit}"/>
+		<mx:LinkButton label="Print Chromatogram" 
+					   id="printButton"
+					   textDecoration="underline" 
+					   icon="@Embed(source='../../assets/printer.png')"
+					   click="doPrint();" 
+					   visible="{this.isInit}"
+					   includeInLayout="{this.isInit}"/>
 	</mx:HBox>
 	
 	<mx:HTTPService  
@@ -61,8 +77,11 @@
 			import mx.events.SliderEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.ToolTipManager;
+			import mx.printing.*;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.StringUtil;
+			
+			import views.util.ChromatPrintView;
 			
 			private var baseNoTip:ToolTip;
 			[Bindable]
@@ -106,6 +125,9 @@
 				if ( selectedIdChromatogram == selectedChromat.@idChromatogram ) {
 					return;
 				}
+				
+				refreshView();
+				
 				if (selectedChromat != null){
 					selectedIdChromatogram = selectedChromat.@idChromatogram;
 					this.getChromatogram.send();
@@ -117,7 +139,34 @@
 				sliderSpacing = -hZoomSlider.value;
 				traceXMax = sliderSpacing;
 				
-				// Add event listeners for each accordion's header
+				addAccordianEventListeners();
+				
+				isInit = true;
+			}
+			
+			// Clear graphs and sequence information, open info boxes
+			private function refreshView():void {
+				// Clear arrays
+				qualArray = new ArrayCollection();
+				aTraceArray = new ArrayCollection();
+				cTraceArray = new ArrayCollection();
+				gTraceArray = new ArrayCollection();
+				tTraceArray = new ArrayCollection();
+				baseCallArray = new ArrayCollection();
+				
+				// Clear sequence
+				seqLabelCanvas.removeAllChildren();
+				sequenceTextBox.htmlText = '';
+				
+				// Open all the information boxes
+				accordion1.selectedIndex = 0;
+				accordion2.selectedIndex = 0;
+				accordion3.selectedIndex = 0;
+				accordion4.selectedIndex = 0;
+			}
+			
+			// Add event listeners for each accordion's header
+			private function addAccordianEventListeners():void {
 				var head1:Button = Button(accordion1.getHeaderAt(0));
 				head1.addEventListener(MouseEvent.CLICK, headerClickHandler);
 				
@@ -129,13 +178,10 @@
 				
 				var head4:Button = Button(accordion4.getHeaderAt(0));
 				head4.addEventListener(MouseEvent.CLICK, headerClickHandler);
-				
-				isInit = true;
 			}
 			
 			// This allows a click on a header to close that section
-			private function headerClickHandler(event:MouseEvent):void
-			{
+			private function headerClickHandler(event:MouseEvent):void {
 				var header:Button = Button(event.target);
 				var headerChild:Container = Container(IDataRenderer(header).data);
 				if (headerChild == accordion1.selectedChild)
@@ -350,7 +396,7 @@
 			}
 			
 			// Find the base that is nearest to an x coordinate from the trace plot
-			private function findNearestBase(val:int):int{
+			private function findNearestBase(val:int):int {
 				var minDiff:int = val;
 				var baseNo:int = 1;
 				for ( var i:int = 0; i < baseCallArray.length; i++ ) {
@@ -375,9 +421,67 @@
 			}
 			
 			// Close the window by clicking outside
-			protected function mouseDownOutsideHandler(event:Object):void
-			{
+			protected function mouseDownOutsideHandler(event:Object):void {
 				PopUpManager.removePopUp(this);
+			}
+			
+			// Create the .fasta file
+			private function createFastaFile():void {
+				
+				var url:URLRequest = new URLRequest('DownloadFastaFileServlet.gx' +
+					'?idChromatogram=' + selectedIdChromatogram);
+				navigateToURL( url, '_blank' );
+				
+			}
+			
+			// Print the chromatogram information
+			private function doPrint():void {
+				// Create an instance of the FlexPrintJob class.
+				var printJob:FlexPrintJob = new FlexPrintJob();
+				
+				// Start the print job
+				if (printJob.start()){ 
+					
+					// Create Page 1 of chromat print view
+					var chromatPrintView:ChromatPrintView = new ChromatPrintView();
+					addChild(chromatPrintView);
+					// Include data table, quality and trace charts
+					chromatPrintView.titleLabel.text = 'Chromatogram ' + selectedIdChromatogram;
+					chromatPrintView.titleLabel.text += this.isInit && getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y' ? ' (REDO)' : '';
+					chromatPrintView.accordion1.addChild(dataGridAccordion);
+					chromatPrintView.accordion2.addChild(qualityCanvas);
+					chromatPrintView.accordion3.addChild(traceCanvas);
+					
+					// Add Page 1 to the print job
+					printJob.addObject(chromatPrintView, FlexPrintJobScaleType.MATCH_WIDTH);
+					
+					// Creat Page 2 of chromat print view
+					var chromatPrintView2:ChromatPrintView = new ChromatPrintView();
+					addChild(chromatPrintView2);
+					// Include sequence
+					chromatPrintView2.titleLabel.text = 'Chromatogram ' + selectedIdChromatogram;
+					chromatPrintView2.titleLabel.text += this.isInit && getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y' ? ' (REDO)' : '';
+					chromatPrintView2.accordion1.addChild(sequenceAccordion);
+					chromatPrintView2.accordion2.visible = false;
+					chromatPrintView2.accordion3.visible = false;
+					
+					// Add Page 2 to the print job
+					printJob.addObject(chromatPrintView2, FlexPrintJobScaleType.MATCH_WIDTH);
+					
+					// Send the job to the printer
+					printJob.send();
+					
+					// Remove the print-specific control to free memory
+					removeChild(chromatPrintView);
+					removeChild(chromatPrintView2);
+					
+					// Add the canvases back to this view and add the event listeners for expanding/contracting the accordians
+					accordion1.addChildAt(dataGridAccordion, 0);
+					accordion2.addChildAt(qualityCanvas, 0);
+					accordion3.addChildAt(traceCanvas, 0);
+					accordion4.addChildAt(sequenceAccordion, 0);
+					addAccordianEventListeners();
+				}
 			}
 			
 		]]>
@@ -530,7 +634,7 @@
 		
 		<!-- Quality box -->
 		<mx:Accordion width="100%" resizeToContent="true"  id="accordion2">
-			<mx:Canvas label="Quality" width="100%" height="100%" minHeight="0">
+			<mx:Canvas id="qualityCanvas" label="Quality" width="100%" height="100%" minHeight="0">
 				<mx:VBox width="100%">
 					
 					<mx:LineChart id="qualityGraph" 
@@ -611,7 +715,7 @@
 									<mx:SolidColor color="0xC0C0C0"/>
 								</mx:fill>
 								<mx:stroke>
-									<mx:Stroke color="0xC0C0C0" weight="2"/>
+									<mx:Stroke color="0xC0C0C0"/>
 								</mx:stroke>
 							</mx:LegendItem>
 							<mx:LegendItem label="Trim Cutoffs" fontWeight="bold">
@@ -619,7 +723,7 @@
 									<mx:SolidColor color="0xCC0000"/>
 								</mx:fill>
 								<mx:stroke>
-									<mx:Stroke color="0xCC0000" weight="2"/>
+									<mx:Stroke color="0xCC0000"/>
 								</mx:stroke>
 							</mx:LegendItem>
 						</mx:Legend>
@@ -694,7 +798,7 @@
 		
 		<!-- Trace box -->
 		<mx:Accordion width="100%" resizeToContent="true"  id="accordion3">
-			<mx:Canvas label="Trace" width="100%" height="100%" minHeight="0">
+			<mx:Canvas label="Trace" id="traceCanvas" width="100%" height="100%" minHeight="0">
 				<mx:HBox  width="100%" horizontalGap="2">
 					
 					<!-- Vertical zoom slider -->
@@ -905,7 +1009,41 @@
 						
 						<!-- Legend -->
 						<mx:HBox horizontalAlign="center" width="100%">
-							<mx:Legend dataProvider="{traceGraph}" direction="horizontal"/>
+							<mx:Legend direction="horizontal">
+								
+								<mx:LegendItem label="A" fontWeight="bold">
+									<mx:fill>
+										<mx:SolidColor color="#00CC00"/>
+									</mx:fill>
+									<mx:stroke>
+										<mx:Stroke color="#00CC00"/>
+									</mx:stroke>
+								</mx:LegendItem>
+								<mx:LegendItem label="C" fontWeight="bold">
+									<mx:fill>
+										<mx:SolidColor color="#0000CC"/>
+									</mx:fill>
+									<mx:stroke>
+										<mx:Stroke color="#0000CC"/>
+									</mx:stroke>
+								</mx:LegendItem>
+								<mx:LegendItem label="G" fontWeight="bold">
+									<mx:fill>
+										<mx:SolidColor color="#303030"/>
+									</mx:fill>
+									<mx:stroke>
+										<mx:Stroke color="#303030"/>
+									</mx:stroke>
+								</mx:LegendItem>
+								<mx:LegendItem label="T" fontWeight="bold">
+									<mx:fill>
+										<mx:SolidColor color="#CC0000"/>
+									</mx:fill>
+									<mx:stroke>
+										<mx:Stroke color="#CC0000"/>
+									</mx:stroke>
+								</mx:LegendItem>
+							</mx:Legend>
 						</mx:HBox>
 						
 					</mx:VBox>

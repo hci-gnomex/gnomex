@@ -56,6 +56,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
   private Integer idCoreFacility = null;
   private String usageUserVisibility = "";
+  private String currentView = "";
   
   private TreeMap<String, Lab>  labMap   = new TreeMap<String, Lab>();
   private HashMap<Integer, Lab> labIdMap = new HashMap<Integer, Lab>();
@@ -111,23 +112,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
       idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
     }
-    // idCoreFacility is required if there is more than one active core facility designated
-    // in the db.
-    if (idCoreFacility == null) {
-      int coreFacilityCount = 0;
-      for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
-        DictionaryEntry de = (DictionaryEntry)i.next();
-        if (de instanceof NullDictionaryEntry) {
-          continue;
-        }
-        CoreFacility cf = (CoreFacility)de;
-        if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
-          coreFacilityCount++;
-        }
-      }
-      if (coreFacilityCount >  1) {
-        this.addInvalidField("idCoreFacility", "idCoreFacility is required");
-      }
+    if(request.getParameter("currentView") != null && !request.getParameter("currentView").equals("")){
+      currentView = request.getParameter("currentView");
     }
   }
 
@@ -292,85 +278,83 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get experiment count
         int rank = 0;
         int totalCount = 0;
-        buf = new StringBuffer();
-        buf.append("SELECT r.idLab, count(*) from Request r ");
-        if (idCoreFacility != null) {
-          buf.append("WHERE r.idCoreFacility = " + idCoreFacility + " ");
+        List summaryRows;
+        Integer totalExperiments = null;
+        Integer totalAnalysisCount = null;
+
+        if(currentView.equals("Experiments") || currentView.equals("Files")){
+          buf = new StringBuffer();
+          buf.append("SELECT r.idLab, count(*) from Request r ");
+          if (idCoreFacility != null) {
+            buf.append("WHERE r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          buf.append("GROUP BY r.idLab ");
+          buf.append("ORDER BY count(*) desc");
+
+          summaryRows = sess.createQuery(buf.toString()).list();
+          addEntryIntegerNodes(summaryExperimentsNode, summaryRows, "experimentCount", true);
+          if(idCoreFacility == null){
+            totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r ").uniqueResult();
+          }
+          else{
+            totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r where r.idCoreFacility = " + idCoreFacility + " ").uniqueResult();
+          }
+          summaryExperimentsNode.setAttribute("experimentCount", totalExperiments.toString());
         }
-        buf.append("GROUP BY r.idLab ");
-        buf.append("ORDER BY count(*) desc");
-        
-        List summaryRows = sess.createQuery(buf.toString()).list();
-        addEntryIntegerNodes(summaryExperimentsNode, summaryRows, "experimentCount", true);
-        Integer totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r ").uniqueResult();
-        summaryExperimentsNode.setAttribute("experimentCount", totalExperiments.toString());
      
         
         // Get analysis count
-        rank = 0;
-        totalCount = 0;
-        summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
-        addEntryIntegerNodes(summaryAnalysisNode, summaryRows, "analysisCount", true);
-        Integer totalAnalysisCount = (Integer)sess.createQuery("SELECT count(*) from Analysis r ").uniqueResult();
-        summaryAnalysisNode.setAttribute("analysisCount", totalAnalysisCount.toString());
-        
-        
-        // Get upload count
-        rank = 0;
-        buf = new StringBuffer();
-        buf.append("SELECT tl.idLab, count(distinct fileName) ");
-        buf.append("from TransferLog tl ");
-        buf.append("JOIN tl.lab lab ");
-        buf.append("JOIN lab.coreFacilities as cf ");
-        buf.append("WHERE tl.transferType = 'upload' ");
-        if (idCoreFacility != null) {
-          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
+        if(currentView.equals("Analysis") || currentView.equals("Files")){
+          rank = 0;
+          totalCount = 0;
+          summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
+          addEntryIntegerNodes(summaryAnalysisNode, summaryRows, "analysisCount", true);
+          totalAnalysisCount = (Integer)sess.createQuery("SELECT count(*) from Analysis r ").uniqueResult();
+          summaryAnalysisNode.setAttribute("analysisCount", totalAnalysisCount.toString());
         }
-        buf.append("GROUP BY tl.idLab ");
-        buf.append("ORDER BY count(*) desc");
-        summaryRows = sess.createQuery(buf.toString()).list();
-        addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
-        
-        buf = new StringBuffer();
-        buf.append("SELECT count(distinct fileName) ");
-        buf.append("FROM TransferLog tl ");
-        buf.append("JOIN tl.lab lab ");
-        buf.append("JOIN lab.coreFacilities as cf ");
-        buf.append("WHERE tl.transferType = 'upload' ");
-        if (idCoreFacility != null) {
-          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
-        }
-        Integer totalUploadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
-        summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
 
         
-        // Get download count
-        rank = 0;
-        buf = new StringBuffer();
-        buf.append("SELECT tl.idLab, count(distinct fileName) ");
-        buf.append("from TransferLog tl ");
-        buf.append("JOIN tl.lab lab ");
-        buf.append("JOIN lab.coreFacilities as cf ");
-        buf.append("WHERE tl.transferType = 'download' ");
-        if (idCoreFacility != null) {
-          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");          
+        //Get total upload and download counts
+        if(currentView.equals("Files")){
+          //Upload count ordered by lab and count
+          rank = 0;
+          buf = new StringBuffer();
+          buf.append("SELECT tl.idLab, count(distinct fileName) ");
+          buf.append("from TransferLog tl ");
+          buf.append("WHERE tl.transferType = 'upload' ");
+          buf.append("GROUP BY tl.idLab ");
+          buf.append("ORDER BY count(distinct fileName) desc");
+          summaryRows = sess.createQuery(buf.toString()).list();
+          addEntryIntegerNodes(summaryUploadsNode, summaryRows, "uploadCount", true);
+
+          //Total uploads
+          buf = new StringBuffer();
+          buf.append("SELECT count(distinct fileName) ");
+          buf.append("FROM TransferLog tl ");
+          buf.append("WHERE tl.transferType = 'upload' ");
+          Integer totalUploadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
+          summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
+          
+          //Download count ordered by lab and count
+          rank = 0;
+          buf = new StringBuffer();
+          buf.append("SELECT tl.idLab, count(distinct fileName) ");
+          buf.append("from TransferLog tl ");
+          buf.append("WHERE tl.transferType = 'download' ");
+          buf.append("GROUP BY tl.idLab ");
+          buf.append("ORDER BY count(distinct fileName) desc");
+          summaryRows = sess.createQuery(buf.toString()).list();
+          addEntryIntegerNodes(summaryDownloadsNode, summaryRows, "downloadCount", true);
+          
+          //Total download count
+          buf = new StringBuffer();
+          buf.append("SELECT count(distinct fileName) ");
+          buf.append("FROM TransferLog tl ");
+          buf.append("WHERE tl.transferType = 'download' ");
+          Integer totalDownloadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
+          summaryRows = sess.createQuery(buf.toString()).list();
+          summaryDownloadsNode.setAttribute("downloadCount", totalDownloadCount.toString());
         }
-        buf.append("GROUP BY tl.idLab ");
-        buf.append("ORDER BY count(*) desc");
-        summaryRows = sess.createQuery(buf.toString()).list();
-        addEntryIntegerNodes(summaryDownloadsNode, summaryRows, "downloadCount", true);
-        
-        buf = new StringBuffer();
-        buf.append("SELECT count(distinct fileName) ");
-        buf.append("FROM TransferLog tl ");
-        buf.append("JOIN tl.lab lab ");
-        buf.append("JOIN lab.coreFacilities as cf ");
-        buf.append("WHERE tl.transferType = 'download' ");
-        if (idCoreFacility != null) {
-          buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
-        }
-        Integer totalDownloadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
-        summaryDownloadsNode.setAttribute("downloadCount", totalDownloadCount.toString());
         
 
         //
@@ -379,32 +363,48 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get total file size for experiments by lab
         TreeMap diskSpaceMap = new TreeMap();
         buf = new StringBuffer();
-        buf.append("SELECT r.idLab, sum(ef.fileSize) ");
-        buf.append("FROM Request r ");
-        buf.append("JOIN r.files as ef  ");
-        buf.append("WHERE ef.fileSize is not NULL ");
-        if (idCoreFacility != null) {
-          buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        BigDecimal totalDiskSpace = new BigDecimal(0);
+        
+        if(currentView.equals("Experiments") || currentView.equals("Files")){
+          buf.append("SELECT r.idLab, sum(ef.fileSize) ");
+          buf.append("FROM Request r ");
+          buf.append("JOIN r.files as ef  ");
+          buf.append("WHERE ef.fileSize is not NULL ");
+          if (idCoreFacility != null) {
+            buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          buf.append("GROUP BY r.idLab ");
+          summaryRows = sess.createQuery(buf.toString()).list();
+          mapDiskSpace(summaryRows, diskSpaceMap);
         }
-        buf.append("GROUP BY r.idLab ");
-        summaryRows = sess.createQuery(buf.toString()).list();
-        mapDiskSpace(summaryRows, diskSpaceMap);
+        
         // Add in total file size for analysis by lab
-        summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by a.idLab").list();
-        mapDiskSpace(summaryRows, diskSpaceMap);
+        if(currentView.equals("Analysis") || currentView.equals("Files")){
+          summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by a.idLab").list();
+          mapDiskSpace(summaryRows, diskSpaceMap);
+        }
+        
         addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true);
 
         buf = new StringBuffer();
-        buf.append("SELECT  sum(ef.fileSize) ");
-        buf.append("FROM Request r ");
-        buf.append("JOIN r.files as ef ");
-        buf.append("WHERE ef.fileSize is not NULL ");
-        if (idCoreFacility != null) {
-          buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        BigDecimal totalExperimentDiskSpace = null;
+        BigDecimal totalAnalysisDiskSpace = null;
+        if(currentView.equals("Experiments") || currentView.equals("Files")){
+          buf.append("SELECT  sum(ef.fileSize) ");
+          buf.append("FROM Request r ");
+          buf.append("JOIN r.files as ef ");
+          buf.append("WHERE ef.fileSize is not NULL ");
+          if (idCoreFacility != null) {
+            buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          totalExperimentDiskSpace = (BigDecimal)sess.createQuery(buf.toString()).uniqueResult();
         }
-        BigDecimal totalExperimentDiskSpace = (BigDecimal)sess.createQuery(buf.toString()).uniqueResult();
-        BigDecimal totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
-        BigDecimal totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace != null ? totalAnalysisDiskSpace : new BigDecimal(0)) : new BigDecimal(0);
+        
+        if(currentView.equals("Analysis") || currentView.equals("Files")){
+          totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
+        }
+        
+        totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace != null ? totalAnalysisDiskSpace : new BigDecimal(0)) : new BigDecimal(0);
         
         summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
         summaryDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
@@ -416,20 +416,33 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         diskSpaceMap = new TreeMap();
         buf = new StringBuffer();
-        buf.append("SELECT year(r.createDate), sum(ef.fileSize) ");
-        buf.append("FROM Request r ");
-        buf.append("JOIN r.files as ef  ");
-        buf.append("where ef.fileSize is not NULL  ");
-        if (idCoreFacility != null) {
-          buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
-        }
-        buf.append("GROUP BY year(r.createDate) ");
-        summaryRows = sess.createQuery(buf.toString()).list();
-        mapDiskSpace(summaryRows, diskSpaceMap);
-        summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by year(a.createDate) ").list();
-        mapDiskSpace(summaryRows, diskSpaceMap);
-        addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false);
         
+        if(currentView.equals("Experiments")){
+          buf.append("SELECT year(r.createDate), sum(ef.fileSize) ");
+          buf.append("FROM Request r ");
+          buf.append("JOIN r.files as ef ");
+          buf.append("where ef.fileSize is not NULL ");
+          if (idCoreFacility != null) {
+            buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          buf.append("GROUP BY year(r.createDate) ");
+          summaryRows = sess.createQuery(buf.toString()).list();
+          mapDiskSpace(summaryRows, diskSpaceMap);
+          buf = new StringBuffer();
+          buf.append("SELECT sum(ef.fileSize) from Request r JOIN r.files as ef WHERE ef.fileSize is not NULL ");
+          if(idCoreFacility != null){
+            buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          totalDiskSpace = (BigDecimal)sess.createQuery(buf.toString()).uniqueResult();
+        }
+        
+        if(currentView.equals("Analysis")){
+          summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by year(a.createDate) ").list();
+          mapDiskSpace(summaryRows, diskSpaceMap);
+          totalDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
+        }
+        
+        addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false);
         summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace != null ? totalDiskSpace.toString() : "0");      
         summaryDiskSpaceByYearNode.setAttribute("diskSpaceMB", totalDiskSpace != null ? totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
         summaryDiskSpaceByYearNode.setAttribute("diskSpaceGB", totalDiskSpace != null ? totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
@@ -438,28 +451,30 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         // Get disk space by analysis vs. experiment
         //
-        diskSpaceMap = new TreeMap();
-        StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(ef.fileSize) ");
-        queryBuf.append(" FROM Request r, RequestCategory rc ");
-        queryBuf.append(" JOIN r.files as ef ");
-        queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
-        queryBuf.append(" AND ef.fileSize is not NULL ");
-        if (idCoreFacility != null) {
-          queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        if(currentView.equals("Files")){
+          diskSpaceMap = new TreeMap();
+          StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(ef.fileSize) ");
+          queryBuf.append(" FROM Request r, RequestCategory rc ");
+          queryBuf.append(" JOIN r.files as ef ");
+          queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
+          queryBuf.append(" AND ef.fileSize is not NULL ");
+          queryBuf.append(" GROUP BY rc.requestCategory");
+          queryBuf.append(" ORDER BY rc.requestCategory ");
+          summaryRows = sess.createQuery(queryBuf.toString()).list();
+          BigDecimal experimentFileSize = (BigDecimal)sess.createQuery("SELECT sum(ef.fileSize) from Request r join r.files as ef where ef.fileSize is not NULL").uniqueResult();
+          diskSpaceMap.put("Experiment", experimentFileSize == null ? new BigDecimal(0) : experimentFileSize);
+          mapDiskSpace(summaryRows, diskSpaceMap);
+
+          // Now add the analysis disk space
+          BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
+          diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
+          addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
+
+          totalDiskSpace = experimentFileSize != null ? experimentFileSize.add(analysisFileSize != null ? analysisFileSize : new BigDecimal(0)) : new BigDecimal(0);
+          summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+          summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
         }
-        queryBuf.append(" GROUP BY rc.requestCategory");
-        queryBuf.append(" ORDER BY rc.requestCategory ");
-        summaryRows = sess.createQuery(queryBuf.toString()).list();
-        mapDiskSpace(summaryRows, diskSpaceMap);
-
-        // Now add the analysis disk space
-        BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
-        diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
-        addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
-
-        summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-        summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
         
         
         
@@ -481,57 +496,66 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
 
         // Tally counts by week
-        tallyWeeklyActivity(sess);
-        addWeeklyActivityNodes(summaryWeeklyActivityNode);
+        if(!currentView.equals("Files")){
+          tallyWeeklyActivity(sess);
+          addWeeklyActivityNodes(summaryWeeklyActivityNode);
+        }
         
         
         //
         // Get # of experiments by experiment platform
         //
-        queryBuf = new StringBuffer("SELECT rc.requestCategory, count(*) ");
-        queryBuf.append(" FROM Request r, RequestCategory rc ");
-        queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
-        if (idCoreFacility != null) {
-          queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        StringBuffer queryBuf = new StringBuffer();
+        if(currentView.equals("Experiments") || currentView.equals("Files")){
+          queryBuf = new StringBuffer("SELECT rc.requestCategory, count(*) ");
+          queryBuf.append(" FROM Request r, RequestCategory rc ");
+          queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
+          if (idCoreFacility != null) {
+            queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          queryBuf.append(" GROUP BY rc.requestCategory");
+          queryBuf.append(" ORDER BY count(*) desc ");
+          summaryRows = sess.createQuery(queryBuf.toString()).list();
+          addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
+          summaryExperimentsByTypeNode.setAttribute("experimentCount", totalExperiments.toString());
         }
-        queryBuf.append(" GROUP BY rc.requestCategory");
-        queryBuf.append(" ORDER BY count(*) desc ");
-        summaryRows = sess.createQuery(queryBuf.toString()).list();
-        addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
-        summaryExperimentsByTypeNode.setAttribute("experimentCount", totalExperiments.toString());
         
         //
         // Get # of next gen seq experiments by application
         //
-        queryBuf = new StringBuffer("SELECT app.application, count(*) ");
-        queryBuf.append(" FROM Request r, Application app, RequestCategory rc ");
-        queryBuf.append(" WHERE r.codeApplication = app.codeApplication ");
-        queryBuf.append(" AND r.codeRequestCategory  = rc.codeRequestCategory ");
-        queryBuf.append(" AND rc.type  = 'ILLUMINA' ");
-        if (idCoreFacility != null) {
-          queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+        if(currentView.equals("Experiments")){
+          queryBuf = new StringBuffer("SELECT app.application, count(*) ");
+          queryBuf.append(" FROM Request r, Application app, RequestCategory rc ");
+          queryBuf.append(" WHERE r.codeApplication = app.codeApplication ");
+          queryBuf.append(" AND r.codeRequestCategory  = rc.codeRequestCategory ");
+          queryBuf.append(" AND rc.type  = 'ILLUMINA' ");
+          if (idCoreFacility != null) {
+            queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          queryBuf.append(" GROUP BY app.application");
+          queryBuf.append(" ORDER BY count(*) desc ");
+          summaryRows = sess.createQuery(queryBuf.toString()).list();
+          rank = 0;
+          totalCount = 0;
+          addEntryIntegerNodes(summarySeqExperimentsByAppNode, summaryRows, "experimentCount", false);
+          summarySeqExperimentsByAppNode.setAttribute("experimentCount", totalExperiments.toString());
         }
-        queryBuf.append(" GROUP BY app.application");
-        queryBuf.append(" ORDER BY count(*) desc ");
-        summaryRows = sess.createQuery(queryBuf.toString()).list();
-        rank = 0;
-        totalCount = 0;
-        addEntryIntegerNodes(summarySeqExperimentsByAppNode, summaryRows, "experimentCount", false);
-        summarySeqExperimentsByAppNode.setAttribute("experimentCount", totalExperiments.toString());
 
 
         
         //
         // Get # of analysis by analysis type
         //
-        queryBuf = new StringBuffer("SELECT at.analysisType, count(*) ");
-        queryBuf.append(" FROM Analysis a, AnalysisType at ");
-        queryBuf.append(" WHERE a.idAnalysisType = at.idAnalysisType ");
-        queryBuf.append(" GROUP BY at.analysisType");
-        queryBuf.append(" ORDER BY count(*) desc ");
-        summaryRows = sess.createQuery(queryBuf.toString()).list();
-        addEntryIntegerNodes(summaryAnalysisByTypeNode, summaryRows, "analysisCount", false);
-        summaryAnalysisByTypeNode.setAttribute("analysisCount", totalAnalysisCount.toString());
+        if (currentView.equals("Analysis") || currentView.equals("Files")){
+          queryBuf = new StringBuffer("SELECT at.analysisType, count(*) ");
+          queryBuf.append(" FROM Analysis a, AnalysisType at ");
+          queryBuf.append(" WHERE a.idAnalysisType = at.idAnalysisType ");
+          queryBuf.append(" GROUP BY at.analysisType");
+          queryBuf.append(" ORDER BY count(*) desc ");
+          summaryRows = sess.createQuery(queryBuf.toString()).list();
+          addEntryIntegerNodes(summaryAnalysisByTypeNode, summaryRows, "analysisCount", false);
+          summaryAnalysisByTypeNode.setAttribute("analysisCount", totalAnalysisCount.toString());
+        }
         
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
@@ -568,45 +592,50 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   }
   
   private void tallyWeeklyActivity(Session sess) {
-    // Tally experiment count by week
+    List summaryRows;
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT r.createDate, count(*) ");
-    buf.append("FROM Request r ");
-    if (idCoreFacility != null) {
-      buf.append("WHERE r.idCoreFacility = " + idCoreFacility + " ");
-    }
-    buf.append("GROUP BY r.createDate ");
-    buf.append("ORDER BY r.createDate");
-    List summaryRows = sess.createQuery(buf.toString()).list();
-    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-      Object[] rows = (Object[])i.next();
-      java.util.Date createDate  = (java.util.Date)rows[0];
-      Integer experimentCount   = (Integer)rows[1];
-      
-      String createDateKey = dfNormal.format(createDate);
-      Integer weekNumber = weekNumberMap.get(createDateKey);
-      if (weekNumber != null) {
-        ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
-        if (ai != null) {
-          ai.experimentCount += experimentCount;
+    // Tally experiment count by week
+    if(currentView.equals("Experiments")){
+      buf.append("SELECT r.createDate, count(*) ");
+      buf.append("FROM Request r ");
+      if (idCoreFacility != null) {
+        buf.append("WHERE r.idCoreFacility = " + idCoreFacility + " ");
+      }
+      buf.append("GROUP BY r.createDate ");
+      buf.append("ORDER BY r.createDate");
+      summaryRows = sess.createQuery(buf.toString()).list();
+      for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+        Object[] rows = (Object[])i.next();
+        java.util.Date createDate  = (java.util.Date)rows[0];
+        Integer experimentCount   = (Integer)rows[1];
+
+        String createDateKey = dfNormal.format(createDate);
+        Integer weekNumber = weekNumberMap.get(createDateKey);
+        if (weekNumber != null) {
+          ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
+          if (ai != null) {
+            ai.experimentCount += experimentCount;
+          }
         }
       }
     }
     
     
     // Tally analysis count by week
-    summaryRows = sess.createQuery("SELECT a.createDate, count(*) from Analysis a group by a.createDate order by a.createDate").list();
-    for(Iterator i = summaryRows.iterator(); i.hasNext();) {
-      Object[] rows = (Object[])i.next();
-      java.sql.Date createDate  = (java.sql.Date)rows[0];
-      Integer analysisCount     = (Integer)rows[1];
-      
-      String createDateKey = dfNormal.format(createDate);
-      Integer weekNumber = weekNumberMap.get(createDateKey);
-      if (weekNumber != null) {
-        ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
-        if (ai != null) {
-          ai.analysisCount += analysisCount;
+    if(currentView.equals("Analysis")){
+      summaryRows = sess.createQuery("SELECT a.createDate, count(*) from Analysis a group by a.createDate order by a.createDate").list();
+      for(Iterator i = summaryRows.iterator(); i.hasNext();) {
+        Object[] rows = (Object[])i.next();
+        java.sql.Date createDate  = (java.sql.Date)rows[0];
+        Integer analysisCount     = (Integer)rows[1];
+
+        String createDateKey = dfNormal.format(createDate);
+        Integer weekNumber = weekNumberMap.get(createDateKey);
+        if (weekNumber != null) {
+          ActivityInfo ai = this.weeklyActivityMap.get(weekNumber);
+          if (ai != null) {
+            ai.analysisCount += analysisCount;
+          }
         }
       }
     }
@@ -614,16 +643,27 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
     // Tally upload count by week
     buf = new StringBuffer();
-    buf.append("SELECT tl.startDateTime, tl.fileName ");
-    buf.append("FROM TransferLog tl ");
-    buf.append("JOIN tl.lab as lab ");
-    buf.append("JOIN lab.coreFacilities as cf ");
-    buf.append("WHERE transferType = 'upload' ");
-    if (idCoreFacility != null) {
-      buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
-    }    
-    buf.append("GROUP BY tl.startDateTime, tl.fileName ");
-    buf.append("ORDER BY tl.startDateTime, tl.fileName");
+    if(currentView.equals("Experiments")){
+      buf.append("SELECT tl.startDateTime, tl.fileName ");
+      buf.append("FROM TransferLog tl ");
+      buf.append("JOIN tl.request as r ");
+      buf.append("WHERE transferType = 'upload' ");
+      buf.append("AND tl.idRequest is not NULL ");
+      if (idCoreFacility != null) {
+        buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+      }    
+      buf.append("GROUP BY tl.startDateTime, tl.fileName ");
+      buf.append("ORDER BY tl.startDateTime, tl.fileName");
+    }
+    if(currentView.equals("Analysis")){
+      buf.append("SELECT tl.startDateTime, tl.fileName ");
+      buf.append("FROM TransferLog tl ");
+      buf.append("WHERE transferType = 'upload' ");
+      buf.append("AND tl.idAnalysis is not NULL ");    
+      buf.append("GROUP BY tl.startDateTime, tl.fileName ");
+      buf.append("ORDER BY tl.startDateTime, tl.fileName");
+    }
+    
     summaryRows = sess.createQuery(buf.toString()).list();
     
     Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
@@ -676,16 +716,26 @@ public class GetUsageData extends GNomExCommand implements Serializable {
      
     // Tally download count by week
     buf = new StringBuffer();
-    buf.append("SELECT tl.startDateTime, count(*) ");
-    buf.append("from TransferLog tl ");
-    buf.append("JOIN tl.lab as lab ");
-    buf.append("JOIN lab.coreFacilities as cf ");
-    buf.append("where transferType = 'download' ");
-    if (idCoreFacility != null) {
-      buf.append("AND cf.idCoreFacility = " + idCoreFacility + " ");
-    }    
-    buf.append("group by tl.startDateTime ");
-    buf.append("order by tl.startDateTime");
+    if(currentView.equals("Experiments")){
+      buf.append("SELECT tl.startDateTime, count(tl.fileName) ");
+      buf.append("FROM TransferLog tl ");
+      buf.append("JOIN tl.request as r ");
+      buf.append("WHERE transferType = 'download' ");
+      buf.append("AND tl.idRequest is not NULL ");
+      if (idCoreFacility != null) {
+        buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
+      }    
+      buf.append("GROUP BY tl.startDateTime ");
+      buf.append("ORDER BY tl.startDateTime, count(tl.fileName) ");
+    }
+    if(currentView.equals("Analysis")){
+      buf.append("SELECT tl.startDateTime, count(tl.fileName) ");
+      buf.append("FROM TransferLog tl ");
+      buf.append("WHERE transferType = 'download' ");
+      buf.append("AND tl.idAnalysis is not NULL "); 
+      buf.append("GROUP BY tl.startDateTime ");
+      buf.append("ORDER BY tl.startDateTime, count(tl.fileName) ");
+    }
 
     summaryRows = sess.createQuery(buf.toString()).list();
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
@@ -726,8 +776,12 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       entryNode.setAttribute("label", label);
       entryNode.setAttribute("dataTip", ai.dataTip);
       entryNode.setAttribute("weekNumber", weekNumber.toString());
-      entryNode.setAttribute("experimentCount", Integer.valueOf(ai.experimentCount).toString());
-      entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
+      if(currentView.equals("Experiments") || currentView.equals("Files")){
+        entryNode.setAttribute("experimentCount", Integer.valueOf(ai.experimentCount).toString());
+      }
+      if(currentView.equals("Analysis") || currentView.equals("Files")){
+        entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
+      }
       entryNode.setAttribute("uploadCount", Integer.valueOf(ai.uploadCount).toString());
       entryNode.setAttribute("downloadCount", Integer.valueOf(ai.downloadCount).toString());
       entryNode.setAttribute("startDate", dfNormal.format(ai.startDate));

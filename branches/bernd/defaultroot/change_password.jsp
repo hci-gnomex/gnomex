@@ -66,17 +66,16 @@ try {
         <img src="<%=siteLogo%>"/>
     </div>
    <div class="rightMenu" >
-      <a href="gnomexFlex.jsp">Login</a> |    
-      <a href="change_password.jsp">Change password</a> |    
+      <a href="gnomexFlex.jsp">Sign in</a> |       
       <a href="reset_password.jsp">Reset password</a> |    
-      <a href="register_user.jsp">Sign up for an account</a> 
+      <a href="select_core.jsp">Sign up for an account</a> 
   </div>
 </div>
 
 
     <form id="theform" method="POST" action="ChangePassword.gx" >
 
-  <div class="boxMedium">
+  <div class="boxWide">
     <h3>Change Password</h3>
 
       <div class="col1Wide"><div class="right">User name</div></div>

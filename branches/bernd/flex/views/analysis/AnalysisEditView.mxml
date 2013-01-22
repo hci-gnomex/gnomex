@@ -83,21 +83,7 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
-	<mx:HTTPService  
-		id="cacheFDTFileDownloadList" 
-		url="CacheAnalysisFileDownloadList.gx"
-		destination="cacheAnalysisFileDownloadList"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onCacheFDTFileDownloadList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
-		method="POST"
-		useProxy="false">
-		<mx:request>
-			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
-		</mx:request>
-	</mx:HTTPService>
-	
+		
 	<mx:HTTPService  
 		id="getLab" 
 		url="GetLab.gx"
@@ -149,8 +135,6 @@
 			private var selectedFileList:XMLListCollection;
 			[Bindable]
 			public var rowCountMessage:String = new String();
-			[Bindable]
-			public var downloadSizeMessage:String = new String();
 			
 			[Bindable]
 			private var possibleCollaborators:PromptXMLListCollection;
@@ -252,6 +236,7 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
 				
 				parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
 					onOrganismRefreshed);		                                  
@@ -270,6 +255,8 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
+				
 			}
 			
 			public function initializeDataProviders():void {
@@ -479,7 +466,6 @@
 				params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
 				params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
 				params.analysisFilesXMLString = filesView.getDirtyAnalysisFiles().toXMLString();
-				params.analysisFilesToDeleteXMLString = "<analysis>" + filesView.getFilesToDelete().toXMLString() + "</analysis>";
 				
 				// Collaborators
 				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
@@ -530,13 +516,14 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
+				
 			}
 			
 			private function onGetAnalysisAfterUpload(event:ResultEvent):void {
 				analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).files;
 				analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).ExpandedAnalysisFileList;
 				files.source = analysis..AnalysisFileDescriptor;
-				filesView.resetFilesToDelete();
 				if(uploadWindow != null) {
 					uploadWindow.refreshFiles();
 				}
@@ -691,23 +678,6 @@
 				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
 			}
 			
-			private function underlyingDownloadsChange(event:CollectionEvent):void {
-				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-					// ignore refresh and resets 
-					return;
-				}
-				
-				var selectedDownloadSize:Number = 0;
-				var selectedFiles:XMLList = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");        	
-				for each(var file:Object in selectedFiles) {
-					if (file.@type != "dir") {
-						var size:Number = FileUtil.getEstimatedCompressedSize(file);
-						selectedDownloadSize += size;
-					}
-				}
-				downloadSizeMessage = "Ready to download " + FileUtil.getFileSizeText(selectedDownloadSize);
-				
-			}
 			
 			//
 			// Edit organism dictionary
@@ -923,37 +893,7 @@
 				}
 			}
 			
-			private function showAlternateDownloadPage():void {
-				var url:URLRequest = new URLRequest('ShowAnalysisDownloadForm' + 
-					(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-					'.gx?idAnalysis=' + 
-					this.parentDocument.selectedAnalysis.@idAnalysis);
-				navigateToURL(url, '_blank');					
-			} 
 			
-			public function downloadFilesUsingFDT():void {
-				var selectedFiles:XMLList = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");
-				selectedFileList = new XMLListCollection(selectedFiles);					
-				
-				if (selectedFileList.length == 0) {
-					mx.controls.Alert.show("Please select the files to download.");
-				} else {
-					cacheFDTFileDownloadList.send();
-				}
-			}
-			
-			private function onCacheFDTFileDownloadList(event:ResultEvent):void {
-				// We have cached the selected analysis files
-				// Now call the URL to start the FDT app using webstart
-				showFastDataTransferDownloadPage();
-			}
-			
-			public function showFastDataTransferDownloadPage():void {	
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadAnalysisServlet.gx');	
-				url.contentType = "text/xml";
-				url.method = URLRequestMethod.GET;
-				navigateToURL(url, '_self');	
-			}
 			
 			private function showDataTracks():void {
 				// We need to make sure that all of the analysis files on the file
@@ -1342,7 +1282,7 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" verticalAlign="middle">
 						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="82"/>
-						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" >			       	
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
 						</mx:ComboBox>
 					</mx:HBox>
 					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to everyone"/>
@@ -1395,21 +1335,7 @@
 	</mx:TabNavigator>
 	
 	<mx:HBox width="100%"   horizontalAlign="left" paddingRight="1" id="hbox8">
-		<mx:HBox  visible="{theTab.selectedChild==filesView}" verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
-			<mx:Button id="downloadExpandedFilesButton" 
-					   click="filesView.downloadExpandedFiles()" 
-					   icon="@Embed('../../assets/download.png')" 
-					   toolTip="Download selected files"
-					   label="Download"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-					   label="FDT Download"  click="{this.downloadFilesUsingFDT()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
-					   includeInLayout="{parentApplication.isFDTSupported ? false : true}"
-					   label="HTTP Download" click="{this.showAlternateDownloadPage()}" 
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-		</mx:HBox>
+		
 		<mx:Spacer width="100%"/>
 		<util:DirtyNote id="dirty"  />
 		<mx:Button id="saveButton" label="Save" 

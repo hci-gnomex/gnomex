@@ -62,15 +62,19 @@
 			import hci.flex.controls.CheckBox;
 			import hci.flex.controls.ComboBox;
 			import hci.flex.controls.DropdownLabel;
+			import hci.flex.controls.TextInput;
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
 			
+			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.List;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.DataGridEvent;
 			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -455,17 +459,23 @@
 				
 				// Check for account chartfield numbers before saving
 				var warningMessage:String = "";
+				var chartFieldErrors:Object = checkChartFields();
+				
+				for(var key:String in chartFieldErrors){
+					warningMessage += key + ":\n" ;
+					var errors:ArrayCollection = chartFieldErrors[key];
+					for each(var error:String in errors){
+						warningMessage += error + "\n";
+					}
+				}
+				
+				if(warningMessage != ""){
+					var alert:Alert = Alert.show(warningMessage, "Please fix the errors with the following billing accounts");
+					return;
+				} 
+				
 				for each(var ba:Object in allApprovedAccounts) { 
-					// Only validate dirty billing accounts
-					if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
-						if(ba.@isPO == "" || ba.@isPO == "N") {
-							if (!this.isChartFieldFilledIn(ba)) {
-								if (warningMessage != "") {
-									warningMessage += "\n";
-								}
-								warningMessage += "Not all of the chart fields have been filled in for account " + ba.@accountName + ".";
-							}
-						}else if(ba.@isPO == "Y") {
+						if(ba.@isPO == "Y") {
 							if (!this.isChartFieldBlank(ba)) {
 								if (warningMessage != "") {
 									warningMessage += "\n";
@@ -473,8 +483,7 @@
 								warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
 							}
 						}
-					}
-				}	
+					}	
 				
 				if (warningMessage == "") {
 					save();
@@ -492,6 +501,61 @@
 				if (event.detail == Alert.YES) {
 					save();
 				}
+			}
+			
+			private function checkChartFields():Object{
+				var badAccounts:Object = new Object;
+				var coreFacility:String = "";
+				var regEx:RegExp = /[^0-9]/;
+				var allAccounts:XMLListCollection = allApprovedAccounts;
+				allAccounts.addAll(pendingBillingAccounts);
+				for each(var ba:Object in allAccounts) {
+					var errors:ArrayCollection = new ArrayCollection;
+					for each(var cf:Object in labCoreFacilitiesIManage){
+						if(cf.@idCoreFacility == ba.@idCoreFacility){
+							coreFacility = cf.@display;
+						}
+					}
+					if(ba.@isPO == 'Y'){
+						continue;
+					}
+					if (ba.@accountNumberProject != '' && ba.@accountNumberActivity != '')
+						errors.addItem("    - The chartfield must contain either project or activity, but not both.");
+					
+					if(ba.@accountNumberBus.toString().length != 2 || ba.@accountNumberBus.toString().search(regEx) != -1) {
+						errors.addItem("    - Bus must be 2 digits.");
+					}
+					if (ba.@accountNumberOrg.toString().length != 5 || ba.@accountNumberOrg.toString().search(regEx) != -1) {
+						errors.addItem("    - Org must be 5 digits.");
+					}
+					if (ba.@accountNumberFund.toString().length != 4 || ba.@accountNumberFund.toString().search(regEx) != -1) {
+						errors.addItem("    - Fund must be 4 digits.");
+					}
+					if (ba.@accountNumberAccount.toString().length != 5 || ba.@accountNumberAccount.toString().search(regEx) != -1) {
+						errors.addItem("    - Account must be 5 digits.");
+					}
+					if (ba.@accountNumberActivity.toString().length > 0) {
+						if (ba.@accountNumberAu.toString().length != 1 || ba.@accountNumberAu.toString().search(regEx) != -1) {
+							errors.addItem("    - A/U must be 1 digit.");
+						}
+					}
+					if (ba.@accountNumberYear.toString().length != 4 || ba.@accountNumberYear.toString().search(regEx) != -1) {
+						errors.addItem("    - Year must be 4 digits.");
+					}
+					if ((ba.@accountNumberActivity.toString().length != 5 || ba.@accountNumberActivity.toString().search(regEx) != -1) && ba.@accountNumberProject == '') {
+						errors.addItem("    - Activity must be 5 digits.");
+					}
+					if ((ba.@accountNumberProject.toString().length != 8 || ba.@accountNumberProject.toString().search(regEx) != -1) && ba.@accountNumberActivity == '') {
+						errors.addItem("    - Project must be 8 digits.");
+					}
+					
+					if(errors.length > 0){
+						badAccounts[ba.@accountName.toString() + " ("+coreFacility+")"] = errors;
+					}
+				}
+				
+				return badAccounts;
+				
 			}
 			
 			private function save():void {
@@ -693,7 +757,6 @@
 			
 			
 			private function verifyChartfieldEdit(event:DataGridEvent) : void {
-				
 				var theGrid:DataGrid = DataGrid(event.target);
 				// Mark that this billing account is dirty.  We will only warn about
 				// validation when the billing account has been changed.
@@ -711,8 +774,8 @@
 				
 				// Other fields are only editable on non-PO accounts.  
 				if(theGrid.dataProvider.getItemAt(event.rowIndex).@isPO == 'Y') {
-					event.preventDefault(); 
-				} 
+					event.preventDefault();
+				}
 			}
 			
 			
@@ -804,7 +867,7 @@
 			private function filterCore(item:Object):Boolean {
 				return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
 			}
-			
+
 		]]>
 	</mx:Script>	  
 	
@@ -823,7 +886,6 @@
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
 	<mx:XMLList id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
-	
 	
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
 		
@@ -1030,7 +1092,7 @@
 				</mx:HBox>
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
 							 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
-							 horizontalScrollPolicy="auto" variableRowHeight="true"  >
+							 horizontalScrollPolicy="auto" variableRowHeight="true" >
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn headerText="PO" id="poActive"  

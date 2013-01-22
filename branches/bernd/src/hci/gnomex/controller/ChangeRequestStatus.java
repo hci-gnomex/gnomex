@@ -92,64 +92,42 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         
         Request req = (Request) sess.get( Request.class,idRequest );
         String oldRequestStatus = req.getCodeRequestStatus();
-        
-     // Don't change request status to submitted unless the request is in new status
-        if ( codeRequestStatus.equals( RequestStatus.SUBMITTED ) && (oldRequestStatus!=null && !oldRequestStatus.equals( RequestStatus.NEW )) ) {
-          this.addInvalidField( "Cannot change a request back to submitted", "Only requests in new status can be changed to submitted status." );
-        } else {
-          req.setCodeRequestStatus( codeRequestStatus );
 
-          if ( oldRequestStatus!=null ) {
-            if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
-              req.setCreateDate(new java.util.Date());
-            }
+        req.setCodeRequestStatus( codeRequestStatus );
+
+        if ( oldRequestStatus!=null ) {
+          if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
+            req.setCreateDate(new java.util.Date());
           }
-
-          // If this is a DNA Seq core request, we need to create the billing items and send confirmation email 
-          // when the status changes to submitted
-          if (codeRequestStatus.equals(RequestStatus.SUBMITTED) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
-            if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
-              createBillingItems(sess, req);
-              sess.flush();
-            }
-            if (req.getAppUser() != null
-                && req.getAppUser().getEmail() != null
-                && !req.getAppUser().getEmail().equals("")) {
-              try {
-                // confirmation email for dna seq requests is sent at submit time.
-                sendConfirmationEmail(sess, req);
-              } catch (Exception e) {
-                String msg = "Unable to send confirmation email notifying submitter that request "
-                  + req.getNumber()
-                  + " has been submitted.  " + e.toString();
-                log.error(msg);
-              }
-            } else {
-              String msg = ( "Unable to send confirmation email notifying submitter that request "
-                  + req.getNumber()
-                  + " has been submitted.  Request submitter or request submitter email is blank.");
-              log.error(msg);
-            }
-          }
-          // Set the complete date
-          if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
-            if ( req.getCompletedDate() == null ) {
-              req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
-            }
-            // Now change the billing items for the request from PENDING to COMPLETE
-            for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
-              billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
-            }
-          }
-          sess.flush();
-
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-
-          this.xmlResult = "<SUCCESS idRequest=\"" + idRequest + 
-          "\" codeRequestStatus=\"" + codeRequestStatus  +
-          "\"/>";
-
         }
+
+        // If this is a DNA Seq core request, we need to create the billing items and send confirmation email 
+        // when the status changes to submitted
+        if (codeRequestStatus.equals(RequestStatus.SUBMITTED) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
+          if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
+            createBillingItems(sess, req);
+            sess.flush();
+          }
+        }
+        // Set the complete date
+        if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
+          if ( req.getCompletedDate() == null ) {
+            req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
+          }
+          // Now change the billing items for the request from PENDING to COMPLETE
+          for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+          }
+        }
+        sess.flush();
+
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+
+        this.xmlResult = "<SUCCESS idRequest=\"" + idRequest + 
+        "\" codeRequestStatus=\"" + codeRequestStatus  +
+        "\"/>";
+
+        
       }
     
       if (isValid()) {

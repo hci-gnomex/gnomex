@@ -268,7 +268,6 @@
         <![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
 			
-			
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
 			import hci.flex.renderers.RendererFactory;
@@ -296,6 +295,7 @@
 			import views.admin.PropertyWindow;
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
+			import views.experiment.ProjectDetailWindow;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.user.EditBillingAcctWindow;
@@ -311,7 +311,6 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
-			import views.experiment.ProjectDetailWindow;
            
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -859,6 +858,7 @@
 			public  var TYPE_FRAG_ANAL:String	  = "FRAGANAL";
 			public  var TYPE_MIT_SEQ:String	      = "MITSEQ";
 			public  var TYPE_CHERRY_PICK:String   = "CHERRYPICK";
+			public  const TYPE_DISK_USAGE:String  = "DISKUSAGE"; // For disk usage in billing items.  Not used by requests.
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 			public var CORE_FACILITY_GENOMICS:String = "Microarray and Genomic Analysis";
@@ -2862,6 +2862,7 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -2951,6 +2952,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		 
 
@@ -2979,8 +2981,8 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
-			<menuitem label="Experiment Overview" icon="iconFlask" />
-		</menuitem>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Experiment Overview" icon="iconFlask"/>		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
@@ -3029,6 +3031,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />

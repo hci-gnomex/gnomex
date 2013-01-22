@@ -12,6 +12,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
@@ -851,7 +852,7 @@ public class Request extends HibernateDetailObject {
       String createDay   = tokens[1];
       String createYear  = tokens[2];
       String sortDate = createYear + createMonth + createDay;
-      String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + resultsDir + "-" + idCoreFacility;     
+      String key = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber + Constants.DOWNLOAD_KEY_SEPARATOR + resultsDir + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility;     
       return key;
     }
   }

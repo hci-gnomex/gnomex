@@ -170,11 +170,15 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             if(success){
               for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
                 String directory = (String)j.next();
+                if(directory.contains(folder + "\\")){
+                  parser.getFileNameMap().remove(directory);
+                  j = parser.getFileNameMap().keySet().iterator();
+                }
                 if(directory.equals(folder)){
                   List fileNames = (List)parser.getFileNameMap().get(directory);
                   parser.getFileNameMap().remove(directory);
                   parser.getFileNameMap().put(newFolder, fileNames);
-                  break;
+                  j = parser.getFileNameMap().keySet().iterator();
                 }
               }
             }

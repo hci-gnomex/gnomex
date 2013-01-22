@@ -1,38 +1,35 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
 <%@ page import="org.hibernate.Session" %>
+<%@ page import="hci.gnomex.model.CoreFacility" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List" %>
 <html>
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 	<link rel="stylesheet" href="css/login.css" type="text/css" />
-	<title>Reset GNomEx Password</title>
-	<script type="text/javascript">
-		function setFocus()
-		{
-     		theform.username.focus();
-		}
-	</script>	
+	<title>Create an account - select core facility </title>
+		
 </head>
 
 
 <%
+
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
+List facilities = null;
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
-boolean showCampusInfoLink = false;
 String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
-    showCampusInfoLink = true;
-  }  
+   
   
   // Get site specific log
   PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
@@ -42,6 +39,7 @@ try {
     siteLogo = "./assets/gnomex_logo.png";
   } 
  
+  facilities = CoreFacility.getActiveCoreFacilities(sess);
   
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
@@ -55,9 +53,7 @@ try {
 %>
 
 
-<body onload="setFocus()">
-
-
+<body>
 
 
 
@@ -69,41 +65,48 @@ try {
     </div>
     <div class="rightMenu" >
         <a href="gnomexFlex.jsp">Sign in</a> |    
-        <a href="change_password.jsp">Change password</a> |    
-        <a href="select_core.jsp">Sign up for an account</a> 
+        <a href="change_password.jsp">Change password</a> |       
+        <a href="reset_password.jsp">Reset password</a>
     </div>
   </div>
 
-  <form id="theform" method="POST" action="ChangePassword.gx" >
-
-  <div class="box">
-    <h3>Reset Password</h3>
-
-      <div class="col1"><div class="right">User name</div></div>
-      <div class="col2"><input id="username" name="userName" type="text" class="text"/></div>
-
-
-
-      <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
+  
+  <div class="boxWide">
+    <h3>Select Core Facility</h3>
+    
+    <div id="coreFacilityDiv"><div class="col1"><div class="left">
+      <table border=0 width="425" class="facilities">
+        
+        <%
+          Iterator facilityIter = facilities.iterator();
+          while (facilityIter.hasNext()) {
+            CoreFacility facility = (CoreFacility) facilityIter.next();
+        %>
+        <tr>
+          <td width="240">
+            <a href="register_user.jsp?idFacility=<%=facility.getIdCoreFacility()%>"><%=facility.getDisplay()%></a>
+          </td>
+          
+          <td width="185">
+            <%
+              if (facility.getDescription() != null) {%>
+                  <%=facility.getDescription()%>
+            <%}%>
+          </td>
+        </tr> 
+            <%}%>
+      </table>
       
-<% if (showCampusInfoLink) { %>
-<div class="bottomPanel">
-
-If you have registered using your uNID (u00000000), your password is tied to the University Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.
-</div>
-
-<% }  %>
+    </div></div></div>       
+  
+    <div class="empty"></div>
+    
       
   </div>
 
-<div class="message"><strong><%= message %></strong></div>
-    <input type="hidden" name="responsePageSuccess" value="/reset_password_success.jsp"/>
-    <input type="hidden" name="responsePageError" value="/reset_password.jsp"/>
-  </form>
 
 </div>
 
-</div>
 
 </body>
 </html>

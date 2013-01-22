@@ -1929,7 +1929,7 @@
 					<mx:AdvancedDataGridColumn id="destinationWellCol" visible="false" editable="false" headerText="Dest. Well" width="75" resizable="false"
 											   dataField="@destinationWell" sortable="false"/>
 
-					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+					<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					
 
 					<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 

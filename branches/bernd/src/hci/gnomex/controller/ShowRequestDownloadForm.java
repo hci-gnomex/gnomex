@@ -257,7 +257,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         String theCreateYear  = dateTokens[2];
         String sortDate = theCreateYear + createMonth + createDay;    
         
-        String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+        String fcKey = flowCell.getCreateYear() + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + flowCell.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
         
         Map requestMap = new TreeMap();
         Map directoryMap = new TreeMap();
@@ -298,7 +298,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     if (directoryKeys != null) {
       for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
         String directoryKey = (String)i1.next();
-        String dirTokens[] = directoryKey.split("-");
+        String dirTokens[] = directoryKey.split(Constants.DOWNLOAD_KEY_SEPARATOR);
         List   theFiles     = (List)directoryMap.get(directoryKey);
         for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
           FileDescriptor fd = (FileDescriptor)i2.next();

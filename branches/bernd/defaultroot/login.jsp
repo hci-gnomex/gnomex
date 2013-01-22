@@ -145,7 +145,7 @@ try {
 
 </style> 
 
-	<title>Login to GNomEx</title>
+	<title>Sign in to GNomEx</title>
 	
 	<script type="text/javascript">
 		function setFocus()
@@ -166,8 +166,8 @@ try {
        </div>
        <div class="rightMenu" >    
          <a href="change_password.jsp">Change password</a> |    
-         <a href="reset_password.jsp">Reset password</a> |    
-         <a href="register_user.jsp">Sign up for an account</a> 
+         <a href="reset_password.jsp">Reset password</a>  |    
+         <a href="select_core.jsp">Sign up for an account</a> 
       </div>
     </div>
     <form id="theform" method="POST"  >
@@ -176,13 +176,13 @@ try {
   
 <% if (itemNotPublic) { %>
 <div class="topPanel">
-The <%= itemType %> you are linking to does not have public visibility. Please log in to proceed:
+The <%= itemType %> you are linking to does not have public visibility. Please sign in to proceed:
 </div>
 <% }  %>  
   
   
   
-    <h3>Log In</h3>
+    <h3>Sign In</h3>
 
       <div class="col1"><div class="right">User name</div></div>
       <div class="col2"><input id="username" type="text" class="text" name="j_username"  ></div>
@@ -190,22 +190,34 @@ The <%= itemType %> you are linking to does not have public visibility. Please l
    
       <div class="col1"><div class="right">Password</div></div>
       <div class="col2"><input type="password" class="text" name="j_password"></div>
+ 
+      <br>
+      
+       <%
+        if( showCampusInfoLink ) {
+      %>
+        <div class="boxCenter"><note class="centered"><i>University of Utah investigators should 
+          sign in with their UNID and CIS password.</i></note></div>      
+        <%
+        }
+      %>
+      
+      <div class="buttonPanelShort"><input type="submit" class="submit" value="Sign in" /></div>
+      
+      
+      <div class="bottomPanel">
+        <div class="col1Wide"><note class="inline"><i>For guest access to public data:</i></note></div>
+        <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div>
+      </div>
+      
 
+    </div>
 
-
-      <div class="leftButton"><a href="gnomexGuestFlex.jsp" class="login">Login as guest</a></div>
-      <div class="buttonPanel"><input type="submit" class="submit" value="Login" /></div>
-
-<% if (showCampusInfoLink) { %>
-<div class="bottomPanel">
-If you have an University ID (u0000000), use it and the password from University Campus Information Systems to login.
-</div>
-<% }  %>
-
-
-
-</div>
-
+<!--         <div class="boxClear"> -->
+<!--           <div class="col1Wide"><note class="inline">For guest access to public data:</note></div> -->
+<!--           <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div> -->
+<!--        </div> -->
+       
     </form>
 
 </body>

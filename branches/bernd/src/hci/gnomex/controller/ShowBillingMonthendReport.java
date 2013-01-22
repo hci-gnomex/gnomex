@@ -8,6 +8,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -115,69 +116,14 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
           
           BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-
-          StringBuffer buf = new StringBuffer();
-          buf.append("SELECT    req, bi, inv ");
-          buf.append("FROM      Request req ");
-          buf.append("JOIN      req.billingItems bi ");
-          buf.append("JOIN      bi.lab as lab ");
-          buf.append("JOIN      bi.billingAccount as ba ");
-          buf.append("LEFT JOIN bi.invoice as inv ");
-          buf.append("WHERE     bi.codeBillingStatus = '" + codeBillingStatus + "' ");
-          buf.append("AND       bi.idBillingPeriod = " + idBillingPeriod + " ");
-          buf.append("AND       bi.idCoreFacility = " + idCoreFacility + " ");
-          
-          if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-            buf.append(" AND ");
-            secAdvisor.appendCoreFacilityCriteria(buf, "bi");
-            buf.append(" ");
-          }
-          
           CoreFacility core = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
-          
-          buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
-          
-          List results = sess.createQuery(buf.toString()).list();
-          TreeMap requestMap = new TreeMap();
+          TreeMap<String, Request> requestMap = new TreeMap<String, Request>();
           TreeMap billingItemMap = new TreeMap();
-          TreeMap invoiceMap = new TreeMap();
-          
-          for(Iterator i = results.iterator(); i.hasNext();) {
-            Object[] row   =  (Object[])i.next();
-            Request req    =  (Request)row[0];
-            BillingItem bi =  (BillingItem)row[1];
-            Invoice inv    =  (Invoice)row[2];  
-            
-            // Exclude any requests that have billing items with status
-            // other than status provided in parameter.
-            boolean mixedStatus = false;
-            for (Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
-              BillingItem item = (BillingItem)i1.next();
-              if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
-                  item.getIdBillingAccount().equals(bi.getIdBillingAccount())) {
-                if (!item.getCodeBillingStatus().equals(codeBillingStatus)) {
-                  mixedStatus = true;
-                }
-              }
-            }
-            if (mixedStatus) {
-              continue;
-            }
-            
-            String key = bi.getLabName() + "_" +
-                         bi.getBillingAccount().getIdBillingAccount() +  "_" +
-                         req.getNumber();
-            
-            requestMap.put(key, req);
-            
-            List billingItems = (List)billingItemMap.get(key);
-            if (billingItems == null) {
-              billingItems = new ArrayList();
-              billingItemMap.put(key, billingItems);
-            }
-            billingItems.add(bi);
-            invoiceMap.put(bi.getIdBillingItem(), inv);
-          }
+          TreeMap<Integer, Invoice> invoiceMap = new TreeMap<Integer, Invoice>();
+          TreeMap<String, DiskUsageByMonth> diskUsageMap = new TreeMap<String, DiskUsageByMonth>();
+
+          buildMaps(sess, "req", requestMap, billingItemMap, invoiceMap, diskUsageMap);
+          buildMaps(sess, "dsk", requestMap, billingItemMap, invoiceMap, diskUsageMap);
           
 
        
@@ -218,9 +164,18 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             
             boolean firstTime = true;
             
-            for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+            for(Iterator i = billingItemMap.keySet().iterator(); i.hasNext();) {
               String key = (String)i.next();
-              Request request = (Request)requestMap.get(key);      
+              Request request = (Request)requestMap.get(key);
+              DiskUsageByMonth dsk = diskUsageMap.get(key);
+              java.util.Date createDate = null;
+              String clientName = "";
+              if (request != null) {
+                createDate = request.getCreateDate();
+                clientName = request.getAppUser().getFirstName() + " " + request.getAppUser().getLastName();
+              } else {
+                createDate = dsk.getLastCalcDate();
+              }
 
               String[] tokens = key.split("_");
               String requestNumber = tokens[2];
@@ -253,10 +208,10 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
                 values.add(acctNum);
                 values.add(acctName);
                 values.add(inv.getInvoiceNumber());
-                values.add(this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
+                values.add(this.formatDate(createDate, this.DATE_OUTPUT_SLASH));
                 values.add(this.formatDate(completeDate, this.DATE_OUTPUT_SLASH));
-                values.add(request.getNumber());
-                values.add(request.getAppUser().getFirstName() + " " + request.getAppUser().getLastName());
+                values.add(requestNumber);
+                values.add(clientName);
                 values.add(bi.getCodeBillingChargeKind().equals(BillingChargeKind.SERVICE) ? "X" : "");
                 values.add(bi.getCodeBillingChargeKind().equals(BillingChargeKind.PRODUCT) ? "X" : "");
                 values.add(bi.getCategory());
@@ -328,6 +283,94 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     }
     
     return this;
+  }
+  
+  private void buildMaps(Session sess, String mainObject, TreeMap<String, Request> requestMap, TreeMap billingItemMap, TreeMap<Integer, Invoice> invoiceMap, TreeMap<String, DiskUsageByMonth> diskUsageMap) {
+    StringBuffer buf = new StringBuffer();
+    if (mainObject.equals("req")) {
+      buf.append("SELECT    req, bi, inv ");
+      buf.append("FROM      Request req ");
+      buf.append("JOIN      req.billingItems as bi ");
+    } else {
+      buf.append("SELECT    dsk, bi, inv ");
+      buf.append("FROM      DiskUsageByMonth dsk ");
+      buf.append("JOIN      dsk.billingItems as bi ");
+    }
+    buf.append("JOIN      bi.lab as lab ");
+    buf.append("JOIN      bi.billingAccount as ba ");
+    buf.append("LEFT JOIN bi.invoice as inv ");
+    buf.append("WHERE     bi.codeBillingStatus = '" + codeBillingStatus + "' ");
+    buf.append("AND       bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND       bi.idCoreFacility = " + idCoreFacility + " ");
+    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+      buf.append(" ");
+    }
+    
+    if (mainObject.equals("req")) {
+      buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
+    } else {
+      buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, dsk.idDiskUsageByMonth, bi.idBillingItem ");
+    }
+    
+    List results = sess.createQuery(buf.toString()).list();
+    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row   =  (Object[])i.next();
+      Request req    =  null;
+      DiskUsageByMonth dsk = null;
+      Set allBillingItems = null;
+      String number = "";
+      if (mainObject.equals("req")) {
+        req = (Request)row[0];
+        allBillingItems = req.getBillingItems();
+        number = req.getNumber();
+      } else {
+        dsk = (DiskUsageByMonth)row[0];
+        allBillingItems = dsk.getBillingItems();
+        number = "Disk Usage";
+      }
+      BillingItem bi =  (BillingItem)row[1];
+      Invoice inv    =  (Invoice)row[2];  
+      
+      // Exclude any requests that have billing items with status
+      // other than status provided in parameter.
+      boolean mixedStatus = false;
+      for (Iterator i1 = allBillingItems.iterator(); i1.hasNext();) {
+        BillingItem item = (BillingItem)i1.next();
+        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+            item.getIdBillingAccount().equals(bi.getIdBillingAccount())) {
+          if (!item.getCodeBillingStatus().equals(codeBillingStatus)) {
+            mixedStatus = true;
+          }
+        }
+      }
+      if (mixedStatus) {
+        continue;
+      }
+      
+      String key = bi.getLabName() + "_" +
+                   bi.getBillingAccount().getIdBillingAccount() +  "_" +
+                   number;
+      
+      if (req != null) {
+        requestMap.put(key, req);
+      }
+      if (dsk != null) {
+        diskUsageMap.put(key, dsk);
+      }
+      
+      List billingItems = (List)billingItemMap.get(key);
+      if (billingItems == null) {
+        billingItems = new ArrayList();
+        billingItemMap.put(key, billingItems);
+      }
+      billingItems.add(bi);
+      invoiceMap.put(bi.getIdBillingItem(), inv);
+    }
+
   }
   
   private void addRequestTotalRows() {

@@ -118,6 +118,7 @@
 		<property name="comments" column="comments" type="string"/>
 		<property name="uploadDate" column="uploadDate" type="date"/>
 		<property name="fileSize" column="fileSize" type="big_decimal"/>
+    <property name="createDate" column="createDate" type="date"/>
 	</class>	
 
     <!-- hci.gnomex.model.AppUser -->
@@ -251,6 +252,7 @@
 	  <property name="splitType" column="splitType" type="string"/>
     <property name="idInvoice" column="idInvoice" type="integer"/>
     <many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
+    <property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
   </class>	
   
   <!-- hci.gnomex.model.Chromatogram -->
@@ -984,6 +986,7 @@
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="idLab" column="idLab" type="integer"/>
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
 	</class>
 		
 	<!-- hci.gnomex.model.WorkItem -->
@@ -1624,7 +1627,7 @@
 		<property name="isSampleBarcodingOptional" column="isSampleBarcodingOptional" type="string"/>
 		<property name="isInternal" column="isInternal" type="string"/>
 		<property name="isExternal" column="isExternal" type="string"/>
-	
+	  <property name="refrainFromAutoDelete" column="refrainFromAutoDelete" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
@@ -2068,5 +2071,26 @@
       <property name="include"                      column="include"                      type="string"/>
       <property name="isRequired"                   column="isRequired"                   type="string"/>
     </class>
+	
+  <!-- hci.gnomex.model.DiskUsageByMonth -->
+  <class name="hci.gnomex.model.DiskUsageByMonth" table="DiskUsageByMonth">
+    <id name="idDiskUsageByMonth"                   column="idDiskUsageByMonth"           type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="idLab"                          column="idLab"                        type="integer"/>
+    <property name="asOfDate"                       column="asOfDate"                     type="java.sql.Date"/>
+    <property name="lastCalcDate"                   column="lastCalcDate"                 type="java.sql.Date"/>
+    <property name="totalAnalysisDiskSpace"         column="totalAnalysisDiskSpace"       type="big_decimal"/>
+    <property name="assessedAnalysisDiskSpace"      column="assessedAnalysisDiskSpace"    type="big_decimal"/>
+    <property name="totalExperimentDiskSpace"       column="totalExperimentDiskSpace"     type="big_decimal"/>
+    <property name="assessedExperimentDiskSpace"    column="assessedExperimentDiskSpace"  type="big_decimal"/>
+    <property name="idBillingPeriod"                column="idBillingPeriod"              type="integer"/>
+    <property name="idBillingAccount"               column="idBillingAccount"             type="integer"/>
+    <property name="idCoreFacility"                 column="idCoreFacility"               type="integer"/>
+    <set name="billingItems" table="BillingItem" lazy="false" cascade="all-delete-orphan" order-by="idBillingItem">
+      <key column="idDiskUsageByMonth"/>
+      <one-to-many class="hci.gnomex.model.BillingItem" />
+    </set>    
+  </class>  
 	
 </hibernate-mapping>

@@ -32,6 +32,7 @@ package views.renderers {
 		public var idSample:int;
 		public var sampleName:String;
 		public var idRequest:int;
+		public var requestNumber:String;
 		public var codeReactionType:String;
 		public var idAssay:int;
 		public var idPrimer:int;
@@ -87,6 +88,7 @@ package views.renderers {
 				this.sampleName =  '';
 				this.groupId =  '';
 				this.idRequest = 0;
+				this.requestNumber = '';
 				this.codeReactionType = '' ;
 				this.idAssay = 0;
 				this.idPrimer = 0;
@@ -106,10 +108,11 @@ package views.renderers {
 			this.sourceWell = pw;
 			this.idPlateWell = pw.@idPlateWell != null ? pw.@idPlateWell : 0;
 			this.idRequest = pw.@idRequest != null ? pw.@idRequest : 0;
+			this.requestNumber = pw.@requestNumber != null ? pw.@requestNumber : '';
 			if ( pw.@groupId != null && pw.@groupId != '' ) {
 				this.groupId = pw.@groupId;
 			} else {
-				this.groupId = idRequest.toString();
+				this.groupId = requestNumber;
 			}
 			this.codeReactionType = pw.@codeReactionType != null ? pw.@codeReactionType : '' ;
 			this.idSample = pw.@idSample != null ? pw.@idSample : 0;
@@ -189,7 +192,7 @@ package views.renderers {
 				}
 				
 				str += '\rSample: ' + sampleName;
-				str += '\rRequest #: ' + groupId;
+				str += '\rOrder #: ' + groupId;
 				
 			} else if ( plateView != null ) {
 				if ( plateView.currentState.substr(0, 4) != 'view' && plateView.buildState != 'RUN' ) {

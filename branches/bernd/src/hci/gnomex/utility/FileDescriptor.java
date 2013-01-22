@@ -41,8 +41,6 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private String    absolutePath;
   private String    simpleName;
   private List      children = new ArrayList();
-  private Date      createDate;
-  private Boolean   createDateLoaded = false;
   
   private boolean   found = false;
   
@@ -271,34 +269,6 @@ public class FileDescriptor extends DetailObject implements Serializable {
   
   public boolean isFound() {
     return this.found;
-  }
-
-  // Change this to public to allow getting of create date.  Private now because it is an expensive operation.
-  private Date getCreateDate() {
-    if (!createDateLoaded) {
-      loadCreateDate();
-    }
-    return createDate;
-  }
-
-  private void loadCreateDate() {
-    try {
-      this.createDateLoaded = true;
-      // Create date can only be obtained for windows OS.
-      if (System.getProperty("os.name").startsWith("Windows")) {
-        Runtime systemShell = Runtime.getRuntime();
-        Process output = systemShell.exec(String.format("cmd /c dir /Q /R /TC %s ", this.absolutePath));
-        BufferedReader reader = new BufferedReader(new InputStreamReader(output.getInputStream()));
-        String outputLine = null;
-        while ((outputLine = reader.readLine()) != null) {
-          if (outputLine.contains(simpleName)) {
-            this.createDate = FORMATTER.parse(outputLine.substring(0, 17));
-          }
-        }
-      }
-    } catch(IOException e) {
-    } catch(ParseException e) {
-    }
   }
 
   public void registerMethodsToExcludeFromXML() {

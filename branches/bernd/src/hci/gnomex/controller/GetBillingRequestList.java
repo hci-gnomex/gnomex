@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
@@ -285,6 +286,122 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       
       prevCodeBillingStatus = codeBillingStatus;
     }
+
+    
+    
+    
+    buf = billingItemFilter.getBillingDiskUsageQuery();
+    log.info("Query: " + buf.toString());
+    List billingItemDiskUsage = (List)sess.createQuery(buf.toString()).list();
+    prevCodeBillingStatus = "NEW";
+    // 
+    // Query all disk usage rows with billing items.  Determine status by looking
+    // at all of billing items for disk usage (should only be one but...)  
+    // Hash nodes for lab/billing account, status.
+    //
+    for(Iterator i = billingItemDiskUsage.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      String codeBillingStatus    = (String)row[0]  == null ? ""  : (String)row[0];
+      Integer idDiskUsage         = (Integer)row[1];
+      Integer idLab               = (Integer)row[2];
+      String labLastName          = (String)row[3]  == null ? ""  : (String)row[3];
+      String labFirstName         = (String)row[4]  == null ? ""  : (String)row[4];
+      java.util.Date asOfDate     = (java.util.Date)row[5];
+      BillingAccount billingAcct  = (BillingAccount)row[6];
+      String labIsExternalPricing = (String)row[7];
+      String labIsExternalPricingCommercial = (String)row[8];
+      Integer idInvoice           = (Integer)row[9];
+      String contactEmail         = (String)row[10];
+      
+      String labName = Lab.formatLabName(labLastName, labFirstName);
+  
+      
+      String toolTip = "Disk Usage Charge for " + labName;
+      
+      String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
+      String requestNumberBilled = "DiskUsage" + idDiskUsage.toString() + labBillingName;
+      
+      if (asOfDate != null) {
+        toolTip += "\ncomputed as of " + this.formatDate(asOfDate, this.DATE_OUTPUT_DASH_SHORT);
+      }
+      
+      List statusList = (List)requestToStatusMap.get(requestNumberBilled);
+      if (statusList == null) {
+        statusList = new ArrayList<String>();
+        requestToStatusMap.put(requestNumberBilled, statusList);
+      }
+      statusList.add(codeBillingStatus);
+      
+      Map labNodeMap = (Map)statusToLabNodeMap.get(codeBillingStatus);
+      if (labNodeMap == null) {
+        labNodeMap = new TreeMap();
+        statusToLabNodeMap.put(codeBillingStatus, labNodeMap);
+      }
+      Element labNode = (Element)labNodeMap.get(labBillingName);
+      if (labNode == null) {
+        labNode = new Element("Lab");
+        labNode.setAttribute("label", labBillingName);
+        labNode.setAttribute("dataTip", labBillingName);
+        labNode.setAttribute("idLab", idLab != null ? idLab.toString() : "");
+        labNode.setAttribute("name", labName);
+        labNode.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
+        labNode.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
+        labNode.setAttribute("contactEmail", contactEmail != null ? contactEmail : "");
+        if (idInvoice != null) {
+          labNode.setAttribute("idInvoice", idInvoice.toString());
+        }
+        labNodeMap.put(labBillingName, labNode);
+      }
+      
+      if (!prevCodeBillingStatus.equals(codeBillingStatus)) {
+        if (!statusNodeMap.containsKey(codeBillingStatus)) {
+          statusNode = new Element("Status");
+          statusNode.setAttribute("label",  dh.getBillingStatus(codeBillingStatus));
+          statusNode.setAttribute("status", codeBillingStatus);
+          statusNodeMap.put(codeBillingStatus, statusNode);
+        } else {
+          statusNode = (Element)statusNodeMap.get(codeBillingStatus);
+        }
+      }
+      
+      Element node = new Element("Request");
+      node.setAttribute("idRequest", idDiskUsage.toString());
+      node.setAttribute("label", "Disk Usage");        
+      node.setAttribute("requestNumber", "Disk Usage");        
+      node.setAttribute("toolTip", toolTip);
+      node.setAttribute("codeRequestCategory", DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY);
+      node.setAttribute("icon", DiskUsageByMonth.DISK_USAGE_ICON);
+      node.setAttribute("type", "Disk Usage");
+      node.setAttribute("submitter", "");
+      node.setAttribute("labBillingName", labBillingName);
+      node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
+      node.setAttribute("labName", labName != null ? labName : "");
+      node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
+      node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
+      node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+      node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+      if (idInvoice != null) {
+        node.setAttribute("idInvoice", idInvoice.toString());
+      }
+      
+      // There can be multiple requests nodes for a given request number when
+      // the request's billing items are split among multiple billing 
+      // accounts.  This should never happen for disk usage, but keeping the code anyway.
+      TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
+      if (requestNodes == null) {
+        requestNodes = new TreeMap();
+        requestNodeMap.put(requestNumberBilled, requestNodes);
+      }
+      requestNodes.put(requestNumberBilled, node);
+      
+      
+      
+      prevCodeBillingStatus = codeBillingStatus;
+    }
+
+    
+    
     
     //
     //  Determine request status.

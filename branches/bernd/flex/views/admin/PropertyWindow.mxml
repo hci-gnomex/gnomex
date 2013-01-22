@@ -133,10 +133,7 @@
 		
 		private function init():void {
 			getPropertyList.send();
-			parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
-				onPropertyRefreshed);		                                  
-			parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
-				onPropertyRefreshed);
+			addEventListener(PropertyEvent.DATA_REFRESHED, onPropertyRefreshed);
 			
 			// We use this technique xml.copy() to prevent duplication of applications 
 			// that somehow happens when we add services, then submit request or vice versa
@@ -188,7 +185,7 @@
 			
 		private function reselectProperty():void {
 			var found:Boolean = false;
-			if (idProperty != null) {
+			if (idProperty != null && idProperty != "") {
 				for each(var sc:Object in properties) {
 					if (sc.@idProperty == idProperty) {
 						propertyList.selectedItem = sc;
@@ -225,6 +222,7 @@
 		
 		private function autoScroll(event:AdvancedDataGridEvent):void{
 			var selectedAnnot:XML= XML(event.item);
+			idProperty = selectedAnnot.@idProperty;
 			var index: int = 0;
 			for each(var a:XML in properties){
 				if(a == selectedAnnot){
@@ -238,6 +236,8 @@
 			else{
 				propertyList.verticalScrollPosition = index;
 			}
+			
+			reselectProperty();
 		}
 		
 		private function setOwnerCombo():void {
@@ -370,6 +370,17 @@
 			params.forSample =  "Y";
 			params.forAnalysis = "N";
 			params.forDataTrack = "N";
+			
+			if(radioButtonGroupTarget.selectedValue == "analysis"){
+				params.forAnalysis = "Y";
+			}
+			else if(radioButtonGroupTarget.selectedValue == "samples"){
+				params.forSample = "Y";
+			}
+			else if(radioButtonGroupTarget.selectedValue == "dataTracks"){
+				params.forDataTrack = "Y";
+			}
+			
 			if (parentApplication.hasPermission("canWriteDictionaries")) {
 				params.idAppUser = '';			
 			} else {
@@ -518,6 +529,7 @@
 				parentApplication.getPropertyList.send();
 				dispatchEvent(new Event("updateProperties"));
 				getPropertyList.send();
+				this.reselectProperty();
 			} else {
 				Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -651,7 +663,7 @@
   <mx:VBox height="100%" width="410">
 		<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelField="@name" 
 				 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
-				 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll()}" itemOpen="{autoScroll(event)}"
+				 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
 				 iconFunction="getTreeIcon">
 			<mx:dataProvider> 
 				<mx:HierarchicalData source="{properties}"/>
