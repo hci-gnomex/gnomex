@@ -449,12 +449,11 @@
 				// url
 				var urlIdx:int = 0;
 				for each (var propertyValue:XML in  property..PropertyEntryValue) {
-					var url:String = this.urlText[i][urlIdx].text;
-					var alias:String = this.aliasText[i][urlIdx].text;
-					
-					if (url == 'Enter URL here...' || url == '') {
+					if(propertyValue.@url == 'Enter URL here...' || url == ''){
 						continue;
 					}
+					var url:String = this.urlText[i][urlIdx].text;
+					var alias:String = this.aliasText[i][urlIdx].text;
 					
 					var pv:String = url;
 					if (alias != null && alias != 'Enter alias here...') {
