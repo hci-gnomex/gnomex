@@ -304,7 +304,7 @@
 				} 
 				
 				var folder:XML = new XML("<RequestDownload isNew='Y' " +
-					"key='X-X-X-" + folderName + "' " +
+					"key='X\tX\tX\t" + folderName + "' " +
 					"itemNumber='" + folderName + "' " +
 					"type='dir'" +
 					"isEmpty='Y'" +
