@@ -556,7 +556,9 @@ public class SequenceLane extends HibernateDetailObject {
         // created on the same date that the request was submitted.
         // When lanes are added at a later date, we will just group
         // according to the sequence tags.
-        key =  lane.getIdSeqRunType()  + "-" + lane.getIdNumberSequencingCycles() + "-" + lane.getSample().getMultiplexGroupNumber().toString();   
+        Integer multiPlus = lane.getSample().getMultiplexGroupNumber() + 1000;
+        String multiString = multiPlus.toString().substring(1);
+        key =  lane.getIdSeqRunType()  + "-" + lane.getIdNumberSequencingCycles() + "-" + multiString;   
         if (lane.getCreateDate() == null || requestCreateDate == null || lane.getCreateDate().equals(requestCreateDate)) {
           key =  "1-" + key;                
         } else {

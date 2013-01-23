@@ -58,6 +58,8 @@
 		private var downloadRequest:URLRequest; 
 		private var downloadFileRef:FileReference; 
 
+		public  var multiplexGroupNumberImported:Boolean = false;
+		
 		public function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
@@ -97,7 +99,7 @@
 					}
 				}
 			}
-			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList);
+			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.showSampleMultiplexGroup());
 		}
 		
 		private function downloadSampleSheetExample(fileName:String):void {
@@ -681,6 +683,7 @@
             if (event.detail==Alert.YES) {
 				parentDocument.samples.removeAll();
             	parentDocument.lanes.removeAll();
+				setMultiplexGroupNumberImported(false);
 				if (hasPlates()) {
 					fillPlates(); // Set up the plates as defined in sample setup
 				} else {
@@ -691,6 +694,12 @@
             }
         }		
         
+		public function setMultiplexGroupNumberImported(val:Boolean):void {
+			this.multiplexGroupNumberImported = val;
+			this.addSampleButton.enabled = !val;
+			this.copySampleButton.enabled = !val;
+		}
+		
         public function checkSamplesCompleteness():void {
           	parentDocument.userWarningsSamples = "";
           	
@@ -1055,8 +1064,13 @@
         }
 		
 		private function addSequencingLaneForSample(sample:Object):void {
+			var lanePlus:int = parentDocument.lanes.length + 100000;
+			if (this.multiplexGroupNumberImported) {
+				lanePlus = parseInt(sample.@multiplexGroupNumber) + 100000;
+			}
+			var laneStr:String = lanePlus.toString().substr(1);
 			var emptyNode:XML = new XML("<SequenceLane " +
-			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
+			    " idSequenceLane='" + "SequenceLane" + laneStr + "'" +
 			    " notes='' " + 
 				" idSeqRunType='" + sample.@idSeqRunType + "'" +
 				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
@@ -1125,7 +1139,7 @@
 					barcodeList = new XMLList(barcodes.toXMLString());
 				}
 
-				parentDocument.seqSetup1View.propagateBarcode();
+				propagateBarcode();
 			}
 			
 			setSamplesGridDataProvider();
@@ -1145,6 +1159,12 @@
 
 		}
 
+		public function propagateBarcode():void {
+			if (!multiplexGroupNumberImported) {
+				parentDocument.seqSetup1View.propagateBarcode();
+			}
+		}
+		
 		private function setSamplesGridDataProvider():void {
 			if (hasPlates()) {
 				this.samplesGrid.dataProvider = null;
@@ -1402,10 +1422,16 @@
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
 				this.copySampleButton.visible = false;
+				this.addSampleButton.enabled = false;
+				this.deleteSampleButton.enabled = false;
+				this.copySampleButton.enabled = false;
 			} else {
 				this.addSampleButton.visible = true;
 				this.deleteSampleButton.visible = true;
 				this.copySampleButton.visible = true;
+				this.addSampleButton.enabled = true;
+				this.deleteSampleButton.enabled = true;
+				this.copySampleButton.enabled = true;
 			}
 			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
@@ -1793,7 +1819,7 @@
 					<mx:LinkButton textDecoration="underline" id="downloadExamplePlateButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:LinkButton textDecoration="underline" id="downloadExampleTubeButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:LinkButton textDecoration="underline" id="downloadExampleButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+					<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
@@ -1816,7 +1842,7 @@
 				displayItemsExpanded="true"  
 				selectionColor="#DDF3FB">
 				<mx:columns>
-					<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
+					<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
 											   width="60">
 						<mx:headerRenderer>
 							<mx:Component>
@@ -1999,7 +2025,7 @@
 											   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 											   editorDataField="value"/> 
 					
-					<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" editable="true" visible="true"
+					<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumber" editable="true" visible="true"
 						width="54">
 						<mx:headerRenderer>
 							<mx:Component>
@@ -2010,11 +2036,11 @@
 							</mx:Component> 
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
-	                <mx:AdvancedDataGridColumn id="barcodeColumn" visible="true" headerText="Index Tag" width="130" dataField="@idOligoBarcode" 
+	                <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColumn" visible="true" headerText="Index Tag" width="130" dataField="@idOligoBarcode" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(barcodeList, '@display', '@value', '@idOligoBarcode', true)}"/>
-	                <mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Custom Index Tag" dataField="@barcodeSequence" editable="true" visible="true"
+	                <mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="true" visible="true"
 						width="80"
  	                    itemRenderer="views.renderers.LabelBarcodeSequence"               
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
