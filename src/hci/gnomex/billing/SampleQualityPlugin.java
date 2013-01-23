@@ -31,9 +31,6 @@ import org.hibernate.Session;
 
 public class SampleQualityPlugin implements BillingPlugin {
 
-  private static final String           PICO_GREEN = "PICOGREEN";
-  private static final String           DNA_GEL    = "DNAGEL";
-
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
     
@@ -70,16 +67,16 @@ public class SampleQualityPlugin implements BillingPlugin {
       String filter1 = Application.BIOANALYZER_QC;
       String filter2 = null;
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      String application = null;
+      if (request.getCodeApplication() != null) {
+        application = dh.getApplication(request.getCodeApplication());
+      }
       
       if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-        if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.CHIP_SEQ_CATEGORY)) {
-          filter1 = Application.QUBIT_PICOGREEN_QC;
-        } else if (request.getCodeApplication() != null && request.getCodeApplication().indexOf("DNA") >= 0) {
-          filter1 = Application.DNA_GEL_QC;
-        } else if (request.getCodeApplication() != null && request.getCodeApplication().indexOf("RNA") >= 0) {
+        if (application != null && application.indexOf("RNA") >= 0) {
           filter2 = BioanalyzerChipType.RNA_NANO;
         } else  {
-          filter1 = Application.DNA_GEL_QC;
+          filter1 = Application.QUBIT_PICOGREEN_QC;
         } 
         
       } else if ((request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) &&
