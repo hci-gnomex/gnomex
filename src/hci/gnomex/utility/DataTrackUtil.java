@@ -170,7 +170,7 @@ public class DataTrackUtil {
 	
 	public static boolean isValidDataTrackFileType(String fileName) {		
 		boolean isValid = false;
-		for (int x=0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+		for (int x=0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {		
 			if (fileName.toUpperCase().endsWith(Constants.DATATRACK_FILE_EXTENSIONS[x].toUpperCase())) {
 				isValid = true;
 				break;
@@ -336,17 +336,18 @@ public class DataTrackUtil {
     boolean converting = false;
     ArrayList<File> filesAL = new ArrayList<File>();
     for (File f: files){
-      int index = f.getName().lastIndexOf(".");
-      if (index > 0) {
-        String ext = f.getName().substring(index);
-        //System.out.println("\nFile Extension "+ ext+" "+f.getName());
-        if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
-        else if (urlLinkFileExtensions.contains(ext))  filesAL.add(f);
+    	//find extension
+    	String fileName = f.getName();
+    	for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
+    		if (fileName.endsWith(ext)){
+    			if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
+    			else filesAL.add(f);
+    		}
+    	}
       }
-    }
 
     //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
-    if (filesAL.size()==0 && useq !=null && autoConvertUSeqArchives){
+    if (filesAL.size()==0 && useq !=null && autoConvertUSeqArchives){    	
       //this can consume alot of resources and take 1-10min
       USeq2UCSCBig c = new USeq2UCSCBig(ucscWig2BigWigExe, ucscBed2BigBedExe, useq);
       filesAL = c.fetchConvertedFileNames();
@@ -355,6 +356,8 @@ public class DataTrackUtil {
       //c.start(); //separate thread!
     }
 
+    
+    
     if (filesAL.size() !=0){
       File[] toReturn = new File[filesAL.size()];
       filesAL.toArray(toReturn);
@@ -366,7 +369,6 @@ public class DataTrackUtil {
       }
       return new UCSCLinkFiles (toReturn, converting, stranded);
     }
-
     //something bad happened.
     return null;
   }
@@ -389,16 +391,18 @@ public class DataTrackUtil {
     
     File useq = null;
     File bigFile = null;
-    
     ArrayList<File> filesAL = new ArrayList<File>();
     for (File f: files){
-      int index = f.getName().lastIndexOf(".");
-      if (index > 0) {
-        String ext = f.getName().substring(index);      
-        if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
-        else if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
-        filesAL.add(f);
-      }
+    	//find extension
+    	String fileName = f.getName();
+    	for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
+    		if (fileName.endsWith(ext)){
+    			if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
+    	        else if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
+    	        filesAL.add(f);
+    	        break;
+    		}
+    	}
     }
 
     //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
