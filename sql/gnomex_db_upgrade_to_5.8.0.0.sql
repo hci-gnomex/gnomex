@@ -48,6 +48,10 @@ alter table BillingItem add
     REFERENCES `gnomex`.`DiskUsageByMonth` (`idDiskUsageByMonth`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+-- New column for requestCategory
+alter table gnomex.RequestCategory add refrainFromAutoDelete char(1);
+update RequestCategory set refrainFromAutoDelete='Y';
     
 -- Add new column to GenomeBuild table and populate known fields
 
