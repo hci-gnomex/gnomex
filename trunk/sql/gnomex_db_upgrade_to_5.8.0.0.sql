@@ -72,3 +72,11 @@ UPDATE gnomex.GenomeBuild set IGVName='danRer5' WHERE idGenomeBuild = 7;
 UPDATE gnomex.GenomeBuild set IGVName='danRer6' WHERE idGenomeBuild = 6;
 UPDATE gnomex.GenomeBuild set IGVName='danRer7' WHERE idGenomeBuild = 12;
 
+
+ -- Create any missing root DataTrackFolders 
+insert into gnomex.DataTrackFolder (idGenomeBuild, name) 
+select idGenomeBuild, genomeBuildName 
+from GenomeBuild where idGenomeBuild not in 
+(select gb.idGenomeBuild from GenomeBuild gb
+join DataTrackFolder folder on folder.idGenomeBuild = gb.idGenomeBuild
+where folder.idParentDataTrackFolder is null);
