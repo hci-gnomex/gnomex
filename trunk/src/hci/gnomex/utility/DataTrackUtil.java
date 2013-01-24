@@ -338,13 +338,16 @@ public class DataTrackUtil {
     for (File f: files){
     	//find extension
     	String fileName = f.getName();
-    	for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
-    		if (fileName.endsWith(ext)){
-    			if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
-    			else filesAL.add(f);
-    		}
+    	if (fileName.endsWith(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) {
+    	  useq = f;
+    	} else {
+      	for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
+      		if (fileName.endsWith(ext)){
+      			filesAL.add(f);
+      		}
+      	}
     	}
-      }
+    }
 
     //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
     if (filesAL.size()==0 && useq !=null && autoConvertUSeqArchives){    	
