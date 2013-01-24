@@ -239,7 +239,15 @@
 			var keep:Boolean = true;
 			if(worklistFilterType.length > 0) {
 				keep = false;
-				if (item.@codeStepNext == worklistFilterType) {
+				if (worklistFilterType == 'MICROARRAY') {
+					if (item.@codeStepNext == 'QC' && item.@requestCategoryType != 'QC') {
+						keep = true;
+					}
+				} else if (worklistFilterType == 'QC') {
+					if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'QC') {
+						keep = true;
+					}
+				} else if (item.@codeStepNext == worklistFilterType) {
 					keep = true;
 				}				
 			}        	

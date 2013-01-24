@@ -302,6 +302,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
             n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
             n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
+            n.setAttribute("requestCategoryType",        row[28] == null ? "" :  (String)row[28]);
             Integer idSampleType                       = row[27] == null ? 0 : (Integer)row[27];
 
             String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
