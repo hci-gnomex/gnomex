@@ -4,7 +4,7 @@ Installing gnomex_$VERSION
 System Requirements
 --------------------
 - Java 6 (http://java.sun.com/)
-- Orion application server 2.0.2+ (http://www.orionserver.com/)
+- Orion application server 2.0.2+ (see install instructions below)
 - MySQL database server (http://mysql.com)
 - MySQL JDBC driver (http://mysql.com, download mysql-connector-java-5.1.7.zip)
 - Adobe Flash Player 10+ (http://get.adobe.com/flashplayer/)
@@ -26,7 +26,7 @@ Install Instructions
 2. Install Java, 1.6+. Make sure to set the JAVA_HOME environment variable.
 
 3. Install Orion application server 
-   a. Download Orion application server (http://www.orionserver.com/) and unzip
+   a. Download orion_2.0.2.zip from GNomEx SourceForge (http://sourceforge.net/projects/gnomex/files/orion2.0.2.zip/download) and unzip
 	 b. Modify Orion configuration
 	   - Copy the tools.jar file located in the Java SDK lib directory (/usr/java/latest/lib/tools.jar) to /path/to/orion 
 	   - Copy all jar files in /path/to/gnomex_$VERSION/orion/lib to /path/to/orion/lib
