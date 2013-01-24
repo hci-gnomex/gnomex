@@ -91,7 +91,7 @@
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{vbox1}"/>
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (super admin privileges)'}"/>
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (admin privileges)'}"/>
 			<mx:RemoveChild target="{label3}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{label3}"/>
 			<mx:RemoveChild target="{button4}"/>
@@ -299,6 +299,9 @@
 			<mx:SetProperty target="{vbox11}" name="width"/>
 
 		</mx:State>
+		<mx:State name="AdminSuperState" basedOn="AdminDNASeqState">
+			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (super admin privileges)'}"/>
+		</mx:State>
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
 			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + '   (billing admin privileges)'}"/>
 			<mx:RemoveChild target="{button1}"/>
@@ -346,6 +349,8 @@
 				} else if (parentApplication.isAdminState) {
 					if (parentApplication.isExternalDataSharingSite) {
 						currentState = "AdminESState";
+					} else if (parentApplication.isSuperAdmin) {
+						currentState = "AdminSuperState"
 					} else if (parentApplication.isCoreDNASeq) {
 						currentState = "AdminDNASeqState"
 					} else {
