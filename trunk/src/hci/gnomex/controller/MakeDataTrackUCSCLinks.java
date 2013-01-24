@@ -145,8 +145,13 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 
 			//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
 			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
+			if (link == null) {
+			  throw new Exception ("No files to link?!");
+			}
 			File[] filesToLink = link.getFilesToLink();
-			if (filesToLink== null)  throw new Exception ("No files to link?!");
+			if (filesToLink == null) {
+			  throw new Exception ("No files to link?!");
+			}
 
 			// When new .bw/.bb files are created, add analysis files and then link via data
 			// track file to the data track.
