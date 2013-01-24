@@ -345,7 +345,6 @@
 			output="${build.dir}/${flexapp.name}.swf">
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 	        <source-path path-element="${FLEX_HOME}/frameworks"/>
-      		<source-path path-element="${hciflex.dir}"/>
 			<compiler.debug>true</compiler.debug>			
 		</mxmlc>
 		<html-wrapper 
