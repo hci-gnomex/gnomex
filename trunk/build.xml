@@ -844,7 +844,7 @@
 	<!-- build opensource tomcat                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-build-opensource-tomcat" depends="init, -prebuild-opensource">
+	<target name="build-opensource-tomcat" depends="init, -prebuild-opensource">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+   build opensource (tomcat)                           +</echo>
@@ -982,7 +982,7 @@
 		</subant>
 		
 		<!-- build tomcat web app -->
-		<subant target="-build-opensource-tomcat">
+		<subant target="build-opensource-tomcat">
 			   <property name="basedir" value="${basedir}"/>
 			   <property name="dist.dir" value="${dist.dir}"/>
 			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>

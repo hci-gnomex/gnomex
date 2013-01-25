@@ -112,7 +112,7 @@
 	<servlet>
 		<servlet-name>FastDataTransferDownloadDataTrackServlet</servlet-name>
 		<servlet-class>
-			hci.gnomex.controller.FastDataTransferDownloadDownloadServlet
+			hci.gnomex.controller.FastDataTransferDownloadDataTrackServlet
 		</servlet-class>
 	</servlet>
 	
@@ -284,17 +284,12 @@
 	
 	<servlet-mapping>
 		<servlet-name>DownloadResultsServlet</servlet-name>
-		<url-pattern>DownloadResultsServlet.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>/DownloadResultsServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>DownloadChromatogramServlet</servlet-name>
-		<url-pattern>/DownloadChromatogramServlet.gx</url-pattern>
+		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
+		<url-pattern>/DownloadChromatogramFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
   <servlet-mapping>
@@ -566,17 +561,12 @@
 		</form-login-config>
 	</login-config>
 
-
-
-
-
-
-
-
 	<security-role>
 		<role-name>GNomExUser</role-name>
 	</security-role>
+	
 
+  
   <resource-ref>
     <description>Mail Server</description>
     <res-ref-name>mail/MailSession</res-ref-name>
