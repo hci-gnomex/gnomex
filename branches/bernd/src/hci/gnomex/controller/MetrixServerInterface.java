@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.control.Command;
@@ -43,32 +44,37 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
   
 private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MetrixServerInterface.class);
   
-  //private MetrixInterfaceFilter filter;
-  
-  
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     //filter = new MetrixInterfaceFilter();
-    
     //HashMap errors = this.loadDetailObject(request, filter);
     //this.addInvalidFields(errors);
   }
 
   public Command execute() throws RollBackCommandException {
-	String srvResp = "";
-    
+	String srvResp = "<SummaryCollection />";
+	
 	try {
     	
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         
     	try{
 	        SocketChannel sChannel = SocketChannel.open();
 	        sChannel.configureBlocking(true);
-	        if (sChannel.connect(new InetSocketAddress("forge", 12332))) {
+	        String host = dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_HOST);
+	        int port = Integer.parseInt(dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_PORT));
+
+	        if(host == "" || dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_PORT) == ""){
+	        	this.addInvalidField("Invalid configuration.", "Invalid configuration details for MetrixServer. Please check the dictionary properties.");
+	            setResponsePage(this.ERROR_JSP);
+	        }
+	        
+	        if(sChannel.connect(new InetSocketAddress(host, port))){
 
                 // Create OutputStream for sending objects.
                 ObjectOutputStream oos = new ObjectOutputStream(sChannel.socket().getOutputStream());
@@ -81,7 +87,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 				
 				// Set a value for command
 				sendCommand.setCommandString("XML");
-				sendCommand.setCommandDetail("1"); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) 
+				sendCommand.setCommandDetail("12"); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
 				sendCommand.setCommand("FETCH");
 				oos.writeObject(sendCommand);
 				oos.flush();
@@ -90,7 +96,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 
 				Object serverAnswer = new Object();
 				serverAnswer = ois.readObject();
-//				while(( serverAnswer = ois.readObject()) != null){
+
 				while(listen){
 					if(serverAnswer instanceof Command){	// Answer is a Command with info message.
 						nki.objects.Command commandIn = (nki.objects.Command) serverAnswer;
@@ -106,20 +112,16 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 					if(serverAnswer instanceof SummaryCollection){
 						SummaryCollection sc = (SummaryCollection) serverAnswer;
 						//metrixLogger.log(Level.INFO, "[CLIENT] The server answered with a SummaryCollection.");
-						System.out.println();
 						ListIterator litr = sc.getSummaryIterator();
 
-						int count = 1;
 						while(litr.hasNext()){
 							Summary sum = (Summary) litr.next();
-
-							count++;
 						}
 					}
 
-					if(serverAnswer instanceof String){
+					if(serverAnswer instanceof String){ 			// Server returned a XML String with results.
 						srvResp = (String) serverAnswer;
-						//System.out.println("Response from METRIX SERVER: " + srvResp);
+						log.info("Server replied with XML");
 						listen = false;
 					}
 				}
@@ -139,8 +141,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
         SAXBuilder builder = new SAXBuilder();
         Document doc = new Document();
         
-//      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    	try{
+        try{
     		doc = builder.build(new StringReader(srvResp));  		
     	}catch(JDOMException JEx){
     		System.out.println("Error in SAXBuilder " + JEx);
@@ -180,6 +181,4 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
     
     return this;
   }
-  
-     
 }
