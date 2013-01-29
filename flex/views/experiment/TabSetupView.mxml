@@ -1036,7 +1036,7 @@
 				<mx:Text  width="200"  id="text1">
 					<mx:htmlText>(3) Select an account to be billed.</mx:htmlText>
 				</mx:Text>
-				<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="450">
+				<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
 					<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1">
 						<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1" close="checkSetupCompleteness()">
 							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
@@ -1052,8 +1052,8 @@
 						</mx:LinkButton>
 					</mx:HBox>
 				</mx:VBox>
-				<mx:Text width="100%" id="billingAccountWarningText">
-					<mx:htmlText>You must choose lab, user and service &lt;br&gt; before billing accounts are available.</mx:htmlText>
+				<mx:Text width="100%" id="billingAccountWarningText" styleName="submitNote">
+					<mx:htmlText>&lt;b&gt;&lt;i&gt;You must choose lab, user and service &lt;br&gt; before billing accounts are available.&lt;/i&gt;&lt;/b&gt;</mx:htmlText>
 				</mx:Text>
 				
 			</mx:HBox>
