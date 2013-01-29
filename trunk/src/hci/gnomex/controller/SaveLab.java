@@ -227,10 +227,10 @@ public class SaveLab extends GNomExCommand implements Serializable {
         buf.append(" AND idLab != :idLab"); // + labScreen.getIdLab().toString());
       }
       Query labsQuery = sess.createQuery(buf.toString());
-      if (labScreen.getLastName() != null) {
+      if (labScreen.getLastName() != null && !labScreen.getLastName().trim().equals("")) {
         labsQuery.setParameter("lastName", labScreen.getLastName().toUpperCase());
       }
-      if (labScreen.getFirstName() != null) {
+      if (labScreen.getFirstName() != null && !labScreen.getFirstName().trim().equals("")) {
         labsQuery.setParameter("firstName", labScreen.getFirstName().toUpperCase());
       }
       if (!isNewLab) {
