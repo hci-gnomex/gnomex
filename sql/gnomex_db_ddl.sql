@@ -891,6 +891,7 @@ CREATE TABLE `gnomex`.`GenomeBuild` (
   `coordTestRange` varchar(100)  NULL,
   `coordAuthority` varchar(50)  NULL,
   `ucscName` varchar(100)  NULL,
+  `igvName` varchar(50) NULL,
   `dataPath` varchar(500)  NULL,
   PRIMARY KEY (`idGenomeBuild`),
   UNIQUE KEY `Index_GenomeBuildDas2Name` (`das2Name`),
