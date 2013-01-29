@@ -214,19 +214,29 @@ public class SaveLab extends GNomExCommand implements Serializable {
       buf.append("from Lab ");
       if (labScreen.getLastName() != null && !labScreen.getLastName().trim().equals("")) {
         buf.append(whereAdded ? " AND " : " WHERE" );
-        buf.append(" upper(lastName) = '" +  labScreen.getLastName().toUpperCase()+ "'");
+        buf.append(" upper(lastName) = :lastName"); //'" +  labScreen.getLastName().toUpperCase()+ "'");
         whereAdded = true;
       }
       if (labScreen.getFirstName() != null && !labScreen.getFirstName().trim().equals("")) {
         buf.append(whereAdded ? " AND " : " WHERE" );
-        buf.append(" upper(firstName) = '" +  labScreen.getFirstName().toUpperCase()+ "'");
+        buf.append(" upper(firstName) = :firstName"); //'" +  labScreen.getFirstName().toUpperCase()+ "'");
         whereAdded = true;
       }
       // If this is an existing lab, check for duplicate lab name, excluding this lab.
       if (!isNewLab) {
-        buf.append(" AND idLab != " + labScreen.getIdLab().toString());
+        buf.append(" AND idLab != :idLab"); // + labScreen.getIdLab().toString());
       }
-      List labs = sess.createQuery(buf.toString()).list();
+      Query labsQuery = sess.createQuery(buf.toString());
+      if (labScreen.getLastName() != null) {
+        labsQuery.setParameter("lastName", labScreen.getLastName().toUpperCase());
+      }
+      if (labScreen.getFirstName() != null) {
+        labsQuery.setParameter("firstName", labScreen.getFirstName().toUpperCase());
+      }
+      if (!isNewLab) {
+        labsQuery.setParameter("idLab", labScreen.getIdLab());
+      }
+      List labs = labsQuery.list();
       
       // If there are duplicate labs, throw an error.
       if (labs.size() > 0) {
