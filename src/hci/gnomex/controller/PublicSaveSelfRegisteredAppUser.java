@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -441,15 +442,23 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
 
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT a.uNID from AppUser as a where a.firstName = '"); 
-    buf.append(appUser.getFirstName()).append("'");
-    buf.append(" and a.lastName = '").append(appUser.getLastName()).append("'");
-    buf.append(" and a.email = '").append(appUser.getEmail()).append("'");
+    buf.append("SELECT a.uNID from AppUser as a where a.firstName = :firstName"); 
+    buf.append(" and a.lastName = :lastName");
+    buf.append(" and a.email = :email");
     if (appUser.getIdAppUser() != null) {
-      buf.append(" AND a.idAppUser != " + appUser.getIdAppUser());
+      buf.append(" AND a.idAppUser != :idAppUser");
     }
     
-    List users = sess.createQuery(buf.toString()).list();
+    Query usersQuery = sess.createQuery(buf.toString());
+    
+    usersQuery.setParameter("firstName", appUser.getFirstName());
+    usersQuery.setParameter("lastName", appUser.getLastName());
+    usersQuery.setParameter("email", appUser.getEmail());
+    if (appUser.getIdAppUser() != null) {
+      usersQuery.setParameter("idAppUser", appUser.getIdAppUser());
+    }
+    
+    List users = usersQuery.list();
     return users.size() > 0;
   }
 }
