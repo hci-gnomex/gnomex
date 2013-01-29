@@ -165,7 +165,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             String labLastName = (String)row[RequestSampleFilter.COL_LAB_LAST_NAME];
             String labFirstName = (String)row[RequestSampleFilter.COL_LAB_FIRST_NAME];
             String submitterLastName = (String)row[RequestSampleFilter.COL_SUBMITTER_LAST_NAME];
-            String submitterFirstName = (String)row[RequestSampleFilter.COL_SUBMITTER_LAST_NAME];
+            String submitterFirstName = (String)row[RequestSampleFilter.COL_SUBMITTER_FIRST_NAME];
             Integer idRequest = (Integer)row[RequestSampleFilter.COL_ID_REQUEST];
             String requestNumber = (String)row[RequestSampleFilter.COL_REQUEST_NUMBER];
             String sampleNumber = (String)row[RequestSampleFilter.COL_SAMPLE_NUMBER];
@@ -189,7 +189,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             String labLastName = (String)row[AnalysisGroupFilter.COL_LAB_LAST_NAME];
             String labFirstName = (String)row[AnalysisGroupFilter.COL_LAB_FIRST_NAME];
             String ownerLastName = (String)row[AnalysisGroupFilter.COL_OWNER_LAST_NAME];
-            String ownerFirstName = (String)row[AnalysisGroupFilter.COL_OWNER_LAST_NAME];
+            String ownerFirstName = (String)row[AnalysisGroupFilter.COL_OWNER_FIRST_NAME];
             String analysisNumber = (String)row[AnalysisGroupFilter.COL_ANALYSIS_NUMBER];
             String analysisName = (String)row[AnalysisGroupFilter.COL_ANALYSIS_NAME];
             Integer idOrganism = (Integer)row[AnalysisGroupFilter.COL_ID_ORGANISM];
