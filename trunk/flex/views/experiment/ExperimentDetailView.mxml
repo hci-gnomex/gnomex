@@ -126,19 +126,27 @@
 				}					
 			}
 			
+			var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 			if(selectedExperiment.@captureLibDesignId != ""){
 				libDesignAndInsertBox.visible = true;
+				libDesignAndInsertBox.includeInLayout = true;
 				designAndInsertLabel.text = "Cap Lib Design";
 				designAndInsertText.text = selectedExperiment.@captureLibDesignId;
 			}
-			else if(selectedExperiment.@avgInsertSizeFrom != ""){
+			else if(requestApplication != null && requestApplication.@value != '' && requestApplication.@avgInsertSizeFrom != '' && selectedExperiment.@isExternal == 'N'){
 				libDesignAndInsertBox.visible = true;
+				libDesignAndInsertBox.includeInLayout = true;
 				designAndInsertLabel.text = "Avg Insert Size";
-				designAndInsertText.text = selectedExperiment.@avgInsertSizeFrom + " to " + selectedExperiment.@avgInsertSizeTo + " bp";
+				if (selectedExperiment.@avgInsertSizeFrom != '') {
+					designAndInsertText.text = selectedExperiment.@avgInsertSizeFrom + " to " + selectedExperiment.@avgInsertSizeTo + " bp";
+				} else {
+					designAndInsertText.text = "None Specified";
+				}
 
 			}
 			else{
 				libDesignAndInsertBox.visible = false;
+				libDesignAndInsertBox.includeInLayout = false;
 			}
 				
 			if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
@@ -1147,7 +1155,7 @@
 							<mx:Label width="100" text="Completed" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="400" />
 						</mx:HBox>
-						<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="{selectedExperiment.@captureLibDesignId != '' || selectedExperiment.@avgInsertSizeFrom != ''}">					
+						<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false">					
 							<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 								<mx:Text id="designAndInsertLabel" width="100" />
 								<mx:TextInput editable="false" backgroundColor="#FFFFFF" id="designAndInsertText" width="400" />
