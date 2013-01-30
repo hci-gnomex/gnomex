@@ -558,7 +558,7 @@
 						<mx:series>
 							<mx:PieSeries 
 								field="@diskSpaceGB" labelField="@labelFull"
-								nameField="@label" labelPosition="inside"
+								nameField="@label" labelPosition="callout"
 								/>
 						</mx:series>
 					</mx:PieChart>
