@@ -51,6 +51,7 @@
 	<mx:NumberFormatter id="numberFormatter"/>
 	
 	<mx:Script><![CDATA[
+		import mx.charts.HitData;
 		import mx.charts.events.ChartItemEvent;
 		import mx.collections.ArrayCollection;
 		import mx.collections.XMLListCollection;
@@ -77,6 +78,7 @@
 		private function init():void {
 			checkSecurity();
 			
+			coreFacilities = new XMLListCollection;
 			coreFacilities.addItem(new XML("<DictionaryEntry display='' idCoreFacility=''/>"));
 			coreFacilities.addAll(new XMLListCollection(parentApplication.myCoreFacilities));
 			
@@ -90,6 +92,11 @@
 				linkbutton3.enabled = false;
 				linkbutton4.enabled = false;
 				linkbutton5.enabled = false;
+			}
+			
+			if(parentApplication.showUsageOnStartup){
+				theTab.selectedChild = this.filesTab;
+				this.daysSinceButton.selected = true;
 			}
 		}
 
@@ -137,7 +144,21 @@
 		}
 		
 		private function showActivityByWeekDataTip(hitItem:mx.charts.HitData):String {
-			return hitItem.item.@dataTip;
+			if(hitItem.contextColor == 10861646){//context color green
+				return hitItem.item.@dataTip + '\n' + hitItem.item.@downloadCount;
+			}
+			else {//context color orange
+				return hitItem.item.@dataTip + '\n' + hitItem.item.@uploadCount;
+			}
+		}
+		
+		private function showAnalysisCountByWeekDataTip(hitItem:mx.charts.HitData):String {
+			if(analysisCount.visible){
+				return hitItem.item.@dataTip + '\n' + hitItem.item.@analysisCount;
+			}
+			else{
+				return hitItem.item.@dataTip + '\n' + hitItem.item.@experimentCount;
+			}
 		}
 		private function printChart():void
 		{
@@ -230,29 +251,29 @@
 								 id="coreFacilityCombo"/>
 					
 					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label1"/>
-					<mx:LinkButton label="Experiments"            click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton1"/>
+					<mx:LinkButton label="Experiments" textDecoration="underline" click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton1"/>
 					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label2"/>
-					<mx:LinkButton label="Experiments by Type" click="{chartStack.selectedChild = experimentsByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton2"/>
-					<mx:LinkButton label="Next Gen Experiments by Application" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton3"/>
-					<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton4"/>
-					<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton5"/>
+					<mx:LinkButton label="Experiments by Type" textDecoration="underline" click="{chartStack.selectedChild = experimentsByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton2"/>
+					<mx:LinkButton label="Next Gen Experiments by Application" textDecoration="underline" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton3"/>
+					<mx:LinkButton label="Activity By Week" textDecoration="underline" click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton4"/>
+					<mx:LinkButton label="Disk Space By Year" textDecoration="underline" click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton5"/>
 				</mx:VBox>
 				<mx:VBox label="Analysis" id="analysisTab" height="100%" width="100%" color="#000000">
 					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4"/>
-					<mx:LinkButton label="Analysis"               click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
+					<mx:LinkButton label="Analysis" textDecoration="underline" click="{chartStack.selectedChild = analysisByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8"/>
 					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4"/>
-					<mx:LinkButton label="Analysis by Type" click="{chartStack.selectedChild = analysisByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8"/>
-					<mx:LinkButton label="Activity By Week"         click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2;}"  paddingLeft="8" />
-					<mx:LinkButton label="Disk Space By Year"         click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0; }"  paddingLeft="8"/>
+					<mx:LinkButton label="Analysis by Type" textDecoration="underline" click="{chartStack.selectedChild = analysisByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8"/>
+					<mx:LinkButton label="Activity By Week" textDecoration="underline" click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2;}"  paddingLeft="8" />
+					<mx:LinkButton label="Disk Space By Year" textDecoration="underline" click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0; }"  paddingLeft="8"/>
 				</mx:VBox>
 				<mx:VBox label="Files" id="filesTab" height="100%" width="100%" color="#000000">
 					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" />
-					<mx:LinkButton label="Days since last Upload" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}"  paddingLeft="8"/>
-					<mx:LinkButton label="Uploads"                click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1; }"  paddingLeft="8" />
-					<mx:LinkButton label="Downloads"              click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1; }"  paddingLeft="8" />
-					<mx:LinkButton label="Disk Space"             click="{chartStack.selectedChild = diskSpaceByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" />
+					<mx:LinkButton label="Days since last Upload" textDecoration="underline" click="{chartStack.selectedChild = daysSincePanel;buttonStack.selectedIndex = 1}" id="daysSinceButton"  paddingLeft="8"/>
+					<mx:LinkButton label="Uploads" textDecoration="underline" click="{chartStack.selectedChild = uploadsByLabPanel;buttonStack.selectedIndex = 1; }"  paddingLeft="8" />
+					<mx:LinkButton label="Downloads" textDecoration="underline" click="{chartStack.selectedChild = downloadsByLabPanel;buttonStack.selectedIndex = 1; }"  paddingLeft="8" />
+					<mx:LinkButton label="Disk Space" textDecoration="underline" click="{chartStack.selectedChild = diskSpaceByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" />
 					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" />
-					<mx:LinkButton label="Disk Space by Category" click="{chartStack.selectedChild = diskSpaceByTypePanel;buttonStack.selectedIndex = 0; }"  paddingLeft="8"/>
+					<mx:LinkButton label="Disk Space by Category" textDecoration="underline" click="{chartStack.selectedChild = diskSpaceByTypePanel;buttonStack.selectedIndex = 0; }"  paddingLeft="8"/>
 				</mx:VBox>
 			</mx:TabNavigator>
 		</mx:VBox> 
@@ -439,7 +460,7 @@
 					</mx:HBox>
 					<mx:LineChart  name="Activity by Week" id="activityByWeekChart" 
 								   dataProvider="{getUsageData.lastResult.SummaryActivityByWeek.Entry}" 
-								   showDataTips="true"  dataTipFunction="showActivityByWeekDataTip"
+								   showDataTips="true" dataTipFunction="showActivityByWeekDataTip"
 								   itemClick="onActivityByWeekClick(event)"
 								   width="100%" height="100%">
 						<mx:horizontalAxis>
@@ -450,10 +471,12 @@
 						</mx:horizontalAxis>
 						<mx:series> 
 							<mx:LineSeries  id="uploadCount"
+
 								yField="@uploadCount" 
 								displayName="# of Uploads"
 								/>
-							<mx:LineSeries  id="downloadCount" 
+							<mx:LineSeries  id="downloadCount"
+			
 								yField="@downloadCount" 
 								displayName="# of Downloads"
 								/>
@@ -470,7 +493,7 @@
 					</mx:HBox>
 					<mx:LineChart  name="Activity by Week" id="activityByWeekChart1" 
 								   dataProvider="{getUsageData.lastResult.SummaryActivityByWeek.Entry}" 
-								   showDataTips="true"  dataTipFunction="showActivityByWeekDataTip" 
+								   showDataTips="true" dataTipFunction="showAnalysisCountByWeekDataTip" 
 								    itemClick="onActivityByWeekClick(event)" 
 								   width="100%" height="100%">
 						<mx:horizontalAxis>
