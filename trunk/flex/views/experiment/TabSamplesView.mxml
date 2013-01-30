@@ -1398,6 +1398,7 @@
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
+			this.sampleOrganismColumn.visible = !isExternal;
 			this.preppedByCoreCol.visible = !isExternal;
 			this.otherSamplePrepMethodCol.visible = !isExternal;
 			this.seqLibProtocolCol.visible = !isExternal;
@@ -1459,7 +1460,6 @@
 				idSeqRunTypeCol.visible = !parentDocument.isEditState() && !isExternal; 
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
-				sampleOrganismColumn.visible = true;
 				sampleOrganismColumn.editable = !isExternal;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
@@ -1571,7 +1571,6 @@
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
-				sampleOrganismColumn.visible = true;
 				sampleOrganismColumn.editable = !isExternal;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = !parentDocument.isEditState();
@@ -1593,7 +1592,6 @@
 					}
 				}
 			}
-  						
         }
 		private function refreshHybsGrid():void {
  		    parentDocument.hybsView.hybsGrid.invalidateList();
