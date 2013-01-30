@@ -3215,7 +3215,6 @@
 				params.assaysXMLString = this.selectedAssaysCollection;
 			}
 			
-
 			saveExistingRequest.send(params);			
 			
 		}
@@ -3705,6 +3704,15 @@
 		        		break;
 		        	}
 		        }
+				
+				if (request.hasOwnProperty("@isExternal") && request.@isExternal == "Y") {
+					for each(var organism:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry) {
+						if (organism.@value == request.@idOrganism) {
+							this.sampleOrganismCombo.selectedItem = organism;
+							break;
+						}
+					}
+				}
 				
 				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 				appUsersForLab = new XMLListCollection(lab.members.AppUser);
@@ -4526,6 +4534,16 @@
 				return false;
 			}
 			
+			private function pickOrganism():void {
+				if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null) {
+					request.@idOrganism =  this.sampleOrganismCombo.selectedItem.@value;
+					request.@otherOrganism = this.otherOrganism != null && this.otherOrganism.text != null && sampleOrganismCombo.selectedItem.@display == 'Other' ? this.otherOrganism.text : "";
+				} else {
+					request.@idOrganism = "";
+					request.@otherOrganism = "";
+					this.otherOrganism.text = "";
+				}
+			} 
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
@@ -4898,9 +4916,18 @@
 					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="400"/>
 					 </mx:HBox>
 
-					<mx:HBox verticalGap="0" horizontalGap="0" width="500" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
-						<mx:Label text="Organism"  width="100" />
-						<mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@organismName}" width="400"  backgroundColor="#FFFFFF"/>
+					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
+						<mx:Text text="Organism" width="100" id="labelOrg"/>
+						<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							
+							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
+							<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
+						</mx:ComboBox>
+						<mx:Label text="Please specify" paddingLeft="6">
+							<mx:visible>{parentDocument.selectedExperiment.@isExternal == 'Y' &amp;&amp; sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
+						</mx:Label>
+						<mx:TextInput width="250" id="otherOrganism" maxChars="200" text="{request.@otherOrganism}" change="pickOrganism()">
+							<mx:visible>{parentDocument.selectedExperiment.@isExternal == 'Y' &amp;&amp; sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
+						</mx:TextInput>				
 					</mx:HBox>
 
 					<mx:HBox verticalGap="0" horizontalGap="0">

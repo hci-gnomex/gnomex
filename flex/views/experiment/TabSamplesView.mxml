@@ -1108,6 +1108,13 @@
 				}
 			}
 		}
+		
+		public function propagateOtherOrganism(otherOrganism:String):void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@otherOrganism = otherOrganism;
+			}
+		}
+
 		public function propagateSeqRunType(idSeqRunType:String):void {
 			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {

@@ -374,6 +374,11 @@
 					}
 				} 
 			}
+			
+			// externals never show organism column in sample
+			if (parentDocument.request.@isExternal == "Y") {
+				this.sampleOrganismConfirmColumn.visible = false;
+			}
 			otherOrganismCol.visible = sampleOrganismConfirmColumn.visible;
   						 
         }
