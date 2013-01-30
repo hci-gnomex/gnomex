@@ -462,12 +462,19 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           queryBuf.append(" ORDER BY rc.requestCategory ");
           summaryRows = sess.createQuery(queryBuf.toString()).list();
           BigDecimal experimentFileSize = (BigDecimal)sess.createQuery("SELECT sum(ef.fileSize) from Request r join r.files as ef where ef.fileSize is not NULL").uniqueResult();
-          diskSpaceMap.put("Experiment", experimentFileSize == null ? new BigDecimal(0) : experimentFileSize);
           mapDiskSpace(summaryRows, diskSpaceMap);
 
           // Now add the analysis disk space
+          queryBuf = new StringBuffer("SELECT at.analysisType, sum(af.fileSize) ");
+          queryBuf.append(" FROM Analysis a, AnalysisType at ");
+          queryBuf.append(" JOIN a.files as af ");
+          queryBuf.append(" WHERE a.idAnalysisType = at.idAnalysisType ");
+          queryBuf.append(" AND af.fileSize is not NULL ");
+          queryBuf.append(" GROUP BY at.analysisType ");
+          queryBuf.append(" ORDER BY at.analysisType ");
+          summaryRows = sess.createQuery(queryBuf.toString()).list();
           BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
-          diskSpaceMap.put("Analysis", analysisFileSize == null ? new BigDecimal(0) : analysisFileSize);
+          mapDiskSpace(summaryRows, diskSpaceMap);
           addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
 
           totalDiskSpace = experimentFileSize != null ? experimentFileSize.add(analysisFileSize != null ? analysisFileSize : new BigDecimal(0)) : new BigDecimal(0);
