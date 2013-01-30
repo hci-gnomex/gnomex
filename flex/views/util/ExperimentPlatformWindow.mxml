@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?> 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="830" height="484"  creationPolicy="all"
+				layout="vertical" width="900" height="540"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform" titleIcon="@Embed(source='../../assets/page_white_wrench.png')">
@@ -531,13 +531,13 @@
 	
 	<mx:VBox height="100%" width="100%" id="mainBody" verticalGap="2">
 		<mx:HBox width="100%"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" verticalAlign="middle" height="30">
-			<mx:LinkButton label="Add" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" textDecoration="underline" fontSize="11"/>
-			<mx:LinkButton label="Remove" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" textDecoration="underline" fontSize="11"/>
+			<mx:LinkButton label="Add Platform" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/add_disable.png')" icon="@Embed(source='../../assets/add.png')" textDecoration="none" fontSize="11"/>
+			<mx:LinkButton label="Remove Platform" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" textDecoration="none" fontSize="11"/>
 			<mx:Spacer width="100%"/>
-			<mx:LinkButton label="Refresh" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="underline" fontSize="11"/>
+			<mx:LinkButton label="Refresh" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="none" fontSize="11"/>
 		</mx:HBox>
 		<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4">
-			<util:DisabledItemsList id="platformList" width="200" height="100%" labelField="@requestCategory" dataProvider="{platforms}" 
+			<util:DisabledItemsList id="platformList" width="200" height="100%" labelField="@requestCategory" dataProvider="{platforms}"  iconFunction="parentApplication.getTreeIcon"
 									itemClick="{onSelectPlatform()}" disabledFunction="disablePlatformSelection" click="promptToDiscardChanges()">
 			</util:DisabledItemsList>
 			<mx:ViewStack id="theViews" width="100%" height="100%">
@@ -639,8 +639,8 @@
 											   icon="@Embed(source='../../assets/add.png')" 
 											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()"/>
 								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()"/>
-								<mx:Text width="440" text="Scroll to the left to indicate that min and max insert size and to flag that capture library should be entered when the experiment order is submitted." 
-										 styleName="linkMenuButton" fontStyle="italic" visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}"/>
+								<mx:Text width="440" text="Enter min and max insert size or check Capture Lib Design to require submitter to enter values on new experiment." 
+										 styleName="linkMenuButton" fontStyle="italic" visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" fontSize="10" color="#2863C6" fontWeight="bold"/>
 							</mx:HBox>
 							<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
 										 dataProvider="{applications}" editable="true"
@@ -650,6 +650,7 @@
 													   width="20"  editable="false"                      	
 													   dataField="@isSelected" 
 													   editorDataField="selected"
+													   wordWrap="true"
 													   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
 									</mx:DataGridColumn>
 									<mx:DataGridColumn headerText="Experiment Type"  
@@ -663,38 +664,45 @@
 													   dataField="@idApplicationTheme"  
 													   editorDataField="value" 
 													   sortable="true" 
+													   wordWrap="true"
 													   editable="true" 
 													   rendererIsEditor="false"  
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
 													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
-									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="250"
+									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="110"
+													   wordWrap="true"
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
 													   dataField="@idSeqLibProtocols"/>
-									<mx:DataGridColumn headerText="Min Insert Size" id="insertSizeMin" dataField="@avgInsertSizeFrom" editable="true"
-													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}"/>
-									<mx:DataGridColumn headerText="Max Insert Size" id="insertSizeMax" dataField="@avgInsertSizeTo" editable="true"
-													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}"/>
-									<mx:DataGridColumn headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}"
+									<mx:DataGridColumn headerWordWrap="true" headerText="Min Insert Size" id="insertSizeMin" dataField="@avgInsertSizeFrom" editable="true"
+													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" width="50"/>
+									<mx:DataGridColumn headerWordWrap="true" headerText="Max Insert Size" id="insertSizeMax" dataField="@avgInsertSizeTo" editable="true"
+													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" width="50"/>
+									<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}"
+													   wordWrap="true" width="60"
 													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" editorDataField="selected" editable="false"/>
-									<mx:DataGridColumn headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
+									<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
+													   wordWrap="true"
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
 													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="idHybProtocol" 
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"   
+													   wordWrap="true"
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
 													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="idScanProtocol"  
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"   
+													   wordWrap="true"
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
 													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="idFeatureExtractionProtocol"  
 													   editorDataField="value"  
+													   wordWrap="true"
 													   sortable="true" editable="true" rendererIsEditor="false"  
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
 													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="Active"  
-													   width="45"  
+													   width="25"  
 													   editable="false"                      	
 													   dataField="@isActive" 
 													   editorDataField="selected"
@@ -780,46 +788,37 @@
 										
 									</mx:HBox> 
 									<mx:DataGrid id="sequencingOptionGrid" editable="true"
-												 dataProvider="{sequencingOptions}"
+												 dataProvider="{sequencingOptions}" wordWrap="true"
 												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()">
 										<mx:columns>
-											<mx:DataGridColumn headerText="Cycles"   
+											<mx:DataGridColumn headerText="Cycles"    headerWordWrap="true"
 															   width="50" dataField="@display" 
 															   editable="true" >
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Single-end"  
-															   width="40" 
+											<mx:DataGridColumn headerText="Single end"   headerWordWrap="true"
+															   width="45" 
 															   editable="false"                        	
 															   dataField="@single" 
 															   editorDataField="selected"
 															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">		
-												<mx:headerRenderer>
-													<mx:Component>
-														<mx:Text width="40" text="Single end"/>
-													</mx:Component>
-												</mx:headerRenderer>
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Name" width="120" dataField="@singleName"  >
+											<mx:DataGridColumn headerText="Name" wordWrap="true" width="120" dataField="@singleName"  >
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Note" width="180" dataField="@singleNote"  >
+											<mx:DataGridColumn headerText="Note" wordWrap="true" width="180" dataField="@singleNote"  >
 											</mx:DataGridColumn>
 											
-											<mx:DataGridColumn headerText="Paired-end"  
-															   width="40" 
+											<mx:DataGridColumn headerText="Paired end"  headerWordWrap="true"
+															   width="45"  
 															   editable="false"                        	
 															   dataField="@paired" 
 															   editorDataField="selected"
 															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
-												<mx:headerRenderer>
-													<mx:Component>
-														<mx:Text width="40" text="Paired end"/>
-													</mx:Component>
-												</mx:headerRenderer>
+
 											</mx:DataGridColumn>
 											
-											<mx:DataGridColumn headerText="Name" width="120" dataField="@pairedName"  >
+											<mx:DataGridColumn headerText="Name" wordWrap="true" width="120" dataField="@pairedName"  >
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Note" width="180" dataField="@pairedNote"  >
+											<mx:DataGridColumn headerText="Note" wordWrap="true" width="180" dataField="@pairedNote"  >
 											</mx:DataGridColumn>
 											
 										</mx:columns>
