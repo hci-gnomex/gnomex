@@ -4897,7 +4897,12 @@
 					    <mx:Spacer width="100"/>
 					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="400"/>
 					 </mx:HBox>
-				 	
+
+					<mx:HBox verticalGap="0" horizontalGap="0" width="500" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
+						<mx:Label text="Organism"  width="100" />
+						<mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@organismName}" width="400"  backgroundColor="#FFFFFF"/>
+					</mx:HBox>
+
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
 						<renderers:FilterComboBox id="requestEditLabCombo"

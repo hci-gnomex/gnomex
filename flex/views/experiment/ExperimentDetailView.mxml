@@ -668,7 +668,7 @@
 			
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
-				organismCol.visible = true;
+				organismCol.visible = false;
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -687,7 +687,7 @@
 				
 			} else if (currentState == 'ExternalMicroarrayState') {
 				sampleTypeCol.visible = true;
-				organismCol.visible = true;
+				organismCol.visible = false;
 
 				this.otherOrganismCol.visible = false;
 				this.otherSamplePrepMethodCol.visible = false;
@@ -724,7 +724,7 @@
 					this.qcRINCol.visible = true;
 					this.qcStatusCol.visible = true;
 	        		
-	        	} else if (currentState == 'QCState') {
+	        	} else if (currentState == 'QCState' || currentState == 'ExternalQCState') {
 					concentrationCol.visible = false; 
 					sampleTypeCol.visible = false;
 					organismCol.visible = false;
@@ -1120,6 +1120,10 @@
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label width="100" />
 							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="400" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}">
+							<mx:Label text="Organism"  width="100" />
+							<mx:TextInput editable="false" text="{this.selectedExperiment.@organismName}" width="400"  backgroundColor="#FFFFFF"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="nameBox">
 							<mx:Label text="Name" width="100"/>

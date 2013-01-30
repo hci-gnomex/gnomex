@@ -247,6 +247,18 @@ public class GetRequest extends GNomExCommand implements Serializable {
             SequenceLane.addMultiplexLaneNodes(multiplexLanesNode, request.getSequenceLanes(), request.getCreateDate());
           }
           
+          // add organism at experiment level
+          requestNode.setAttribute("idOrganism","");
+          requestNode.setAttribute("organismName", "");
+          if (request.getSamples().size() > 0) {
+            Integer idOrganism = ((Sample)(request.getSamples().toArray()[0])).getIdOrganism();
+            if (idOrganism != null) {
+              String organismName = dh.getOrganism(idOrganism);
+              requestNode.setAttribute("idOrganism", idOrganism.toString());
+              requestNode.setAttribute("organismName", organismName);
+            }
+          }
+          
           // Show list of property entries
           Element scParentNode = new Element("PropertyEntries");
           requestNode.addContent(scParentNode);
